@@ -2,12 +2,12 @@ template <class tt> class complex
 {
 public:
 	tt m_r, m_i;
-	complex()
+	inline complex()
 	{
 		m_r = 0;
 		m_i = 0;
 	}
-	complex(tt r, tt i)
+	inline complex(tt r, tt i)
 	{
 		m_r = r;
 		m_i = i;

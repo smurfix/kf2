@@ -7,11 +7,7 @@
 #define __FLOATEXP_H__
 #define MAX_PREC 1020
 
-#ifdef _GCC_
 #define _ALIGN_(val,exp) exp += ((*((__int64*)&val) & 0x7FF0000000000000LL)>>52) - 1023; *((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
-#else
-#define _ALIGN_(val,exp) exp += ((*((__int64*)&val) & 0x7FF0000000000000)>>52) - 1023; *((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
-#endif
 class floatexp
 {
 public:
@@ -31,37 +27,25 @@ public:
 	}
 	inline void align()
 	{
-#ifdef _GCC_
 		exp += ((*((__int64*)&val) & 0x7FF0000000000000LL)>>52) - 1023;
-#else
-		exp += ((*((__int64*)&val) & 0x7FF0000000000000)>>52) - 1023;
-#endif
 //		__int64 tmpval = (*((__int64*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
 //		memcpy(&val,&tmpval,sizeof(double));
-#ifdef _GCC_
 		*((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
-#else
-		*((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
-#endif
 	}
-	inline double setExp(double newval,__int64 newexp)
+	inline double setExp(double newval,__int64 newexp) const
 	{
 //		__int64 tmpval = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
 //		memcpy(&newval,&tmpval,sizeof(double));
 //		return newval;
-#ifdef _GCC_
 		*((__int64*)&newval) = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFFLL) | ((newexp+1023)<<52);
-#else
-		*((__int64*)&newval) = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
-#endif
 		return newval;
 	}
-	floatexp()
+	inline floatexp()
 	{
 		val = 0;
 		exp = 0;
 	}
-	floatexp(double a)
+	inline floatexp(double a)
 	{
 		initFromDouble(a);
 	}
@@ -81,7 +65,7 @@ public:
 		initFromDouble(a);
 		return *this;
 	}
-	inline floatexp operator *(const floatexp &a)
+	inline floatexp operator *(const floatexp &a) const
 	{
 		floatexp r;
 		r.val = a.val*val;
@@ -89,7 +73,7 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	inline floatexp operator /(const floatexp &a)
+	inline floatexp operator /(const floatexp &a) const
 	{
 		floatexp r;
 		r.val = val/a.val;
@@ -107,7 +91,7 @@ public:
 		exp+=2;
 		return *this;
 	}
-	inline floatexp operator +(const floatexp &a)
+	inline floatexp operator +(const floatexp &a) const
 	{
 		floatexp r;
 		__int64 diff;
@@ -134,7 +118,7 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	inline floatexp operator -()
+	inline floatexp operator -() const
 	{
 		floatexp r=*this;
 		r.val=-r.val;
@@ -142,15 +126,10 @@ public:
 	}
 	inline floatexp &operator +=(const floatexp &a)
 	{
-#ifdef _GCC_
-		floatexp r = *this+a;
-		*this = r;
-#else
 		*this = *this+a;
-#endif		
 		return *this;
 	}
-	inline floatexp operator -(const floatexp &a)
+	inline floatexp operator -(const floatexp &a) const
 	{
 		floatexp r;
 		__int64 diff;
@@ -179,15 +158,10 @@ public:
 	}
 	inline floatexp &operator -=(const floatexp &a)
 	{
-#ifdef _GCC_
-		floatexp r = *this-a;
-		*this = r;
-#else
 		*this = *this-a;
-#endif
 		return *this;
 	}
-	inline BOOL operator >(const floatexp &a)
+	inline BOOL operator >(const floatexp &a) const
 	{
 		if(val>0){
 			if(a.val<0)
@@ -208,7 +182,7 @@ public:
 			return val>a.val;
 		}
 	}
-	inline BOOL operator <(const floatexp &a)
+	inline BOOL operator <(const floatexp &a) const
 	{
 		if(val>0){
 			if(a.val<0)
@@ -229,28 +203,28 @@ public:
 			return val<a.val;
 		}
 	}
-	inline BOOL operator <=(const int a)
+	inline BOOL operator <=(const int a) const
 	{
 		floatexp aa(a);
 		return (*this<a || *this==a);
 	}
-	inline BOOL operator ==(const floatexp &a)
+	inline BOOL operator ==(const floatexp &a) const
 	{
 		if(exp!=a.exp)
 			return FALSE;
 		return val==a.val;
 	}
-	bool iszero()
+	bool iszero() const
 	{
 		return (val==0 && exp==0);
 	}
-	double todouble()
+	double todouble() const
 	{
 		if(exp<-MAX_PREC || exp>MAX_PREC)
 			return 0;
 		return setExp(val,exp);
 	}
-	double todouble(int nScaling)
+	double todouble(int nScaling) const
 	{
 		if(!nScaling)
 			return todouble();
@@ -314,7 +288,7 @@ public:
 			val = -val;
 		return *this;
 	}
-	void ToFixedFloat(CFixedFloat &a)
+	void ToFixedFloat(CFixedFloat &a) const
 	{
 		char *szTmp = new char[150000];
 		*szTmp=0;
@@ -363,7 +337,7 @@ public:
 		}
 		return *this;
 	}
-	inline long double toLongDouble()
+	inline long double toLongDouble() const
 	{
 		long double ret = val;
 		__int64 *v = (__int64*)&ret;

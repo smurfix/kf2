@@ -596,8 +596,8 @@ public:
 
 //	operator char *();
 	char *ToText(int nRound=0);
-	int ToInt();
-	double ToDouble();
+	int ToInt() const;
+	double ToDouble() const;
 //	operator double();
 //	operator int();
 

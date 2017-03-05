@@ -9235,11 +9235,11 @@ char *CDecNumber::ToText(int nRound)
 	}
 	return m_szString;
 }
-int CDecNumber::ToInt()
+int CDecNumber::ToInt() const
 {
 	return atoi(ToText());
 }
-double CDecNumber::ToDouble()
+double CDecNumber::ToDouble() const
 {
 	return atof(ToText());
 }
