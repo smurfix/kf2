@@ -1,0 +1,3 @@
+Kalles Fraktaler 2 fork for cross-compilation to win64 fromlinux mingw64
+upstream version: http://www.chillheimer.de/kallesfraktaler/
+but 50% slower than upstream 2.9.4 binary on one ref-heavy benchmark :(
