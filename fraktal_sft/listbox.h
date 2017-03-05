@@ -1,7 +1,7 @@
 #ifndef __LIST_H__
 #define __LIST_H__
 
-#include "..\common\stringvector.h"
+#include "../common/StringVector.h"
 
 typedef int (*LPBUTTONPROC)(int nCommand, int nItem,LPARAM lParam);
 

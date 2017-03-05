@@ -4,7 +4,7 @@
 #include <float.h>
 #include <math.h>
 #define _GCC_
-#include "C:\pojects\ltest\fraktal_sft\floatexp.h"
+#include "../fraktal_sft/floatexp.h"
 //#include "C:\pojects\ltest\fraktal_sft\ldbl_exp.h"
 #define TERM4
 #define TERM5

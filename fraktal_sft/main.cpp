@@ -16,12 +16,12 @@
 #include <math.h>
 #include <commctrl.h>
 #include <math.h>
-#include "..\common\parallell.h"
-#include "..\common\getimage.h"
-#include "..\common\StringVector.h"
-#include "..\common\FolderBrowser.h"
+#include "../common/parallell.h"
+#include "../common/getimage.h"
+#include "../common/StringVector.h"
+#include "../common/FolderBrowser.h"
 #include "listbox.h"
-#include "..\common\tooltip.h"
+#include "../common/tooltip.h"
 #include "resource.h"
 #include "fraktal_sft.h"
 #include <malloc.h>
@@ -1991,11 +1991,11 @@ int WINAPI ThAnim(ANIM *pAnim)
 {
 	int nPos=0;
 //#ifndef _DEBUG
-	__try{
+	try{
 //#endif
 		return ThAnim_(pAnim);
 //#ifndef _DEBUG
-	}__except(1){
+	}catch(...){
 		char szPos[100];
 		wsprintf(szPos,"Krash: %d",pAnim->nPos);
 		MessageBox(pAnim->hWnd,szPos,"Krash",MB_OK);
@@ -2927,11 +2927,11 @@ int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	int nPos=0;
 #ifndef _DEBUG
-	__try{
+	try{
 #endif
 		return HandleDone(hWnd,uMsg,wParam,lParam,nPos);
 #ifndef _DEBUG
-	}__except(1){
+	}catch(...){
 	}
 #endif
 	return 0;
@@ -5455,6 +5455,7 @@ int Test1()
 //	wsprintf(szRes+strlen(szRes),"\n%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	return MessageBox(NULL,szRes,"Res",MB_OK);
 }
+
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
 //	return Test();

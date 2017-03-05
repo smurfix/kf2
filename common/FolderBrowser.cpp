@@ -14,7 +14,7 @@
 #include <windows.h>
 #include <commctrl.h>
 #include <shlobj.h>
-#include "folderbrowser.h"
+#include "FolderBrowser.h"
 
 char g_szFolder[MAX_PATH]={0};
 char g_szValue[MAX_PATH]={0};

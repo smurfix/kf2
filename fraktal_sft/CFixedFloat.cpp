@@ -14,7 +14,7 @@
 
 #include "CFixedFloat.h"
 #include <stdio.h>
-#include "..\common\StringVector.h"
+#include "../common/StringVector.h"
 
 static BOOL g_nMaxSignificant=0;
 static BOOL isdigit(char c)
@@ -27,14 +27,14 @@ CFixedFloat::CFixedFloat()
 	m_nValues=0;
 	m_szValue=NULL;
 }
-CFixedFloat::CFixedFloat(CFixedFloat &bi)
+CFixedFloat::CFixedFloat(const CFixedFloat &bi)
 {
 	m_bSign = bi.m_bSign;
 	m_nValues = bi.m_nValues;
 	memcpy(m_pValues,bi.m_pValues,sizeof(FIXEDFLOAT_TYPE)*bi.m_nValues);
 	m_szValue=NULL;
 }
-CFixedFloat::CFixedFloat(char *sz)
+CFixedFloat::CFixedFloat(const char *sz)
 {
 	m_bSign=FALSE;
 	m_nValues=0;
@@ -91,7 +91,7 @@ void CFixedFloat::SetMaxSignificant(int nMax)
 	}
 }
 
-BOOL CFixedFloat::Parse(char *sz)
+BOOL CFixedFloat::Parse(const char *sz)
 {
 	while(*sz=='\t' || *sz==' ' || *sz=='\r' || *sz=='\n')
 		sz++;
@@ -220,7 +220,7 @@ int CFixedFloat::ToInt()
 		return 0;
 	return (int)m_pValues[0];
 }
-void CFixedFloat::Copy(CFixedFloat &bi)
+void CFixedFloat::Copy(const CFixedFloat &bi)
 {
 	m_bSign = bi.m_bSign;
 	m_nValues = bi.m_nValues;
@@ -252,19 +252,21 @@ double CFixedFloat::ToDouble(int nScaling)
 		a=-a;
 	return a;
 }
-CFixedFloat CFixedFloat::Add(CFixedFloat &A)
+CFixedFloat CFixedFloat::Add(const CFixedFloat &A) const
 {
 	CFixedFloat Ret;
 	if(A.m_bSign){
-		A.m_bSign=0;
-		Ret.Copy(Subtract(A));
-		A.m_bSign=1;
+		CFixedFloat &A2 = const_cast<CFixedFloat &>(A);
+		A2.m_bSign=0;
+		Ret.Copy(Subtract(A2));
+		A2.m_bSign=1;
 		return Ret;
 	}
 	else if(m_bSign){
-		m_bSign=0;
-		Ret = A.Subtract(*this);
-		m_bSign=1;
+		CFixedFloat &this2 = const_cast<CFixedFloat &>(*this);
+		this2.m_bSign=0;
+		Ret = A.Subtract(this2);
+		this2.m_bSign=1;
 		return Ret;
 	}
 	int nLen = m_nValues;
@@ -296,20 +298,22 @@ CFixedFloat CFixedFloat::Add(CFixedFloat &A)
 	}
 	return Ret;
 }
-CFixedFloat CFixedFloat::Subtract(CFixedFloat &A)
+CFixedFloat CFixedFloat::Subtract(const CFixedFloat &A) const
 {
 	CFixedFloat Ret;
 	if(m_bSign){
-		m_bSign=0;
-		Ret = Add(A);
-		m_bSign=1;
+		CFixedFloat &this2 = const_cast<CFixedFloat &>(*this);
+		this2.m_bSign=0;
+		Ret = this2.Add(A);
+		this2.m_bSign=1;
 		Ret.m_bSign=1-Ret.m_bSign;
 		return Ret;
 	}
 	else if(A.m_bSign){
-		A.m_bSign=0;
-		Ret = Add(A);
-		A.m_bSign=1;
+		CFixedFloat &A2 = const_cast<CFixedFloat &>(A);
+		A2.m_bSign=0;
+		Ret = Add(A2);
+		A2.m_bSign=1;
 		return Ret;
 	}
 	if(A>*this){
@@ -350,14 +354,16 @@ extern "C" void multiplyAdd(FIXEDFLOAT_TYPE *dst, FIXEDFLOAT_TYPE src1, FIXEDFLO
 extern "C" void multiplyAddTwice(FIXEDFLOAT_TYPE *dst, FIXEDFLOAT_TYPE src1, FIXEDFLOAT_TYPE src2);
 extern "C" void divAdd(FIXEDFLOAT_TYPE *dst, FIXEDFLOAT_TYPE *src, FIXEDFLOAT_TYPE divisor);
 
-CFixedFloat CFixedFloat::Multiply(CFixedFloat &A)
+CFixedFloat CFixedFloat::Multiply(const CFixedFloat &A) const
 {
+	CFixedFloat &this2 = const_cast<CFixedFloat &>(*this);
+	CFixedFloat &A2 = const_cast<CFixedFloat &>(A);
 	CFixedFloat Ret;
 	if(g_nMaxSignificant){
-		for(;m_nValues<g_nMaxSignificant;m_nValues++)
-			m_pValues[m_nValues]=0;
-		for(;A.m_nValues<g_nMaxSignificant;A.m_nValues++)
-			A.m_pValues[A.m_nValues]=0;
+		for(;this2.m_nValues<g_nMaxSignificant;this2.m_nValues++)
+			this2.m_pValues[this2.m_nValues]=0;
+		for(;A2.m_nValues<g_nMaxSignificant;A2.m_nValues++)
+			A2.m_pValues[A2.m_nValues]=0;
 	}
 	Ret.m_nValues = m_nValues+A.m_nValues;
 	if(g_nMaxSignificant && Ret.m_nValues>g_nMaxSignificant)
@@ -451,7 +457,7 @@ CFixedFloat CFixedFloat::Multiply(CFixedFloat &A)
 	}
 	return Ret;
 }
-CFixedFloat CFixedFloat::Divide(CFixedFloat &A)
+CFixedFloat CFixedFloat::Divide(const CFixedFloat &A) const
 {
 	CDecNumber T = ToText();
 	CDecNumber N = A.ToText();
@@ -465,12 +471,13 @@ CFixedFloat CFixedFloat::Divide(CFixedFloat &A)
 	CFixedFloat Ret(sz);
 	return Ret;
 }
-CFixedFloat CFixedFloat::Square()
+CFixedFloat CFixedFloat::Square() const
 {
+	CFixedFloat &this2 = const_cast<CFixedFloat &>(*this);
 	CFixedFloat Ret;
 	if(g_nMaxSignificant){
-		for(;m_nValues<g_nMaxSignificant;m_nValues++)
-			m_pValues[m_nValues]=0;
+		for(;this2.m_nValues<g_nMaxSignificant;this2.m_nValues++)
+			this2.m_pValues[this2.m_nValues]=0;
 	}
 	Ret.m_nValues = m_nValues+m_nValues;
 	if(g_nMaxSignificant && Ret.m_nValues>g_nMaxSignificant)
@@ -581,8 +588,10 @@ CFixedFloat CFixedFloat::Double()
 	}
 	return *this;
 }
-CFixedFloat &CFixedFloat::AbsAdd(CFixedFloat &a, CFixedFloat &b)
+CFixedFloat &CFixedFloat::AbsAdd(const CFixedFloat &ac, const CFixedFloat &bc)
 {
+	CFixedFloat &a = const_cast<CFixedFloat &>(ac);
+	CFixedFloat &b = const_cast<CFixedFloat &>(bc);
 	int as = a.m_bSign;
 	a.m_bSign=0;
 	int bs = b.m_bSign;
@@ -598,7 +607,7 @@ CFixedFloat &CFixedFloat::Abs()
 	return *this;
 }
 
-BOOL CFixedFloat::operator >(CFixedFloat &A)
+BOOL CFixedFloat::operator >(const CFixedFloat &A) const
 {
 	if(!m_bSign && A.m_bSign)
 		return TRUE;
@@ -624,7 +633,7 @@ BOOL CFixedFloat::operator >(CFixedFloat &A)
 		return m_bSign;
 	return FALSE;
 }
-BOOL CFixedFloat::operator <(CFixedFloat &A)
+BOOL CFixedFloat::operator <(const CFixedFloat &A) const
 {
 	if(!m_bSign && A.m_bSign)
 		return FALSE;
@@ -650,7 +659,7 @@ BOOL CFixedFloat::operator <(CFixedFloat &A)
 		return m_bSign;
 	return FALSE;
 }
-BOOL CFixedFloat::operator ==(CFixedFloat &A)
+BOOL CFixedFloat::operator ==(const CFixedFloat &A) const
 {
 	if(!m_bSign && A.m_bSign)
 		return FALSE;
@@ -675,14 +684,14 @@ BOOL CFixedFloat::operator ==(CFixedFloat &A)
 	return TRUE;
 }
 
-CFixedFloat &CFixedFloat::operator =(CFixedFloat &bi)
+CFixedFloat &CFixedFloat::operator =(const CFixedFloat &bi)
 {
 	m_bSign = bi.m_bSign;
 	m_nValues = bi.m_nValues;
 	memcpy(m_pValues,bi.m_pValues,sizeof(FIXEDFLOAT_TYPE)*bi.m_nValues);
 	return *this;
 }
-CFixedFloat &CFixedFloat::operator =(char *sz)
+CFixedFloat &CFixedFloat::operator =(const char *sz)
 {
 	Parse(sz);
 	return *this;
@@ -722,32 +731,32 @@ CFixedFloat &CFixedFloat::operator =(double a)
 	return *this;
 }
 
-CFixedFloat CFixedFloat::operator *(CFixedFloat &A)
+CFixedFloat CFixedFloat::operator *(const CFixedFloat &A) const
 {
 	if(this==&A)
 		return Square();
 	return Multiply(A);
 }
-CFixedFloat CFixedFloat::operator /(CFixedFloat &A)
+CFixedFloat CFixedFloat::operator /(const CFixedFloat &A) const
 {
 	return Divide(A);
 }
-CFixedFloat CFixedFloat::operator +(CFixedFloat &A)
+CFixedFloat CFixedFloat::operator +(const CFixedFloat &A) const
 {
 	return Add(A);
 }
-CFixedFloat CFixedFloat::operator -(CFixedFloat &A)
+CFixedFloat CFixedFloat::operator -(const CFixedFloat &A) const
 {
 	return Subtract(A);
 }
-CFixedFloat CFixedFloat::operator -()
+CFixedFloat CFixedFloat::operator -() const
 {
 	CFixedFloat Ret = *this;
 	Ret.m_bSign=1-Ret.m_bSign;
 	return Ret;
 }
 
-CFixedFloat &CFixedFloat::operator*=(CFixedFloat &B)
+CFixedFloat &CFixedFloat::operator*=(const CFixedFloat &B)
 {
 	if(this==&B)
 		*this = Square();
@@ -755,17 +764,17 @@ CFixedFloat &CFixedFloat::operator*=(CFixedFloat &B)
 		*this = Multiply(B);
 	return *this;
 }
-CFixedFloat &CFixedFloat::operator/=(CFixedFloat &B)
+CFixedFloat &CFixedFloat::operator/=(const CFixedFloat &B)
 {
 	*this = Divide(B);
 	return *this;
 }
-CFixedFloat &CFixedFloat::operator+=(CFixedFloat &B)
+CFixedFloat &CFixedFloat::operator+=(const CFixedFloat &B)
 {
 	*this = Add(B);
 	return *this;
 }
-CFixedFloat &CFixedFloat::operator-=(CFixedFloat &B)
+CFixedFloat &CFixedFloat::operator-=(const CFixedFloat &B)
 {
 	*this = Subtract(B);
 	return *this;
@@ -795,167 +804,167 @@ CFixedFloat &CFixedFloat::operator-=(int nA)
 	return *this;
 }
 
-BOOL operator==(CFixedFloat &A,int nB)
+BOOL operator==(const CFixedFloat &A,int nB)
 {
 	CFixedFloat B(nB);
 	return B==A;
 }
-BOOL operator==(int nB,CFixedFloat &A)
+BOOL operator==(int nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return B==A;
 }
-BOOL operator>(CFixedFloat &A,int nB)
+BOOL operator>(const CFixedFloat &A,int nB)
 {
 	CFixedFloat B(nB);
 	return A>B;
 }
-BOOL operator>(int nB,CFixedFloat &A)
+BOOL operator>(int nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return B>A;
 }
-BOOL operator>(CFixedFloat &A,double nB)
+BOOL operator>(const CFixedFloat &A,double nB)
 {
 	CFixedFloat B(nB);
 	return A>B;
 }
-BOOL operator>(double nB,CFixedFloat &A)
+BOOL operator>(double nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return B>A;
 }
-BOOL operator<(CFixedFloat &A,int nB)
+BOOL operator<(const CFixedFloat &A,int nB)
 {
 	CFixedFloat B(nB);
 	return A<B;
 }
-BOOL operator<(int nB,CFixedFloat &A)
+BOOL operator<(int nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return B<A;
 }
-BOOL operator<(CFixedFloat &A,double nB)
+BOOL operator<(const CFixedFloat &A,double nB)
 {
 	CFixedFloat B(nB);
 	return A<B;
 }
-BOOL operator<(double nB,CFixedFloat &A)
+BOOL operator<(double nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return B<A;
 }
 
-CFixedFloat operator*(CFixedFloat &A,int nB)
+CFixedFloat operator*(const CFixedFloat &A,int nB)
 {
 	CFixedFloat B(nB);
 	return A*B;
 }
-CFixedFloat operator*(int nB,CFixedFloat &A)
+CFixedFloat operator*(int nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return A*B;
 }
-CFixedFloat operator*(CFixedFloat &A,long nB)
+CFixedFloat operator*(const CFixedFloat &A,long nB)
 {
 	CFixedFloat B((int)nB);
 	return A*B;
 }
-CFixedFloat operator*(long nB,CFixedFloat &A)
+CFixedFloat operator*(long nB,const CFixedFloat &A)
 {
 	CFixedFloat B((int)nB);
 	return A*B;
 }
-CFixedFloat operator*(CFixedFloat &A,double nB)
+CFixedFloat operator*(const CFixedFloat &A,double nB)
 {
 	CFixedFloat B(nB);
 	return A*B;
 }
-CFixedFloat operator*(double nB,CFixedFloat &A)
+CFixedFloat operator*(double nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	return A*B;
 }
-CFixedFloat operator+(CFixedFloat &a,int nB)
+CFixedFloat operator+(const CFixedFloat &a,int nB)
 {
 	CFixedFloat b(nB);
 	return a+b;
 }
-CFixedFloat operator+(int nB,CFixedFloat &a)
+CFixedFloat operator+(int nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return a+b;
 }
-CFixedFloat operator+(CFixedFloat &a,double nB)
+CFixedFloat operator+(const CFixedFloat &a,double nB)
 {
 	CFixedFloat b(nB);
 	return a+b;
 }
-CFixedFloat operator+(double nB,CFixedFloat &a)
+CFixedFloat operator+(double nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return a+b;
 }
-CFixedFloat operator/(CFixedFloat &a,int nB)
+CFixedFloat operator/(const CFixedFloat &a,int nB)
 {
 	CFixedFloat b(nB);
 	return a/b;
 }
-CFixedFloat operator/(int nB,CFixedFloat &a)
+CFixedFloat operator/(int nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return b/a;
 }
-CFixedFloat operator/(CFixedFloat &a,double nB)
+CFixedFloat operator/(const CFixedFloat &a,double nB)
 {
 	CFixedFloat b(nB);
 	return a/b;
 }
-CFixedFloat operator/(double nB,CFixedFloat &a)
+CFixedFloat operator/(double nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return b/a;
 }
-CFixedFloat operator-(CFixedFloat &a,int nB)
+CFixedFloat operator-(const CFixedFloat &a,int nB)
 {
 	CFixedFloat b(nB);
 	return a-b;
 }
-CFixedFloat operator-(int nB,CFixedFloat &a)
+CFixedFloat operator-(int nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return b-a;
 }
-CFixedFloat operator-(CFixedFloat &a,double nB)
+CFixedFloat operator-(const CFixedFloat &a,double nB)
 {
 	CFixedFloat b(nB);
 	return a-b;
 }
-CFixedFloat operator-(double nB,CFixedFloat &a)
+CFixedFloat operator-(double nB,const CFixedFloat &a)
 {
 	CFixedFloat b(nB);
 	return b-a;
 }
 
-int operator+=(int &nB,CFixedFloat &A)
+int operator+=(int &nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	B+=A;
 	return B.ToInt();
 }
-int operator+=(double &nB,CFixedFloat &A)
+int operator+=(double &nB,const CFixedFloat &A)
 {
 	CFixedFloat B(nB);
 	B+=A;
 	return B.ToInt();
 }
-int operator+=(CFixedFloat &A,double &nB)
+int operator+=(const CFixedFloat &A,double &nB)
 {
 	CFixedFloat B(nB);
 	B+=A;
 	return B.ToInt();
 }
-CFixedFloat operator*(CFixedFloat &A,CFixedFloat &B)
+CFixedFloat operator*(const CFixedFloat &A,const CFixedFloat &B)
 {
 	CFixedFloat Ret = A;
 	Ret*=B;

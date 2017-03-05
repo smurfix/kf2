@@ -1,4 +1,4 @@
-#include "cdecnumber.h"
+#include "CDecNumber.h"
 extern "C" {
 	int raise(int a){
 		return 0;
@@ -196,7 +196,7 @@ extern "C" {
 //			#include "config.h"
 
 			#endif
-			#include "cdecNumber.h"		   /* base number library */
+			#include "CDecNumber.h"		   /* base number library */
 #if !defined(DECNUMBERLOC)
   #define DECNUMBERLOC
   #define DECVERSION	"decNumber 3.61" /* Package Version [16 max.] */
@@ -8977,12 +8977,12 @@ CDecNumber::CDecNumber()
 {
 	InitLib();
 }
-CDecNumber::CDecNumber(CDecNumber &A)
+CDecNumber::CDecNumber(const CDecNumber &A)
 {
 	InitLib();
 	*this = A;
 }
-CDecNumber::CDecNumber(char *sz)
+CDecNumber::CDecNumber(const char *sz)
 {
 	InitLib();
 	*this = sz;
@@ -9005,43 +9005,37 @@ CDecNumber::~CDecNumber()
 	m_szString=NULL;
 }
 
-CDecNumber CDecNumber::operator ^(CDecNumber &A)
+CDecNumber CDecNumber::operator ^(const CDecNumber &A) const
 {
 	CDecNumber Ret;
 	decNumberPower(&Ret.m_dec,&m_dec,&A.m_dec,&g_set);
 	return Ret;
 }
-CDecNumber CDecNumber::operator ^(int nA)
-{
-	CDecNumber Ret, A(nA);
-	decNumberPower(&Ret.m_dec,&m_dec,&A.m_dec,&g_set);
-	return Ret;
-}
-CDecNumber CDecNumber::operator %(int nA)
+CDecNumber CDecNumber::operator %(int nA) const
 {
 	CDecNumber Ret(*this), A(nA);
 	Ret%=A;
 	return Ret;
 }
-CDecNumber CDecNumber::operator *(CDecNumber &A)
+CDecNumber CDecNumber::operator *(const CDecNumber &A) const
 {
 	CDecNumber Ret = *this;
 	Ret*=A;
 	return Ret;
 }
-CDecNumber CDecNumber::operator /(CDecNumber &A)
+CDecNumber CDecNumber::operator /(const CDecNumber &A) const
 {
 	CDecNumber Ret = *this;
 	Ret/=A;
 	return Ret;
 }
-CDecNumber CDecNumber::operator +(CDecNumber &A)
+CDecNumber CDecNumber::operator +(const CDecNumber &A) const
 {
 	CDecNumber Ret = *this;
 	Ret+=A;
 	return Ret;
 }
-CDecNumber CDecNumber::operator -(CDecNumber &A)
+CDecNumber CDecNumber::operator -(const CDecNumber &A) const
 {
 	CDecNumber Ret = *this;
 	Ret-=A;
@@ -9052,39 +9046,39 @@ CDecNumber &CDecNumber::operator ++()
 	*this+=1;
 	return *this;
 }
-CDecNumber CDecNumber::operator %(CDecNumber &A)
+CDecNumber CDecNumber::operator %(const CDecNumber &A) const
 {
 	CDecNumber Ret = *this;
 	Ret%=A;
 	return Ret;
 }
-CDecNumber CDecNumber::operator -()
+CDecNumber CDecNumber::operator -() const
 {
 	CDecNumber Ret = 0 - *this;
 	return Ret;
 }
 
-CDecNumber &CDecNumber::operator*=(CDecNumber &A)
+CDecNumber &CDecNumber::operator*=(const CDecNumber &A)
 {
 	decNumberMultiply(&m_dec,&m_dec,&A.m_dec,&g_set);
 	return *this;
 }
-CDecNumber &CDecNumber::operator/=(CDecNumber &A)
+CDecNumber &CDecNumber::operator/=(const CDecNumber &A)
 {
 	decNumberDivide(&m_dec,&m_dec,&A.m_dec,&g_set);
 	return *this;
 }
-CDecNumber &CDecNumber::operator+=(CDecNumber &A)
+CDecNumber &CDecNumber::operator+=(const CDecNumber &A)
 {
 	decNumberAdd(&m_dec,&m_dec,&A.m_dec,&g_set);
 	return *this;
 }
-CDecNumber &CDecNumber::operator-=(CDecNumber &A)
+CDecNumber &CDecNumber::operator-=(const CDecNumber &A)
 {
 	decNumberSubtract(&m_dec,&m_dec,&A.m_dec,&g_set);
 	return *this;
 }
-CDecNumber &CDecNumber::operator%=(CDecNumber &A)
+CDecNumber &CDecNumber::operator%=(const CDecNumber &A)
 {
 	decNumberRemainder(&m_dec,&m_dec,&A.m_dec,&g_set);
 	return *this;
@@ -9120,49 +9114,49 @@ CDecNumber &CDecNumber::operator%=(int nA)
 	return *this;
 }
 
-BOOL CDecNumber::operator >(CDecNumber &A)
+BOOL CDecNumber::operator >(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return decNumberToInt32(&res,&g_set)==1;
 }
-BOOL CDecNumber::operator <(CDecNumber &A)
+BOOL CDecNumber::operator <(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return decNumberToInt32(&res,&g_set)==-1;
 }
-BOOL CDecNumber::operator <=(CDecNumber &A)
+BOOL CDecNumber::operator <=(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return decNumberToInt32(&res,&g_set)<=0;
 }
-BOOL CDecNumber::operator >=(CDecNumber &A)
+BOOL CDecNumber::operator >=(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return decNumberToInt32(&res,&g_set)>=0;
 }
-BOOL CDecNumber::operator ==(CDecNumber &A)
+BOOL CDecNumber::operator ==(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return decNumberToInt32(&res,&g_set)==0;
 }
-BOOL CDecNumber::operator !=(CDecNumber &A)
+BOOL CDecNumber::operator !=(const CDecNumber &A) const
 {
 	decNumber res;
 	decNumberCompare(&res,&m_dec,&A.m_dec,&g_set);
 	return !decNumberToInt32(&res,&g_set)==0;
 }
 
-CDecNumber &CDecNumber::operator =(CDecNumber &A)
+CDecNumber &CDecNumber::operator =(const CDecNumber &A)
 {
 	decNumberCopy(&m_dec,&A.m_dec);
 	return *this;
 }
-CDecNumber &CDecNumber::operator =(char *sz)
+CDecNumber &CDecNumber::operator =(const char *sz)
 {
 	decNumberFromString(&m_dec, sz, &g_set);
 	return *this;
@@ -9259,192 +9253,192 @@ CDecNumber::operator int()
 	return decNumberToInt32(&m_dec,&g_set);
 }
 */
-BOOL operator==(CDecNumber &A,int nB)
+BOOL operator==(const CDecNumber &A,int nB)
 {
 	CDecNumber B(nB);
 	return A==B;
 }
-BOOL operator==(int nB,CDecNumber &A)
+BOOL operator==(int nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return A==B;
 }
-BOOL operator!=(CDecNumber &A,int nB)
+BOOL operator!=(const CDecNumber &A,int nB)
 {
 	CDecNumber B(nB);
 	return A!=B;
 }
-BOOL operator!=(int nB,CDecNumber &A)
+BOOL operator!=(int nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return A!=B;
 }
-BOOL operator>(CDecNumber &A,int nB)
+BOOL operator>(const CDecNumber &A,int nB)
 {
 	CDecNumber B(nB);
 	return A>B;
 }
-BOOL operator>(int nB,CDecNumber &A)
+BOOL operator>(int nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return B>A;
 }
-BOOL operator>(CDecNumber &A,double nB)
+BOOL operator>(const CDecNumber &A,double nB)
 {
 	CDecNumber B(nB);
 	return A>B;
 }
-BOOL operator>(double nB,CDecNumber &A)
+BOOL operator>(double nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return B>A;
 }
-BOOL operator<(CDecNumber &A,int nB)
+BOOL operator<(const CDecNumber &A,int nB)
 {
 	CDecNumber B(nB);
 	return A<B;
 }
-BOOL operator<(int nB,CDecNumber &A)
+BOOL operator<(int nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return B<A;
 }
-BOOL operator<(CDecNumber &A,double nB)
+BOOL operator<(const CDecNumber &A,double nB)
 {
 	CDecNumber B(nB);
 	return A<B;
 }
-BOOL operator<(double nB,CDecNumber &A)
+BOOL operator<(double nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return B<A;
 }
 
-CDecNumber operator*(CDecNumber &A,int nB)
+CDecNumber operator*(const CDecNumber &A,int nB)
 {
 	CDecNumber B(nB);
 	return A*B;
 }
-CDecNumber operator*(int nB,CDecNumber &A)
+CDecNumber operator*(int nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return A*B;
 }
-CDecNumber operator*(CDecNumber &A,double nB)
+CDecNumber operator*(const CDecNumber &A,double nB)
 {
 	CDecNumber B(nB);
 	return A*B;
 }
-CDecNumber operator*(double nB,CDecNumber &A)
+CDecNumber operator*(double nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	return A*B;
 }
-CDecNumber operator+(CDecNumber &a,int nB)
+CDecNumber operator+(const CDecNumber &a,int nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberAdd(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator+(int nB,CDecNumber &a)
+CDecNumber operator+(int nB,const CDecNumber &a)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberAdd(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator+(CDecNumber &a,double nB)
+CDecNumber operator+(const CDecNumber &a,double nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberAdd(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator+(double nB,CDecNumber &a)
+CDecNumber operator+(double nB,const CDecNumber &a)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberAdd(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator/(CDecNumber &a,int nB)
+CDecNumber operator/(const CDecNumber &a,int nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberDivide(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator/(int nB,CDecNumber &A)
+CDecNumber operator/(int nB,const CDecNumber &A)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberDivide(&c.GetDecNumber(), &b.GetDecNumber(), &A.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator/(CDecNumber &a,double nB)
+CDecNumber operator/(const CDecNumber &a,double nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberDivide(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator/(double nB,CDecNumber &A)
+CDecNumber operator/(double nB,const CDecNumber &A)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberDivide(&c.GetDecNumber(), &b.GetDecNumber(), &A.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator-(CDecNumber &a,int nB)
+CDecNumber operator-(const CDecNumber &a,int nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberSubtract(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator-(int nB,CDecNumber &A)
+CDecNumber operator-(int nB,const CDecNumber &A)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberSubtract(&c.GetDecNumber(), &b.GetDecNumber(), &A.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator-(CDecNumber &a,double nB)
+CDecNumber operator-(const CDecNumber &a,double nB)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberSubtract(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator-(double nB,CDecNumber &A)
+CDecNumber operator-(double nB,const CDecNumber &A)
 {
 	CDecNumber c;
 	CDecNumber b(nB);
 	decNumberSubtract(&c.GetDecNumber(), &b.GetDecNumber(), &A.GetDecNumber(), &g_set);
 	return c;
 }
-CDecNumber operator^(CDecNumber &a,long nB)
+CDecNumber operator^(const CDecNumber &a,long nB)
 {
 	CDecNumber c;
-	CDecNumber b(nB);
+	CDecNumber b((int)nB);
 	decNumberPower(&c.GetDecNumber(), &a.GetDecNumber(), &b.GetDecNumber(), &g_set);
 	return c;
 }
 
-int operator+=(int &nB,CDecNumber &A)
+int operator+=(int &nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	B+=A;
 	return (int)B.ToInt();
 }
-int operator+=(double &nB,CDecNumber &A)
+int operator+=(double &nB,const CDecNumber &A)
 {
 	CDecNumber B(nB);
 	B+=A;
 	return (int)B.ToInt();
 }
-int operator+=(CDecNumber &A,double &nB)
+int operator+=(CDecNumber &A,const double &nB)
 {
 	CDecNumber B(nB);
 	B+=A;
@@ -9467,7 +9461,7 @@ void CDecNumber::SetAsInteger()
 	}
 }
 
-CDecNumber CDecNumber::SGN(CDecNumber &x)
+CDecNumber CDecNumber::SGN(const CDecNumber &x)
 {
 	CDecNumber a = *this;
 	a.SetAsInteger();
@@ -9498,7 +9492,7 @@ void CDecNumber::AddFraction(CDecNumber F1T,CDecNumber F1N,CDecNumber F2T,CDecNu
 	*pRT/=Div;
 	*pRN/=Div;
 }
-CDecNumber CDecNumber::pi()
+CDecNumber CDecNumber::pi() const
 {
 	CDecNumber index=0, pi=0, prevpi=0;
 	CDecNumber d1=1, d2=2, d3=3, d4=4, d16=16, d120=120, 
@@ -9517,13 +9511,13 @@ CDecNumber CDecNumber::pi()
 	}
 	return pi;
 }
-CDecNumber CDecNumber::abs()
+CDecNumber CDecNumber::abs() const
 {
 	if(*this<0)
 		return -*this;
 	return *this;
 }
-CDecNumber CDecNumber::utropstecken()
+CDecNumber CDecNumber::utropstecken() const
 {
 	CDecNumber ret=1;
 	CDecNumber a = *this;
@@ -9534,14 +9528,14 @@ CDecNumber CDecNumber::utropstecken()
 	}
 	return ret;
 }
-CDecNumber CDecNumber::sqrt()
+CDecNumber CDecNumber::sqrt() const
 {
 	CDecNumber Ret;
 	decNumberSquareRoot(&Ret.m_dec,&m_dec,&g_set);
 	return Ret;
 }
 
-CDecNumber CDecNumber::cos()
+CDecNumber CDecNumber::cos() const
 {
 	CDecNumber x = *this%pi();
 	CDecNumber Ret=1, Prev=1, index=2;
@@ -9559,7 +9553,7 @@ CDecNumber CDecNumber::cos()
 	}
 	return Ret;
 }
-CDecNumber CDecNumber::sin()
+CDecNumber CDecNumber::sin() const
 {
 	CDecNumber x = *this%pi();
 	CDecNumber Ret=x, Prev=x, index=3;
@@ -9577,7 +9571,7 @@ CDecNumber CDecNumber::sin()
 	}
 	return Ret;
 }
-CDecNumber CDecNumber::exp()
+CDecNumber CDecNumber::exp() const
 {
 	CDecNumber Res;
 	decNumberExp(&Res.m_dec,&m_dec,&g_set);
@@ -9594,7 +9588,7 @@ CDecNumber CDecNumber::exp()
 	return Ret;
 }
 
-CDecNumber CDecNumber::tan()
+CDecNumber CDecNumber::tan() const
 {
 /*	CDecNumber index;
 	CDecNumber Res=0, PrevRes=0;
@@ -9616,7 +9610,7 @@ CDecNumber CDecNumber::tan()
 	}
 */	return sin()/cos();
 }
-CDecNumber CDecNumber::acos()
+CDecNumber CDecNumber::acos() const
 {
 	if(*this<-1 || *this>1)
 		return (CDecNumber)"NaN";
@@ -9704,7 +9698,7 @@ CDecNumber CDecNumber::acos()
 	}
 	return Res;
 }
-CDecNumber CDecNumber::asin()
+CDecNumber CDecNumber::asin() const
 {
 	if(*this<-1 || *this>1)
 		return (CDecNumber)"NaN";
@@ -9726,7 +9720,7 @@ CDecNumber CDecNumber::asin()
 		PrevTest = Test;
 	}
 
-	CDecNumber sq = (CDecNumber)1 - (*this^2);
+	CDecNumber sq = (CDecNumber)1 - (*this^int(2));
 	CDecNumber q = *this/(1 + sq.sqrt());
 	return 2*q.atan();
 
@@ -9796,7 +9790,7 @@ CDecNumber CDecNumber::asin()
 		Res = -Res;
 	return Res;
 }
-CDecNumber CDecNumber::atan()
+CDecNumber CDecNumber::atan() const
 {
 	CDecNumber Div = (*this^2)+1;
 	CDecNumber X = *this/Div.sqrt();
@@ -9884,7 +9878,7 @@ CDecNumber CDecNumber::atan()
 		Res = -Res;
 	return Res;
 }
-CDecNumber CDecNumber::Bernoulli(CDecNumber *pT,CDecNumber *pN)
+CDecNumber CDecNumber::Bernoulli(CDecNumber *pT,CDecNumber *pN) const
 {
 	CDecNumber **pCoeff=NULL;
 	int nCoeff=0;
@@ -9965,7 +9959,7 @@ CDecNumber CDecNumber::Bernoulli(CDecNumber *pT,CDecNumber *pN)
 	return Res;
 }
 
-CDecNumber CDecNumber::cosh()
+CDecNumber CDecNumber::cosh() const
 {
 	CDecNumber Ret=0, Prev=0, index=0;
 	CDecNumber n2;
@@ -9979,7 +9973,7 @@ CDecNumber CDecNumber::cosh()
 	}
 	return Ret;
 }
-CDecNumber CDecNumber::sinh()
+CDecNumber CDecNumber::sinh() const
 {
 	CDecNumber Ret=0, Prev=0, index=0;
 	CDecNumber n2;
@@ -9993,29 +9987,29 @@ CDecNumber CDecNumber::sinh()
 	}
 	return Ret;
 }
-CDecNumber CDecNumber::tanh()
+CDecNumber CDecNumber::tanh() const
 {
 	return sinh()/cosh();
 }
-CDecNumber CDecNumber::asinh()
+CDecNumber CDecNumber::asinh() const
 {
 	CDecNumber sq = (*this^(CDecNumber)2)+1;
 	CDecNumber x = *this+sq.sqrt();
 	return x.ln();
 }
-CDecNumber CDecNumber::acosh()
+CDecNumber CDecNumber::acosh() const
 {
 	CDecNumber sq = (*this^(CDecNumber)2)-1;
 	CDecNumber x = *this+sq.sqrt();
 	char *sz = x.ToText();
 	return x.ln();
 }
-CDecNumber CDecNumber::atanh()
+CDecNumber CDecNumber::atanh() const
 {
 	CDecNumber x = (1+*this)/(1-*this);
 	return x.ln()/2;
 }
-CDecNumber CDecNumber::ln()
+CDecNumber CDecNumber::ln() const
 {
 	CDecNumber Ret;
 	decNumberLn(&Ret.m_dec,&m_dec,&g_set);
@@ -10130,7 +10124,7 @@ CDecNumber CDecNumber::ln()
 	}
 	return Res;
 }
-CDecNumber CDecNumber::log10()
+CDecNumber CDecNumber::log10() const
 {
 	CDecNumber Ret;
 	decNumberLog10(&Ret.m_dec,&m_dec,&g_set);
@@ -10224,31 +10218,31 @@ void CDecNumber::Stop()
 	m_bStop=1;
 }
 
-CDecNumber CDecNumber::cot()
+CDecNumber CDecNumber::cot() const
 {
 	return cosh()/sinh();
 }
-CDecNumber CDecNumber::sec()
+CDecNumber CDecNumber::sec() const
 {
 	return 1/cosh();
 }
-CDecNumber CDecNumber::csc()
+CDecNumber CDecNumber::csc() const
 {
 	return 1/sinh();
 }
 
-CDecNumber CDecNumber::acot()
+CDecNumber CDecNumber::acot() const
 {
 	CDecNumber x = (*this+1)/(*this-1);
 	return x.ln()/2;
 }
-CDecNumber CDecNumber::asec()
+CDecNumber CDecNumber::asec() const
 {
 	CDecNumber sq = 1-(*this^2);
 	CDecNumber x = (1+sq.sqrt())/(*this);
 	return x.ln();
 }
-CDecNumber CDecNumber::acsc()
+CDecNumber CDecNumber::acsc() const
 {
 	if(*this<0){
 		CDecNumber sq = 1+(*this^2);
@@ -10261,7 +10255,7 @@ CDecNumber CDecNumber::acsc()
 		return x.ln();
 	}
 }
-CDecNumber CDecNumber::modpow(CDecNumber y,CDecNumber m)
+CDecNumber CDecNumber::modpow(CDecNumber y,CDecNumber m) const
 {
    CDecNumber nRes = 1;
    CDecNumber b = *this;
@@ -10300,7 +10294,7 @@ int prob_prime(CDecNumber n)
 	}
 	return 1;
 }
-CDecNumber CDecNumber::prime()
+CDecNumber CDecNumber::prime() const
 {
 	int i;
 	CDecNumber q, test;
@@ -10336,7 +10330,7 @@ CDecNumber CDecNumber::prime()
 	}
 	return start;
 }
-CDecNumber CDecNumber::maked(CDecNumber e,CDecNumber *pK)
+CDecNumber CDecNumber::maked(CDecNumber e,CDecNumber *pK) const
 {
 	CDecNumber fi = *this;
 	CDecNumber a = e, b = -fi,
@@ -10386,7 +10380,7 @@ CDecNumber CDecNumber::maked(CDecNumber e,CDecNumber *pK)
 	return 0;
 }
 
-void CDecNumber::Parse(char *sz)
+void CDecNumber::Parse(const char *sz)
 {
 	*this = sz;
 }

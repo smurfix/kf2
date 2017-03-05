@@ -18,11 +18,11 @@ ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
 #ifndef _DEBUG
-__try{
+try{
 #endif
 	pE->lpfnExecute(pE->pParameter);
 #ifndef _DEBUG
-}__except(1){
+}catch(...){
 }
 #endif
 	SetEvent(pE->hDone);

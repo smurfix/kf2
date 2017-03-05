@@ -1,6 +1,6 @@
 #include <windows.h>
 #include "listbox.h"
-#include "..\..\common\getimage.h"
+#include "../common/getimage.h"
 
 #ifdef _WIN64
 #define GCL_WNDPROC -24

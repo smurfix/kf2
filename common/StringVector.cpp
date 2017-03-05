@@ -279,15 +279,15 @@ void free_stringtable(void *p)
 		pAlloc->Free((char*)p-sizeof(int));
 	}
 }
-static void *operator new(size_t n)
+void *operator new(size_t n)
 {
 	return realloc_stringtable(NULL,n);
 }
-static void operator delete(void*p)
+void operator delete(void*p)
 {
 	free_stringtable(p);
 }
-static void * operator new[]( size_t cb )
+void * operator new[]( size_t cb )
 {
 	return operator new(cb);
 }

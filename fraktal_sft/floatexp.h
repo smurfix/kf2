@@ -23,13 +23,13 @@ public:
 			val=-val;
 		return *this;
 	}
-	__inline void initFromDouble(double a)
+	inline void initFromDouble(double a)
 	{
 		val=a;
 		exp=0;
 		_ALIGN_(val,exp)
 	}
-	__inline void align()
+	inline void align()
 	{
 #ifdef _GCC_
 		exp += ((*((__int64*)&val) & 0x7FF0000000000000LL)>>52) - 1023;
@@ -44,7 +44,7 @@ public:
 		*((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
 #endif
 	}
-	__inline double setExp(double newval,__int64 newexp)
+	inline double setExp(double newval,__int64 newexp)
 	{
 //		__int64 tmpval = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
 //		memcpy(&newval,&tmpval,sizeof(double));
@@ -65,23 +65,23 @@ public:
 	{
 		initFromDouble(a);
 	}
-	__inline floatexp &operator =(const floatexp &a)
+	inline floatexp &operator =(const floatexp &a)
 	{
 		val=a.val;
 		exp=a.exp;
 		return *this;
 	}
-	__inline floatexp &operator =(int a)
+	inline floatexp &operator =(int a)
 	{	
 		initFromDouble((double)a);
 		return *this;
 	}
-	__inline floatexp &operator =(double a)
+	inline floatexp &operator =(double a)
 	{
 		initFromDouble(a);
 		return *this;
 	}
-	__inline floatexp operator *(const floatexp &a)
+	inline floatexp operator *(const floatexp &a)
 	{
 		floatexp r;
 		r.val = a.val*val;
@@ -89,7 +89,7 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	__inline floatexp operator /(const floatexp &a)
+	inline floatexp operator /(const floatexp &a)
 	{
 		floatexp r;
 		r.val = val/a.val;
@@ -97,17 +97,17 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	__inline floatexp &mul2()
+	inline floatexp &mul2()
 	{
 		exp++;
 		return *this;
 	}
-	__inline floatexp &mul4()
+	inline floatexp &mul4()
 	{
 		exp+=2;
 		return *this;
 	}
-	__inline floatexp operator +(const floatexp &a)
+	inline floatexp operator +(const floatexp &a)
 	{
 		floatexp r;
 		__int64 diff;
@@ -134,13 +134,13 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	__inline floatexp operator -()
+	inline floatexp operator -()
 	{
 		floatexp r=*this;
 		r.val=-r.val;
 		return r;
 	}
-	__inline floatexp &operator +=(const floatexp &a)
+	inline floatexp &operator +=(const floatexp &a)
 	{
 #ifdef _GCC_
 		floatexp r = *this+a;
@@ -150,7 +150,7 @@ public:
 #endif		
 		return *this;
 	}
-	__inline floatexp operator -(const floatexp &a)
+	inline floatexp operator -(const floatexp &a)
 	{
 		floatexp r;
 		__int64 diff;
@@ -177,7 +177,7 @@ public:
 		_ALIGN_(r.val,r.exp)
 		return r;
 	}
-	__inline floatexp &operator -=(const floatexp &a)
+	inline floatexp &operator -=(const floatexp &a)
 	{
 #ifdef _GCC_
 		floatexp r = *this-a;
@@ -187,7 +187,7 @@ public:
 #endif
 		return *this;
 	}
-	__inline BOOL operator >(const floatexp &a)
+	inline BOOL operator >(const floatexp &a)
 	{
 		if(val>0){
 			if(a.val<0)
@@ -208,7 +208,7 @@ public:
 			return val>a.val;
 		}
 	}
-	__inline BOOL operator <(const floatexp &a)
+	inline BOOL operator <(const floatexp &a)
 	{
 		if(val>0){
 			if(a.val<0)
@@ -229,12 +229,12 @@ public:
 			return val<a.val;
 		}
 	}
-	__inline BOOL operator <=(const int a)
+	inline BOOL operator <=(const int a)
 	{
 		floatexp aa(a);
 		return (*this<a || *this==a);
 	}
-	__inline BOOL operator ==(const floatexp &a)
+	inline BOOL operator ==(const floatexp &a)
 	{
 		if(exp!=a.exp)
 			return FALSE;
@@ -274,20 +274,20 @@ public:
 			return 0;
 		return setExp(ret.val,ret.exp);
 	}
-	__inline floatexp &operator /=(double a)
+	inline floatexp &operator /=(double a)
 	{
 		val/=a;
 		_ALIGN_(val,exp)
 		return *this;
 	}
-	__inline floatexp &operator *=(double a)
+	inline floatexp &operator *=(double a)
 	{
 		val*=a;
 		_ALIGN_(val,exp)
 		return *this;
 	}
 #ifndef _GCC_
-	__inline floatexp &operator =(const CFixedFloat &a)
+	inline floatexp &operator =(const CFixedFloat &a)
 	{
 		exp=0;
 		val=0;
@@ -347,7 +347,7 @@ public:
 		delete szTmp;
 	}
 #else
-	__inline floatexp setLongDouble(long double a)
+	inline floatexp setLongDouble(long double a)
 	{
 		__int64 val[2]={0};
 		memcpy(val,(void*)&a,sizeof(val));
@@ -363,7 +363,7 @@ public:
 		}
 		return *this;
 	}
-	__inline long double toLongDouble()
+	inline long double toLongDouble()
 	{
 		long double ret = val;
 		__int64 *v = (__int64*)&ret;

@@ -233,7 +233,7 @@ class CFraktalSFT
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
 	void CreateLists();
-	char *ToZoom(CDecNumber &z, int &zoom);
+	char *ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
 	int GetArea(int **Node, int nXStart, int nXStop, int nEqSpan = 2, int **Pixels = NULL, int nDone = -1);
@@ -251,8 +251,8 @@ public:
 	CFraktalSFT();
 	~CFraktalSFT();
 
-	void SetPosition(CFixedFloat &rstart, CFixedFloat &rstop, CFixedFloat &istart, CFixedFloat &istop, int nX, int nY);
-	void SetPosition(char *szR, char *szI, char *szZ);
+	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
+	void SetPosition(const char *szR, const char *szI, const char *szZ);
 	char *ToZoom();
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();

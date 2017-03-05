@@ -13,9 +13,9 @@
 // THIS DISCLAIMER.
 
 #include "fraktal_sft.h"
-#include "..\..\common\parallell.h"
-#include "..\..\common\StringVector.h"
-#include "..\..\common\getimage.h"
+#include "../common/parallell.h"
+#include "../common/StringVector.h"
+#include "../common/getimage.h"
 #include <float.h>
 #include <malloc.h>
 #include "complex.h"
@@ -954,7 +954,7 @@ char *CFraktalSFT::ToZoom()
 	CFixedFloat div = m_istop - m_istart;
 	return ToZoom((CDecNumber)4 / ((CDecNumber)div.ToText()), m_nZoom);
 }
-char *CFraktalSFT::ToZoom(CDecNumber &z, int &zoom)
+char *CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
 	static char szRet[40];
 	char *szZoom = z.ToText();
@@ -3287,12 +3287,12 @@ void CFraktalSFT::CalculateReferenceEXP()
 int ThMandelCalc(TH_PARAMS *pMan)
 {
 #ifndef _DEBUG
-	__try{
+	try{
 #endif
 		pMan->p->MandelCalc(pMan->nXStart, pMan->nXStop);
 #ifndef _DEBUG
 	}
-	__except (1){
+	catch (...) {
 //		pMan->p->m_bRunning=FALSE;
 MessageBox(GetActiveWindow(),"Krash - 1","Krash",MB_OK);
 	}
@@ -6694,12 +6694,12 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 #ifndef _DEBUG
-	__try{
+	try{
 #endif
 		p->RenderFractal();
 #ifndef _DEBUG
 	}
-	__except (1){
+	catch (...) {
 		p->m_bRunning=FALSE;
 //MessageBox(GetActiveWindow(),"Krash - 2","Krash",MB_OK);
 	}
@@ -7249,7 +7249,7 @@ void CFraktalSFT::RenderFractalEXP()
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 }
-void CFraktalSFT::SetPosition(CFixedFloat &rstart, CFixedFloat &rstop, CFixedFloat &istart, CFixedFloat &istop, int nX, int nY)
+void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
 {
 	m_rstart.SetMaxSignificant(0);
 	m_rstart = rstart;
@@ -7276,7 +7276,7 @@ void CFraktalSFT::SetPosition(CFixedFloat &rstart, CFixedFloat &rstop, CFixedFlo
 	m_rstart = re - d;
 	m_rstop = re + d;
 }
-void CFraktalSFT::SetPosition(char *szR, char *szI, char *szZ)
+void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 {
 	m_rref = szR;
 	m_iref = szI;

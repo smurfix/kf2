@@ -12,6 +12,8 @@
 // PART OF THIS LICENSE. NO USE OF ANY COVERED CODE IS AUTHORIZED HEREUNDER EXCEPT UNDER
 // THIS DISCLAIMER.
 #include <windows.h>
+#include <stdio.h>
+#define sprintf_s snprintf
 #include <comdef.h>
 
 HBITMAP GetImageFromData(char *szImgData,int nImgData)

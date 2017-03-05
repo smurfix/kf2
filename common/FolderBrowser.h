@@ -1,4 +1,4 @@
-#include "stringvector.h"
+#include "StringVector.h"
 
 BOOL SkapaKatalog(char *szFile);
 int ValidatePath(char *szPath);

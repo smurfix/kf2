@@ -12,40 +12,40 @@ public:
 		m_r = r;
 		m_i = i;
 	}
-	__inline complex &operator =(complex &a)
+	inline complex &operator =(const complex &a)
 	{
 		m_r = a.m_r;
 		m_i = a.m_i;
 		return *this;
 	}
-	__inline complex operator *(complex &a)
+	inline complex operator *(const complex &a) const
 	{
 		complex<tt> r;
 		r.m_r = m_r*a.m_r - m_i*a.m_i;
 		r.m_i = m_r*a.m_i + m_i*a.m_r;
 		return r;
 	}
-	__inline complex operator +(complex &a)
+	inline complex operator +(const complex &a) const
 	{
 		complex<tt> r;
 		r.m_r = m_r + a.m_r; 
 		r.m_i = m_i + a.m_i;
 		return r;
 	}
-	__inline complex operator -(complex &a)
+	inline complex operator -(const complex &a) const
 	{
 		complex<tt> r;
 		r.m_r = m_r - a.m_r; 
 		r.m_i = m_i - a.m_i;
 		return r;
 	}
-	__inline complex &operator +=(complex &a)
+	inline complex &operator +=(const complex &a)
 	{
 		m_r += a.m_r; 
 		m_i += a.m_i;
 		return *this;
 	}
-	__inline complex operator ^(int exp)
+	inline complex operator ^(int exp) const
 	{
 		complex<tt> r;
 		tt tmp;
@@ -64,7 +64,7 @@ public:
 		}
 		return r;
 	}
-	__inline complex operator /(complex &b)
+	inline complex operator /(const complex &b) const
 	{
 		tt ratio, den;
 		tt abr, abi, cr, ci;
