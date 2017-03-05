@@ -1,0 +1,591 @@
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "afxres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG11 DIALOGEX 0, 0, 117, 80
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Skew Animation"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    LTEXT           "Number of frames",IDC_STATIC,7,10,58,8
+    EDITTEXT        IDC_EDIT1,69,7,40,14,ES_AUTOHSCROLL
+    LTEXT           "To Stretch",IDC_STATIC,31,26,34,8
+    EDITTEXT        IDC_EDIT3,69,23,40,14,ES_AUTOHSCROLL
+    LTEXT           "To Rotate",IDC_STATIC,32,42,33,8
+    EDITTEXT        IDC_EDIT4,69,39,40,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,7,59,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,60,59,50,14
+END
+
+IDD_DIALOG12 DIALOGEX 65386, 100, 175, 116
+STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Newton-Raphson Zooming"
+FONT 8, "MS Shell Dlg", 400, 0, 0x1
+BEGIN
+    PUSHBUTTON      "Close",IDCANCEL,118,95,50,14
+    CONTROL         "Minibrot",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,7,42,41,10
+    CONTROL         "3/4 (current pattern doubled)",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,7,52,111,10
+    LTEXT           "Click on the fractal to specify the point of interest\nThe zoom size is applied on the area that is searched for minibrot.\nChoose the behaviour when clicking:",IDC_STATIC,7,7,160,33
+    EDITTEXT        IDC_EDIT1,7,75,161,19,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Period:",IDC_STATIC,7,99,23,10
+    EDITTEXT        IDC_EDIT3,31,97,80,12,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Status",IDC_STATIC,7,65,23,10
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG11, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 110
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 73
+    END
+
+    IDD_DIALOG12, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 168
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 109
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+#endif    // English (United States) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+/////////////////////////////////////////////////////////////////////////////
+// Swedish (Sweden) resources
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_SVE)
+LANGUAGE LANG_SWEDISH, SUBLANG_SWEDISH
+#pragma code_page(1252)
+
+#ifdef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// TEXTINCLUDE
+//
+
+1 TEXTINCLUDE 
+BEGIN
+    "resource.h\0"
+END
+
+2 TEXTINCLUDE 
+BEGIN
+    "#include ""afxres.h""\r\n"
+    "\0"
+END
+
+3 TEXTINCLUDE 
+BEGIN
+    "\r\n"
+    "\0"
+END
+
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Dialog
+//
+
+IDD_DIALOG1 DIALOG 0, 0, 272, 28
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+CAPTION "Dialog"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT1,7,7,258,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_DIALOG2 DIALOG 0, 0, 116, 281
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Iterations"
+FONT 8, "MS Sans Serif"
+BEGIN
+    EDITTEXT        IDC_EDIT1,7,7,102,14,ES_AUTOHSCROLL | ES_NUMBER
+    COMBOBOX        IDC_COMBO2,25,85,84,92,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO3,25,109,84,94,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    COMBOBOX        IDC_COMBO5,25,134,84,125,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    EDITTEXT        IDC_EDIT3,61,154,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Approximation low tolerance",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,169,104,10
+    COMBOBOX        IDC_COMBO6,25,201,84,94,CBS_DROPDOWN | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "OK",IDOK,7,260,50,14
+    LTEXT           "Min",IDC_STATIC,7,30,12,8
+    PUSHBUTTON      "Cancel",IDCANCEL,59,260,50,14
+    EDITTEXT        IDC_EDIT2,25,28,84,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Max",IDC_STATIC,7,45,14,8
+    EDITTEXT        IDC_EDIT5,25,43,84,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Appr",IDC_STATIC,7,61,16,8
+    EDITTEXT        IDC_EDIT7,25,59,84,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Calculations",IDC_STATIC,7,217,39,8
+    EDITTEXT        IDC_EDIT8,25,227,84,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Smooth method",IDC_STATIC,7,76,50,8
+    LTEXT           "Power",IDC_STATIC,7,100,21,8
+    LTEXT           "Fractal type",IDC_STATIC,7,125,38,8
+    LTEXT           "Max references",IDC_STATIC,7,155,50,8
+    LTEXT           "Approximation terms",IDC_STATIC,7,192,64,8
+    CONTROL         "Auto approximation terms",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,181,95,10
+    CONTROL         "Real",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,248,31,10
+    CONTROL         "Imag",IDC_CHECK5,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,38,248,31,10
+END
+
+IDD_DIALOG3 DIALOGEX 0, 0, 397, 273
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Set Colors"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    GROUPBOX        "",IDC_STATIC,60,44,65,56
+    LTEXT           "Number of key colors",IDC_STATIC,7,7,39,17
+    EDITTEXT        IDC_EDIT1,7,26,38,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,39,35,11,14
+    LTEXT           "Divide iteration",IDC_STATIC,46,7,39,17
+    EDITTEXT        IDC_EDIT3,46,26,38,14,ES_AUTOHSCROLL
+    CONTROL         "Spin2",IDC_SPIN2,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,91,30,11,14
+    LTEXT           "Color\noffset",IDC_STATIC,85,7,39,17
+    EDITTEXT        IDC_EDIT12,85,26,38,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN5,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,131,30,11,14
+    EDITTEXT        IDC_EDIT2,134,13,46,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "&Generate",IDC_BUTTON2,143,27,36,10
+    PUSHBUTTON      "&Seed",IDC_BUTTON13,143,38,36,10
+    PUSHBUTTON      "&Generate",IDC_BUTTON12,352,137,34,12
+    PUSHBUTTON      "Seed",IDC_BUTTON14,352,152,34,12
+    PUSHBUTTON      "Save palette",IDC_BUTTON1,7,116,55,10
+    PUSHBUTTON      "Open palette",IDC_BUTTON5,7,127,55,10
+    PUSHBUTTON      "Expand Double",IDC_BUTTON6,65,105,55,10
+    PUSHBUTTON      "Expand All",IDC_BUTTON7,65,116,55,10
+    PUSHBUTTON      "Double",IDC_BUTTON10,65,127,55,10
+    CONTROL         "Show index (move cursor over the fractal and the color will be selected in the list)",IDC_CHECK1,
+                    "Button",BS_AUTOCHECKBOX | BS_MULTILINE | WS_TABSTOP,7,138,114,23
+    CONTROL         "Smooth color transition",IDC_CHECK2,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,161,87,10
+    COMBOBOX        IDC_COMBO1,7,182,116,71,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "Merge Colors",IDC_STATIC,129,57,56,113
+    EDITTEXT        IDC_EDIT9,137,105,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN3,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,177,110,11,14
+    LTEXT           "Rate percent",IDC_STATIC,137,123,42,8
+    EDITTEXT        IDC_EDIT10,137,133,40,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin2",IDC_SPIN4,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,177,136,11,14
+    PUSHBUTTON      "Color",IDC_BUTTON8,135,150,47,15
+    LISTBOX         IDC_LIST1,189,26,68,145,LBS_SORT | LBS_OWNERDRAWFIXED | LBS_HASSTRINGS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    DEFPUSHBUTTON   "Apply",IDOK,255,255,43,14
+    PUSHBUTTON      "Close",IDCANCEL,347,255,43,14
+    LTEXT           "Double click to edit\nRight click for options",IDC_STATIC,188,7,69,18
+    LTEXT           "",IDC_SHOW,7,222,383,32,0,WS_EX_STATICEDGE
+    GROUPBOX        "Random",IDC_STATIC,129,2,56,49
+    GROUPBOX        "Palette waves",IDC_STATIC,262,114,128,78
+    CONTROL         "Inverse Smooth color transition",IDC_CHECK3,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,171,113,10
+    LISTBOX         IDC_LIST6,263,67,82,43,LBS_USETABSTOPS | LBS_NOINTEGRALHEIGHT | WS_VSCROLL | WS_TABSTOP
+    GROUPBOX        "",IDC_FRAME6,260,8,130,105
+    LTEXT           "Period",Colors2,273,37,21,8
+    EDITTEXT        IDC_EDIT23,300,32,32,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Add",IDC_BUTTON26,347,68,30,12
+    PUSHBUTTON      "Update",IDC_BUTTON27,347,81,30,12
+    PUSHBUTTON      "Remove",IDC_BUTTON28,347,94,30,12
+    LTEXT           "Type",IDC_STATIC,271,21,17,8
+    COMBOBOX        IDC_COMBO4,300,18,48,102,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
+    CONTROL         "Infinite waves",IDC_CHECK6,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,265,7,59,10
+    EDITTEXT        IDC_EDIT24,268,37,14,14,ES_AUTOHSCROLL | NOT WS_VISIBLE
+    PUSHBUTTON      "Make prime",IDC_BUTTON29,334,32,41,14
+    LTEXT           "Start",Colors3,273,53,16,8,NOT WS_VISIBLE
+    EDITTEXT        IDC_EDIT25,300,48,32,14,ES_AUTOHSCROLL | ES_NUMBER | NOT WS_VISIBLE
+    LTEXT           "Red",IDC_STATIC,273,132,14,8
+    LTEXT           "Green",IDC_STATIC,267,147,20,8
+    LTEXT           "Blue",IDC_STATIC,272,161,15,8
+    LTEXT           "Period",IDC_STATIC,291,122,21,8
+    LTEXT           "Start",IDC_STATIC,325,122,16,8
+    EDITTEXT        IDC_EDIT11,290,130,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT13,324,130,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "P",IDC_BUTTON16,313,130,10,14
+    EDITTEXT        IDC_EDIT14,290,144,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT15,324,144,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "P",IDC_BUTTON19,313,144,10,14
+    EDITTEXT        IDC_EDIT16,290,159,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT17,324,159,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "P",IDC_BUTTON20,313,159,10,14
+    LTEXT           "B/W",IDC_STATIC,271,177,16,8
+    EDITTEXT        IDC_EDIT18,290,174,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT19,324,174,22,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "P",IDC_BUTTON21,313,174,10,14
+    CONTROL         "Step",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,137,72,31,10
+    CONTROL         "Wave period",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON | BS_MULTILINE,137,85,36,17
+    PUSHBUTTON      "More contrast",IDC_BUTTON17,7,51,50,10
+    PUSHBUTTON      "Less contrast",IDC_BUTTON18,7,61,50,10
+    PUSHBUTTON      "From image",IDC_BUTTON22,7,105,55,10
+    PUSHBUTTON      "Cancel",IDCLOSE,301,255,43,14
+    CONTROL         "Blend",IDC_CHECK7,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,356,7,34,10
+    CONTROL         "Show slopes",IDC_CHECK4,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,62,43,56,10
+    EDITTEXT        IDC_EDIT20,67,53,38,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN6,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,99,66,11,14
+    EDITTEXT        IDC_EDIT21,67,68,38,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN7,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,99,77,11,14
+    LTEXT           "^",IDC_STATIC,107,57,8,8
+    LTEXT           "%",IDC_STATIC,107,72,8,8
+    EDITTEXT        IDC_EDIT22,67,83,38,14,ES_AUTOHSCROLL | ES_NUMBER
+    CONTROL         "Spin1",IDC_SPIN8,"msctls_updown32",UDS_SETBUDDYINT | UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,99,90,11,14
+    LTEXT           "°",IDC_STATIC,108,86,8,8
+    GROUPBOX        "",IDC_STATIC,130,172,127,44
+    CONTROL         "Texture",IDC_CHECK8,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,133,172,40,10
+    EDITTEXT        IDC_EDIT26,135,183,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    EDITTEXT        IDC_EDIT27,178,183,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "^",IDC_STATIC,168,188,8,8
+    LTEXT           "%",IDC_STATIC,212,186,8,8
+    PUSHBUTTON      "...",IDC_BUTTON23,237,199,14,14
+    EDITTEXT        IDC_EDIT29,135,199,102,14,ES_AUTOHSCROLL
+END
+
+IDD_DIALOG4 DIALOGEX 0, 0, 84, 76
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION
+EXSTYLE WS_EX_TOOLWINDOW
+CAPTION "Crosshair"
+FONT 8, "MS Sans Serif", 0, 0, 0x1
+BEGIN
+    LTEXT           "",IDC_PREV,0,0,88,62,0,WS_EX_CLIENTEDGE
+END
+
+IDD_DIALOG5 DIALOG 0, 0, 186, 117
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Location"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Re: ",IDC_STATIC,7,9,14,8
+    EDITTEXT        IDC_EDIT1,33,7,146,14,ES_AUTOHSCROLL
+    LTEXT           "Im:",IDC_STATIC,7,25,10,8
+    EDITTEXT        IDC_EDIT3,33,22,146,14,ES_AUTOHSCROLL
+    LTEXT           "Zoom:",IDC_STATIC,7,43,21,8
+    EDITTEXT        IDC_EDIT4,33,40,146,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "Set",IDOK,75,96,50,14
+    PUSHBUTTON      "Close",IDCANCEL,129,96,50,14
+    LTEXT           "Min",IDC_STATIC,15,61,12,8
+    EDITTEXT        IDC_EDIT2,33,59,84,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Max",IDC_STATIC,15,76,14,8
+    EDITTEXT        IDC_EDIT5,33,74,84,14,ES_AUTOHSCROLL | ES_READONLY
+END
+
+IDD_DIALOG6 DIALOG 0, 0, 186, 133
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Create zoom sequence"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Store in folder",IDC_STATIC,7,7,44,8
+    EDITTEXT        IDC_EDIT1,7,18,155,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "...",IDC_BUTTON1,163,18,16,14
+    LTEXT           "Percent zoom-out",IDC_STATIC,7,40,56,8
+    EDITTEXT        IDC_EDIT2,67,39,50,14,ES_AUTOHSCROLL | ES_NUMBER
+    LTEXT           "Number of frames",IDC_STATIC,7,56,56,8
+    EDITTEXT        IDC_EDIT5,67,55,50,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "Calculate to zoom 1",IDC_BUTTON3,121,43,58,21,BS_MULTILINE
+    LTEXT           "Width",IDC_STATIC,7,79,20,8
+    EDITTEXT        IDC_EDIT3,31,77,30,14,ES_AUTOHSCROLL | ES_NUMBER
+    PUSHBUTTON      "Open incomplete",IDC_BUTTON4,7,112,62,14
+    DEFPUSHBUTTON   "Start",IDOK,77,112,50,14
+    PUSHBUTTON      "Close",IDCANCEL,129,112,50,14
+    EDITTEXT        IDC_EDIT4,91,77,30,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Height",IDC_STATIC,66,79,22,8
+    EDITTEXT        IDC_EDIT6,7,95,172,14,ES_AUTOHSCROLL | ES_READONLY
+    CONTROL         "Alt. method",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,129,78,51,10
+END
+
+IDD_DIALOG7 DIALOG 0, 0, 117, 79
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Jpeg properties"
+FONT 8, "MS Sans Serif"
+BEGIN
+    LTEXT           "Width",IDC_STATIC,7,9,20,8
+    EDITTEXT        IDC_EDIT1,34,7,48,14,ES_AUTOHSCROLL
+    LTEXT           "Height",IDC_STATIC,7,25,22,8
+    EDITTEXT        IDC_EDIT3,34,23,48,14,ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Quality",IDC_QUALITY_LABEL,7,41,22,8
+    EDITTEXT        IDC_EDIT4,34,39,48,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,7,58,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,60,58,50,14
+END
+
+IDD_DIALOG8 DIALOGEX 0, 0, 153, 141
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Examine zoom sequence"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL         "Add references",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,7,7,64,10
+    CONTROL         "Set main reference",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,7,28,75,10
+    CONTROL         "Eraser",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,7,41,36,10
+    CONTROL         "Use near pixel method",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,13,17,86,10
+    PUSHBUTTON      "Save and &Previous",IDC_BUTTON1,8,64,68,14
+    DEFPUSHBUTTON   "Save and &Next",IDOK,78,64,68,14
+    PUSHBUTTON      "Save and Previous - reuse &center",IDC_BUTTON5,7,79,116,14
+    PUSHBUTTON      "Cancel changes",IDC_BUTTON2,7,120,58,14
+    EDITTEXT        IDC_EDIT1,112,17,34,14,ES_AUTOHSCROLL
+    PUSHBUTTON      "Set",IDC_BUTTON3,112,33,34,11
+    PUSHBUTTON      "Close",IDCANCEL,96,120,50,14
+    LTEXT           "Frame",IDC_STATIC,112,7,20,8
+    EDITTEXT        IDC_EDIT2,112,46,34,14,ES_AUTOHSCROLL | ES_READONLY
+    EDITTEXT        IDC_EDIT3,7,51,93,12,ES_AUTOHSCROLL | ES_READONLY | NOT WS_BORDER
+    PUSHBUTTON      "Auto solve glitches",IDC_BUTTON4,7,96,73,14
+    EDITTEXT        IDC_EDIT4,82,96,64,20,ES_MULTILINE | ES_AUTOVSCROLL | ES_READONLY
+END
+
+IDD_DIALOG9 DIALOGEX 0, 0, 186, 46
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Find Minibrot"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    EDITTEXT        IDC_EDIT1,68,7,57,14,ES_AUTOHSCROLL
+    DEFPUSHBUTTON   "OK",IDOK,40,25,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,96,25,50,14
+    LTEXT           "Stop at exponent",IDC_LABEL,7,9,55,8
+END
+
+IDD_DIALOG10 DIALOGEX 0, 0, 116, 79
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "Skew location"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    LTEXT           "Stretch",IDC_STATIC,7,10,24,8
+    EDITTEXT        IDC_EDIT1,35,7,60,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN1,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,81,7,11,14
+    RTEXT           "Rotate",IDC_STATIC,7,28,22,8
+    EDITTEXT        IDC_EDIT2,35,25,60,14,ES_AUTOHSCROLL
+    CONTROL         "Spin1",IDC_SPIN2,"msctls_updown32",UDS_ALIGNRIGHT | UDS_AUTOBUDDY | UDS_ARROWKEYS | UDS_NOTHOUSANDS,85,25,11,14
+    DEFPUSHBUTTON   "OK",IDOK,7,58,50,14
+    PUSHBUTTON      "Cancel",IDCANCEL,59,58,50,14
+    LTEXT           "%",IDC_STATIC,101,10,8,8
+    LTEXT           "°",IDC_STATIC,101,28,8,8
+    PUSHBUTTON      "Reset",IDC_BUTTON1,59,42,50,14
+    CONTROL         "Help lines",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | BS_PUSHLIKE | WS_TABSTOP,7,42,50,14
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_DIALOG1, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 265
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 21
+    END
+
+    IDD_DIALOG2, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 109
+        VERTGUIDE, 38
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 274
+    END
+
+    IDD_DIALOG3, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 390
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 269
+    END
+
+    IDD_DIALOG4, DIALOG
+    BEGIN
+        RIGHTMARGIN, 80
+        BOTTOMMARGIN, 74
+    END
+
+    IDD_DIALOG5, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 110
+    END
+
+    IDD_DIALOG6, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 126
+    END
+
+    IDD_DIALOG7, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 110
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+
+    IDD_DIALOG8, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 146
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 134
+    END
+
+    IDD_DIALOG9, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 179
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 39
+    END
+
+    IDD_DIALOG10, DIALOG
+    BEGIN
+        LEFTMARGIN, 7
+        RIGHTMARGIN, 109
+        TOPMARGIN, 7
+        BOTTOMMARGIN, 72
+    END
+END
+#endif    // APSTUDIO_INVOKED
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Menu
+//
+
+IDR_MENU1 MENUEX
+BEGIN
+    POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        MENUITEM "&Open\tCtrl+O",               40020,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Save\tCtrl+S",               40021,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save &As\tCtrl+A",            40018,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save as &Jpeg...\tCtrl+J",    40027,MFT_STRING,MFS_ENABLED
+        MENUITEM "Store Zoom-out images...\tCtrl+Q", 40038,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save &map...",                ID_FILE_SAVEMAP,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "Examine Zoom sequence",       ID_FILE_EXAMINEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Resume Zoom sequence",        ID_FILE_RESUMEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM MFT_SEPARATOR
+        MENUITEM "&Exit",                       40002,MFT_STRING,MFS_ENABLED
+    END
+    POPUP "&Actions",                       65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        POPUP "&Zoom size",                     65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "1",                           ID_ACTIONS_ZOOMSIZE_1,MFT_STRING,MFS_ENABLED
+            MENUITEM "&2\tCtrl+2",                  40007,MFT_STRING,MFS_ENABLED
+            MENUITEM "&4\tCtrl+4",                  40008,MFT_STRING,MFS_ENABLED
+            MENUITEM "&8\tCtrl+8",                  40009,MFT_STRING,MFS_ENABLED
+            MENUITEM "&16\tCtrl+1",                 40010,MFT_STRING,MFS_ENABLED
+            MENUITEM "&32\tCtrl+3",                 40011,MFT_STRING,MFS_ENABLED
+            MENUITEM "&64\tCtrl+6",                 40012,MFT_STRING,MFS_ENABLED
+            MENUITEM "128",                         40028,MFT_STRING,MFS_ENABLED
+            MENUITEM "Custom...",                   ID_ZOOMSIZE_CUSTOM,MFT_STRING,MFS_ENABLED
+        END
+        MENUITEM "&Location...\tCtrl+L",        40003,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Iterations...\tCtrl+I",      40004,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set &Colors...\tCtrl+C",      40005,MFT_STRING,MFS_ENABLED
+        MENUITEM "Rese&t\tCtrl+N",              40023,MFT_STRING,MFS_ENABLED
+        MENUITEM "Center c&ursor\tCtrl+U",      40026,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find &Minibrot\tCtrl+M",      40024,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set &window size\tCtrl+W",    40040,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set image &size\tCtrl+Z",     ID_ACTIONS_SETIMAGESIZE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Refresh\tF5",                 40036,MFT_STRING,MFS_ENABLED
+        MENUITEM "Cancel rendering\tESC",       40037,MFT_STRING,MFS_ENABLED
+        MENUITEM "Rotate\tCtrl+T",              ID_ACTIONS_ROTATE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Reset Rotation",              ID_ACTIONS_RESETROTATION,MFT_STRING,MFS_ENABLED
+        MENUITEM "S&how Inflection\tCtrl+H",    ID_ACTIONS_SHOWINFLECTION,MFT_STRING,MFS_ENABLED
+        MENUITEM "S&kew\tCtrl+K",               ID_ACTIONS_SKEW,MFT_STRING,MFS_ENABLED
+        MENUITEM "Animate zoom",                ID_ACTIONS_ANIMATEZOOM,MFT_STRING,MFS_ENABLED
+        MENUITEM "Arbitrary size",              ID_SPECIAL_ARBITRARYSIZE,MFT_STRING,MFS_ENABLED
+    END
+    POPUP "&Special",                       65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        MENUITEM "Add Reference (Colors)\tCtrl+R", 40030,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set main reference",          ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "R&euse reference\tCtrl+E",    40015,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find center of glitch (Colors)\tCtrl+F", 40031,MFT_STRING,MFS_ENABLED
+        MENUITEM "Auto solve glitches",         40032,MFT_STRING,MFS_ENABLED
+        MENUITEM "Solve glitch with near pixels method", ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find highest iteration",      40029,MFT_STRING,MFS_ENABLED
+        MENUITEM "Show Iterations",             40034,MFT_STRING,MFS_ENABLED
+        MENUITEM "No approximation",            40039,MFT_STRING,MFS_ENABLED
+        MENUITEM "Non-exact find Minibrot",     40041,MFT_STRING,MFS_ENABLED
+        POPUP "Special",                        65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "Mirror",                      ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MFT_STRING,MFS_ENABLED
+        END
+        MENUITEM "Show smooth transition colors", ID_ACTIONS_SPECIAL_SHOWSMOOTHTRANSITIONCOLORS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Use long double always",      ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MFT_STRING,MFS_ENABLED
+        MENUITEM "Use floatexp always",         ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Use auto iterations",         ID_ACTIONS_SPECIAL_AUTOITERATION,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set ratio",                   ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO,MFT_STRING,MFS_ENABLED
+        MENUITEM "Reset ratio",                 ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,MFT_STRING,MFS_ENABLED
+        MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
+        MENUITEM "Show glitches",               ID_SPECIAL_SHOWGLITCHES,MFT_STRING,MFS_ENABLED
+        MENUITEM "Newton-Raphson zooming\tCtrl+D", ID_SPECIAL_NEWTON,MFT_STRING,MFS_ENABLED
+    END
+    MENUITEM "?",                           40025,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
+END
+
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Icon
+//
+
+// Icon with lowest ID value placed first to ensure application icon
+// remains consistent on all systems.
+IDI_ICON1               ICON                    "icon1.ico"
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// Cursor
+//
+
+IDC_CURSOR1             CURSOR                  "cursor1.cur"
+#endif    // Swedish (Sweden) resources
+/////////////////////////////////////////////////////////////////////////////
+
+
+
+#ifndef APSTUDIO_INVOKED
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 3 resource.
+//
+
+
+/////////////////////////////////////////////////////////////////////////////
+#endif    // not APSTUDIO_INVOKED
+

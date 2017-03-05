@@ -1,0 +1,326 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <ClCompile Include="..\jpeg\ansi2knr.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\cdjpeg.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcapimin.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jmemmgr.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcapistd.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jccoefct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jccolor.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcdctmgr.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jchuff.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcinit.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcmainct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcmarker.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcmaster.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcomapi.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcparam.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcphuff.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcprepct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jcsample.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jctrans.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdapimin.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdapistd.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdatadst.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdatasrc.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdcoefct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdcolor.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jddctmgr.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdhuff.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdinput.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdmainct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdmarker.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdmaster.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdmerge.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdphuff.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdpostct.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdsample.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jdtrans.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jerror.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jfdctflt.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jfdctfst.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jfdctint.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jidctflt.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jidctfst.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jidctint.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jidctred.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jmemansi.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jquant1.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jquant2.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jutils.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdbmp.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdcolmap.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdgif.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdppm.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdrle.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdswitch.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\rdtarga.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\transupp.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\wrbmp.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\wrgif.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\wrppm.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\wrrle.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\wrtarga.c">
+      <Filter>jpg</Filter>
+    </ClCompile>
+    <ClCompile Include="CDecNumber.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="CFixedFloat.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\FolderBrowser.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="fraktal_sft.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\getimage.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\jpeg\jpeg_static.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="listbox.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\parallell.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\StringVector.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\common\tooltip.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="newton.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\jpeg\cderror.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\cdjpeg.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jchuff.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jconfig.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jdct.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jdhuff.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jerror.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jinclude.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jversion.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\transupp.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="CDecNumber.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="CFixedFloat.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="complex.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="floatexp.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\FolderBrowser.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="fraktal_sft.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\getimage.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\parallell.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\StringVector.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\common\tooltip.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="resource.h">
+      <Filter>resource</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jpegint.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="..\jpeg\jpeglib.h">
+      <Filter>jpg</Filter>
+    </ClInclude>
+    <ClInclude Include="listbox.h">
+      <Filter>header</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="..\jpeg\makefile1.dsp" />
+    <None Include="cursor1.cur">
+      <Filter>resource</Filter>
+    </None>
+    <None Include="icon1.ico">
+      <Filter>resource</Filter>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <Filter Include="jpg">
+      <UniqueIdentifier>{444a648c-c17d-4925-a017-eba90a705626}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="source">
+      <UniqueIdentifier>{d46ed5d8-9e75-4151-af45-e1378fe09e68}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="header">
+      <UniqueIdentifier>{1867fe92-0773-4901-89d5-09c9f1fe9820}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="resource">
+      <UniqueIdentifier>{1a47f80e-b57c-484f-a5b1-4f387b7e1ceb}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="fraktal_sft.rc">
+      <Filter>resource</Filter>
+    </ResourceCompile>
+  </ItemGroup>
+</Project>
