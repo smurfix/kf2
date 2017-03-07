@@ -957,7 +957,7 @@ char *CFraktalSFT::ToZoom()
 char *CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
 	static char szRet[40];
-	char *szZoom = z.ToText();
+	char *szZoom = const_cast<CDecNumber &>(z).ToText();
 	*szRet = 0;
 	for (m_nZoom = 0; szZoom[m_nZoom] && szZoom[m_nZoom] != '.'; m_nZoom++);
 	m_nZoom--;
