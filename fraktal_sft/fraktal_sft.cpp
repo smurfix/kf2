@@ -125,110 +125,110 @@ public:
 		}
 		int nV=Version();
 		if (nV != 20170307){
-			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
+			fprintf(stderr, "kf.dll version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
 			g_LDBL = 2;
 			return;
 		}
 #if 0
 		if(!(SetParts = (void(*)(double,double))GetProcAddress(hLD, "SetParts")))
 		{
-			fprintf(stderr, "SetParts\n");
+			fprintf(stderr, "kf.dll missing definition for SetParts\n");
 			g_LDBL = 2;
 		}
 #endif
 		if (!(SizeOfLD = (int(*)())GetProcAddress(hLD, "SizeOfLD")))
 		{
-			fprintf(stderr, "SizeOfLD\n");
+			fprintf(stderr, "kf.dll missing definition for SizeOfLD\n");
 			g_LDBL = 2;
 		}
 		if (!(AllocateArray = (void*(*)(int))GetProcAddress(hLD, "AllocateArray")))
 		{
-			fprintf(stderr, "AllocateArray\n");
+			fprintf(stderr, "kf.dll missing definition for AllocateArray\n");
 			g_LDBL = 2;
 		}
 		if (!(ReleaseArray = (void(*)(void*))GetProcAddress(hLD, "ReleaseArray")))
 		{
-			fprintf(stderr, "ReleaseArray\n");
+			fprintf(stderr, "kf.dll missing definition for ReleaseArray\n");
 			g_LDBL = 2;
 		}
 		if (!(AssignInt = (void(*)(void*, int))GetProcAddress(hLD, "AssignInt")))
 		{
-			fprintf(stderr, "AssignInt\n");
+			fprintf(stderr, "kf.dll missing definition for AssignInt\n");
 			g_LDBL = 2;
 		}
 		if (!(AssignDouble = (void(*)(void*, double))GetProcAddress(hLD, "AssignDouble")))
 		{
-			fprintf(stderr, "AssignDouble\n");
+			fprintf(stderr, "kf.dll missing definition for AssignDouble\n");
 			g_LDBL = 2;
 		}
 		if (!(AssignLD = (void(*)(void*, void*))GetProcAddress(hLD, "AssignLD")))
 		{
-			fprintf(stderr, "AssignLD\n");
+			fprintf(stderr, "kf.dll missing definition for AssignLD\n");
 			g_LDBL = 2;
 		}
 		if (!(AssignFloatExp = (void(*)(void*, floatexp*))GetProcAddress(hLD, "AssignFloatExp")))
 		{
-			fprintf(stderr, "AssignFloatExp\n");
+			fprintf(stderr, "kf.dll missing definition for AssignFloatExp\n");
 			g_LDBL = 2;
 		}
 		if (!(ToInt = (void(*)(void*, int*))GetProcAddress(hLD, "ToInt")))
 		{
-			fprintf(stderr, "ToInt\n");
+			fprintf(stderr, "kf.dll missing definition for ToInt\n");
 			g_LDBL = 2;
 		}
 		if (!(ToDouble = (void(*)(void*, double*))GetProcAddress(hLD, "ToDouble")))
 		{
-			fprintf(stderr, "ToDouble\n");
+			fprintf(stderr, "kf.dll missing definition for ToDouble\n");
 			g_LDBL = 2;
 		}
 		if (!(ToFloatExp = (void(*)(void *, floatexp *))GetProcAddress(hLD, "ToFloatExp")))
 		{
-			fprintf(stderr, "ToFloatExp\n");
+			fprintf(stderr, "kf.dll missing definition for ToFloatExp\n");
 			g_LDBL = 2;
 		}
 		if (!(Multiply = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Multiply")))
 		{
-			fprintf(stderr, "Multiply\n");
+			fprintf(stderr, "kf.dll missing definition for Multiply\n");
 			g_LDBL = 2;
 		}
 		if (!(SquareAdd = (double(*)(void*, void*))GetProcAddress(hLD, "SquareAdd")))
 		{
-			fprintf(stderr, "SquareAdd\n");
+			fprintf(stderr, "kf.dll missing definition for SquareAdd\n");
 			g_LDBL = 2;
 		}
 		if (!(Divide = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Divide")))
 		{
-			fprintf(stderr, "Divide\n");
+			fprintf(stderr, "kf.dll missing definition for Divide\n");
 			g_LDBL = 2;
 		}
 		if (!(Add = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Add")))
 		{
-			fprintf(stderr, "Add\n");
+			fprintf(stderr, "kf.dll missing definition for Add\n");
 			g_LDBL = 2;
 		}
 		if (!(Subtract = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Subtract")))
 		{
-			fprintf(stderr, "Subtract\n");
+			fprintf(stderr, "kf.dll missing definition for Subtract\n");
 			g_LDBL = 2;
 		}
 		if (!(GT = (int(*)(void*, void*))GetProcAddress(hLD, "GT")))
 		{
-			fprintf(stderr, "GT\n");
+			fprintf(stderr, "kf.dll missing definition for GT\n");
 			g_LDBL = 2;
 		}
 		if (!(LT = (int(*)(void*, void*))GetProcAddress(hLD, "LT")))
 		{
-			fprintf(stderr, "LT\n");
+			fprintf(stderr, "kf.dll missing definition for LT\n");
 			g_LDBL = 2;
 		}
 		if (!(Equal = (int(*)(void*, void*))GetProcAddress(hLD, "Equal")))
 		{
-			fprintf(stderr, "Equal\n");
+			fprintf(stderr, "kf.dll missing definition for Equal\n");
 			g_LDBL = 2;
 		}
 		if (!(Print = (void(*)(void*, char*))GetProcAddress(hLD, "Print")))
 		{
-			fprintf(stderr, "Print\n");
+			fprintf(stderr, "kf.dll missing definition for Print\n");
 			g_LDBL = 2;
 		}
 #ifdef KF_CUSTOM_NUMBERS
@@ -241,68 +241,68 @@ public:
 #endif
 #endif
 		{
-			fprintf(stderr, "ConvertFromFixedFloat\n");
+			fprintf(stderr, "kf.dll missing definition for ConvertFromFixedFloat\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation4 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation4")))
 		{
-			fprintf(stderr, "Perturbation4\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation4\n");
 			g_LDBL = 2;
 		}
 		if (!(LDBL_MandelCalc = (int(*)(int, int, int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*,double,double))GetProcAddress(hLD, "LDBL_MandelCalc")))
 		{
-			fprintf(stderr, "LDBL_MandelCalc\n");
+			fprintf(stderr, "kf.dll missing definition for LDBL_MandelCalc\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_3rd = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_3rd")))
 		{
-			fprintf(stderr, "Perturbation_3rd\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_3rd\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_4th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_4th")))
 		{
-			fprintf(stderr, "Perturbation_4th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_4th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_5th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_5th")))
 		{
-			fprintf(stderr, "Perturbation_5th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_5th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_6th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_6th")))
 		{
-			fprintf(stderr, "Perturbation_6th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_6th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_7th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_7th")))
 		{
-			fprintf(stderr, "Perturbation_7th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_7th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_8th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_8th")))
 		{
-			fprintf(stderr, "Perturbation_8th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_8th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_9th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_9th")))
 		{
-			fprintf(stderr, "Perturbation_9th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_9th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_10th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_10th")))
 		{
-			fprintf(stderr, "Perturbation_10th\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_10th\n");
 			g_LDBL = 2;
 		}
 		if (!(Perturbation_Var = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*, int, int*))GetProcAddress(hLD, "Perturbation_Var")))
 		{
-			fprintf(stderr, "Perturbation_Var\n");
+			fprintf(stderr, "kf.dll missing definition for Perturbation_Var\n");
 			g_LDBL = 2;
 		}
 		int nSize = 0;
 		if (!SizeOfLD || (nSize = SizeOfLD()) != sizeof(ldbl))
 		{
-			fprintf(stderr, "size mismatch: %d(dll) %lld(main)\n", nSize, sizeof(ldbl));
+			fprintf(stderr, "kf.dll long double size mismatch: %d(dll) %lld(main)\n", nSize, sizeof(ldbl));
 			g_LDBL = FALSE;
 		}
 	}
