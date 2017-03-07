@@ -330,10 +330,11 @@ int WINAPI ThNewton(HWND hWnd)
 	char *e = strstr(g_szZoom,"E");
 	if(!e)
 		e = strstr(g_szZoom,"e");
+	int exp = (e?atoi(e+1):0);
 #ifdef KF_CUSTOM_NUMBERS
-	g_set.digits=(e?2*atoi(e+1):0) + 20;
+	g_set.digits = exp + 6;
 #else
-	unsigned uprec = (e?2*atoi(e+1):0) + 20;
+	unsigned uprec = exp + 6;
 	Precision prec(uprec);
 #endif
 	complex<flyttyp> center(g_szRe,g_szIm);
@@ -351,12 +352,23 @@ int WINAPI ThNewton(HWND hWnd)
 	int steps;
 	if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
 		g_period = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
+#ifdef KF_CUSTOM_NUMBERS
 		g_set.digits *= 3;
+#else
+		uprec *= 3;
+#endif
 	}
 	else{
 		g_period= m_d_box_period_do(center,radius,100000000,steps,hWnd);
+#ifdef KF_CUSTOM_NUMBERS
 		g_set.digits*=2;
+#else
+		uprec *= 2;
+#endif
 	}
+#ifndef KF_CUSTOM_NUMBERS
+	Precision prec2(uprec);
+#endif
 
 	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
 	BOOL bOK=FALSE;
@@ -377,7 +389,11 @@ int WINAPI ThNewton(HWND hWnd)
 			g_szIm = new char[strlen(sz)+1];
 			strcpy(g_szIm,sz);
 
+#ifdef KF_CUSTOM_NUMBERS
 			g_set.digits=exp+6;
+#else
+			Precision prec3(exp + 6);
+#endif
 			complex<flyttyp>size = m_d_size(c,g_period,hWnd);
 			flyttyp msize = flyttyp(.25)/size.m_i;
 			if(msize<0)
