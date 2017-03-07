@@ -224,7 +224,6 @@ complex<flyttyp> m_d_size(complex<flyttyp> nucleus, int period,HWND hWnd)
 int WINAPI ThNewton(HWND hWnd)
 {
 	char szStatus[300];
-	complex<flyttyp> center(g_szRe,g_szIm);
 
 #ifdef KF_CUSTOM_NUMBERS
 	int digits = g_set.digits;
@@ -240,6 +239,7 @@ int WINAPI ThNewton(HWND hWnd)
 	unsigned uprec = (e?2*atoi(e+1):0) + 20;
 	Precision prec(uprec);
 #endif
+	complex<flyttyp> center(g_szRe,g_szIm);
 
 	char szVal[25];
 	int i;
