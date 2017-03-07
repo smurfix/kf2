@@ -1,4 +1,4 @@
-﻿// Kalles Fraktaler 2
+// Kalles Fraktaler 2
 //
 // © 2014-2015 Karl Runmo ,runmo@hotmail.com
 //
