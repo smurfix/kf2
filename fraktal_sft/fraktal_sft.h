@@ -5,6 +5,7 @@
 #else
 #include "CDecNumber_old.h"
 #endif
+#include "complex.h"
 
 #include "floatexp.h"
 
@@ -31,6 +32,25 @@ public:
 	BOOL GetPixel(int &x, int &y, BOOL bMirrored = 0);
 	BOOL GetPixels(int *px, int *py, int &nCount);
 };
+
+#define SMOOTH_BAILOUT 100
+struct MC
+{
+	CFixedFloat *xr, *xi, *sr, *si, *xrxid;
+	HANDLE hDone;
+	HANDLE hWait;
+	HANDLE hExit;
+	int nType;
+};
+struct MC2
+{
+	CFixedFloat *xrn, *xin, *xrxid, *sr, *si, *m_iref, *m_rref;
+	HANDLE hDone;
+	HANDLE hWait;
+	HANDLE hExit;
+	int nType;
+};
+
 
 struct COLOR14 { unsigned char r, g, b; };
 #define OLD_GLITCH 199
@@ -228,10 +248,21 @@ class CFraktalSFT
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
 
+	int m_nInflections;
+	complex<CFixedFloat> *m_pInflections;
+
 	void CalculateApproximation(int nType);
 	void CalculateReference();
+	void SpecialFractal(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si);
+	void SpecialFractal2(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si);
 	void CalculateReferenceEXP();
+	void CalculateReferenceEXP1();
+	void CalculateReferenceEXP2();
+	void CalculateReferenceEXP3();
 	void CalculateReferenceLDBL();
+	void CalculateReferenceLDBL1();
+	void CalculateReferenceLDBL2();
+	void CalculateReferenceLDBL3();
 	void CreateLists();
 	char *ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
@@ -359,6 +390,9 @@ public:
 
 	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,char *szTexture);
 	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,char *szTexture);
+
+	void AddInflectionPont(int x, int y);
+	void RemoveInflectionPoint();
 };
 
 struct TH_PARAMS

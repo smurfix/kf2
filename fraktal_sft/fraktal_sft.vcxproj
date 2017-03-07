@@ -44,6 +44,7 @@
     <ClInclude Include="..\jpeg\jpeglib.h" />
     <ClInclude Include="..\jpeg\jversion.h" />
     <ClInclude Include="..\jpeg\transupp.h" />
+    <ClInclude Include="..\test1\m128.h" />
     <ClInclude Include="CDecNumber.h" />
     <ClInclude Include="CFixedFloat.h" />
     <ClInclude Include="complex.h" />
@@ -122,6 +123,9 @@
     <ClCompile Include="..\jpeg\wrtarga.c" />
     <ClCompile Include="CDecNumber.cpp" />
     <ClCompile Include="CFixedFloat.cpp" />
+    <ClCompile Include="dbl_functions.cpp" />
+    <ClCompile Include="exp_functions.cpp" />
+    <ClCompile Include="exp_functions2.cpp" />
     <ClCompile Include="fraktal_sft.cpp" />
     <ClCompile Include="listbox.cpp" />
     <ClCompile Include="main.cpp" />
@@ -277,6 +281,7 @@
       <OutputFile>.\Debug\fraktal_sft.exe</OutputFile>
       <AdditionalLibraryDirectories>C:\pojects\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comctl32.lib;jpeg_static.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <StackReserveSize>5000000</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -358,7 +363,7 @@
       <OutputFile>Release\fraktal_sft64.exe</OutputFile>
       <AdditionalLibraryDirectories>C:\pojects\common;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>comctl32.lib;jpeg_static.lib;odbc32.lib;odbccp32.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <StackReserveSize>20000000</StackReserveSize>
+      <StackReserveSize>50000000</StackReserveSize>
     </Link>
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

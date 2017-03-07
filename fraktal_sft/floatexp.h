@@ -13,7 +13,7 @@ class floatexp
 public:
 	double val;
 	__int64 exp;
-	floatexp &abs()
+	__inline floatexp &abs()
 	{
 		if(val<0)
 			val=-val;
@@ -214,17 +214,17 @@ public:
 			return FALSE;
 		return val==a.val;
 	}
-	bool iszero() const
+	inline bool iszero() const
 	{
 		return (val==0 && exp==0);
 	}
-	double todouble() const
+	inline double todouble() const
 	{
 		if(exp<-MAX_PREC || exp>MAX_PREC)
 			return 0;
 		return setExp(val,exp);
 	}
-	double todouble(int nScaling) const
+	inline double todouble(int nScaling) const
 	{
 		if(!nScaling)
 			return todouble();
@@ -288,7 +288,7 @@ public:
 			val = -val;
 		return *this;
 	}
-	void ToFixedFloat(CFixedFloat &a) const
+	inline void ToFixedFloat(CFixedFloat &a) const
 	{
 		char *szTmp = new char[150000];
 		*szTmp=0;

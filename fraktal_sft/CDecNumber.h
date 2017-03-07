@@ -3,11 +3,15 @@
 #ifndef __CDECNUMBER_H__
 #define __CDECNUMBER_H__
 
-#define DECUSE64 1
 #ifdef _DEBUG
 #define  DECNUMDIGITS 1010
 #else
+#ifdef _WIN64
+#define DECUSE64 1
 #define  DECNUMDIGITS 101016
+#else
+#define  DECNUMDIGITS 10106
+#endif
 //#define  DECNUMDIGITS 1010
 #endif
 extern "C"{
