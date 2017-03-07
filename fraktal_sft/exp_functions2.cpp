@@ -10,7 +10,7 @@ extern double g_imag;
 extern double g_FactorAR;
 extern double g_FactorAI;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
-floatexp lb_abs_exp(floatexp &c, floatexp &d)
+floatexp lb_abs_exp(const floatexp &c, const floatexp &d)
 {
 	floatexp abs_val, _abs_val, _2=2;
 	if (c>0){
