@@ -1,8 +1,8 @@
 WINPREFIX ?= $(HOME)/win64
 COMPILE := x86_64-w64-mingw32-g++
-COMPILE_FLAGS := -xc++ -fpermissive -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 -g -O3 -march=native -msse2 -ffast-math -Wno-write-strings
-LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,33554432
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid
+COMPILE_FLAGS := -xc++ -fpermissive -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 -g -O3 -march=native -msse2 -ffast-math -Wno-write-strings -Wno-deprecated-declarations -I$(WINPREFIX)/include
+LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,33554432 -L$(WINPREFIX)/lib
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
 WINDRES := x86_64-w64-mingw32-windres
 EXEEXT := .64.exe
 

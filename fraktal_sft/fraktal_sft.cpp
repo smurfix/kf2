@@ -157,6 +157,9 @@ public:
 			g_LDBL = 2;
 		if (!(ConvertFromFixedFloat = (void(*)(void*, int, FIXEDFLOAT_TYPE *, BOOL))GetProcAddress(hLD, "ConvertFromFixedFloat")))
 			g_LDBL = 2;
+#ifndef KF_CUSTOM_NUMBERS
+#define ConvertFromFixedFloat(p,nv,pv,s) do{}while(0)
+#endif
 		if (!(Perturbation4 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation4")))
 			g_LDBL = 2;
 		if (!(BurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "BurningShip")))
@@ -6869,8 +6872,17 @@ void CFraktalSFT::RenderFractal()
 		}
 	}
 
+#ifdef KF_CUSTOM_NUMBERS
 	ToZoom((CDecNumber)4 / ((CDecNumber)div.ToText()), m_nZoom);
 	m_rstart.SetMaxSignificant((int)m_nZoom + nZeroes + 16);
+#else
+	{
+		Precision q(LOW_PRECISION);
+		FixedFloat f(div.m_f);
+		f.precision(LOW_PRECISION);
+		ToZoom(CDecNumber(FixedFloat(4 / f)), m_nZoom);
+	}
+#endif
 	if (m_bAddReference){
 		int x, y;
 		m_nTotal = 0;
@@ -7251,7 +7263,9 @@ void CFraktalSFT::RenderFractalEXP()
 }
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
 {
+#ifdef KF_CUSTOM_NUMBERS
 	m_rstart.SetMaxSignificant(0);
+#endif
 	m_rstart = rstart;
 	m_rstop = rstop;
 	m_istart = istart;
@@ -7289,11 +7303,18 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	d = ((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5;
 	CDecNumber rstart = re - d;
 	CDecNumber rstop = re + d;
+#ifdef KF_CUSTOM_NUMBERS
 	m_rstart.SetMaxSignificant(0);
 	m_rstart = rstart.ToText();
 	m_rstop = rstop.ToText();
 	m_istart = istart.ToText();
 	m_istop = istop.ToText();
+#else
+	m_rstart = rstart.m_dec;
+	m_rstop = rstop.m_dec;
+	m_istart = istart.m_dec;
+	m_istop = istop.m_dec;
+#endif
 }
 
 HBITMAP CFraktalSFT::GetBitmap()

@@ -1,3 +1,5 @@
+#ifdef KF_CUSTOM_NUMBERS
+
 #include <windows.h>                 // for printf
 #include <stdio.h>                 // for printf
 #ifndef __CDECNUMBER_H__
@@ -671,3 +673,180 @@ int operator+=(int &nB,const CDecNumber &A);
 int operator+=(double &nB,const CDecNumber &A);
 int operator+=(CDecNumber &A,const double &nB);
 #endif //__CDECNUMBER_H__
+
+#else
+
+#ifndef KF_CDECNUMBER_H
+#define KF_CDECNUMBER_H
+
+//#define KF_FLOAT_BACKEND_MPFR
+#ifdef KF_FLOAT_BACKEND_MPFR
+
+#define BOOST_MULTIPRECISION_MPFR_DEFAULT_PRECISION 20u
+#include <boost/multiprecision/mpfr.hpp>
+typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<0>> decNumber;
+
+#else
+
+#include <boost/multiprecision/gmp.hpp>
+typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
+
+#endif
+
+#define LOW_PRECISION 20u
+#define DECNUMDIGITS 101016
+
+class Precision
+{
+	unsigned digits10;
+public:
+	inline Precision(unsigned digits10)
+	: digits10(digits10)
+	{
+		decNumber::default_precision(digits10);
+	};
+	inline ~Precision()
+	{
+		decNumber::default_precision(digits10);
+	};
+};
+
+class CDecNumber
+{
+public:
+	decNumber m_dec;
+	char *m_szString;
+
+  inline CDecNumber()
+  {
+		m_dec.precision(LOW_PRECISION);
+		m_dec = 0;
+		m_szString = nullptr;
+	};
+  inline CDecNumber(const CDecNumber &a)
+  {
+		m_dec.precision(a.m_dec.precision());
+		m_dec = a.m_dec;
+		m_szString = nullptr;
+	};
+  inline CDecNumber(const decNumber &a)
+  {
+		m_dec.precision(a.precision());
+		m_dec = a;
+		m_szString = nullptr;
+	};
+  inline CDecNumber(const char *a)
+  {
+		m_dec.precision(strlen(a));
+		Precision p(m_dec.precision());
+		m_dec = decNumber(a);
+		m_szString = nullptr;
+	};
+  inline CDecNumber(double a)
+  {
+		m_dec.precision(LOW_PRECISION);
+		m_dec = a;
+		m_szString = nullptr;
+	};
+  inline CDecNumber(int a)
+  {
+		m_dec.precision(LOW_PRECISION);
+		m_dec = a;
+		m_szString = nullptr;
+	};
+  inline ~CDecNumber()
+  {
+		if (m_szString)
+		  delete[] m_szString;
+		m_szString = nullptr;
+	};
+
+  inline CDecNumber &operator*=(double b)
+  {
+		if (m_szString)
+			delete[] m_szString;
+		m_szString = nullptr;
+		m_dec *= b;
+		return *this;
+	}
+
+  inline friend CDecNumber operator-(const CDecNumber &a);
+  inline friend CDecNumber operator+(const CDecNumber &a, const CDecNumber &b);
+  inline friend CDecNumber operator-(const CDecNumber &a, const CDecNumber &b);
+  inline friend CDecNumber operator*(const CDecNumber &a, const CDecNumber &b);
+  inline friend CDecNumber operator/(const CDecNumber &a, const CDecNumber &b);
+  inline friend CDecNumber operator^(const CDecNumber &a, int b);
+
+  inline friend bool operator>(const CDecNumber &a, int b);
+  inline friend bool operator<(const CDecNumber &a, int b);
+  inline friend bool operator==(const CDecNumber &a, int b);
+  inline friend bool operator<(const CDecNumber &a, const CDecNumber &b);
+
+  char *ToText();
+
+  inline int ToInt() const
+  {
+		return int(m_dec);
+	};
+};
+
+inline CDecNumber operator-(const CDecNumber &a)
+{
+	Precision p(a.m_dec.precision());
+	return CDecNumber(-a.m_dec);
+}
+
+inline CDecNumber operator+(const CDecNumber &a, const CDecNumber &b)
+{
+	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	return CDecNumber(a.m_dec + b.m_dec);
+}
+
+inline CDecNumber operator-(const CDecNumber &a, const CDecNumber &b)
+{
+	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	return CDecNumber(a.m_dec - b.m_dec);
+}
+
+inline CDecNumber operator*(const CDecNumber &a, const CDecNumber &b)
+{
+	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	return CDecNumber(a.m_dec * b.m_dec);
+}
+
+inline CDecNumber operator/(const CDecNumber &a, const CDecNumber &b)
+{
+	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	return CDecNumber(a.m_dec / b.m_dec);
+}
+
+inline CDecNumber operator^(const CDecNumber &a, int b)
+{
+	Precision p(a.m_dec.precision());
+	using std::pow;
+	return CDecNumber(pow(a.m_dec, b));
+}
+
+inline bool operator>(const CDecNumber &a, int b)
+{
+	return a.m_dec > b;
+}
+
+inline bool operator<(const CDecNumber &a, int b)
+{
+	return a.m_dec < b;
+}
+
+inline bool operator==(const CDecNumber &a, int b)
+{
+	return a.m_dec == b;
+}
+
+inline bool operator<(const CDecNumber &a, const CDecNumber &b)
+{
+	return a.m_dec < b.m_dec;
+}
+
+#endif
+
+#endif

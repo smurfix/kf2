@@ -4257,7 +4257,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					DeleteObject(g_bmSaveZoomBuff);
 					g_bmSaveZoomBuff=NULL;
 					CFixedFloat tmp;
+#ifdef KF_CUSTOM_NUMBERS
 					tmp.SetMaxSignificant(0);
+#endif
 					RECT r;
 					GetClientRect(hWnd,&r);
 					RECT sr;
@@ -5351,6 +5353,8 @@ int Test()
 		return MessageBox(NULL,"Success","Success",MB_OK);
 	return 0;
 }
+
+#ifdef KF_CUSTOM_NUMBERS
 CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
 {
 	int g_nMaxSignificant=3;
@@ -5418,12 +5422,15 @@ CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
 	Ret.m_bSign = !(This.m_bSign==A.m_bSign);
 	return Ret;
 }
+#endif
 
 int Test1()
 {
 	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	CFixedFloat m_rref = 0.25, m_iref=0;
+#ifdef KF_CUSTOM_NUMBERS
 	m_rref.SetMaxSignificant(3111);
+#endif
 	double dr, di;
 	int antal;
 	SYSTEMTIME st;

@@ -9,7 +9,9 @@
 #include "fraktal_sft.h"
 #include "CDecNumber.h"
 
+#ifdef KF_CUSTOM_NUMBERS
 extern decContext g_set;
+#endif
 extern CFraktalSFT g_SFT;
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
@@ -224,13 +226,20 @@ int WINAPI ThNewton(HWND hWnd)
 	char szStatus[300];
 	complex<flyttyp> center(g_szRe,g_szIm);
 
+#ifdef KF_CUSTOM_NUMBERS
 	int digits = g_set.digits;
+#endif
 	flyttyp radius = g_szZoom;
 	radius*=g_nZoomSize;
 	char *e = strstr(g_szZoom,"E");
 	if(!e)
 		e = strstr(g_szZoom,"e");
+#ifdef KF_CUSTOM_NUMBERS
 	g_set.digits=(e?2*atoi(e+1):0) + 20;
+#else
+	unsigned uprec = (e?2*atoi(e+1):0) + 20;
+	Precision prec(uprec);
+#endif
 
 	char szVal[25];
 	int i;
@@ -317,7 +326,9 @@ int WINAPI ThNewton(HWND hWnd)
 				bOK=TRUE;
 		}
 	}
+#ifdef KF_CUSTOM_NUMBERS
 	g_set.digits=digits;
+#endif
 	g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	return 0;

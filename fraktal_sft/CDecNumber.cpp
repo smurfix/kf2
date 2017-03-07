@@ -1,3 +1,5 @@
+#ifdef KF_CUSTOM_NUMBERS
+
 #include "CDecNumber.h"
 extern "C" {
 	int raise(int a){
@@ -10387,3 +10389,68 @@ void CDecNumber::Parse(const char *sz)
 void CDecNumber::SetMaxSignificant(int n)
 {
 }
+
+#else
+
+#include "CDecNumber.h"
+
+#include <iomanip>
+#include <sstream>
+#include <string>
+
+char *CDecNumber::ToText()
+{
+	if (m_szString)
+		return m_szString;
+  std::ostringstream os;
+  os << std::setprecision(m_dec.precision()) << std::scientific << m_dec;
+	if(!m_szString)
+		m_szString = new char[DECNUMDIGITS+140];
+	strncpy(m_szString, os.str().c_str(), DECNUMDIGITS+140);
+	char *e;
+	if (e = strstr(m_szString,"e"))
+	  *e = 'E';
+	if(strstr(m_szString,".") && !e){
+		int n = strlen(m_szString) - 1;
+		while(m_szString[n]=='0')
+			m_szString[n--]=0;
+		if(m_szString[n]=='.')
+			m_szString[n]=0;
+	}
+	else if(!strncmp(m_szString,"0E",2)){
+		m_szString[1]=0;
+	}
+	else if(e){
+		char *szExp = e;
+		szExp++;
+		int nExp = atoi(szExp);
+		if(nExp<DECNUMDIGITS-3 && nExp>0){
+			int i;
+			for(i=0;m_szString[i] && m_szString[i]!='.' && m_szString[i+1]!='E';i++);
+			while(nExp){
+				if(m_szString[i+1]=='E'){
+					if(i==0)
+						i++;
+					break;
+				}
+				m_szString[i] = m_szString[i+1];
+				nExp--;
+				i++;
+			}
+			while(nExp){
+				m_szString[i]='0';
+				nExp--;
+				i++;
+			}
+			m_szString[i]=0;
+		}
+		szExp = strstr(m_szString,"E");
+		while(szExp && szExp!=m_szString && (*(szExp-1)=='0' || *(szExp-1)=='.')){
+			strcpy(szExp-1,szExp);
+			szExp--;
+		}
+	}
+	return m_szString;
+}
+
+#endif

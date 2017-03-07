@@ -263,6 +263,9 @@ public:
 #ifndef _GCC_
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
+
+#ifdef KF_CUSTOM_NUMBERS
+
 		exp=0;
 		val=0;
 
@@ -287,9 +290,29 @@ public:
 		if(a.m_bSign)
 			val = -val;
 		return *this;
+
+#else
+
+		signed long int e = 0;
+#ifdef KF_FLOAT_BACKEND_MPFR
+		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
+#else
+		val = mpf_get_d_2exp(&e, a.m_f.backend().data());
+#endif
+		exp = e;
+		_ALIGN_(val, exp);
+		if ((a > 0) != (val > 0))
+			val = -val;
+		return *this;
+
+#endif
+
 	}
 	void ToFixedFloat(CFixedFloat &a) const
 	{
+
+#ifdef KF_CUSTOM_NUMBERS
+
 		char *szTmp = new char[150000];
 		*szTmp=0;
 		floatexp partmin = (double)1/(double)FIXEDFLOAT_PARTMAX;
@@ -319,6 +342,18 @@ public:
 		szTmp[b]=0;
 		a = szTmp;
 		delete szTmp;
+
+#else
+
+		a = val;
+#ifdef KF_FLOAT_BACKEND_MPFR
+		mpfr_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
+#else
+		mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
+#endif
+
+#endif
+
 	}
 #else
 	inline floatexp setLongDouble(long double a)

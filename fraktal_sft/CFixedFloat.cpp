@@ -1,3 +1,5 @@
+#ifdef KF_CUSTOM_NUMBERS
+
 // Kalles Fraktaler 2
 //
 // © 2014 Karl Runmo ,runmo@hotmail.com
@@ -970,3 +972,30 @@ CFixedFloat operator*(const CFixedFloat &A,const CFixedFloat &B)
 	Ret*=B;
 	return Ret;
 }
+
+#else
+
+#include <windows.h>
+
+#include "CFixedFloat.h"
+
+#include <iomanip>
+#include <sstream>
+#include <string>
+
+int g_nStrings=0;
+char g_szStrings[4][FIXEDFLOAT_ENTRIES*FIXEDFLOAT_DIGITS+256];
+char *CFixedFloat::ToText()
+{
+	unsigned int nString = (unsigned int)InterlockedIncrement((LPLONG)&g_nStrings);
+	char *szRet = g_szStrings[nString%4];
+  std::ostringstream os;
+  os << std::setprecision(m_f.precision()) << std::scientific << m_f;
+	strncpy(szRet, os.str().c_str(), FIXEDFLOAT_ENTRIES*FIXEDFLOAT_DIGITS+256);
+	char *e;
+	if (e = strstr(szRet,"e"))
+	  *e = 'E';
+	return szRet;
+}
+
+#endif
