@@ -39,7 +39,9 @@ int g_nRefZero = 3;
 //#define TERM6
 //#define TERM7
 int g_nAddRefX, g_nAddRefY;
+#ifdef KF_CUSTOM_NUMBERS
 extern decContext g_set;
+#endif
 
 BOOL g_LDBL = FALSE;
 double g_Degree = 0;
@@ -246,10 +248,12 @@ public:
 		{
 			fprintf(stderr, "Perturbation4\n");
 			g_LDBL = 2;
+		}
 		if (!(LDBL_MandelCalc = (int(*)(int, int, int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*,double,double))GetProcAddress(hLD, "LDBL_MandelCalc")))
+		{
+			fprintf(stderr, "LDBL_MandelCalc\n");
 			g_LDBL = 2;
 		}
-#endif
 		if (!(Perturbation_3rd = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_3rd")))
 		{
 			fprintf(stderr, "Perturbation_3rd\n");
