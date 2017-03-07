@@ -8,6 +8,9 @@ WINDRES := x86_64-w64-mingw32-windres
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
+fraktal_sft/dbl_functions.cpp \
+fraktal_sft/exp_functions2.cpp \
+fraktal_sft/exp_functions.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/main.cpp \

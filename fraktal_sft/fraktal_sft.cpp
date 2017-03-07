@@ -1,6 +1,6 @@
-// Kalles Fraktaler 2
+﻿// Kalles Fraktaler 2
 //
-// � 2014-2015 Karl Runmo ,runmo@hotmail.com
+// © 2014-2015 Karl Runmo ,runmo@hotmail.com
 //
 // COVERED CODE IS PROVIDED UNDER THIS LICENSE ON AN "AS IS" BASIS, WITHOUT WARRANTY
 // OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, WITHOUT LIMITATION, WARRANTIES
@@ -22,20 +22,24 @@
 
 double g_real=1;
 double g_imag=1;
-#define _abs(a) ((a)>0?(a):-(a))
+double g_SeedR=0;
+double g_SeedI=0;
+double g_FactorAR=1;
+double g_FactorAI=0;
+#define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 double pi = 3.14159265;
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
 int g_nLDBL = 600;
 int g_nEXP = 4900;
-int g_nRefZero = 10;
-#define SMOOTH_BAILOUT 100
+int g_nRefZero = 3;
 #define APPROX_GRID 19
 #define TERM4
 #define TERM5
 //#define TERM6
 //#define TERM7
 int g_nAddRefX, g_nAddRefY;
+extern decContext g_set;
 
 BOOL g_LDBL = FALSE;
 double g_Degree = 0;
@@ -82,27 +86,26 @@ int(*Perturbation_8th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, v
 int(*Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
-int(*BurningShip)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*BurningShip3)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*Celtic)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*Celtic3)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*Buffalo)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicBuffalo)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*Mandelbar)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicMandelbar)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*MandelbarCeltic)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*PerpendicularMandelbrot)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*PerpendicularBurningShip)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*PerpendicularCeltic)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*PerpendicularBuffalo)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicQuasiBurningShip)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicPartialBSReal)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicPartialBSImag)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicFlyingSquirrel)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
-int(*CubicQuasiPerpendicular)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(*LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
 //
 // The long double library is loaded dynamically, so that there can be error handling
 //
+void ErrorText()  
+{     
+	TCHAR szMsgBuf[500];      
+
+	DWORD dwError = GetLastError();         
+	FormatMessage(         
+		FORMAT_MESSAGE_FROM_SYSTEM,         
+		NULL,                               
+		dwError,                     
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   
+		szMsgBuf,                   
+		500,                                  
+		NULL );                              
+	MessageBox(NULL,szMsgBuf,"Error",MB_ICONSTOP|MB_OK);
+}  
+
 class CInitLD
 {
 public:
@@ -118,8 +121,9 @@ public:
 			g_LDBL = 2;
 			return;
 		}
-		if (Version() != 20170307){
-			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
+		int nV=Version();
+		if (nV != 11){
+			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 11);
 			g_LDBL = 2;
 			return;
 		}
@@ -242,98 +246,7 @@ public:
 		{
 			fprintf(stderr, "Perturbation4\n");
 			g_LDBL = 2;
-		}
-		if (!(BurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "BurningShip")))
-		{
-			fprintf(stderr, "BurningShip\n");
-			g_LDBL = 2;
-		}
-		if (!(BurningShip3 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "BurningShip3")))
-		{
-			fprintf(stderr, "BurningShip3\n");
-			g_LDBL = 2;
-		}
-		if (!(Celtic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Celtic")))
-		{
-			fprintf(stderr, "Celtic\n");
-			g_LDBL = 2;
-		}
-		if (!(Celtic3 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Celtic3")))
-		{
-			fprintf(stderr, "Celtic3\n");
-			g_LDBL = 2;
-		}
-		if (!(Buffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Buffalo")))
-		{
-			fprintf(stderr, "Buffalo\n");
-			g_LDBL = 2;
-		}
-		if (!(CubicBuffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicBuffalo")))
-		{
-			fprintf(stderr, "CubicBuffalo\n");
-			g_LDBL = 2;
-		}
-		if (!(Mandelbar = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Mandelbar")))
-		{
-			fprintf(stderr, "Mandelbar\n");
-			g_LDBL = 2;
-		}
-#if 0
-		if (!(CubicMandelbar = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicMandelbar")))
-		{
-			fprintf(stderr, "CubicMandelbar\n");
-			g_LDBL = 2;
-		}
-#endif
-		if (!(MandelbarCeltic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "MandelbarCeltic")))
-		{
-			fprintf(stderr, "MandelbarCeltic\n");
-			g_LDBL = 2;
-		}
-		if (!(PerpendicularMandelbrot = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularMandelbrot")))
-		{
-			fprintf(stderr, "PerpendicularMandelbrot\n");
-			g_LDBL = 2;
-		}
-		if (!(PerpendicularBurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularBurningShip")))
-		{
-			fprintf(stderr, "PerpendicularBurningShip\n");
-			g_LDBL = 2;
-		}
-		if (!(PerpendicularCeltic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularCeltic")))
-		{
-			fprintf(stderr, "PerpendicularCeltic\n");
-			g_LDBL = 2;
-		}
-		if (!(PerpendicularBuffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularBuffalo")))
-		{
-			fprintf(stderr, "PerpendicularBuffalo\n");
-			g_LDBL = 2;
-		}
-		if (!(CubicQuasiBurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicQuasiBurningShip")))
-		{
-			fprintf(stderr, "CubicQuasiBurningShip\n");
-			g_LDBL = 2;
-		}
-#if 0
-		if (!(CubicPartialBSReal = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicPartialBSReal")))
-		{
-			fprintf(stderr, "CubicPartialBSReal\n");
-			g_LDBL = 2;
-		}
-		if (!(CubicPartialBSImag = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicPartialBSImag")))
-		{
-			fprintf(stderr, "CubicPartialBSImag\n");
-			g_LDBL = 2;
-		}
-		if (!(CubicFlyingSquirrel = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicFlyingSquirrel")))
-		{
-			fprintf(stderr, "CubicFlyingSquirrel\n");
-			g_LDBL = 2;
-		}
-		if (!(CubicQuasiPerpendicular = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicQuasiPerpendicular")))
-		{
-			fprintf(stderr, "CubicQuasiPerpendicular\n");
+		if (!(LDBL_MandelCalc = (int(*)(int, int, int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*,double,double))GetProcAddress(hLD, "LDBL_MandelCalc")))
 			g_LDBL = 2;
 		}
 #endif
@@ -464,6 +377,10 @@ CFraktalSFT::CFraktalSFT()
 	m_bReuseRef = FALSE;
 	m_nIterDiv = 1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
+
+	m_nInflections=0;
+	m_pInflections=NULL;
+
 	GenerateColors(128, 1);
 	ApplyColors();
 }
@@ -885,7 +802,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			GetIterations(nMin, nMax,NULL,NULL,TRUE);
 			iter = (double)1024 * ((double)iter - (double)nMin) / ((double)nMax - (double)nMin);
 		}
-		else if (m_nColorMethod == 5){
+		else if (m_nColorMethod == 5 || m_nColorMethod == 6){
 			double p1, p2, p3, p4;
 			iter=0;
 			if (x){
@@ -898,7 +815,8 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			}
 			else
 				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			iter += _abs(p1 - p2);
+			double _abs_val;
+			iter += _abs(p1 - p2)*1.414;
 
 			if (x && y){
 				p1 = (double)m_nPixels[x - 1][y - 1] + (double)1 - m_nTrans[x - 1][y - 1];
@@ -922,7 +840,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			}
 			else
 				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			iter += _abs(p1 - p2);
+			iter += _abs(p1 - p2)*1.414;
 
 			if (y && x<m_nX-1){
 				p1 = (double)m_nPixels[x + 1][y - 1] + (double)1 - m_nTrans[x + 1][y - 1];
@@ -938,6 +856,14 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 //			iter/=4;
 //			iter*=iter;
 			iter*=(double)m_nX / (double)640;
+			iter=sqrt(iter);
+			/*iter=log(iter);
+			if(iter<0)
+				iter=0;*/
+			if(iter>1024)
+				iter=1024;
+			if(m_nColorMethod == 6 && iter>m_nIterDiv)
+				iter = (double)nIter + (double)1 - offs;
 		}
 		if (m_nIterDiv != 1){
 			iter /= m_nIterDiv;
@@ -1508,14 +1434,6 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	delete[] APi;
 }
 
-struct MC
-{
-	CFixedFloat *xr, *xi, *sr, *si, *xrxid;
-	HANDLE hDone;
-	HANDLE hWait;
-	HANDLE hExit;
-	int nType;
-};
 DWORD WINAPI ThMC(MC *pMC)
 {
 	HANDLE hW[2];
@@ -1533,14 +1451,6 @@ DWORD WINAPI ThMC(MC *pMC)
 	SetEvent(pMC->hDone);
 	return 0;
 }
-struct MC2
-{
-	CFixedFloat *xrn, *xin, *xrxid, *sr, *si, *m_iref, *m_rref;
-	HANDLE hDone;
-	HANDLE hWait;
-	HANDLE hExit;
-	int nType;
-};
 DWORD WINAPI ThMC2(MC2 *pMC)
 {
 	HANDLE hW[2];
@@ -1556,227 +1466,12 @@ DWORD WINAPI ThMC2(MC2 *pMC)
 	SetEvent(pMC->hDone);
 	return 0;
 }
-void CFraktalSFT::CalculateReference()
+void CFraktalSFT::SpecialFractal(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si)
 {
 	int i;
-	if (m_db_dxr)
-		delete m_db_dxr;
-	m_db_dxr = new double [m_nMaxIter];
-	if (m_db_dxi)
-		delete[] m_db_dxi;
-	m_db_dxi = new double [m_nMaxIter];
-	if (m_db_z)
-		delete[] m_db_z;
-	m_db_z = new double [m_nMaxIter];
-
-	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-
-	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 1 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xrxid = 2 * xr*xi;
-			xin = xrxid.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = -2.0 * (xr * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3.0)) * xr).Abs() + m_rref;
-			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = xr * xi * 2.0 + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3)) * xr).Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = -(sr - si * 3) * xr + m_rref;
-			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 5){
+	if (m_nFractalType == 5){
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			xrn = (sr - si).Abs() + m_rref;
 			xin = m_iref - xr*xi*2.0;
@@ -2026,6 +1721,1310 @@ void CFraktalSFT::CalculateReference()
 			}
 		}
 	}
+	else if (m_nFractalType == 15){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = 4 * xr * xi.Abs() * (sr - si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 16){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = 4 * xr.Abs() * xi * (sr - si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 17){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = -4 * xr.Abs() * xi * (sr - si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 18){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
+			xin = 4 * xr * xi.Abs() * (sr - si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 19){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
+			xin = 4 * xr.Abs() * xi * (sr - si) + m_iref;		//func3
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 20){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
+			xin = -4 * xr.Abs() * xi * (sr - si) + m_iref;		//func4
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 21){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
+			xin = (4 * xr * xi * (sr - si)).Abs() + m_iref;		//func6
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 22){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
+			xin = -4 * xr * xi * (sr - si) + m_iref;		//func8
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 23){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
+			xin = -4 * xr * xi * (sr - si).Abs() + m_iref;		//func9
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 24){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
+			xin = 4 * xr * xi * (sr - si).Abs() + m_iref;		//func10
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 25){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
+			xin = -4 * xr * xi * (sr - si).Abs() + m_iref;		//func9
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 26){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
+			xin = 4 * xr * xi * (sr - si).Abs() + m_iref;		//func10
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+
+	else if (m_nFractalType == 27){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
+			xin = xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func15
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 28){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
+			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func16
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 29){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() +m_rref;	//func17
+			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func16
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 30){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
+			xin = -(xi * (5 * sr*sr - 10 * sr*si + si*si)).Abs() +m_iref;	//func18
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 31){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
+			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si).Abs() +m_iref;		//func19
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 32){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
+			xin = xi * (5 * sr*sr - 10 * sr*si + si*si).Abs() +m_iref;	//func20
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 33){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = si*si.Abs()-4*xi*(xr*xi).Abs()*xr-sr*si.Abs()-si*sr.Abs()+sr*sr.Abs() + m_rref;
+			xin = - 2*xr*xi*si.Abs()-2*si*(xr*xi).Abs()+2*sr*(xr*xi).Abs()+2*xr*xi*sr.Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 34){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = 4 * xr * (xi*sr - xi*si).Abs() + m_iref;	//func21
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 35){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = -4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 36){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xin = 4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//-func22
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 37){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
+			xin = 4 * xr * (xi*sr - xi*si).Abs() + m_iref; //func21
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 38){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
+			xin = -4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 39){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
+			xin = 4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 40){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = 3*(sr*xi).Abs()*si*xi-(si*xi).Abs()*si*xi+9*(xr*si).Abs()*xr*si-3*(sr*xr).Abs()*xr*si+3*(si*xi).Abs()*sr*xi-9*(sr*xi).Abs()*sr*xi-3*(xr*si).Abs()*sr*xr+(sr*xr).Abs()*sr*xr +m_rref;
+			xin = 3*si*xi*(xr*si).Abs()-(sr*xr).Abs()*si*xi-9*(sr*xi).Abs()*si*xr-9*(xr*si).Abs()*xi*sr+3*(sr*xr).Abs()*xi*sr+3*(si*xi).Abs()*xr*si-(si*xi).Abs()*sr*xr+3*(xi*sr).Abs()*sr*xr + m_iref;	//func22
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 41){
+		//xr = -0.5;
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr - si) - xr.Abs() +m_rref;
+			xin = (xr * xi).Abs() * 2.0 - xi.Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+}
+void CFraktalSFT::SpecialFractal2(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si)
+{
+	int i;
+	double abs_val;
+	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
+	if (m_nFractalType == 42){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2)+(z^3)+c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 43){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) - (z^3)+c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 44){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> _2(2,0);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = _2*(z^2) - (z^3)+c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 45){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) + (z^4) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 46){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) - (z^4) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 47){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) + (z^5) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 48){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) - (z^5) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 49){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) + (z^6) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 50){
+		complex<CFixedFloat> z(xr,xi);
+		complex<CFixedFloat> c(m_rref,m_iref);
+		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			z = a*(z^2) - (z^6) + c;
+			m_nRDone++;
+
+			m_db_dxr[i] = z.m_r.ToDouble();
+			m_db_dxi[i] = z.m_i.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 51){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr-si)*(sr-si).Abs() - 2*xr*xi*(2*xr*xi).Abs() + m_rref;
+			xin = (sr-si)*(2*xr*xi).Abs() + 2*xr*xi*(sr-si).Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+}
+void CFraktalSFT::CalculateReference()
+{
+	int i;
+	if (m_db_dxr)
+		delete m_db_dxr;
+	m_db_dxr = new double [m_nMaxIter];
+	if (m_db_dxi)
+		delete[] m_db_dxi;
+	m_db_dxi = new double [m_nMaxIter];
+	if (m_db_z)
+		delete[] m_db_z;
+	m_db_z = new double [m_nMaxIter];
+
+	CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
+	double abs_val;
+	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
+
+	int inf;
+	complex<CFixedFloat> c(m_rref,m_iref);
+	for(inf=m_nInflections-1;inf>=0;inf--){
+		complex<CFixedFloat> d = c-m_pInflections[inf];
+		c=m_pInflections[inf]+d*d;				
+	}
+	m_rref=c.m_r;
+	m_iref=c.m_i;
+
+	m_nGlitchIter = m_nMaxIter + 1;
+	int nMaxIter = m_nMaxIter;
+	if (m_nFractalType == 1 && m_nPower == 2){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr - si + m_rref;
+			xrxid = 2 * xr*xi;
+			xin = xrxid.Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 1 && m_nPower == 3){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
+			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 1 && m_nPower == 4){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr*sr + si*si - 6*sr*si + m_rref;
+			xin = 4 * (xr*xi).Abs()*(sr-si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 1 && m_nPower == 5){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) + m_rref;
+			xin = xi.Abs() * (5 * sr*sr - 10 * sr*si + si*si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 2 && m_nPower == 2){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr - si).Abs() + m_rref;
+			xin = -2.0 * (xr * xi).Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 2 && m_nPower == 3){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = ((sr - (si * 3.0)) * xr).Abs() + m_rref;
+			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 2 && m_nPower == 4){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr*sr + si*si - 6*sr*si).Abs() + m_rref;
+			xin = (4*xr*xi*(sr-si)).Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 2 && m_nPower == 5){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() + m_rref;
+			xin = (xi * (5 * sr*sr - 10 * sr*si + si*si)).Abs() + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 3 && m_nPower == 2){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr - si).Abs() + m_rref;
+			xin = xr * xi * 2.0 + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 3 && m_nPower == 3){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = ((sr - (si * 3)) * xr).Abs() + m_rref;
+			xin = ((sr * 3) - si) * xi + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 3 && m_nPower == 4){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
+			xin = 4 * xr * xi * (sr - si) + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 3 && m_nPower == 5){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() +m_rref;
+			xin = xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 4 && m_nPower == 2){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = sr - si + m_rref;
+			xin = m_iref - xr*xi*2.0;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 4 && m_nPower == 3){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = -(sr - si * 3) * xr + m_rref;
+			xin = (sr * 3 - si) * xi + m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0000001;
+			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 4 && m_nPower == 4){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xin = -4 * xr * xi * (sr - si) + m_iref;
+			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.00001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if (m_nFractalType == 4 && m_nPower == 5){
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;
+			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;
+			xr = xrn;
+			xi = xin;
+			sr = xr.Square();
+			si = xi.Square();
+			m_nRDone++;
+
+			m_db_dxr[i] = xr.ToDouble();
+			m_db_dxi[i] = xi.ToDouble();
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*0.0001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+		}
+	}
+	else if(m_nFractalType && m_nFractalType<42)
+		SpecialFractal(nMaxIter,xrn,xin,xr,xi,sr,si);
+	else if(m_nFractalType)
+		SpecialFractal2(nMaxIter,xrn,xin,xr,xi,sr,si);
 	else if (m_nPower == 2){
 		int antal=0;
 		if(0 && m_bAddReference && m_nMaxApproximation){
@@ -2174,1288 +3173,7 @@ void CFraktalSFT::CalculateReference()
 		}
 	}
 }
-void CFraktalSFT::CalculateReferenceLDBL()
-{
-	int i;
-	if (m_ldxr)
-		ReleaseArray(m_ldxr);
-	m_ldxr = (ldbl*)AllocateArray(m_nMaxIter);
-	if (m_ldxi)
-		ReleaseArray(m_ldxi);
-	m_ldxi = (ldbl*)AllocateArray(m_nMaxIter);
-	if (m_db_z)
-		delete[] m_db_z;
-	m_db_z = new double [m_nMaxIter];
 
-	ldbl noll;
-	AssignInt(&noll,0);
-
-	double abs_val;
-	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
-	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
-	if (m_nFractalType == 1 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xrxid = 2 * xr*xi;
-			xin = xrxid.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = -2.0 * (xr * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3.0)) * xr).Abs() + m_rref;
-			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = xr * xi * 2.0 + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3)) * xr).Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = -(sr - si * 3) * xr + m_rref;
-			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 6){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 7){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 8){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 9){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 10){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = -(((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 11){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 12){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si * 3) * xr + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 13){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si * 3) * xr + m_rref;
-			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 14){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = -(((sr * 3.0) - si)).Abs() * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nPower == 2){
-		MC mc[3];
-		HANDLE hDone[3];
-		HANDLE hWait[3];
-		HANDLE hExit[3];
-		for (i = 0; i<3; i++){
-			mc[i].xr = &xr;
-			mc[i].xi = &xi;
-			mc[i].sr = &sr;
-			mc[i].si = &si;
-			mc[i].xrxid = &xrxid;
-			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc[i].nType = i;
-		}
-		HANDLE hThread;
-		DWORD dw;
-		for (i = 0; i<3; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-
-		MC2 mc2[2];
-		HANDLE hDone2[2];
-		HANDLE hWait2[2];
-		HANDLE hExit2[2];
-		for (i = 0; i<2; i++){
-			mc2[i].xrn = &xrn;
-			mc2[i].xin = &xin;
-			mc2[i].xrxid = &xrxid;
-			mc2[i].sr = &sr;
-			mc2[i].si = &si;
-			mc2[i].m_iref = &m_iref;
-			mc2[i].m_rref = &m_rref;
-			hDone2[i] = mc2[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait2[i] = mc2[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit2[i] = mc2[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc2[i].nType = i;
-		}
-		for (i = 0; i<2; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			//xin = xrxid-sr-si + m_iref;
-			//xrn = sr - si + m_rref; 
-			SetEvent(hWait2[0]);
-			SetEvent(hWait2[1]);
-			WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-			xr = xrn;
-			xi = xin;
-			//sr = xr.Square();
-			//si = xi.Square(); 
-			//xrxid = (xr+xi).Square(); 
-			SetEvent(hWait[0]);
-			SetEvent(hWait[1]);
-			SetEvent(hWait[2]);
-			WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-		SetEvent(hExit[0]);
-		SetEvent(hExit[1]);
-		SetEvent(hExit[2]);
-		SetEvent(hExit2[0]);
-		SetEvent(hExit2[1]);
-		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-		WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-		for (; i<nMaxIter && !m_bStop; i++){
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-		}
-		for (i = 0; i<3; i++){
-			CloseHandle(hDone[i]);
-			CloseHandle(hWait[i]);
-			CloseHandle(hExit[i]);
-		}
-		for (i = 0; i<2; i++){
-			CloseHandle(hDone2[i]);
-			CloseHandle(hWait2[i]);
-			CloseHandle(hExit2[i]);
-		}
-	}
-	else if (m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr*(xr.Square() - 3 * xi.Square()) + m_rref;
-			xin = (3 * xr.Square() - xi.Square())*xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else if (m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			sr = xr.Square();
-			si = xi.Square();
-			xrxid = xr*xi;
-			xrn = sr.Square() - 6 * sr*si + si.Square() + m_rref;
-			xin = 4 * xrxid*(sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else{
-		double threashold = 0.0001;
-		for (i = 7; i <= m_nPower; i += 2)
-			threashold *= 10;
-		if (threashold>.5)
-			threashold = .5;
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
-			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			xr = Xn.m_r;
-			xi = Xn.m_i;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*threashold;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-}
-void CFraktalSFT::CalculateReferenceEXP()
-{
-	int i;
-	if (m_dxr)
-		delete[] m_dxr;
-	m_dxr = new floatexp[m_nMaxIter];
-	if (m_dxi)
-		delete[] m_dxi;
-	m_dxi = new floatexp[m_nMaxIter];
-	if (m_db_z)
-		delete[] m_db_z;
-	m_db_z = new double [m_nMaxIter];
-
-	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
-
-	floatexp real(g_real);
-	floatexp imag(g_imag);
-
-	double abs_val;
-	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 1 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xrxid = 2 * xr*xi;
-			xin = xrxid.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = -2.0 * (xr * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3.0)) * xr).Abs() + m_rref;
-			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = xr * xi * 2.0 + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 3 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = ((sr - (si * 3)) * xr).Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 4 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = -(sr - si * 3) * xr + m_rref;
-			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 6){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 7){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 8){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 9){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si).Abs() + m_rref;
-			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 10){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = -(((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 11){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 12){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si * 3) * xr + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 13){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - si * 3) * xr + m_rref;
-			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 14){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = -(((sr * 3.0) - si)).Abs() * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nPower == 2){
-		MC mc[3];
-		HANDLE hDone[3];
-		HANDLE hWait[3];
-		HANDLE hExit[3];
-		for (i = 0; i<3; i++){
-			mc[i].xr = &xr;
-			mc[i].xi = &xi;
-			mc[i].sr = &sr;
-			mc[i].si = &si;
-			mc[i].xrxid = &xrxid;
-			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc[i].nType = i;
-		}
-		HANDLE hThread;
-		DWORD dw;
-		for (i = 0; i<3; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-
-		MC2 mc2[2];
-		HANDLE hDone2[2];
-		HANDLE hWait2[2];
-		HANDLE hExit2[2];
-		for (i = 0; i<2; i++){
-			mc2[i].xrn = &xrn;
-			mc2[i].xin = &xin;
-			mc2[i].xrxid = &xrxid;
-			mc2[i].sr = &sr;
-			mc2[i].si = &si;
-			mc2[i].m_iref = &m_iref;
-			mc2[i].m_rref = &m_rref;
-			hDone2[i] = mc2[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait2[i] = mc2[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit2[i] = mc2[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc2[i].nType = i;
-		}
-		for (i = 0; i<2; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			//xin = xrxid-sr-si + m_iref;
-			//xrn = sr - si + m_rref; 
-			SetEvent(hWait2[0]);
-			SetEvent(hWait2[1]);
-			WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-			xr = xrn;
-			xi = xin;
-			//sr = xr.Square();
-			//si = xi.Square(); 
-			//xrxid = (xr+xi).Square();
-			SetEvent(hWait[0]);
-			SetEvent(hWait[1]);
-			SetEvent(hWait[2]);
-			WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-		SetEvent(hExit[0]);
-		SetEvent(hExit[1]);
-		SetEvent(hExit[2]);
-		SetEvent(hExit2[0]);
-		SetEvent(hExit2[1]);
-		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-		WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-		for (; i<nMaxIter && !m_bStop; i++){
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-		}
-		for (i = 0; i<3; i++){
-			CloseHandle(hDone[i]);
-			CloseHandle(hWait[i]);
-			CloseHandle(hExit[i]);
-		}
-		for (i = 0; i<2; i++){
-			CloseHandle(hDone2[i]);
-			CloseHandle(hWait2[i]);
-			CloseHandle(hExit2[i]);
-		}
-	}
-	else if (m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr*(xr.Square() - 3 * xi.Square()) + m_rref;
-			xin = (3 * xr.Square() - xi.Square())*xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else if (m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			sr = xr.Square();
-			si = xi.Square();
-			xrxid = xr*xi;
-			xrn = sr.Square() - 6 * sr*si + si.Square() + m_rref;
-			xin = 4 * xrxid*(sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else{
-		double threashold = 0.0001;
-		for (i = 7; i <= m_nPower; i += 2)
-			threashold *= 10;
-		if (threashold>.5)
-			threashold = .5;
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
-			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			xr = Xn.m_r;
-			xi = Xn.m_i;
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*threashold;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-}
 int ThMandelCalc(TH_PARAMS *pMan)
 {
 #ifndef _DEBUG
@@ -3533,10 +3251,33 @@ res = -d;				\
 }
 
 */
+double lb_abs_db(double c, double d)
+{
+	double abs_val;
+	if (c>0){
+		if (c + d>0)
+			abs_val = d;
+		else if (d == -c)
+			abs_val = d;
+		else if (d<-c)
+			abs_val = -d - 2 * c;
+	}
+	else if (c == 0)
+		abs_val = abs(d);
+	else if (c < 0){
+		if (c + d>0)
+			abs_val = d + 2 * c;
+		else if (d == -c)
+			abs_val = -d;
+		else if (d < -c)
+			abs_val = -d;
+	}
+	return abs_val;
+}
 void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 {
 	m_bIterChanged = TRUE;
-	double Dnr, Dni, yr, yi;
+	double Dnr, Dni, yr, yi, _abs_val;
 	int antal, x, y;
 	int nPStep, nStepSize;
 
@@ -3620,6 +3361,15 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 		// Series approximation
 		double dbD0r = m_pDX[m_nX / 2] + m_C*(m_pDX[x] - m_pDX[m_nX / 2]) + m_S*(m_pDY[y] - m_pDY[m_nY / 2]);
 		double dbD0i = m_pDY[m_nY / 2] - m_S*(m_pDX[x] - m_pDX[m_nX / 2]) + m_C*(m_pDY[y] - m_pDY[m_nY / 2]);
+		int inf;
+		complex<CFixedFloat> c(dbD0r,dbD0i);
+		for(inf=m_nInflections-1;inf>=0;inf--){
+			complex<CFixedFloat> d = c-m_pInflections[inf];
+			c=m_pInflections[inf]+d*d;				
+		}
+		dbD0r=c.m_r.ToDouble();
+		dbD0i=c.m_i.ToDouble();
+
 		floatexp D0r = dbD0r;
 		D0r *= m_nScaling;
 		floatexp D0i = dbD0i;
@@ -3648,6 +3398,7 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 			TDnr = D0r;
 			TDni = D0i;
 		}
+
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
@@ -3821,6 +3572,164 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 					}
 				}
 			}
+			//4th power burning ship
+			else if (m_nFractalType == 1 && m_nPower == 4){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &r = m_db_dxr[antal];
+						double &i = m_db_dxi[antal];
+						double dr = (r+Dr);
+						double di = (i+Di);
+						double sdr=dr*dr;
+						double sdi=di*di;
+						double sr = r*r;
+						double si = i*i;
+						//Dnr = sdr*sdr + sdi*sdi - 6*sdr*sdi - (sr*sr+si*si-6*sr*si) + dbD0r;
+						//Dnr = 4*r*r*r*Dr + 6*r*r*Dr*Dr + 4*r*Dr*Dr*Dr + Dr*Dr*Dr*Dr + 4*i*i*i*Di + 6*i*i*Di*Di + 4*i*Di*Di*Di + Di*Di*Di*Di - 6*((r+Dr)*(r+Dr))*((i+Di)*(i+Di)) + 6*(r*r)*(i*i) + dbD0r;
+						Dnr = 4*r*r*r*Dr + 6*r*r*Dr*Dr + 4*r*Dr*Dr*Dr + Dr*Dr*Dr*Dr + 4*i*i*i*Di + 6*i*i*Di*Di + 4*i*Di*Di*Di + Di*Di*Di*Di - 12*r*r*i*Di-6*r*r*Di*Di-12*r*Dr*i*i-24*r*Dr*i*Di-12*r*Dr*Di*Di-6*Dr*Dr*i*i-12*Dr*Dr*i*Di-6*Dr*Dr*Di*Di + dbD0r;
+
+						//Dni = 4*_abs(dr*di)*(sdr-sdi) - (4*_abs(r*i)*(sr-si)) + dbD0i;
+						//Dni = 4*_abs((r+Dr)*(i+Di))*((r+Dr)*(r+Dr)-(i+Di)*(i+Di)) - (4*_abs(r*i)*(r*r-i*i)) + dbD0i;
+						//Dni = 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(r*r+2*Dr*r+Dr*Dr-i*i-2*Di*i-Di*Di) - (4*_abs(r*i)*(r*r-i*i)) + dbD0i;
+						//Dni = 4*(r*r-i*i)*(_abs(r*i + r*Di + Dr*i + Dr*Di) - _abs(r*i)) + 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(2*Dr*r+Dr*Dr-2*Di*i-Di*Di) + dbD0i;
+
+						double c = r*i;
+						double d = r*Di + Dr*i + Dr*Di;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = 4*(sr-si)*(Dni) + 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(2*Dr*r+Dr*Dr-2*Di*i-Di*Di) + dbD0i;
+
+						Di = Dni;
+						Dr = Dnr;
+						/*
+						Dnr = 2 * Dr*m_db_dxr[antal] + Dr*Dr - 2 * m_db_dxi[antal] * Di - Di*Di;
+						double c = m_db_dxr[antal] * m_db_dxi[antal];
+						double d = m_db_dxr[antal] * Di + Dr*m_db_dxi[antal] + Dr*Di;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = 2 * Dni;
+						Di = Dni;
+						Dr = Dnr;
+						Dnr = (2 * m_db_dxr[antal] + Dr)*Dr - (2 * m_db_dxi[antal] + Di)*Di + dbD0r;
+						Dni = 2 * ((m_db_dxr[antal] + Dr)*Di + m_db_dxi[antal] * Dr) + dbD0i;
+						Di = Dni;
+						Dr = Dnr;
+						*/
+					}
+				}
+			}
+			//5th power burning ship
+			else if (m_nFractalType == 1 && m_nPower == 5){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &r = m_db_dxr[antal];
+						double &i = m_db_dxi[antal];
+						double dr = (r+Dr);
+						double di = (i+Di);
+						double sdr=dr*dr;
+						double sdi=di*di;
+						double sr = r*r;
+						double si = i*i;
+
+						double c = r;
+						double d = Dr;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (r*r*r*r- 10*r*r*i*i + 5*i*i*i*i) + _abs(r+Dr) * (4*r*r*r*Dr+6*r*r*Dr*Dr+4*r*Dr*Dr*Dr+Dr*Dr*Dr*Dr -20*r*r*i*Di-10*r*r*Di*Di-20*r*Dr*i*i-40*r*Dr*i*Di-20*r*Dr*Di*Di-10*Dr*Dr*i*i-20*Dr*Dr*i*Di-10*Dr*Dr*Di*Di + 20*i*i*i*Di+30*i*i*Di*Di+20*i*Di*Di*Di+5*Di*Di*Di*Di) + dbD0r;
+
+						c = i;
+						d = Di;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = (Dni) * (5*r*r*r*r - 10*r*r*i*i + i*i*i*i) + _abs(i+Di)*(20*r*r*r*Dr+30*r*r*Dr*Dr+20*r*Dr*Dr*Dr+5*Dr*Dr*Dr*Dr - 20*r*r*i*Di-10*r*r*Di*Di-20*r*Dr*i*i-40*r*Dr*i*Di-20*r*Dr*Di*Di-10*Dr*Dr*i*i-20*Dr*Dr*i*Di-10*Dr*Dr*Di*Di +4*i*i*i*Di+6*i*i*Di*Di+4*i*Di*Di*Di+Di*Di*Di*Di) + dbD0i;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
 			// Buffalo
 			else if (m_nFractalType == 2 && m_nPower == 2){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -3838,11 +3747,13 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
 						double c = r*r - i*i;
-						double d = 2 * r*a + a*a - 2 * i*b - b*b;
+						double d = 2 * r*a + a2 - 2 * i*b - b2;
 						if (c>0){
 							if (c + d>0)
 								Dnr = d;
@@ -3964,6 +3875,157 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 					}
 				}
 			}
+			// 4th Power Buffalo
+			else if (m_nFractalType == 2 && m_nPower == 4){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//Dnr = _abs(xd2*xd2 + yd2*yd2 - 6*xd2*yd2) - _abs(x2*x2 + y2*y2 - 6*x2*y2) + a0;
+						//Dnr = _abs(x2*x2+y2*y2-6*x2*y2 + 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2) - _abs(x2*x2+y2*y2-6*x2*y2) + a0;
+						double c = x2*x2+y2*y2-6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr+=a0;
+
+						//Dni = _abs(-4*x*y2*y-4*a*y2*y-12*b*x*y2-12*a*b*y2+4*x2*x*y+12*a*x2*y-12*b2*x*y+12*a2*x*y-12*a*b2*y+4*a2*a*y+4*b*x2*x+12*a*b*x2-4*b2*b*x+12*a2*b*x-4*a*b2*b+4*a2*a*b) - _abs(4*x2*x*y-4*x*y2*y) + b0;
+						c = 4*x2*x*y-4*x*y2*y;
+						d = -4*a*y2*y-12*b*x*y2-12*a*b*y2+12*a*x2*y-12*b2*x*y+12*a2*x*y-12*a*b2*y+4*a2*a*y+4*b*x2*x+12*a*b*x2-4*b2*b*x+12*a2*b*x-4*a*b2*b+4*a2*a*b;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni+=b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 5th Power Buffalo
+			else if (m_nFractalType == 2 && m_nPower == 5){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//Dnr = _abs(5*x*y2*y2+20*x*b*y2*y-10*x2*x*y2-30*x2*a*y2+30*x*b2*y2-30*x*a2*y2-20*x2*x*b*y-60*x2*a*b*y+20*x*b2*b*y-60*x*a2*b*y+x2*x2*x+5*x2*x2*a-10*x2*x*b2+10*x2*x*a2-30*x2*a*b2+10*x2*a2*a+5*x*b2*b2-30*x*a2*b2+5*x*a2*a2+5*a*y2*y2+20*a*b*y2*y+30*a*b2*y2-10*a2*a*y2+20*a*b2*b*y-20*a2*a*b*y+5*a*b2*b2-10*a2*a*b2+a2*a2*a) - _abs(5*x*y2*y2-10*x2*x*y2+x2*x2*x) + a0;
+						double c = 5*x*y2*y2-10*x2*x*y2+x2*x2*x;
+						double d = 20*x*b*y2*y-30*x2*a*y2+30*x*b2*y2-30*x*a2*y2-20*x2*x*b*y-60*x2*a*b*y+20*x*b2*b*y-60*x*a2*b*y+5*x2*x2*a-10*x2*x*b2+10*x2*x*a2-30*x2*a*b2+10*x2*a2*a+5*x*b2*b2-30*x*a2*b2+5*x*a2*a2+5*a*y2*y2+20*a*b*y2*y+30*a*b2*y2-10*a2*a*y2+20*a*b2*b*y-20*a2*a*b*y+5*a*b2*b2-10*a2*a*b2+a2*a2*a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr+=a0;
+
+						//Dni = _abs(y2*y2*y+5*y2*y2*b-10*y2*y*x2-20*y2*y*a*x+10*y2*y*b2-10*y2*y*a2-30*y2*b*x2-60*y2*a*b*x+10*y2*b2*b-30*y2*a2*b+5*y*x2*x2+20*y*a*x2*x-30*y*b2*x2+30*y*a2*x2-60*y*a*b2*x+20*y*a2*a*x+5*y*b2*b2-30*y*a2*b2+5*y*a2*a2+5*b*x2*x2+20*b*a*x2*x-10*b2*b*x2+30*b*a2*x2-20*b2*b*a*x+20*b*a2*a*x+b2*b2*b-10*b2*b*a2+5*b*a2*a2) - _abs(y2*y2*y-10*y2*y*x2+5*y*x2*x2) + b0;
+						c = y2*y2*y-10*y2*y*x2+5*y*x2*x2;
+						d = 5*y2*y2*b-20*y2*y*a*x+10*y2*y*b2-10*y2*y*a2-30*y2*b*x2-60*y2*a*b*x+10*y2*b2*b-30*y2*a2*b+20*y*a*x2*x-30*y*b2*x2+30*y*a2*x2-60*y*a*b2*x+20*y*a2*a*x+5*y*b2*b2-30*y*a2*b2+5*y*a2*a2+5*b*x2*x2+20*b*a*x2*x-10*b2*b*x2+30*b*a2*x2-20*b2*b*a*x+20*b*a2*a*x+b2*b2*b-10*b2*b*a2+5*b*a2*a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni+=b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
 			//Celtic
 			else if (m_nFractalType == 3 && m_nPower == 2){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -4068,6 +4130,114 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 					}
 				}
 			}
+			// 4th Celtic Buffalo
+			else if (m_nFractalType == 3 && m_nPower == 4){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						double c = x2*x2+y2*y2-6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 -12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr+=a0;
+						
+
+						Dni = 12*x2*y*a+12*x*y*a2-12*x*y2*b-12*x*y*b2+4*x2*x*b+12*x2*b*a+12*x*b*a2-4*x*b2*b+4*a2*a*y-4*a*y2*y-12*a*y2*b-12*a*y*b2+4*a2*a*b-4*a*b2*b + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 5th Celtic
+			else if (m_nFractalType == 3 && m_nPower == 5){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//Dnr = _abs((x+a) * ((x+a)*(x+a)*(x+a)*(x+a) - 10 * (x+a)*(x+a)*(y+b)*(y+b) + 5 * (y+b)*(y+b)*(y+b)*(y+b))) - _abs(x2*x2*x - 10*x2*x*y2 + 5*x*y2*y2) +a0;
+						//Dnr = _abs(5*x*y2*y2+20*x*b*y2*y-10*x2*x*y2-30*x2*a*y2+30*x*b2*y2-30*x*a2*y2-20*x2*x*b*y-60*x2*a*b*y+20*x*b2*b*y-60*x*a2*b*y+x2*x2*x+5*x2*x2*a-10*x2*x*b2+10*x2*x*a2-30*x2*a*b2+10*x2*a2*a+5*x*b2*b2-30*x*a2*b2+5*x*a2*a2+5*a*y2*y2+20*a*b*y2*y+30*a*b2*y2-10*a2*a*y2+20*a*b2*b*y-20*a2*a*b*y+5*a*b2*b2-10*a2*a*b2+a2*a2*a) - _abs(x2*x2*x - 10*x2*x*y2 + 5*x*y2*y2) + a0;
+						double c = x2*x2*x - 10*x2*x*y2 + 5*x*y2*y2;
+						double d = 20*x*b*y2*y-30*x2*a*y2+30*x*b2*y2-30*x*a2*y2-20*x2*x*b*y-60*x2*a*b*y+20*x*b2*b*y-60*x*a2*b*y+5*x2*x2*a-10*x2*x*b2+10*x2*x*a2-30*x2*a*b2+10*x2*a2*a+5*x*b2*b2-30*x*a2*b2+5*x*a2*a2+5*a*y2*y2+20*a*b*y2*y+30*a*b2*y2-10*a2*a*y2+20*a*b2*b*y-20*a2*a*b*y+5*a*b2*b2-10*a2*a*b2+a2*a2*a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr+=a0;
+						
+						Dni = 20*y*x2*x*a+30*y*x2*a2+20*y*x*a2*a+5*y*a2*a2-30*y2*x2*b-30*y*x2*b2-20*y2*y*x*a-60*y2*x*a*b-60*y*x*a*b2-10*y2*y*a2-30*y2*a2*b-30*y*a2*b2+5*y2*y2*b+10*y2*y*b2+10*y2*b2*b+5*y*b2*b2+5*b*x2*x2+20*b*x2*x*a+30*b*x2*a2+20*b*x*a2*a+5*b*a2*a2-10*b2*b*x2-20*b2*b*x*a-10*b2*b*a2+b2*b2*b +b0;
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
 			// Mandelbar
 			else if (m_nFractalType == 4 && m_nPower == 2){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -4085,10 +4255,12 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
-						Dnr = 2 * r*a + a*a - b*b - 2 * b*i + a0;
+						Dnr = 2 * r*a + a2 - b2 - 2 * b*i + a0;
 						Dni = (r*b + a*i + a*b)*-2 + b0;
 
 
@@ -4130,6 +4302,71 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 					}
 				}
 			}
+			// 4th Power Mandelbar
+			else if (m_nFractalType == 4 && m_nPower == 4){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+						Dni = -12*x2*y*a-12*x*y*a2+12*x*y2*b+12*x*y*b2-4*x2*x*b-12*x2*b*a-12*x*b*a2+4*x*b2*b-4*a2*a*y+4*a*y2*y+12*a*y2*b+12*a*y*b2-4*a2*a*b+4*a*b2*b + b0;
+
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 5th Power Mandelbar
+			else if (m_nFractalType == 4 && m_nPower == 5){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = 5*x2*x2*a+10*x2*x*a2+10*x2*a2*a+5*x*a2*a2-20*x2*x*y*b-10*x2*x*b2-30*x2*a*y2-60*x2*a*y*b-30*x2*a*b2-30*x*a2*y2-60*x*a2*y*b-30*x*a2*b2+20*x*y2*y*b+30*x*y2*b2+20*x*y*b2*b+5*x*b2*b2+a2*a2*a-10*a2*a*y2-20*a2*a*y*b-10*a2*a*b2+5*a*y2*y2+20*a*y2*y*b+30*a*y2*b2+20*a*y*b2*b+5*a*b2*b2 + a0;
+						Dni = -20*y*x2*x*a-30*y*x2*a2-20*y*x*a2*a-5*y*a2*a2+30*y2*x2*b+30*y*x2*b2+20*y2*y*x*a+60*y2*x*a*b+60*y*x*a*b2+10*y2*y*a2+30*y2*a2*b+30*y*a2*b2-5*y2*y2*b-10*y2*y*b2-10*y2*b2*b-5*y*b2*b2-5*b*x2*x2-20*b*x2*x*a-30*b*x2*a2-20*b*x*a2*a-5*b*a2*a2+10*b2*b*x2+20*b2*b*x*a+10*b2*b*a2-b2*b2*b + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
 			//Mandelbar Celtic
 			else if (m_nFractalType == 5){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -4147,11 +4384,13 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
 						double c = r*r - i*i;
-						double d = 2 * r*a + a*a - 2 * i*b - b*b;
+						double d = 2 * r*a + a2 - 2 * i*b - b2;
 						if (c>0){
 							if (c + d>0)
 								Dnr = d;
@@ -4197,10 +4436,12 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
-						Dnr = 2 * r*a + a*a - b*b - 2 * b*i + a0;
+						Dnr = 2 * r*a + a2 - b2 - 2 * b*i + a0;
 
 						double c = r;
 						double d = a;
@@ -4247,10 +4488,12 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
-						Dnr = 2 * r*a + a*a - b*b - 2 * b*i + a0;
+						Dnr = 2 * r*a + a2 - b2 - 2 * b*i + a0;
 
 						double c = i;
 						double d = b;
@@ -4297,11 +4540,13 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
 						double c = r*r - i*i;
-						double d = 2 * r*a + a*a - 2 * i*b - b*b;
+						double d = 2 * r*a + a2 - 2 * i*b - b2;
 						if (c>0){
 							if (c + d>0)
 								Dnr = d;
@@ -4366,11 +4611,13 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						double &i = m_db_dxi[antal];
 						double &a = Dr;
 						double &b = Di;
+						double a2 = a*a;
+						double b2 = b*b;
 						double &a0 = dbD0r;
 						double &b0 = dbD0i;
 
 						double c = r*r - i*i;
-						double d = 2 * r*a + a*a - 2 * i*b - b*b;
+						double d = 2 * r*a + a2 - 2 * i*b - b2;
 						if (c>0){
 							if (c + d>0)
 								Dnr = d;
@@ -4731,6 +4978,1746 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 					}
 				}
 			}
+			// 4th Burning Ship Partial Imag
+			else if (m_nFractalType == 15){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func1
+						double c = y;
+						double d = b;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(y+b)*(12*x2*a+12*x*a2+4*a2*a - 4*a*y2-8*b*x*y-8*a*b*y-4*b2*x-4*a*b2) + Dni*(4*x2*x - 4*x*y2) + b0;
+						
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Burning Ship Partial Real
+			else if (m_nFractalType == 16){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func3
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(x+a)*(4*x2*b+8*x*a*y+8*x*a*b+4*a2*y+4*a2*b - 12*b*y2-12*b2*y-4*b2*b) + Dni*(4*x2*y - 4*y2*y) + b0;
+						
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Burning Ship Partial Real Mbar
+			else if (m_nFractalType == 17){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func4
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(x+a)*(12*y2*b+12*y*b2+4*b2*b - 8*a*x*y-4*a2*y-4*b*x2-8*a*b*x-4*a2*b) + Dni*(4*y2*y - 4*x2*y) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic Burning Ship Partial Imag
+			else if (m_nFractalType == 18){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+
+						//func1
+						c = y;
+						d = b;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(y+b)*(12*x2*a+12*x*a2+4*a2*a - 4*a*y2-8*b*x*y-8*a*b*y-4*b2*x-4*a*b2) + Dni*(4*x2*x - 4*x*y2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic Burning Ship Partial Real
+			else if (m_nFractalType == 19){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+
+						//func3
+						c = x;
+						d = a;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(x+a)*(4*x2*b+8*x*a*y+8*x*a*b+4*a2*y+4*a2*b - 12*b*y2-12*b2*y-4*b2*b) + Dni*(4*x2*y - 4*y2*y) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic Burning Ship Partial Real Mbar
+			else if (m_nFractalType == 20){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+
+						//func4
+						c = x;
+						d = a;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = _abs(x+a)*(12*y2*b+12*y*b2+4*b2*b - 8*a*x*y-4*a2*y-4*b*x2-8*a*b*x-4*a2*b) + Dni*(4*y2*y - 4*x2*y) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Buffalo Partial Imag
+			else if (m_nFractalType == 21){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func6
+						double c = 4*x2*x*y-4*x*y2*y;
+						double d = -4*a*y2*y-12*b*x*y2-12*a*b*y2+12*a*x2*y-12*b2*x*y+12*a2*x*y-12*a*b2*y+4*a2*a*y+4*b*x2*x+12*a*b*x2-4*b2*b*x+12*a2*b*x-4*a*b2*b+4*a2*a*b;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni=Dni+b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic Mbar
+			else if (m_nFractalType == 22){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+
+						//func8
+						Dni = b0 - (12*x2*y*a+12*x*y*a2-12*x*y2*b-12*x*y*b2+4*x2*x*b+12*x2*b*a+12*x*b*a2-4*x*b2*b+4*a2*a*y-4*a*y2*y-12*a*y2*b-12*a*y*b2+4*a2*a*b-4*a*b2*b);
+						
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th False Quasi Perpendicular
+			else if (m_nFractalType == 23){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func9
+						double c = x2-y2;
+						double d = -2*b*y+2*a*x-b2+a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = -(4*x*y)*Dni - (4*x*b + 4*a*y + 4*a*b)*_abs(-y2-2*b*y+x2+2*a*x-b2+a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th False Quasi Heart
+			else if (m_nFractalType == 24){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+						//func2
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 + a0;
+
+						//func10
+						double c = x2-y2;
+						double d = -2*b*y+2*a*x-b2+a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = (4*x*y)*Dni + (4*x*b + 4*a*y + 4*a*b)*_abs(-y2-2*b*y+x2+2*a*x-b2+a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic False Quasi Perpendicular
+			else if (m_nFractalType == 25){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+
+						//func9
+						c = x2-y2;
+						d = -2*b*y+2*a*x-b2+a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = -(4*x*y)*Dni - (4*x*b + 4*a*y + 4*a*b)*_abs(-y2-2*b*y+x2+2*a*x-b2+a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			// 4th Celtic False Quasi Heart
+			else if (m_nFractalType == 26){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+						//func5
+						double c = x2*x2 + y2*y2 - 6*x2*y2;
+						double d = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 + 4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2 - 12*a*x*y2-6*a2*y2-12*b*x2*y-24*a*b*x*y-12*a2*b*y-6*b2*x2-12*a*b2*x-6*a2*b2;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = Dnr + a0;
+						//func10
+						c = x2-y2;
+						d = -2*b*y+2*a*x-b2+a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = (4*x*y)*Dni + (4*x*b + 4*a*y + 4*a*b)*_abs(-y2-2*b*y+x2+2*a*x-b2+a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Burning Ship Partial
+			else if (m_nFractalType == 27){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func14
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (x2*x2- 10*x2*y2 + 5*y2*y2) + _abs(x+a) * (4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 -20*x2*y*b-10*x2*b2-20*x*a*y2-40*x*a*y*b-20*x*a*b2-10*a2*y2-20*a2*y*b-10*a2*b2 + 20*y2*y*b+30*y2*b2+20*y*b2*b+5*b2*b2) + a0;
+
+						//func15
+						Dni = 20*y*x2*x*a+30*y*x2*a2+20*y*x*a2*a+5*y*a2*a2-30*y2*x2*b-30*y*x2*b2-20*y2*y*x*a-60*y2*x*a*b-60*y*x*a*b2-10*y2*y*a2-30*y2*a2*b-30*y*a2*b2+5*y2*y2*b+10*y2*y*b2+10*y2*b2*b+5*y*b2*b2+5*b*x2*x2+20*b*x2*x*a+30*b*x2*a2+20*b*x*a2*a+5*b*a2*a2-10*b2*b*x2-20*b2*b*x*a-10*b2*b*a2+b2*b2*b + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Burning Ship Partial Mbar
+			else if (m_nFractalType == 28){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func14
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (x2*x2- 10*x2*y2 + 5*y2*y2) + _abs(x+a) * (4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 -20*x2*y*b-10*x2*b2-20*x*a*y2-40*x*a*y*b-20*x*a*b2-10*a2*y2-20*a2*y*b-10*a2*b2 + 20*y2*y*b+30*y2*b2+20*y*b2*b+5*b2*b2) + a0;
+
+						//func16
+						Dni = b0 - (20*y*x2*x*a+30*y*x2*a2+20*y*x*a2*a+5*y*a2*a2-30*y2*x2*b-30*y*x2*b2-20*y2*y*x*a-60*y2*x*a*b-60*y*x*a*b2-10*y2*y*a2-30*y2*a2*b-30*y*a2*b2+5*y2*y2*b+10*y2*y*b2+10*y2*b2*b+5*y*b2*b2+5*b*x2*x2+20*b*x2*x*a+30*b*x2*a2+20*b*x*a2*a+5*b*a2*a2-10*b2*b*x2-20*b2*b*x*a-10*b2*b*a2+b2*b2*b);
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Celtic Mbar
+			else if (m_nFractalType == 29){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func17
+						double c = 5*x*y2*y2-10*x2*x*y2+x2*x2*x;
+						double d = 20*x*b*y2*y-30*x2*a*y2+30*x*b2*y2-30*x*a2*y2-20*x2*x*b*y-60*x2*a*b*y+20*x*b2*b*y-60*x*a2*b*y+5*x2*x2*a-10*x2*x*b2+10*x2*x*a2-30*x2*a*b2+10*x2*a2*a+5*x*b2*b2-30*x*a2*b2+5*x*a2*a2+5*a*y2*y2+20*a*b*y2*y+30*a*b2*y2-10*a2*a*y2+20*a*b2*b*y-20*a2*a*b*y+5*a*b2*b2-10*a2*a*b2+a2*a2*a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr+=a0;
+
+						//func16
+						Dni = b0 - (20*y*x2*x*a+30*y*x2*a2+20*y*x*a2*a+5*y*a2*a2-30*y2*x2*b-30*y*x2*b2-20*y2*y*x*a-60*y2*x*a*b-60*y*x*a*b2-10*y2*y*a2-30*y2*a2*b-30*y*a2*b2+5*y2*y2*b+10*y2*y*b2+10*y2*b2*b+5*y*b2*b2+5*b*x2*x2+20*b*x2*x*a+30*b*x2*a2+20*b*x*a2*a+5*b*a2*a2-10*b2*b*x2-20*b2*b*x*a-10*b2*b*a2+b2*b2*b);
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Quasi Burning Ship (BS/Buffalo Hybrid)
+			else if (m_nFractalType == 30){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func14
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (x2*x2- 10*x2*y2 + 5*y2*y2) + _abs(x+a) * (4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 -20*x2*y*b-10*x2*b2-20*x*a*y2-40*x*a*y*b-20*x*a*b2-10*a2*y2-20*a2*y*b-10*a2*b2 + 20*y2*y*b+30*y2*b2+20*y*b2*b+5*b2*b2) + a0;
+
+						//func18
+						c = y2*y2*y-10*y2*y*x2+5*y*x2*x2;
+						d = 5*y2*y2*b-20*y2*y*a*x+10*y2*y*b2-10*y2*y*a2-30*y2*b*x2-60*y2*a*b*x+10*y2*b2*b-30*y2*a2*b+20*y*a*x2*x-30*y*b2*x2+30*y*a2*x2-60*y*a*b2*x+20*y*a2*a*x+5*y*b2*b2-30*y*a2*b2+5*y*a2*a2+5*b*x2*x2+20*b*a*x2*x-10*b2*b*x2+30*b*a2*x2-20*b2*b*a*x+20*b*a2*a*x+b2*b2*b-10*b2*b*a2+5*b*a2*a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni=b0-Dni;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Quasi Perpendicular
+			else if (m_nFractalType == 31){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func14
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (x2*x2- 10*x2*y2 + 5*y2*y2) + _abs(x+a) * (4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 -20*x2*y*b-10*x2*b2-20*x*a*y2-40*x*a*y*b-20*x*a*b2-10*a2*y2-20*a2*y*b-10*a2*b2 + 20*y2*y*b+30*y2*b2+20*y*b2*b+5*b2*b2) + a0;
+
+						//func19
+						c = 5*x2*x2 - 10*x2*y2 + y2*y2;
+						d = 4*b*y2*y-20*a*x*y2+6*b2*y2-10*a2*y2-20*b*x2*y-40*a*b*x*y+4*b2*b*y-20*a2*b*y+20*a*x2*x-10*b2*x2+30*a2*x2-20*a*b2*x+20*a2*a*x+b2*b2-10*a2*b2+5*a2*a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = -y * Dni - b * _abs(y2*y2+4*b*y2*y-10*x2*y2-20*a*x*y2+6*b2*y2-10*a2*y2-20*b*x2*y-40*a*b*x*y+4*b2*b*y-20*a2*b*y+5*x2*x2+20*a*x2*x-10*b2*x2+30*a2*x2-20*a*b2*x+20*a2*a*x+b2*b2-10*a2*b2+5*a2*a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//5th Quasi Heart
+			else if (m_nFractalType == 32){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//func14
+						double c = x;
+						double d = a;
+						if (c>0){
+							if (c + d>0)
+								Dnr = d;
+							else if (d == -c)
+								Dnr = d;
+							else if (d<-c)
+								Dnr = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dnr = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dnr = d + 2 * c;
+							else if (d == -c)
+								Dnr = -d;
+							else if (d < -c)
+								Dnr = -d;
+						}
+						Dnr = (Dnr) * (x2*x2- 10*x2*y2 + 5*y2*y2) + _abs(x+a) * (4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2 -20*x2*y*b-10*x2*b2-20*x*a*y2-40*x*a*y*b-20*x*a*b2-10*a2*y2-20*a2*y*b-10*a2*b2 + 20*y2*y*b+30*y2*b2+20*y*b2*b+5*b2*b2) + a0;
+
+						//func19
+						c = 5*x2*x2 - 10*x2*y2 + y2*y2;
+						d = 4*b*y2*y-20*a*x*y2+6*b2*y2-10*a2*y2-20*b*x2*y-40*a*b*x*y+4*b2*b*y-20*a2*b*y+20*a*x2*x-10*b2*x2+30*a2*x2-20*a*b2*x+20*a2*a*x+b2*b2-10*a2*b2+5*a2*a2;
+						if (c>0){
+							if (c + d>0)
+								Dni = d;
+							else if (d == -c)
+								Dni = d;
+							else if (d<-c)
+								Dni = -d - 2 * c;
+						}
+						else if (c == 0)
+							Dni = _abs(d);
+						else if (c < 0){
+							if (c + d>0)
+								Dni = d + 2 * c;
+							else if (d == -c)
+								Dni = -d;
+							else if (d < -c)
+								Dni = -d;
+						}
+						Dni = y * Dni + b * _abs(y2*y2+4*b*y2*y-10*x2*y2-20*a*x*y2+6*b2*y2-10*a2*y2-20*b*x2*y-40*a*b*x*y+4*b2*b*y-20*a2*b*y+5*x2*x2+20*a*x2*x-10*b2*x2+30*a2*x2-20*a*b2*x+20*a2*a*x+b2*b2-10*a2*b2+5*a2*a2) + b0;
+
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			//FT_Simon100A_plain
+			else if (m_nFractalType == 33){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+
+						//Dnr = b*b*abs(b*b)-4*b*abs(a*b)*a-a*a*abs(b*b)-b*b*abs(a*a)+a*a*abs(a*a) + a0;
+						//Dni = - 2*a*b*abs(b*b)-2*b*b*abs(a*b)+2*a*a*abs(a*b)+2*a*b*abs(a*a) + b0;
+
+						Dnr = (y2)*lb_abs_db(y2,2*b*y+b2)-4*y*x*lb_abs_db(x*y,x*b+a*y+a*b)-x2*lb_abs_db(y2,2*b*y+b2)-y2*lb_abs_db(x2,2*x*a+a2)+x2*lb_abs_db(x2,2*x*a+a2) 
+							+ (2*b*y+b2)*abs(y2+2*b*y+b2)-4*(y*a+b*x+b*a)*abs(x*y+x*b+a*y+a*b)-(2*x*a+a2)*abs(y2+2*b*y+b2)-(2*b*y+b2)*abs(x2+2*x*a+a2)+(2*x*a+a2)*abs(x2+2*x*a+a2) + a0;
+
+
+						Dni = 2*x2*lb_abs_db(x*y,x*b+a*y+a*b)+2*x*y*lb_abs_db(x2,2*x*a+a2)-2*x*y*lb_abs_db(y2,2*b*y+b2)-2*y2*lb_abs_db(x*y,x*b+a*y+a*b) 
+							+ 2*(2*x*a+a2)*abs(x*y+x*b+a*y+a*b) +2*(x*b+a*y+a*b)*abs(x2+2*x*a+a2)-2*(x*b+a*y+a*b)*abs(y2+2*b*y+b2)-2*(2*b*y+b2)*abs(x*y+x*b+a*y+a*b)  + b0;
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Imag Quasi Perpendicular / Heart
+			else if (m_nFractalType == 34){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 +a0;
+						Dni = 4 * (a) * abs(- y2*y-3*b*y2+x2*y+2*a*x*y-3*b2*y+a2*y+b*x2+2*a*b*x-b2*b+a2*b) + 4 * x * lb_abs_db(- y2*y+x2*y,-3*b*y2+2*a*x*y-3*b2*y+a2*y+b*x2+2*a*b*x-b2*b+a2*b) + b0;	//func21
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Real Quasi Perpendicular
+			else if (m_nFractalType == 35){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 +a0;
+						Dni = -4*y*lb_abs_db(x2*x-x*y2,-a*y2-2*b*x*y-2*a*b*y+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) - 4*b*abs(- x*y2-a*y2-2*b*x*y-2*a*b*y+x2*x+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + b0;	//func22
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Real Quasi Heart
+			else if (m_nFractalType == 36){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = 4*x2*x*a+6*x2*a2+4*x*a2*a+a2*a2+4*y2*y*b+6*y2*b2+4*y*b2*b+b2*b2-12*x2*y*b-6*x2*b2-12*x*a*y2-24*x*a*y*b-12*x*a*b2-6*a2*y2-12*a2*y*b-6*a2*b2 +a0;
+						Dni = 4*y*lb_abs_db(x2*x-x*y2,-a*y2-2*b*x*y-2*a*b*y+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + 4*b*abs(- x*y2-a*y2-2*b*x*y-2*a*b*y+x2*x+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + b0;	//func22
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Celtic Imag Quasi Perpendicular / Heart
+			else if (m_nFractalType == 37){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = lb_abs_db(x2*x2 + y2*y2 - 6*x2*y2,4*y2*y*b-12*y2*a*x+6*y2*b2-6*y2*a2-12*x2*y*b-24*x*y*a*b+4*b2*b*y-12*b*y*a2+4*x2*x*a-6*x2*b2+6*x2*a2-12*b2*x*a+4*a2*a*x+b2*b2-6*b2*a2+a2*a2) +a0;
+						Dni = 4 * a * abs(- y2*y-3*b*y2+x2*y+2*a*x*y-3*b2*y+a2*y+b*x2+2*a*b*x-b2*b+a2*b) + 4 * x * lb_abs_db(- y2*y+x2*y,-3*b*y2+2*a*x*y-3*b2*y+a2*y+b*x2+2*a*b*x-b2*b+a2*b) + b0;	//func21
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Celtic Real Quasi Perpendicular
+			else if (m_nFractalType == 38){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = lb_abs_db(x2*x2 + y2*y2 - 6*x2*y2,4*y2*y*b-12*y2*a*x+6*y2*b2-6*y2*a2-12*x2*y*b-24*x*y*a*b+4*b2*b*y-12*b*y*a2+4*x2*x*a-6*x2*b2+6*x2*a2-12*b2*x*a+4*a2*a*x+b2*b2-6*b2*a2+a2*a2) +a0;
+						Dni = -4*y*lb_abs_db(x2*x-x*y2,-a*y2-2*b*x*y-2*a*b*y+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) - 4*b*abs(- x*y2-a*y2-2*b*x*y-2*a*b*y+x2*x+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + b0;	//func22
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//4th Celtic Real Quasi Heart
+			else if (m_nFractalType == 39){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = lb_abs_db(x2*x2 + y2*y2 - 6*x2*y2,4*y2*y*b-12*y2*a*x+6*y2*b2-6*y2*a2-12*x2*y*b-24*x*y*a*b+4*b2*b*y-12*b*y*a2+4*x2*x*a-6*x2*b2+6*x2*a2-12*b2*x*a+4*a2*a*x+b2*b2-6*b2*a2+a2*a2) +a0;
+						Dni = 4*y*lb_abs_db(x2*x-x*y2,-a*y2-2*b*x*y-2*a*b*y+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + 4*b*abs(- x*y2-a*y2-2*b*x*y-2*a*b*y+x2*x+3*a*x2-b2*x+3*a2*x-a*b2+a2*a) + b0;	//func22
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//Cubic FT_Simon100A_plain
+			else if (m_nFractalType == 40){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr= 3*lb_abs_db(x2*y,x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(y2*y) - lb_abs_db(y2*y,3*y2*b+3*y*b2+b2*b)*(y2*y) + 9*lb_abs_db(x*y2,2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(x*y2) - 3*lb_abs_db(x2*x,3*x2*a+3*x*a2+a2*a)*(x*y2) + 3*lb_abs_db(y2*y,3*y2*b+3*y*b2+b2*b)*(x2*y) - 9*lb_abs_db(x2*y,x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(x2*y) - 3*lb_abs_db(x*y2,2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(x2*x) + lb_abs_db(x2*x,3*x2*a+3*x*a2+a2*a)*(x2*x)
+							+ 3*abs(x2*y+x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(3*y2*b+3*y*b2+b2*b) - abs(y2*y+3*y2*b+3*y*b2+b2*b)*(3*y2*b+3*y*b2+b2*b) + 9*abs(x*y2+2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2) - 3*abs(x2*x+3*x2*a+3*x*a2+a2*a)*(2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2) + 3*abs(y2*y+3*y2*b+3*y*b2+b2*b)*(x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b) - 9*abs(x2*y+x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b) - 3*abs(x*y2+2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(3*x2*a+3*x*a2+a2*a) + abs(x2*x+3*x2*a+3*x*a2+a2*a)*(3*x2*a+3*x*a2+a2*a)
+							+ a0;
+						Dni= 3*lb_abs_db(x*y2,2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(y2*y) - lb_abs_db(x2*x,3*x2*a+3*x*a2+a2*a)*(y2*y) - 9*lb_abs_db(x2*y,x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(x*y2) - 9*lb_abs_db(x*y2,2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(x2*y) + 3*lb_abs_db(x2*x,3*x2*a+3*x*a2+a2*a)*(x2*y) + 3*lb_abs_db(y2*y,3*y2*b+3*y*b2+b2*b)*(x*y2) - lb_abs_db(y2*y,3*y2*b+3*y*b2+b2*b)*(x2*x) + 3*lb_abs_db(x2*y,x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(x2*x)
+							+ 3*abs(x*y2+2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(3*y2*b+3*y*b2+b2*b) - abs(x2*x+3*x2*a+3*x*a2+a2*a)*(3*y2*b+3*y*b2+b2*b) - 9*abs(x2*y+x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2) - 9*abs(x*y2+2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2)*(x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b) + 3*abs(x2*x+3*x2*a+3*x*a2+a2*a)*(x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b) + 3*abs(y2*y+3*y2*b+3*y*b2+b2*b)*(2*x*y*b+x*b2+a*y2+2*a*y*b+a*b2) - abs(y2*y+3*y2*b+3*y*b2+b2*b)*(3*x2*a+3*x*a2+a2*a) + 3*abs(x2*y+x2*b+2*x*a*y+2*x*a*b+a2*y+a2*b)*(3*x2*a+3*x*a2+a2*a)
+							+ b0;
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//HPDZ Buffalo
+			else if (m_nFractalType == 41){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						Dnr = a*(2*x+a)-b*(b+2*y) - lb_abs_db(x,a) + a0;
+						Dni = lb_abs_db(x*y,x*b+a*y+a*b) * 2.0 - lb_abs_db(y,b) + b0;
+
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
+			//TheRedshiftRider 1
+			else if (m_nFractalType == 42){
+				complex<double> _2(2,0),_3(3,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)+_3*z*z*d+_3*z*d2+d2*d + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 2
+			else if (m_nFractalType == 43){
+				complex<double> _2(2,0),_3(3,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)-_3*z*z*d-_3*z*d2-d2*d + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 3
+			else if (m_nFractalType == 44){
+				complex<double> _2(2,0),_3(3,0),a(2,0);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)-_3*z*z*d-_3*z*d2-d2*d + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 4
+			else if (m_nFractalType == 45){
+				complex<double> _2(2,0),_4(4,0),_6(6,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)+_4*(z^3)*d+_6*(z^2)*d2+_4*z*(d2*d)+(d2^2) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 5
+			else if (m_nFractalType == 46){
+				complex<double> _2(2,0),_4(4,0),_6(6,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)-_4*(z^3)*d-_6*(z^2)*d2-_4*z*d2*d-(d2^2) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 6
+			else if (m_nFractalType == 47){
+				complex<double> _2(2,0),_5(5,0),_10(10,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)+_5*(z^4)*d+_10*(z^3)*d2+_10*(z^2)*d2*d+_5*z*(d2^2)+(d2*d2*d) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 7
+			else if (m_nFractalType == 48){
+				complex<double> _2(2,0),_5(5,0),_10(10,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)-_5*(z^4)*d-_10*(z^3)*d2-_10*(z^2)*d2*d-_5*z*(d2^2)-(d2*d2*d) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 8
+			else if (m_nFractalType == 49){
+				complex<double> _2(2,0),_6(6,0),_15(15,0),_20(20,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d2=d*d;
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+d2)+_6*(z^5)*d+_15*(z^4)*d2+_20*(z^3)*(d2*d)+_15*(z^2)*(d2^2)+_6*z*(d2*d2*d)+(d2^3) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			//TheRedshiftRider 9
+			else if (m_nFractalType == 50){
+				complex<double> _2(2,0),_6(6,0),_15(15,0),_20(20,0);
+				complex<double> a(g_FactorAR,g_FactorAI);
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+
+						complex<double> z(x,y);
+						complex<double> d(Dr,Di);
+						complex<double> d0(dbD0r,dbD0i);
+						d = a*(_2*z*d+(d^2))-_6*(z^5)*d-_15*(z^4)*(d^2)-_20*(z^3)*(d^3)-_15*(z^2)*(d^4)-_6*z*(d^5)-(d^6) + d0;
+
+						Dr=d.m_r;
+						Di=d.m_i;
+					}
+				}
+			}
+			// SimonBrot2 4th
+			else if (m_nFractalType == 51){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						yr = m_db_dxr[antal] + Dr;
+						yi = m_db_dxi[antal] + Di;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						double &x = m_db_dxr[antal];
+						double &y = m_db_dxi[antal];
+						double &a = Dr;
+						double &b = Di;
+						double &a0 = dbD0r;
+						double &b0 = dbD0i;
+						double x2 = x*x;
+						double y2 = y*y;
+						double a2 = a*a;
+						double b2 = b*b;
+
+						//d = (z*z)*(z*z+_2*z*d+d*d).abs() + (_2*z*d+d*d)*(z*z+_2*z*d+d*d).abs() - (z*z)*(z*z).abs() + d0;
+						//Dr=d.m_r;
+						//Di=d.m_i;
+						Dnr=(x2-y2)*lb_abs_db(x2-y2,+2*x*a+a2-2*y*b-b2) + (2*x*a+a2-2*y*b-b2)*abs(x2+2*x*a+a2-y2-2*y*b-b2) 
+							- (2*x*y)*lb_abs_db(2*x*y,2*x*b+2*a*y+2*a*b) - (2*x*b+2*a*y+2*a*b)*abs(2*x*y+2*x*b+2*a*y+2*a*b)
+							+ a0;
+						Dni=(x2-y2)*lb_abs_db(2*x*y,2*x*b+2*a*y+2*a*b) + (2*x*a+a2-2*y*b-b2)*abs(2*x*y+2*x*b+2*a*y+2*a*b) 
+							+ (2*x*y)*lb_abs_db(x2-y2,2*x*a+a2-2*y*b-b2) + (2*x*b+2*a*y+2*a*b)*abs(x2-y2+2*x*a+a2-2*y*b-b2) 
+							+ b0;
+						Dr=Dnr;
+						Di=Dni;
+					}
+				}
+			}
 			else if (m_nPower == 2){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
@@ -5025,9 +7012,7 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 	int antal, x, y;
 	int nPStep, nStepSize;
 
-#if 0
 	SetParts(g_real,g_imag);
-#endif
 
 	while (!m_bStop && m_P.GetPixel(x, y)){
 		nStepSize = nPStep = m_P.GetStep();
@@ -5232,42 +7217,8 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
-		if (m_nFractalType == 1 && m_nPower == 2)
-			m_nPixels[x][y] = BurningShip(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 1 && m_nPower == 3)
-			m_nPixels[x][y] = BurningShip3(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 2 && m_nPower == 2)
-			m_nPixels[x][y] = Buffalo(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 2 && m_nPower == 3)
-			m_nPixels[x][y] = CubicBuffalo(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 3 && m_nPower == 2)
-			m_nPixels[x][y] = Celtic(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 3 && m_nPower == 3)
-			m_nPixels[x][y] = Celtic3(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 4 && m_nPower == 2)
-			m_nPixels[x][y] = Mandelbar(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 4 && m_nPower == 3)
-			m_nPixels[x][y] = CubicMandelbar(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 5)
-			m_nPixels[x][y] = MandelbarCeltic(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 6)
-			m_nPixels[x][y] = PerpendicularMandelbrot(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 7)
-			m_nPixels[x][y] = PerpendicularBurningShip(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 8)
-			m_nPixels[x][y] = PerpendicularCeltic(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 9)
-			m_nPixels[x][y] = PerpendicularBuffalo(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 10)
-			m_nPixels[x][y] = CubicQuasiBurningShip(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 11)
-			m_nPixels[x][y] = CubicPartialBSReal(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 12)
-			m_nPixels[x][y] = CubicPartialBSImag(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 13)
-			m_nPixels[x][y] = CubicFlyingSquirrel(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
-		else if (m_nFractalType == 14)
-			m_nPixels[x][y] = CubicQuasiPerpendicular(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
+		if(m_nFractalType)
+			m_nPixels[x][y] = LDBL_MandelCalc(m_nFractalType,m_nPower,antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch,g_FactorAR,g_FactorAI);
 		else if (m_nPower == 2)
 			m_nPixels[x][y] = Perturbation4(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
 		else if (m_nPower == 3)
@@ -5344,1522 +7295,6 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 					m_lpBits[nIndex1] = m_lpBits[nIndex];
 					m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
 					m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
-				}
-			}
-		}
-	}
-}
-void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
-{
-	m_bIterChanged = TRUE;
-	floatexp Dnr, Dni, yr, yi, _2 = 2, _3 = 3, _4 = 4, _6 = 6;
-	int antal, x, y;
-	int nPStep, nStepSize;
-	floatexp real(g_real), imag(g_imag);
-
-
-	while (!m_bStop && m_P.GetPixel(x, y)){
-		nStepSize = nPStep = m_P.GetStep();
-		if (nPStep>1)
-			nPStep = 0;
-		else
-			nPStep = 1;
-		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		if (m_nPixels[x][y] != -1){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			continue;
-		}
-#ifdef GUESS
-		if (nPStep && nStepSize==1){
-			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != -1 && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-#ifdef HARD_GUESS_EXP
-			if (x && x<m_nX - 2 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 2][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 2][y])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 2])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 2][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 2][y + 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != -1 && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y>1 && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != -1 && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-#endif
-		}
-#endif
-		if (m_nPixels[x][y] != -1){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			continue;
-		}
-		// Series approximation
-		floatexp c = m_C;
-		floatexp s = m_S;
-		floatexp dbD0r = m_DX[m_nX / 2] + c*(m_DX[x] - m_DX[m_nX / 2]) + s*(m_DY[y] - m_DY[m_nY / 2]);
-		floatexp dbD0i = m_DY[m_nY / 2] - s*(m_DX[x] - m_DX[m_nX / 2]) + c*(m_DY[y] - m_DY[m_nY / 2]);
-
-		floatexp D0r = dbD0r;//(cr-rref);
-		floatexp D0i = dbD0i;
-		floatexp Dr = D0r;
-		floatexp Di = D0i;
-		if (m_nMaxApproximation){
-			antal = m_nMaxApproximation - 1;
-			Dnr = m_APr[0] * D0r - m_APi[0] * D0i;
-			Dni = m_APr[0] * D0i + m_APi[0] * D0r;
-			floatexp D_r = D0r*D0r - D0i*D0i;
-			floatexp D_i = (D0r*D0i).mul2();
-			Dnr += m_APr[1] * D_r - m_APi[1] * D_i;
-			Dni += m_APr[1] * D_i + m_APi[1] * D_r;
-			int k;
-			for (k = 2; k<m_nTerms; k++){
-				floatexp  t = D_r*D0r - D_i*D0i;
-				D_i = D_r*D0i + D_i*D0r;
-				D_r = t;
-				Dnr += m_APr[k] * D_r - m_APi[k] * D_i;
-				Dni += m_APr[k] * D_i + m_APi[k] * D_r;
-			}
-			Dr = Dnr;
-			Di = Dni;
-		}
-		else{
-			antal = 0;
-			Dr = D0r;
-			Di = D0i;
-		}
-
-
-		double test1 = 0, test2 = 0;
-		BOOL bGlitch = FALSE;
-		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
-		if (m_nFractalType == 1 && m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					Dnr = _2*Dr*m_dxr[antal] + Dr*Dr - _2*m_dxi[antal] * Di - Di*Di + dbD0r;
-					floatexp c = m_dxr[antal] * m_dxi[antal];
-					floatexp d = m_dxr[antal] * Di + Dr*m_dxi[antal] + Dr*Di;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = _2*Dni + dbD0i;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nFractalType == 1 && m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					if (r>0){
-						if (r + a>0)
-							Dnr = a;
-						else if (a == -r)
-							Dnr = a;
-						else if (a<-r)
-							Dnr = -a - _2*r;
-					}
-					else if (r == 0)
-						Dnr = a.abs();
-					else if (r < 0){
-						if (r + a>0)
-							Dnr = a + _2*r;
-						else if (a == -r)
-							Dnr = -a;
-						else if (a < -r)
-							Dnr = -a;
-					}
-					floatexp ab = r + a;
-					Dnr = (r*r - _3*i*i) * Dnr + (_2*a*r + a*a - _6*i*b - _3*b*b)*ab.abs() + a0;
-
-					if (i>0){
-						if (i + b>0)
-							Dni = b;
-						else if (b == -i)
-							Dni = b;
-						else if (b<-i)
-							Dni = -b - _2*i;
-					}
-					else if (i == 0)
-						Dni = b.abs();
-					else if (i < 0){
-						if (i + b>0)
-							Dni = b + _2*i;
-						else if (b == -i)
-							Dni = -b;
-						else if (b < -i)
-							Dni = -b;
-					}
-					ab = i + b;
-					Dni = (_3*r*r - i*i) * Dni + (_6*r*a + _3*a*a - _2*i*b - b*b) * ab.abs() + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		if (m_nFractalType == 2 && m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp c = r*r - i*i;
-					floatexp d = _2*r*a + a*a - _2*i*b - b*b;
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					c = r*i;
-					d = r*b + a*i + a*b;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - _2*Dni;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		if (m_nFractalType == 2 && m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-
-					floatexp c = r*(r2 - _3*i2);
-					floatexp d = a*(_3*r2 + a2) + _3*r*(a2 - _2*i*b - b2) - _3*a*(i2 + _2*i*b + b2);
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					c = i*(_3*r2 - i2);
-					d = _3*i*(_2*r*a + a2 - b2) + _3*b*(r2 + _2*r*a + a2) - b*(_3*i2 + b2);
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = Dni + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		if (m_nFractalType == 3 && m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp c = r*r - i*i;
-					floatexp d = _2*r*a + a*a - _2*i*b - b*b;
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					Dni = _2*r*b + _2*a*i + _2*a*b + b0;
-
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		if (m_nFractalType == 3 && m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-
-					floatexp c = r*(r2 - _3*i2);
-					floatexp d = a*(_3*r2 + a2) + _3*r*(a2 - _2*i*b - b2) - _3*a*(i2 + _2*i*b + b2);
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					Dni = _3*i*(_2*r*a + a2 - b2) + _3*b*(r2 + _2*r*a + a2) - b*(b2 + _3*i2) + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Mandelbar
-		else if (m_nFractalType == 4 && m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					Dnr = _2*r*a + a*a - b*b - _2*b*i + a0;
-					Dni = b0 - (r*b + a*i + a*b)*_2;
-
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Cubic Mandelbar
-		else if (m_nFractalType == 4 && m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-
-					Dnr = a0 - a*(_3*r2 + a2) + _3*r*(b2 + _2*i*b - a2) + _3*a*(i2 + _2*i*b + b2);
-					Dni = _6*r*i*a + _3*i*a2 - _3*i2*b - _3*i*b2 + _3*r2*b + _6*r*a*b + _3*a2*b - b2*b + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		//Mandelbar Celtic
-		else if (m_nFractalType == 5){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp c = r*r - i*i;
-					floatexp d = _2*r*a + a*a - _2*i*b - b*b;
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					Dni = b0 - _2*(r*b + a*i + a*b);
-
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Perpendicular Mandelbrot
-		else if (m_nFractalType == 6){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					Dnr = _2*r*a + a*a - b*b - _2*b*i + a0;
-
-					floatexp c = r;
-					floatexp d = a;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - Dni*i*_2 - (r + a).abs()*b*_2;
-
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		//Perpendicular Burning Ship
-		else if (m_nFractalType == 7){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					Dnr = _2*r*a + a*a - b*b - _2*b*i + a0;
-
-					floatexp c = i;
-					floatexp d = b;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - Dni*r*_2 - a*(i + b).abs()*_2;
-
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		//Perpendicular Celtic
-		else if (m_nFractalType == 8){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp c = r*r - i*i;
-					floatexp d = _2*r*a + a*a - _2*i*b - b*b;
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					c = r;
-					d = a;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - (r + a).abs()*b*_2 - Dni*i*_2;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		//Perpendicular Buffalo
-		else if (m_nFractalType == 9){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-
-					floatexp c = r*r - i*i;
-					floatexp d = _2*r*a + a*a - _2*i*b - b*b;
-					if (c>0){
-						if (c + d>0)
-							Dnr = d;
-						else if (d == -c)
-							Dnr = d;
-						else if (d<-c)
-							Dnr = -d - _2*c;
-					}
-					else if (c == 0)
-						Dnr = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dnr = d + _2*c;
-						else if (d == -c)
-							Dnr = -d;
-						else if (d < -c)
-							Dnr = -d;
-					}
-					Dnr = Dnr + a0;
-
-					c = i;
-					d = b;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - Dni*r*_2 - a*(i + b).abs()*_2;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nFractalType == 10){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-					floatexp ar = a*r;
-					floatexp ib = i*b;
-					floatexp ab;
-
-					if (r>0){
-						if (r + a>0)
-							Dnr = a;
-						else if (a == -r)
-							Dnr = a;
-						else if (a<-r)
-							Dnr = -a - _2*r;
-					}
-					else if (r == 0)
-						Dnr = a.abs();
-					else if (r < 0){
-						if (r + a>0)
-							Dnr = a + _2*r;
-						else if (a == -r)
-							Dnr = -a;
-						else if (a < -r)
-							Dnr = -a;
-					}
-					ab = r + a;
-					Dnr = (r2 - _3*i2) * Dnr + (_2*ar + a2 - _6*ib - _3*b2)*ab.abs() + a0;
-
-					floatexp c = i*(_3*r2 - i2);
-					floatexp d = _3*i*(_2*r*a + a2 - b2) + _3*b*(r2 + _2*r*a + a2) - b*(_3*i2 + b2);
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = _abs(d);
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = b0 - Dni;
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Cubic Partial BS Real
-		else if (m_nFractalType == 11){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-					floatexp ar = a*r;
-					floatexp ib = i*b;
-					floatexp ab;
-
-					if (r>0){
-						if (r + a>0)
-							Dnr = a;
-						else if (a == -r)
-							Dnr = a;
-						else if (a<-r)
-							Dnr = -a - _2*r;
-					}
-					else if (r == 0)
-						Dnr = a.abs();
-					else if (r < 0){
-						if (r + a>0)
-							Dnr = a + _2*r;
-						else if (a == -r)
-							Dnr = -a;
-						else if (a < -r)
-							Dnr = -a;
-					}
-					ab = r + a;
-					Dnr = (r2 - _3*i2) * Dnr + (_2*ar + a2 - _6*ib - _3*b2)*ab.abs() + a0;
-					Dni = _6*r*(i*a + a*b) + _3*i*(a2 - b2) + _3*b*(r2 - i2) + b*(_3*a2 - b2) + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Cubic Partial BS Imag
-		else if (m_nFractalType == 12){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-					floatexp ar = a*r;
-					floatexp ib = i*b;
-					floatexp ab;
-
-					Dnr = _3*r2*a + _3*r*a2 - _6*r*i*b - _3*r*b2 + a*a2 - _3*i2*a - _6*i*a*b - _3*a*b2 + a0;
-
-					if (i>0){
-						if (i + b>0)
-							Dni = b;
-						else if (b == -i)
-							Dni = b;
-						else if (b<-i)
-							Dni = -b - _2*i;
-					}
-					else if (i == 0)
-						Dni = b.abs();
-					else if (i < 0){
-						if (i + b>0)
-							Dni = b + _2*i;
-						else if (b == -i)
-							Dni = -b;
-						else if (b < -i)
-							Dni = -b;
-					}
-					ab = i + b;
-					Dni = (_3*r2 - i2) * Dni + (_6*ar + _3*a2 - _2*ib - b2) * ab.abs() + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Cubic Flying Squirrel
-		else if (m_nFractalType == 13){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-					Dnr = _3*r2*a + _3*r*a2 - _6*r*i*b - _3*r*b2 + a*a2 - _3*i2*a - _6*i*a*b - _3*a*b2 + a0;
-
-					floatexp c = i*(_3*r2 - i2);
-					floatexp d = _3*i*(_2*r*a + a2 - b2) + _3*b*(r2 + _2*r*a + a2) - b*(_3*i2 + b2);
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					Dni = Dni + b0;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		// Cubic Quasi Perpendicular
-		else if (m_nFractalType == 14){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-
-					floatexp &r = m_dxr[antal];
-					floatexp &i = m_dxi[antal];
-					floatexp &a = Dr;
-					floatexp &b = Di;
-					floatexp &a0 = dbD0r;
-					floatexp &b0 = dbD0i;
-					floatexp r2 = r*r;
-					floatexp i2 = i*i;
-					floatexp a2 = a*a;
-					floatexp b2 = b*b;
-					floatexp ar = a*r;
-					floatexp ib = i*b;
-					floatexp ab;
-
-					if (r>0){
-						if (r + a>0)
-							Dnr = a;
-						else if (a == -r)
-							Dnr = a;
-						else if (a<-r)
-							Dnr = -a - _2*r;
-					}
-					else if (r == 0)
-						Dnr = a.abs();
-					else if (r < 0){
-						if (r + a>0)
-							Dnr = a + _2*r;
-						else if (a == -r)
-							Dnr = -a;
-						else if (a < -r)
-							Dnr = -a;
-					}
-					ab = r + a;
-					Dnr = (r2 - _3*i2) * Dnr + (_2*ar + a2 - _6*ib - _3*b2)*ab.abs() + a0;
-
-					floatexp c = _3*r2 - i2;
-					floatexp d = _6*r*a + _3*a2 - _2*i*b - b2;
-					if (c>0){
-						if (c + d>0)
-							Dni = d;
-						else if (d == -c)
-							Dni = d;
-						else if (d<-c)
-							Dni = -d - _2*c;
-					}
-					else if (c == 0)
-						Dni = d.abs();
-					else if (c < 0){
-						if (c + d>0)
-							Dni = d + _2*c;
-						else if (d == -c)
-							Dni = -d;
-						else if (d < -c)
-							Dni = -d;
-					}
-					ab = _3*r2 + _6*r*a + _3*a2 - i2 - _2*i*b - b2;
-					Dni = b0 - Dni*i - ab.abs()*b;
-
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					Dnr = (m_dxr[antal] * Dr - m_dxi[antal] * Di)*_2 + Dr*Dr - Di*Di + D0r;
-					Dni = (m_dxr[antal] * Di + m_dxi[antal] * Dr + Dr*Di)*_2 + D0i;
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					Dnr = _3*m_dxr[antal] * m_dxr[antal] * Dr - _6*m_dxr[antal] * m_dxi[antal] * Di - _3*m_dxi[antal] * m_dxi[antal] * Dr + _3*m_dxr[antal] * Dr*Dr - _3*m_dxr[antal] * Di*Di - _3*m_dxi[antal] * 2 * Dr*Di + Dr*Dr*Dr - _3*Dr*Di*Di + D0r;
-					Dni = _3*m_dxr[antal] * m_dxr[antal] * Di + _6*m_dxr[antal] * m_dxi[antal] * Dr - _3*m_dxi[antal] * m_dxi[antal] * Di + _3*m_dxr[antal] * 2 * Dr*Di + _3*m_dxi[antal] * Dr*Dr - _3*m_dxi[antal] * Di*Di + _3*Dr*Dr*Di - Di*Di*Di + D0i;
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nPower == 4){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _4(4, 0), _6(6, 0);
-					complex<floatexp> Dn = _4*(X ^ 3)*D + _6*(X ^ 2)*(D ^ 2) + _4*X*(D ^ 3) + (D ^ 4) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 5){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _5(5, 0), _10(10, 0);
-					complex<floatexp> Dn = _5*(X ^ 4)*D + _10*(X ^ 3)*(D ^ 2) + _10*(X ^ 2)*(D ^ 3) + _5*X*(D ^ 4) + (D ^ 5) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 6){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _6(6, 0), _15(15, 0), _20(20, 0);
-					complex<floatexp> Dn = _6*(X ^ 5)*D + _15*(X ^ 4)*(D ^ 2) + _20*(X ^ 3)*(D ^ 3) + _15*(X ^ 2)*(D ^ 4) + _6*X*(D ^ 5) + (D ^ 6) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 7){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _7(7, 0), _21(21, 0), _35(35, 0);
-					complex<floatexp> Dn = _7*(X ^ 6)*D + _21*(X ^ 5)*(D ^ 2) + _35*(X ^ 4)*(D ^ 3) + _35*(X ^ 3)*(D ^ 4) + _21*(X ^ 2)*(D ^ 5) + _7*X*(D ^ 6) + (D ^ 7) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 8){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _8(8, 0), _28(28, 0), _56(56, 0), _70(70, 0);
-					complex<floatexp> Dn = _8*(X ^ 7)*D + _28*(X ^ 6)*(D ^ 2) + _56*(X ^ 5)*(D ^ 3) + _70*(X ^ 4)*(D ^ 4) + _56*(X ^ 3)*(D ^ 5) + _28*(X ^ 2)*(D ^ 6) + _8*X*(D ^ 7) + (D ^ 8) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 9){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _9(9, 0), _36(36, 0), _84(84, 0), _126(126, 0);
-					complex<floatexp> Dn = _9*(X ^ 8)*D + _36*(X ^ 7)*(D ^ 2) + _84*(X ^ 6)*(D ^ 3) + _126*(X ^ 5)*(D ^ 4) + _126*(X ^ 4)*(D ^ 5) + _84*(X ^ 3)*(D ^ 6) + _36*(X ^ 2)*(D ^ 7) + _9*X*(D ^ 8) + (D ^ 9) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 10){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _10(10, 0), _45(45, 0), _120(120, 0), _210(210, 0), _252(252, 0);
-					complex<floatexp> Dn = _10*(X ^ 9)*D + _45*(X ^ 8)*(D ^ 2) + _120*(X ^ 7)*(D ^ 3) + _210*(X ^ 6)*(D ^ 4) + _252*(X ^ 5)*(D ^ 5) + _210*(X ^ 4)*(D ^ 6) + _120*(X ^ 3)*(D ^ 7) + _45*(X ^ 2)*(D ^ 8) + _10*X*(D ^ 9) + (D ^ 10) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else{
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> c(m_pnExpConsts[0], 0);
-					int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-					complex<floatexp> Dn = c*(X^m_nPower - 1)*D;
-					while (nXExp){
-						c.m_r = m_pnExpConsts[ci++];
-						Dn += c*(X^nXExp)*(D^nDExp);
-						nXExp--;
-						nDExp++;
-					}
-					Dn += (D^m_nPower) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-
-		InterlockedIncrement((LPLONG)&m_nDone);
-		if (antal == m_nGlitchIter)
-			bGlitch = TRUE;
-		if (antal == m_nMaxIter){
-			m_nPixels[x][y] = antal;
-			m_nTrans[x][y] = 0;
-			m_lpBits[nIndex] = 0;
-			m_lpBits[nIndex + 1] = 0;
-			m_lpBits[nIndex + 2] = 0;
-			if (!nPStep && (!bGlitch || g_bShowGlitches)){
-				int q;
-				int nE = nStepSize*nStepSize;
-				for (q = 0; q<nE; q++){
-					int tx = x + q%nStepSize;
-					int ty = y + q / nStepSize;
-					if (tx<m_nX - 1 && ty<m_nY - 1 && m_nPixels[tx][ty] == -1){
-						int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-						m_lpBits[nIndex1] = m_lpBits[nIndex];
-						m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
-						m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
-					}
-				}
-			}
-		}
-		else{
-			m_nPixels[x][y] = antal;
-			if (!bGlitch && m_nSmoothMethod == 1){
-				double div = sqrt(test1) - sqrt(test2);
-				if (div != 0)
-					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
-				else
-					m_nTrans[x][y] = 0;
-			}
-			else if (!bGlitch && m_nSmoothMethod == 0){
-				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
-				if (!ISFLOATOK(m_nTrans[x][y]))
-					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
-			}
-			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = 2;
-				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
-			}
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			if (!nPStep && (!bGlitch || g_bShowGlitches)){
-				int q;
-				int nE = nStepSize*nStepSize;
-				for (q = 0; q<nE; q++){
-					int tx = x + q%nStepSize;
-					int ty = y + q / nStepSize;
-					if (tx<m_nX - 1 && ty<m_nY - 1 && m_nPixels[tx][ty] == -1){
-						int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-						m_lpBits[nIndex1] = m_lpBits[nIndex];
-						m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
-						m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
-					}
 				}
 			}
 		}
@@ -7064,7 +7499,7 @@ void CFraktalSFT::RenderFractal()
 	}
 	else
 		m_nTotal = m_nX*m_nY;
-	if (m_nZoom>g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
+	if (m_nZoom>=g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
 		if (m_db_dxr){
 			delete[] m_db_dxr;
 			m_db_dxr = NULL;
@@ -7084,7 +7519,7 @@ void CFraktalSFT::RenderFractal()
 		RenderFractalLDBL();
 		return;
 	}
-	else if (m_nZoom>g_nLDBL){
+	else if (m_nZoom>=g_nLDBL){
 		if (m_db_dxr){
 			delete[] m_db_dxr;
 			m_db_dxr = NULL;
@@ -7159,7 +7594,34 @@ void CFraktalSFT::RenderFractal()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-
+/*
+	if(m_bAddReference){
+		m_rApprox.left = m_nX/2;
+		m_rApprox.top = m_nY/2;
+		m_rApprox.right = m_nX/2;
+		m_rApprox.bottom = m_nY/2;
+		for (y = 0; y<m_nY; y++){
+			for (x = 0; x<m_nX; x++){
+				if(m_nPixels[x][y]==-1){
+					if(m_rApprox.left>x)
+						m_rApprox.left=x;
+					if(m_rApprox.top>y)
+						m_rApprox.top=y;
+					if(m_rApprox.right<x)
+						m_rApprox.right=x;
+					if(m_rApprox.bottom<y)
+						m_rApprox.bottom=y;
+				}
+			}
+		}
+	}
+	else{
+		m_rApprox.left = 0;
+		m_rApprox.top = 0;
+		m_rApprox.right = m_nX;
+		m_rApprox.bottom = m_nY;
+	}
+*/
 	CalculateApproximation(0);
 
 	// CalcStart
@@ -7242,7 +7704,14 @@ void CFraktalSFT::RenderFractalLDBL()
 				m_iref = 0;
 			}
 		}
-		CalculateReferenceLDBL();
+		if(m_nFractalType<15)
+			CalculateReferenceLDBL();
+		else if(m_nFractalType<30)
+			CalculateReferenceLDBL1();
+		else if(m_nFractalType<42)
+			CalculateReferenceLDBL2();
+		else
+			CalculateReferenceLDBL3();
 	}
 	int i;
 	int x, y;
@@ -7350,7 +7819,14 @@ void CFraktalSFT::RenderFractalEXP()
 				m_iref = 0;
 			}
 		}
-		CalculateReferenceEXP();
+		if(m_nFractalType<15)
+			CalculateReferenceEXP();
+		else if(m_nFractalType<30)
+			CalculateReferenceEXP1();
+		else if(m_nFractalType<42)
+			CalculateReferenceEXP2();
+		else
+			CalculateReferenceEXP3();
 	}
 	int i;
 	int x, y;
@@ -7590,7 +8066,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		int x, y, a, b;
 		int nX2 = m_nX/2;
 		int nY2 = m_nY/2;
-		if(nZoomSize<1 && nZoomSize>.8){
+		if(0 && nZoomSize<1 && nZoomSize>.8){
 			for (x = 0; x<nOX; x++){
 				for (y = 0; y<nOY; y++){
 					Org[x][y]=-1;
@@ -7961,6 +8437,8 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 					y2 = ty - y;
 					nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
 					nIndex2 = x2 * 3 + (m_bmi->biHeight - 1 - y2)*m_row;
+					if(nIndex2>m_bmi->biSizeImage-3)
+						continue;
 					t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
 					val += (t<0 ? -t : t);
 				}
@@ -8072,7 +8550,7 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
 		m_nColorMethod = atoi(stParams[nID][1]);
-		if (m_nColorMethod<0 || m_nColorMethod>5)
+		if (m_nColorMethod<0 || m_nColorMethod>6)
 			m_nColorMethod = 0;
 	}
 	else
@@ -8138,6 +8616,27 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 		g_imag = atoi(stParams[nID][1]);
 	else
 		g_imag = 1;
+
+	nID = stParams.FindString(0, "SeedR");
+	if (nID != -1)
+		g_SeedR = atof(stParams[nID][1]);
+	else
+		g_SeedR = 0;
+	nID = stParams.FindString(0, "SeedI");
+	if (nID != -1)
+		g_SeedI = atof(stParams[nID][1]);
+	else
+		g_SeedI = 0;
+	nID = stParams.FindString(0, "FactorAR");
+	if (nID != -1)
+		g_FactorAR = atof(stParams[nID][1]);
+	else
+		g_FactorAR = 1;
+	nID = stParams.FindString(0, "FactorAI");
+	if (nID != -1)
+		g_FactorAI = atof(stParams[nID][1]);
+	else
+		g_FactorAI = 0;
 
 	if (g_nLDBL>100){
 		if (m_nPower == 2 && !m_nFractalType)
@@ -8476,6 +8975,24 @@ BOOL CFraktalSFT::SaveFile(char *szFile)
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "real");
 	stSave.AddInt(stSave.GetCount() - 1, g_real);
+	stSave.AddRow();
+	char szTmp[50];
+	sprintf(szTmp,"%g",g_SeedR);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "SeedR");
+	stSave.AddString(stSave.GetCount() - 1, szTmp);
+	sprintf(szTmp,"%g",g_SeedI);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "SeedI");
+	stSave.AddString(stSave.GetCount() - 1, szTmp);
+	sprintf(szTmp,"%g",g_FactorAR);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "FactorAR");
+	stSave.AddString(stSave.GetCount() - 1, szTmp);
+	sprintf(szTmp,"%g",g_FactorAI);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "FactorAI");
+	stSave.AddString(stSave.GetCount() - 1, szTmp);
 
 	DWORD dw;
 	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
@@ -9073,8 +9590,8 @@ void CFraktalSFT::SetPower(int nPower)
 		m_nPower = 2;
 	if (m_nPower>70)
 		m_nPower = 70;
-	if (m_nFractalType && m_nPower>3)
-		m_nPower = 3;
+//	if (m_nFractalType>4 && m_nPower>3)
+//		m_nPower = 3;
 	if (g_nLDBL>100){
 		if (m_nPower == 2 && !m_nFractalType)
 			g_nLDBL = 600;
@@ -9322,6 +9839,27 @@ void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int
 	strcpy(m_szTexture,szTexture);
 }
 
+void CFraktalSFT::AddInflectionPont(int nXPos, int nYPos)
+{
+	m_C = cos(g_Degree);
+	m_S = sin(g_Degree);
+	double mr = m_nX / 2;
+	double mi = m_nY / 2;
+	double ratio = (((double)m_nY/(double)m_nX)/(360.0/640.0)) * ((double)360 / (double)m_scRatio.cy);
+	double xpos = (nXPos - mr)*ratio + mr;
+	double dbD0r = mr + m_C*(xpos - mr) + m_S*(nYPos - mi);
+	double dbD0i = mi - m_S*(xpos - mr) + m_C*(nYPos - mi);
+	dbD0r = (dbD0r - mr) / ratio + mr;
+	int i = m_nInflections++;
+	m_pInflections = (complex<CFixedFloat> *)realloc(m_pInflections,sizeof(complex<CFixedFloat>)*m_nInflections);
+	m_pInflections[i].m_r = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
+	m_pInflections[i].m_i = (CFixedFloat)dbD0i*(m_istop - m_istart)*(CFixedFloat)((double)1 / m_nY) + m_istart;
+}
+void CFraktalSFT::RemoveInflectionPoint()
+{
+	if(m_nInflections)
+		m_nInflections--;
+}
 
 
 CPixels::CPixels()

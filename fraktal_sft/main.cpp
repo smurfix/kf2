@@ -28,6 +28,12 @@
 
 POINT g_pInflections[10];
 int g_nInflection=0;
+extern double g_SeedR;
+extern double g_SeedI;
+extern double g_FactorAR;
+extern double g_FactorAI;
+
+//#define PARAM_ANIMATION
 
 BOOL g_nAnimateZoom=TRUE;
 BOOL g_bArbitrarySize=TRUE;
@@ -40,6 +46,7 @@ BOOL g_bTrackSelect=FALSE;
 POINT g_pTrackStart;
 
 int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
 
 HBITMAP g_bmMarilyn=NULL;
 double g_nMinDiff=0;
@@ -257,6 +264,8 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Period length of the wave";
 		case IDC_BUTTON29:
 			return "Change the period wave to the nearest higher prime value";
+		case IDC_BUTTON30:
+			return "Fill the palette with the colors from infinte waves";
 		case IDC_BUTTON26:
 			return "Add a new wave with the given values";
 		case IDC_BUTTON27:
@@ -299,6 +308,16 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Close the dialog and undo all changes";
 		case IDCANCEL:
 			return "Close the dialog";
+		case 1051:
+			return "Enable texture";
+		case 1052:
+			return "Texture depth";
+		case 1053:
+			return "Texture strength/ratio";
+		case 1054:
+			return "Browse for image";
+		case 1055:
+			return "Texture image";
 		}
 	}
 	else if(lParam==1){
@@ -331,6 +350,10 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Include real part when checking bailout.\nUncheck for variation";
 		case IDC_CHECK5:
 			return "Include imaginary part when checking bailout.\nUncheck for variation";
+		case 1002:
+			return "Real seed value (0 is standard)";
+		case 1003:
+			return "Imaginary seed value (0 is standard)";
 		case IDOK:
 			return "Apply and close";
 		case IDCANCEL:
@@ -440,6 +463,52 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Flying Squirrel (Buffalo Imag)");
 			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Quasi Perpendicular");
 
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Imag");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Real");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Real Mbar");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Imag");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Real");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Real Mbar");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Buffalo Partial Imag");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Mbar");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th False Quasi Perpendicular");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th False Quasi Heart");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic False Quasi Perpendicular");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic False Quasi Heart");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Burning Ship Partial");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Burning Ship Partial Mbar");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Celtic Mbar");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Burning Ship (BS/Buffalo Hybrid)");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Perpendicular");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Heart");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot 4th");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Imag Quasi Perpendicular / Heart");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Real Quasi Perpendicular");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Real Quasi Heart");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Imag Quasi Perpendicular / Heart");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Real Quasi Perpendicular");
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Real Quasi Heart");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot 6th");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"HPDZ Buffalo");
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 1: a*z^2+z^3+c");		// 42
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 2: a*z^2-z^3+c");		// 43
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 3: 2*z^2-z^3+c");		// 44
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 4: a*z^2+z^4+c");		// 45
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 5: a*z^2-z^4+c");		// 46
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 6: a*z^2+z^5+c");		// 47
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 7: a*z^2-z^5+c");		// 48
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 8: a*z^2+z^6+c");		// 49
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 9: a*z^2-z^6+c");		// 50
+
+			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot2 4th");
+			//SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Test");
+
 			SIZE sc;
 			HDC hDC = GetDC(NULL);
 			HFONT hfOld = (HFONT)SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
@@ -468,10 +537,35 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)szNum);
 				}
 			}
+			else{
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"4");
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"5");
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"6");
+			}
 			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,g_SFT.GetPower()-2,0);
 			EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType<=4);
 			if(nType>=10)
 				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
+			if(nType>=15)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType>=27)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
+			if(nType>=33)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType==40)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
+			if(nType==41)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
+			if(nType>=42)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
+			if(nType==45 || nType==46)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType==47 || nType==48)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
+			if(nType==49 || nType==50)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
+			if(nType>=51)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
 			
 			SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,g_SFT.GetLowTolerance(),0);
 			SendDlgItemMessage(hWnd,IDC_CHECK2,BM_SETCHECK,g_SFT.GetAutoTerms(),0);
@@ -493,6 +587,17 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			SendDlgItemMessage(hWnd,IDC_CHECK3,BM_SETCHECK,g_real==0?0:1,0);
 			SendDlgItemMessage(hWnd,IDC_CHECK5,BM_SETCHECK,g_imag==0?0:1,0);
+
+			char szTmp[40];
+			sprintf(szTmp,"%g",g_SeedR);
+			SetDlgItemText(hWnd,IDC_EDIT4,szTmp);
+			sprintf(szTmp,"%g",g_SeedI);
+			SetDlgItemText(hWnd,IDC_EDIT9,szTmp);
+
+			sprintf(szTmp,"%g",g_FactorAR);
+			SetDlgItemText(hWnd,IDC_EDIT28,szTmp);
+			sprintf(szTmp,"%g",g_FactorAI);
+			SetDlgItemText(hWnd,IDC_EDIT10,szTmp);
 		}
 		int nMin, nMax, nCalc=0,nType=0;
 		g_SFT.GetIterations(nMin,nMax,&nCalc,&nType);
@@ -533,6 +638,15 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(wParam==IDOK){
 			g_real = SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0);
 			g_imag = SendDlgItemMessage(hWnd,IDC_CHECK5,BM_GETCHECK,0,0);
+			char szTmp[40];
+			GetDlgItemText(hWnd,IDC_EDIT4,szTmp,sizeof(szTmp));
+			g_SeedR = atof(szTmp);
+			GetDlgItemText(hWnd,IDC_EDIT9,szTmp,sizeof(szTmp));
+			g_SeedI = atof(szTmp);
+			GetDlgItemText(hWnd,IDC_EDIT28,szTmp,sizeof(szTmp));
+			g_FactorAR = atof(szTmp);
+			GetDlgItemText(hWnd,IDC_EDIT10,szTmp,sizeof(szTmp));
+			g_FactorAI = atof(szTmp);
 
 			g_bExamineDirty=TRUE;
 			g_SFT.SetSmoothMethod(SendDlgItemMessage(hWnd,IDC_COMBO2,CB_GETCURSEL,0,0));
@@ -575,12 +689,39 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)szNum);
 				}
 			}
+			else{
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"4");
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"5");
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"6");
+			}
 			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,nPow,0);
 			if(SendDlgItemMessage(hWnd,IDC_COMBO3,CB_GETCURSEL,0,0)==-1)
 				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
+#ifndef _DEBUG
 			EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType<=4);
+#endif
 			if(nType>=10)
 				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
+			if(nType>=15)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType>=27)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
+			if(nType>=33)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType==40)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
+			if(nType==41)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
+			if(nType>=42)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
+			if(nType==45 || nType==46)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+			if(nType==47 || nType==48)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
+			if(nType==49 || nType==50)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
+			if(nType>=51)
+				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
 		}
 		int nType = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
 //		if(nType)
@@ -658,6 +799,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT23),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_CHECK7),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON29),g_SFT.GetMW());
+		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON30),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT25),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_LIST6),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON26),g_SFT.GetMW());
@@ -762,6 +904,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SendDlgItemMessage(hWnd,IDC_COMBO1,CB_ADDSTRING,0,(LPARAM)"Logarithm");
 				SendDlgItemMessage(hWnd,IDC_COMBO1,CB_ADDSTRING,0,(LPARAM)"Stretched");
 				SendDlgItemMessage(hWnd,IDC_COMBO1,CB_ADDSTRING,0,(LPARAM)"Distance");
+				SendDlgItemMessage(hWnd,IDC_COMBO1,CB_ADDSTRING,0,(LPARAM)"DE+Standard");
 			}
 
 			if(uMsg==WM_INITDIALOG){
@@ -924,6 +1067,52 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			int val = GetDlgItemInt(hWnd,IDC_EDIT23,NULL,FALSE);
 			val = MakePrime(val);
 			SetDlgItemInt(hWnd,IDC_EDIT23,val,FALSE);
+		}
+		else if(wParam==IDC_BUTTON30){
+			srand(GetTickCount());
+			int nColors = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0);
+			if(nColors>1024)
+				nColors=1024;
+			int c, w;
+			for(c=0;c<nColors;c++){
+				double nH = 0, nS = 0, nB = 0;
+				int nDR = 0, nDG = 0, nDB = 0;
+				for(w=0;w<100;w++){
+					int nPeriod,nStart,nType;
+					if(!g_SFT.GetMW(w,nPeriod,nStart,nType))
+						break;
+
+					double col = (double)c*(double)1024/(double)nColors;
+					double g = sin((pi*((int)col)) / nPeriod) / 2 + .5;
+					if (nPeriod<0)
+						g = -(double)nPeriod / (double)100;
+					if (nType == 0){
+						nH += g;
+						nDR++;
+					}
+					if (nType == 1){
+						nS += g;
+						nDG++;
+					}
+					if (nType == 2){
+						nB += g;
+						nDB++;
+					}
+				}
+				if (nDR)
+					nH /= nDR;
+				if (nDG)
+					nS /= nDG;
+				if (nDB)
+					nB /= nDB;
+				COLOR14 cPos;
+				HSVToRGB(nH, nS, nB, cPos);
+				g_SFT.SetKeyColor(cPos,c);
+			}
+			g_SFT.ApplyColors();
+			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
+			InvalidateRect(GetParent(hWnd),NULL,FALSE);
+			InvalidateRect(hWnd,NULL,FALSE);
 		}
 		else if(wParam==IDC_BUTTON6)
 		{
@@ -2642,6 +2831,8 @@ HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 	ReleaseDC(NULL,hDC);
 	return bmResult;
 }
+double g_length=0;
+double g_degree=0;
 HBITMAP g_bmSaveZoomBuff=NULL;
 SIZE g_scSaveZoomBuff;
 void SaveZoomImg(char *szFile)
@@ -2791,13 +2982,19 @@ nPos=13;
 			char *szZ = g_SFT.ToZoom();
 			if(g_bStoreZoomJpg){
 				wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.jpg",g_bStoreZoom,szZ);
-				if(g_nZoomSize<2)
+#ifdef PARAM_ANIMATION
+				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).jpg",g_bStoreZoom,g_SeedR,g_SeedI);
+#endif
+				if(g_nZoomSize<2 && !g_bAnimateEachFrame)
 					SaveZoomImg(g_szFile);
 				else
 					g_SFT.SaveJpg(g_szFile,99);
 			}
+#ifndef PARAM_ANIMATION
 			wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.kfb",g_bStoreZoom,szZ);
-			g_SFT.SaveMapB(g_szFile);
+			if(!g_bAnimateEachFrame)
+				g_SFT.SaveMapB(g_szFile);
+#endif
 nPos=14;
 			g_bStoreZoom++;
 			if(!atof(szZ)){
@@ -2811,6 +3008,16 @@ nPos=14;
 					if(nMax<g_SFT.GetIterations()/3)
 						g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
 				}
+
+#ifdef PARAM_ANIMATION
+				if(g_bSkewAnimation){
+					g_length+=0.001;
+					g_degree+=0.04;
+					g_SeedR = cos(g_degree)*g_length + sin(g_degree)*g_length;
+					g_SeedI = cos(g_degree)*g_length - sin(g_degree)*g_length;
+					g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+				}else 
+#endif
 				if(g_bSkewAnimation){
 					if(g_bSkewAnimation==1){
 						g_bSkewAnimation=2;
@@ -2852,8 +3059,8 @@ nPos=14;
 					SetTimer(hWnd,0,500,NULL);
 				}
 				else{
-					if(g_bAnimateEachFrame)
-						g_Degree+=0.01;
+//					if(g_bAnimateEachFrame)
+//						g_Degree+=0.01;
 					g_SFT.Zoom(g_nZoomSize==1?-g_JpegParams.nWidth/2:g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_nZoomSize,g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame);
 				}
 				SetTimer(hWnd,0,500,NULL);
@@ -4737,7 +4944,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
 		if(g_nLDBL>100)
-			g_nLDBL=3;
+			g_nLDBL=0;
 		else{
 			if(g_SFT.GetPower()==2)
 				g_nLDBL=600;
@@ -4747,7 +4954,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nLDBL=300;
 		}
 		g_nEXP=4900;
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(g_nLDBL==3?MF_CHECKED:MF_UNCHECKED));
+		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(g_nLDBL<100?MF_CHECKED:MF_UNCHECKED));
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(g_nEXP==3?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
@@ -4764,7 +4971,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nLDBL=300;
 			g_nEXP=4900;
 		}
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(g_nLDBL==3?MF_CHECKED:MF_UNCHECKED));
+		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|MF_UNCHECKED);
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(g_nEXP==3?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
@@ -4901,6 +5108,17 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SKEW,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SHOWINFLECTION,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_SHIFT))){
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient(hWnd,&p);
+		g_SFT.AddInflectionPont(p.x,p.y);
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+	}
+	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_SHIFT))){
+		g_SFT.RemoveInflectionPoint();
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+	}
 	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))){
 		if(g_nInflection<sizeof(g_pInflections)/sizeof(POINT)){
 			GetCursorPos(&g_pInflections[g_nInflection]);
@@ -5227,7 +5445,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(e)
 					e++;
 				else e = "1";
-				g_bFindMinibrotPos=1 + 2*log(atof(e))/log((double)2)/3;
+				g_bFindMinibrotPos=1;// + 2*log(atof(e))/log((double)2)/3;
 				g_bFindMinibrotCount=1;
 			}
 			else
@@ -5285,8 +5503,8 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			if(g_bFindMinibrotCount){
 				if(g_bFindMinibrotPos==g_bFindMinibrotCount){
-					g_bFindMinibrotCount=1;
-					g_bFindMinibrotPos+=(g_bFindMinibrotPos==1?1:g_bFindMinibrotPos/2);
+					g_bFindMinibrotCount=0;
+					g_bFindMinibrotPos=1;//+=(g_bFindMinibrotPos==1?1:g_bFindMinibrotPos/2);
 				}
 				g_bFindMinibrotCount++;
 				char szTitle[256];
@@ -5323,7 +5541,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			char szMsg[1024];
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
-			wsprintf(szMsg,"©2013-2016 Karl Runmo version 2.9.3\n©2017 Claude Heiland-Allen 2.9.3+gmp.20170307\n\nProcessors: %d\nPrecision: %d\n%s\n\nAcknowledgements:\n - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n - Thanks to Pauldelbrot for finding the reliable glitch detection method\n - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n - Thanks to laser blaster for the Burning ship formula\n - Thanks to stardust4ever for other fractal types\n - Thanks to claude for the Newton-Raphson method\n - Thanks to Chillheimer for hosting my program\n\nhttp://www.chillheimer.de/kallesfraktaler/",sysinfo.dwNumberOfProcessors,FIXEDFLOAT_ENTRIES*8-16,sizeof(void*)==4?"32-bit":"64-bit");
+			wsprintf(szMsg,"©2013-2016 Karl Runmo version 2.11.1\n©2017 Claude Heiland-Allen 2.11.1+gmp.20170307\n\nProcessors: %d\nPrecision: %d\n%s\n\nAcknowledgements:\n - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n - Thanks to Pauldelbrot for finding the reliable glitch detection method\n - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n - Thanks to laser blaster for the Burning ship formula\n - Thanks to stardust4ever for other fractal types\n - Thanks to claude for the Newton-Raphson method\n - Thanks to Chillheimer for hosting my program\n\nhttp://www.chillheimer.de/kallesfraktaler/",sysinfo.dwNumberOfProcessors,FIXEDFLOAT_ENTRIES*8-16,sizeof(void*)==4?"32-bit":"64-bit");
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
 	}	
@@ -5346,6 +5564,10 @@ int Test()
 	return 0;
 }
 
+int Test2()
+{
+	return 0;
+}
 #ifdef KF_CUSTOM_NUMBERS
 CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
 {
@@ -5375,8 +5597,10 @@ CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
 	int a, b;
 	for(a=0;a<Ret.m_nValues;a++){
 		int end = Ret.m_nValues-a;
+#ifdef _WIN64
 		for(b=0;b<end;b++)
 			grid[a][b] = _umul128(This.m_pValues[a],A.m_pValues[b],&carry[a][b]);
+#endif
 	}
 
 	memset(Ret.m_pValues,0,sizeof(This.m_pValues));

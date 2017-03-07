@@ -2,6 +2,7 @@
 // Microsoft Visual C++ generated include file.
 // Used by fraktal_sft.rc
 //
+#define IDCANCEL2                       3
 #define IDD_DIALOG1                     101
 #define IDR_MENU1                       102
 #define IDD_DIALOG2                     103
@@ -23,6 +24,7 @@
 #define IDC_EDIT4                       1002
 #define IDC_EDIT9                       1003
 #define IDC_LIST1                       1004
+#define IDC_EDIT28                      1004
 #define IDC_PREV                        1005
 #define IDC_EDIT10                      1005
 #define IDC_EDIT20                      1006
@@ -43,6 +45,7 @@
 #define IDC_BUTTON7                     1015
 #define IDC_CHECK1                      1016
 #define IDC_SPIN2                       1017
+#define IDC_CHECK9                      1017
 #define IDC_BUTTON8                     1018
 #define IDC_BUTTON9                     1019
 #define IDC_QUALITY_LABEL               1019
@@ -108,6 +111,7 @@
 #define Colors3                         1079
 #define IDC_EDIT25                      1080
 #define IDC_CHECK7                      1081
+#define IDC_BUTTON30                    1082
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
 #define ID_ACTIONS_POSITION             40003
