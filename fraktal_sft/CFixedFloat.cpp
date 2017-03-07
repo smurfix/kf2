@@ -78,7 +78,7 @@ CFixedFloat::CFixedFloat(double a)
 CFixedFloat::~CFixedFloat()
 {
 	if(m_szValue)
-		delete m_szValue;
+		delete[] m_szValue;
 }
 void CFixedFloat::SetMaxSignificant(int nMax)
 {
