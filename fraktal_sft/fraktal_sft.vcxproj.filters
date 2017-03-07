@@ -220,6 +220,15 @@
     <ClCompile Include="newton.cpp">
       <Filter>source</Filter>
     </ClCompile>
+    <ClCompile Include="exp_functions.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="exp_functions2.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
+    <ClCompile Include="dbl_functions.cpp">
+      <Filter>source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\jpeg\cderror.h">
@@ -292,6 +301,9 @@
       <Filter>jpg</Filter>
     </ClInclude>
     <ClInclude Include="listbox.h">
+      <Filter>header</Filter>
+    </ClInclude>
+    <ClInclude Include="..\test1\m128.h">
       <Filter>header</Filter>
     </ClInclude>
   </ItemGroup>

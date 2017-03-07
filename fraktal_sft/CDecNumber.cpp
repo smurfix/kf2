@@ -1,6 +1,6 @@
 #include "cdecnumber.h"
 extern "C" {
-	int raise(int a){
+	int _raise(int a){
 		return 0;
 	}
 			/* Decimal number arithmetic module for the decNumber C Library.
@@ -2115,7 +2115,7 @@ decContext *decContextSetRounding(decContext *context,
 
 			decContext * decContextSetStatus(decContext *context, uInt status) {
 			  context->status|=status;
-			  if (status & context->traps) raise(SIGFPE);
+			  if (status & context->traps) _raise(SIGFPE);
 			  return context;
 			}
 /* ------------------------------------------------------------------ */
