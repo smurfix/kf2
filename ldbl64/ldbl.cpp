@@ -3,6 +3,11 @@
 #include <stdio.h>
 #include <float.h>
 #include <math.h>
+
+#ifndef KF_CUSTOM_NUMBERS
+#include "../fraktal_sft/CFixedFloat.h"
+#endif
+
 #define _GCC_
 #include "../fraktal_sft/floatexp.h"
 //#include "C:\pojects\ltest\fraktal_sft\ldbl_exp.h"
@@ -175,13 +180,14 @@ extern "C" __declspec(dllexport) void Print(void *a,char *szRet)
 }
 extern "C" __declspec(dllexport) int Version()
 {
-	return 7;
+	return 20170307;
 }
 
 #define	FIXEDFLOAT_TYPE __int64
 #define FIXEDFLOAT_DIGITS 8
 #define FIXEDFLOAT_PARTMAX (FIXEDFLOAT_TYPE)100000000
 
+#ifdef KF_CUSTOM_NUMBERS
 extern "C" __declspec(dllexport) void ConvertFromFixedFloat(void *p,int nValues, __int64 *pValues, BOOL bSign)
 {
 	long double a=0;
@@ -199,6 +205,25 @@ extern "C" __declspec(dllexport) void ConvertFromFixedFloat(void *p,int nValues,
 		a=-a;
 	*((long double *)p) = a;
 }
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+extern "C" __declspec(dllexport) void ConvertFromFixedFloat(void *p,mpfr_t value)
+{
+	*((long double *)p) = mpfr_get_ld(value, MPFR_RNDN);
+}
+#else
+extern "C" __declspec(dllexport) void ConvertFromFixedFloat(void *p,mpf_t value)
+{
+	using std::ldexp;
+	signed long int e = 0;
+	long double l = mpf_get_d_2exp(&e, value);
+	l = ldexp(l, e);
+	if ((mpf_sgn(value) >= 0) != (l >= 0))
+		l = -l;
+	*((long double *)p) = l;
+}
+#endif
+#endif
 
 //#define LDBL_MAX 3e4932L
 

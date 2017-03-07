@@ -60,7 +60,18 @@ int(*GT)(void *a, void *b);
 int(*LT)(void *a, void *b);
 int(*Equal)(void *a, void *b);
 void(*Print)(void *a, char *szRet);
-void(*ConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#ifdef KF_CUSTOM_NUMBERS
+void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+void(*DLLConvertFromFixedFloat)(void *p, mpfr_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#else
+void(*DLLConvertFromFixedFloat)(void *p, mpf_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#endif
+#endif
 int(*Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_4th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
@@ -111,114 +122,276 @@ public:
 			g_LDBL = 2;
 			return;
 		}
-		if (Version() != 8){
+		if (Version() != 20170307){
+			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
 			g_LDBL = 2;
 			return;
 		}
+#if 0
 		if(!(SetParts = (void(*)(double,double))GetProcAddress(hLD, "SetParts")))
+		{
+			fprintf(stderr, "SetParts\n");
 			g_LDBL = 2;
-		if (!(SizeOfLD = (int(*)())GetProcAddress(hLD, "SizeOfLD")))
-			g_LDBL = 2;
-		if (!(AllocateArray = (void*(*)(int))GetProcAddress(hLD, "AllocateArray")))
-			g_LDBL = 2;
-		if (!(ReleaseArray = (void(*)(void*))GetProcAddress(hLD, "ReleaseArray")))
-			g_LDBL = 2;
-		if (!(AssignInt = (void(*)(void*, int))GetProcAddress(hLD, "AssignInt")))
-			g_LDBL = 2;
-		if (!(AssignDouble = (void(*)(void*, double))GetProcAddress(hLD, "AssignDouble")))
-			g_LDBL = 2;
-		if (!(AssignLD = (void(*)(void*, void*))GetProcAddress(hLD, "AssignLD")))
-			g_LDBL = 2;
-		if (!(AssignFloatExp = (void(*)(void*, floatexp*))GetProcAddress(hLD, "AssignFloatExp")))
-			g_LDBL = 2;
-		if (!(ToInt = (void(*)(void*, int*))GetProcAddress(hLD, "ToInt")))
-			g_LDBL = 2;
-		if (!(ToDouble = (void(*)(void*, double*))GetProcAddress(hLD, "ToDouble")))
-			g_LDBL = 2;
-		if (!(ToFloatExp = (void(*)(void *, floatexp *))GetProcAddress(hLD, "ToFloatExp")))
-			g_LDBL = 2;
-		if (!(Multiply = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Multiply")))
-			g_LDBL = 2;
-		if (!(SquareAdd = (double(*)(void*, void*))GetProcAddress(hLD, "SquareAdd")))
-			g_LDBL = 2;
-		if (!(Divide = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Divide")))
-			g_LDBL = 2;
-		if (!(Add = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Add")))
-			g_LDBL = 2;
-		if (!(Subtract = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Subtract")))
-			g_LDBL = 2;
-		if (!(GT = (int(*)(void*, void*))GetProcAddress(hLD, "GT")))
-			g_LDBL = 2;
-		if (!(LT = (int(*)(void*, void*))GetProcAddress(hLD, "LT")))
-			g_LDBL = 2;
-		if (!(Equal = (int(*)(void*, void*))GetProcAddress(hLD, "Equal")))
-			g_LDBL = 2;
-		if (!(Print = (void(*)(void*, char*))GetProcAddress(hLD, "Print")))
-			g_LDBL = 2;
-		if (!(ConvertFromFixedFloat = (void(*)(void*, int, FIXEDFLOAT_TYPE *, BOOL))GetProcAddress(hLD, "ConvertFromFixedFloat")))
-			g_LDBL = 2;
-#ifndef KF_CUSTOM_NUMBERS
-#define ConvertFromFixedFloat(p,nv,pv,s) do{}while(0)
+		}
 #endif
+		if (!(SizeOfLD = (int(*)())GetProcAddress(hLD, "SizeOfLD")))
+		{
+			fprintf(stderr, "SizeOfLD\n");
+			g_LDBL = 2;
+		}
+		if (!(AllocateArray = (void*(*)(int))GetProcAddress(hLD, "AllocateArray")))
+		{
+			fprintf(stderr, "AllocateArray\n");
+			g_LDBL = 2;
+		}
+		if (!(ReleaseArray = (void(*)(void*))GetProcAddress(hLD, "ReleaseArray")))
+		{
+			fprintf(stderr, "ReleaseArray\n");
+			g_LDBL = 2;
+		}
+		if (!(AssignInt = (void(*)(void*, int))GetProcAddress(hLD, "AssignInt")))
+		{
+			fprintf(stderr, "AssignInt\n");
+			g_LDBL = 2;
+		}
+		if (!(AssignDouble = (void(*)(void*, double))GetProcAddress(hLD, "AssignDouble")))
+		{
+			fprintf(stderr, "AssignDouble\n");
+			g_LDBL = 2;
+		}
+		if (!(AssignLD = (void(*)(void*, void*))GetProcAddress(hLD, "AssignLD")))
+		{
+			fprintf(stderr, "AssignLD\n");
+			g_LDBL = 2;
+		}
+		if (!(AssignFloatExp = (void(*)(void*, floatexp*))GetProcAddress(hLD, "AssignFloatExp")))
+		{
+			fprintf(stderr, "AssignFloatExp\n");
+			g_LDBL = 2;
+		}
+		if (!(ToInt = (void(*)(void*, int*))GetProcAddress(hLD, "ToInt")))
+		{
+			fprintf(stderr, "ToInt\n");
+			g_LDBL = 2;
+		}
+		if (!(ToDouble = (void(*)(void*, double*))GetProcAddress(hLD, "ToDouble")))
+		{
+			fprintf(stderr, "ToDouble\n");
+			g_LDBL = 2;
+		}
+		if (!(ToFloatExp = (void(*)(void *, floatexp *))GetProcAddress(hLD, "ToFloatExp")))
+		{
+			fprintf(stderr, "ToFloatExp\n");
+			g_LDBL = 2;
+		}
+		if (!(Multiply = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Multiply")))
+		{
+			fprintf(stderr, "Multiply\n");
+			g_LDBL = 2;
+		}
+		if (!(SquareAdd = (double(*)(void*, void*))GetProcAddress(hLD, "SquareAdd")))
+		{
+			fprintf(stderr, "SquareAdd\n");
+			g_LDBL = 2;
+		}
+		if (!(Divide = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Divide")))
+		{
+			fprintf(stderr, "Divide\n");
+			g_LDBL = 2;
+		}
+		if (!(Add = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Add")))
+		{
+			fprintf(stderr, "Add\n");
+			g_LDBL = 2;
+		}
+		if (!(Subtract = (void(*)(void*, void*, void*))GetProcAddress(hLD, "Subtract")))
+		{
+			fprintf(stderr, "Subtract\n");
+			g_LDBL = 2;
+		}
+		if (!(GT = (int(*)(void*, void*))GetProcAddress(hLD, "GT")))
+		{
+			fprintf(stderr, "GT\n");
+			g_LDBL = 2;
+		}
+		if (!(LT = (int(*)(void*, void*))GetProcAddress(hLD, "LT")))
+		{
+			fprintf(stderr, "LT\n");
+			g_LDBL = 2;
+		}
+		if (!(Equal = (int(*)(void*, void*))GetProcAddress(hLD, "Equal")))
+		{
+			fprintf(stderr, "Equal\n");
+			g_LDBL = 2;
+		}
+		if (!(Print = (void(*)(void*, char*))GetProcAddress(hLD, "Print")))
+		{
+			fprintf(stderr, "Print\n");
+			g_LDBL = 2;
+		}
+#ifdef KF_CUSTOM_NUMBERS
+		if (!(DLLConvertFromFixedFloat = (void(*)(void*, int, FIXEDFLOAT_TYPE *, BOOL))GetProcAddress(hLD, "ConvertFromFixedFloat")))
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+		if (!(DLLConvertFromFixedFloat = (void(*)(void*, mpfr_t))GetProcAddress(hLD, "ConvertFromFixedFloat")))
+#else
+		if (!(DLLConvertFromFixedFloat = (void(*)(void*, mpf_t))GetProcAddress(hLD, "ConvertFromFixedFloat")))
+#endif
+#endif
+		{
+			fprintf(stderr, "ConvertFromFixedFloat\n");
+			g_LDBL = 2;
+		}
 		if (!(Perturbation4 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation4")))
+		{
+			fprintf(stderr, "Perturbation4\n");
 			g_LDBL = 2;
+		}
 		if (!(BurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "BurningShip")))
+		{
+			fprintf(stderr, "BurningShip\n");
 			g_LDBL = 2;
+		}
 		if (!(BurningShip3 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "BurningShip3")))
+		{
+			fprintf(stderr, "BurningShip3\n");
 			g_LDBL = 2;
+		}
 		if (!(Celtic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Celtic")))
+		{
+			fprintf(stderr, "Celtic\n");
 			g_LDBL = 2;
+		}
 		if (!(Celtic3 = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Celtic3")))
+		{
+			fprintf(stderr, "Celtic3\n");
 			g_LDBL = 2;
+		}
 		if (!(Buffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Buffalo")))
+		{
+			fprintf(stderr, "Buffalo\n");
 			g_LDBL = 2;
+		}
 		if (!(CubicBuffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicBuffalo")))
+		{
+			fprintf(stderr, "CubicBuffalo\n");
 			g_LDBL = 2;
+		}
 		if (!(Mandelbar = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Mandelbar")))
+		{
+			fprintf(stderr, "Mandelbar\n");
 			g_LDBL = 2;
+		}
+#if 0
 		if (!(CubicMandelbar = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicMandelbar")))
+		{
+			fprintf(stderr, "CubicMandelbar\n");
 			g_LDBL = 2;
+		}
+#endif
 		if (!(MandelbarCeltic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "MandelbarCeltic")))
+		{
+			fprintf(stderr, "MandelbarCeltic\n");
 			g_LDBL = 2;
+		}
 		if (!(PerpendicularMandelbrot = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularMandelbrot")))
+		{
+			fprintf(stderr, "PerpendicularMandelbrot\n");
 			g_LDBL = 2;
+		}
 		if (!(PerpendicularBurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularBurningShip")))
+		{
+			fprintf(stderr, "PerpendicularBurningShip\n");
 			g_LDBL = 2;
+		}
 		if (!(PerpendicularCeltic = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularCeltic")))
+		{
+			fprintf(stderr, "PerpendicularCeltic\n");
 			g_LDBL = 2;
+		}
 		if (!(PerpendicularBuffalo = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "PerpendicularBuffalo")))
+		{
+			fprintf(stderr, "PerpendicularBuffalo\n");
 			g_LDBL = 2;
+		}
 		if (!(CubicQuasiBurningShip = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicQuasiBurningShip")))
+		{
+			fprintf(stderr, "CubicQuasiBurningShip\n");
 			g_LDBL = 2;
+		}
+#if 0
 		if (!(CubicPartialBSReal = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicPartialBSReal")))
+		{
+			fprintf(stderr, "CubicPartialBSReal\n");
 			g_LDBL = 2;
+		}
 		if (!(CubicPartialBSImag = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicPartialBSImag")))
+		{
+			fprintf(stderr, "CubicPartialBSImag\n");
 			g_LDBL = 2;
+		}
 		if (!(CubicFlyingSquirrel = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicFlyingSquirrel")))
+		{
+			fprintf(stderr, "CubicFlyingSquirrel\n");
 			g_LDBL = 2;
+		}
 		if (!(CubicQuasiPerpendicular = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "CubicQuasiPerpendicular")))
+		{
+			fprintf(stderr, "CubicQuasiPerpendicular\n");
 			g_LDBL = 2;
+		}
+#endif
 		if (!(Perturbation_3rd = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_3rd")))
+		{
+			fprintf(stderr, "Perturbation_3rd\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_4th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_4th")))
+		{
+			fprintf(stderr, "Perturbation_4th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_5th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_5th")))
+		{
+			fprintf(stderr, "Perturbation_5th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_6th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_6th")))
+		{
+			fprintf(stderr, "Perturbation_6th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_7th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_7th")))
+		{
+			fprintf(stderr, "Perturbation_7th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_8th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_8th")))
+		{
+			fprintf(stderr, "Perturbation_8th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_9th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_9th")))
+		{
+			fprintf(stderr, "Perturbation_9th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_10th = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*))GetProcAddress(hLD, "Perturbation_10th")))
+		{
+			fprintf(stderr, "Perturbation_10th\n");
 			g_LDBL = 2;
+		}
 		if (!(Perturbation_Var = (int(*)(int, void*, void*, void*, void*, void*, void*, double*, double*, int, int, double*, BOOL*, int, int*))GetProcAddress(hLD, "Perturbation_Var")))
+		{
+			fprintf(stderr, "Perturbation_Var\n");
 			g_LDBL = 2;
+		}
 		int nSize = 0;
 		if (!SizeOfLD || (nSize = SizeOfLD()) != sizeof(ldbl))
+		{
+			fprintf(stderr, "size mismatch: %d(dll) %lld(main)\n", nSize, sizeof(ldbl));
 			g_LDBL = FALSE;
+		}
 	}
 }g_InitLD;
 
@@ -2037,8 +2210,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2062,8 +2235,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2086,8 +2259,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			sr = xr.Square();
 			si = xi.Square();
 			m_nRDone++;
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2110,8 +2283,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			sr = xr.Square();
 			si = xi.Square();
 			m_nRDone++;
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2135,8 +2308,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2160,8 +2333,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2185,8 +2358,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2210,8 +2383,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2235,8 +2408,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2260,8 +2433,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2285,8 +2458,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2310,8 +2483,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2335,8 +2508,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2360,8 +2533,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2385,8 +2558,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2410,8 +2583,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2435,8 +2608,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2460,8 +2633,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			si = xi.Square();
 			m_nRDone++;
 
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2535,8 +2708,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			SetEvent(hWait[1]);
 			SetEvent(hWait[2]);
 			WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.0000001;
 			//m_db_z[i] = abs_val*0.000001;
@@ -2558,8 +2731,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
 		WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
 		for (; i<nMaxIter && !m_bStop; i++){
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 		}
 		for (i = 0; i<3; i++){
 			CloseHandle(hDone[i]);
@@ -2578,8 +2751,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			xin = (3 * xr.Square() - xi.Square())*xi + m_iref;
 			xr = xrn;
 			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.000001;
 			if (abs_val >= terminate){
@@ -2602,8 +2775,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			xin = 4 * xrxid*(sr - si) + m_iref;
 			xr = xrn;
 			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*0.00001;
 			if (abs_val >= terminate){
@@ -2628,8 +2801,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
-			ConvertFromFixedFloat(&m_ldxr[i], xr.m_nValues, xr.m_pValues, xr.m_bSign);
-			ConvertFromFixedFloat(&m_ldxi[i], xi.m_nValues, xi.m_pValues, xi.m_bSign);
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*threashold;
 			if (abs_val >= terminate){
@@ -4856,7 +5029,9 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 	int antal, x, y;
 	int nPStep, nStepSize;
 
+#if 0
 	SetParts(g_real,g_imag);
+#endif
 
 	while (!m_bStop && m_P.GetPixel(x, y)){
 		nStepSize = nPStep = m_P.GetStep();
@@ -7082,14 +7257,14 @@ void CFraktalSFT::RenderFractalLDBL()
 		CFixedFloat tmp;
 		for (x = 0; x<m_nX; x++, c += step){
 			tmp = c - m_rref;
-			ConvertFromFixedFloat(&m_lDX[x], tmp.m_nValues, tmp.m_pValues, tmp.m_bSign);
+			ConvertFromFixedFloat(&m_lDX[x], tmp);
 		}
 		c = m_istart;
 		step = (m_istop - m_istart)*(1 / (double)m_nY);
 		m_lDY = (ldbl*)AllocateArray(m_nY);
 		for (y = 0; y<m_nY; y++, c += step){
 			tmp = c - m_iref;
-			ConvertFromFixedFloat(&m_lDY[y], tmp.m_nValues, tmp.m_pValues, tmp.m_bSign);
+			ConvertFromFixedFloat(&m_lDY[y], tmp);
 		}
 	}
 	m_rApprox.left = 0;
