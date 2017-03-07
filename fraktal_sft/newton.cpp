@@ -355,17 +355,17 @@ int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT r = *(RECT*)lParam;
 			char *sz = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
 			if(g_szRe)
-				delete g_szRe;
+				delete[] g_szRe;
 			g_szRe = new char[strlen(sz)+1];
 			strcpy(g_szRe,sz);
 			sz = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
 			if(g_szIm)
-				delete g_szIm;
+				delete[] g_szIm;
 			g_szIm = new char[strlen(sz)+1];
 			strcpy(g_szIm,sz);
 			sz = g_SFT.GetZoom();
 			if(g_szZoom)
-				delete g_szZoom;
+				delete[] g_szZoom;
 			g_szZoom = new char[strlen(sz)+1];
 			strcpy(g_szZoom,sz);
 			g_b3_4 = SendDlgItemMessage(hWnd,IDC_RADIO2,BM_GETCHECK,0,0);
