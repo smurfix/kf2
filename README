@@ -15,3 +15,6 @@ known bugs
 - zooming manually for a while eventually loses precision
   (workaround, save and reload)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
+- crashes when location needing long double precision is reached
+  (workaround, enable menu -> special -> use floatexp always)
+- master ldbl64 sources are out of date w.r.t. the main program

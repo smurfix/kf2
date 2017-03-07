@@ -1,2 +1,0 @@
-- without ldbl64.dll, crashes when long double would be needed
-- master ldbl64 sources are out of date w.r.t. the main program
