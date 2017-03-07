@@ -13,10 +13,12 @@ extern decContext g_set;
 extern CFraktalSFT g_SFT;
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
+BOOL g_bNewtonExit=FALSE;
+char g_szProgress[128];
 char *g_szRe=NULL;
 char *g_szIm=NULL;
 char *g_szZoom=NULL;
-BOOL g_b3_4=FALSE;
+BOOL g_nMinibrotPos=0;
 extern double g_nZoomSize;
 
 
@@ -153,28 +155,119 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   return period;
 }
 
+struct STEP_STRUCT
+{
+	int nType;
+	complex<flyttyp> *z;
+	complex<flyttyp> *dc;
+	complex<flyttyp> *zr;
+	complex<flyttyp> *c_guess;
+	HANDLE hWait;
+	HANDLE hExit;
+	HANDLE hDone;
+};
+DWORD WINAPI ThStep(STEP_STRUCT *pMC)
+{
+	HANDLE hW[2];
+	hW[0] = pMC->hWait;
+	hW[1] = pMC->hExit;
+	while (WaitForMultipleObjects(2, hW, FALSE, INFINITE) == WAIT_OBJECT_0){
+		if (pMC->nType == 0)
+			(*pMC->dc) = _2 * (*pMC->z) * (*pMC->dc) + _1;
+		else
+			(*pMC->zr) = (*pMC->z) * (*pMC->z) + (*pMC->c_guess);
+		SetEvent(pMC->hDone);
+	}
+	SetEvent(pMC->hDone);
+	return 0;
+}
+
 extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
   complex<flyttyp> z(0,0);
+  complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
   char szStatus[256];
-  for (int i = 0; i < period && !g_bNewtonStop; ++i) {
+  int i;
+
+	STEP_STRUCT mc[2];
+	HANDLE hDone[2];
+	HANDLE hWait[2];
+	HANDLE hExit[2];
+	for (i = 0; i<2; i++){
+		mc[i].z = &z;
+		mc[i].zr = &zr;
+		mc[i].dc = &dc;
+		mc[i].c_guess = &c_guess;
+		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+		hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
+		hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
+		mc[i].nType = i;
+	}
+	HANDLE hThread;
+	DWORD dw;
+	for (i = 0; i<2; i++){
+		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
+		CloseHandle(hThread);
+	}
+
+  for (i = 0; i < period && !g_bNewtonStop; ++i) {
 	  if(i%100==0){
-		  wsprintf(szStatus,"Newton-Raphson %d(%d%%)\r\n",newtonStep,i*100/period);
+		  wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",newtonStep,i*100/period,g_szProgress);
 		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 	  }
-	  dc = _2 * z * dc + _1;
-	  z = z * z + c_guess;
+//	  dc = _2 * z * dc + _1;
+//	  z = z * z + c_guess;
+		SetEvent(hWait[0]);
+		SetEvent(hWait[1]);
+		WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
+		z=zr;
   }
+	SetEvent(hExit[0]);
+	SetEvent(hExit[1]);
+	WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
+	for (i = 0; i<2; i++){
+		CloseHandle(hDone[i]);
+		CloseHandle(hWait[i]);
+		CloseHandle(hExit[i]);
+	}
+
   SetDlgItemText(hWnd,IDC_EDIT4,"");
-  if (cabs2(dc) < epsilon2) {
+  flyttyp ad = 1/cabs2(dc);
+  if (ad < epsilon2) {
     *c_out = c_guess;
     return 0;
   }
-  if(dc.m_r==0 || dc.m_i==0)
+  if(dc.m_r==0 && dc.m_i==0)
 	  return -1;
   complex<flyttyp> c_new = c_guess - z / dc;
   complex<flyttyp> d = c_new - c_guess;
-  if (cabs2(d) < epsilon2) {
+  ad = cabs2(d);
+
+  *g_szProgress=0;
+  char *szAD = ad.ToText();
+  char *szE1 = strstr(szAD,"e");
+  if(!szE1)
+	  szE1 = strstr(szAD,"E");
+  if(szE1){
+	  szE1++;
+	  if(*szE1=='-')
+		  szE1++;
+	  strcat(g_szProgress,szE1);
+  }
+  char *szEP = epsilon2.ToText();
+  szE1 = strstr(szEP,"e");
+  if(!szE1)
+	  szE1 = strstr(szEP,"E");
+  if(szE1){
+	  szE1++;
+	  if(*szE1=='-')
+		  szE1++;
+	  strcat(g_szProgress,"/");
+	  strcat(g_szProgress,szE1);
+  }
+
+
+  if (ad < epsilon2) {
     *c_out = c_new;
     return 0;
   }
@@ -190,14 +283,17 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
 extern int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period, int maxsteps,int &steps,flyttyp radius,HWND hWnd) {
   int result = -1, i;
   complex<flyttyp> c = c_guess;
+
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
   int nNextlog=1;
-  for (i = 0; i < maxsteps && !g_bNewtonStop; ++i) {
+  for (i = 0; i < maxsteps && !g_bNewtonStop && !g_bNewtonExit; ++i) {
     if (1 != (result = m_d_nucleus_step(&c, c, period,epsilon2,hWnd,i)))
       break;
   }
   steps = i;
   *c_out = c;
+  if(g_bNewtonExit)
+	  result=0;
   return result;
 }
 
@@ -219,6 +315,7 @@ complex<flyttyp> m_d_size(complex<flyttyp> nucleus, int period,HWND hWnd)
   return _1 / (b * l * l);
 }
 
+int g_period;
 int WINAPI ThNewton(HWND hWnd)
 {
 	char szStatus[300];
@@ -230,7 +327,8 @@ int WINAPI ThNewton(HWND hWnd)
 	char *e = strstr(g_szZoom,"E");
 	if(!e)
 		e = strstr(g_szZoom,"e");
-	g_set.digits=(e?2*atoi(e+1):0) + 20;
+	int exp = (e?atoi(e+1):0);
+	g_set.digits = exp + 6;
 
 	char szVal[25];
 	int i;
@@ -243,14 +341,22 @@ int WINAPI ThNewton(HWND hWnd)
 	int startZooms = (e?atof(e+1)/0.30103:0) + log10(atof(szVal));
 
 	int steps;
-	int period = m_d_box_period_do(center,radius,100000000,steps,hWnd);
-	SetDlgItemInt(hWnd,IDC_EDIT3,period,0);
+	if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
+		g_period = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
+		g_set.digits *= 3;
+	}
+	else{
+		g_period= m_d_box_period_do(center,radius,100000000,steps,hWnd);
+		g_set.digits*=2;
+	}
+
+	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
 	BOOL bOK=FALSE;
-	if(period){
-		sprintf(szStatus,"period=%d (steps:%d)\n",period,steps);
+	if(g_period){
+		sprintf(szStatus,"period=%d (steps:%d)\n",g_period,steps);
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		complex<flyttyp> c;
-		int test = m_d_nucleus(&c,center,period,10000,steps,radius,hWnd);
+		int test = m_d_nucleus(&c,center,g_period,10000,steps,radius,hWnd);
 
 		if(test==0 && steps){
 			delete g_szRe;
@@ -263,7 +369,8 @@ int WINAPI ThNewton(HWND hWnd)
 			g_szIm = new char[strlen(sz)+1];
 			strcpy(g_szIm,sz);
 
-			complex<flyttyp>size = m_d_size(c,period,hWnd);
+			g_set.digits=exp+6;
+			complex<flyttyp>size = m_d_size(c,g_period,hWnd);
 			flyttyp msize = flyttyp(.25)/size.m_i;
 			if(msize<0)
 				msize = -msize;
@@ -305,8 +412,13 @@ int WINAPI ThNewton(HWND hWnd)
 			}
 			else
 				zooms = log10(atof(szSize))/0.30103;
-			if(g_b3_4){
-				zooms = 3*zooms/4;
+			if(g_nMinibrotPos){
+				if(g_nMinibrotPos==1)
+					zooms = 3*zooms/4;
+				else if(g_nMinibrotPos==2)
+					zooms = 7*zooms/8;
+				else if(g_nMinibrotPos==3)
+					zooms = 15*zooms/16;
 				radius = flyttyp(2)^zooms;
 				szSize = radius.ToText();
 			}
@@ -322,11 +434,17 @@ int WINAPI ThNewton(HWND hWnd)
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	return 0;
 }
+__int64 t1, t2;
+SYSTEMTIME st1, st2;
 int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
-		if(g_b3_4)
+		if(g_nMinibrotPos==1)
 			SendDlgItemMessage(hWnd,IDC_RADIO2,BM_SETCHECK,1,0);
+		else if(g_nMinibrotPos==2)
+			SendDlgItemMessage(hWnd,IDC_RADIO3,BM_SETCHECK,1,0);
+		else if(g_nMinibrotPos==3)
+			SendDlgItemMessage(hWnd,IDC_RADIO4,BM_SETCHECK,1,0);
 		else
 			SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
 		return 1;
@@ -350,6 +468,14 @@ int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			DestroyWindow(hWnd);
 		}
 	}
+	if(uMsg==WM_COMMAND && wParam==IDCANCEL2){
+		if(g_bNewtonRunning){
+			g_bNewtonExit=TRUE;
+			EnableWindow(GetDlgItem(hWnd,IDCANCEL2),FALSE);
+		}
+		else
+			MessageBeep((UINT)-1);
+	}
 	else if(uMsg==WM_USER+1){
 		if(!g_bNewtonRunning){
 			RECT r = *(RECT*)lParam;
@@ -368,9 +494,18 @@ int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				delete g_szZoom;
 			g_szZoom = new char[strlen(sz)+1];
 			strcpy(g_szZoom,sz);
-			g_b3_4 = SendDlgItemMessage(hWnd,IDC_RADIO2,BM_GETCHECK,0,0);
+			g_nMinibrotPos=0;
+			if(SendDlgItemMessage(hWnd,IDC_RADIO2,BM_GETCHECK,0,0))
+				g_nMinibrotPos=1;
+			else if(SendDlgItemMessage(hWnd,IDC_RADIO3,BM_GETCHECK,0,0))
+				g_nMinibrotPos=2;
+			else if(SendDlgItemMessage(hWnd,IDC_RADIO4,BM_GETCHECK,0,0))
+				g_nMinibrotPos=3;
 			DWORD dw;
 			g_bNewtonStop=FALSE;
+			g_bNewtonExit=FALSE;
+			*g_szProgress=0;
+			GetLocalTime(&st1);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
@@ -384,6 +519,16 @@ int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
 			g_SFT.SetIterations(3*g_SFT.GetIterations()/2);
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
+			if(SendDlgItemMessage(hWnd,IDC_CHECK9,BM_GETCHECK,0,0)){
+				GetLocalTime(&st2);
+				SystemTimeToFileTime(&st1,(LPFILETIME)&t1);
+				SystemTimeToFileTime(&st2,(LPFILETIME)&t2);
+				__int64 nT2 = t2-t1;
+				FileTimeToSystemTime((LPFILETIME)&nT2,&st1);
+				char szResult[256];
+				wsprintf(szResult,"Time: %02d:%02d:%02d.%03d.%05d\nPeriod: %d",st1.wHour,st1.wMinute,st1.wSecond,st1.wMilliseconds,(int)(nT2%10000),g_period);
+				MessageBox(hWnd,szResult,"Result",MB_OK);
+			}
 		}
 		PostMessage(GetParent(hWnd),WM_COMMAND,ID_SPECIAL_NEWTON,0);
 		if(!lParam && !g_bNewtonStop)

@@ -17,13 +17,13 @@ class floatexp
 public:
 	double val;
 	__int64 exp;
-	floatexp &abs()
+	__inline floatexp &abs()
 	{
 		if(val<0)
 			val=-val;
 		return *this;
 	}
-	__inline void initFromDouble(double a)
+	void initFromDouble(double a)
 	{
 		val=a;
 		exp=0;
@@ -240,17 +240,17 @@ public:
 			return FALSE;
 		return val==a.val;
 	}
-	bool iszero()
+	__inline bool iszero()
 	{
 		return (val==0 && exp==0);
 	}
-	double todouble()
+	__inline double todouble()
 	{
 		if(exp<-MAX_PREC || exp>MAX_PREC)
 			return 0;
 		return setExp(val,exp);
 	}
-	double todouble(int nScaling)
+	__inline double todouble(int nScaling)
 	{
 		if(!nScaling)
 			return todouble();
@@ -314,7 +314,7 @@ public:
 			val = -val;
 		return *this;
 	}
-	void ToFixedFloat(CFixedFloat &a)
+	__inline void ToFixedFloat(CFixedFloat &a)
 	{
 		char *szTmp = new char[150000];
 		*szTmp=0;
@@ -347,7 +347,7 @@ public:
 		delete szTmp;
 	}
 #else
-	__inline floatexp setLongDouble(long double a)
+	floatexp setLongDouble(long double a)
 	{
 		__int64 val[2]={0};
 		memcpy(val,(void*)&a,sizeof(val));
@@ -363,7 +363,7 @@ public:
 		}
 		return *this;
 	}
-	__inline long double toLongDouble()
+	long double toLongDouble()
 	{
 		long double ret = val;
 		__int64 *v = (__int64*)&ret;
