@@ -719,38 +719,38 @@ public:
 
   inline CDecNumber()
   {
-		m_dec.precision(LOW_PRECISION);
+		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = 0;
 		m_szString = nullptr;
 	};
   inline CDecNumber(const CDecNumber &a)
   {
-		m_dec.precision(a.m_dec.precision());
+		m_dec.precision(std::max(decNumber::default_precision(), a.m_dec.precision()));
 		m_dec = a.m_dec;
 		m_szString = nullptr;
 	};
   inline CDecNumber(const decNumber &a)
   {
-		m_dec.precision(a.precision());
+		m_dec.precision(std::max(decNumber::default_precision(), a.precision()));
 		m_dec = a;
 		m_szString = nullptr;
 	};
   inline CDecNumber(const char *a)
   {
-		m_dec.precision(strlen(a));
+		m_dec.precision(std::max(decNumber::default_precision(), unsigned(strlen(a))));
 		Precision p(m_dec.precision());
 		m_dec = decNumber(a);
 		m_szString = nullptr;
 	};
   inline CDecNumber(double a)
   {
-		m_dec.precision(LOW_PRECISION);
+		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
 		m_szString = nullptr;
 	};
   inline CDecNumber(int a)
   {
-		m_dec.precision(LOW_PRECISION);
+		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
 		m_szString = nullptr;
 	};
@@ -792,37 +792,37 @@ public:
 
 inline CDecNumber operator-(const CDecNumber &a)
 {
-	Precision p(a.m_dec.precision());
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
 	return CDecNumber(-a.m_dec);
 }
 
 inline CDecNumber operator+(const CDecNumber &a, const CDecNumber &b)
 {
-	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
 	return CDecNumber(a.m_dec + b.m_dec);
 }
 
 inline CDecNumber operator-(const CDecNumber &a, const CDecNumber &b)
 {
-	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
 	return CDecNumber(a.m_dec - b.m_dec);
 }
 
 inline CDecNumber operator*(const CDecNumber &a, const CDecNumber &b)
 {
-	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
 	return CDecNumber(a.m_dec * b.m_dec);
 }
 
 inline CDecNumber operator/(const CDecNumber &a, const CDecNumber &b)
 {
-	Precision p(std::max(a.m_dec.precision(), b.m_dec.precision()));
+	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
 	return CDecNumber(a.m_dec / b.m_dec);
 }
 
 inline CDecNumber operator^(const CDecNumber &a, int b)
 {
-	Precision p(a.m_dec.precision());
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
 	using std::pow;
 	return CDecNumber(pow(a.m_dec, b));
 }
