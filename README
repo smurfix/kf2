@@ -1,4 +1,4 @@
-Kalles Fraktaler 2 fork for cross-compilation to win64 fromlinux mingw64
+Kalles Fraktaler 2 fork for cross-compilation to win64 from linux mingw64
 upstream version: http://www.chillheimer.de/kallesfraktaler/
 
 benchmarks              upstream exes   cross-mingw 2.9.3 fork  additional notes
@@ -9,3 +9,8 @@ e1000.kfr w/  dll       7.279   7.370   8.674   6.343   6.510   e1000   long dou
 e1000.kfr w/o dll       7.752   7.905   fail    6.737   6.782   e1000   floatexp
 glitch33.kfr w/  dll    9.483   9.551   11.170  7.448   7.691   e1277   long double
 glitch33.kfr w/o dll    10.112  10.185  fail    7.982   8.033   e1277   floatexp
+
+known bugs
+- zooming manually for a while eventually loses precision
+  (workaround, save and reload)
+- newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
