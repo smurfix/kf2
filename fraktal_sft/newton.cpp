@@ -253,12 +253,12 @@ int WINAPI ThNewton(HWND hWnd)
 		int test = m_d_nucleus(&c,center,period,100,steps,radius,hWnd);
 
 		if(test==0 && steps){
-			delete g_szRe;
+			delete[] g_szRe;
 			char *sz = c.m_r.ToText();
 			g_szRe = new char[strlen(sz)+1];
 			strcpy(g_szRe,sz);
 
-			delete g_szIm;
+			delete[] g_szIm;
 			sz = c.m_i.ToText();
 			g_szIm = new char[strlen(sz)+1];
 			strcpy(g_szIm,sz);
@@ -310,7 +310,7 @@ int WINAPI ThNewton(HWND hWnd)
 				radius = flyttyp(2)^zooms;
 				szSize = radius.ToText();
 			}
-			delete g_szZoom;
+			delete[] g_szZoom;
 			g_szZoom = new char[strlen(szSize)+1];
 			strcpy(g_szZoom,szSize);
 			if(zooms>startZooms)
