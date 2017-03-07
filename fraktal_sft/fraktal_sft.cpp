@@ -8039,7 +8039,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	else if (strncmp(szId, "KFB", 3)){
 		//CloseHandle(hFile);
 		fclose(hFile);
-		return NULL;
+		return FALSE;
 	}
 	//ReadFile(hFile,&m_nX,sizeof(int),&dw,NULL);
 	//ReadFile(hFile,&m_nY,sizeof(int),&dw,NULL);
