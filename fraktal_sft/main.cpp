@@ -2865,21 +2865,13 @@ nPos=15;
 nPos=16;
 			if(!g_LDBL)
 				MessageBox(hWnd,"The library "
-#ifdef _WIN64
-				"ldbl64.dll"
-#else
-				"ldbl.dll"
-#endif
+				"kf.dll"
 				" could not be loaded. You may continue to use this application, but the speed of rendering images on depths between 1e600 and 1e4900 will be significantly slower without this library","Missing file",MB_OK|MB_ICONWARNING);
 
 nPos=17;
 			if(g_LDBL==2){
 				MessageBox(hWnd,"The library "
-#ifdef _WIN64
-				"ldbl64.dll"
-#else
-				"ldbl.dll"
-#endif
+				"kf.dll"
 				" is old. Please update this file.","Old file",MB_OK|MB_ICONWARNING);
 			}
 			g_bFirstDone=FALSE;

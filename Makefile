@@ -4,7 +4,6 @@ COMPILE_FLAGS := -xc++ -fpermissive -DWINVER=0x0500 -D_WIN32_WINNT=0x0500 -g -O3
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,33554432 -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
 WINDRES := x86_64-w64-mingw32-windres
-EXEEXT := .exe
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -127,13 +126,13 @@ SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
-all: kf$(EXEEXT) ldbl64.dll
+all: kf.exe kf.dll
 
-kf$(EXEEXT): $(SOURCES) res.o Makefile
-	$(COMPILE) -o kf$(EXEEXT) $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) res.o $(LINK_FLAGS) $(LIBS)
+kf.exe: $(SOURCES) res.o Makefile
+	$(COMPILE) -o kf.exe $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) res.o $(LINK_FLAGS) $(LIBS)
 
 res.o: fraktal_sft/fraktal_sft.rc Makefile
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
 
-ldbl64.dll: $(LDBL_SOURCES_CPP) Makefile
-	$(COMPILE) -o ldbl64.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp
+kf.dll: $(LDBL_SOURCES_CPP) Makefile
+	$(COMPILE) -o kf.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp

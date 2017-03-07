@@ -109,11 +109,7 @@ public:
 	CInitLD()
 	{
 		g_LDBL = TRUE;
-#ifdef _WIN64
-		HINSTANCE hLD = LoadLibrary("ldbl64.dll");
-#else
-		HINSTANCE hLD = LoadLibrary("ldbl.dll");
-#endif
+		HINSTANCE hLD = LoadLibrary("kf.dll");
 		if (!hLD){
 			g_LDBL = FALSE;
 			return;
