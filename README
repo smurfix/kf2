@@ -1,5 +1,6 @@
 Kalles Fraktaler 2 fork for cross-compilation to win64 from linux mingw64
 upstream version: http://www.chillheimer.de/kallesfraktaler/
+this version: https://code.mathr.co.uk/kalles-fraktaler-2/shortlog/refs/heads/claude-gmp
 
 benchmarks              upstream exes   cross-mingw 2.9.3 fork  additional notes
                         2.9.4   2.11.1  custom  gmp     mpfr    zoom    delta type
