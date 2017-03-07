@@ -1,3 +1,3 @@
-kf2.64.exe
-kf2-res.o
-ldbl64.dll
+*.exe
+*.o
+*.dll
