@@ -124,8 +124,8 @@ public:
 			return;
 		}
 		int nV=Version();
-		if (nV != 11){
-			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 11);
+		if (nV != 20170307){
+			fprintf(stderr, "Version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
 			g_LDBL = 2;
 			return;
 		}
