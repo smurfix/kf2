@@ -3653,7 +3653,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_LBUTTONDOWN){
 		if(g_bNewton){
-			RECT r;
+			static RECT r;
 			GetClientRect(hWnd,&r);
 			RECT sr;
 			GetWindowRect(g_hwStatus,&sr);
