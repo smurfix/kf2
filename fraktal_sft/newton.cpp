@@ -250,7 +250,7 @@ int WINAPI ThNewton(HWND hWnd)
 		sprintf(szStatus,"period=%d (steps:%d)\n",period,steps);
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		complex<flyttyp> c;
-		int test = m_d_nucleus(&c,center,period,10000,steps,radius,hWnd);
+		int test = m_d_nucleus(&c,center,period,100,steps,radius,hWnd);
 
 		if(test==0 && steps){
 			delete g_szRe;
