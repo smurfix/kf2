@@ -1,10 +1,8 @@
-WINPREFIX ?= $(HOME)/win64
 COMPILE := x86_64-w64-mingw32-g++
 COMPILE_FLAGS := -xc++ -fpermissive -g -O3 -ffast-math -Wno-write-strings
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid
 WINDRES := x86_64-w64-mingw32-windres
-EXEEXT := .64.exe
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -130,11 +128,13 @@ SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
-kf2$(EXEEXT): $(SOURCES) kf2-res.o Makefile
-	$(COMPILE) -o kf2$(EXEEXT) $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) kf2-res.o $(LINK_FLAGS) $(LIBS)
+all: fraktal_sft64.exe ldbl64.dll
 
-kf2-res.o: fraktal_sft/fraktal_sft.rc Makefile
-	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o kf2-res.o
+fraktal_sft64.exe: $(SOURCES) res.o Makefile
+	$(COMPILE) -o fraktal_sft64.exe $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) res.o $(LINK_FLAGS) $(LIBS)
+
+res.o: fraktal_sft/fraktal_sft.rc Makefile
+	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
 
 ldbl64.dll: $(LDBL_SOURCES_CPP) Makefile
 	$(COMPILE) -o ldbl64.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS)
