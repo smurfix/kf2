@@ -191,7 +191,7 @@
     }
     extern "C" __declspec(dllexport) int Version()
     {
-    	return 11;
+       return 20170309;
     }
     
     #define	FIXEDFLOAT_TYPE __int64

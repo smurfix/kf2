@@ -124,8 +124,8 @@ public:
 			return;
 		}
 		int nV=Version();
-		if (nV != 20170307){
-			fprintf(stderr, "kf.dll version mismatch: %d(dll) %d(main)\n", Version(), 20170307);
+		if (nV != 20170309){
+			fprintf(stderr, "kf.dll version mismatch: %d(dll) %d(main)\n", Version(), 20170309);
 			g_LDBL = 2;
 			return;
 		}
