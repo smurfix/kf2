@@ -1,20 +1,25 @@
-Kalles Fraktaler 2 fork for cross-compilation to win64 from linux mingw64
+Kalles Fraktaler 2 fork for cross-compilation to win64 from linux mingw64, using GMP
 upstream version: http://www.chillheimer.de/kallesfraktaler/
 this version: https://code.mathr.co.uk/kalles-fraktaler-2/shortlog/refs/heads/claude-gmp
 
-benchmarks              upstream exes   cross-mingw 2.9.3 fork  additional notes
-                        2.9.4   2.11.1  custom  gmp     mpfr    zoom    delta type
-evolution-of-trees.kfr  3:58.7  3:43.3  6:10.3  4:16.7  4:41.6  e227    double
-Ssssssssss.kfr          7.537   8.363   9.041   6.605   6.731   e533    scaled double
-e1000.kfr w/  dll       7.279   7.370   8.674   6.343   6.510   e1000   long double
-e1000.kfr w/o dll       7.752   7.905   fail    6.737   6.782   e1000   floatexp
-glitch33.kfr w/  dll    9.483   9.551   11.170  7.448   7.691   e1277   long double
-glitch33.kfr w/o dll    10.112  10.185  fail    7.982   8.033   e1277   floatexp
+benchmarks                 upstream exes   cross-mingw 2.9.3 fork  cross-mingw 2.11.1 fork additional notes
+                           2.9.4   2.11.1  custom  gmp     mpfr    custom  gmp     mpfr    zoom    delta type
+evolution-of-trees.kfr     3:58.7  3:43.3  6:10.3  4:16.7  4:41.6  -       4:06.1  -       e227    double
+Ssssssssss.kfr             7.537   8.363   9.041   6.605   6.731   -       7.580   -       e533    scaled double
+e1000.kfr w/  dll          7.279   7.370   8.674   6.343   6.510   -       5.119   -       e1000   long double
+e1000.kfr w/o dll          7.752   7.905   fail    6.737   6.782   -       -       -       e1000   floatexp
+glitch33.kfr w/  dll       9.483   9.551   11.170  7.448   7.691   -       6.184   -       e1277   long double
+glitch33.kfr w/o dll       10.112  10.185  fail    7.982   8.033   -       -       -       e1277   floatexp
+htile-pistil.kfr w/  dll   -       3h01    -       -       -       -       1h18    -       e2293   long double
 
 known bugs
-- zooming manually for a while eventually loses precision
+- zooming manually for a while eventually loses precision (each e40 or so)
   (workaround, save and reload)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
-- crashes when location needing long double precision is reached
-  (workaround, enable menu -> special -> use floatexp always)
-- master ldbl64 sources are out of date w.r.t. the main program
+
+configuration (COMPILE_FLAGS in Makefile)
+- add -DKF_CUSTOM_NUMBERS to use original arbitrary precision code instead of GMP
+- add -DKF_FLOAT_BACKEND_MPFR to use MPFR instead of GMP
+- add -DKF_LONG_DOUBLE_DLL to compile long double support into separate DLL
+  instead of building it into the executable itself; also remove LDBL_SOURCES
+  from SOURCES_CPP
