@@ -43,8 +43,9 @@ int g_nAddRefX, g_nAddRefY;
 extern decContext g_set;
 #endif
 
-BOOL g_LDBL = FALSE;
 double g_Degree = 0;
+#ifdef KF_LONG_DOUBLE_DLL
+BOOL g_LDBL = FALSE;
 void(*SetParts)(double,double);
 int(*SizeOfLD)();
 int(*Version)();
@@ -89,6 +90,42 @@ int(*Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, v
 int(*Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
 int(*LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
+#else
+BOOL g_LDBL = TRUE;
+void(SetParts)(double,double);
+int(SizeOfLD)();
+int(Version)();
+void *(AllocateArray)(int nSize);
+void(ReleaseArray)(void *p);
+void(AssignInt)(void *p, int nValue);
+void(AssignDouble)(void *p, double nDouble);
+void(AssignLD)(void *p, void *ld);
+void(AssignFloatExp)(void *p, floatexp *fe);
+void(ToInt)(void *p, int *pnValue);
+void(ToDouble)(void *p, double *pnDouble);
+void(ToFloatExp)(void *p, floatexp *pnFloatExp);
+void(Multiply)(void *a, void *b, void *ret);
+double(SquareAdd)(void *a, void *b);
+void(Divide)(void *a, void *b, void *ret);
+void(Add)(void *a, void *b, void *ret);
+void(Subtract)(void *a, void *b, void *ret);
+int(GT)(void *a, void *b);
+int(LT)(void *a, void *b);
+int(Equal)(void *a, void *b);
+void(Print)(void *a, char *szRet);
+void(ConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+int(Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_4th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_5th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_6th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_7th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_8th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
+int(Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
+int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
+#endif
 //
 // The long double library is loaded dynamically, so that there can be error handling
 //
@@ -108,6 +145,7 @@ void ErrorText()
 	MessageBox(NULL,szMsgBuf,"Error",MB_ICONSTOP|MB_OK);
 }  
 
+#ifdef KF_LONG_DOUBLE_DLL
 class CInitLD
 {
 public:
@@ -307,6 +345,7 @@ public:
 		}
 	}
 }g_InitLD;
+#endif
 
 CFraktalSFT::CFraktalSFT()
 {

@@ -12,6 +12,7 @@ DWORD WINAPI ThMC(MC *pMC);
 extern double g_SeedR;
 extern double g_SeedI;
 
+#ifdef KF_LONG_DOUBLE_DLL
 extern void *(*AllocateArray)(int nSize);
 extern void(*ReleaseArray)(void *p);
 extern void(*AssignInt)(void *p, int nValue);
@@ -28,6 +29,13 @@ extern void(*DLLConvertFromFixedFloat)(void *p, mpf_t value);
 #endif
 #endif
 extern double(*SquareAdd)(void *a, void *b);
+#else
+extern void *(AllocateArray)(int nSize);
+extern void(ReleaseArray)(void *p);
+extern void(AssignInt)(void *p, int nValue);
+extern void(ConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+extern double(SquareAdd)(void *a, void *b);
+#endif
 
 
 void CFraktalSFT::CalculateReferenceLDBL()
