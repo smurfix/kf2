@@ -122,13 +122,13 @@ jpeg/jpeglib.h \
 jpeg/jversion.h \
 jpeg/transupp.h
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP)
 SOURCES_C = $(JPEG_SOURCES_CPP) $(JPEG_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
-all: fraktal_sft64.exe ldbl64.dll
+all: fraktal_sft64.exe
 
 fraktal_sft64.exe: $(SOURCES) res.o Makefile
 	$(COMPILE) -o fraktal_sft64.exe $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) res.o $(LINK_FLAGS) $(LIBS)

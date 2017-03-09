@@ -11,11 +11,20 @@
     #define TERM6
     #define TERM7
     #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
+
+#ifdef KF_LONG_DOUBLE_DLL
+#define EXPORT extern "C" __declspec(dllexport)
+#else
+#define EXPORT
+#define g_real dll_g_real
+#define g_imag dll_g_imag
+#define ISFLOATOK dll_ISFLOATOK
+#endif
     
     double g_real=1;
     double g_imag=1;
     
-    extern "C" __declspec(dllexport) void SetParts(double real,double imag)
+    EXPORT void SetParts(double real,double imag)
     {
     	g_real=real;
     	g_imag=imag;
@@ -106,90 +115,90 @@
         /* Returns TRUE on success, FALSE on failure */
         return TRUE;
     }
-    extern "C" __declspec(dllexport) int SizeOfLD()
+    EXPORT int SizeOfLD()
     {
            return sizeof(long double);
     }
-    extern "C" __declspec(dllexport) void *AllocateArray(int nSize)
+    EXPORT void *AllocateArray(int nSize)
     {
            long double *ret = new long double[nSize];
            return ret;
     }
-    extern "C" __declspec(dllexport) void ReleaseArray(void *p)
+    EXPORT void ReleaseArray(void *p)
     {
            long double *del = (long double *)p;
            delete [] del;
     }
-    extern "C" __declspec(dllexport) void AssignInt(void *p,int nValue)
+    EXPORT void AssignInt(void *p,int nValue)
     {
            *((long double*)p) = nValue;
     }
-    extern "C" __declspec(dllexport) void AssignDouble(void *p,double nDouble)
+    EXPORT void AssignDouble(void *p,double nDouble)
     {
            *((long double*)p) = nDouble;
     }
-    extern "C" __declspec(dllexport) void AssignLD(void *p,void *ld)
+    EXPORT void AssignLD(void *p,void *ld)
     {
            *((long double*)p) = *((long double*)ld);
     }
-    extern "C" __declspec(dllexport) void ToInt(void *p,int *pnValue)
+    EXPORT void ToInt(void *p,int *pnValue)
     {
            *pnValue = (int)*((long double*)p);
     }
-    extern "C" __declspec(dllexport) void ToDouble(void *p,double *pnDouble)
+    EXPORT void ToDouble(void *p,double *pnDouble)
     {
            *pnDouble = *((long double*)p);
     }
-    extern "C" __declspec(dllexport) void ToFloatExp(void *p,floatexp *pnFloatExp)
+    EXPORT void ToFloatExp(void *p,floatexp *pnFloatExp)
     {
            pnFloatExp->setLongDouble(*((long double*)p));
     }
-    extern "C" __declspec(dllexport) void AssignFloatExp(void *p,floatexp *fe)
+    EXPORT void AssignFloatExp(void *p,floatexp *fe)
     {
     	*((long double*)p) = fe->toLongDouble();
     }
     
-    extern "C" __declspec(dllexport) void Multiply(void *a,void *b,void *ret)
+    EXPORT void Multiply(void *a,void *b,void *ret)
     {
            (*((long double*)ret)) = (*((long double*)a)) * (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) double SquareAdd(void *a,void *b)
+    EXPORT double SquareAdd(void *a,void *b)
     {
            return (*((long double*)a)) * (*((long double*)a)) + (*((long double*)b)) * (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) void Divide(void *a,void *b,void *ret)
+    EXPORT void Divide(void *a,void *b,void *ret)
     {
            (*((long double*)ret)) = (*((long double*)a)) / (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) void Add(void *a,void *b,void *ret)
+    EXPORT void Add(void *a,void *b,void *ret)
     {
            (*((long double*)ret)) = (*((long double*)a)) + (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) void Subtract(void *a,void *b,void *ret)
+    EXPORT void Subtract(void *a,void *b,void *ret)
     {
            (*((long double*)ret)) = (*((long double*)a)) - (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) void Negative(void *a)
+    EXPORT void Negative(void *a)
     {
            (*((long double*)a)) = -(*((long double*)a));
     }
-    extern "C" __declspec(dllexport) int GT(void *a,void *b)
+    EXPORT int GT(void *a,void *b)
     {
            return (*((long double*)a)) > (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) int LT(void *a,void *b)
+    EXPORT int LT(void *a,void *b)
     {
            return (*((long double*)a)) < (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) int Equal(void *a,void *b)
+    EXPORT int Equal(void *a,void *b)
     {
            return (*((long double*)a)) == (*((long double*)b));
     }
-    extern "C" __declspec(dllexport) void Print(void *a,char *szRet)
+    EXPORT void Print(void *a,char *szRet)
     {
            sprintf(szRet,"%ld",*((long double*)a));
     }
-    extern "C" __declspec(dllexport) int Version()
+    EXPORT int Version()
     {
     	return 11;
     }
@@ -198,7 +207,7 @@
     #define FIXEDFLOAT_DIGITS 8
     #define FIXEDFLOAT_PARTMAX (FIXEDFLOAT_TYPE)100000000
     
-    extern "C" __declspec(dllexport) void ConvertFromFixedFloat(void *p,int nValues, __int64 *pValues, BOOL bSign)
+    EXPORT void ConvertFromFixedFloat(void *p,int nValues, __int64 *pValues, BOOL bSign)
     {
     	long double a=0;
     	int n;
@@ -232,7 +241,7 @@
     	return 0;
     }
     
-    extern "C" __declspec(dllexport) int Perturbation4(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation4(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -266,7 +275,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_3rd(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_3rd(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -303,7 +312,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_4th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_4th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -339,7 +348,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_5th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_5th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -375,7 +384,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_6th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_6th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -411,7 +420,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_7th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_7th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -447,7 +456,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_8th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_8th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -483,7 +492,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_9th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_9th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -519,7 +528,7 @@
     	}
     	return antal;
     }
-    extern "C" __declspec(dllexport) int Perturbation_10th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
+    EXPORT int Perturbation_10th(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -556,7 +565,7 @@
     	return antal;
     }
     
-    extern "C" __declspec(dllexport) int Perturbation_Var(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch,int m_nPower,int *m_pnExpConsts)
+    EXPORT int Perturbation_Var(int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch,int m_nPower,int *m_pnExpConsts)
     {
     	long double *dxr = (long double*)pdxr;
     	long double *dxi = (long double*)pdxi;
@@ -625,7 +634,7 @@ long double lb_abs_ldb(long double c, long double d)
 	return abs_val;
 }
 
-extern "C" __declspec(dllexport) int LDBL_MandelCalc(int m_nFractalType, int m_nPower, int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch,double dbFactorAR, double dbFactorAI)
+EXPORT int LDBL_MandelCalc(int m_nFractalType, int m_nPower, int antal,void *pdxr,void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i,double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter,double *m_db_z,BOOL *pGlitch,double dbFactorAR, double dbFactorAI)
 {
     long double _abs_val;
 	long double *dxr = (long double*)pdxr;
