@@ -72,10 +72,10 @@ void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, 
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else
 #ifdef KF_FLOAT_BACKEND_MPFR
-void(*DLLConvertFromFixedFloat)(void *p, mpfr_t value);
+void(*DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #else
-void(*DLLConvertFromFixedFloat)(void *p, mpf_t value);
+void(*DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #endif
 #endif
@@ -113,7 +113,18 @@ int(GT)(void *a, void *b);
 int(LT)(void *a, void *b);
 int(Equal)(void *a, void *b);
 void(Print)(void *a, char *szRet);
-void(ConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#ifdef KF_CUSTOM_NUMBERS
+void(DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+void(DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#else
+void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#endif
+#endif
 int(Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_4th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);

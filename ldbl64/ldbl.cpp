@@ -19,6 +19,15 @@
 #define g_real dll_g_real
 #define g_imag dll_g_imag
 #define ISFLOATOK dll_ISFLOATOK
+#define ConvertFromFixedFloat DLLConvertFromFixedFloat
+#endif
+
+#ifndef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_MPFR
+#include <mpfr.h>
+#else
+#include <gmp.h>
+#endif
 #endif
     
     double g_real=1;
@@ -207,6 +216,7 @@
     #define FIXEDFLOAT_DIGITS 8
     #define FIXEDFLOAT_PARTMAX (FIXEDFLOAT_TYPE)100000000
     
+#ifdef KF_CUSTOM_NUMBERS
     EXPORT void ConvertFromFixedFloat(void *p,int nValues, __int64 *pValues, BOOL bSign)
     {
     	long double a=0;
@@ -224,6 +234,25 @@
     		a=-a;
     	*((long double *)p) = a;
     }
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+    EXPORT void ConvertFromFixedFloat(void *p,const mpfr_t value)
+    {
+        *((long double *)p) = mpfr_get_ld(value, MPFR_RNDN);
+    }
+#else
+    EXPORT void ConvertFromFixedFloat(void *p,const mpf_t value)
+    {
+        using std::ldexp;
+        signed long int e = 0;
+        long double l = mpf_get_d_2exp(&e, value);
+        l = ldexp(l, e);
+        if ((mpf_sgn(value) >= 0) != (l >= 0))
+            l = -l;
+        *((long double *)p) = l;
+    }
+#endif
+#endif
     
     //#define LDBL_MAX 3e4932L
     

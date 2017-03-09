@@ -21,10 +21,10 @@ extern void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pV
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else
 #ifdef KF_FLOAT_BACKEND_MPFR
-extern void(*DLLConvertFromFixedFloat)(void *p, mpfr_t value);
+extern void(*DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #else
-extern void(*DLLConvertFromFixedFloat)(void *p, mpf_t value);
+extern void(*DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #endif
 #endif
@@ -33,7 +33,18 @@ extern double(*SquareAdd)(void *a, void *b);
 extern void *(AllocateArray)(int nSize);
 extern void(ReleaseArray)(void *p);
 extern void(AssignInt)(void *p, int nValue);
-extern void(ConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#ifdef KF_CUSTOM_NUMBERS
+extern void(DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
+#else
+#ifdef KF_FLOAT_BACKEND_MPFR
+extern void(DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#else
+extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
+#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
+#endif
+#endif
 extern double(SquareAdd)(void *a, void *b);
 #endif
 
