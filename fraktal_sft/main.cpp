@@ -2845,7 +2845,7 @@ void SaveZoomImg(char *szFile)
 	BITMAP bm;
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
 
-	SIZE scNextZoom = {g_scSaveZoomBuff.cx*g_nZoomSize,g_scSaveZoomBuff.cy*g_nZoomSize};
+	SIZE scNextZoom = {LONG(g_scSaveZoomBuff.cx*g_nZoomSize),LONG(g_scSaveZoomBuff.cy*g_nZoomSize)};
 	if(!g_bmSaveZoomBuff){
 		scNextZoom.cx = g_scSaveZoomBuff.cx = bm.bmWidth;
 		scNextZoom.cy = g_scSaveZoomBuff.cy = bm.bmHeight;
@@ -2866,7 +2866,7 @@ void SaveZoomImg(char *szFile)
 	StretchBlt(dcTmp,0,0,scNextZoom.cx,scNextZoom.cy,dcBmp,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
 
 	if(g_bmSaveZoomBuff){
-		SIZE offs={(scNextZoom.cx - scNextZoom.cx/g_nZoomSize)/2,(scNextZoom.cy - scNextZoom.cy/g_nZoomSize)/2};
+		SIZE offs={LONG((scNextZoom.cx - scNextZoom.cx/g_nZoomSize)/2),LONG((scNextZoom.cy - scNextZoom.cy/g_nZoomSize)/2)};
 		if(bScaled)
 			StretchBlt(dcTmp,offs.cx,offs.cy,scNextZoom.cx-2*offs.cx,scNextZoom.cy-2*offs.cy,
 				dcSaveZoom,0,0,g_scSaveZoomBuff.cx,g_scSaveZoomBuff.cy,SRCCOPY);
@@ -4360,7 +4360,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				return 0;
 			}
 			else if(g_bEraser){
-				RECT rE = {g_pSelect.x-rc.right/(g_nZoomSize*2),g_pSelect.y-rc.bottom/(g_nZoomSize*2),g_pSelect.x+rc.right/(g_nZoomSize*2),g_pSelect.y+rc.bottom/(g_nZoomSize*2)};
+				RECT rE = {LONG(g_pSelect.x-rc.right/(g_nZoomSize*2)),LONG(g_pSelect.y-rc.bottom/(g_nZoomSize*2)),LONG(g_pSelect.x+rc.right/(g_nZoomSize*2)),LONG(g_pSelect.y+rc.bottom/(g_nZoomSize*2))};
 				rE.left = g_SFT.GetWidth()*rE.left/rc.right;
 				rE.top = g_SFT.GetHeight()*rE.top/rc.bottom;
 				rE.right = g_SFT.GetWidth()*rE.right/rc.right;
