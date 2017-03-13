@@ -1,6 +1,7 @@
 WINPREFIX ?= $(HOME)/win64
 COMPILE := x86_64-w64-mingw32-g++
-COMPILE_FLAGS := -xc++ -fpermissive -Wno-write-strings -Wno-deprecated-declarations -g -O3 -ffast-math -I$(WINPREFIX)/include
+LINK := x86_64-w64-mingw32-g++
+COMPILE_FLAGS := -xc++ -fpermissive -Wno-write-strings -Wno-deprecated-declarations -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
 WINDRES := x86_64-w64-mingw32-windres
@@ -123,19 +124,36 @@ jpeg/jpeglib.h \
 jpeg/jversion.h \
 jpeg/transupp.h
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP)
-SOURCES_C = $(JPEG_SOURCES_CPP) $(JPEG_SOURCES_C)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(JPEG_SOURCES_CPP)
+SOURCES_C = $(JPEG_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
+OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
+OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
+OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
+
+DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
+
 all: kf.exe
 
-kf.exe: $(SOURCES) res.o Makefile
-	$(COMPILE) -o kf.exe $(COMPILE_FLAGS) $(SOURCES_CPP) $(SOURCES_C) res.o $(LINK_FLAGS) $(LIBS)
+clean:
+	rm -f $(OBJECTS) $(DEPENDS)
 
-res.o: fraktal_sft/fraktal_sft.rc Makefile
+kf.exe: $(OBJECTS)
+	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
+
+res.o: fraktal_sft/fraktal_sft.rc
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
 
-kf.dll: $(LDBL_SOURCES_CPP) Makefile
+kf.dll: $(LDBL_SOURCES_CPP)
 	$(COMPILE) -o kf.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp
+
+%.o: %.cpp
+	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
+
+%.o: %.c
+	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
+
+-include $(DEPENDS)
