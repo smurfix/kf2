@@ -11,6 +11,7 @@ e1000.kfr w/o dll          7.752   7.905   fail    6.737   6.782   -       -    
 glitch33.kfr w/  dll       9.483   9.551   11.170  7.448   7.691   -       6.184   6.305   e1277   long double
 glitch33.kfr w/o dll       10.112  10.185  fail    7.982   8.033   -       -       -       e1277   floatexp
 htile-pistil.kfr w/  dll   3h04    3h01    -       1h18    -       -       1h18    1h28    e2293   long double
+N/R zoom (glitch33.kfr)    -       4m18s   -       -       -       -       0m17s   -       N/R zoom center pixel
 
 known bugs
 - zooming manually for a while eventually loses precision (each e40 or so)
