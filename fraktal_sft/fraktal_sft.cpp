@@ -178,13 +178,11 @@ public:
 			g_LDBL = 2;
 			return;
 		}
-#if 0
 		if(!(SetParts = (void(*)(double,double))GetProcAddress(hLD, "SetParts")))
 		{
 			fprintf(stderr, "kf.dll missing definition for SetParts\n");
 			g_LDBL = 2;
 		}
-#endif
 		if (!(SizeOfLD = (int(*)())GetProcAddress(hLD, "SizeOfLD")))
 		{
 			fprintf(stderr, "kf.dll missing definition for SizeOfLD\n");
