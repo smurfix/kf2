@@ -1,4 +1,4 @@
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 
 #include <windows.h>
 

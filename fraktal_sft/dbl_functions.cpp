@@ -16,7 +16,7 @@ extern double g_SeedI;
 extern void *(*AllocateArray)(int nSize);
 extern void(*ReleaseArray)(void *p);
 extern void(*AssignInt)(void *p, int nValue);
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 extern void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else
@@ -33,7 +33,7 @@ extern double(*SquareAdd)(void *a, void *b);
 extern void *(AllocateArray)(int nSize);
 extern void(ReleaseArray)(void *p);
 extern void(AssignInt)(void *p, int nValue);
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 extern void(DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else

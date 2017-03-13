@@ -22,7 +22,7 @@
 #define ConvertFromFixedFloat DLLConvertFromFixedFloat
 #endif
 
-#ifndef KF_CUSTOM_NUMBERS
+#ifndef KF_FLOAT_BACKEND_CUSTOM
 #ifdef KF_FLOAT_BACKEND_MPFR
 #include <mpfr.h>
 #else
@@ -216,7 +216,7 @@
     #define FIXEDFLOAT_DIGITS 8
     #define FIXEDFLOAT_PARTMAX (FIXEDFLOAT_TYPE)100000000
     
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
     EXPORT void ConvertFromFixedFloat(void *p,int nValues, __int64 *pValues, BOOL bSign)
     {
     	long double a=0;

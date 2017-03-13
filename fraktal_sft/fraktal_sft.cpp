@@ -39,7 +39,7 @@ int g_nRefZero = 3;
 //#define TERM6
 //#define TERM7
 int g_nAddRefX, g_nAddRefY;
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 extern decContext g_set;
 #endif
 
@@ -67,7 +67,7 @@ int(*GT)(void *a, void *b);
 int(*LT)(void *a, void *b);
 int(*Equal)(void *a, void *b);
 void(*Print)(void *a, char *szRet);
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else
@@ -113,7 +113,7 @@ int(GT)(void *a, void *b);
 int(LT)(void *a, void *b);
 int(Equal)(void *a, void *b);
 void(Print)(void *a, char *szRet);
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 void(DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
 #else
@@ -280,7 +280,7 @@ public:
 			fprintf(stderr, "kf.dll missing definition for Print\n");
 			g_LDBL = 2;
 		}
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 		if (!(DLLConvertFromFixedFloat = (void(*)(void*, int, FIXEDFLOAT_TYPE *, BOOL))GetProcAddress(hLD, "ConvertFromFixedFloat")))
 #else
 #ifdef KF_FLOAT_BACKEND_MPFR
@@ -7532,7 +7532,7 @@ void CFraktalSFT::RenderFractal()
 		}
 	}
 
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 	ToZoom((CDecNumber)4 / ((CDecNumber)div.ToText()), m_nZoom);
 	m_rstart.SetMaxSignificant((int)m_nZoom + nZeroes + 16);
 #else
@@ -7964,7 +7964,7 @@ void CFraktalSFT::RenderFractalEXP()
 }
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
 {
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 	m_rstart.SetMaxSignificant(0);
 #endif
 	m_rstart = rstart;
@@ -8004,7 +8004,7 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	d = ((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5;
 	CDecNumber rstart = re - d;
 	CDecNumber rstop = re + d;
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 	m_rstart.SetMaxSignificant(0);
 	m_rstart = rstart.ToText();
 	m_rstop = rstop.ToText();

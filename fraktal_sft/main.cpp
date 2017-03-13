@@ -4456,7 +4456,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					DeleteObject(g_bmSaveZoomBuff);
 					g_bmSaveZoomBuff=NULL;
 					CFixedFloat tmp;
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 					tmp.SetMaxSignificant(0);
 #endif
 					RECT r;
@@ -5568,7 +5568,7 @@ int Test2()
 {
 	return 0;
 }
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
 {
 	int g_nMaxSignificant=3;
@@ -5644,7 +5644,7 @@ int Test1()
 {
 	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	CFixedFloat m_rref = 0.25, m_iref=0;
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 	m_rref.SetMaxSignificant(3111);
 #endif
 	double dr, di;

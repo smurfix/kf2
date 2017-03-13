@@ -264,7 +264,7 @@ public:
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
 
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 
 		exp=0;
 		val=0;
@@ -311,7 +311,7 @@ public:
 	inline void ToFixedFloat(CFixedFloat &a) const
 	{
 
-#ifdef KF_CUSTOM_NUMBERS
+#ifdef KF_FLOAT_BACKEND_CUSTOM
 
 		char *szTmp = new char[150000];
 		*szTmp=0;

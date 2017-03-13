@@ -20,7 +20,7 @@ known bugs
   htile-pistil.kfr mpfr: real 92m37.331s  user 138m11.660s  sys 58m59.812s
 
 configuration (COMPILE_FLAGS in Makefile)
-- add -DKF_CUSTOM_NUMBERS to use original arbitrary precision code instead of GMP
+- add -DKF_FLOAT_BACKEND_CUSTOM to use original arbitrary precision code instead of GMP
 - add -DKF_FLOAT_BACKEND_MPFR to use MPFR instead of GMP
 - add -DKF_LONG_DOUBLE_DLL to compile long double support into separate DLL
   instead of building it into the executable itself; also remove LDBL_SOURCES
