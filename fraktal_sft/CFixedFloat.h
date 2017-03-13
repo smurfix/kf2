@@ -528,7 +528,13 @@ public:
 	inline CFixedFloat Square() const
 	{
 		Precision p(m_f.precision());
-		return CFixedFloat(FixedFloat(m_f * m_f));
+		FixedFloat r(m_f);
+#ifdef KF_FLOAT_BACKEND_MPFR
+		mpfr_sqr(r.backend().data(), r.backend().data(), MPFR_RNDN);
+#else
+		mpf_mul(r.backend().data(), r.backend().data(), r.backend().data());
+#endif
+		return CFixedFloat(r);
 	};
 
 	inline CFixedFloat Divide(const CFixedFloat &A) const
