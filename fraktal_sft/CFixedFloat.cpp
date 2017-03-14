@@ -990,7 +990,7 @@ char *CFixedFloat::ToText()
 	unsigned int nString = (unsigned int)InterlockedIncrement((LPLONG)&g_nStrings);
 	char *szRet = g_szStrings[nString%4];
   std::ostringstream os;
-  os << std::setprecision(m_f.precision()) << std::scientific << m_f;
+  os << std::setprecision(m_f.precision()) << m_f;
 	strncpy(szRet, os.str().c_str(), FIXEDFLOAT_ENTRIES*FIXEDFLOAT_DIGITS+256);
 	char *e;
 	if (e = strstr(szRet,"e"))

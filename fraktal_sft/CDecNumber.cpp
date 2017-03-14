@@ -10403,7 +10403,7 @@ char *CDecNumber::ToText()
 	if (m_szString)
 		return m_szString;
   std::ostringstream os;
-  os << std::setprecision(m_dec.precision()) << std::scientific << m_dec;
+  os << std::setprecision(m_dec.precision()) << m_dec;
 	if(!m_szString)
 		m_szString = new char[DECNUMDIGITS+140];
 	strncpy(m_szString, os.str().c_str(), DECNUMDIGITS+140);
