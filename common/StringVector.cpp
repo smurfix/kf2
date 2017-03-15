@@ -279,18 +279,6 @@ void free_stringtable(void *p)
 		pAlloc->Free((char*)p-sizeof(int));
 	}
 }
-void *operator new(size_t n)
-{
-	return realloc_stringtable(NULL,n);
-}
-void operator delete(void*p)
-{
-	free_stringtable(p);
-}
-void * operator new[]( size_t cb )
-{
-	return operator new(cb);
-}
 CStringVektor::CStringVektor() : m_nStrings(0), m_pszStrings(NULL), m_pnStrings(NULL), m_pnIndexValues(NULL)
 {
 }
