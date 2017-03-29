@@ -984,17 +984,19 @@ CFixedFloat operator*(const CFixedFloat &A,const CFixedFloat &B)
 #include <string>
 
 int g_nStrings=0;
-char g_szStrings[4][FIXEDFLOAT_ENTRIES*FIXEDFLOAT_DIGITS+256];
+char *g_szStrings[4];
 char *CFixedFloat::ToText()
 {
 	unsigned int nString = (unsigned int)InterlockedIncrement((LPLONG)&g_nStrings);
 	char *szRet = g_szStrings[nString%4];
+	if (szRet) free(szRet);
   std::ostringstream os;
-  os << std::setprecision(m_f.precision()) << m_f;
-	strncpy(szRet, os.str().c_str(), FIXEDFLOAT_ENTRIES*FIXEDFLOAT_DIGITS+256);
+  os << std::setprecision(m_f.precision() + 3) << m_f;
+	szRet = strdup(os.str().c_str());
 	char *e;
 	if (e = strstr(szRet,"e"))
 	  *e = 'E';
+	g_szStrings[nString%4] = szRet;
 	return szRet;
 }
 
