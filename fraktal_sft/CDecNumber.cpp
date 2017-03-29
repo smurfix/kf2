@@ -10403,10 +10403,11 @@ char *CDecNumber::ToText()
 	if (m_szString)
 		return m_szString;
   std::ostringstream os;
-  os << std::setprecision(m_dec.precision()) << m_dec;
+  os << std::setprecision(m_dec.precision() + 3) << m_dec;
+  size_t length = strlen(os.str().c_str());
 	if(!m_szString)
-		m_szString = new char[DECNUMDIGITS+140];
-	strncpy(m_szString, os.str().c_str(), DECNUMDIGITS+140);
+		m_szString = new char[length+140];
+	strncpy(m_szString, os.str().c_str(), length+140);
 	char *e;
 	if (e = strstr(m_szString,"e"))
 	  *e = 'E';
@@ -10424,7 +10425,7 @@ char *CDecNumber::ToText()
 		char *szExp = e;
 		szExp++;
 		int nExp = atoi(szExp);
-		if(nExp<DECNUMDIGITS-3 && nExp>0){
+		if(nExp<length-3 && nExp>0){
 			int i;
 			for(i=0;m_szString[i] && m_szString[i]!='.' && m_szString[i+1]!='E';i++);
 			while(nExp){
