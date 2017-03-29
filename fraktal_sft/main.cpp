@@ -1797,8 +1797,8 @@ int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,2);
-		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,DECNUMDIGITS+20,0);
-		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,DECNUMDIGITS+20,0);
+		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
+		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,0,0);
 		SetDlgItemText(hWnd,IDC_EDIT1,g_SFT.GetRe());
 		SetDlgItemText(hWnd,IDC_EDIT3,g_SFT.GetIm());
 		SetDlgItemText(hWnd,IDC_EDIT4,g_SFT.GetZoom());
