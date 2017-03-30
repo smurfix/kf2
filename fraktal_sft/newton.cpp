@@ -246,20 +246,20 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
   ad = cabs2(d);
 
   *g_szProgress=0;
-  char *szAD = ad.ToText();
-  char *szE1 = strstr(szAD,"e");
+  std::string szAD = ad.ToText();
+  const char *szE1 = strstr(szAD.c_str(),"e");
   if(!szE1)
-	  szE1 = strstr(szAD,"E");
+	  szE1 = strstr(szAD.c_str(),"E");
   if(szE1){
 	  szE1++;
 	  if(*szE1=='-')
 		  szE1++;
 	  strcat(g_szProgress,szE1);
   }
-  char *szEP = epsilon2.ToText();
-  szE1 = strstr(szEP,"e");
+  std::string szEP = epsilon2.ToText();
+  szE1 = strstr(szEP.c_str(),"e");
   if(!szE1)
-	  szE1 = strstr(szEP,"E");
+	  szE1 = strstr(szEP.c_str(),"E");
   if(szE1){
 	  szE1++;
 	  if(*szE1=='-')
@@ -380,14 +380,14 @@ int WINAPI ThNewton(HWND hWnd)
 
 		if(test==0 && steps){
 			delete[] g_szRe;
-			char *sz = c.m_r.ToText();
-			g_szRe = new char[strlen(sz)+1];
-			strcpy(g_szRe,sz);
+			std::string sz = c.m_r.ToText();
+			g_szRe = new char[strlen(sz.c_str())+1];
+			strcpy(g_szRe,sz.c_str());
 
 			delete[] g_szIm;
 			sz = c.m_i.ToText();
-			g_szIm = new char[strlen(sz)+1];
-			strcpy(g_szIm,sz);
+			g_szIm = new char[strlen(sz.c_str())+1];
+			strcpy(g_szIm,sz.c_str());
 
 #ifdef KF_FLOAT_BACKEND_CUSTOM
 			g_set.digits=exp+6;
@@ -399,7 +399,9 @@ int WINAPI ThNewton(HWND hWnd)
 			if(msize<0)
 				msize = -msize;
 
-			char *szSize = msize.ToText();
+			std::string sszSize = msize.ToText();
+			char *szSize0 = strdup(sszSize.c_str());
+			char *szSize = szSize0;
 			char szTmpSize[200];
 			double zooms;
 			if(!strstr(szSize,"e") && !strstr(szSize,"E")){
@@ -436,6 +438,7 @@ int WINAPI ThNewton(HWND hWnd)
 			}
 			else
 				zooms = log10(atof(szSize))/0.30103;
+			std::string sradius;
 			if(g_nMinibrotPos){
 				if(g_nMinibrotPos==1)
 					zooms = 3*zooms/4;
@@ -444,11 +447,13 @@ int WINAPI ThNewton(HWND hWnd)
 				else if(g_nMinibrotPos==3)
 					zooms = 15*zooms/16;
 				radius = flyttyp(2)^zooms;
-				szSize = radius.ToText();
+				sradius = radius.ToText();
+				szSize = sradius.c_str();
 			}
 			delete[] g_szZoom;
 			g_szZoom = new char[strlen(szSize)+1];
 			strcpy(g_szZoom,szSize);
+			free(szSize0);
 			if(zooms>startZooms)
 				bOK=TRUE;
 		}

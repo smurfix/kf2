@@ -10398,15 +10398,12 @@ void CDecNumber::SetMaxSignificant(int n)
 #include <sstream>
 #include <string>
 
-char *CDecNumber::ToText()
+std::string CDecNumber::ToText() const
 {
-	if (m_szString)
-		return m_szString;
   std::ostringstream os;
   os << std::setprecision(m_dec.precision() + 3) << m_dec;
   size_t length = strlen(os.str().c_str());
-	if(!m_szString)
-		m_szString = new char[length+140];
+	char *m_szString = new char[length+140];
 	strncpy(m_szString, os.str().c_str(), length+140);
 	char *e;
 	if (e = strstr(m_szString,"e"))
@@ -10451,7 +10448,9 @@ char *CDecNumber::ToText()
 			szExp--;
 		}
 	}
-	return m_szString;
+	std::string s(m_szString);
+	free(m_szString);
+	return s;
 }
 
 #endif

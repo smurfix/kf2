@@ -983,21 +983,17 @@ CFixedFloat operator*(const CFixedFloat &A,const CFixedFloat &B)
 #include <sstream>
 #include <string>
 
-int g_nStrings=0;
-char *g_szStrings[4];
-char *CFixedFloat::ToText()
+std::string CFixedFloat::ToText() const
 {
-	unsigned int nString = (unsigned int)InterlockedIncrement((LPLONG)&g_nStrings);
-	char *szRet = g_szStrings[nString%4];
-	if (szRet) free(szRet);
   std::ostringstream os;
   os << std::setprecision(m_f.precision() + 3) << m_f;
-	szRet = strdup(os.str().c_str());
+	char *szRet = strdup(os.str().c_str());
 	char *e;
 	if (e = strstr(szRet,"e"))
 	  *e = 'E';
-	g_szStrings[nString%4] = szRet;
-	return szRet;
+	std::string s(szRet);
+	free(szRet);
+	return s;
 }
 
 #endif

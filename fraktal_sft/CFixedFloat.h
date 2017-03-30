@@ -489,7 +489,7 @@ public:
 	{
 	};
 
-	char *ToText();
+	std::string ToText() const;
 
 	inline int ToInt()
 	{

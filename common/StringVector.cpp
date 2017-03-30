@@ -618,6 +618,13 @@ int CStringTable::AddString(int nRow, char *szString, int nString)
 	}
 	return 1;
 }
+int CStringTable::AddString(int nRow, const std::string &szString, int nString)
+{
+	char *s = strdup(szString.c_str());
+	AddString(nRow, s, nString);
+	free(s);
+}
+
 int CStringTable::AddInt(int nRow, int nVal)
 {
 	char szTmp[80];

@@ -284,6 +284,7 @@ public:
 
 	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
 	void SetPosition(const char *szR, const char *szI, const char *szZ);
+	void SetPosition(const char *szR, const char *szI, const std::string &szZ);
 	char *ToZoom();
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();

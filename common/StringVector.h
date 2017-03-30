@@ -1,6 +1,8 @@
 #ifndef __STRINGVECTOR_H__
 #define __STRINGVECTOR_H__
 
+#include <string>
+
 class CStringVektor
 {
 	char **m_pszStrings;
@@ -52,6 +54,7 @@ public:
 	int AddRow();
 	int InsertRow(int nRow);
 	int AddString(int nRow, char *szString, int nString=-1);
+	int AddString(int nRow, const std::string &szString, int nString=-1);
 	int AddInt(int nRow, int nVal);
 	int DeleteRow(int nRow);
 	int DeleteColumn(int nColumn);

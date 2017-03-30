@@ -1107,7 +1107,8 @@ char *CFraktalSFT::ToZoom()
 char *CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
 	static char szRet[40];
-	char *szZoom = const_cast<CDecNumber &>(z).ToText();
+	std::string sszZoom = z.ToText();
+	const char *szZoom = sszZoom.c_str();
 	*szRet = 0;
 	for (m_nZoom = 0; szZoom[m_nZoom] && szZoom[m_nZoom] != '.'; m_nZoom++);
 	m_nZoom--;
@@ -7516,7 +7517,8 @@ void CFraktalSFT::RenderFractal()
 	CFixedFloat div = m_istop - m_istart;
 
 	int nZeroes = 0;
-	char *szZoom = m_istop.ToText();
+	std::string sszZoom = m_istop.ToText();
+	const char *szZoom = sszZoom.c_str();
 	if (*szZoom == '-')
 		szZoom++;
 	if (*szZoom == '0'){
@@ -8014,6 +8016,10 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	m_istart = istart.m_dec;
 	m_istop = istop.m_dec;
 #endif
+}
+void CFraktalSFT::SetPosition(const char *szR, const char *szI, const std::string &szZ)
+{
+	SetPosition(szR, szI, szZ.c_str());
 }
 
 HBITMAP CFraktalSFT::GetBitmap()

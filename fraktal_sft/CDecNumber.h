@@ -699,6 +699,8 @@ typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNu
 
 #define LOW_PRECISION 20u
 
+#include <string>
+
 class Precision
 {
 	unsigned digits10;
@@ -718,57 +720,48 @@ class CDecNumber
 {
 public:
 	decNumber m_dec;
-	char *m_szString;
 
   inline CDecNumber()
   {
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = 0;
-		m_szString = nullptr;
 	};
   inline CDecNumber(const CDecNumber &a)
   {
 		m_dec.precision(std::max(decNumber::default_precision(), a.m_dec.precision()));
 		m_dec = a.m_dec;
-		m_szString = nullptr;
 	};
   inline CDecNumber(const decNumber &a)
   {
 		m_dec.precision(std::max(decNumber::default_precision(), a.precision()));
 		m_dec = a;
-		m_szString = nullptr;
 	};
   inline CDecNumber(const char *a)
   {
 		m_dec.precision(std::max(decNumber::default_precision(), unsigned(strlen(a))));
 		Precision p(m_dec.precision());
 		m_dec = decNumber(a);
-		m_szString = nullptr;
+	};
+  inline CDecNumber(const std::string &a)
+  : CDecNumber(a.c_str())
+  {
 	};
   inline CDecNumber(double a)
   {
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
-		m_szString = nullptr;
 	};
   inline CDecNumber(int a)
   {
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
-		m_szString = nullptr;
 	};
   inline ~CDecNumber()
   {
-		if (m_szString)
-		  delete[] m_szString;
-		m_szString = nullptr;
 	};
 
   inline CDecNumber &operator*=(double b)
   {
-		if (m_szString)
-			delete[] m_szString;
-		m_szString = nullptr;
 		m_dec *= b;
 		return *this;
 	}
@@ -785,7 +778,7 @@ public:
   inline friend bool operator==(const CDecNumber &a, int b);
   inline friend bool operator<(const CDecNumber &a, const CDecNumber &b);
 
-  char *ToText();
+  std::string ToText() const;
 
   inline int ToInt() const
   {
