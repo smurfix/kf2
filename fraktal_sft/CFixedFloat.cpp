@@ -987,12 +987,10 @@ std::string CFixedFloat::ToText() const
 {
   std::ostringstream os;
   os << std::setprecision(m_f.precision() + 3) << m_f;
-	char *szRet = strdup(os.str().c_str());
-	char *e;
-	if (e = strstr(szRet,"e"))
-	  *e = 'E';
-	std::string s(szRet);
-	free(szRet);
+	std::string s = os.str();
+	std::size_t e = s.find('e');
+	if (e != std::string::npos)
+		s[e] = 'E';
 	return s;
 }
 

@@ -10400,56 +10400,53 @@ void CDecNumber::SetMaxSignificant(int n)
 
 std::string CDecNumber::ToText() const
 {
-  std::ostringstream os;
-  os << std::setprecision(m_dec.precision() + 3) << m_dec;
-  size_t length = strlen(os.str().c_str());
-	char *m_szString = new char[length+140];
-	strncpy(m_szString, os.str().c_str(), length+140);
-	char *e;
-	if (e = strstr(m_szString,"e"))
-	  *e = 'E';
-	if(strstr(m_szString,".") && !e){
-		int n = strlen(m_szString) - 1;
-		while(m_szString[n]=='0')
-			m_szString[n--]=0;
-		if(m_szString[n]=='.')
-			m_szString[n]=0;
+	std::ostringstream os;
+	os << std::setprecision(m_dec.precision() + 3) << m_dec;
+	std::string s = os.str();
+	std::size_t e = s.find('e');
+	if (e != std::string::npos)
+		s[e] = 'E';
+	if (s.find('.') != std::string::npos && e == std::string::npos)
+	{
+		std::size_t n = s.length() - 1;
+		while (s[n] == '0')
+			s[n--] = 0;
+		if(s[n] == '.')
+			s[n] = 0;
 	}
-	else if(!strncmp(m_szString,"0E",2)){
-		m_szString[1]=0;
+	else
+	if (s[0] == '0' && s[1] == 'E')
+	{
+		s[1] = 0;
 	}
-	else if(e){
-		char *szExp = e;
-		szExp++;
-		int nExp = atoi(szExp);
-		if(nExp>0){
+	else if (e != std::string::npos)
+	{
+		int nExp = atoi(s.c_str() + e + 1);
+		if (nExp > 0)
+		{
 			int i;
-			for(i=0;m_szString[i] && m_szString[i]!='.' && m_szString[i+1]!='E';i++);
-			while(nExp){
-				if(m_szString[i+1]=='E'){
-					if(i==0)
+			for (i = 0; s[i] && s[i] != '.' && s[i+1] != 'E'; i++)
+				;
+			while (nExp){
+				if (s[i+1] == 'E')
+				{
+					if (i == 0)
 						i++;
 					break;
 				}
-				m_szString[i] = m_szString[i+1];
+				s[i] = s[i+1];
 				nExp--;
 				i++;
 			}
-			while(nExp){
-				m_szString[i]='0';
-				nExp--;
-				i++;
-			}
-			m_szString[i]=0;
+			s.replace(s.begin() + i, s.end(), nExp, '0');
 		}
-		szExp = strstr(m_szString,"E");
-		while(szExp && szExp!=m_szString && (*(szExp-1)=='0' || *(szExp-1)=='.')){
-			strcpy(szExp-1,szExp);
-			szExp--;
+		e = s.find('E');
+		while (e != std::string::npos && e != 0 && (s[e-1] == '0' || s[e-1] == '.'))
+		{
+			s.replace(s.begin() + e-1, s.end(), s.begin() + e, s.end());
+			e--;
 		}
 	}
-	std::string s(m_szString);
-	free(m_szString);
 	return s;
 }
 
