@@ -10425,7 +10425,7 @@ char *CDecNumber::ToText()
 		char *szExp = e;
 		szExp++;
 		int nExp = atoi(szExp);
-		if(nExp<length-3 && nExp>0){
+		if(nExp>0){
 			int i;
 			for(i=0;m_szString[i] && m_szString[i]!='.' && m_szString[i+1]!='E';i++);
 			while(nExp){
