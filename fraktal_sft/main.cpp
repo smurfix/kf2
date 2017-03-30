@@ -5541,7 +5541,24 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			char szMsg[1024];
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
-			wsprintf(szMsg,"©2013-2016 Karl Runmo version 2.11.1\n©2017 Claude Heiland-Allen 2.11.1+gmp.20170313\n\nProcessors: %d\nPrecision: %d\n%s\n\nAcknowledgements:\n - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n - Thanks to Pauldelbrot for finding the reliable glitch detection method\n - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n - Thanks to laser blaster for the Burning ship formula\n - Thanks to stardust4ever for other fractal types\n - Thanks to claude for the Newton-Raphson method\n - Thanks to Chillheimer for hosting my program\n\nhttp://www.chillheimer.de/kallesfraktaler/",sysinfo.dwNumberOfProcessors,FIXEDFLOAT_ENTRIES*8-16,sizeof(void*)==4?"32-bit":"64-bit");
+			wsprintf(szMsg,
+				"©2013-2016 Karl Runmo version 2.11.1\n"
+				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170330\n\n"
+				"Processors: %d\n"
+				// mpf_t decimal digits = floor(64.0 * ((1<<31)-1) * log2(10))
+				// FIXME TODO figure out maximum precision for mpfr_t
+				"Precision: 456562320657\n"
+				"%s\n\n"
+				"Acknowledgements:\n"
+				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
+				" - Thanks to Pauldelbrot for finding the reliable glitch detection method\n"
+				" - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n"
+				" - Thanks to laser blaster for the Burning ship formula\n"
+				" - Thanks to stardust4ever for other fractal types\n"
+				" - Thanks to claude for the Newton-Raphson method\n"
+				" - Thanks to Chillheimer for hosting my program\n\n"
+				"http://www.chillheimer.de/kallesfraktaler/",
+				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit");
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
 	}	
