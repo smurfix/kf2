@@ -698,7 +698,6 @@ typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNu
 #endif
 
 #define LOW_PRECISION 20u
-#define DECNUMDIGITS 101016
 
 class Precision
 {

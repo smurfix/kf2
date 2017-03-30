@@ -858,10 +858,6 @@ inline CFixedFloat operator^(const CFixedFloat &A,long nB)
 	return CFixedFloat(FixedFloat(pow(A.m_f, nB)));
 }
 
-#define FIXEDFLOAT_ENTRIES (DECNUMDIGITS/8+16)
-#define FIXEDFLOAT_DIGITS 8
-#define FIXEDFLOAT_TYPE __int64
-
 #endif
 
 #endif
