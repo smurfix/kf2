@@ -7993,17 +7993,31 @@ void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rsto
 }
 void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 {
+#ifndef KF_FLOAT_BACKEND_CUSTOM
+	Precision pLo(20u);
+#endif
+	CDecNumber z(szZ);
+	CDecNumber di(2 / z);
+#ifndef KF_FLOAT_BACKEND_CUSTOM
+	long e = 0;
+#ifdef KF_FLOAT_BACKEND_MPFR
+	mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
+#else
+	mpf_get_d_2exp(&e, z.m_dec.backend().data());
+#endif
+	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
+	Precision pHi(digits10);
+#endif
+
 	m_rref = szR;
 	m_iref = szI;
-	CDecNumber re = szR;
-	CDecNumber im = szI;
-	CDecNumber z = szZ;
-	CDecNumber d = 2 / z;
-	CDecNumber istart = im - d;
-	CDecNumber istop = im + d;
-	d = ((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5;
-	CDecNumber rstart = re - d;
-	CDecNumber rstop = re + d;
+	CDecNumber re(szR);
+	CDecNumber im(szI);
+	CDecNumber istart(im - di);
+	CDecNumber istop(im + di);
+	CDecNumber dr(((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5);
+	CDecNumber rstart(re - dr);
+	CDecNumber rstop(re + dr);
 #ifdef KF_FLOAT_BACKEND_CUSTOM
 	m_rstart.SetMaxSignificant(0);
 	m_rstart = rstart.ToText();

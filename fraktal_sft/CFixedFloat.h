@@ -463,9 +463,8 @@ public:
 
 	inline CFixedFloat(const char *sz)
 	{
-		unsigned p = strlen(sz) + LOW_PRECISION;
-		Precision q(p);
-		m_f.precision(p);
+		m_f.precision(std::max(FixedFloat::default_precision(), unsigned(strlen(sz))));
+		Precision p(m_f.precision());
 		m_f = FixedFloat(sz);
 	};
 
