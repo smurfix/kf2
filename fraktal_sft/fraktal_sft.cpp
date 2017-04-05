@@ -8188,6 +8188,27 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	}
 	m_nX = nWidth;
 	m_nY = nHeight;
+#ifndef KF_FLOAT_BACKEND_CUSTOM
+	unsigned digits10 = 20u;
+	{
+		using std::abs;
+		using std::min;
+		Precision pLo(20u);
+		CFixedFloat pixelSpacing(min(abs((m_rstop - m_rstart) / m_nX), abs((m_rstop - m_rstart) / m_nY)));
+		long e = 0;
+#ifdef KF_FLOAT_BACKEND_MPFR
+		mpfr_get_d_2exp(&e, pixelSpacing.m_f.backend().data(), MPFR_RNDN);
+#else
+		mpf_get_d_2exp(&e, pixelSpacing.m_f.backend().data());
+#endif
+		digits10 = std::max(20.0, 20 + 0.30102999566398114 * (log2(nZoomSize) - e));
+	}
+	Precision p(digits10);
+	m_rstart.m_f.precision(digits10);
+	m_rstop.m_f.precision(digits10);
+	m_istart.m_f.precision(digits10);
+	m_istop.m_f.precision(digits10);
+#endif
 	CFixedFloat nr = (m_rstop - m_rstart)*(CFixedFloat)((double)1 / ((double)nZoomSize * 2));
 	CFixedFloat ni = (m_istop - m_istart)*(CFixedFloat)((double)1 / ((double)nZoomSize * 2));
 	CFixedFloat offsr = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
