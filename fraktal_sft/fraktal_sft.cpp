@@ -8007,6 +8007,12 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 #endif
 	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
 	Precision pHi(digits10);
+	m_rref.m_f.precision(digits10);
+	m_iref.m_f.precision(digits10);
+	m_rstart.m_f.precision(digits10);
+	m_rstop.m_f.precision(digits10);
+	m_istart.m_f.precision(digits10);
+	m_istop.m_f.precision(digits10);
 #endif
 
 	m_rref = szR;
