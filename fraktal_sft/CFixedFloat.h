@@ -692,6 +692,25 @@ public:
 	friend class floatexp2;
 };
 
+inline CFixedFloat abs(const CFixedFloat &A)
+{
+	using std::abs;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(abs(A.m_f));
+}
+inline CFixedFloat min(const CFixedFloat &A, const CFixedFloat &B)
+{
+	using std::min;
+	Precision p(std::max(A.m_f.precision(), B.m_f.precision()));
+	return CFixedFloat(min(A.m_f, B.m_f));
+}
+inline CFixedFloat max(const CFixedFloat &A, const CFixedFloat &B)
+{
+	using std::max;
+	Precision p(std::max(A.m_f.precision(), B.m_f.precision()));
+	return CFixedFloat(max(A.m_f, B.m_f));
+}
+
 inline bool operator==(const CFixedFloat &A,int nB)
 {
 	return A.m_f == nB;
