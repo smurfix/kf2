@@ -1750,6 +1750,8 @@ int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_TIMER){
 		POINT p;
 		GetCursorPos(&p);
+		if(hWnd==WindowFromPoint(p) || hWnd==GetParent(WindowFromPoint(p)))
+			return 0;
 		HDC dcScreen = GetDC(NULL);
 
 		HWND hwPrev = GetDlgItem(hWnd,IDC_PREV);
@@ -1759,8 +1761,6 @@ int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		r.right=r2.right*8;
 		r.bottom=r2.bottom*8;
 
-		if(hWnd==WindowFromPoint(p) || hWnd==GetParent(WindowFromPoint(p)))
-			return 0;
 		HDC dcPrev = GetDC(hwPrev);
 		r2.left = p.x-r2.right/2+1;
 		r2.top = p.y-r2.bottom/2+1;
