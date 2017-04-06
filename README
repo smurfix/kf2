@@ -1,6 +1,11 @@
-Kalles Fraktaler 2 fork for cross-compilation to win64 from linux mingw64, using GMP
-upstream version: http://www.chillheimer.de/kallesfraktaler/
-this version: https://mathr.co.uk/kf/kf.html
+Kalles Fraktaler 2
+fork for cross-compilation to win64 from linux mingw64, using GMP
+
+upstream version
+http://www.chillheimer.de/kallesfraktaler/
+
+this version
+https://mathr.co.uk/kf/kf.html
 
 known bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
@@ -8,7 +13,7 @@ known bugs
   htile-pistil.kfr mpfr: real 92m37.331s  user 138m11.660s  sys 58m59.812s
 
 configuration (COMPILE_FLAGS in Makefile)
-- add -DKF_FLOAT_BACKEND_CUSTOM to use original arbitrary precision code instead of GMP
+- add -DKF_FLOAT_BACKEND_CUSTOM to use original custom arbitrary precision code
 - add -DKF_FLOAT_BACKEND_MPFR to use MPFR instead of GMP
 - add -DKF_LONG_DOUBLE_DLL to compile long double support into separate DLL
   instead of building it into the executable itself; also remove LDBL_SOURCES
