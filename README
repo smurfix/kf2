@@ -14,8 +14,6 @@ htile-pistil.kfr w/  dll   3h04    3h01    -       1h18    -       -       1h18 
 N/R zoom (glitch33.kfr)    -       4m18s   -       -       -       -       0m17s   -       N/R zoom center pixel
 
 known bugs
-- zooming manually for a while eventually loses precision (each e40 or so)
-  (workaround, save and reload)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - large sys time on linux, excessive threading for reference computations?
   htile-pistil.kfr mpfr: real 92m37.331s  user 138m11.660s  sys 58m59.812s
