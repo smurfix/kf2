@@ -2671,14 +2671,17 @@ void CFraktalSFT::CalculateReference()
 	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 
-	int inf;
-	complex<CFixedFloat> c(m_rref,m_iref);
-	for(inf=m_nInflections-1;inf>=0;inf--){
-		complex<CFixedFloat> d = c-m_pInflections[inf];
-		c=m_pInflections[inf]+d*d;				
+	if (m_nInflections)
+	{
+		int inf;
+		complex<CFixedFloat> c(m_rref,m_iref);
+		for(inf=m_nInflections-1;inf>=0;inf--){
+			complex<CFixedFloat> d = c-m_pInflections[inf];
+			c=m_pInflections[inf]+d*d;
+		}
+		m_rref=c.m_r;
+		m_iref=c.m_i;
 	}
-	m_rref=c.m_r;
-	m_iref=c.m_i;
 
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
@@ -3415,14 +3418,17 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 		// Series approximation
 		double dbD0r = m_pDX[m_nX / 2] + m_C*(m_pDX[x] - m_pDX[m_nX / 2]) + m_S*(m_pDY[y] - m_pDY[m_nY / 2]);
 		double dbD0i = m_pDY[m_nY / 2] - m_S*(m_pDX[x] - m_pDX[m_nX / 2]) + m_C*(m_pDY[y] - m_pDY[m_nY / 2]);
-		int inf;
-		complex<CFixedFloat> c(dbD0r,dbD0i);
-		for(inf=m_nInflections-1;inf>=0;inf--){
-			complex<CFixedFloat> d = c-m_pInflections[inf];
-			c=m_pInflections[inf]+d*d;				
+		if (m_nInflections)
+		{
+			int inf;
+			complex<CFixedFloat> c(dbD0r,dbD0i);
+			for(inf=m_nInflections-1;inf>=0;inf--){
+				complex<CFixedFloat> d = c-m_pInflections[inf];
+				c=m_pInflections[inf]+d*d;
+			}
+			dbD0r=c.m_r.ToDouble();
+			dbD0i=c.m_i.ToDouble();
 		}
-		dbD0r=c.m_r.ToDouble();
-		dbD0i=c.m_i.ToDouble();
 
 		floatexp D0r = dbD0r;
 		D0r *= m_nScaling;
