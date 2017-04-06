@@ -298,6 +298,8 @@ public:
 		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
 #else
 		val = mpf_get_d_2exp(&e, a.m_f.backend().data());
+		if ((mpf_sgn(a.m_f.backend().data()) >= 0) != (val >= 0))
+			val = -val;
 #endif
 		exp = e;
 		_ALIGN_(val, exp);
