@@ -10094,6 +10094,15 @@ int CPixels::GetStep()
 }
 BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
 {
+#ifdef KF_DEBUG_ALIGNMENT
+	static int first = 1;
+	if (first)
+	{
+		first = 0;
+		intptr_t i = &m_nNextPixel;
+		std::cerr << "alignment = " << (i & 3) << std::endl;
+	}
+#endif
 	do{
 		int nNext = InterlockedIncrement((LPLONG)&m_nNextPixel);
 		if (nNext<m_nPixels){
