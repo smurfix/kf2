@@ -1245,7 +1245,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			ReleaseDC(NULL,hDC);
 			DeleteObject(bmBmp);
-			delete lpBits;
+			delete[] lpBits;
 			if(nParts!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
 				SendDlgItemMessage(hWnd,IDC_LIST1,LB_RESETCONTENT,0,0);
 				int i;
