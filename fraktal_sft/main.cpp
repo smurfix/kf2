@@ -5542,14 +5542,22 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
-				"©2013-2016 Karl Runmo version 2.11.1\n"
-				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170330.1\n\n"
+				"©2013-2017 Karl Runmo version 2.11.1\n"
+				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170406\n\n"
 				"Processors: %d\n"
 				// mpf_t decimal digits = floor(64.0 * ((1<<31)-1) * log2(10))
 				// FIXME TODO figure out maximum precision for mpfr_t
 				"Precision: 456562320657\n"
-				"%s\n\n"
-				"Acknowledgements:\n"
+				"%s\n"
+#ifndef KF_FLOAT_BACKEND_CUSTOM
+				"\nLibraries:\n"
+				"- Boost %d.%d.%d <http://boost.org>\n"
+				"- GMP %d.%d.%d <http://gmplib.org>\n"
+#endif
+#ifdef KF_FLOAT_BACKEND_MPFR
+				"- MPFR %s <http://mpfr.org>\n"
+#endif
+				"\nAcknowledgements:\n"
 				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
 				" - Thanks to Pauldelbrot for finding the reliable glitch detection method\n"
 				" - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n"
@@ -5557,8 +5565,20 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				" - Thanks to stardust4ever for other fractal types\n"
 				" - Thanks to claude for the Newton-Raphson method\n"
 				" - Thanks to Chillheimer for hosting my program\n\n"
-				"http://www.chillheimer.de/kallesfraktaler/",
-				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit");
+				"http://www.chillheimer.de/kallesfraktaler/\n\n"
+				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
+				"https://mathr.co.uk/kf/kf.html",
+				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit"
+#ifndef KF_FLOAT_BACKEND_CUSTOM
+				,
+				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100,
+				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL
+#endif
+#ifdef KF_FLOAT_BACKEND_MPFR
+				,
+				MPFR_VERSION_STRING
+#endif
+				);
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
 	}	
