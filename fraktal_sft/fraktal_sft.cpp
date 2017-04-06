@@ -19,6 +19,7 @@
 #include <float.h>
 #include <malloc.h>
 #include "complex.h"
+#include <iostream>
 
 double g_real=1;
 double g_imag=1;
@@ -7371,8 +7372,16 @@ int WINAPI ThRenderFractal(CFraktalSFT *p)
 void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = TRUE;
+	double counter = 0;
 	while(m_bRunning)
+	{
 		Sleep(4);
+		counter += 4;
+	}
+#ifdef KF_DEBUG_SLEEP
+	if (counter > 0)
+		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
+#endif
 	m_bStop = FALSE;
 	if (hWnd)
 		m_hWnd = hWnd;
@@ -8084,8 +8093,16 @@ void CFraktalSFT::Stop(BOOL bNoPostWhenDone)
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
+	double counter = 0;
 	while (m_bRunning)
+	{
 		Sleep(1);
+		counter += 1;
+	}
+#ifdef KF_DEBUG_SLEEP
+	if (counter > 0)
+		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
+#endif
 	m_bStop = FALSE;
 	m_bNoPostWhenDone=0;
 }
