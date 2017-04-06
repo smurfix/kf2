@@ -169,7 +169,7 @@ int CParallell::ExecuteNoOrder()
 	if(m_lpfnTotalDone)
 		m_lpfnTotalDone(m_pDone);
 
-	delete hDone;
-	delete nIndex;
+	delete[] hDone;
+	delete[] nIndex;
 	return 1;
 }
