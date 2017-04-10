@@ -10,29 +10,30 @@ class CStringVektor
 	int *m_pnStrings;
 	int *m_pnIndexValues;
 	int m_nStrings;
+	char nullstr[1];
 public:
 	CStringVektor();
 	~CStringVektor();
 	void Clean();
 	int AddInt(intptr_t nVal);
-	int AddString(char *szString,int nSize=-1);
-	int InsertString(int nIndex, char *szString,int nSize=-1);
+	int AddString(const char *szString,int nSize=-1);
+	int InsertString(int nIndex, const char *szString,int nSize=-1);
 	int DeleteString(int nIndex);
-	int SetString(int nIndex, char *szString, int nSize=-1);
-	int AppendString(int nIndex, char *szString,int nSize=-1);
+	int SetString(int nIndex, const char *szString, int nSize=-1);
+	int AppendString(int nIndex, const char *szString,int nSize=-1);
 	char *GetString(int nIndex,int *pnSize=NULL);
 	int GetCount();
 	int SetCount(int nCount);
 	char *operator [] (int nIndex);
 	CStringVektor &operator =(CStringVektor &s);
-	int MakeIndex(char *szString, int nLenght);
+	int MakeIndex(const char *szString, int nLenght);
 	int GetIndex(int nIndex);
 
 	int MoveString(int nFrom, int nTo);
 	int GetLength(int nIndex);
-	char *ToText(char *szFieldSep);
+	char *ToText(const char *szFieldSep);
 	void DeleteToText(char *szToText);
-	int FindString(char *szString, int nLen=-1);
+	int FindString(const char *szString, int nLen=-1);
 };
 class CStringTable
 {

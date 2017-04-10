@@ -281,6 +281,7 @@ void free_stringtable(void *p)
 }
 CStringVektor::CStringVektor() : m_nStrings(0), m_pszStrings(NULL), m_pnStrings(NULL), m_pnIndexValues(NULL)
 {
+	nullstr[0] = 0;
 }
 CStringVektor::~CStringVektor()
 {
@@ -299,7 +300,7 @@ void CStringVektor::Clean()
 	free_stringtable(m_pnIndexValues);
 	m_pnIndexValues=NULL;
 }
-int CStringVektor::MakeIndex(char *szString, int nLenght)
+int CStringVektor::MakeIndex(const char *szString, int nLenght)
 {
 	__int64 nIndex=0, i;
 	for(i=0;i<nLenght;i++)
@@ -313,7 +314,7 @@ int CStringVektor::AddInt(intptr_t nVal)
 	snprintf(szTmp, 80, "%" PRIdPTR, nVal);
 	return AddString(szTmp);
 }
-int CStringVektor::AddString(char *szString,int nSize)
+int CStringVektor::AddString(const char *szString,int nSize)
 {
 	if(!szString)
 		szString = "";
@@ -335,7 +336,7 @@ int CStringVektor::AddString(char *szString,int nSize)
 		m_pnIndexValues[i]=0;
 	return 1;
 }
-int CStringVektor::InsertString(int nIndex, char *szString,int nSize)
+int CStringVektor::InsertString(int nIndex, const char *szString,int nSize)
 {
 	if(nIndex>=m_nStrings)
 		return AddString(szString,nSize);
@@ -378,7 +379,7 @@ int CStringVektor::DeleteString(int nIndex)
 	}
 	return 1;
 }
-int CStringVektor::SetString(int nIndex, char *szString, int nSize)
+int CStringVektor::SetString(int nIndex, const char *szString, int nSize)
 {
 	if(nIndex<0 || nIndex>=m_nStrings || !szString)
 		return 0;
@@ -395,7 +396,7 @@ int CStringVektor::SetString(int nIndex, char *szString, int nSize)
 
 	return 1;
 }
-int CStringVektor::AppendString(int nIndex, char *szString, int nSize)
+int CStringVektor::AppendString(int nIndex, const char *szString, int nSize)
 {
 	if(nIndex<0 || nIndex>=m_nStrings || !szString)
 		return 0;
@@ -424,7 +425,7 @@ char *CStringVektor::GetString(int nIndex,int *pnSize)
 	}
 	if(pnSize)
 		*pnSize = m_pnStrings[nIndex];
-	return m_pszStrings[nIndex]?m_pszStrings[nIndex]:"";
+	return m_pszStrings[nIndex]?m_pszStrings[nIndex]:nullstr;
 }
 int CStringVektor::GetIndex(int nIndex)
 {
@@ -471,7 +472,7 @@ CStringVektor &CStringVektor::operator =(CStringVektor &s)
 	Clean();
 	int i, n;
 	for(i=0;i<s.GetCount();i++){
-		char *sz = s.GetString(i,&n);
+		const char *sz = s.GetString(i,&n);
 		AddString(sz,n);
 	}
 	return *this;
@@ -494,7 +495,7 @@ int CStringVektor::MoveString(int nFrom, int nTo)
 	m_pnIndexValues[nTo] = nTmp;
 	return 1;
 }
-char *CStringVektor::ToText(char *szFieldSep)
+char *CStringVektor::ToText(const char *szFieldSep)
 {
 	int nLen=0;
 	char *szRet=NULL;
@@ -525,7 +526,7 @@ void CStringVektor::DeleteToText(char *szToText)
 {
 	delete[] szToText;
 }
-int CStringVektor::FindString(char *szString,int nLen)
+int CStringVektor::FindString(const char *szString,int nLen)
 {
 	if(nLen==-1)
 		nLen = strlen(szString);
