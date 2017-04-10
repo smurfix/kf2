@@ -751,7 +751,7 @@ long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EndPaint(hWnd,&ps);
 		return 0;
 	}
-	return CallWindowProc((WNDPROC)GetClassLong(hWnd,GCL_WNDPROC),hWnd,uMsg,lParam,wParam);
+	return CallWindowProc((WNDPROC)GetClassLongPtr(hWnd,GCLP_WNDPROC),hWnd,uMsg,lParam,wParam);
 }
 RECT g_rShow;
 COLOR14 g_colCopy={0};
@@ -3139,14 +3139,14 @@ int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
 	if(uMsg==WM_INITDIALOG){
 		SetDlgItemText(hWnd,IDC_LABEL,"Zoom size(float value)");
-		SetWindowLong(hWnd,GWL_USERDATA,lParam);
+		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		return 1;
 	}
 	if(uMsg==WM_COMMAND){
 		if(wParam==IDCANCEL)
 			EndDialog(hWnd,0);
 		else if(wParam==IDOK){
-			char *szTmp = (char*)GetWindowLong(hWnd,GWL_USERDATA);
+			char *szTmp = (char*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 			GetDlgItemText(hWnd,IDC_EDIT1,szTmp,25);
 			EndDialog(hWnd,1);
 		}
@@ -3405,7 +3405,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,3);
-		SetWindowLong(hWnd,GWL_USERDATA,lParam);
+		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(10000,1));
 		SetDlgItemFloat(hWnd,IDC_EDIT1,g_nSkewStretch);
 		SendDlgItemMessage(hWnd,IDC_SPIN2,UDM_SETRANGE,0,MAKELONG(360,-360));
@@ -3444,7 +3444,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(g_DialogInit){
 			g_nSkewStretch = GetDlgItemFloat(hWnd,IDC_EDIT1);
 			g_nSkewRotate = GetDlgItemFloat(hWnd,IDC_EDIT2);
-			HWND hwParent = (HWND)GetWindowLong(hWnd,GWL_USERDATA);
+			HWND hwParent = (HWND)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 			if(hwParent){
 				InvalidateRect(hwParent,NULL,FALSE);
 				UpdateWindow(hwParent);
@@ -3655,7 +3655,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,0,0);
 	}
 	else if(uMsg==WM_LBUTTONDOWN && SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
-		HWND hwParent = (HWND)GetWindowLong(hWnd,GWL_USERDATA);
+		HWND hwParent = (HWND)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		g_Cross[g_nCrossPos].x = (short)LOWORD(lParam);
 		g_Cross[g_nCrossPos].y = (short)HIWORD(lParam);
 		ClientToScreen(hWnd,&g_Cross[g_nCrossPos]);

@@ -4,6 +4,7 @@
 #include <memory.h>
 #include "tooltip.h"
 #include "StringVector.h"
+#include <cinttypes>
 
 HWND hToolTip;
 HWND hSkugga;
@@ -150,7 +151,7 @@ long WINAPI ToolTipProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetCursorPos(&p);
 		char szTmp[256];
 		HWND hw = WindowFromPoint(p);
-		wsprintf(szTmp,"%d",(int)hw);
+		snprintf(szTmp,256,"%" PRIdPTR,(intptr_t)hw);
 		int n=-1;
 //		if(IsActiveApp(hWnd))
 			n = g_stWindows.FindStringHash(0,szTmp);
@@ -223,9 +224,9 @@ void CollectObjects(HWND hwNext,HWND hwParent,LPARAM lParam)
 	hwNext=GetWindow(hwNext,GW_CHILD);
 	while(hwNext){
 		g_stWindows.AddRow();
-		g_stWindows.AddInt(g_stWindows.GetCount()-1,(int)hwNext);
-		g_stWindows.AddInt(g_stWindows.GetCount()-1,(int)hwParent);
-		g_stWindows.AddInt(g_stWindows.GetCount()-1,(int)lParam);
+		g_stWindows.AddInt(g_stWindows.GetCount()-1,(intptr_t)hwNext);
+		g_stWindows.AddInt(g_stWindows.GetCount()-1,(intptr_t)hwParent);
+		g_stWindows.AddInt(g_stWindows.GetCount()-1,(intptr_t)lParam);
 		CollectObjects(hwNext,hwParent,lParam);
 		hwNext=GetWindow(hwNext,GW_HWNDNEXT);
 	}
@@ -280,7 +281,9 @@ void ExitToolTip(HWND hWnd)
 {
 	int i;
 	for(i=0;i<g_stWindows.GetCount();i++){
-		if(atoi(g_stWindows[i][1])==(int)hWnd)
+		intptr_t h = 0;
+		sscanf(g_stWindows[i][1], "%" SCNdPTR, &h);
+		if(h==(intptr_t)hWnd)
 			g_stWindows.DeleteRow(i--);
 	}
 }

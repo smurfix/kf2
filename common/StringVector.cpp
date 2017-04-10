@@ -307,10 +307,10 @@ int CStringVektor::MakeIndex(char *szString, int nLenght)
 	return (int)nIndex;
 }
 
-int CStringVektor::AddInt(int nVal)
+int CStringVektor::AddInt(intptr_t nVal)
 {
 	char szTmp[80];
-	itoa(nVal,szTmp,10);
+	snprintf(szTmp, 80, "%" PRIdPTR, nVal);
 	return AddString(szTmp);
 }
 int CStringVektor::AddString(char *szString,int nSize)
@@ -625,10 +625,10 @@ int CStringTable::AddString(int nRow, const std::string &szString, int nString)
 	free(s);
 }
 
-int CStringTable::AddInt(int nRow, int nVal)
+int CStringTable::AddInt(int nRow, intptr_t nVal)
 {
 	char szTmp[80];
-	itoa(nVal,szTmp,10);
+	snprintf(szTmp, 80, "%" PRIdPTR, nVal);
 	return AddString(nRow,szTmp);
 }
 int CStringTable::DeleteRow(int nRow)

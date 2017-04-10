@@ -63,7 +63,7 @@ int WINAPI lpfnEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
 	if(uMsg==WM_DESTROY)
 		GetWindowText(hWnd,g_szFolder,MAX_PATH);
-	return CallWindowProc((WNDPROC)GetClassLong(hWnd,GCL_WNDPROC),hWnd,uMsg,wParam,lParam);
+	return CallWindowProc((WNDPROC)GetClassLongPtr(hWnd,GCLP_WNDPROC),hWnd,uMsg,wParam,lParam);
 }
 int WINAPI lpfnCallBack(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -71,7 +71,7 @@ int WINAPI lpfnCallBack(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if(uMsg==BFFM_INITIALIZED){
 		hEdit=CreateWindowEx(WS_EX_CLIENTEDGE,"edit",NULL,WS_CHILD|WS_VISIBLE|ES_AUTOHSCROLL|WS_TABSTOP,50,10,257,20,hWnd,(HMENU)1221,GetModuleHandle(NULL),0);
-		SetWindowLong(hEdit,GWL_WNDPROC,(LPARAM)lpfnEdit);
+		SetWindowLongPtr(hEdit,GWLP_WNDPROC,(LONG_PTR)lpfnEdit);
 		SendMessage(hEdit,WM_SETFONT,(WPARAM)GetStockObject(ANSI_VAR_FONT),MAKELPARAM(TRUE, 0));
 
 		SendMessage(hWnd,BFFM_SETSELECTION ,1,(LPARAM) g_szFolder);
@@ -85,7 +85,7 @@ int WINAPI lpfnCallBack(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
-int Browse(HWND hWnd,char *szFolder, int nFolder)
+intptr_t Browse(HWND hWnd,char *szFolder, int nFolder)
 {
 	if(*szFolder)
 		strcpy(g_szFolder,szFolder);
@@ -99,7 +99,7 @@ int Browse(HWND hWnd,char *szFolder, int nFolder)
 	bi.lpfn=(BFFCALLBACK)lpfnCallBack;
 	bi.lParam=(LPARAM)szPathName;
 	g_nInitialized=0;
-	int nRet = (int)SHBrowseForFolderA(&bi);
+	intptr_t nRet = (intptr_t)SHBrowseForFolderA(&bi);
 	if(!nRet)
 		return 0;
 	memset(szFolder, 0,nFolder);
@@ -111,7 +111,7 @@ long WINAPI FilterProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	if(uMsg==WM_DESTROY){
 		GetWindowText(hWnd,g_szValue,sizeof(g_szValue));
 	}
-	return CallWindowProc((WNDPROC)GetClassLong(hWnd,GCL_WNDPROC),hWnd,uMsg,wParam,lParam);
+	return CallWindowProc((WNDPROC)GetClassLongPtr(hWnd,GCLP_WNDPROC),hWnd,uMsg,wParam,lParam);
 }
 int WINAPI lpfnCallBack2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
@@ -119,7 +119,7 @@ int WINAPI lpfnCallBack2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	if(uMsg==BFFM_INITIALIZED){
 		hEdit=CreateWindowEx(WS_EX_CLIENTEDGE,"edit",NULL,WS_CHILD|WS_VISIBLE|ES_AUTOHSCROLL|WS_TABSTOP,50,10,257,20,hWnd,(HMENU)1221,GetModuleHandle(NULL),0);
-		SetWindowLong(hEdit,GWL_WNDPROC,(LPARAM)lpfnEdit);
+		SetWindowLongPtr(hEdit,GWLP_WNDPROC,(LONG_PTR)lpfnEdit);
 		SendMessage(hEdit,WM_SETFONT,(WPARAM)GetStockObject(ANSI_VAR_FONT),MAKELPARAM(TRUE, 0));
 
 		SendMessage(hWnd,BFFM_SETSELECTION ,1,(LPARAM) g_szFolder);
@@ -129,7 +129,7 @@ int WINAPI lpfnCallBack2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		SendMessage(hEdit,WM_SETFONT,(WPARAM)GetStockObject(ANSI_VAR_FONT),MAKELPARAM(TRUE, 0));
 
 		hEdit=CreateWindowEx(WS_EX_CLIENTEDGE,"edit",g_szValue,WS_CHILD|WS_VISIBLE,35,255,60,20,hWnd,NULL,GetModuleHandle(NULL),0);
-		SetWindowLong(hEdit,GWL_WNDPROC,(LONG)FilterProc);
+		SetWindowLongPtr(hEdit,GWLP_WNDPROC,(LONG_PTR)FilterProc);
 		SendMessage(hEdit,WM_SETFONT,(WPARAM)GetStockObject(ANSI_VAR_FONT),MAKELPARAM(TRUE, 0));
 		
 		g_nInitialized=1;
@@ -141,7 +141,7 @@ int WINAPI lpfnCallBack2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
-int Browse(HWND hWnd,char *szFolder, int nFolder,char *szLabel,char *szValue,int nValue)
+intptr_t Browse(HWND hWnd,char *szFolder, int nFolder,char *szLabel,char *szValue,int nValue)
 {
 	if(*szFolder)
 		strcpy(g_szFolder,szFolder);
@@ -157,7 +157,7 @@ int Browse(HWND hWnd,char *szFolder, int nFolder,char *szLabel,char *szValue,int
 	g_nInitialized=0;
 	g_szLabel = szLabel;
 	strcpy(g_szValue,szValue);
-	int nRet = (int)SHBrowseForFolder(&bi);
+	intptr_t nRet = (intptr_t)SHBrowseForFolder(&bi);
 	if(!nRet)
 		return 0;
 	memset(szFolder, 0,nFolder);

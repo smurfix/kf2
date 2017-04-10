@@ -11,21 +11,21 @@
 int WINAPI SubclassListProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_COMMAND){
-		CListBox*pList = (CListBox*)GetWindowLong(hWnd,GWL_USERDATA);
+		CListBox*pList = (CListBox*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		if(pList)
 			pList->OnCommand((HWND)lParam);
 	}
 	else if(uMsg==WM_SIZE || uMsg==WM_VSCROLL){
-		CListBox*pList = (CListBox*)GetWindowLong(hWnd,GWL_USERDATA);
+		CListBox*pList = (CListBox*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		if(pList)
 			pList->ArrangeButtons(uMsg==WM_VSCROLL);
 	}
 	else if(uMsg==WM_DRAWITEM){
-		CListBox*pList = (CListBox*)GetWindowLong(hWnd,GWL_USERDATA);
+		CListBox*pList = (CListBox*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
 		if(pList)
 			pList->DrawButton((LPDRAWITEMSTRUCT)lParam);
 	}
-	return CallWindowProc((WNDPROC)GetClassLong(hWnd,GCL_WNDPROC),hWnd,uMsg,wParam,lParam);
+	return CallWindowProc((WNDPROC)GetClassLongPtr(hWnd,GCLP_WNDPROC),hWnd,uMsg,wParam,lParam);
 }
 char *CListBox::CopyString(char *szString)
 {
@@ -105,8 +105,8 @@ CListBox::CListBox(HWND hwParent,HWND hwList,char *szFontFace, int nSize,COLORRE
 {
 	m_hwParent = hwParent;
 	m_hwList = hwList;
-	SetWindowLong(m_hwList,GWL_USERDATA,(LONG)this);
-	SetWindowLong(m_hwList,GWL_WNDPROC,(LONG)SubclassListProc);
+	SetWindowLongPtr(m_hwList,GWLP_USERDATA,(LONG_PTR)this);
+	SetWindowLongPtr(m_hwList,GWLP_WNDPROC,(LONG_PTR)SubclassListProc);
 	m_hfBold = CreateFontA(nSize,0,0,0,FW_BOLD,0,0,0,0,0,0,0,0,szFontFace);
 	m_hfNormal = CreateFontA(nSize,0,0,0,FW_NORMAL,0,0,0,0,0,0,0,0,szFontFace);
 	m_nButtons = 0;
@@ -247,7 +247,7 @@ CListBoxEdit::CListBoxEdit(HWND hwAdd, HWND hwUpdate, HWND hwRemove, HWND hwEdit
 	m_hwList = hwList;
 	int i;
 	for(i=0;i<nEdits;i++)
-		m_stEdits.AddInt((int)phwEdits[i]);
+		m_stEdits.AddInt((intptr_t)phwEdits[i]);
 }
 int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -256,20 +256,26 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			int nLen = GetWindowTextLength(m_hwEdit);
 			int i;
 			for(i=0;i<m_stEdits.GetCount();i++)
-				nLen+=GetWindowTextLength((HWND)atoi(m_stEdits[i]))+1;
+			{
+				intptr_t h = 0;
+				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
+				nLen+=GetWindowTextLength((HWND)h)+1;
+			}
 			char *szTmp = new char[nLen+1];
 			GetWindowTextA(m_hwEdit,szTmp,nLen+1);
 			char szClass[256];
 			for(i=0;i<m_stEdits.GetCount();i++){
 				strcat(szTmp,"\t");
-				GetClassName((HWND)atoi(m_stEdits[i]),szClass,sizeof(szClass));
+				intptr_t h = 0;
+				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
+				GetClassName((HWND)h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					itoa(SendMessage((HWND)atoi(m_stEdits[i]),BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
+					itoa(SendMessage((HWND)h,BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
 				else
-					GetWindowTextA((HWND)atoi(m_stEdits[i]),szTmp+strlen(szTmp),nLen+1);
+					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
 			}
 			SendMessageA(m_hwList,LB_ADDSTRING,0,(LPARAM)szTmp);
-			delete szTmp;
+			delete[] szTmp;
 			SetFocus(m_hwEdit);
 			SendMessageA(m_hwEdit,EM_SETSEL,0,-1);
 		}
@@ -281,20 +287,26 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			int nLen = GetWindowTextLength(m_hwEdit);
 			int i;
 			for(i=0;i<m_stEdits.GetCount();i++)
-				nLen+=GetWindowTextLength((HWND)atoi(m_stEdits[i]))+1;
+			{
+				intptr_t h = 0;
+				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
+				nLen+=GetWindowTextLength((HWND)h)+1;
+			}
 			char *szTmp = new char[nLen+1];
 			GetWindowTextA(m_hwEdit,szTmp,nLen+1);
 			char szClass[256];
 			for(i=0;i<m_stEdits.GetCount();i++){
 				strcat(szTmp,"\t");
-				GetClassName((HWND)atoi(m_stEdits[i]),szClass,sizeof(szClass));
+				intptr_t h = 0;
+				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
+				GetClassName((HWND)h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					itoa(SendMessage((HWND)atoi(m_stEdits[i]),BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
+					itoa(SendMessage((HWND)h,BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
 				else
-					GetWindowTextA((HWND)atoi(m_stEdits[i]),szTmp+strlen(szTmp),nLen+1);
+					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
 			}
 			SendMessageA(m_hwList,LB_INSERTSTRING,nSel,(LPARAM)szTmp);
-			delete szTmp;
+			delete[] szTmp;
 			SetFocus(m_hwEdit);
 			SendMessageA(m_hwEdit,EM_SETSEL,0,-1);
 		}
@@ -319,11 +331,13 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 				GetClassName(m_hwEdit,szClass,sizeof(szClass));
 				SetWindowTextA(m_hwEdit,stT[0][0]);
 				for(i=0;i<m_stEdits.GetCount();i++){
-					GetClassName((HWND)atoi(m_stEdits[i]),szClass,sizeof(szClass));
+					intptr_t h = 0;
+					sscanf(m_stEdits[i], "%" SCNdPTR, &h);
+					GetClassName((HWND)h,szClass,sizeof(szClass));
 					if(!stricmp(szClass,"button"))
-						SendMessage((HWND)atoi(m_stEdits[i]),BM_SETCHECK,atoi(stT[0][i+1]),0);
+						SendMessage((HWND)h,BM_SETCHECK,atoi(stT[0][i+1]),0);
 					else
-						SetWindowTextA((HWND)atoi(m_stEdits[i]),stT[0][i+1]);
+						SetWindowTextA((HWND)h,stT[0][i+1]);
 				}
 			}
 			else{
@@ -335,17 +349,17 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 						char *szL = new char[nL+1];
 						SendMessage(m_hwEdit,CB_GETLBTEXT,li,(LPARAM)szL);
 						if(!strcmp(szTmp,szL)){
-							delete szL;
+							delete[] szL;
 							break;
 						}
-						delete szL;
+						delete[] szL;
 					}
 					SendMessage(m_hwEdit,CB_SETCURSEL,li,0);
 				}
 				else
 					SetWindowTextA(m_hwEdit,szTmp);
 			}
-			delete szTmp;
+			delete[] szTmp;
 		}
 	}
 	return 0;
