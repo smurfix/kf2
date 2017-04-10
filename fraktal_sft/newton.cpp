@@ -448,12 +448,14 @@ int WINAPI ThNewton(HWND hWnd)
 					zooms = 15*zooms/16;
 				radius = flyttyp(2)^zooms;
 				sradius = radius.ToText();
-				szSize = sradius.c_str();
+				szSize = strdup(sradius.c_str());
 			}
 			delete[] g_szZoom;
 			g_szZoom = new char[strlen(szSize)+1];
 			strcpy(g_szZoom,szSize);
 			free(szSize0);
+			if(g_nMinibrotPos)
+			  free(szSize);
 			if(zooms>startZooms)
 				bOK=TRUE;
 		}
