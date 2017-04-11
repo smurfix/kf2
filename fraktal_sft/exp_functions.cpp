@@ -678,6 +678,9 @@ void CFraktalSFT::CalculateReferenceEXP()
 		}
 	}
 	else if (m_nPower == 2){
+
+#ifdef KF_THREADED_REFERENCE
+
 		MC mc[3];
 		HANDLE hDone[3];
 		HANDLE hWait[3];
@@ -773,6 +776,31 @@ void CFraktalSFT::CalculateReferenceEXP()
 			CloseHandle(hWait2[i]);
 			CloseHandle(hExit2[i]);
 		}
+
+#else
+
+		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			xrn = xr.Square() - xi.Square() + m_rref;
+			xin = (xr*xi).Double() + m_iref;
+			xr = xrn;
+			xi = xin;
+			m_dxr[i] = xr;
+			m_dxi[i] = xi;
+			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
+			m_db_z[i] = abs_val*0.0000001;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+			m_nRDone++;
+		}
+
+#endif
+
 	}
 	else if (m_nPower == 3){
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
