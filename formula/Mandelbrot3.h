@@ -1,11 +1,11 @@
-#ifndef MANDELBROT2_H
-#define MANDELBROT2_H
+#ifndef MANDELBROT3_H
+#define MANDELBROT3_H
 
 #include "formula0.h"
 
 #define NAME "Mandelbrot"
 #define TYPE 0
-#define POWER 2
+#define POWER 3
 
 #include "formula.h"
 

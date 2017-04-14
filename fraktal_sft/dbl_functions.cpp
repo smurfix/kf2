@@ -824,52 +824,14 @@ void CFraktalSFT::CalculateReferenceLDBL()
 #endif
 
 	}
-	else if (m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr*(xr.Square() - 3 * xi.Square()) + m_rref;
-			xin = (3 * xr.Square() - xi.Square())*xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else if (m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			sr = xr.Square();
-			si = xi.Square();
-			xrxid = xr*xi;
-			xrn = sr.Square() - 6 * sr*si + si.Square() + m_rref;
-			xin = 4 * xrxid*(sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else{
+	else
+	{
+#define R2(t,p) reference_long_double_##t##_##p(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
+#define R(t,p) R2(t,p)
+		R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10); // || R(0,p);
+#undef R2
+#undef R
+#if 0
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
@@ -894,6 +856,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			}
 			m_nRDone++;
 		}
+#endif
 	}
 }
 void CFraktalSFT::CalculateReferenceLDBL1()

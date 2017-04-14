@@ -112,4 +112,11 @@ public:
 		return r;
 	}
 };
+
+template <class tt>
+inline complex<tt> operator*(int a, const complex<tt> &b)
+{
+	return complex<tt>(a * b.m_r, a * b.m_i);
+}
+
 #endif //__COMPLEX_H__

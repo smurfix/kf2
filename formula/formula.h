@@ -1,5 +1,5 @@
-#include "../fraktal_sft/CFixedFloat.h"
-#include "../fraktal_sft/floatexp.h"
+class CFixedFloat;
+class floatexp;
 #ifdef FORMULA
 #undef FORMULA
 #endif

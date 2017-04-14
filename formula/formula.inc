@@ -1,3 +1,7 @@
+#include "../fraktal_sft/CFixedFloat.h"
+#include "../fraktal_sft/floatexp.h"
+#include "../fraktal_sft/complex.h"
+
 static long double ConvertFromFixedFloat(const CFixedFloat &f)
 {
 #ifdef KF_FLOAT_BACKEND_MPFR
@@ -23,7 +27,13 @@ bool FORMULA(reference_double,TYPE,POWER)(int m_nFractalType, int m_nPower, doub
     for (i = 0; i<nMaxIter && !m_bStop; i++)
     {
 
-      {REFERENCE}
+#ifdef CREFERENCE
+      complex<CFixedFloat> X(Xr, Xi), C(Cr, Ci), Xn;
+      {CREFERENCE(double)}
+      Xrn = Xn.m_r; Xin = Xn.m_i;
+#else
+      {REFERENCE(double)}
+#endif
 
       Xr = Xrn;
       Xi = Xin;
@@ -59,7 +69,13 @@ bool FORMULA(reference_long_double,TYPE,POWER)(int m_nFractalType, int m_nPower,
 		for (i = 0; i<nMaxIter && !m_bStop; i++)
     {
 
-      {REFERENCE}
+#ifdef CREFERENCE
+      complex<CFixedFloat> X(Xr, Xi), C(Cr, Ci), Xn;
+      {CREFERENCE(long double)}
+      Xrn = Xn.m_r; Xin = Xn.m_i;
+#else
+      {REFERENCE(long double)}
+#endif
 
       Xr = Xrn;
       Xi = Xin;
@@ -95,7 +111,13 @@ bool FORMULA(reference_floatexp,TYPE,POWER)(int m_nFractalType, int m_nPower, fl
 		for (i = 0; i<nMaxIter && !m_bStop; i++)
     {
 
-      {REFERENCE}
+#ifdef CREFERENCE
+      complex<CFixedFloat> X(Xr, Xi), C(Cr, Ci), Xn;
+      {CREFERENCE(floatexp)}
+      Xrn = Xn.m_r; Xin = Xn.m_i;
+#else
+      {REFERENCE(floatexp)}
+#endif
 
       Xr = Xrn;
       Xi = Xin;
@@ -140,7 +162,13 @@ bool FORMULA(perturbation_double,TYPE,POWER)(int m_nFractalType, int m_nPower, c
       }
       double xrn, xin;
 
-      {PERTURBATION}
+#ifdef CPERTURBATION
+      complex<double> X(Xr, Xi), x(xr, xi), c(cr, ci), xn;
+      {CPERTURBATION(double)}
+      xrn = xn.m_r; xin = xn.m_i;
+#else
+      {PERTURBATION(double)}
+#endif
 
       xr = xrn;
       xi = xin;
@@ -170,7 +198,13 @@ bool FORMULA(perturbation_long_double,TYPE,POWER)(int m_nFractalType, int m_nPow
       }
       long double xrn, xin;
 
-      {PERTURBATION}
+#ifdef CPERTURBATION
+      complex<long double> X(Xr, Xi), x(xr, xi), c(cr, ci), xn;
+      {CPERTURBATION(long double)}
+      xrn = xn.m_r; xin = xn.m_i;
+#else
+      {PERTURBATION(long double)}
+#endif
 
       xr = xrn;
       xi = xin;
@@ -199,7 +233,13 @@ bool FORMULA(perturbation_floatexp,TYPE,POWER)(int m_nFractalType, int m_nPower,
       }
       floatexp xrn, xin;
 
-      {PERTURBATION}
+#ifdef CPERTURBATION
+      complex<floatexp> X(Xr, Xi), x(xr, xi), c(cr, ci), xn;
+      {CPERTURBATION(floatexp)}
+      xrn = xn.m_r; xin = xn.m_i;
+#else
+      {PERTURBATION(floatexp)}
+#endif
 
       xr = xrn;
       xi = xin;

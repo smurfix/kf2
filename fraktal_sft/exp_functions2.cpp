@@ -3459,186 +3459,15 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 					}
 				}
 			}
-		else if (m_nPower == 2){
+		else
+		{
 #define P2(t,p) perturbation_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, D0r, D0i)
 #define P(t,p) P2(t,p)
-			P(0,2);
+			P(0,2) || P(0,4) || P(0,5) || P(0,6) || P(0,7) || P(0,8) || P(0,9) || P(0,10);// || P(0,p);
 #undef P2
 #undef P
     }
-		else if (m_nPower == 3){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					Dnr = _3*m_dxr[antal] * m_dxr[antal] * Dr - _6*m_dxr[antal] * m_dxi[antal] * Di - _3*m_dxi[antal] * m_dxi[antal] * Dr + _3*m_dxr[antal] * Dr*Dr - _3*m_dxr[antal] * Di*Di - _3*m_dxi[antal] * 2 * Dr*Di + Dr*Dr*Dr - _3*Dr*Di*Di + D0r;
-					Dni = _3*m_dxr[antal] * m_dxr[antal] * Di + _6*m_dxr[antal] * m_dxi[antal] * Dr - _3*m_dxi[antal] * m_dxi[antal] * Di + _3*m_dxr[antal] * 2 * Dr*Di + _3*m_dxi[antal] * Dr*Dr - _3*m_dxi[antal] * Di*Di + _3*Dr*Dr*Di - Di*Di*Di + D0i;
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
-		else if (m_nPower == 4){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _4(4, 0), _6(6, 0);
-					complex<floatexp> Dn = _4*(X ^ 3)*D + _6*(X ^ 2)*(D ^ 2) + _4*X*(D ^ 3) + (D ^ 4) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 5){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _5(5, 0), _10(10, 0);
-					complex<floatexp> Dn = _5*(X ^ 4)*D + _10*(X ^ 3)*(D ^ 2) + _10*(X ^ 2)*(D ^ 3) + _5*X*(D ^ 4) + (D ^ 5) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 6){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _6(6, 0), _15(15, 0), _20(20, 0);
-					complex<floatexp> Dn = _6*(X ^ 5)*D + _15*(X ^ 4)*(D ^ 2) + _20*(X ^ 3)*(D ^ 3) + _15*(X ^ 2)*(D ^ 4) + _6*X*(D ^ 5) + (D ^ 6) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 7){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _7(7, 0), _21(21, 0), _35(35, 0);
-					complex<floatexp> Dn = _7*(X ^ 6)*D + _21*(X ^ 5)*(D ^ 2) + _35*(X ^ 4)*(D ^ 3) + _35*(X ^ 3)*(D ^ 4) + _21*(X ^ 2)*(D ^ 5) + _7*X*(D ^ 6) + (D ^ 7) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 8){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _8(8, 0), _28(28, 0), _56(56, 0), _70(70, 0);
-					complex<floatexp> Dn = _8*(X ^ 7)*D + _28*(X ^ 6)*(D ^ 2) + _56*(X ^ 5)*(D ^ 3) + _70*(X ^ 4)*(D ^ 4) + _56*(X ^ 3)*(D ^ 5) + _28*(X ^ 2)*(D ^ 6) + _8*X*(D ^ 7) + (D ^ 8) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 9){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _9(9, 0), _36(36, 0), _84(84, 0), _126(126, 0);
-					complex<floatexp> Dn = _9*(X ^ 8)*D + _36*(X ^ 7)*(D ^ 2) + _84*(X ^ 6)*(D ^ 3) + _126*(X ^ 5)*(D ^ 4) + _126*(X ^ 4)*(D ^ 5) + _84*(X ^ 3)*(D ^ 6) + _36*(X ^ 2)*(D ^ 7) + _9*X*(D ^ 8) + (D ^ 9) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
-		else if (m_nPower == 10){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
-					complex<floatexp> D(Dr, Di);
-					complex<floatexp> D0(D0r, D0i);
-					complex<floatexp> _10(10, 0), _45(45, 0), _120(120, 0), _210(210, 0), _252(252, 0);
-					complex<floatexp> Dn = _10*(X ^ 9)*D + _45*(X ^ 8)*(D ^ 2) + _120*(X ^ 7)*(D ^ 3) + _210*(X ^ 6)*(D ^ 4) + _252*(X ^ 5)*(D ^ 5) + _210*(X ^ 4)*(D ^ 6) + _120*(X ^ 3)*(D ^ 7) + _45*(X ^ 2)*(D ^ 8) + _10*X*(D ^ 9) + (D ^ 10) + D0;
-					Di = Dn.m_i;
-					Dr = Dn.m_r;
-				}
-			}
-		}
+#if 0
 		else{
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
@@ -3669,6 +3498,7 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 				}
 			}
 		}
+#endif
 
 		InterlockedIncrement((LPLONG)&m_nDone);
 		if (antal == m_nGlitchIter)
