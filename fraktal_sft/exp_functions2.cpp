@@ -2,6 +2,8 @@
 #include <float.h>
 #include "complex.h"
 
+#include "../formula/formulas.h"
+
 #define GUESS
 
 BOOL ISFLOATOK(double a);
@@ -3458,24 +3460,12 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 				}
 			}
 		else if (m_nPower == 2){
-			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
-					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
-					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
-						bGlitch = TRUE;
-					}
-					Dnr = (m_dxr[antal] * Dr - m_dxi[antal] * Di)*_2 + Dr*Dr - Di*Di + D0r;
-					Dni = (m_dxr[antal] * Di + m_dxi[antal] * Dr + Dr*Di)*_2 + D0i;
-					Di = Dni;
-					Dr = Dnr;
-				}
-			}
-		}
+#define P2(t,p) perturbation_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, D0r, D0i)
+#define P(t,p) P2(t,p)
+			P(0,2);
+#undef P2
+#undef P
+    }
 		else if (m_nPower == 3){
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){

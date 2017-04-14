@@ -2,6 +2,8 @@
 #include <float.h>
 #include "complex.h"
 
+#include "../formula/formulas.h"
+
 extern double g_real;
 extern double g_imag;
 DWORD WINAPI ThMC2(MC2 *pMC);
@@ -779,25 +781,11 @@ void CFraktalSFT::CalculateReferenceEXP()
 
 #else
 
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr.Square() - xi.Square() + m_rref;
-			xin = (xr*xi).Double() + m_iref;
-			xr = xrn;
-			xi = xin;
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
+#define R2(t,p) reference_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag)
+#define R(t,p) R2(t,p)
+		R(0,2);
+#undef R2
+#undef R
 
 #endif
 

@@ -383,4 +383,15 @@ public:
 	}
 #endif
 };
+
+inline floatexp operator*(double a, floatexp b)
+{
+	return floatexp(a) * b;
+}
+
+inline floatexp operator*(int a, floatexp b)
+{
+	return double(a) * b;
+}
+
 #endif //__FLOATEXP_H__

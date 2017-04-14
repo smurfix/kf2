@@ -54,6 +54,7 @@ struct MC2
 
 struct COLOR14 { unsigned char r, g, b; };
 #define OLD_GLITCH 199
+#ifdef KF_LONG_DOUBLE_DLL
 struct ldbl {
 	unsigned char val[
 #ifdef _WIN64
@@ -63,6 +64,9 @@ struct ldbl {
 #endif
 	];
 };
+#else
+typedef long double ldbl;
+#endif
 
 
 struct ldblexp {

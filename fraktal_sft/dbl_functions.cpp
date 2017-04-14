@@ -2,6 +2,8 @@
 #include <float.h>
 #include "complex.h"
 
+#include "../formula/formulas.h"
+
 extern double g_real;
 extern double g_imag;
 extern double g_FactorAR;
@@ -813,25 +815,11 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 #else
 
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr.Square() - xi.Square() + m_rref;
-			xin = (xr*xi).Double() + m_iref;
-			xr = xrn;
-			xi = xin;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
+#define R2(t,p) reference_long_double_##t##_##p(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
+#define R(t,p) R2(t,p)
+		R(0,2);
+#undef R2
+#undef R
 
 #endif
 

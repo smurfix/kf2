@@ -21,6 +21,8 @@
 #include "complex.h"
 #include <iostream>
 
+#include "../formula/formulas.h"
+
 double g_real=1;
 double g_imag=1;
 double g_SeedR=0;
@@ -2048,11 +2050,12 @@ do { \
 	else if(m_nFractalType)
 		SpecialFractal2(nMaxIter,xrn,xin,xr,xi,sr,si);
 
-	FRACTAL(m_nFractalType, 2) {
-			//xin = (xr*xi).Double() + m_iref;
-			xin = (xr + xi).Square() - sr - si + m_iref;
-			xrn = sr - si + m_rref;
-			NEXT(0.0000001);
+	else if (m_nFractalType == 0 && m_nPower == 2) {
+#define R2(t,p) reference_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
+#define R(t,p) R2(t,p)
+		R(0,2);
+#undef R2
+#undef R
 	}
 
 	FRACTAL(m_nFractalType, 3) {
@@ -5635,24 +5638,11 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 				}
 			}
 			else if (m_nPower == 2){
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
-							bGlitch = TRUE;
-						}
-						Dnr = (2 * m_db_dxr[antal] + Dr)*Dr - (2 * m_db_dxi[antal] + Di)*Di + dbD0r;
-						Dni = 2 * ((m_db_dxr[antal] + Dr)*Di + m_db_dxi[antal] * Dr) + dbD0i;
-
-						Di = Dni;
-						Dr = Dnr;
-					}
-				}
+#define P2(t,p) perturbation_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, dbD0r, dbD0i)
+#define P(t,p) P2(t,p)
+				P(0,2);
+#undef P2
+#undef P
 			}
 			else if (m_nPower == 3){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -6135,8 +6125,15 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 		if(m_nFractalType)
 			m_nPixels[x][y] = LDBL_MandelCalc(m_nFractalType,m_nPower,antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch,g_FactorAR,g_FactorAI);
-		else if (m_nPower == 2)
-			m_nPixels[x][y] = Perturbation4(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
+		else if (m_nPower == 2) {
+			int antal2 = antal;
+#define R2(t,p) perturbation_long_double_##t##_##p(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, lD0r, lD0i)
+#define R(t,p) R2(t,p)
+			R(0,2);
+#undef R2
+#undef R
+			m_nPixels[x][y] = antal2;
+		}
 		else if (m_nPower == 3)
 			m_nPixels[x][y] = Perturbation_3rd(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch);
 		else if (m_nPower == 4)
