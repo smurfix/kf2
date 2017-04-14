@@ -1525,1135 +1525,369 @@ void CFraktalSFT::SpecialFractal(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xi
 	int i;
 	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	if (m_nFractalType == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+#define FRACTAL(TYPE) \
+	else if (m_nFractalType == TYPE) for (i = 0; i<nMaxIter && !m_bStop; i++)
+
+#define NEXT(THRESHOLD) \
+do { \
+			xr = xrn; \
+			xi = xin; \
+			sr = xr.Square(); \
+			si = xi.Square(); \
+			m_nRDone++; \
+			m_db_dxr[i] = xr.ToDouble(); \
+			m_db_dxi[i] = xi.ToDouble(); \
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]); \
+			m_db_z[i] = abs_val*THRESHOLD; \
+			if (abs_val >= terminate){ \
+				if (nMaxIter == m_nMaxIter){ \
+					nMaxIter = i + 3; \
+					if (nMaxIter>m_nMaxIter) \
+						nMaxIter = m_nMaxIter; \
+					m_nGlitchIter = nMaxIter; \
+				} \
+			} \
+} while(0)
+
+	if(0);
+
+	FRACTAL(5) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 6){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(6) {
 			xrn = sr - si + m_rref;
 			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 7){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(7) {
 			xrn = sr - si + m_rref;
 			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 8){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(8) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = m_iref - xr.Abs()*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 9){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(9) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = m_iref - xr*xi.Abs()*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 10){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(10) {
 			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
 			xin = -(((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 11){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(11) {
 			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
 			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 12){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(12) {
 			xrn = (sr - si * 3) * xr + m_rref;
 			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 13){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(13) {
 			xrn = (sr - si * 3) * xr + m_rref;
 			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 14){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(14) {
 			xrn = (sr - si * 3) * xr.Abs() + m_rref;
 			xin = m_iref - (sr * 3 - si).Abs() * xi;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 15){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(15) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = 4 * xr * xi.Abs() * (sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 16){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(16) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = 4 * xr.Abs() * xi * (sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 17){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(17) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = -4 * xr.Abs() * xi * (sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 18){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(18) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
 			xin = 4 * xr * xi.Abs() * (sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 19){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(19) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
 			xin = 4 * xr.Abs() * xi * (sr - si) + m_iref;		//func3
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 20){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(20) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
 			xin = -4 * xr.Abs() * xi * (sr - si) + m_iref;		//func4
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 21){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(21) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
 			xin = (4 * xr * xi * (sr - si)).Abs() + m_iref;		//func6
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 22){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(22) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
 			xin = -4 * xr * xi * (sr - si) + m_iref;		//func8
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 23){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(23) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
 			xin = -4 * xr * xi * (sr - si).Abs() + m_iref;		//func9
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 24){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(24) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;		//func2
 			xin = 4 * xr * xi * (sr - si).Abs() + m_iref;		//func10
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 25){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(25) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
 			xin = -4 * xr * xi * (sr - si).Abs() + m_iref;		//func9
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 26){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(26) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;	//func5
 			xin = 4 * xr * xi * (sr - si).Abs() + m_iref;		//func10
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
 
-	else if (m_nFractalType == 27){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+	FRACTAL(27) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
 			xin = xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func15
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 28){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(28) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
 			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func16
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 29){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(29) {
 			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() +m_rref;	//func17
 			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;		//func16
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 30){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(30) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
 			xin = -(xi * (5 * sr*sr - 10 * sr*si + si*si)).Abs() +m_iref;	//func18
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 31){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(31) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
 			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si).Abs() +m_iref;		//func19
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 32){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(32) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;	//func14
 			xin = xi * (5 * sr*sr - 10 * sr*si + si*si).Abs() +m_iref;	//func20
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 33){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(33) {
 			xrn = si*si.Abs()-4*xi*(xr*xi).Abs()*xr-sr*si.Abs()-si*sr.Abs()+sr*sr.Abs() + m_rref;
 			xin = - 2*xr*xi*si.Abs()-2*si*(xr*xi).Abs()+2*sr*(xr*xi).Abs()+2*xr*xi*sr.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 34){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(34) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = 4 * xr * (xi*sr - xi*si).Abs() + m_iref;	//func21
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 35){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(35) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = -4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 36){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(36) {
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
 			xin = 4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//-func22
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 37){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(37) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
 			xin = 4 * xr * (xi*sr - xi*si).Abs() + m_iref; //func21
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 38){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(38) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
 			xin = -4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 39){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(39) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
 			xin = 4 * xi * (xr*sr - xr*si).Abs() + m_iref;	//func22
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nFractalType == 40){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(40) {
 			xrn = 3*(sr*xi).Abs()*si*xi-(si*xi).Abs()*si*xi+9*(xr*si).Abs()*xr*si-3*(sr*xr).Abs()*xr*si+3*(si*xi).Abs()*sr*xi-9*(sr*xi).Abs()*sr*xi-3*(xr*si).Abs()*sr*xr+(sr*xr).Abs()*sr*xr +m_rref;
 			xin = 3*si*xi*(xr*si).Abs()-(sr*xr).Abs()*si*xi-9*(sr*xi).Abs()*si*xr-9*(xr*si).Abs()*xi*sr+3*(sr*xr).Abs()*xi*sr+3*(si*xi).Abs()*xr*si-(si*xi).Abs()*sr*xr+3*(xi*sr).Abs()*sr*xr + m_iref;	//func22
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 41){
-		//xr = -0.5;
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(41) {
 			xrn = (sr - si) - xr.Abs() +m_rref;
 			xin = (xr * xi).Abs() * 2.0 - xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
+
+#undef FRACTAL
+#undef NEXT
 }
+
 void CFraktalSFT::SpecialFractal2(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si)
 {
 	int i;
 	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	if (m_nFractalType == 42){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	complex<CFixedFloat> _2(2,0);
+	complex<CFixedFloat> z(xr,xi);
+	complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
+	complex<CFixedFloat> c(m_rref,m_iref);
+
+#define FRACTAL(TYPE) \
+	else if (m_nFractalType == TYPE) for (i = 0; i<nMaxIter && !m_bStop; i++)
+
+#define NEXT(THRESHOLD) \
+do { \
+			m_nRDone++; \
+			m_db_dxr[i] = z.m_r.ToDouble(); \
+			m_db_dxi[i] = z.m_i.ToDouble(); \
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]); \
+			m_db_z[i] = abs_val*THRESHOLD; \
+			if (abs_val >= terminate){ \
+				if (nMaxIter == m_nMaxIter){ \
+					nMaxIter = i + 3; \
+					if (nMaxIter>m_nMaxIter) \
+						nMaxIter = m_nMaxIter; \
+					m_nGlitchIter = nMaxIter; \
+				} \
+			} \
+} while(0)
+
+	if (0);
+
+	FRACTAL(42) {
 			z = a*(z^2)+(z^3)+c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 43){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(43) {
 			z = a*(z^2) - (z^3)+c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 44){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> _2(2,0);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(44) {
 			z = _2*(z^2) - (z^3)+c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 45){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(45) {
 			z = a*(z^2) + (z^4) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 46){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(46) {
 			z = a*(z^2) - (z^4) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 47){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(47) {
 			z = a*(z^2) + (z^5) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 48){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(48) {
 			z = a*(z^2) - (z^5) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 49){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(49) {
 			z = a*(z^2) + (z^6) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 50){
-		complex<CFixedFloat> z(xr,xi);
-		complex<CFixedFloat> c(m_rref,m_iref);
-		complex<CFixedFloat> a(g_FactorAR,g_FactorAI);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(50) {
 			z = a*(z^2) - (z^6) + c;
-			m_nRDone++;
-
-			m_db_dxr[i] = z.m_r.ToDouble();
-			m_db_dxi[i] = z.m_i.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 51){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+#undef NEXT
+#define NEXT(THRESHOLD) \
+do { \
+			xr = xrn; \
+			xi = xin; \
+			sr = xr.Square(); \
+			si = xi.Square(); \
+			m_nRDone++; \
+			m_db_dxr[i] = xr.ToDouble(); \
+			m_db_dxi[i] = xi.ToDouble(); \
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]); \
+			m_db_z[i] = abs_val*THRESHOLD; \
+			if (abs_val >= terminate){ \
+				if (nMaxIter == m_nMaxIter){ \
+					nMaxIter = i + 3; \
+					if (nMaxIter>m_nMaxIter) \
+						nMaxIter = m_nMaxIter; \
+					m_nGlitchIter = nMaxIter; \
+				} \
+			} \
+} while(0)
+
+	FRACTAL(51) {
 			xrn = (sr-si)*(sr-si).Abs() - 2*xr*xi*(2*xr*xi).Abs() + m_rref;
 			xin = (sr-si)*(2*xr*xi).Abs() + 2*xr*xi*(sr-si).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
+
+#undef FRACTAL
+#undef NEXT
 }
+
 void CFraktalSFT::CalculateReference()
 {
 	int i;
@@ -2685,550 +1919,172 @@ void CFraktalSFT::CalculateReference()
 
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 1 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xrxid = 2 * xr*xi;
-			xin = xrxid.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
 
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+#define FRACTAL(TYPE,POWER) \
+	else if (m_nFractalType == TYPE && m_nPower == POWER) for (i = 0; i<nMaxIter && !m_bStop; i++)
+
+#define NEXT(THRESHOLD) \
+do { \
+			xr = xrn; \
+			xi = xin; \
+			sr = xr.Square(); \
+			si = xi.Square(); \
+			m_nRDone++; \
+			m_db_dxr[i] = xr.ToDouble(); \
+			m_db_dxi[i] = xi.ToDouble(); \
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]); \
+			m_db_z[i] = abs_val*THRESHOLD; \
+			if (abs_val >= terminate){ \
+				if (nMaxIter == m_nMaxIter){ \
+					nMaxIter = i + 3; \
+					if (nMaxIter>m_nMaxIter) \
+						nMaxIter = m_nMaxIter; \
+					m_nGlitchIter = nMaxIter; \
+				} \
+			} \
+} while(0)
+
+  if (0);
+
+	FRACTAL(1, 2) {
+			xrn = sr - si + m_rref;
+			xin = (2 * xr*xi).Abs() + m_iref;
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 1 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(1, 3) {
 			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
 			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 1 && m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(1, 4) {
 			xrn = sr*sr + si*si - 6*sr*si + m_rref;
 			xin = 4 * (xr*xi).Abs()*(sr-si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 1 && m_nPower == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(1, 5) {
 			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) + m_rref;
 			xin = xi.Abs() * (5 * sr*sr - 10 * sr*si + si*si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 2 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(2, 2) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = -2.0 * (xr * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 2 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(2, 3) {
 			xrn = ((sr - (si * 3.0)) * xr).Abs() + m_rref;
 			xin = (((sr * 3.0) - si) * xi).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 2 && m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(2, 4) {
 			xrn = (sr*sr + si*si - 6*sr*si).Abs() + m_rref;
 			xin = (4*xr*xi*(sr-si)).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 2 && m_nPower == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(2, 5) {
 			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() + m_rref;
 			xin = (xi * (5 * sr*sr - 10 * sr*si + si*si)).Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 3 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(3, 2) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = xr * xi * 2.0 + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 3 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(3, 3) {
 			xrn = ((sr - (si * 3)) * xr).Abs() + m_rref;
 			xin = ((sr * 3) - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 3 && m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(3, 4) {
 			xrn = (sr * sr + si * si - 6 * sr * si).Abs() +m_rref;
 			xin = 4 * xr * xi * (sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 3 && m_nPower == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(3, 5) {
 			xrn = (xr * (sr*sr - 10 * sr*si + 5 * si*si)).Abs() +m_rref;
 			xin = xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
-	else if (m_nFractalType == 4 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(4, 2) {
 			xrn = sr - si + m_rref;
 			xin = m_iref - xr*xi*2.0;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 4 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(4, 3) {
 			xrn = -(sr - si * 3) * xr + m_rref;
 			xin = (sr * 3 - si) * xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nFractalType == 4 && m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(4, 4) {
 			xin = -4 * xr * xi * (sr - si) + m_iref;
 			xrn = sr * sr + si * si - 6 * sr * si +m_rref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.00001);
 	}
-	else if (m_nFractalType == 4 && m_nPower == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
+
+	FRACTAL(4, 5) {
 			xrn = xr * (sr*sr - 10 * sr*si + 5 * si*si) +m_rref;
 			xin = -xi * (5 * sr*sr - 10 * sr*si + si*si) +m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0001);
 	}
+
 	else if(m_nFractalType && m_nFractalType<42)
 		SpecialFractal(nMaxIter,xrn,xin,xr,xi,sr,si);
+
 	else if(m_nFractalType)
 		SpecialFractal2(nMaxIter,xrn,xin,xr,xi,sr,si);
-	else if (m_nPower == 2){
-		int antal=0;
-		if(0 && m_bAddReference && m_nMaxApproximation){
-			if (!m_pDX || !m_pDY){
-				CFixedFloat c = m_rstart;
-				CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-				m_pDX = new double[m_nX];
-				int x, y;
-				for (x = 0; x<m_nX; x++, c += step)
-					m_pDX[x] = (c - m_rref).ToDouble(m_nScalingOffset);
-				c = m_istart;
-				step = (m_istop - m_istart)*(1 / (double)m_nY);
-				m_pDY = new double[m_nY];
-				for (y = 0; y<m_nY; y++, c += step)
-					m_pDY[y] = (c - m_iref).ToDouble(m_nScalingOffset);
-			}
 
-			double dbD0r = m_pDX[m_nX / 2] + m_C*(m_pDX[g_nAddRefX] - m_pDX[m_nX / 2]) + m_S*(m_pDY[g_nAddRefY] - m_pDY[m_nY / 2]);
-			double dbD0i = m_pDY[m_nY / 2] - m_S*(m_pDX[g_nAddRefX] - m_pDX[m_nX / 2]) + m_C*(m_pDY[g_nAddRefY] - m_pDY[m_nY / 2]);
-			floatexp D0r = dbD0r;
-			D0r *= m_nScaling;
-			floatexp D0i = dbD0i;
-			D0i *= m_nScaling;
-			floatexp TDnr;
-			floatexp TDni;
-			if (m_nMaxApproximation){
-				antal = m_nMaxApproximation - 1;
-				TDnr = m_APr[0] * D0r - m_APi[0] * D0i;
-				TDni = m_APr[0] * D0i + m_APi[0] * D0r;
-				floatexp D_r = D0r*D0r - D0i*D0i;
-				floatexp D_i = (D0r*D0i).mul2();
-				TDnr += m_APr[1] * D_r - m_APi[1] * D_i;
-				TDni += m_APr[1] * D_i + m_APi[1] * D_r;
-				int k;
-				for (k = 2; k<m_nTerms; k++){
-					floatexp  t = D_r*D0r - D_i*D0i;
-					D_i = D_r*D0i + D_i*D0r;
-					D_r = t;
-					TDnr += m_APr[k] * D_r - m_APi[k] * D_i;
-					TDni += m_APr[k] * D_i + m_APi[k] * D_r;
-				}
-			}
-			TDnr.ToFixedFloat(xr);
-			TDni.ToFixedFloat(xi);
-		}
-		for (i = antal/*0*/; i<nMaxIter && !m_bStop; i++){
+	FRACTAL(m_nFractalType, 2) {
 			//xin = (xr*xi).Double() + m_iref;
 			xin = (xr + xi).Square() - sr - si + m_iref;
 			xrn = sr - si + m_rref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real*m_db_dxr[i] * m_db_dxr[i] + g_imag*m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.0000000000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.0000001);
 	}
-	else if (m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			sr = xr.Square();
-			si = xi.Square();
+
+	FRACTAL(m_nFractalType, 3) {
 			xrn = xr*(sr - 3 * si) + m_rref;
 			xin = (3 * sr - si)*xi + m_iref;
-			xr = xrn;
-			xi = xin;
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			NEXT(0.000001);
 	}
-	else if (m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			sr = xr.Square();
-			si = xi.Square();
-			xrxid = xr*xi;
+
+	FRACTAL(m_nFractalType, 4) {
 			xrn = sr.Square() - 6 * sr*si + si.Square() + m_rref;
-			xin = 4 * xrxid*(sr - si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
+			xin = 4 * xr*xi*(sr - si) + m_iref;
+			NEXT(0.00001);
 	}
-	else{
+
+	else {
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
 		if (threashold>.5)
 			threashold = .5;
+		complex<CFixedFloat> r(m_rref, m_iref);
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
+			complex<CFixedFloat> X(xr, xi);
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			xr = Xn.m_r;
-			xi = Xn.m_i;
-			m_nRDone++;
-
-			m_db_dxr[i] = xr.ToDouble();
-			m_db_dxi[i] = xi.ToDouble();
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-			m_db_z[i] = abs_val*threashold;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
+			xrn = Xn.m_r;
+			xin = Xn.m_i;
+			NEXT(threashold);
 		}
 	}
+
+#undef FRACTAL
+#undef NEXT
 }
 
 int ThMandelCalc(TH_PARAMS *pMan)
