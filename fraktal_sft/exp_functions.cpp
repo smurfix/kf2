@@ -36,107 +36,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 1 && m_nPower == 2){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr - si + m_rref;
-			xrxid = 2 * xr*xi;
-			xin = xrxid.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 3){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 4){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = sr*sr + si*si - 6*sr*si + m_rref;
-			xin = 4 * (xr*xi).Abs()*(sr-si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.00001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 1 && m_nPower == 5){
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) + m_rref;
-			xin = xi.Abs() * (5 * sr*sr - 10 * sr*si + si*si) + m_iref;
-			xr = xrn;
-			xi = xin;
-			sr = xr.Square();
-			si = xi.Square();
-			m_nRDone++;
-
-			m_dxr[i] = xr;
-			m_dxi[i] = xi;
-			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0001;
-			if (abs_val >= terminate){
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-		}
-	}
-	else if (m_nFractalType == 2 && m_nPower == 2){
+	if (m_nFractalType == 2 && m_nPower == 2){
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			xrn = (sr - si).Abs() + m_rref;
 			xin = -2.0 * (xr * xi).Abs() + m_iref;
@@ -794,7 +694,9 @@ void CFraktalSFT::CalculateReferenceEXP()
 	{
 #define R2(t,p) reference_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag)
 #define R(t,p) R2(t,p)
-		R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10); // || R(0,p);
+		R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
+		R(1,2) || R(1,3) || R(1,4) || R(1,5)
+		;
 #undef R2
 #undef R
 	}

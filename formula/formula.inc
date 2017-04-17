@@ -2,6 +2,8 @@
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/complex.h"
 
+using std::abs;
+
 static long double ConvertFromFixedFloat(const CFixedFloat &f)
 {
 #ifdef KF_FLOAT_BACKEND_MPFR
@@ -14,6 +16,21 @@ static long double ConvertFromFixedFloat(const CFixedFloat &f)
   if ((mpf_sgn(f.m_f.backend().data()) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
   return l;
 #endif
+}
+
+template <typename T>
+inline T diffabs(const T &c, const T &d)
+{
+  if (c > 0) {
+    if (c + d > 0)    return d;
+    else if (d == -c) return d;
+    else if (d < -c)  return -d - 2 * c;
+  } else if (c < 0) {
+    if (c + d > 0)    return d + 2 * c;
+    else if (d == -c) return -d;
+    else if (d < -c)  return -d;
+  }
+  return abs(d);
 }
 
 bool FORMULA(reference_double,TYPE,POWER)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, double g_SeedR, double g_SeedI, double terminate, double g_real, double g_imag)

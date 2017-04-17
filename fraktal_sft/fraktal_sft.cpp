@@ -1948,30 +1948,6 @@ do { \
 
   if (0);
 
-	FRACTAL(1, 2) {
-			xrn = sr - si + m_rref;
-			xin = (2 * xr*xi).Abs() + m_iref;
-			NEXT(0.0000001);
-	}
-
-	FRACTAL(1, 3) {
-			xrn = (sr - (si * 3)) * xr.Abs() + m_rref;
-			xin = ((sr * 3) - si) * xi.Abs() + m_iref;
-			NEXT(0.0000001);
-	}
-
-	FRACTAL(1, 4) {
-			xrn = sr*sr + si*si - 6*sr*si + m_rref;
-			xin = 4 * (xr*xi).Abs()*(sr-si) + m_iref;
-			NEXT(0.00001);
-	}
-
-	FRACTAL(1, 5) {
-			xrn = xr.Abs() * (sr*sr - 10 * sr*si + 5 * si*si) + m_rref;
-			xin = xi.Abs() * (5 * sr*sr - 10 * sr*si + si*si) + m_iref;
-			NEXT(0.0001);
-	}
-
 	FRACTAL(2, 2) {
 			xrn = (sr - si).Abs() + m_rref;
 			xin = -2.0 * (xr * xi).Abs() + m_iref;
@@ -2044,17 +2020,18 @@ do { \
 			NEXT(0.0001);
 	}
 
-	else if(m_nFractalType && m_nFractalType<42)
+	else if(m_nFractalType > 1 && m_nFractalType<42)
 		SpecialFractal(nMaxIter,xrn,xin,xr,xi,sr,si);
 
-	else if(m_nFractalType)
+	else if(m_nFractalType > 1)
 		SpecialFractal2(nMaxIter,xrn,xin,xr,xi,sr,si);
 
 	else
 	{
 #define R2(t,p) reference_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
 #define R(t,p) R2(t,p)
-		R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10); // || R(0,p);
+		R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
+		R(1,2) || R(1,3) || R(1,4) || R(1,5);
 #undef R2
 #undef R
 	}
@@ -2359,289 +2336,8 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 		else{
 			double Dr = TDnr.todouble();
 			double Di = TDni.todouble();
-			// Burning Ship
-			if (m_nFractalType == 1 && m_nPower == 2){
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
-							bGlitch = TRUE;
-						}
-						// 2*an*rn + an^2 - 2*in*bn - bn^2 + a0
-						Dnr = 2 * Dr*m_db_dxr[antal] + Dr*Dr - 2 * m_db_dxi[antal] * Di - Di*Di + dbD0r;
-						// 2( _abs(rn*in + rn*bn + an*in + an*bn) - _abs(rn*in) ) + b0
-						//Dni = 2*(_abs(m_db_dxr[antal]*m_db_dxi[antal] + m_db_dxr[antal]*Di + Dr*m_db_dxi[antal] + Dr*Di) - _abs(m_db_dxr[antal]*m_db_dxi[antal]) ) + dbD0i;
-						double c = m_db_dxr[antal] * m_db_dxi[antal];
-						double d = m_db_dxr[antal] * Di + Dr*m_db_dxi[antal] + Dr*Di;
-						if (c>0){
-							if (c + d>0)
-								Dni = d;
-							else if (d == -c)
-								Dni = d;
-							else if (d<-c)
-								Dni = -d - 2 * c;
-						}
-						else if (c == 0)
-							Dni = _abs(d);
-						else if (c < 0){
-							if (c + d>0)
-								Dni = d + 2 * c;
-							else if (d == -c)
-								Dni = -d;
-							else if (d < -c)
-								Dni = -d;
-						}
-						Dni = 2 * Dni + dbD0i;
-
-						Di = Dni;
-						Dr = Dnr;
-					}
-				}
-			}
-			// Cubic Burning Ship
-			else if (m_nFractalType == 1 && m_nPower == 3){
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
-							bGlitch = TRUE;
-						}
-						//Dnr = (Dr*Dr - (Di*Di * 3.0)) * _abs(Dr);
-						//Dni = ((Dr*Dr * 3.0) - Di*Di) * _abs(Di);
-						//Dnr = ((m_db_dxr[antal]+Dr)*(m_db_dxr[antal]+Dr) - ((m_db_dxi[antal]+Di)*(m_db_dxi[antal]+Di) * 3.0)) * _abs((m_db_dxr[antal]+Dr)) - (m_db_dxr[antal]*m_db_dxr[antal] - (m_db_dxi[antal]*m_db_dxi[antal] * 3.0)) * _abs(m_db_dxr[antal]) + dbD0r;
-						//Dni = (((m_db_dxr[antal]+Dr)*(m_db_dxr[antal]+Dr) * 3.0) - (m_db_dxi[antal]+Di)*(m_db_dxi[antal]+Di)) * _abs((m_db_dxi[antal]+Di)) - ((m_db_dxr[antal]*m_db_dxr[antal] * 3.0) - m_db_dxi[antal]*m_db_dxi[antal]) * _abs(m_db_dxi[antal]) + dbD0i;
-
-						double &r = m_db_dxr[antal];
-						double &i = m_db_dxi[antal];
-						double &a = Dr;
-						double &b = Di;
-						double &a0 = dbD0r;
-						double &b0 = dbD0i;
-						double r2 = r*r;
-						double i2 = i*i;
-						double a2 = a*a;
-						double b2 = b*b;
-						double ar = a*r;
-						double ib = i*b;
-						double ab;
-
-						if (r>0){
-							if (r + a>0)
-								Dnr = a;
-							else if (a == -r)
-								Dnr = a;
-							else if (a<-r)
-								Dnr = -a - 2 * r;
-						}
-						else if (r == 0)
-							Dnr = _abs(a);
-						else if (r < 0){
-							if (r + a>0)
-								Dnr = a + 2 * r;
-							else if (a == -r)
-								Dnr = -a;
-							else if (a < -r)
-								Dnr = -a;
-						}
-						ab = r + a;
-						Dnr = (r2 - 3 * i2) * Dnr + (2 * ar + a2 - 6 * ib - 3 * b2)*_abs(ab) + a0;
-
-						if (i>0){
-							if (i + b>0)
-								Dni = b;
-							else if (b == -i)
-								Dni = b;
-							else if (b<-i)
-								Dni = -b - 2 * i;
-						}
-						else if (i == 0)
-							Dni = _abs(b);
-						else if (i < 0){
-							if (i + b>0)
-								Dni = b + 2 * i;
-							else if (b == -i)
-								Dni = -b;
-							else if (b < -i)
-								Dni = -b;
-						}
-						ab = i + b;
-						Dni = (3 * r2 - i2) * Dni + (6 * ar + 3 * a2 - 2 * ib - b2) * _abs(ab) + b0;
-
-						Di = Dni;
-						Dr = Dnr;
-					}
-				}
-			}
-			//4th power burning ship
-			else if (m_nFractalType == 1 && m_nPower == 4){
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
-							bGlitch = TRUE;
-						}
-						double &r = m_db_dxr[antal];
-						double &i = m_db_dxi[antal];
-						double dr = (r+Dr);
-						double di = (i+Di);
-						double sdr=dr*dr;
-						double sdi=di*di;
-						double sr = r*r;
-						double si = i*i;
-						//Dnr = sdr*sdr + sdi*sdi - 6*sdr*sdi - (sr*sr+si*si-6*sr*si) + dbD0r;
-						//Dnr = 4*r*r*r*Dr + 6*r*r*Dr*Dr + 4*r*Dr*Dr*Dr + Dr*Dr*Dr*Dr + 4*i*i*i*Di + 6*i*i*Di*Di + 4*i*Di*Di*Di + Di*Di*Di*Di - 6*((r+Dr)*(r+Dr))*((i+Di)*(i+Di)) + 6*(r*r)*(i*i) + dbD0r;
-						Dnr = 4*r*r*r*Dr + 6*r*r*Dr*Dr + 4*r*Dr*Dr*Dr + Dr*Dr*Dr*Dr + 4*i*i*i*Di + 6*i*i*Di*Di + 4*i*Di*Di*Di + Di*Di*Di*Di - 12*r*r*i*Di-6*r*r*Di*Di-12*r*Dr*i*i-24*r*Dr*i*Di-12*r*Dr*Di*Di-6*Dr*Dr*i*i-12*Dr*Dr*i*Di-6*Dr*Dr*Di*Di + dbD0r;
-
-						//Dni = 4*_abs(dr*di)*(sdr-sdi) - (4*_abs(r*i)*(sr-si)) + dbD0i;
-						//Dni = 4*_abs((r+Dr)*(i+Di))*((r+Dr)*(r+Dr)-(i+Di)*(i+Di)) - (4*_abs(r*i)*(r*r-i*i)) + dbD0i;
-						//Dni = 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(r*r+2*Dr*r+Dr*Dr-i*i-2*Di*i-Di*Di) - (4*_abs(r*i)*(r*r-i*i)) + dbD0i;
-						//Dni = 4*(r*r-i*i)*(_abs(r*i + r*Di + Dr*i + Dr*Di) - _abs(r*i)) + 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(2*Dr*r+Dr*Dr-2*Di*i-Di*Di) + dbD0i;
-
-						double c = r*i;
-						double d = r*Di + Dr*i + Dr*Di;
-						if (c>0){
-							if (c + d>0)
-								Dni = d;
-							else if (d == -c)
-								Dni = d;
-							else if (d<-c)
-								Dni = -d - 2 * c;
-						}
-						else if (c == 0)
-							Dni = _abs(d);
-						else if (c < 0){
-							if (c + d>0)
-								Dni = d + 2 * c;
-							else if (d == -c)
-								Dni = -d;
-							else if (d < -c)
-								Dni = -d;
-						}
-						Dni = 4*(sr-si)*(Dni) + 4*_abs(r*i + r*Di + Dr*i + Dr*Di)*(2*Dr*r+Dr*Dr-2*Di*i-Di*Di) + dbD0i;
-
-						Di = Dni;
-						Dr = Dnr;
-						/*
-						Dnr = 2 * Dr*m_db_dxr[antal] + Dr*Dr - 2 * m_db_dxi[antal] * Di - Di*Di;
-						double c = m_db_dxr[antal] * m_db_dxi[antal];
-						double d = m_db_dxr[antal] * Di + Dr*m_db_dxi[antal] + Dr*Di;
-						if (c>0){
-							if (c + d>0)
-								Dni = d;
-							else if (d == -c)
-								Dni = d;
-							else if (d<-c)
-								Dni = -d - 2 * c;
-						}
-						else if (c == 0)
-							Dni = _abs(d);
-						else if (c < 0){
-							if (c + d>0)
-								Dni = d + 2 * c;
-							else if (d == -c)
-								Dni = -d;
-							else if (d < -c)
-								Dni = -d;
-						}
-						Dni = 2 * Dni;
-						Di = Dni;
-						Dr = Dnr;
-						Dnr = (2 * m_db_dxr[antal] + Dr)*Dr - (2 * m_db_dxi[antal] + Di)*Di + dbD0r;
-						Dni = 2 * ((m_db_dxr[antal] + Dr)*Di + m_db_dxi[antal] * Dr) + dbD0i;
-						Di = Dni;
-						Dr = Dnr;
-						*/
-					}
-				}
-			}
-			//5th power burning ship
-			else if (m_nFractalType == 1 && m_nPower == 5){
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
-							bGlitch = TRUE;
-						}
-						double &r = m_db_dxr[antal];
-						double &i = m_db_dxi[antal];
-						double dr = (r+Dr);
-						double di = (i+Di);
-						double sdr=dr*dr;
-						double sdi=di*di;
-						double sr = r*r;
-						double si = i*i;
-
-						double c = r;
-						double d = Dr;
-						if (c>0){
-							if (c + d>0)
-								Dnr = d;
-							else if (d == -c)
-								Dnr = d;
-							else if (d<-c)
-								Dnr = -d - 2 * c;
-						}
-						else if (c == 0)
-							Dnr = _abs(d);
-						else if (c < 0){
-							if (c + d>0)
-								Dnr = d + 2 * c;
-							else if (d == -c)
-								Dnr = -d;
-							else if (d < -c)
-								Dnr = -d;
-						}
-						Dnr = (Dnr) * (r*r*r*r- 10*r*r*i*i + 5*i*i*i*i) + _abs(r+Dr) * (4*r*r*r*Dr+6*r*r*Dr*Dr+4*r*Dr*Dr*Dr+Dr*Dr*Dr*Dr -20*r*r*i*Di-10*r*r*Di*Di-20*r*Dr*i*i-40*r*Dr*i*Di-20*r*Dr*Di*Di-10*Dr*Dr*i*i-20*Dr*Dr*i*Di-10*Dr*Dr*Di*Di + 20*i*i*i*Di+30*i*i*Di*Di+20*i*Di*Di*Di+5*Di*Di*Di*Di) + dbD0r;
-
-						c = i;
-						d = Di;
-						if (c>0){
-							if (c + d>0)
-								Dni = d;
-							else if (d == -c)
-								Dni = d;
-							else if (d<-c)
-								Dni = -d - 2 * c;
-						}
-						else if (c == 0)
-							Dni = _abs(d);
-						else if (c < 0){
-							if (c + d>0)
-								Dni = d + 2 * c;
-							else if (d == -c)
-								Dni = -d;
-							else if (d < -c)
-								Dni = -d;
-						}
-						Dni = (Dni) * (5*r*r*r*r - 10*r*r*i*i + i*i*i*i) + _abs(i+Di)*(20*r*r*r*Dr+30*r*r*Dr*Dr+20*r*Dr*Dr*Dr+5*Dr*Dr*Dr*Dr - 20*r*r*i*Di-10*r*r*Di*Di-20*r*Dr*i*i-40*r*Dr*i*Di-20*r*Dr*Di*Di-10*Dr*Dr*i*i-20*Dr*Dr*i*Di-10*Dr*Dr*Di*Di +4*i*i*i*Di+6*i*i*Di*Di+4*i*Di*Di*Di+Di*Di*Di*Di) + dbD0i;
-
-						Di = Dni;
-						Dr = Dnr;
-					}
-				}
-			}
 			// Buffalo
-			else if (m_nFractalType == 2 && m_nPower == 2){
+			if (m_nFractalType == 2 && m_nPower == 2){
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 						yr = m_db_dxr[antal] + Dr;
@@ -5632,7 +5328,9 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 			{
 #define P2(t,p) perturbation_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, dbD0r, dbD0i)
 #define P(t,p) P2(t,p)
-				P(0,2) || P(0,3) || P(0,4) || P(0,5) || P(0,6) || P(0,7) || P(0,8) || P(0,9) || P(0,10); // || P(0,p);
+				P(0,2) || P(0,3) || P(0,4) || P(0,5) || P(0,6) || P(0,7) || P(0,8) || P(0,9) || P(0,10) || // P(0,p) ||
+				P(1,2) || P(1,3) || P(1,4) || P(1,5)
+				;
 #undef P2
 #undef P
 			}
@@ -5942,14 +5640,15 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
-		if(m_nFractalType)
+		if(m_nFractalType > 1)
 			m_nPixels[x][y] = LDBL_MandelCalc(m_nFractalType,m_nPower,antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch,g_FactorAR,g_FactorAI);
 		else
 		{
 			int antal2 = antal;
 #define R2(t,p) perturbation_long_double_##t##_##p(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, lD0r, lD0i)
 #define R(t,p) R2(t,p)
-			R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10); // ||| R(0,p);
+			R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
+			R(1,2) || R(1,3) || R(1,4) || R(1,5);
 #undef R2
 #undef R
 			m_nPixels[x][y] = antal2;

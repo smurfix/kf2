@@ -7,3 +7,8 @@
 #include "Mandelbrot8.h"
 #include "Mandelbrot9.h"
 #include "Mandelbrot10.h"
+
+#include "BurningShip2.h"
+#include "BurningShip3.h"
+#include "BurningShip4.h"
+#include "BurningShip5.h"

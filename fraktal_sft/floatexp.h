@@ -394,4 +394,9 @@ inline floatexp operator*(int a, floatexp b)
 	return double(a) * b;
 }
 
+inline floatexp abs(floatexp a)
+{
+	return a.abs();
+}
+
 #endif //__FLOATEXP_H__
