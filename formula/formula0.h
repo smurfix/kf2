@@ -21,3 +21,11 @@
 #ifdef PERTURBATION
 #undef PERTURBATION
 #endif
+
+#ifdef CREFERENCE
+#undef CREFERENCE
+#endif
+
+#ifdef CPERTURBATION
+#undef CPERTURBATION
+#endif
