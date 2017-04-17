@@ -1,7 +1,9 @@
 WINPREFIX ?= $(HOME)/win64
 COMPILE := x86_64-w64-mingw32-g++
 LINK := x86_64-w64-mingw32-g++
-COMPILE_FLAGS := -xc++ -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include
+FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include
+COMPILE_FLAGS := -xc++ $(FLAGS)
+HEADER_FLAGS := -xc++-header $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
 WINDRES ?= x86_64-w64-mingw32-windres
@@ -132,6 +134,8 @@ SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
+HEADERS_PCH := fraktal_sft/CFixedFloat.h.gch fraktal_sft/floatexp.h.gch fraktal_sft/complex.h.gch
+
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
@@ -141,7 +145,7 @@ DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 all: kf.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS)
+	rm -f $(OBJECTS) $(DEPENDS) $(HEADERS_PCH) pch.stamp
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
@@ -152,10 +156,16 @@ res.o: fraktal_sft/fraktal_sft.rc
 kf.dll: $(LDBL_SOURCES_CPP)
 	$(COMPILE) -o kf.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp
 
-%.o: %.cpp
+%.o: %.cpp pch.stamp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
 %.o: %.c
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
+
+%.h.gch: %.h
+	$(COMPILE) $(HEADER_FLAGS) $<
+
+pch.stamp: $(HEADERS_PCH)
+	touch pch.stamp
 
 -include $(DEPENDS)

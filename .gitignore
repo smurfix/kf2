@@ -2,3 +2,5 @@
 *.o
 *.dll
 *.d
+*.gch
+*.stamp
