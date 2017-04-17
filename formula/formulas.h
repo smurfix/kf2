@@ -12,3 +12,8 @@
 #include "BurningShip3.h"
 #include "BurningShip4.h"
 #include "BurningShip5.h"
+
+#include "Buffalo2.h"
+#include "Buffalo3.h"
+#include "Buffalo4.h"
+#include "Buffalo5.h"
