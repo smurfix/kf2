@@ -17,4 +17,8 @@ configuration (COMPILE_FLAGS in Makefile)
   instead of building it into the executable itself; also remove LDBL_SOURCES
   from SOURCES_CPP
 - add -DKF_THREADED_REFERENCE to use original threaded reference calculations
-  (too much overhead to make it worthwhile, except possibly at very deep zooms)
+  (too much overhead in WINE to make it worthwhile, except at very deep zooms)
+- add -DKF_THREADED_REFERENCE_BARRIER to use barrier() threaded reference
+  (acceptable overhead in WINE, CPU affinity is adjusted with zoom depth)
+- add -DKF_THREADED_REFERENCE_OPENMP -fopenmp to use OpenMP (incomplete and
+  unsupported)
