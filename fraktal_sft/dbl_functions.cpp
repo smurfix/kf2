@@ -878,7 +878,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			mc[i].m_nRDone = &m_nRDone;
 			mc[i].stop = &m_bStop;
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
-			SetThreadAffinityMask(hThread, 1 << i);
+			SetThreadAffinityMask(hThread, 3);
 			CloseHandle(hThread);
 		}
 		// wait for completion
