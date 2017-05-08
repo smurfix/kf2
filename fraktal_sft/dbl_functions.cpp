@@ -777,9 +777,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	}
 	else if (m_nPower == 2){
 
-#ifdef KF_THREADED_REFERENCE
 #ifdef KF_THREADED_REFERENCE_OPENMP
-
 		// avoid deadlock on race condition if different threads get different values
 		// for m_bStop at loop entry time
 		int dummy;
@@ -824,10 +822,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			ConvertFromFixedFloat(&m_ldxr[i], xr);
 			ConvertFromFixedFloat(&m_ldxi[i], xi);
 		}
-
 #else
-#ifdef KF_THREADED_REFERENCE_BARRIER
 
+#ifdef KF_THREADED_REFERENCE_BARRIER
 		mcthread mc[3];
 		barrier barrier(3);
 		HANDLE hDone[3];
@@ -864,9 +861,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		for (i = 0; i < 3; i++){
 			CloseHandle(hDone[i]);
 		}
-
 #else
 
+#ifdef KF_THREADED_REFERENCE_CUSTOM
 		MC mc[3];
 		HANDLE hDone[3];
 		HANDLE hWait[3];
@@ -888,7 +885,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		MC2 mc2[2];
 		HANDLE hDone2[2];
 		HANDLE hWait2[2];
@@ -910,7 +906,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			//xin = xrxid-sr-si + m_iref;
 			//xrn = sr - si + m_rref; 
@@ -962,9 +957,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			CloseHandle(hWait2[i]);
 			CloseHandle(hExit2[i]);
 		}
-
-#endif
-#endif
 #else
 
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
@@ -987,6 +979,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			m_nRDone++;
 		}
 
+#endif
+#endif
 #endif
 
 	}

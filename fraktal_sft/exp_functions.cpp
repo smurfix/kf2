@@ -745,9 +745,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	}
 	else if (m_nPower == 2){
 
-#ifdef KF_THREADED_REFERENCE
 #ifdef KF_THREADED_REFERENCE_BARRIER
-
 		mcthread mc[3];
 		barrier barrier(3);
 		HANDLE hDone[3];
@@ -784,9 +782,9 @@ void CFraktalSFT::CalculateReferenceEXP()
 		for (i = 0; i < 3; i++){
 			CloseHandle(hDone[i]);
 		}
-
 #else
 
+#ifdef KF_THREADED_REFERENCE_CUSTOM
 		MC mc[3];
 		HANDLE hDone[3];
 		HANDLE hWait[3];
@@ -808,7 +806,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		MC2 mc2[2];
 		HANDLE hDone2[2];
 		HANDLE hWait2[2];
@@ -830,7 +827,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			//xin = xrxid-sr-si + m_iref;
 			//xrn = sr - si + m_rref; 
@@ -882,8 +878,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			CloseHandle(hWait2[i]);
 			CloseHandle(hExit2[i]);
 		}
-
-#endif
 #else
 
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
@@ -907,7 +901,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 		}
 
 #endif
-
+#endif
 	}
 	else if (m_nPower == 3){
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
