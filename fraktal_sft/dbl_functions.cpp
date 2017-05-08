@@ -49,7 +49,9 @@ extern double(SquareAdd)(void *a, void *b);
 #endif
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
+
 #include "../common/barrier.h"
+
 struct mcthread
 {
 	barrier *barrier;
@@ -62,11 +64,12 @@ struct mcthread
 	volatile BOOL *stop;
 };
 
+void AssignLD(void *p,void *ld);
+
 static DWORD WINAPI mcthreadfunc(mcthread *p)
 {
 	ldbl noll;
 	AssignInt(&noll, 0);
-
 	int i;
 	for (i = 0; i < *p->nMaxIter && !*p->stop; i++)
 	{
@@ -75,6 +78,23 @@ static DWORD WINAPI mcthreadfunc(mcthread *p)
 		{
 			case 0: *p->xrn = *p->sr - *p->si + *p->m_rref; break;
 			case 1: *p->xin = *p->xrxid - *p->sr - *p->si + *p->m_iref; break;
+			case 2:
+				if (i > 0)
+				{
+					double abs_val = SquareAdd(g_real==0?&noll:&p->m_ldxr[i-1], g_imag==0?&noll:&p->m_ldxi[i-1]);
+					p->m_db_z[i-1] = abs_val * 0.0000001;
+					if (abs_val >= *p->terminate){
+						if (*p->nMaxIter == *p->m_nMaxIter)
+						{
+							*p->nMaxIter = i-1 + 3;
+							if (*p->nMaxIter > *p->m_nMaxIter)
+								*p->nMaxIter = *p->m_nMaxIter;
+							*p->m_nGlitchIter = *p->nMaxIter;
+						}
+					}
+					(*p->m_nRDone)++;
+				}
+				break;
 		}
 		if (p->barrier->wait(p->stop)) break;
 		switch (p->nType)
@@ -83,34 +103,39 @@ static DWORD WINAPI mcthreadfunc(mcthread *p)
 			case 1: *p->xi = *p->xin; *p->si = p->xin->Square(); ConvertFromFixedFloat(&p->m_ldxi[i], *p->xi); break;
 			case 2: *p->xrxid = (*p->xrn + *p->xin).Square(); break;
 		}
-		if (p->barrier->wait(p->stop)) break;
-		if (p->nType == 0)
-		{
-			double abs_val = SquareAdd(g_real==0?&noll:&p->m_ldxr[i], g_imag==0?&noll:&p->m_ldxi[i]);
-			p->m_db_z[i] = abs_val * 0.0000001;
-			if (abs_val >= *p->terminate){
-				if (*p->nMaxIter == *p->m_nMaxIter)
-				{
-					*p->nMaxIter = i + 3;
-					if (*p->nMaxIter > *p->m_nMaxIter)
-						*p->nMaxIter = *p->m_nMaxIter;
-					*p->m_nGlitchIter = *p->nMaxIter;
-				}
-			}
-			(*p->m_nRDone)++;
-		}
+	}
+	if (p->barrier->wait(p->stop))
+	{
+		SetEvent(p->hDone);
+		return 0;
 	}
 	if (p->nType == 0)
 	{
+		double abs_val = SquareAdd(g_real==0?&noll:&p->m_ldxr[i-1], g_imag==0?&noll:&p->m_ldxi[i-1]);
+		p->m_db_z[i-1] = abs_val * 0.0000001;
+		if (abs_val >= *p->terminate){
+			if (*p->nMaxIter == *p->m_nMaxIter)
+			{
+				*p->nMaxIter = i-1 + 3;
+				if (*p->nMaxIter > *p->m_nMaxIter)
+					*p->nMaxIter = *p->m_nMaxIter;
+				*p->m_nGlitchIter = *p->nMaxIter;
+			}
+		}
+		(*p->m_nRDone)++;
+		ldbl xr, xi;
+		ConvertFromFixedFloat(&xr, *p->xr);
+		ConvertFromFixedFloat(&xi, *p->xi);
 		for (; i < *p->nMaxIter && !*p->stop; i++)
 		{
-			ConvertFromFixedFloat(&p->m_ldxr[i], *p->xr);
-			ConvertFromFixedFloat(&p->m_ldxi[i], *p->xi);
+			AssignLD(&p->m_ldxr[i], &xr);
+			AssignLD(&p->m_ldxi[i], &xi);
 		}
 	}
 	SetEvent(p->hDone);
 	return 0;
 }
+
 #endif
 
 void CFraktalSFT::CalculateReferenceLDBL()
@@ -853,7 +878,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			mc[i].m_nRDone = &m_nRDone;
 			mc[i].stop = &m_bStop;
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
-			SetThreadAffinityMask(hThread, 3);
+			SetThreadAffinityMask(hThread, 1 << i);
 			CloseHandle(hThread);
 		}
 		// wait for completion

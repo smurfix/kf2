@@ -39,6 +39,23 @@ static DWORD WINAPI mcthreadfunc(mcthread *p)
 		{
 			case 0: *p->xrn = *p->sr - *p->si + *p->m_rref; break;
 			case 1: *p->xin = *p->xrxid - *p->sr - *p->si + *p->m_iref; break;
+			case 2:
+				if (i > 0)
+				{
+					double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
+					p->m_db_z[i-1] = abs_val * 0.0000001;
+					if (abs_val >= *p->terminate){
+						if (*p->nMaxIter == *p->m_nMaxIter)
+						{
+							*p->nMaxIter = i-1 + 3;
+							if (*p->nMaxIter > *p->m_nMaxIter)
+								*p->nMaxIter = *p->m_nMaxIter;
+							*p->m_nGlitchIter = *p->nMaxIter;
+						}
+					}
+					(*p->m_nRDone)++;
+				}
+				break;
 		}
 		if (p->barrier->wait(p->stop)) break;
 		switch (p->nType)
@@ -47,29 +64,32 @@ static DWORD WINAPI mcthreadfunc(mcthread *p)
 			case 1: *p->xi = *p->xin; *p->si = p->xin->Square(); p->m_dxi[i] = *p->xi; break;
 			case 2: *p->xrxid = (*p->xrn + *p->xin).Square(); break;
 		}
-		if (p->barrier->wait(p->stop)) break;
-		if (p->nType == 0)
-		{
-			double abs_val = (real * p->m_dxr[i] * p->m_dxr[i] + imag * p->m_dxi[i] * p->m_dxi[i]).todouble();
-			p->m_db_z[i] = abs_val * 0.0000001;
-			if (abs_val >= *p->terminate){
-				if (*p->nMaxIter == *p->m_nMaxIter)
-				{
-					*p->nMaxIter = i + 3;
-					if (*p->nMaxIter > *p->m_nMaxIter)
-						*p->nMaxIter = *p->m_nMaxIter;
-					*p->m_nGlitchIter = *p->nMaxIter;
-				}
-			}
-			(*p->m_nRDone)++;
-		}
+	}
+	if (p->barrier->wait(p->stop))
+	{
+		SetEvent(p->hDone);
+		return 0;
 	}
 	if (p->nType == 0)
 	{
+		double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
+		p->m_db_z[i-1] = abs_val * 0.0000001;
+		if (abs_val >= *p->terminate){
+			if (*p->nMaxIter == *p->m_nMaxIter)
+			{
+				*p->nMaxIter = i-1 + 3;
+				if (*p->nMaxIter > *p->m_nMaxIter)
+					*p->nMaxIter = *p->m_nMaxIter;
+				*p->m_nGlitchIter = *p->nMaxIter;
+			}
+		}
+		(*p->m_nRDone)++;
+		floatexp xr = p->m_dxr[i] = *p->xr;
+		floatexp xi = p->m_dxi[i] = *p->xi;
 		for (; i < *p->nMaxIter && !*p->stop; i++)
 		{
-			p->m_dxr[i] = *p->xr;
-			p->m_dxi[i] = *p->xi;
+			p->m_dxr[i] = xr;
+			p->m_dxi[i] = xi;
 		}
 	}
 	SetEvent(p->hDone);
