@@ -48,6 +48,70 @@ extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 extern double(SquareAdd)(void *a, void *b);
 #endif
 
+#ifdef KF_THREADED_REFERENCE_BARRIER
+#include "../common/barrier.h"
+struct mcthread
+{
+	barrier *barrier;
+	int nType;
+	HANDLE hDone;
+	CFixedFloat *xr, *xi, *xrn, *xin, *sr, *si, *xrxid, *m_rref, *m_iref;
+	ldbl *m_ldxr, *m_ldxi;
+	double *m_db_z, *terminate;
+	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	volatile BOOL *stop;
+};
+
+static DWORD WINAPI mcthreadfunc(mcthread *p)
+{
+	ldbl noll;
+	AssignInt(&noll, 0);
+
+	int i;
+	for (i = 0; i < *p->nMaxIter && !*p->stop; i++)
+	{
+		if (p->barrier->wait(p->stop)) break;
+		switch (p->nType)
+		{
+			case 0: *p->xrn = *p->sr - *p->si + *p->m_rref; break;
+			case 1: *p->xin = *p->xrxid - *p->sr - *p->si + *p->m_iref; break;
+		}
+		if (p->barrier->wait(p->stop)) break;
+		switch (p->nType)
+		{
+			case 0: *p->xr = *p->xrn; *p->sr = p->xrn->Square(); ConvertFromFixedFloat(&p->m_ldxr[i], *p->xr); break;
+			case 1: *p->xi = *p->xin; *p->si = p->xin->Square(); ConvertFromFixedFloat(&p->m_ldxi[i], *p->xi); break;
+			case 2: *p->xrxid = (*p->xrn + *p->xin).Square(); break;
+		}
+		if (p->barrier->wait(p->stop)) break;
+		if (p->nType == 0)
+		{
+			double abs_val = SquareAdd(g_real==0?&noll:&p->m_ldxr[i], g_imag==0?&noll:&p->m_ldxi[i]);
+			p->m_db_z[i] = abs_val * 0.0000001;
+			if (abs_val >= *p->terminate){
+				if (*p->nMaxIter == *p->m_nMaxIter)
+				{
+					*p->nMaxIter = i + 3;
+					if (*p->nMaxIter > *p->m_nMaxIter)
+						*p->nMaxIter = *p->m_nMaxIter;
+					*p->m_nGlitchIter = *p->nMaxIter;
+				}
+			}
+			(*p->m_nRDone)++;
+		}
+	}
+	if (p->nType == 0)
+	{
+		for (; i < *p->nMaxIter && !*p->stop; i++)
+		{
+			ConvertFromFixedFloat(&p->m_ldxr[i], *p->xr);
+			ConvertFromFixedFloat(&p->m_ldxi[i], *p->xi);
+		}
+	}
+	SetEvent(p->hDone);
+	return 0;
+}
+#endif
 
 void CFraktalSFT::CalculateReferenceLDBL()
 {
@@ -714,6 +778,94 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else if (m_nPower == 2){
 
 #ifdef KF_THREADED_REFERENCE
+#ifdef KF_THREADED_REFERENCE_OPENMP
+
+		// avoid deadlock on race condition if different threads get different values
+		// for m_bStop at loop entry time
+		int dummy;
+		int should_stop = m_bStop;
+		#pragma omp parallel num_threads(3)
+		{
+			for (int j = 0; j < nMaxIter && !should_stop; ++j)
+			{
+				#pragma omp for
+				for (int thread = 0; thread < 2; ++thread)
+				{
+					if (thread == 0) { xrn = sr - si + m_rref; }
+					if (thread == 1) { xin = xrxid - sr - si + m_iref; }
+				}
+				#pragma omp for
+				for (int thread = 0; thread < 3; ++thread)
+			  {
+					if (thread == 0) { xr = xrn; sr = xr.Square(); ConvertFromFixedFloat(&m_ldxr[j], xr); }
+					if (thread == 1) { xi = xin; si = xi.Square(); ConvertFromFixedFloat(&m_ldxi[j], xi); }
+					if (thread == 2) { xrxid = (xrn + xin).Square(); }
+				}
+				#pragma omp single
+				{
+					abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[j], g_imag==0?&noll:&m_ldxi[j]);
+					m_db_z[j] = abs_val*0.0000001;
+					if (abs_val >= terminate){
+						if (nMaxIter == m_nMaxIter){
+							nMaxIter = i + 3;
+							if (nMaxIter>m_nMaxIter)
+								nMaxIter = m_nMaxIter;
+							m_nGlitchIter = nMaxIter;
+						}
+					}
+					m_nRDone++;
+					i = j + 1;
+					should_stop = m_bStop;
+				}
+			}
+		}
+		for (; i < nMaxIter && !m_bStop; i++)
+		{
+			ConvertFromFixedFloat(&m_ldxr[i], xr);
+			ConvertFromFixedFloat(&m_ldxi[i], xi);
+		}
+
+#else
+#ifdef KF_THREADED_REFERENCE_BARRIER
+
+		mcthread mc[3];
+		barrier barrier(3);
+		HANDLE hDone[3];
+		// spawn threads
+		for (i = 0; i < 3; i++)
+		{
+			mc[i].barrier = &barrier;
+			mc[i].nType = i;
+			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+			mc[i].xr = &xr;
+			mc[i].xi = &xi;
+			mc[i].xrn = &xrn;
+			mc[i].xin = &xin;
+			mc[i].sr = &sr;
+			mc[i].si = &si;
+			mc[i].xrxid = &xrxid;
+			mc[i].m_iref = &m_iref;
+			mc[i].m_rref = &m_rref;
+			mc[i].m_ldxr = m_ldxr;
+			mc[i].m_ldxi = m_ldxi;
+			mc[i].m_db_z = m_db_z;
+			mc[i].terminate = &terminate;
+			mc[i].m_nMaxIter = &m_nMaxIter;
+			mc[i].m_nGlitchIter = &m_nGlitchIter;
+			mc[i].nMaxIter = &nMaxIter;
+			mc[i].m_nRDone = &m_nRDone;
+			mc[i].stop = &m_bStop;
+			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
+			SetThreadAffinityMask(hThread, 3);
+			CloseHandle(hThread);
+		}
+		// wait for completion
+		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
+		for (i = 0; i < 3; i++){
+			CloseHandle(hDone[i]);
+		}
+
+#else
 
 		MC mc[3];
 		HANDLE hDone[3];
@@ -811,6 +963,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			CloseHandle(hExit2[i]);
 		}
 
+#endif
+#endif
 #else
 
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
