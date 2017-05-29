@@ -14,6 +14,92 @@ extern double g_SeedI;
 extern double g_FactorAR;
 extern double g_FactorAI;
 
+#ifdef KF_THREADED_REFERENCE_BARRIER
+#include "../common/barrier.h"
+struct mcthread
+{
+	barrier *barrier;
+	int nType;
+	HANDLE hDone;
+	CFixedFloat *xr, *xi, *xrn, *xin, *sr, *si, *xrxid, *m_rref, *m_iref;
+	floatexp *m_dxr, *m_dxi;
+	double *m_db_z, *terminate;
+	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	volatile BOOL *stop;
+};
+
+static DWORD WINAPI mcthreadfunc(mcthread *p)
+{
+	floatexp real(g_real);
+	floatexp imag(g_imag);
+
+	int i;
+	for (i = 0; i < *p->nMaxIter && !*p->stop; i++)
+	{
+		if (p->barrier->wait(p->stop)) break;
+		switch (p->nType)
+		{
+			case 0: *p->xrn = *p->sr - *p->si + *p->m_rref; break;
+			case 1: *p->xin = *p->xrxid - *p->sr - *p->si + *p->m_iref; break;
+			case 2:
+				if (i > 0)
+				{
+					double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
+					p->m_db_z[i-1] = abs_val * 0.0000001;
+					if (abs_val >= *p->terminate){
+						if (*p->nMaxIter == *p->m_nMaxIter)
+						{
+							*p->nMaxIter = i-1 + 3;
+							if (*p->nMaxIter > *p->m_nMaxIter)
+								*p->nMaxIter = *p->m_nMaxIter;
+							*p->m_nGlitchIter = *p->nMaxIter;
+						}
+					}
+					(*p->m_nRDone)++;
+				}
+				break;
+		}
+		if (p->barrier->wait(p->stop)) break;
+		switch (p->nType)
+		{
+			case 0: *p->xr = *p->xrn; *p->sr = p->xrn->Square(); p->m_dxr[i] = *p->xr; break;
+			case 1: *p->xi = *p->xin; *p->si = p->xin->Square(); p->m_dxi[i] = *p->xi; break;
+			case 2: *p->xrxid = (*p->xrn + *p->xin).Square(); break;
+		}
+	}
+	if (p->barrier->wait(p->stop))
+	{
+		SetEvent(p->hDone);
+		return 0;
+	}
+	if (p->nType == 0)
+	{
+		double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
+		p->m_db_z[i-1] = abs_val * 0.0000001;
+		if (abs_val >= *p->terminate){
+			if (*p->nMaxIter == *p->m_nMaxIter)
+			{
+				*p->nMaxIter = i-1 + 3;
+				if (*p->nMaxIter > *p->m_nMaxIter)
+					*p->nMaxIter = *p->m_nMaxIter;
+				*p->m_nGlitchIter = *p->nMaxIter;
+			}
+		}
+		(*p->m_nRDone)++;
+		floatexp xr = p->m_dxr[i] = *p->xr;
+		floatexp xi = p->m_dxi[i] = *p->xi;
+		for (; i < *p->nMaxIter && !*p->stop; i++)
+		{
+			p->m_dxr[i] = xr;
+			p->m_dxi[i] = xi;
+		}
+	}
+	SetEvent(p->hDone);
+	return 0;
+}
+#endif
+
+
 void CFraktalSFT::CalculateReferenceEXP()
 {
 	int i;
@@ -483,8 +569,46 @@ void CFraktalSFT::CalculateReferenceEXP()
 	}
 	else if (m_nFractalType == 0 && m_nPower == 2){
 
-#ifdef KF_THREADED_REFERENCE
+#ifdef KF_THREADED_REFERENCE_BARRIER
+		mcthread mc[3];
+		barrier barrier(3);
+		HANDLE hDone[3];
+		// spawn threads
+		for (i = 0; i < 3; i++)
+		{
+			mc[i].barrier = &barrier;
+			mc[i].nType = i;
+			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+			mc[i].xr = &xr;
+			mc[i].xi = &xi;
+			mc[i].xrn = &xrn;
+			mc[i].xin = &xin;
+			mc[i].sr = &sr;
+			mc[i].si = &si;
+			mc[i].xrxid = &xrxid;
+			mc[i].m_iref = &m_iref;
+			mc[i].m_rref = &m_rref;
+			mc[i].m_dxr = m_dxr;
+			mc[i].m_dxi = m_dxi;
+			mc[i].m_db_z = m_db_z;
+			mc[i].terminate = &terminate;
+			mc[i].m_nMaxIter = &m_nMaxIter;
+			mc[i].m_nGlitchIter = &m_nGlitchIter;
+			mc[i].nMaxIter = &nMaxIter;
+			mc[i].m_nRDone = &m_nRDone;
+			mc[i].stop = &m_bStop;
+			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
+			SetThreadAffinityMask(hThread, 1<<i);
+			CloseHandle(hThread);
+		}
+		// wait for completion
+		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
+		for (i = 0; i < 3; i++){
+			CloseHandle(hDone[i]);
+		}
+#else
 
+#ifdef KF_THREADED_REFERENCE_CUSTOM
 		MC mc[3];
 		HANDLE hDone[3];
 		HANDLE hWait[3];
@@ -506,7 +630,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		MC2 mc2[2];
 		HANDLE hDone2[2];
 		HANDLE hWait2[2];
@@ -528,7 +651,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
 			CloseHandle(hThread);
 		}
-
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			//xin = xrxid-sr-si + m_iref;
 			//xrn = sr - si + m_rref; 
@@ -580,7 +702,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 			CloseHandle(hWait2[i]);
 			CloseHandle(hExit2[i]);
 		}
-
 #else
 
 #define R2(t,p) reference_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag)
@@ -590,7 +711,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 #undef R
 
 #endif
-
+#endif
 	}
 	else
 	{
