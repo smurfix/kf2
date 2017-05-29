@@ -2,7 +2,7 @@ WINPREFIX ?= $(HOME)/win64
 COMPILE := x86_64-w64-mingw32-g++
 LINK := x86_64-w64-mingw32-g++
 COMPILE_FLAGS := -xc++ -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
-LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -L$(WINPREFIX)/lib
+LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
 WINDRES ?= x86_64-w64-mingw32-windres
 
