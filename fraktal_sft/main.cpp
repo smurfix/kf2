@@ -25,6 +25,7 @@
 #include "resource.h"
 #include "fraktal_sft.h"
 #include <malloc.h>
+#include "../formula/formula.h"
 
 POINT g_pInflections[10];
 int g_nInflection=0;
@@ -447,67 +448,7 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_COMBO2,CB_ADDSTRING,0,(LPARAM)"Bailout=2");
 			SendDlgItemMessage(hWnd,IDC_COMBO2,CB_SETCURSEL,g_SFT.GetSmoothMethod(),0);
 
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Mandelbrot"); // 0
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Burning Ship"); // 1
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Buffalo"); // 2
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Celtic"); // 3
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Mandelbar"); // 4
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Mandelbar Celtic"); // 5
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Perpendicular Mandelbrot"); // 6
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Perpendicular Burning Ship"); // 7
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Perpendicular Celtic"); // 8
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Perpendicular Buffalo"); // 9
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Quasi Burning Ship"); // 10
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Partial BS Real"); // 11
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Partial BS Imag"); // 12
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Flying Squirrel (Buffalo Imag)"); // 13
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Cubic Quasi Perpendicular"); // 14
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Imag"); // 15
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Real"); // 16
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Burning Ship Partial Real Mbar"); // 17
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Imag"); // 18
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Real"); // 19
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Burning Ship Partial Real Mbar"); // 20
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Buffalo Partial Imag"); // 21
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Mbar"); // 22
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th False Quasi Perpendicular"); // 23
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th False Quasi Heart"); // 24
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic False Quasi Perpendicular"); // 25
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic False Quasi Heart"); // 26
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Burning Ship Partial"); // 27
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Burning Ship Partial Mbar"); // 28
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Celtic Mbar"); // 29
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Burning Ship (BS/Buffalo Hybrid)"); // 30
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Perpendicular"); // 31
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"5th Quasi Heart"); // 32
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot 4th"); // 33
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Imag Quasi Perpendicular / Heart"); // 34
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Real Quasi Perpendicular"); // 35
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Real Quasi Heart"); // 36
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Imag Quasi Perpendicular / Heart"); // 37
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Real Quasi Perpendicular"); // 38
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"4th Celtic Real Quasi Heart"); // 39
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot 6th"); // 40
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"HPDZ Buffalo"); // 41
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 1: a*z^2+z^3+c");		// 42
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 2: a*z^2-z^3+c");		// 43
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 3: 2*z^2-z^3+c");		// 44
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 4: a*z^2+z^4+c");		// 45
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 5: a*z^2-z^4+c");		// 46
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 6: a*z^2+z^5+c");		// 47
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 7: a*z^2-z^5+c");		// 48
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 8: a*z^2+z^6+c");		// 49
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"TheRedshiftRider 9: a*z^2-z^6+c");		// 50
-
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"SimonBrot2 4th"); // 51
-			//SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"Test");
+			combo5_addstrings(hWnd, IDC_COMBO5);
 
 			SIZE sc;
 			HDC hDC = GetDC(NULL);
