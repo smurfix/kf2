@@ -143,21 +143,21 @@ int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi
 //
 // The long double library is loaded dynamically, so that there can be error handling
 //
-void ErrorText()  
-{     
-	TCHAR szMsgBuf[500];      
+void ErrorText()
+{
+	TCHAR szMsgBuf[500];
 
-	DWORD dwError = GetLastError();         
-	FormatMessage(         
-		FORMAT_MESSAGE_FROM_SYSTEM,         
-		NULL,                               
-		dwError,                     
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),   
-		szMsgBuf,                   
-		500,                                  
-		NULL );                              
+	DWORD dwError = GetLastError();
+	FormatMessage(
+		FORMAT_MESSAGE_FROM_SYSTEM,
+		NULL,
+		dwError,
+		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
+		szMsgBuf,
+		500,
+		NULL );
 	MessageBox(NULL,szMsgBuf,"Error",MB_ICONSTOP|MB_OK);
-}  
+}
 
 #ifdef KF_LONG_DOUBLE_DLL
 class CInitLD
@@ -1555,27 +1555,41 @@ void CFraktalSFT::CalculateReference()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
-	assert(ok && "reference_double");
+  if (m_nFractalType == 0 && m_nPower > 10)
+	{
 
-#if 0 // FIXME restore arbitrary power Mandelbrot
-	else {
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
 		if (threashold>.5)
 			threashold = .5;
 		complex<CFixedFloat> r(m_rref, m_iref);
+		complex<CFixedFloat> X(g_SeedR, g_SeedI);
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			complex<CFixedFloat> X(xr, xi);
-			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			xrn = Xn.m_r;
-			xin = Xn.m_i;
-			NEXT(threashold);
+			X = (X^m_nPower) + r;
+			m_db_dxr[i] = X.m_r.ToDouble();
+			m_db_dxi[i] = X.m_i.ToDouble();
+			double abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			m_db_z[i] = abs_val*threashold;
+			if (abs_val >= terminate){
+				if (nMaxIter == m_nMaxIter){
+					nMaxIter = i + 3;
+					if (nMaxIter>m_nMaxIter)
+						nMaxIter = m_nMaxIter;
+					m_nGlitchIter = nMaxIter;
+				}
+			}
+			m_nRDone++;
 		}
-	}
-#endif
 
+	}
+	else
+	{
+
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+		assert(ok && "reference_double");
+
+	}
 }
 
 int ThMandelCalc(TH_PARAMS *pMan)
@@ -1853,15 +1867,15 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 				}
 			}
 		}
-		else{
+		else
+		{
 
 			double Dr = TDnr.todouble();
 			double Di = TDni.todouble();
-      bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i);
-      assert(ok && "perturbation_double");
 
-#if 0 // FIXME restore arbitrary power Mandelbrot
-			else{
+			if (m_nFractalType == 0 && m_nPower > 10)
+			{
+
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 						yr = m_db_dxr[antal] + Dr;
@@ -1890,9 +1904,15 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						Dr = Dn.m_r;
 					}
 				}
-			}
-#endif
 
+			}
+			else
+			{
+
+				bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i);
+				assert(ok && "perturbation_double");
+
+			}
 		}
 		if (antal == m_nGlitchIter)
 			bGlitch = TRUE;
@@ -2167,8 +2187,11 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
-		if(m_nFractalType > 1)
-			m_nPixels[x][y] = LDBL_MandelCalc(m_nFractalType,m_nPower,antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch,g_FactorAR,g_FactorAI);
+
+    if (m_nFractalType == 0 && m_nPower > 10)
+    {
+			m_nPixels[x][y] = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
+		}
 		else
 		{
 			int antal2 = antal;
@@ -2176,10 +2199,6 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 			assert(ok && "perturbation_long_double");
 			m_nPixels[x][y] = antal2;
 		}
-#if 0
-		else
-			m_nPixels[x][y] = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
-#endif
 
 		if (antal == m_nGlitchIter)
 			bGlitch = TRUE;
@@ -4180,15 +4199,15 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 				Node[w][y]=nDone;
 				if(Pixels)
 					Pixels[w][y]=-1;
-				if(y && 
-					IsEqual(Node[w][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(y &&
+					IsEqual(Node[w][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = w;
 					pQ[nQ-1].y = y-1;
 				}
-				if(y<m_nY-1 && 
-					IsEqual(Node[w][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(y<m_nY-1 &&
+					IsEqual(Node[w][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = w;
@@ -4202,22 +4221,22 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 				Node[e][y]=nDone;
 				if(Pixels)
 					Pixels[e][y]=-1;
-				if(y && 
-					IsEqual(Node[e][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(y &&
+					IsEqual(Node[e][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y-1;
 				}
-				if(y<m_nY-1 && 
-					IsEqual(Node[e][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(y<m_nY-1 &&
+					IsEqual(Node[e][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y+1;
 				}
 			}
-			w=y; 
+			w=y;
 			e=y;
 			while(nValidate && w && IsEqual(Node[x][w-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)){
 				nAreaC++;
@@ -4226,15 +4245,15 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 				Node[x][w]=nDone;
 				if(Pixels)
 					Pixels[x][w]=-1;
-				if(x && 
-					IsEqual(Node[x-1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(x &&
+					IsEqual(Node[x-1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = w;
 				}
-				if(x<m_nX-1 && 
-					IsEqual(Node[x+1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(x<m_nX-1 &&
+					IsEqual(Node[x+1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = x+1;
@@ -4248,15 +4267,15 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 				Node[x][e]=nDone;
 				if(Pixels)
 					Pixels[x][e]=-1;
-				if(x && 
-					IsEqual(Node[x-1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(x &&
+					IsEqual(Node[x-1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = e;
 				}
-				if(x<m_nX-1 && 
-					IsEqual(Node[x+1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE) 
+				if(x<m_nX-1 &&
+					IsEqual(Node[x+1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
 					&& nQ<nQSize-1){
 					nQ++;
 					pQ[nQ-1].x = x+1;
@@ -4282,7 +4301,7 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y,BOOL bNP)
 			Node[x][y]=Pixels[x][y];
 
 	int nDistance=-1;
-	
+
 	int nHeight = m_nY;
 	if(m_bMirrored)
 		nHeight=(nHeight+1)/2;

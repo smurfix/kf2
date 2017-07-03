@@ -237,11 +237,8 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-		bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i);
-		assert(ok && "perturbation_floatexp()");
-    
-#if 0 // FIXME restore arbitrary power Mandelbrot
-		else{
+    if (m_nFractalType == 0 && m_nPower > 10)
+		{
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 					yr = m_dxr[antal] + Dr;
@@ -270,8 +267,15 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 					Dr = Dn.m_r;
 				}
 			}
+
 		}
-#endif
+    else
+    {
+
+			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i);
+			assert(ok && "perturbation_floatexp()");
+
+		}
 
 		InterlockedIncrement((LPLONG)&m_nDone);
 		if (antal == m_nGlitchIter)

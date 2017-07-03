@@ -354,13 +354,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 #endif
 
 	}
-	else
+	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 
-    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
-    assert(ok && "reference_long_double");
-
-#if 0 // FIXME restore arbitrary power Mandelbrot
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
@@ -385,7 +381,13 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			}
 			m_nRDone++;
 		}
-#endif
+
+	}
+	else
+	{
+
+		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+    assert(ok && "reference_long_double");
 
 	}
 }

@@ -265,14 +265,9 @@ void CFraktalSFT::CalculateReferenceEXP()
 #endif
 #endif
 	}
-	else
+	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
-    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, real, imag);
-    assert(ok && "reference_floatexp");
-	}
 
-#if 0 // FIXME restore arbitrary power Mandelbrot
-	else{
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
@@ -297,7 +292,13 @@ void CFraktalSFT::CalculateReferenceEXP()
 			}
 			m_nRDone++;
 		}
-	}
-#endif
 
+	}
+	else
+	{
+
+    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, real, imag);
+    assert(ok && "reference_floatexp");
+
+	}
 }
