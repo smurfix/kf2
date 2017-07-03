@@ -21,7 +21,7 @@
 #include "complex.h"
 #include <iostream>
 
-#include "../formula/formulas.h"
+#include "../formula/formula.h"
 
 double g_real=1;
 double g_imag=1;
@@ -2004,14 +2004,8 @@ do { \
 
 	else
 	{
-#define R2(t,p) reference_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
-#define R(t,p) R2(t,p)
-		R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
-		R(1,2) || R(1,3) || R(1,4) || R(1,5) ||
-		R(2,2) || R(2,3) || R(2,4) || R(2,5) ||
-		0;
-#undef R2
-#undef R
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag);
+    assert(ok && "reference_double");
 	}
 
 #if 0
@@ -5008,14 +5002,8 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 			}
 			else
 			{
-#define P2(t,p) perturbation_double_##t##_##p(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, dbD0r, dbD0i)
-#define P(t,p) P2(t,p)
-				P(0,2) || P(0,3) || P(0,4) || P(0,5) || P(0,6) || P(0,7) || P(0,8) || P(0,9) || P(0,10) || // P(0,p) ||
-				P(1,2) || P(1,3) || P(1,4) || P(1,5) ||
-				P(2,2) || P(2,3) || P(2,4) || P(2,5) ||
-				0;
-#undef P2
-#undef P
+        bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, dbD0r, dbD0i);
+        assert(ok && "perturbation_double");
 			}
 #if 0
 			else{
@@ -5328,12 +5316,8 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		else
 		{
 			int antal2 = antal;
-#define R2(t,p) perturbation_long_double_##t##_##p(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, lD0r, lD0i)
-#define R(t,p) R2(t,p)
-			R(0,2) || R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
-			R(1,2) || R(1,3) || R(1,4) || R(1,5);
-#undef R2
-#undef R
+			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, lD0r, lD0i);
+			assert(ok && "perturbation_long_double");
 			m_nPixels[x][y] = antal2;
 		}
 #if 0

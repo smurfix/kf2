@@ -2,7 +2,7 @@
 #include <float.h>
 #include "complex.h"
 
-#include "../formula/formulas.h"
+#include "../formula/formula.h"
 
 #define GUESS
 
@@ -2943,14 +2943,8 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 			}
 		else
 		{
-#define P2(t,p) perturbation_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, D0r, D0i)
-#define P(t,p) P2(t,p)
-			P(0,2) || P(0,3) || P(0,4) || P(0,5) || P(0,6) || P(0,7) || P(0,8) || P(0,9) || P(0,10) || // P(0,p) ||
-			P(1,2) || P(1,3) || P(1,4) || P(1,5) ||
-			P(2,2) || P(2,3) || P(2,4) || P(2,5) ||
-			0;
-#undef P2
-#undef P
+			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, Dr, Di, D0r, D0i);
+			assert(ok && "perturbation_floatexp()");
     }
 #if 0
 		else{

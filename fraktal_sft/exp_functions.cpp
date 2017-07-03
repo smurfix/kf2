@@ -2,7 +2,7 @@
 #include <float.h>
 #include "complex.h"
 
-#include "../formula/formulas.h"
+#include "../formula/formula.h"
 
 extern double g_real;
 extern double g_imag;
@@ -704,24 +704,16 @@ void CFraktalSFT::CalculateReferenceEXP()
 		}
 #else
 
-#define R2(t,p) reference_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag)
-#define R(t,p) R2(t,p)
-		R(0,2);
-#undef R2
-#undef R
+    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag);
+    assert(ok && "reference_floatexp");
 
 #endif
 #endif
 	}
 	else
 	{
-#define R2(t,p) reference_floatexp_##t##_##p(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag)
-#define R(t,p) R2(t,p)
-		R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
-		R(1,2) || R(1,3) || R(1,4) || R(1,5)
-		;
-#undef R2
-#undef R
+    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, real, imag);
+    assert(ok && "reference_floatexp");
 	}
 #if 0
 	else{

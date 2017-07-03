@@ -2,7 +2,7 @@
 #include <float.h>
 #include "complex.h"
 
-#include "../formula/formulas.h"
+#include "../formula/formula.h"
 
 extern double g_real;
 extern double g_imag;
@@ -791,11 +791,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 #else
 
-#define R2(t,p) reference_long_double_##t##_##p(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
-#define R(t,p) R2(t,p)
-		R(0,2);
-#undef R2
-#undef R
+    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag);
+    assert(ok && "reference_long_double");
 
 #endif
 #endif
@@ -804,14 +801,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	}
 	else
 	{
-#define R2(t,p) reference_long_double_##t##_##p(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag)
-#define R(t,p) R2(t,p)
-		R(0,3) || R(0,4) || R(0,5) || R(0,6) || R(0,7) || R(0,8) || R(0,9) || R(0,10) || // R(0,p) ||
-		R(1,2) || R(1,3) || R(1,4) || R(1,5) ||
-		R(2,2) || R(2,3) || R(2,4) || R(2,5) ||
-		0;
-#undef R2
-#undef R
+    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, g_real, g_imag);
+    assert(ok && "reference_long_double");
 #if 0
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)

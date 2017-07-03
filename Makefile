@@ -6,6 +6,7 @@ COMPILE_FLAGS := -xc++ $(FLAGS)
 HEADER_FLAGS := -xc++-header $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
+XSLTPROC ?= xsltproc
 WINDRES ?= x86_64-w64-mingw32-windres
 
 FRAKTAL_SOURCES_CPP = \
@@ -126,15 +127,13 @@ jpeg/jpeglib.h \
 jpeg/jversion.h \
 jpeg/transupp.h
 
-FORMULA_SOURCES_CPP := $(wildcard formula/*.cpp)
+FORMULA_SOURCES_CPP = formula/formula.cpp
 
 SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(JPEG_SOURCES_CPP) $(FORMULA_SOURCES_CPP)
 SOURCES_C = $(JPEG_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
-
-HEADERS_PCH := fraktal_sft/CFixedFloat.h.gch fraktal_sft/floatexp.h.gch fraktal_sft/complex.h.gch
 
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
@@ -145,7 +144,7 @@ DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 all: kf.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(HEADERS_PCH) pch.stamp
+	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
@@ -156,16 +155,13 @@ res.o: fraktal_sft/fraktal_sft.rc
 kf.dll: $(LDBL_SOURCES_CPP)
 	$(COMPILE) -o kf.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp
 
-%.o: %.cpp pch.stamp
+%.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
 %.o: %.c
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
-%.h.gch: %.h
-	$(COMPILE) $(HEADER_FLAGS) $<
-
-pch.stamp: $(HEADERS_PCH)
-	touch pch.stamp
+formula/formula.cpp: formula/formula.xsl formula/formula.xml
+	$(XSLTPROC) -o $@ formula/formula.xsl formula/formula.xml
 
 -include $(DEPENDS)
