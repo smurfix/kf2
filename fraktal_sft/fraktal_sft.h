@@ -257,16 +257,8 @@ class CFraktalSFT
 
 	void CalculateApproximation(int nType);
 	void CalculateReference();
-	void SpecialFractal(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si);
-	void SpecialFractal2(int nMaxIter, CFixedFloat &xrn, CFixedFloat &xin, CFixedFloat &xr, CFixedFloat &xi, CFixedFloat &sr, CFixedFloat &si);
 	void CalculateReferenceEXP();
-	void CalculateReferenceEXP1();
-	void CalculateReferenceEXP2();
-	void CalculateReferenceEXP3();
 	void CalculateReferenceLDBL();
-	void CalculateReferenceLDBL1();
-	void CalculateReferenceLDBL2();
-	void CalculateReferenceLDBL3();
 	void CreateLists();
 	char *ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
