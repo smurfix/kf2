@@ -2,4 +2,9 @@
 *.o
 *.dll
 *.d
+*.hi
 formula/formula.cpp
+cl/kf.cl
+cl/.cabal-sandbox
+cl/cabal.sandbox.config
+cl/preprocessor
