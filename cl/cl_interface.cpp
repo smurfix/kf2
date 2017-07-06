@@ -178,7 +178,7 @@ kfcl initialize_opencl(cl_uint PLATFORM)
   const char *src = "#include \"kf.cl\"\n";
   cl_program program = clCreateProgramWithSource(context, 1, &src, 0, &err);
   if (! program) { E(err); }
-  err = clBuildProgram(program, 1, &device_id, "-I. -cl-finite-math-only -cl-no-signed-zeros", 0, 0);
+  err = clBuildProgram(program, 1, &device_id, "-I. -cl-finite-math-only" /* -cl-no-signed-zeros" */, 0, 0);
   if (err != CL_SUCCESS) {
     char *buf = (char *) malloc(1000000);
     buf[0] = 0;
