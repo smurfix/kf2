@@ -4,40 +4,13 @@
 <xsl:template match="/">
 
 
-typedef struct
-{
-  int antal;
-  int bGlitch;
-  double test1;
-  double test2;
-} p_status;
-
-
-typedef struct
-{
-  int count;
-  int width;
-  int height;
-  int antal;
-  int nMaxiter
-  int m_bNoGlitchDetection
-  int m_nSmoothMethod;
-  int m_nPower;
-  double m_nBailout2;
-  double g_real;
-  double g_imag;
-  double g_FactorAR;
-  double g_FactorAI;
-  double m_nBailout;
-} p_config;
-
-
 <xsl:for-each select="formulas/group/formula">
 
 
 p_status perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-( const dcomplex *ref;
-, const double *refz;
+( __global const double *refx
+, __global const double *refy
+, __global const double *refz
 , const p_status status0
 , const p_config config
 , const double cr
@@ -51,10 +24,10 @@ p_status perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of se
   int bGlitch = status0.bGlitch;
   double test1 = status0.test1;
   double test2 = status0.test2;
-  for (; antal &lt; config.nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
+  for (; antal &lt; config.m_nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
   {
-      const double Xr = ref[antal - config.antal].re;
-      const double Xi = ref[antal - config.antal].im;
+      const double Xr = refx[antal - config.antal];
+      const double Xi = refy[antal - config.antal];
       const double Xxr = Xr + xr;
       const double Xxi = Xi + xi;
       test2 = test1;
@@ -96,8 +69,9 @@ p_status perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of se
 
 
 p_status perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-( const fecomplex *ref
-, const double *refz
+( __global const floatexp *refx
+, __global const floatexp *refy
+, __global const double *refz
 , const p_status status0
 , const p_config config
 , const floatexp cr
@@ -113,10 +87,10 @@ p_status perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of 
   double test2 = status0.test2;
   floatexp xr = xr0;
   floatexp xi = xi0;
-  for (; antal &lt; config.nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
+  for (; antal &lt; config.m_nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
   {
-      const floatexp Xr = ref[antal - config.antal].re;
-      const floatexp Xi = ref[antal - config.antal].im;
+      const floatexp Xr = refx[antal - config.antal];
+      const floatexp Xi = refy[antal - config.antal];
       const double Xxr = fe_double(fe_add(Xr, xr));
       const double Xxi = fe_double(fe_add(Xi, xi));
       test2 = test1;
@@ -158,12 +132,13 @@ p_status perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of 
 
 
 __kernel void perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
-( __global const dcomplex *ref
+( __global const double *refx
+, __global const double *refy
 , __global const double *refz
 , __global const p_config *config0
 , __global const double *cx
-, __global int *m_nPixels;
-, __global float *m_nTrans;
+, __global int *m_nPixels
+, __global float *m_nTrans
 )
 {
   int ix = get_global_id(0);
@@ -171,9 +146,9 @@ __kernel void perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-
   if (0 &lt;= ix &amp;&amp; ix &lt; config.count)
   {
     p_status status = { config.antal, false, 0.0, 0.0 };
- 
+
     status = perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-      (ref, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
+      (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
 
     if (status.antal == config.m_nGlitchIter)
       status.bGlitch = true;
@@ -219,12 +194,13 @@ __kernel void perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-
 
 
 __kernel void perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
-( __global const fecomplex *ref
+( __global const floatexp *refx
+, __global const floatexp *refy
 , __global const double *refz
 , __global const p_config *config0
 , __global const floatexp *cx
-, __global int *m_nPixels;
-, __global float *m_nTrans;
+, __global int *m_nPixels
+, __global float *m_nTrans
 )
 {
   int ix = get_global_id(0);
@@ -234,8 +210,8 @@ __kernel void perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:valu
     p_status status = { config.antal, false, 0.0, 0.0 };
 
     status = perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-      (ref, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
-  
+      (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
+
     if (status.antal == config.m_nGlitchIter)
       status.bGlitch = true;
     if (status.antal == config.m_nMaxIter)

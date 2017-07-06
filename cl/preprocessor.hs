@@ -22,11 +22,14 @@ data Expr
 interpret _ (EInt n) = show n
 interpret _ (EVar v) = v
 interpret t (EPow a b) = t ++ "pow(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EMul a@(ENeg (EInt _)) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EMul a b@(ENeg (EInt _))) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a@(EInt _) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b@(EInt _)) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b) = t ++ "mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a b) = t ++ "add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (ESub a b) = t ++ "sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (ENeg (EInt v)) = interpret t (EInt (negate v))
 interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
