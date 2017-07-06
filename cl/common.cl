@@ -392,6 +392,54 @@ typedef struct
 } p_config;
 
 
+__kernel void series_approximation_double
+( __global const p_config *config0
+, __global const double *m_pDX
+, __global const double *m_pDY
+, __global const floatexp *m_APr
+, __global const floatexp *m_APi
+, __global double *cx
+)
+{
+  p_config config = *config0;
+  int ix = get_global_id(0);
+  if (0 <= ix && ix < config.count)
+  {
+    int x = ix % config.width;
+    int y = ix / config.width;
+		double dbD0r = m_pDX[config.m_nX / 2] + config.m_C*(m_pDX[x] - m_pDX[config.m_nX / 2]) + config.m_S*(m_pDY[y] - m_pDY[config.m_nY / 2]);
+		double dbD0i = m_pDY[config.m_nY / 2] - config.m_S*(m_pDX[x] - m_pDX[config.m_nX / 2]) + config.m_C*(m_pDY[y] - m_pDY[config.m_nY / 2]);
+		floatexp D0r = fe_floatexp(dbD0r, 0);
+		floatexp D0i = fe_floatexp(dbD0i, 0);
+		floatexp Dr = D0r;
+		floatexp Di = D0i;
+		if (config.m_nMaxApproximation)
+    {
+			floatexp Dnr = fe_sub(fe_mul(m_APr[0] , D0r) , fe_mul(m_APi[0] , D0i));
+			floatexp Dni = fe_add(fe_mul(m_APr[0] , D0i) , fe_mul(m_APi[0] , D0r));
+			floatexp D_r = fe_sub(fe_mul(D0r,D0r), fe_mul(D0i,D0i));
+			floatexp D_i = fe_mul_2si(fe_mul(D0r, D0i), 1);
+			Dnr = fe_add(Dnr , fe_sub(fe_mul(m_APr[1] , D_r) , fe_mul(m_APi[1] , D_i)));
+			Dni = fe_add(Dni , fe_add(fe_mul(m_APr[1] , D_i) , fe_mul(m_APi[1] , D_r)));
+			for (int k = 2; k < config.m_nTerms; ++k)
+      {
+				floatexp t = fe_sub(fe_mul(D_r,D0r) , fe_mul(D_i,D0i));
+				D_i =        fe_add(fe_mul(D_r,D0i) , fe_mul(D_i,D0r));
+				D_r = t;
+				Dnr = fe_add(Dnr, fe_sub(fe_mul(m_APr[k] , D_r) , fe_mul(m_APi[k] , D_i)));
+				Dni = fe_add(Dni, fe_add(fe_mul(m_APr[k] , D_i) , fe_mul(m_APi[k] , D_r)));
+			}
+			Dr = Dnr;
+			Di = Dni;
+		}
+    cx[4 * ix + 0] = dbD0r;
+    cx[4 * ix + 1] = dbD0i;
+    cx[4 * ix + 2] = fe_double(Dr);
+    cx[4 * ix + 3] = fe_double(Di);
+  }
+}
+
+
 __kernel void series_approximation_floatexp
 ( __global const p_config *config0
 , __global const floatexp *m_DX
