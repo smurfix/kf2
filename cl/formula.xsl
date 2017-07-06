@@ -26,13 +26,13 @@ p_status perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of se
   double test2 = status0.test2;
   for (; antal &lt; config.m_nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
   {
-      const double Xr = refx[antal - config.antal];
-      const double Xi = refy[antal - config.antal];
+      const double Xr = refx[antal];
+      const double Xi = refy[antal];
       const double Xxr = Xr + xr;
       const double Xxi = Xi + xi;
       test2 = test1;
       test1 = config.g_real * Xxr * Xxr + config.g_imag * Xxi * Xxi;
-      if (test1 &lt; refz[antal - config.antal])
+      if (test1 &lt; refz[antal])
       {
         if (! config.m_bNoGlitchDetection)
           test1 = config.m_nBailout2 * 2;
@@ -89,13 +89,13 @@ p_status perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of 
   floatexp xi = xi0;
   for (; antal &lt; config.m_nMaxIter &amp;&amp; test1 &lt;= config.m_nBailout2; antal++)
   {
-      const floatexp Xr = refx[antal - config.antal];
-      const floatexp Xi = refy[antal - config.antal];
+      const floatexp Xr = refx[antal];
+      const floatexp Xi = refy[antal];
       const double Xxr = fe_double(fe_add(Xr, xr));
       const double Xxi = fe_double(fe_add(Xi, xi));
       test2 = test1;
       test1 = config.g_real * Xxr * Xxr + config.g_imag * Xxi * Xxi;
-      if (test1 &lt; refz[antal - config.antal])
+      if (test1 &lt; refz[antal])
       {
         if (! config.m_bNoGlitchDetection)
           test1 = config.m_nBailout2 * 2;
@@ -145,49 +145,52 @@ __kernel void perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-
   p_config config = *config0;
   if (0 &lt;= ix &amp;&amp; ix &lt; config.count)
   {
-    p_status status = { config.antal, false, 0.0, 0.0 };
-
-    status = perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-      (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
-
-    if (status.antal == config.m_nGlitchIter)
-      status.bGlitch = true;
-    if (status.antal == config.m_nMaxIter)
+    if (m_nPixels[ix] == -1)
     {
-      m_nPixels[ix] = status.antal;
-      m_nTrans[ix] = 0;
-    }
-    else
-    {
-      int p = status.antal;
-      if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 1){
-        double div = sqrt(status.test1) - sqrt(status.test2);
-        if (div != 0)
-          m_nTrans[ix] = (sqrt(status.test1) - config.m_nBailout) / div;
-        else
-          m_nTrans[ix] = 0;
+      p_status status = { config.antal, false, 0.0, 0.0 };
+  
+      status = perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
+        (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
+  
+      if (status.antal == config.m_nGlitchIter)
+        status.bGlitch = true;
+      if (status.antal == config.m_nMaxIter)
+      {
+        m_nPixels[ix] = status.antal;
+        m_nTrans[ix] = 0;
       }
-      else if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 0){
-          double t = log(log(sqrt(status.test1))) / log((double)config.m_nPower);
-          if (! (-1.0/0.0 &lt; t &amp;&amp; t &lt; 1.0/0.0))
-            t = 0;
-          while (t&lt;0){
-            int offs = 1 + (int)t;
-            p += offs;
-            t += offs;
-          }
-          while (t&gt;1){
-            int offs = (int)t;
-            p -= offs;
-            t -= offs;
-          }
-          m_nTrans[ix] = t;
+      else
+      {
+        int p = status.antal;
+        if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 1){
+          double div = sqrt(status.test1) - sqrt(status.test2);
+          if (div != 0)
+            m_nTrans[ix] = (sqrt(status.test1) - config.m_nBailout) / div;
+          else
+            m_nTrans[ix] = 0;
+        }
+        else if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 0){
+            double t = log(log(sqrt(status.test1))) / log((double)config.m_nPower);
+            if (! (-1.0/0.0 &lt; t &amp;&amp; t &lt; 1.0/0.0))
+              t = 0;
+            while (t&lt;0){
+              int offs = 1 + (int)t;
+              p += offs;
+              t += offs;
+            }
+            while (t&gt;1){
+              int offs = (int)t;
+              p -= offs;
+              t -= offs;
+            }
+            m_nTrans[ix] = t;
+        }
+        if (status.bGlitch &amp;&amp; !config.m_bNoGlitchDetection){
+          m_nTrans[ix] = 2;
+          p = config.m_nMaxIter - 1;
+        }
+        m_nPixels[ix] = p;
       }
-      if (status.bGlitch &amp;&amp; !config.m_bNoGlitchDetection){
-        m_nTrans[ix] = 2;
-        p = config.m_nMaxIter - 1;
-      }
-      m_nPixels[ix] = p;
     }
   }
 }
@@ -207,49 +210,52 @@ __kernel void perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:valu
   p_config config = *config0;
   if (0 &lt;= ix &amp;&amp; ix &lt; config.count)
   {
-    p_status status = { config.antal, false, 0.0, 0.0 };
-
-    status = perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
-      (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
-
-    if (status.antal == config.m_nGlitchIter)
-      status.bGlitch = true;
-    if (status.antal == config.m_nMaxIter)
+    if (m_nPixels[ix] == -1)
     {
-      m_nPixels[ix] = status.antal;
-      m_nTrans[ix] = 0;
-    }
-    else
-    {
-      int p = status.antal;
-      if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 1){
-        double div = sqrt(status.test1) - sqrt(status.test2);
-        if (div != 0)
-          m_nTrans[ix] = (sqrt(status.test1) - config.m_nBailout) / div;
-        else
-          m_nTrans[ix] = 0;
+      p_status status = { config.antal, false, 0.0, 0.0 };
+  
+      status = perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_point
+        (refx, refy, refz, status, config, cx[4*ix+0], cx[4*ix+1], cx[4*ix+2], cx[4*ix+3]);
+  
+      if (status.antal == config.m_nGlitchIter)
+        status.bGlitch = true;
+      if (status.antal == config.m_nMaxIter)
+      {
+        m_nPixels[ix] = status.antal;
+        m_nTrans[ix] = 0;
       }
-      else if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 0){
-          double t = log(log(sqrt(status.test1))) / log((double)config.m_nPower);
-          if (! (-1.0/0.0 &lt; t &amp;&amp; t &lt; 1.0/0.0))
-            t = 0;
-          while (t&lt;0){
-            int offs = 1 + (int)t;
-            p += offs;
-            t += offs;
-          }
-          while (t&gt;1){
-            int offs = (int)t;
-            p -= offs;
-            t -= offs;
-          }
-          m_nTrans[ix] = t;
+      else
+      {
+        int p = status.antal;
+        if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 1){
+          double div = sqrt(status.test1) - sqrt(status.test2);
+          if (div != 0)
+            m_nTrans[ix] = (sqrt(status.test1) - config.m_nBailout) / div;
+          else
+            m_nTrans[ix] = 0;
+        }
+        else if (!status.bGlitch &amp;&amp; config.m_nSmoothMethod == 0){
+            double t = log(log(sqrt(status.test1))) / log((double)config.m_nPower);
+            if (! (-1.0/0.0 &lt; t &amp;&amp; t &lt; 1.0/0.0))
+              t = 0;
+            while (t&lt;0){
+              int offs = 1 + (int)t;
+              p += offs;
+              t += offs;
+            }
+            while (t&gt;1){
+              int offs = (int)t;
+              p -= offs;
+              t -= offs;
+            }
+            m_nTrans[ix] = t;
+        }
+        if (status.bGlitch &amp;&amp; !config.m_bNoGlitchDetection){
+          m_nTrans[ix] = 2;
+          p = config.m_nMaxIter - 1;
+        }
+        m_nPixels[ix] = p;
       }
-      if (status.bGlitch &amp;&amp; !config.m_bNoGlitchDetection){
-        m_nTrans[ix] = 2;
-        p = config.m_nMaxIter - 1;
-      }
-      m_nPixels[ix] = p;
     }
   }
 }

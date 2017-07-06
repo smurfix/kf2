@@ -3,6 +3,17 @@
 <xsl:output method="text" />
 <xsl:template match="/">
 
+#define P 0
+#define P2 2
+#define P3 3
+#define P4 4
+#define P5 5
+#define P6 6
+#define P7 7
+#define P8 8
+#define P9 9
+#define P10 10
+
 std::vector&lt;clformula&gt; compile_kernels(cl_program program)
 {
   cl_int err;
@@ -14,7 +25,7 @@ std::vector&lt;clformula&gt; compile_kernels(cl_program program)
     if (! kd) { E(err); }
     cl_kernel kfe = clCreateKernel(program, "perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />", &amp;err);
     if (! kfe) { E(err); }
-    clformula f = { <xsl:value-of select="../@type" />, <xsl:value-of select="@power or '-1'" />, kd, kfe };
+    clformula f = { <xsl:value-of select="../@type" />, P<xsl:value-of select="@power" />, kd, kfe };
     fs.push_back(f);
   }
 </xsl:for-each>

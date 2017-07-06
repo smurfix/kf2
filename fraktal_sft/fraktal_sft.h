@@ -9,6 +9,9 @@
 
 #include "floatexp.h"
 
+#include "../cl/opencl.h"
+extern std::vector<cldevice> cldevices;
+
 class CPixels
 {
 	RECT m_rRect;
@@ -263,11 +266,17 @@ class CFraktalSFT
 	char *ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
+	void RenderFractalOpenCL();
+	void RenderFractalOpenCLEXP();
 	int GetArea(int **Node, int nXStart, int nXStop, int nEqSpan = 2, int **Pixels = NULL, int nDone = -1);
 
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone=TRUE);
 	void SetTexture(int nIndex, int x, int y);
 	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1);
+
+	int clid;
+  OpenCL *cl;
+
 public:
 	BOOL m_bRunning;
 	int nPos;
@@ -390,6 +399,10 @@ public:
 
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();
+
+  int GetOpenCLDeviceIndex();
+  void SetOpenCLDeviceIndex(int i);
+
 };
 
 struct TH_PARAMS

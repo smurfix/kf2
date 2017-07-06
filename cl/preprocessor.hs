@@ -55,8 +55,8 @@ exprparser = buildExpressionParser table term <?> "expression"
 table = [ [Prefix (op "-" >> return ENeg)]
         , [Infix (op "^" >> return EPow) AssocLeft]
         , [Infix (op "*" >> return EMul) AssocLeft]
-        , [Infix (op "+" >> return EAdd) AssocLeft]
-        , [Infix (op "-" >> return ESub) AssocLeft]
+        , [Infix (op "+" >> return EAdd) AssocLeft
+          ,Infix (op "-" >> return ESub) AssocLeft]
         , [Infix (op "=" >> return EAssign) AssocLeft]
         ]
 term = m_parens exprparser

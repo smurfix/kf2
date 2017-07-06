@@ -361,6 +361,9 @@ public:
 
 CFraktalSFT::CFraktalSFT()
 {
+	clid = -1;
+	cl = NULL;
+
 	m_bTexture=FALSE;
 	m_nImgMerge=1;
 	m_nImgPower=200;
@@ -2485,7 +2488,14 @@ void CFraktalSFT::RenderFractal()
 			delete[] m_dxi;
 			m_dxi = NULL;
 		}
-		RenderFractalLDBL();
+		if (cl)
+		{
+			RenderFractalOpenCLEXP();
+		}
+		else
+		{
+			RenderFractalLDBL();
+		}
 		return;
 	}
 	else if (m_nZoom>=g_nLDBL){
@@ -2505,7 +2515,14 @@ void CFraktalSFT::RenderFractal()
 			ReleaseArray(m_ldxi);
 			m_ldxi = NULL;
 		}
-		RenderFractalEXP();
+		if (cl)
+		{
+			RenderFractalOpenCLEXP();
+		}
+		else
+		{
+			RenderFractalEXP();
+		}
 		return;
 	}
 	if (m_ldxr){
@@ -2593,66 +2610,74 @@ void CFraktalSFT::RenderFractal()
 */
 	CalculateApproximation(0);
 
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = -1;
-				m_nTrans[x][y] = 0;
+       if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
+               m_bNoGlitchDetection = FALSE;
+       else
+               m_bNoGlitchDetection = TRUE;
+
+	if (cl)
+	{
+		RenderFractalOpenCL();
+	}
+	else
+	{
+		// CalcStart
+		if (!m_bAddReference){
+			for (x = 0; x<m_nX; x++){
+				for (y = 0; y<m_nY; y++){
+					m_nPixels[x][y] = -1;
+					m_nTrans[x][y] = 0;
+				}
 			}
 		}
-	}
 
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	int nParallel = 1;
-	if (sysinfo.dwNumberOfProcessors>1)
-		nParallel = 4 * sysinfo.dwNumberOfProcessors;
-	int nStep = m_nX / nParallel;
-	int nXStart = 0;
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = 1;
+		if (sysinfo.dwNumberOfProcessors>1)
+			nParallel = 4 * sysinfo.dwNumberOfProcessors;
+		int nStep = m_nX / nParallel;
+		int nXStart = 0;
 
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-
-	CParallell P(
+		CParallell P(
 #ifdef _DEBUG
-		1
+			1
 #else
-		nParallel
+			nParallel
 #endif
-		);
-	TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-	nXStart = 0;
-	for (i = 0; i<nParallel; i++){
-		pMan[i].p = this;
-		pMan[i].nXStart = nXStart;
-		nXStart += nStep;
-		if (nXStart>m_nX)
-			nXStart = m_nX;
-		if (i == nParallel - 1)
-			pMan[i].nXStop = m_nX;
-		else
-			pMan[i].nXStop = nXStart;
-		P.AddFunction((LPEXECUTE)ThMandelCalc, &pMan[i]);
-		if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-			pMan[i].nXStop--;
-			nXStart = pMan[i].nXStop;
+			);
+		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+		nXStart = 0;
+		for (i = 0; i<nParallel; i++){
+			pMan[i].p = this;
+			pMan[i].nXStart = nXStart;
+			nXStart += nStep;
+			if (nXStart>m_nX)
+				nXStart = m_nX;
+			if (i == nParallel - 1)
+				pMan[i].nXStop = m_nX;
+			else
+				pMan[i].nXStop = nXStart;
+			P.AddFunction((LPEXECUTE)ThMandelCalc, &pMan[i]);
+			if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
+				pMan[i].nXStop--;
+				nXStart = pMan[i].nXStop;
+			}
+			if (pMan[i].nXStop == m_nX){
+				break;
+			}
 		}
-		if (pMan[i].nXStop == m_nX){
-			break;
-		}
+		P.Execute();
+		P.Reset();
+		delete[] pMan;
 	}
-	P.Execute();
-	P.Reset();
-	delete[] pMan;
 	m_bAddReference = FALSE;
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 }
+
 void CFraktalSFT::RenderFractalLDBL()
 {
 	m_P.Init(
@@ -2761,6 +2786,7 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 }
+
 void CFraktalSFT::RenderFractalEXP()
 {
 	m_P.Init(
@@ -2938,6 +2964,105 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	m_istop = istop.m_dec;
 #endif
 }
+
+void CFraktalSFT::RenderFractalOpenCL()
+{
+	int32_t antal = 0;
+	if (m_nMaxApproximation)
+	{
+		antal = m_nMaxApproximation - 1;
+	}
+	cl->lock();
+  cl->upload_config(m_nX * m_nY, m_nX, m_nY, m_nX, m_nY, antal, m_nMaxIter, m_nGlitchIter, m_bNoGlitchDetection, m_nSmoothMethod, m_nPower, m_nMaxApproximation, m_nTerms, m_nBailout, m_nBailout2, g_real, g_imag, g_FactorAR, g_FactorAI, m_C, m_S, m_bAddReference);
+  cl->upload_approximation(m_pDX, m_nX, m_pDY, m_nY, m_APr, m_APi, m_nTerms);
+  cl->upload_reference(m_db_dxr, m_db_dxi, m_db_z, m_nMaxIter);
+  cl->execute_approximation(0, m_nX * m_nY);
+  cl->execute_formula(0, m_nFractalType, m_nPower, m_nX * m_nY);
+  cl->download_iterations(m_nPixels, m_nTrans, m_nX, m_nY);
+	cl->unlock();
+}
+
+void CFraktalSFT::RenderFractalOpenCLEXP()
+{
+	m_P.Init(
+#ifdef HARD_GUESS_EXP
+		3
+#else
+		2
+#endif
+		, m_nX, m_nY);
+	if (!m_bReuseRef || !m_dxr){
+		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
+			if (m_nZoom >= g_nRefZero){
+				m_rref = (m_rstop + m_rstart)*.5;
+				m_iref = (m_istop + m_istart)*.5;
+			}
+			else{
+				m_rref = 0;
+				m_iref = 0;
+			}
+		}
+		CalculateReferenceEXP();
+	}
+	int i;
+	int x, y;
+	if (!m_DX || !m_DY){
+		CFixedFloat c = m_rstart;
+		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
+		m_DX = new floatexp[m_nX];
+		for (x = 0; x<m_nX; x++, c += step)
+			m_DX[x] = (c - m_rref);
+		c = m_istart;
+		step = (m_istop - m_istart)*(1 / (double)m_nY);
+		m_DY = new floatexp[m_nY];
+		for (y = 0; y<m_nY; y++, c += step)
+			m_DY[y] = (c - m_iref);
+	}
+	m_rApprox.left = 0;
+	m_rApprox.top = 0;
+	m_rApprox.right = m_nX;
+	m_rApprox.bottom = m_nY;
+	CalculateApproximation(2);
+
+#if 0
+	// CalcStart
+	if (!m_bAddReference){
+		for (x = 0; x<m_nX; x++){
+			for (y = 0; y<m_nY; y++){
+				m_nPixels[x][y] = -1;
+				m_nTrans[x][y] = 0;
+			}
+		}
+	}
+#endif
+
+	m_bAddReference = FALSE;
+	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
+		m_bNoGlitchDetection = FALSE;
+	else
+		m_bNoGlitchDetection = TRUE;
+
+	int32_t antal = 0;
+	if (m_nMaxApproximation)
+	{
+		antal = m_nMaxApproximation - 1;
+	}
+	cl->lock();
+  cl->upload_config(m_nX * m_nY, m_nX, m_nY, m_nX, m_nY, antal, m_nMaxIter, m_nGlitchIter, m_bNoGlitchDetection, m_nSmoothMethod, m_nPower, m_nMaxApproximation, m_nTerms, m_nBailout, m_nBailout2, g_real, g_imag, g_FactorAR, g_FactorAI, m_C, m_S, m_bAddReference);
+  cl->upload_approximation(m_DX, m_nX, m_DY, m_nY, m_APr, m_APi, m_nTerms);
+  cl->upload_reference(m_dxr, m_dxi, m_db_z, m_nMaxIter);
+  cl->execute_approximation(1, m_nX * m_nY);
+  cl->execute_formula(1, m_nFractalType, m_nPower, m_nX * m_nY);
+  cl->download_iterations(m_nPixels, m_nTrans, m_nX, m_nY);
+	cl->unlock();
+
+	if (!m_bNoPostWhenDone)
+		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+	m_bNoPostWhenDone = FALSE;
+	m_bRunning = FALSE;
+}
+
+
 void CFraktalSFT::SetPosition(const char *szR, const char *szI, const std::string &szZ)
 {
 	SetPosition(szR, szI, szZ.c_str());
@@ -4869,6 +4994,27 @@ void CFraktalSFT::RemoveInflectionPoint()
 		m_nInflections--;
 }
 
+int CFraktalSFT::GetOpenCLDeviceIndex()
+{
+	return clid;
+}
+void CFraktalSFT::SetOpenCLDeviceIndex(int i)
+{
+	if (i != clid)
+	{
+		if (cl)
+		{
+			delete cl;
+			cl = NULL;
+			clid = -1;
+		}
+		if (0 <= i && i < cldevices.size())
+		{
+			clid = i;
+			cl = new OpenCL(cldevices[i].pid, cldevices[i].did);
+		}
+	}
+}
 
 CPixels::CPixels()
 {

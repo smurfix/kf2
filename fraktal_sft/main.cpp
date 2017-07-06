@@ -28,6 +28,7 @@
 #include "../formula/formula.h"
 #include "../cl/opencl.h"
 
+std::vector<cldevice> cldevices;
 
 POINT g_pInflections[10];
 int g_nInflection=0;
@@ -50,6 +51,9 @@ POINT g_pTrackStart;
 
 int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
+
+HWND g_hwOpenCL = NULL;
+
 
 HBITMAP g_bmMarilyn=NULL;
 double g_nMinDiff=0;
@@ -361,6 +365,8 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Apply and close";
 		case IDCANCEL:
 			return "Close and undo";
+		case IDC_COMBO_OPENCL_DEVICE:
+			return "Select the OpenCL device to use for per-pixel iteration calculations";
 		}
 	}
 	else if(lParam==2){
@@ -3688,6 +3694,59 @@ int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
+
+LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
+{
+  switch(msg)
+  {
+    case WM_INITDIALOG:
+		{
+			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
+
+			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) "(none)");
+			for (int i = 0; i < cldevices.size(); ++i)
+			{
+				cldevice d = cldevices[i];
+				SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) d.name.c_str());
+			}
+
+			SIZE sc;
+			HDC hDC = GetDC(NULL);
+			HFONT hfOld = (HFONT)SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
+			int i, nMaxWidth=0;
+			for(i=0;i<SendDlgItemMessage(hWnd,IDC_COMBO_OPENCL_DEVICE,CB_GETCOUNT,0,0);i++){
+				int n = SendDlgItemMessage(hWnd,IDC_COMBO_OPENCL_DEVICE,CB_GETLBTEXTLEN,i,0);
+				char *szT = new char[n+1];
+				SendDlgItemMessage(hWnd,IDC_COMBO_OPENCL_DEVICE,CB_GETLBTEXT,i,(LPARAM)szT);
+				GetTextExtentPoint32A(hDC,szT,strlen(szT),&sc);
+				if(sc.cx>nMaxWidth)
+					nMaxWidth = sc.cx;
+				delete szT;
+			}
+			SendDlgItemMessage(hWnd,IDC_COMBO_OPENCL_DEVICE,CB_SETDROPPEDWIDTH,nMaxWidth+8+GetSystemMetrics(SM_CXHTHUMB),0);
+
+			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_SETCURSEL, g_SFT.GetOpenCLDeviceIndex() + 1, 0);
+		  break;
+		}
+		case WM_COMMAND:
+		{
+			if (wParam == IDOK)
+			{
+				g_SFT.SetOpenCLDeviceIndex(SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1);
+				ExitToolTip(hWnd);
+				EndDialog(hWnd, 0);
+			}
+			else if(wParam == IDCANCEL)
+			{
+				ExitToolTip(hWnd);
+				EndDialog(hWnd, 0);
+			}
+			break;
+		}
+	}
+	return 0;
+}
+
 long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
@@ -4595,6 +4654,16 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ShowWindow(g_hwNewton,SW_SHOW);
 		}
 	}
+
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_OPENCL){
+		if(g_hwOpenCL){
+			DestroyWindow(g_hwOpenCL);
+			g_hwOpenCL=NULL;
+		}
+		g_hwOpenCL = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG_OPENCL),hWnd,(DLGPROC)OpenCLProc);
+		ShowWindow(g_hwOpenCL,SW_SHOW);
+	}
+
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SKEW){
 		g_bShowSkew=TRUE;
 		g_DialogInit=0;
@@ -5663,7 +5732,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
 //	return Test();
 
-	initialize_opencl(0);
+	cldevices = initialize_opencl();
 
 	GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
 	strcpy(strrchr(g_szRecovery,'.'),".rec");

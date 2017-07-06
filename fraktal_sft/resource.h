@@ -177,6 +177,13 @@
 #define ID_ZOOMSIZE_CUSTOM              40076
 #define ID_SPECIAL_NEWTON               40077
 
+
+// OpenCL
+#define IDD_DIALOG_OPENCL         120
+#define IDC_COMBO_OPENCL_DEVICE  1100
+#define ID_SPECIAL_OPENCL       40100
+
+
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
