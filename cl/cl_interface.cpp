@@ -71,8 +71,7 @@ void error_print(int err, int loc) {
 #define E(err) error_print(err, __LINE__)
 
 
-
-typedef struct
+struct p_config
 {
   int32_t count;
   int32_t width;
@@ -80,7 +79,8 @@ typedef struct
   int32_t m_nX;
   int32_t m_nY;
   int32_t antal;
-  int32_t nMaxiter;
+  int32_t m_nMaxIter;
+  int32_t m_nGlitchIter;
   int32_t m_bNoGlitchDetection;
   int32_t m_nSmoothMethod;
   int32_t m_nPower;
@@ -94,7 +94,7 @@ typedef struct
   double g_FactorAI;
   double m_C;
   double m_S;
-} p_config;
+};
 
 struct clformula
 {
@@ -262,7 +262,8 @@ void upload_config(kfcl &cl,
   int32_t m_nX,
   int32_t m_nY,
   int32_t antal,
-  int32_t nMaxiter,
+  int32_t m_nMaxIter,
+  int32_t m_nGlitchIter,
   int32_t m_bNoGlitchDetection,
   int32_t m_nSmoothMethod,
   int32_t m_nPower,
@@ -286,7 +287,8 @@ void upload_config(kfcl &cl,
       m_nX,
       m_nY,
       antal,
-      nMaxiter,
+      m_nMaxIter,
+      m_nGlitchIter,
       m_bNoGlitchDetection,
       m_nSmoothMethod,
       m_nPower,
