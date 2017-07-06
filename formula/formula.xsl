@@ -232,14 +232,12 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
       const complex&lt;double&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
       complex&lt;double&gt; xn;
       {
-        typedef double T;
         <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
       {
-        typedef double T;
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -283,14 +281,12 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
       const complex&lt;long double&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
       complex&lt;long double&gt; xn;
       {
-        typedef long double T;
         <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
       {
-        typedef long double T;
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -333,14 +329,12 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
       const complex&lt;floatexp&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
       complex&lt;floatexp&gt; xn;
       {
-        typedef floatexp T;
         <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
       {
-        typedef floatexp T;
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
