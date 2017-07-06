@@ -4,9 +4,9 @@
 *.d
 *.hi
 formula/formula.cpp
-cl/kf
+cl/kf_opencl_source.c
 cl/kf.cl
 cl/.cabal-sandbox
 cl/cabal.sandbox.config
 cl/preprocessor
-cl/interface.inc
+cl/opencl.inc

@@ -1,14 +1,9 @@
 #include <assert.h>
 #include <math.h>
-#include <stdint.h>
-#include <stdio.h>
 
-#include <vector>
+#include "opencl.h"
 
-#define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#include <CL/cl.h>
-
-struct floatexp { double val; int64_t exp; };
+extern const char *kf_opencl_source;
 
 const char *error_string(int err) {
   switch (err) {
@@ -70,73 +65,16 @@ void error_print(int err, int loc) {
 
 #define E(err) error_print(err, __LINE__)
 
-
-struct p_config
-{
-  int32_t count;
-  int32_t width;
-  int32_t height;
-  int32_t m_nX;
-  int32_t m_nY;
-  int32_t antal;
-  int32_t m_nMaxIter;
-  int32_t m_nGlitchIter;
-  int32_t m_bNoGlitchDetection;
-  int32_t m_nSmoothMethod;
-  int32_t m_nPower;
-  int32_t m_nMaxApproximation;
-  int32_t m_nTerms;
-  double m_nBailout;
-  double m_nBailout2;
-  double g_real;
-  double g_imag;
-  double g_FactorAR;
-  double g_FactorAI;
-  double m_C;
-  double m_S;
-};
-
-struct clformula
-{
-  int type;
-  int power;
-  cl_kernel doublek;
-  cl_kernel floatexpk;
-};
-
-std::vector<clformula> compile_kernels(cl_program program);
-
-struct kfcl
-{
-  cl_context context;
-  cl_device_id device_id;
-  cl_command_queue commands;
-  cl_program program;
-
-  size_t ref_bytes;
-  cl_mem refx;
-  cl_mem refy;
-
-  size_t ref_bytesz;
-  cl_mem refz;
-
-  size_t config_bytes;
-  cl_mem config;
-
-  size_t cx_bytes;
-  cl_mem cx;
-
-  size_t pixels_bytes;
-  cl_mem pixels;
-
-  size_t trans_bytes;
-  cl_mem trans;
-
-  std::vector<clformula> kernels;
-};
-
 kfcl initialize_opencl(cl_uint PLATFORM)
 {
+  int ok = clewInit();
+  if (ok != CLEW_SUCCESS)
+  {
+    assert(! "clew initialized");
+    abort();
+    exit(1);
+  }
+  
   cl_platform_id platform_id[64];
   cl_uint platform_ids;
   E(clGetPlatformIDs(64, &platform_id[0], &platform_ids));
@@ -175,8 +113,7 @@ kfcl initialize_opencl(cl_uint PLATFORM)
   cl_command_queue commands = clCreateCommandQueue(context, device_id, 0, &err);
   if (! commands) { E(err); }
   // build program
-  const char *src = "#include \"kf.cl\"\n";
-  cl_program program = clCreateProgramWithSource(context, 1, &src, 0, &err);
+  cl_program program = clCreateProgramWithSource(context, 1, &kf_opencl_source, 0, &err);
   if (! program) { E(err); }
   err = clBuildProgram(program, 1, &device_id, "-I. -cl-finite-math-only" /* -cl-no-signed-zeros" */, 0, 0);
   if (err != CL_SUCCESS) {
@@ -307,14 +244,4 @@ void upload_config(kfcl &cl,
   E(clEnqueueWriteBuffer(cl.commands, cl.config, CL_TRUE, 0, sizeof(config), &config, 0, 0, 0));
 }
 
-#include "interface.inc"
-
-
-int main(int argc, char **argv)
-{
-  if (argc > 1)
-  {
-    initialize_opencl(atoi(argv[1]));
-  }
-  return 0;
-}
+#include "opencl.inc"

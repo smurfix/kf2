@@ -26,6 +26,8 @@
 #include "fraktal_sft.h"
 #include <malloc.h>
 #include "../formula/formula.h"
+#include "../cl/opencl.h"
+
 
 POINT g_pInflections[10];
 int g_nInflection=0;
@@ -5660,6 +5662,8 @@ int Test1()
 int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
 //	return Test();
+
+	initialize_opencl(0);
 
 	GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
 	strcpy(strrchr(g_szRecovery,'.'),".rec");

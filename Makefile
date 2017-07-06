@@ -1,7 +1,8 @@
 WINPREFIX ?= $(HOME)/win64
+CLEWPREFIX ?= ../clew
 COMPILE := x86_64-w64-mingw32-g++
 LINK := x86_64-w64-mingw32-g++
-FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
+FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -I$(CLEWPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER -Dclew_STATIC
 COMPILE_FLAGS := -xc++ $(FLAGS)
 HEADER_FLAGS := -xc++-header $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib
@@ -129,9 +130,9 @@ jpeg/transupp.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(JPEG_SOURCES_CPP) $(FORMULA_SOURCES_CPP)
-SOURCES_C = $(JPEG_SOURCES_C)
-SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(JPEG_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp
+SOURCES_C = $(JPEG_SOURCES_C) cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
+SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
@@ -163,5 +164,20 @@ kf.dll: $(LDBL_SOURCES_CPP)
 
 formula/formula.cpp: formula/formula.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ formula/formula.xsl formula/formula.xml
+
+cl/kf_opencl_source.c: cl/kf.cl cl/s2c.sh
+	./cl/s2c.sh kf_opencl_source < cl/kf.cl > cl/kf_opencl_source.c
+
+cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml cl/preprocessor
+	( cat cl/common.cl ; $(XSLTPROC) cl/formula.xsl formula/formula.xml | ./cl/preprocessor ) > $@
+
+cl/cabal.sandbox.config:
+	( cd cl ; cabal sandbox init ; cabal install parsec )
+
+cl/preprocessor: cl/preprocessor.hs cl/cabal.sandbox.config
+	( cd cl ; cabal exec -- ghc preprocessor.hs )
+
+cl/opencl.inc: cl/opencl.xsl formula/formula.xml
+	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
 
 -include $(DEPENDS)
