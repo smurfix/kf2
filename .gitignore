@@ -3,10 +3,10 @@
 *.dll
 *.d
 *.hi
+.cabal-sandbox
+cabal.sandbox.config
 formula/formula.cpp
 cl/kf_opencl_source.c
 cl/kf.cl
-cl/.cabal-sandbox
-cl/cabal.sandbox.config
 cl/preprocessor
 cl/opencl.inc

@@ -175,10 +175,12 @@ cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml cl/preprocessor
 cabal.sandbox.config:
 	( cabal sandbox init ; cabal install parsec )
 
-cl/preprocessor: cl/preprocessor.hs cl/cabal.sandbox.config
+cl/preprocessor: cl/preprocessor.hs cabal.sandbox.config
 	( cabal exec -- ghc -O cl/preprocessor.hs )
 
 cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
+
+cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
 
 -include $(DEPENDS)
