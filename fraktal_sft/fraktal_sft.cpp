@@ -1108,7 +1108,7 @@ CFraktalSFT::~CFraktalSFT()
 char *CFraktalSFT::ToZoom()
 {
 	CFixedFloat div = m_istop - m_istart;
-	return ToZoom((CDecNumber)4 / ((CDecNumber)div.ToText()), m_nZoom);
+	return ToZoom((CDecNumber)4 / ((CDecNumber)div.m_f), m_nZoom);
 }
 char *CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
