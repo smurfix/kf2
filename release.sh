@@ -12,7 +12,7 @@ make clean
 
 SRC="kf-${VERSION}-src"
 mkdir "${SRC}"
-cp -avit "${SRC}/" fraktal_sft formula ldbl64 common jpeg Makefile README "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl ldbl64 common jpeg Makefile README "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 
 BIN="kf-${VERSION}"
