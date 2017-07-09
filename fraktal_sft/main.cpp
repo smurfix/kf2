@@ -5555,7 +5555,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
 				"©2013-2017 Karl Runmo version 2.11.1\n"
-				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170703\n\n"
+				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170710\n\n"
 				"Processors: %d\n"
 				// mpf_t decimal digits = floor(64.0 * ((1<<31)-1) * log2(10))
 				// FIXME TODO figure out maximum precision for mpfr_t
@@ -5569,6 +5569,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #ifdef KF_FLOAT_BACKEND_MPFR
 				"- MPFR %s <http://mpfr.org>\n"
 #endif
+				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 				"\nAcknowledgements:\n"
 				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
 				" - Thanks to Pauldelbrot for finding the reliable glitch detection method\n"
