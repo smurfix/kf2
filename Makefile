@@ -146,6 +146,7 @@ all: kf.exe
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
+	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o cl/preprocessor cl/preprocessor.hi cl/preprocessor.o
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
