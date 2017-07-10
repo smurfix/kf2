@@ -1,18 +1,18 @@
-#include <windows.h>
-#include <math.h>
-#ifndef _GCC_
-#include "CFixedFloat.h"
-#endif
 #ifndef __FLOATEXP_H__
 #define __FLOATEXP_H__
+
+#include <math.h>
+#include <stdint.h>
+#include "CFixedFloat.h"
+
 #define MAX_PREC 1020
 
-#define _ALIGN_(val,exp) exp += ((*((__int64*)&val) & 0x7FF0000000000000LL)>>52) - 1023; *((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
+#define _ALIGN_(val,exp) exp += ((*((int64_t*)&val) & 0x7FF0000000000000LL)>>52) - 1023; *((int64_t*)&val) = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
 class floatexp
 {
 public:
 	double val;
-	__int64 exp;
+	int64_t exp;
 	__inline floatexp &abs()
 	{
 		if(val<0)
@@ -27,17 +27,17 @@ public:
 	}
 	inline void align()
 	{
-		exp += ((*((__int64*)&val) & 0x7FF0000000000000LL)>>52) - 1023;
-//		__int64 tmpval = (*((__int64*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
+		exp += ((*((int64_t*)&val) & 0x7FF0000000000000LL)>>52) - 1023;
+//		int64_t tmpval = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
 //		memcpy(&val,&tmpval,sizeof(double));
-		*((__int64*)&val) = (*((__int64*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
+		*((int64_t*)&val) = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
 	}
-	inline double setExp(double newval,__int64 newexp) const
+	inline double setExp(double newval,int64_t newexp) const
 	{
-//		__int64 tmpval = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
+//		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
 //		memcpy(&newval,&tmpval,sizeof(double));
 //		return newval;
-		*((__int64*)&newval) = (*((__int64*)&newval) & 0x800FFFFFFFFFFFFFLL) | ((newexp+1023)<<52);
+		*((int64_t*)&newval) = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFFLL) | ((newexp+1023)<<52);
 		return newval;
 	}
 	inline floatexp()
@@ -49,7 +49,7 @@ public:
 	{
 		initFromDouble(a);
 	}
-	inline floatexp(double a, __int64 e, int dummy)
+	inline floatexp(double a, int64_t e, int dummy)
 	{
 		val = a;
 		exp = e;
@@ -99,7 +99,7 @@ public:
 	inline floatexp operator +(const floatexp &a) const
 	{
 		floatexp r;
-		__int64 diff;
+		int64_t diff;
 		if(exp>a.exp){
 			diff = exp-a.exp;
 			r.exp = exp;
@@ -137,7 +137,7 @@ public:
 	inline floatexp operator -(const floatexp &a) const
 	{
 		floatexp r;
-		__int64 diff;
+		int64_t diff;
 		if(exp>a.exp){
 			diff = exp-a.exp;
 			r.exp = exp;
@@ -166,57 +166,57 @@ public:
 		*this = *this-a;
 		return *this;
 	}
-	inline BOOL operator >(const floatexp &a) const
+	inline bool operator >(const floatexp &a) const
 	{
 		if(val>0){
 			if(a.val<0)
-				return TRUE;
+				return true;
 			if(exp>a.exp)
-				return TRUE;
+				return true;
 			else if(exp<a.exp)
-				return FALSE;
+				return false;
 			return val>a.val;
 		}
 		else{
 			if(a.val>0)
-				return FALSE;
+				return false;
 			if(exp>a.exp)
-				return FALSE;
+				return false;
 			else if(exp<a.exp)
-				return TRUE;
+				return true;
 			return val>a.val;
 		}
 	}
-	inline BOOL operator <(const floatexp &a) const
+	inline bool operator <(const floatexp &a) const
 	{
 		if(val>0){
 			if(a.val<0)
-				return FALSE;
+				return false;
 			if(exp>a.exp)
-				return FALSE;
+				return false;
 			else if(exp<a.exp)
-				return TRUE;
+				return true;
 			return val<a.val;
 		}
 		else{
 			if(a.val>0)
-				return TRUE;
+				return true;
 			if(exp>a.exp)
-				return TRUE;
+				return true;
 			else if(exp<a.exp)
-				return FALSE;
+				return false;
 			return val<a.val;
 		}
 	}
-	inline BOOL operator <=(const int a) const
+	inline bool operator <=(const int a) const
 	{
 		floatexp aa(a);
 		return (*this<a || *this==a);
 	}
-	inline BOOL operator ==(const floatexp &a) const
+	inline bool operator ==(const floatexp &a) const
 	{
 		if(exp!=a.exp)
-			return FALSE;
+			return false;
 		return val==a.val;
 	}
 	inline bool iszero() const
@@ -265,7 +265,7 @@ public:
 		_ALIGN_(val,exp)
 		return *this;
 	}
-#ifndef _GCC_
+
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
 		signed long int e = 0;
@@ -283,10 +283,10 @@ public:
 		a = val;
 		mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
 	}
-#else
+
 	inline floatexp setLongDouble(long double a)
 	{
-		__int64 val[2]={0};
+		int64_t val[2]={0};
 		memcpy(val,(void*)&a,sizeof(val));
 		exp = (val[1]&0x7FFF)-16383;
 		val[1] = (val[1]&0x8000) + 16383;
@@ -303,11 +303,11 @@ public:
 	inline long double toLongDouble() const
 	{
 		long double ret = val;
-		__int64 *v = (__int64*)&ret;
+		int64_t *v = (int64_t*)&ret;
 		v[1] = (v[1]&0x8000) | (exp + 16383);
 		return ret;
 	}
-#endif
+
 };
 
 inline floatexp operator*(double a, floatexp b)

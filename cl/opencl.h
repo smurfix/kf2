@@ -1,6 +1,7 @@
 #ifndef OPENCL_H
 #define OPENCL_H 1
 
+#include <windows.h>
 #include <stdint.h>
 #include <string>
 #include <vector>

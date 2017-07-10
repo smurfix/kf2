@@ -1,3 +1,4 @@
+#include <windows.h>
 #include <stdint.h>
 #include "../fraktal_sft/floatexp.h"
 
