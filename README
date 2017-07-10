@@ -17,5 +17,3 @@ configuration (COMPILE_FLAGS in Makefile)
 - add -DKF_THREADED_REFERENCE_BARRIER to use barrier() threaded reference
   (acceptable overhead in WINE, CPU affinity is adjusted with zoom depth,
   enabled by default)
-- add -DKF_THREADED_REFERENCE_OPENMP -fopenmp to use OpenMP (incomplete and
-  unsupported)

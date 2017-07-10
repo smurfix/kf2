@@ -177,54 +177,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	if (m_nFractalType == 0 && m_nPower == 2){
 
-#ifdef KF_THREADED_REFERENCE_OPENMP
-		CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
-		// avoid deadlock on race condition if different threads get different values
-		// for m_bStop at loop entry time
-		int dummy;
-		int should_stop = m_bStop;
-		#pragma omp parallel num_threads(3)
-		{
-			for (int j = 0; j < nMaxIter && !should_stop; ++j)
-			{
-				#pragma omp for
-				for (int thread = 0; thread < 2; ++thread)
-				{
-					if (thread == 0) { xrn = sr - si + m_rref; }
-					if (thread == 1) { xin = xrxid - sr - si + m_iref; }
-				}
-				#pragma omp for
-				for (int thread = 0; thread < 3; ++thread)
-			  {
-					if (thread == 0) { xr = xrn; sr = xr.Square(); ConvertFromFixedFloat(&m_ldxr[j], xr); }
-					if (thread == 1) { xi = xin; si = xi.Square(); ConvertFromFixedFloat(&m_ldxi[j], xi); }
-					if (thread == 2) { xrxid = (xrn + xin).Square(); }
-				}
-				#pragma omp single
-				{
-					abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[j], g_imag==0?&noll:&m_ldxi[j]);
-					m_db_z[j] = abs_val*0.0000001;
-					if (abs_val >= terminate){
-						if (nMaxIter == m_nMaxIter){
-							nMaxIter = i + 3;
-							if (nMaxIter>m_nMaxIter)
-								nMaxIter = m_nMaxIter;
-							m_nGlitchIter = nMaxIter;
-						}
-					}
-					m_nRDone++;
-					i = j + 1;
-					should_stop = m_bStop;
-				}
-			}
-		}
-		for (; i < nMaxIter && !m_bStop; i++)
-		{
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-		}
-#else
-
 #ifdef KF_THREADED_REFERENCE_BARRIER
 		mcthread mc[3];
 		barrier barrier(3);
@@ -392,7 +344,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
     bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
     assert(ok && "reference_long_double");
 
-#endif
 #endif
 #endif
 
