@@ -5557,8 +5557,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Precision: 456562320657\n"
 				"%s\n"
 				"\nLibraries:\n"
-				"- Boost %d.%d.%d <http://boost.org>\n"
+				"- JPEG 6b <http://www.ijg.org>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
+				"- Boost %d.%d.%d <http://boost.org>\n"
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 				"\nAcknowledgements:\n"
 				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
@@ -5572,8 +5573,8 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
 				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
-				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100,
-				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL
+				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
+				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 				);
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
