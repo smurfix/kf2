@@ -49,6 +49,12 @@ public:
 	{
 		initFromDouble(a);
 	}
+	inline floatexp(double a, int64_t e)
+	{
+		val = a;
+		exp = e;
+		_ALIGN_(val,exp)
+	}
 	inline floatexp(double a, int64_t e, int dummy)
 	{
 		val = a;

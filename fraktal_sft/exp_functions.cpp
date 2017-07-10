@@ -15,36 +15,81 @@ extern double g_FactorAR;
 extern double g_FactorAI;
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
+
 #include "../common/barrier.h"
-struct mcthread
+
+floatexp mpf_get_fe(const mpf_t value)
+{
+	using std::ldexp;
+	signed long int e = 0;
+	double l = mpf_get_d_2exp(&e, value);
+	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
+	return floatexp(l, e);
+}
+
+struct mcthread_common
 {
 	barrier *barrier;
-	int nType;
-	HANDLE hDone;
-	CFixedFloat *xr, *xi, *xrn, *xin, *sr, *si, *xrxid, *m_rref, *m_iref;
+	mpf_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	floatexp *m_dxr, *m_dxi;
 	double *m_db_z, *terminate;
 	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
 	volatile BOOL *stop;
 };
 
-static DWORD WINAPI mcthreadfunc(mcthread *p)
+struct mcthread
 {
-	floatexp real(g_real);
-	floatexp imag(g_imag);
+	int nType;
+	HANDLE hDone;
+	mcthread_common *common;
+};
 
+static DWORD WINAPI mcthreadfunc(mcthread *p0)
+{
+	const floatexp real(g_real);
+	const floatexp imag(g_imag);
+	mcthread_common *p = p0->common;
 	int i;
-	for (i = 0; i < *p->nMaxIter && !*p->stop; i++)
+	switch (p0->nType)
 	{
-		if (p->barrier->wait(p->stop)) break;
-		switch (p->nType)
+		case 0:
 		{
-			case 0: *p->xrn = *p->sr - *p->si + *p->m_rref; break;
-			case 1: *p->xin = *p->xrxid - *p->sr - *p->si + *p->m_iref; break;
-			case 2:
+			for (i = 0; i < *p->nMaxIter; i++)
+			{
+				mpf_sub(p->xrn1, p->sr, p->si);
+				mpf_add(p->xrn, p->cr, p->xrn1);
+				if (p->barrier->wait(p->stop)) break;
+				mpf_set(p->xr, p->xrn);
+				mpf_mul(p->sr, p->xrn, p->xrn);
+				p->m_dxr[i] = mpf_get_fe(p->xrn);
+				if (p->barrier->wait(p->stop)) break;
+			}
+		}
+		break;
+		case 1:
+		{
+			for (i = 0; i < *p->nMaxIter; i++)
+			{
+				mpf_add(p->xin, p->sr, p->si);
+				mpf_sub(p->xin1, p->ci, p->xin);
+				mpf_add(p->xin, p->xin1, p->xrxid);
+				if (p->barrier->wait(p->stop)) break;
+				mpf_set(p->xi, p->xin);
+				mpf_mul(p->si, p->xin, p->xin);
+				p->m_dxi[i] = mpf_get_fe(p->xin);
+				if (p->barrier->wait(p->stop)) break;
+			}
+		}
+		break;
+		case 2:
+		{
+			for (i = 0; i < *p->nMaxIter; i++)
+			{
 				if (i > 0)
 				{
-					double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
+					const floatexp lr = p->m_dxr[i-1];
+					const floatexp li = p->m_dxi[i-1];
+					const double abs_val = (real * lr * lr + imag * li * li).todouble();
 					p->m_db_z[i-1] = abs_val * 0.0000001;
 					if (abs_val >= *p->terminate){
 						if (*p->nMaxIter == *p->m_nMaxIter)
@@ -57,46 +102,50 @@ static DWORD WINAPI mcthreadfunc(mcthread *p)
 					}
 					(*p->m_nRDone)++;
 				}
-				break;
+				if (p->barrier->wait(p->stop)) break;
+				mpf_add(p->xrxid1, p->xrn, p->xin);
+				mpf_mul(p->xrxid, p->xrxid1, p->xrxid1);
+				if (p->barrier->wait(p->stop)) break;
+			}
 		}
-		if (p->barrier->wait(p->stop)) break;
-		switch (p->nType)
-		{
-			case 0: *p->xr = *p->xrn; *p->sr = p->xrn->Square(); p->m_dxr[i] = *p->xr; break;
-			case 1: *p->xi = *p->xin; *p->si = p->xin->Square(); p->m_dxi[i] = *p->xi; break;
-			case 2: *p->xrxid = (*p->xrn + *p->xin).Square(); break;
-		}
+		break;
 	}
 	if (p->barrier->wait(p->stop))
 	{
-		SetEvent(p->hDone);
+		SetEvent(p0->hDone);
 		return 0;
 	}
-	if (p->nType == 0)
+	if (p0->nType == 0)
 	{
-		double abs_val = (real * p->m_dxr[i-1] * p->m_dxr[i-1] + imag * p->m_dxi[i-1] * p->m_dxi[i-1]).todouble();
-		p->m_db_z[i-1] = abs_val * 0.0000001;
-		if (abs_val >= *p->terminate){
-			if (*p->nMaxIter == *p->m_nMaxIter)
-			{
-				*p->nMaxIter = i-1 + 3;
-				if (*p->nMaxIter > *p->m_nMaxIter)
-					*p->nMaxIter = *p->m_nMaxIter;
-				*p->m_nGlitchIter = *p->nMaxIter;
+		if (i > 0)
+		{
+			const floatexp lr = p->m_dxr[i-1];
+			const floatexp li = p->m_dxi[i-1];
+			const double abs_val = (real * lr * lr + imag * li * li).todouble();
+			p->m_db_z[i-1] = abs_val * 0.0000001;
+			if (abs_val >= *p->terminate){
+				if (*p->nMaxIter == *p->m_nMaxIter)
+				{
+					*p->nMaxIter = i-1 + 3;
+					if (*p->nMaxIter > *p->m_nMaxIter)
+						*p->nMaxIter = *p->m_nMaxIter;
+					*p->m_nGlitchIter = *p->nMaxIter;
+				}
 			}
+			(*p->m_nRDone)++;
 		}
-		(*p->m_nRDone)++;
-		floatexp xr = p->m_dxr[i] = *p->xr;
-		floatexp xi = p->m_dxi[i] = *p->xi;
+		floatexp xr; xr = mpf_get_fe(p->xr);
+		floatexp xi; xi = mpf_get_fe(p->xi);
 		for (; i < *p->nMaxIter && !*p->stop; i++)
 		{
 			p->m_dxr[i] = xr;
 			p->m_dxi[i] = xi;
 		}
 	}
-	SetEvent(p->hDone);
+	SetEvent(p0->hDone);
 	return 0;
 }
+
 #endif
 
 
@@ -113,7 +162,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 		delete[] m_db_z;
 	m_db_z = new double [m_nMaxIter];
 
-	CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
 
 	floatexp real(g_real);
 	floatexp imag(g_imag);
@@ -125,33 +173,47 @@ void CFraktalSFT::CalculateReferenceEXP()
 	if (m_nFractalType == 0 && m_nPower == 2){
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
+
 		mcthread mc[3];
 		barrier barrier(3);
 		HANDLE hDone[3];
+		mcthread_common co;
+	  co.barrier = &barrier;
+		mp_bitcnt_t bits = mpf_get_prec(m_rref.m_f.backend().data());
+		mpf_init2(co.xr, bits);
+		mpf_init2(co.xi, bits);
+		mpf_init2(co.xrn, bits);
+		mpf_init2(co.xin, bits);
+		mpf_init2(co.xrn1, bits);
+		mpf_init2(co.xin1, bits);
+		mpf_init2(co.xrxid, bits);
+		mpf_init2(co.xrxid1, bits);
+		mpf_init2(co.sr, bits);
+		mpf_init2(co.si, bits);
+		mpf_init2(co.cr, bits);
+		mpf_init2(co.ci, bits);
+		mpf_set(co.cr, m_rref.m_f.backend().data());
+		mpf_set(co.ci, m_iref.m_f.backend().data());
+		mpf_set_d(co.xr, g_SeedR);
+		mpf_set_d(co.xi, g_SeedI);
+		mpf_mul(co.sr, co.xr, co.xr);
+		mpf_mul(co.si, co.xi, co.xi);
+		mpf_set_d(co.xrxid, 0);
+		co.m_dxr = m_dxr;
+		co.m_dxi = m_dxi;
+		co.m_db_z = m_db_z;
+		co.terminate = &terminate;
+		co.m_nMaxIter = &m_nMaxIter;
+		co.m_nGlitchIter = &m_nGlitchIter;
+		co.nMaxIter = &nMaxIter;
+		co.m_nRDone = &m_nRDone;
+		co.stop = &m_bStop;
 		// spawn threads
 		for (i = 0; i < 3; i++)
 		{
-			mc[i].barrier = &barrier;
 			mc[i].nType = i;
 			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			mc[i].xr = &xr;
-			mc[i].xi = &xi;
-			mc[i].xrn = &xrn;
-			mc[i].xin = &xin;
-			mc[i].sr = &sr;
-			mc[i].si = &si;
-			mc[i].xrxid = &xrxid;
-			mc[i].m_iref = &m_iref;
-			mc[i].m_rref = &m_rref;
-			mc[i].m_dxr = m_dxr;
-			mc[i].m_dxi = m_dxi;
-			mc[i].m_db_z = m_db_z;
-			mc[i].terminate = &terminate;
-			mc[i].m_nMaxIter = &m_nMaxIter;
-			mc[i].m_nGlitchIter = &m_nGlitchIter;
-			mc[i].nMaxIter = &nMaxIter;
-			mc[i].m_nRDone = &m_nRDone;
-			mc[i].stop = &m_bStop;
+			mc[i].common = &co;
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
 			SetThreadAffinityMask(hThread, 1<<i);
 			CloseHandle(hThread);
@@ -161,9 +223,24 @@ void CFraktalSFT::CalculateReferenceEXP()
 		for (i = 0; i < 3; i++){
 			CloseHandle(hDone[i]);
 		}
+		mpf_clear(co.xr);
+		mpf_clear(co.xi);
+		mpf_clear(co.xrn);
+		mpf_clear(co.xin);
+		mpf_clear(co.xrn1);
+		mpf_clear(co.xin1);
+		mpf_clear(co.xrxid);
+		mpf_clear(co.xrxid1);
+		mpf_clear(co.sr);
+		mpf_clear(co.si);
+		mpf_clear(co.cr);
+		mpf_clear(co.ci);
+
 #else
 
 #ifdef KF_THREADED_REFERENCE_CUSTOM
+
+		CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
 		MC mc[3];
 		HANDLE hDone[3];
 		HANDLE hWait[3];
@@ -257,6 +334,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 			CloseHandle(hWait2[i]);
 			CloseHandle(hExit2[i]);
 		}
+
 #else
 
     bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, real, imag);
@@ -268,6 +346,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 
+		CFixedFloat xr = g_SeedR, xi = g_SeedI;
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
