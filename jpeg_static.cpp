@@ -1,6 +1,9 @@
 #include <stdio.h>
 #define HAVE_PROTOTYPES
-#include "./jpeglib.h"
+extern "C"
+{
+#include "jpeg-6b/jpeglib.h"
+}
 #include <setjmp.h>
 #include <memory.h>
 #include <malloc.h>

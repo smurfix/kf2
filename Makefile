@@ -51,7 +51,7 @@ common/tooltip.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp jpeg_static.cpp
 SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
