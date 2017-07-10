@@ -146,7 +146,8 @@ all: kf.exe
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
-	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o cl/preprocessor cl/preprocessor.hi cl/preprocessor.o
+	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
+	rm -f preprocessor preprocessor.hi preprocessor.o
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
@@ -160,20 +161,20 @@ res.o: fraktal_sft/fraktal_sft.rc
 %.o: %.c
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
-formula/formula.cpp: formula/formula.xsl formula/formula.xml
-	$(XSLTPROC) -o $@ formula/formula.xsl formula/formula.xml
+formula/formula.cpp: formula/common.cpp formula/formula.xsl formula/formula.xml preprocessor
+	( cat formula/common.cpp ; $(XSLTPROC) formula/formula.xsl formula/formula.xml | ./preprocessor ) > $@
 
 cl/kf_opencl_source.c: cl/kf.cl cl/s2c.sh
 	./cl/s2c.sh kf_opencl_source < cl/kf.cl > cl/kf_opencl_source.c
 
-cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml cl/preprocessor
-	( cat cl/common.cl ; $(XSLTPROC) cl/formula.xsl formula/formula.xml | ./cl/preprocessor ) > $@
+cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml preprocessor
+	( cat cl/common.cl ; $(XSLTPROC) cl/formula.xsl formula/formula.xml | ./preprocessor ) > $@
 
 cabal.sandbox.config:
 	( cabal sandbox init ; cabal install parsec )
 
-cl/preprocessor: cl/preprocessor.hs cabal.sandbox.config
-	( cabal exec -- ghc -O cl/preprocessor.hs )
+preprocessor: preprocessor.hs cabal.sandbox.config
+	( cabal exec -- ghc -O preprocessor.hs )
 
 cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml

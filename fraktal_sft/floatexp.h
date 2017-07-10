@@ -49,6 +49,11 @@ public:
 	{
 		initFromDouble(a);
 	}
+	inline floatexp(double a, __int64 e, int dummy)
+	{
+		val = a;
+		exp = e;
+	}
 	inline floatexp &operator =(const floatexp &a)
 	{
 		val=a.val;

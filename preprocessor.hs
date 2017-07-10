@@ -6,6 +6,7 @@ import Text.Parsec.Language
 import Control.Monad.Identity (Identity)
 
 import Data.Char (isSpace)
+import Data.List (nub)
 
 data Expr
   = EInt Int
@@ -18,6 +19,17 @@ data Expr
   | EAbs Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
+
+vars (EInt _) = []
+vars (EVar a) = [a]
+vars (EPow a b) = vars a ++ vars b
+vars (EMul a b) = vars a ++ vars b
+vars (EAdd a b) = vars a ++ vars b
+vars (ESub a b) = vars a ++ vars b
+vars (ENeg a) = vars a
+vars (EAbs a) = vars a
+vars (EDiffAbs a b) = vars a ++ vars b
+vars (EAssign a b) = vars a ++ vars b
 
 interpret _ (EInt n) = show n
 interpret _ (EVar v) = v
@@ -34,6 +46,37 @@ interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+
+prepare "d" vs = unlines . concat $
+  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const double xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const double xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "ld" vs = unlines . concat $
+  [ [ "const long double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const long double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const long double xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const long double xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "fe" vs = unlines . concat $
+  [ [ "const floatexp Xr2 = fe_mul(Xr, Xr);" | "Xr2" `elem` vs ]
+  , [ "const floatexp Xi2 = fe_mul(Xi, Xi);" | "Xi2" `elem` vs ]
+  , [ "const floatexp xr2 = fe_mul(xr, xr);" | "xr2" `elem` vs ]
+  , [ "const floatexp xi2 = fe_mul(xi, xi);" | "xi2" `elem` vs ]
+  ]
+prepare "dc" vs = unlines . concat $
+  [ [ "const dcomplex X2 = dc_mul(X, X);" | "X2" `elem` vs ]
+  , [ "const dcomplex x2 = dc_mul(x, x);" | "x2" `elem` vs ]
+  ]
+prepare "ldc" vs = unlines . concat $
+  [ [ "const ldcomplex X2 = ldc_mul(X, X);" | "X2" `elem` vs ]
+  , [ "const ldcomplex x2 = ldc_mul(x, x);" | "x2" `elem` vs ]
+  ]
+prepare "fec" vs = unlines . concat $
+  [ [ "const fecomplex X2 = fec_mul(X, X);" | "X2" `elem` vs ]
+  , [ "const fecomplex x2 = fec_mul(x, x);" | "x2" `elem` vs ]
+  ]
 
 def :: GenLanguageDef String () Identity
 def = emptyDef{ identStart = letter
@@ -89,7 +132,7 @@ parseCL s = case parse (many (block <|> context) <* eof) "" s of
 
 interpretCL (Context s) = s
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
-  Right es -> concatMap (interpret (t ++ "_")) es
+  Right es -> prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es)
   Left e -> error (show e ++ " : " ++ show s)
 
 main = interact parseCL

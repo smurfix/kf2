@@ -38,10 +38,6 @@ p_status perturbation_double_<xsl:value-of select="../@type" />_<xsl:value-of se
           test1 = config.m_nBailout2 * 2;
         bGlitch = true;
       }
-      const double Xr2 = Xr * Xr;
-      const double Xi2 = Xi * Xi;
-      const double xr2 = xr * xr;
-      const double xi2 = xi * xi;
       double xrn, xin;
 
 <xsl:choose>
@@ -101,15 +97,11 @@ p_status perturbation_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of 
           test1 = config.m_nBailout2 * 2;
         bGlitch = true;
       }
-      const floatexp Xr2 = fe_mul(Xr, Xr);
-      const floatexp Xi2 = fe_mul(Xi, Xi);
-      const floatexp xr2 = fe_mul(xr, xr);
-      const floatexp xi2 = fe_mul(xi, xi);
       floatexp xrn, xin;
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const fecomplex X = { Xr, Xi }, x = { xr, xi }, c = { cr, ci }, X2 = fec_mul(X, X), x2 = fec_mul(x, x);
+      const fecomplex X = { Xr, Xi }, x = { xr, xi }, c = { cr, ci };
       fecomplex xn;
 @fec  {
         <xsl:value-of select="perturbation" />

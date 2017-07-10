@@ -57,14 +57,12 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 <xsl:when test="reference/@t='C'">
       complex&lt;CFixedFloat&gt; X(Xr, Xi), C(Cr, Ci), Xn;
       {
-        typedef double T;
         <xsl:value-of select="reference" />
       }
       Xrn = Xn.m_r; Xin = Xn.m_i;
 </xsl:when>
 <xsl:when test="reference/@t='R'">
       {
-        typedef double T;
         <xsl:value-of select="reference" />
       }
 </xsl:when>
@@ -109,14 +107,12 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 <xsl:when test="reference/@t='C'">
       complex&lt;CFixedFloat&gt; X(Xr, Xi), C(Cr, Ci), Xn;
       {
-        typedef long double T;
         <xsl:value-of select="reference" />
       }
       Xrn = Xn.m_r; Xin = Xn.m_i;
 </xsl:when>
 <xsl:when test="reference/@t='R'">
       {
-        typedef long double T;
         <xsl:value-of select="reference" />
       }
 </xsl:when>
@@ -161,14 +157,12 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 <xsl:when test="reference/@t='C'">
       complex&lt;CFixedFloat&gt; X(Xr, Xi), C(Cr, Ci), Xn;
       {
-        typedef floatexp T;
         <xsl:value-of select="reference" />
       }
       Xrn = Xn.m_r; Xin = Xn.m_i;
 </xsl:when>
 <xsl:when test="reference/@t='R'">
       {
-        typedef floatexp T;
         <xsl:value-of select="reference" />
       }
 </xsl:when>
@@ -202,7 +196,8 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
-    const complex&lt;double&gt; A(g_FactorAR, g_FactorAI);
+    const dcomplex A = { g_FactorAR, g_FactorAI };
+    const dcomplex c = { cr, ci };
     for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const double Xr = m_db_dxr[antal];
@@ -217,23 +212,19 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
           test1 = m_nBailout2 * 2;
         bGlitch = true;
       }
-      const double Xr2 = Xr * Xr;
-      const double Xi2 = Xi * Xi;
-      const double xr2 = xr * xr;
-      const double xi2 = xi * xi;
       double xrn, xin;
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;double&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
-      complex&lt;double&gt; xn;
-      {
+      const dcomplex X = {Xr, Xi}, x = {xr, xi};
+      dcomplex xn;
+@dc   {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.m_r; xin = xn.m_i;
+      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
-      {
+@d    {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -251,7 +242,8 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
-    const complex&lt;long double&gt; A(g_FactorAR, g_FactorAI);
+    const ldcomplex A = { g_FactorAR, g_FactorAI };
+    const ldcomplex c = { cr, ci };
     for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const long double Xr = dxr[antal];
@@ -266,23 +258,19 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
           test1 = m_nBailout2 * 2;
         bGlitch = true;
       }
-      const long double Xr2 = Xr * Xr;
-      const long double Xi2 = Xi * Xi;
-      const long double xr2 = xr * xr;
-      const long double xi2 = xi * xi;
       long double xrn, xin;
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;long double&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
-      complex&lt;long double&gt; xn;
-      {
+      const ldcomplex X = {Xr, Xi}, x = {xr, xi};
+      ldcomplex xn;
+@ldc  {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.m_r; xin = xn.m_i;
+      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
-      {
+@ld   {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -300,7 +288,8 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
-    const complex&lt;floatexp&gt; A(g_FactorAR, g_FactorAI);
+    const fecomplex A = { g_FactorAR, g_FactorAI };
+    const fecomplex c = { cr, ci };
 		for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const floatexp Xr = m_dxr[antal];
@@ -314,23 +303,19 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
           test1 = m_nBailout2 * 2;
         bGlitch = true;
       }
-      const floatexp Xr2 = Xr * Xr;
-      const floatexp Xi2 = Xi * Xi;
-      const floatexp xr2 = xr * xr;
-      const floatexp xi2 = xi * xi;
       floatexp xrn, xin;
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;floatexp&gt; X(Xr, Xi), x(xr, xi), c(cr, ci), X2(X * X), x2(x * x);
-      complex&lt;floatexp&gt; xn;
-      {
+      const fecomplex X = {Xr, Xi}, x = {xr, xi};
+      fecomplex xn;
+@fec  {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.m_r; xin = xn.m_i;
+      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
-      {
+@fe   {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>

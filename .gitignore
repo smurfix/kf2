@@ -5,8 +5,8 @@
 *.hi
 .cabal-sandbox
 cabal.sandbox.config
+preprocessor
 formula/formula.cpp
 cl/kf_opencl_source.c
 cl/kf.cl
-cl/preprocessor
 cl/opencl.inc
