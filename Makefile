@@ -102,10 +102,12 @@ cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
 
+jpeg_static.o: jpeg_static.cpp jpeg-6b/jconfig.h
+
 jpeg-6b/libjpeg.a: jpeg-6b/jconfig.h
 	$(MAKE) -C jpeg-6b libjpeg.a
 
-jpeg-6b/jconfig.h:
+jpeg-6b/jconfig.h: jpeg-6b
 	( cd jpeg-6b ; ./configure CC=x86_64-w64-mingw32-gcc )
 
 jpeg-6b: jpegsrc.v6b.tar.gz
