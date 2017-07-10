@@ -68,7 +68,7 @@ public:
 	}
 	inline complex operator /(const complex &b) const
 	{
-		complex <tt> r;
+		complex <tt> r(0,0);
 		tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
 		if(!(div==0)){
 			r.m_r = (m_r*b.m_r + m_i*b.m_i)/div;
