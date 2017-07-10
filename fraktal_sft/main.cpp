@@ -4457,10 +4457,6 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bStoreZoom=FALSE;
 					DeleteObject(g_bmSaveZoomBuff);
 					g_bmSaveZoomBuff=NULL;
-					CFixedFloat tmp;
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-					tmp.SetMaxSignificant(0);
-#endif
 					RECT r;
 					GetClientRect(hWnd,&r);
 					RECT sr;
@@ -5561,11 +5557,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				// FIXME TODO figure out maximum precision for mpfr_t
 				"Precision: 456562320657\n"
 				"%s\n"
-#ifndef KF_FLOAT_BACKEND_CUSTOM
 				"\nLibraries:\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
-#endif
 #ifdef KF_FLOAT_BACKEND_MPFR
 				"- MPFR %s <http://mpfr.org>\n"
 #endif
@@ -5581,12 +5575,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
 				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
-				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit"
-#ifndef KF_FLOAT_BACKEND_CUSTOM
-				,
+				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100,
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL
-#endif
 #ifdef KF_FLOAT_BACKEND_MPFR
 				,
 				MPFR_VERSION_STRING
@@ -5618,85 +5609,11 @@ int Test2()
 {
 	return 0;
 }
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-CFixedFloat CFixedFloat_Multiply(CFixedFloat &This, CFixedFloat &A)
-{
-	int g_nMaxSignificant=3;
-	CFixedFloat Ret;
-	if(g_nMaxSignificant){
-		for(;This.m_nValues<g_nMaxSignificant;This.m_nValues++)
-			This.m_pValues[This.m_nValues]=0;
-		for(;A.m_nValues<g_nMaxSignificant;A.m_nValues++)
-			A.m_pValues[A.m_nValues]=0;
-	}
-	Ret.m_nValues = This.m_nValues+A.m_nValues;
-	if(g_nMaxSignificant && Ret.m_nValues>g_nMaxSignificant)
-		Ret.m_nValues=g_nMaxSignificant;
-	else if(Ret.m_nValues>FIXEDFLOAT_ENTRIES)
-		Ret.m_nValues=FIXEDFLOAT_ENTRIES;
-	if(!g_nMaxSignificant){
-		for(;This.m_nValues<Ret.m_nValues;This.m_nValues++)
-			This.m_pValues[This.m_nValues]=0;
-		for(;A.m_nValues<Ret.m_nValues;A.m_nValues++)
-			A.m_pValues[A.m_nValues]=0;
-	}
-
-	unsigned __int64 c;
-	unsigned __int64 grid[FIXEDFLOAT_ENTRIES][FIXEDFLOAT_ENTRIES]={0};
-	unsigned __int64 carry[FIXEDFLOAT_ENTRIES][FIXEDFLOAT_ENTRIES]={0};
-	int a, b;
-	for(a=0;a<Ret.m_nValues;a++){
-		int end = Ret.m_nValues-a;
-#ifdef _WIN64
-		for(b=0;b<end;b++)
-			grid[a][b] = _umul128(This.m_pValues[a],A.m_pValues[b],&carry[a][b]);
-#endif
-	}
-
-	memset(Ret.m_pValues,0,sizeof(This.m_pValues));
-	c=0;
-
-	int x, y;
-	a=Ret.m_nValues-1;
-	Ret.m_pValues[a]=0;
-	c=0;
-	x=a;
-	for(y=0;x>=0;y++,x--){
-		Ret.m_pValues[a]+=grid[x][y];
-		c+=(Ret.m_pValues[a]<grid[x][y]);
-	}
-	x=a;
-	for(y=1;y<Ret.m_nValues;y++,x--){
-		Ret.m_pValues[a]+=carry[x][y];
-		c+=Ret.m_pValues[a]<carry[x][y];
-	}
-	for(a=Ret.m_nValues-2;a>=0;a--){
-		x = a;
-		Ret.m_pValues[a]=c;
-		c=0;
-		for(y=0;x>=0;y++,x--){
-			Ret.m_pValues[a]+=grid[x][y];
-			c+=Ret.m_pValues[a]<grid[x][y];
-		}
-		x=a+1;
-		for(y=0;x>=0;y++,x--){
-			Ret.m_pValues[a]+=carry[x][y];
-			c+=Ret.m_pValues[a]<carry[x][y];
-		}
-	}
-
-	Ret.m_bSign = !(This.m_bSign==A.m_bSign);
-	return Ret;
-}
-#endif
 
 int Test1()
 {
 	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	CFixedFloat m_rref = 0.25, m_iref=0;
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	m_rref.SetMaxSignificant(3111);
-#endif
 	double dr, di;
 	int antal;
 	SYSTEMTIME st;

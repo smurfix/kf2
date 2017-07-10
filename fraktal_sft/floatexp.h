@@ -263,36 +263,6 @@ public:
 #ifndef _GCC_
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
-
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-
-		exp=0;
-		val=0;
-
-		floatexp startexp=1;
-		floatexp partmax = FIXEDFLOAT_PARTMAX;
-		int nStart = 0;
-		for(nStart=0;nStart<a.m_nValues;nStart++){
-			if(a.m_pValues[nStart])
-				break;
-			startexp=startexp/partmax;
-		}
-		if(nStart>a.m_nValues)
-			nStart=a.m_nValues;
-		int n=nStart+24/FIXEDFLOAT_DIGITS;
-		if(n>a.m_nValues-1)
-			n=a.m_nValues-1;
-		for(;n>=nStart && n>=0;n--)
-			val = val/FIXEDFLOAT_PARTMAX + a.m_pValues[n];
-		_ALIGN_(val,exp)
-		*this = *this * startexp;
-
-		if(a.m_bSign)
-			val = -val;
-		return *this;
-
-#else
-
 		signed long int e = 0;
 #ifdef KF_FLOAT_BACKEND_MPFR
 		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
@@ -306,56 +276,15 @@ public:
 		if ((a > 0) != (val > 0))
 			val = -val;
 		return *this;
-
-#endif
-
 	}
 	inline void ToFixedFloat(CFixedFloat &a) const
 	{
-
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-
-		char *szTmp = new char[150000];
-		*szTmp=0;
-		floatexp partmin = (double)1/(double)FIXEDFLOAT_PARTMAX;
-		floatexp partmax = FIXEDFLOAT_PARTMAX;
-		floatexp tmp = *this;
-		BOOL bNegative=FALSE;
-		if(tmp<0){
-			bNegative=TRUE;
-			tmp = -tmp;
-		}
-		while(tmp<partmin){
-			if(!*szTmp){
-				if(bNegative)
-					strcpy(szTmp,"-0.0000000");
-				else
-					strcpy(szTmp,"0.0000000");
-			}
-			else
-				strcat(szTmp,"00000000");
-			tmp = tmp*partmax;
-		}
-		sprintf(szTmp+strlen(szTmp),"%.20f",tmp.todouble());
-		int i, b;
-		for(i=b=6;szTmp[i];i++)
-			if(szTmp[i]!='.')
-				szTmp[b++]=szTmp[i];
-		szTmp[b]=0;
-		a = szTmp;
-		delete szTmp;
-
-#else
-
 		a = val;
 #ifdef KF_FLOAT_BACKEND_MPFR
 		mpfr_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
 #else
 		mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
 #endif
-
-#endif
-
 	}
 #else
 	inline floatexp setLongDouble(long double a)

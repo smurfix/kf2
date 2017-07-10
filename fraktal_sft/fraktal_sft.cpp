@@ -42,9 +42,6 @@ int g_nRefZero = 3;
 //#define TERM6
 //#define TERM7
 int g_nAddRefX, g_nAddRefY;
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-extern decContext g_set;
-#endif
 
 double g_Degree = 0;
 #ifdef KF_LONG_DOUBLE_DLL
@@ -70,17 +67,12 @@ int(*GT)(void *a, void *b);
 int(*LT)(void *a, void *b);
 int(*Equal)(void *a, void *b);
 void(*Print)(void *a, char *szRet);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-void(*DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
-#else
 #ifdef KF_FLOAT_BACKEND_MPFR
 void(*DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #else
 void(*DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#endif
 #endif
 int(*Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(*Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
@@ -116,17 +108,12 @@ int(GT)(void *a, void *b);
 int(LT)(void *a, void *b);
 int(Equal)(void *a, void *b);
 void(Print)(void *a, char *szRet);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-void(DLLConvertFromFixedFloat)(void *p, int nValues, FIXEDFLOAT_TYPE *pValues, BOOL bSign);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_nValues,(x).m_pValues,(x).m_bSign)
-#else
 #ifdef KF_FLOAT_BACKEND_MPFR
 void(DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 #else
 void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#endif
 #endif
 int(Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
@@ -281,14 +268,10 @@ public:
 			fprintf(stderr, "kf.dll missing definition for Print\n");
 			g_LDBL = 2;
 		}
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-		if (!(DLLConvertFromFixedFloat = (void(*)(void*, int, FIXEDFLOAT_TYPE *, BOOL))GetProcAddress(hLD, "ConvertFromFixedFloat")))
-#else
 #ifdef KF_FLOAT_BACKEND_MPFR
 		if (!(DLLConvertFromFixedFloat = (void(*)(void*, mpfr_t))GetProcAddress(hLD, "ConvertFromFixedFloat")))
 #else
 		if (!(DLLConvertFromFixedFloat = (void(*)(void*, mpf_t))GetProcAddress(hLD, "ConvertFromFixedFloat")))
-#endif
 #endif
 		{
 			fprintf(stderr, "kf.dll missing definition for ConvertFromFixedFloat\n");
@@ -2450,17 +2433,12 @@ void CFraktalSFT::RenderFractal()
 		}
 	}
 
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	ToZoom((CDecNumber)4 / ((CDecNumber)div.ToText()), m_nZoom);
-	m_rstart.SetMaxSignificant((int)m_nZoom + nZeroes + 16);
-#else
 	{
 		Precision q(LOW_PRECISION);
 		FixedFloat f(div.m_f);
 		f.precision(LOW_PRECISION);
 		ToZoom(CDecNumber(FixedFloat(4 / f)), m_nZoom);
 	}
-#endif
 	if (m_bAddReference){
 		int x, y;
 		m_nTotal = 0;
@@ -2891,9 +2869,6 @@ void CFraktalSFT::RenderFractalEXP()
 }
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
 {
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	m_rstart.SetMaxSignificant(0);
-#endif
 	m_rstart = rstart;
 	m_rstop = rstop;
 	m_istart = istart;
@@ -2920,12 +2895,9 @@ void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rsto
 }
 void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 {
-#ifndef KF_FLOAT_BACKEND_CUSTOM
 	Precision pLo(20u);
-#endif
 	CDecNumber z(szZ);
 	CDecNumber di(2 / z);
-#ifndef KF_FLOAT_BACKEND_CUSTOM
 	long e = 0;
 #ifdef KF_FLOAT_BACKEND_MPFR
 	mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
@@ -2940,7 +2912,6 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	m_rstop.m_f.precision(digits10);
 	m_istart.m_f.precision(digits10);
 	m_istop.m_f.precision(digits10);
-#endif
 
 	m_rref = szR;
 	m_iref = szI;
@@ -2951,18 +2922,10 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	CDecNumber dr(((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5);
 	CDecNumber rstart(re - dr);
 	CDecNumber rstop(re + dr);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	m_rstart.SetMaxSignificant(0);
-	m_rstart = rstart.ToText();
-	m_rstop = rstop.ToText();
-	m_istart = istart.ToText();
-	m_istop = istop.ToText();
-#else
 	m_rstart = rstart.m_dec;
 	m_rstop = rstop.m_dec;
 	m_istart = istart.m_dec;
 	m_istop = istop.m_dec;
-#endif
 }
 
 void CFraktalSFT::RenderFractalOpenCL()
@@ -3222,7 +3185,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	}
 	m_nX = nWidth;
 	m_nY = nHeight;
-#ifndef KF_FLOAT_BACKEND_CUSTOM
 	unsigned digits10 = 20u;
 	{
 		using std::abs;
@@ -3242,7 +3204,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	m_rstop.m_f.precision(digits10);
 	m_istart.m_f.precision(digits10);
 	m_istop.m_f.precision(digits10);
-#endif
 	CFixedFloat nr = (m_rstop - m_rstart)*(CFixedFloat)((double)1 / ((double)nZoomSize * 2));
 	CFixedFloat ni = (m_istop - m_istart)*(CFixedFloat)((double)1 / ((double)nZoomSize * 2));
 	CFixedFloat offsr = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;

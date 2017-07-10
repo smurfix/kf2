@@ -13,9 +13,6 @@
 #include "../common/barrier.h"
 #endif
 
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-extern decContext g_set;
-#endif
 extern CFraktalSFT g_SFT;
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
@@ -546,21 +543,14 @@ int WINAPI ThNewton(HWND hWnd)
 {
 	char szStatus[300];
 
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	int digits = g_set.digits;
-#endif
 	flyttyp radius = g_szZoom;
 	radius*=g_nZoomSize;
 	char *e = strstr(g_szZoom,"E");
 	if(!e)
 		e = strstr(g_szZoom,"e");
 	int exp = (e?atoi(e+1):0);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	g_set.digits = exp + 6;
-#else
 	unsigned uprec = exp + 6;
 	Precision prec(uprec);
-#endif
 	complex<flyttyp> center(g_szRe,g_szIm);
 
 	char szVal[25];
@@ -576,23 +566,13 @@ int WINAPI ThNewton(HWND hWnd)
 	int steps;
 	if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
 		g_period = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-		g_set.digits *= 3;
-#else
 		uprec *= 3;
-#endif
 	}
 	else{
 		g_period= m_d_box_period_do(center,radius,100000000,steps,hWnd);
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-		g_set.digits*=2;
-#else
 		uprec *= 2;
-#endif
 	}
-#ifndef KF_FLOAT_BACKEND_CUSTOM
 	Precision prec2(uprec);
-#endif
 
 	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
 	BOOL bOK=FALSE;
@@ -613,11 +593,7 @@ int WINAPI ThNewton(HWND hWnd)
 			g_szIm = new char[strlen(sz.c_str())+1];
 			strcpy(g_szIm,sz.c_str());
 
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-			g_set.digits=exp+6;
-#else
 			Precision prec3(exp + 6);
-#endif
 			complex<flyttyp>size = m_d_size(c,g_period,hWnd);
 			flyttyp msize = flyttyp(.25)/flyttyp(sqrt(cabs2(size).m_dec));
 
@@ -682,9 +658,6 @@ int WINAPI ThNewton(HWND hWnd)
 				bOK=TRUE;
 		}
 	}
-#ifdef KF_FLOAT_BACKEND_CUSTOM
-	g_set.digits=digits;
-#endif
 	g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	return 0;
