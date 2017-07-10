@@ -4,6 +4,8 @@
 class CFixedFloat;
 class floatexp;
 
+bool optimized_reference_double_0_2(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag);
+
 bool reference_double(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, double g_real, double g_imag);
 bool reference_long_double(int m_nFractalType, int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, double g_real, double g_imag);
 bool reference_floatexp(int m_nFractalType, int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, floatexp real, floatexp imag);

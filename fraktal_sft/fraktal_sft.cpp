@@ -1323,6 +1323,13 @@ void CFraktalSFT::CalculateReference()
 		}
 
 	}
+	else if (m_nFractalType == 0 && m_nPower == 2)
+	{
+
+		bool ok = optimized_reference_double_0_2(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+		assert(ok && "optimized_reference_double_0_2");
+
+	}
 	else
 	{
 
