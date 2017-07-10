@@ -132,7 +132,7 @@ parseCL s = case parse (many (block <|> context) <* eof) "" s of
 
 interpretCL (Context s) = s
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
-  Right es -> prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es)
+  Right es -> "{" ++ prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es) ++ "}"
   Left e -> error (show e ++ " : " ++ show s)
 
 main = interact parseCL
