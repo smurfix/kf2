@@ -12,15 +12,11 @@
     #define TERM7
     #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 
-#ifdef KF_LONG_DOUBLE_DLL
-#define EXPORT extern "C" __declspec(dllexport)
-#else
 #define EXPORT
 #define g_real dll_g_real
 #define g_imag dll_g_imag
 #define ISFLOATOK dll_ISFLOATOK
 #define ConvertFromFixedFloat DLLConvertFromFixedFloat
-#endif
 
 #include <gmp.h>
 
@@ -96,28 +92,6 @@
     	}
     };
 
-    BOOL APIENTRY DllMain (HINSTANCE hInst     /* Library instance handle. */ ,
-                           DWORD reason        /* Reason this function is being called. */ ,
-                           LPVOID reserved     /* Not used. */ )
-    {
-        switch (reason)
-        {
-          case DLL_PROCESS_ATTACH:
-            break;
-
-          case DLL_PROCESS_DETACH:
-            break;
-
-          case DLL_THREAD_ATTACH:
-            break;
-
-          case DLL_THREAD_DETACH:
-            break;
-        }
-
-        /* Returns TRUE on success, FALSE on failure */
-        return TRUE;
-    }
     EXPORT int SizeOfLD()
     {
            return sizeof(long double);

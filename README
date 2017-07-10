@@ -11,9 +11,6 @@ known bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 
 configuration (COMPILE_FLAGS in Makefile)
-- add -DKF_LONG_DOUBLE_DLL to compile long double support into separate DLL
-  instead of building it into the executable itself; also remove LDBL_SOURCES
-  from SOURCES_CPP
 - add -DKF_THREADED_REFERENCE_EVENT to use original threaded reference
   calculations (too much overhead in WINE to make it worthwhile, except at very
   deep zooms)

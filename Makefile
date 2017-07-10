@@ -154,9 +154,6 @@ kf.exe: $(OBJECTS)
 res.o: fraktal_sft/fraktal_sft.rc
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
 
-kf.dll: $(LDBL_SOURCES_CPP)
-	$(COMPILE) -o kf.dll $(COMPILE_FLAGS) -shared $(LDBL_SOURCES_CPP) $(LINK_FLAGS) -lgmp
-
 %.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 

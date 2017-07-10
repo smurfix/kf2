@@ -14,21 +14,12 @@ DWORD WINAPI ThMC(MC *pMC);
 extern double g_SeedR;
 extern double g_SeedI;
 
-#ifdef KF_LONG_DOUBLE_DLL
-extern void *(*AllocateArray)(int nSize);
-extern void(*ReleaseArray)(void *p);
-extern void(*AssignInt)(void *p, int nValue);
-extern void(*DLLConvertFromFixedFloat)(void *p, const mpf_t value);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-extern double(*SquareAdd)(void *a, void *b);
-#else
 extern void *(AllocateArray)(int nSize);
 extern void(ReleaseArray)(void *p);
 extern void(AssignInt)(void *p, int nValue);
 extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 extern double(SquareAdd)(void *a, void *b);
-#endif
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
 
