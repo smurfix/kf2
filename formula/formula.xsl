@@ -12,7 +12,7 @@
 
 using std::abs;
 
-static long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
+static inline long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 {
   using std::ldexp;
   signed long int e = 0;
@@ -22,26 +22,11 @@ static long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
   return l;
 }
 
-template &lt;typename T&gt;
-inline T diffabs(const T &amp;c, const T &amp;d)
-{
-  if (c &gt; 0) {
-    if (c + d &gt; 0)    return d;
-    else if (d == -c) return d;
-    else if (d &lt; -c)  return -d - 2 * c;
-  } else if (c &lt; 0) {
-    if (c + d &gt; 0)    return d + 2 * c;
-    else if (d == -c) return -d;
-    else if (d &lt; -c)  return -d;
-  }
-  return abs(d);
-}
-
 
 <xsl:for-each select="formulas/group/formula">
 
 
-bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, double g_real, double g_imag)
+bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
@@ -73,10 +58,13 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
       Xr2 = Xr.Square();
       Xi2 = Xi.Square();
       m_nRDone++;
-      m_db_dxr[i] = Xr.ToDouble();
-      m_db_dxi[i] = Xi.ToDouble();
-      double abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
-      m_db_z[i] = abs_val * <xsl:value-of select="@glitch" />;
+      const double Xrd = Xr.ToDouble();
+      const double Xid = Xi.ToDouble();
+      const double abs_val = g_real * Xrd * Xrd + g_imag * Xid * Xid;
+      const double Xz = abs_val * <xsl:value-of select="@glitch" />;
+      m_db_dxr[i] = Xrd;
+      m_db_dxi[i] = Xid;
+      m_db_z[i] = Xz;
       if (abs_val &gt;= terminate) {
         if (nMaxIter == m_nMaxIter) {
           nMaxIter = i + 3;
@@ -91,12 +79,13 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
   return false;
 }
 
-bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, double g_real, double g_imag)
+bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
     CFixedFloat Xr = g_SeedR, Xi = g_SeedI, Xr2 = Xr.Square(), Xi2 = Xi.Square(), Xin, Xrn;
-    complex&lt;CFixedFloat&gt; A(g_FactorAR,g_FactorAI);
+    const complex&lt;CFixedFloat&gt; A(g_FactorAR,g_FactorAI);
+    const bool no_g = g_real == 1 &amp;&amp; g_imag == 1;
     m_nGlitchIter = m_nMaxIter + 1;
     int nMaxIter = m_nMaxIter;
     int i;
@@ -123,10 +112,21 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
       Xr2 = Xr.Square();
       Xi2 = Xi.Square();
       m_nRDone++;
-      m_ldxr[i] = ConvertFromFixedFloat(Xr);
-      m_ldxi[i] = ConvertFromFixedFloat(Xi);
-      long double abs_val = (g_real * m_ldxr[i] * m_ldxr[i] + g_imag * m_ldxi[i] * m_ldxi[i]);
-      m_db_z[i] = abs_val * <xsl:value-of select="@glitch" />;
+      const long double Xrl = ConvertFromFixedFloat(Xr);
+      const long double Xil = ConvertFromFixedFloat(Xi);
+      double abs_val;
+      if (no_g)
+      {
+        abs_val = Xrl * Xrl + Xil * Xil;
+      }
+      else
+      {
+        abs_val = g_real * Xrl * Xrl + g_imag * Xil * Xil;
+      }
+      const double Xz = abs_val * <xsl:value-of select="@glitch" />;
+      m_ldxr[i] = Xrl;
+      m_ldxi[i] = Xil;
+      m_db_z[i] = Xz;
       if (abs_val &gt;= terminate) {
         if (nMaxIter == m_nMaxIter) {
           nMaxIter = i + 3;
@@ -141,12 +141,13 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
   return false;
 }
 
-bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, double g_SeedR, double g_SeedI, double g_FactorAR, double g_FactorAI, double terminate, floatexp real, floatexp imag)
+bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const floatexp real, const floatexp imag)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
     CFixedFloat Xr = g_SeedR, Xi = g_SeedI, Xr2 = Xr.Square(), Xi2 = Xi.Square(), Xin, Xrn;
-    complex&lt;CFixedFloat&gt; A(g_FactorAR,g_FactorAI);
+    const complex&lt;CFixedFloat&gt; A(g_FactorAR,g_FactorAI);
+    const bool no_g = real == 1 &amp;&amp; imag == 1;
     m_nGlitchIter = m_nMaxIter + 1;
     int nMaxIter = m_nMaxIter;
     int i;
@@ -174,10 +175,21 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
       Xr2 = Xr.Square();
       Xi2 = Xi.Square();
       m_nRDone++;
-			m_dxr[i] = Xr;
-			m_dxi[i] = Xi;
-			double abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val * <xsl:value-of select="@glitch" />;
+      floatexp Xrf; Xrf = Xr;
+      floatexp Xif; Xif = Xi;
+			double abs_val;
+      if (no_g)
+      {
+        abs_val = (Xrf * Xrf + Xif * Xif).todouble();
+      }
+      else
+      {
+        abs_val = (real * Xrf * Xrf + imag * Xif * Xif).todouble();
+      }
+      const double Xz = abs_val * <xsl:value-of select="@glitch" />;
+			m_dxr[i] = Xrf;
+			m_dxi[i] = Xif;
+			m_db_z[i] = Xz;
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
 					nMaxIter = i + 3;
@@ -192,21 +204,27 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
   return false;
 }
 
-bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, double g_real, double g_imag, double g_FactorAR, double g_FactorAI, double xr, double xi, const double cr, const double ci)
+bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch, double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, const double xr0, const double xi0, const double cr, const double ci)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
     const dcomplex A = { g_FactorAR, g_FactorAI };
     const dcomplex c = { cr, ci };
+    int antal = antal0;
+    double test1 = test10;
+    double test2 = test20;
+    double xr = xr0;
+    double xi = xi0;
     for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const double Xr = m_db_dxr[antal];
       const double Xi = m_db_dxi[antal];
+      const double Xz = m_db_z[antal];
       const double Xxr = Xr + xr;
       const double Xxi = Xi + xi;
       test2 = test1;
       test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-      if (test1 &lt; m_db_z[antal])
+      if (test1 &lt; Xz)
       {
         if (! m_bNoGlitchDetection)
           test1 = m_nBailout2 * 2;
@@ -233,26 +251,41 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
       xr = xrn;
       xi = xin;
     }
+    antal0 = antal;
+    test10 = test1;
+    test20 = test2;
     return true;
   }
   return false;
 }
 
-bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const long double *dxr, const long double *dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, double g_real, double g_imag, double g_FactorAR, double g_FactorAI, long double xr, long double xi, const long double cr, const long double ci)
+bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const long double *dxr, const long double *dxi, const double *m_db_z, int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, double g_real, double g_imag, double g_FactorAR, double g_FactorAI, long double xr, long double xi, const long double cr, const long double ci)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
     const ldcomplex A = { g_FactorAR, g_FactorAI };
     const ldcomplex c = { cr, ci };
+    const bool no_g = g_real == 1 &amp;&amp; g_imag == 1;
+    int antal = antal0;
+    double test1 = test10;
+    double test2 = test20;
     for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const long double Xr = dxr[antal];
       const long double Xi = dxi[antal];
+      const double Xz = m_db_z[antal];
       const long double Xxr = Xr + xr;
       const long double Xxi = Xi + xi;
       test2 = test1;
-      test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-      if (test1 &lt; m_db_z[antal])
+      if (no_g)
+      {
+        test1 = Xxr * Xxr + Xxi * Xxi;
+      }
+      else
+      {
+        test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+      }
+      if (test1 &lt; Xz)
       {
         if (! m_bNoGlitchDetection)
           test1 = m_nBailout2 * 2;
@@ -279,6 +312,9 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
       xr = xrn;
       xi = xin;
     }
+    antal0 = antal;
+    test10 = test1;
+    test20 = test2;
     return true;
   }
   return false;
