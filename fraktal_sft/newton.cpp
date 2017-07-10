@@ -318,7 +318,61 @@ DWORD WINAPI ThStep(STEP_STRUCT *pMC)
 	SetEvent(pMC->hDone);
 	return 0;
 }
-
+#else
+#ifdef KF_THREADED_REFERENCE_BARRIER
+struct STEP_STRUCT
+{
+	int newtonStep;
+	int period;
+	int nType;
+	complex<flyttyp> *z;
+	complex<flyttyp> *dc;
+	complex<flyttyp> *zr;
+	complex<flyttyp> *c_guess;
+	barrier *barrier;
+	volatile BOOL *stop;
+	HANDLE hDone;
+	HWND hWnd;
+};
+DWORD WINAPI ThStep(STEP_STRUCT *t)
+{
+  char szStatus[256];
+  uint32_t last = GetTickCount();
+  switch (t->nType)
+  {
+    case 0:
+      for (int i = 0; i < t->period; ++i)
+      {
+	if(i%100==0){
+		uint32_t now = GetTickCount();
+		if (now - last > 250)
+		{
+			wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",t->newtonStep,i*100/t->period,g_szProgress);
+			SetDlgItemText(t->hWnd,IDC_EDIT1,szStatus);
+			last = now;
+		}
+	}
+        *t->zr = *t->z * *t->z; // FIXME implement optimized complex squaring
+	if (t->barrier->wait(t->stop)) break;
+	*t->z = *t->zr + *t->c_guess;
+	if (t->barrier->wait(t->stop)) break;
+      }
+      break;
+    case 1:
+      for (int i = 0; i < t->period; ++i)
+      {
+	*t->dc = *t->z * *t->dc;
+	if (t->barrier->wait(t->stop)) break;
+	*t->dc = *t->dc + *t->dc + _1; // FIXME implement optimized complex mul_2exp
+	if (t->barrier->wait(t->stop)) break;
+      }
+      break;
+  }
+  SetEvent(t->hDone);
+  return 0;
+}
+#endif
+#endif
 extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
@@ -328,16 +382,32 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
 
 	STEP_STRUCT mc[2];
 	HANDLE hDone[2];
+#ifdef KF_THREADED_REFERENCE_EVENT
 	HANDLE hWait[2];
 	HANDLE hExit[2];
+#else
+#ifdef KF_THREADED_REFERENCE_BARRIER
+	barrier *bar = new barrier(2);
+#endif
+#endif
 	for (i = 0; i<2; i++){
 		mc[i].z = &z;
 		mc[i].zr = &zr;
 		mc[i].dc = &dc;
 		mc[i].c_guess = &c_guess;
 		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+#ifdef KF_THREADED_REFERENCE_EVENT
 		hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
 		hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
+#else
+#ifdef KF_THREADED_REFERENCE_BARRIER
+		mc[i].newtonStep = newtonStep;
+		mc[i].period = period;
+		mc[i].stop = &g_bNewtonStop;
+		mc[i].barrier = bar;
+		mc[i].hWnd = hWnd;
+#endif
+#endif
 		mc[i].nType = i;
 	}
 	HANDLE hThread;
@@ -346,11 +416,17 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
 		CloseHandle(hThread);
 	}
-
+#ifdef KF_THREADED_REFERENCE_EVENT
+  uint32_t last = GetTickCount();
   for (i = 0; i < period && !g_bNewtonStop; ++i) {
 	  if(i%100==0){
-		  wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",newtonStep,i*100/period,g_szProgress);
-		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+		  uint32_t now = GetTickCount();
+		  if (now - last > 250)
+		  {
+		    wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",newtonStep,i*100/period,g_szProgress);
+		    SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+		    last = now;
+		  }
 	  }
 //	  dc = _2 * z * dc + _1;
 //	  z = z * z + c_guess;
@@ -361,12 +437,19 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
   }
 	SetEvent(hExit[0]);
 	SetEvent(hExit[1]);
+#endif
 	WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
 	for (i = 0; i<2; i++){
 		CloseHandle(hDone[i]);
+#ifdef KF_THREADED_REFERENCE_EVENT
 		CloseHandle(hWait[i]);
 		CloseHandle(hExit[i]);
+#endif
 	}
+#ifdef KF_THREADED_REFERENCE_BARRIER
+  delete bar;
+  bar = 0;
+#endif
 
   SetDlgItemText(hWnd,IDC_EDIT4,"");
   flyttyp ad = 1/cabs2(dc);
@@ -402,7 +485,6 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
 	  strcat(g_szProgress,"/");
 	  strcat(g_szProgress,szE1);
   }
-
 
   if (ad < epsilon2) {
     *c_out = c_new;
