@@ -9,6 +9,10 @@
 #include "fraktal_sft.h"
 #include "CDecNumber.h"
 
+#ifdef KF_THREADED_REFERENCE_BARRIER
+#include "../common/barrier.h"
+#endif
+
 #ifdef KF_FLOAT_BACKEND_CUSTOM
 extern decContext g_set;
 #endif
@@ -130,8 +134,129 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   return box->p;
 }
 
+#ifdef KF_THREADED_BOXPERIOD_BARRIER
+// FIXME get this threaded version working correctly somehow
+// FIXME it gives wrong results (too high period)
+struct BoxPeriod
+{
+  int threadid;
+  barrier *barrier;
+  volatile BOOL *stop;
+  int maxperiod;
+  complex<flyttyp> *z;
+  complex<flyttyp> *z2;
+  complex<flyttyp> *c;
+  int *crossing[4];
+  int *haveperiod;
+  int *period;
+  HANDLE hDone;
+  HWND hWnd;
+};
+DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
+{
+  int t = b->threadid;
+  barrier *barrier = b->barrier;
+  complex<flyttyp> *z = b->z;
+  complex<flyttyp> *z2 = b->z2;
+  complex<flyttyp> *c = b->c;
+  volatile BOOL *stop = b->stop;
+  int *haveperiod = b->haveperiod;
+  int *period = b->period;
+  char szStatus[300];
+  uint32_t last;
+  if (t == 0)
+  {
+    wsprintf(szStatus,"Finding period, 0...");
+    SetDlgItemText(b->hWnd,IDC_EDIT1,szStatus);
+    last = GetTickCount();
+  }
+  for (int i = 1; i < b->maxperiod; ++i)
+  {
+    *b->crossing[t] = crosses_positive_real_axis(*z, *z2);
+    if (barrier->wait(stop)) break;
+    if (t == 0)
+    {
+      if(i%100==0){
+	uint32_t now = GetTickCount();
+	if (now - last > 250){
+	  wsprintf(szStatus,"Finding period, %d...",i);
+	  SetDlgItemText(b->hWnd,IDC_EDIT1,szStatus);
+	  last = now;
+	}
+      }
+      int surround = 0;
+      for (int s = 0; s < 4; ++s)
+      {
+	surround += *b->crossing[s];
+      }
+      if (surround & 1)
+      {
+	*haveperiod = true;
+	*period = i;
+      }
+    }
+    if (barrier->wait(stop)) break;
+    if (*haveperiod) break;
+    *z = *z * *z + *c; // FIXME optimize complex squaring
+    if (barrier->wait(stop)) break;
+  }
+  SetEvent(b->hDone);
+  return 0;
+}
+#endif
+
  int m_d_box_period_do(complex<flyttyp> center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
 	 radius = flyttyp(4)/radius;
+
+#ifdef KF_THREADED_BOXPERIOD_BARRIER
+
+  barrier *bar = new barrier(4);
+  complex<flyttyp> z[4], c[4];
+  z[0] = c[0] = center + complex<flyttyp>(-radius, -radius);
+  z[1] = c[1] = center + complex<flyttyp>(radius, -radius);
+  z[2] = c[2] = center + complex<flyttyp>(radius, radius);
+  z[3] = c[3] = center + complex<flyttyp>(-radius, radius);
+  int crossing[4] = { 0, 0, 0, 0 };
+  int haveperiod = false;
+  int period = 0;
+  HANDLE hDone[4];
+  // prepare threads
+  BoxPeriod box[4];
+  for (int t = 0; t < 4; ++t)
+  {
+    box[t].threadid = t;
+    box[t].barrier = bar;
+    box[t].maxperiod = maxperiod;
+    box[t].z = &z[t];
+    box[t].z2 = &z[(t + 1) % 4];
+    box[t].c = &c[t];
+    box[t].stop = &g_bNewtonStop;
+    box[t].crossing[0] = &crossing[0];
+    box[t].crossing[1] = &crossing[1];
+    box[t].crossing[2] = &crossing[2];
+    box[t].crossing[3] = &crossing[3];
+    box[t].haveperiod = &haveperiod;
+    box[t].period = &period;
+    box[t].hDone = hDone[t] = CreateEvent(NULL, 0, 0, NULL);
+    box[t].hWnd = hWnd;
+  }
+  // spawn threads
+  for (int i = 0; i < 4; i++)
+  {
+    DWORD dw;
+    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBoxPeriod, (LPVOID)&box[i], 0, &dw);
+    CloseHandle(hThread);
+  }
+  // wait for threads to complete
+  WaitForMultipleObjects(4, hDone, TRUE, INFINITE);
+  for (int i = 0; i < 4; i++)
+    CloseHandle(hDone[i]);
+  delete bar;
+  steps = period;
+  return haveperiod ? period : 0;
+
+#else
+
   m_d_box_period *box = m_d_box_period_new(center, radius);
   if (! box) {
     return 0;
@@ -162,8 +287,11 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   steps=i;
   m_d_box_period_delete(box);
   return period;
+
+#endif
 }
 
+#ifdef KF_THREADED_REFERENCE_EVENT
 struct STEP_STRUCT
 {
 	int nType;
