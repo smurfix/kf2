@@ -4,10 +4,13 @@ COMPILE := x86_64-w64-mingw32-g++
 LINK := x86_64-w64-mingw32-g++
 FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -I$(CLEWPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER -Dclew_STATIC
 COMPILE_FLAGS := -xc++ $(FLAGS)
-LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp
+LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg
 XSLTPROC ?= xsltproc
 WINDRES ?= x86_64-w64-mingw32-windres
+RM := rm -f
+AR := x86_64-w64-mingw32-ar
+AR2 := x86_64-w64-mingw32-ranlib
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -46,92 +49,11 @@ common/parallell.h \
 common/StringVector.h \
 common/tooltip.h 
 
-JPEG_SOURCES_CPP = \
-jpeg/jpeg_static.cpp
-
-JPEG_SOURCES_C = \
-jpeg/cdjpeg.c \
-jpeg/jcapimin.c \
-jpeg/jcapistd.c \
-jpeg/jccoefct.c \
-jpeg/jccolor.c \
-jpeg/jcdctmgr.c \
-jpeg/jchuff.c \
-jpeg/jcinit.c \
-jpeg/jcmainct.c \
-jpeg/jcmarker.c \
-jpeg/jcmaster.c \
-jpeg/jcomapi.c \
-jpeg/jcparam.c \
-jpeg/jcphuff.c \
-jpeg/jcprepct.c \
-jpeg/jcsample.c \
-jpeg/jctrans.c \
-jpeg/jdapimin.c \
-jpeg/jdapistd.c \
-jpeg/jdatadst.c \
-jpeg/jdatasrc.c \
-jpeg/jdcoefct.c \
-jpeg/jdcolor.c \
-jpeg/jddctmgr.c \
-jpeg/jdhuff.c \
-jpeg/jdinput.c \
-jpeg/jdmainct.c \
-jpeg/jdmarker.c \
-jpeg/jdmaster.c \
-jpeg/jdmerge.c \
-jpeg/jdphuff.c \
-jpeg/jdpostct.c \
-jpeg/jdsample.c \
-jpeg/jdtrans.c \
-jpeg/jerror.c \
-jpeg/jfdctflt.c \
-jpeg/jfdctfst.c \
-jpeg/jfdctint.c \
-jpeg/jidctflt.c \
-jpeg/jidctfst.c \
-jpeg/jidctint.c \
-jpeg/jidctred.c \
-jpeg/jmemansi.c \
-jpeg/jmemmgr.c \
-jpeg/jquant1.c \
-jpeg/jquant2.c \
-jpeg/jutils.c \
-jpeg/rdbmp.c \
-jpeg/rdcolmap.c \
-jpeg/rdgif.c \
-jpeg/rdppm.c \
-jpeg/rdrle.c \
-jpeg/rdswitch.c \
-jpeg/rdtarga.c \
-jpeg/transupp.c \
-jpeg/wrbmp.c \
-jpeg/wrgif.c \
-jpeg/wrppm.c \
-jpeg/wrrle.c \
-jpeg/wrtarga.c
-
-JPEG_SOURCES_H = \
-jpeg/cderror.h \
-jpeg/cdjpeg.h \
-jpeg/jchuff.h \
-jpeg/jconfig.h \
-jpeg/jdct.h \
-jpeg/jdhuff.h \
-jpeg/jerror.h \
-jpeg/jinclude.h \
-jpeg/jmemsys.h \
-jpeg/jmorecfg.h \
-jpeg/jpegint.h \
-jpeg/jpeglib.h \
-jpeg/jversion.h \
-jpeg/transupp.h
-
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(JPEG_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp
-SOURCES_C = $(JPEG_SOURCES_C) cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
-SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) $(JPEG_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp
+SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
+SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
@@ -148,7 +70,7 @@ clean:
 	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
-kf.exe: $(OBJECTS)
+kf.exe: $(OBJECTS) jpeg-6b/libjpeg.a
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
 
 res.o: fraktal_sft/fraktal_sft.rc
@@ -179,5 +101,18 @@ cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
+
+jpeg-6b/libjpeg.a: jpeg-6b/jconfig.h
+	$(MAKE) -C jpeg-6b libjpeg.a
+
+jpeg-6b/jconfig.h:
+	( cd jpeg-6b ; ./configure CC=x86_64-w64-mingw32-gcc )
+
+jpeg-6b: jpegsrc.v6b.tar.gz
+	tar xf jpegsrc.v6b.tar.gz
+
+jpegsrc.v6b.tar.gz:
+	wget -c "http://www.ijg.org/files/jpegsrc.v6b.tar.gz"
+
 
 -include $(DEPENDS)

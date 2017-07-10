@@ -17,3 +17,6 @@ configuration (COMPILE_FLAGS in Makefile)
 - add -DKF_THREADED_REFERENCE_BARRIER to use barrier() threaded reference
   (acceptable overhead in WINE, CPU affinity is adjusted with zoom depth,
   enabled by default)
+
+legal
+- this software is based in part on the work of the Independent JPEG Group
