@@ -1,19 +1,8 @@
 #ifndef KF_CDECNUMBER_H
 #define KF_CDECNUMBER_H
 
-//#define KF_FLOAT_BACKEND_MPFR
-#ifdef KF_FLOAT_BACKEND_MPFR
-
-#define BOOST_MULTIPRECISION_MPFR_DEFAULT_PRECISION 20u
-#include <boost/multiprecision/mpfr.hpp>
-typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<0>> decNumber;
-
-#else
-
 #include <boost/multiprecision/gmp.hpp>
 typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
-
-#endif
 
 #define LOW_PRECISION 20u
 

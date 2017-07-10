@@ -264,13 +264,9 @@ public:
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
 		signed long int e = 0;
-#ifdef KF_FLOAT_BACKEND_MPFR
-		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
-#else
 		val = mpf_get_d_2exp(&e, a.m_f.backend().data());
 		if ((mpf_sgn(a.m_f.backend().data()) >= 0) != (val >= 0))
 			val = -val;
-#endif
 		exp = e;
 		_ALIGN_(val, exp);
 		if ((a > 0) != (val > 0))
@@ -280,11 +276,7 @@ public:
 	inline void ToFixedFloat(CFixedFloat &a) const
 	{
 		a = val;
-#ifdef KF_FLOAT_BACKEND_MPFR
-		mpfr_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
-#else
 		mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
-#endif
 	}
 #else
 	inline floatexp setLongDouble(long double a)

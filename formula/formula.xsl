@@ -14,16 +14,12 @@ using std::abs;
 
 static long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 {
-#ifdef KF_FLOAT_BACKEND_MPFR
-  return mpfr_get_ld(f.m_f.backend().data(), MPFR_RNDN);
-#else
   using std::ldexp;
   signed long int e = 0;
   long double l = mpf_get_d_2exp(&amp;e, f.m_f.backend().data());
   l = ldexp(l, e);
   if ((mpf_sgn(f.m_f.backend().data()) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
   return l;
-#endif
 }
 
 template &lt;typename T&gt;

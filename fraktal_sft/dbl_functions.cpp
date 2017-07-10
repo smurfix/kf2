@@ -18,25 +18,15 @@ extern double g_SeedI;
 extern void *(*AllocateArray)(int nSize);
 extern void(*ReleaseArray)(void *p);
 extern void(*AssignInt)(void *p, int nValue);
-#ifdef KF_FLOAT_BACKEND_MPFR
-extern void(*DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#else
 extern void(*DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#endif
 extern double(*SquareAdd)(void *a, void *b);
 #else
 extern void *(AllocateArray)(int nSize);
 extern void(ReleaseArray)(void *p);
 extern void(AssignInt)(void *p, int nValue);
-#ifdef KF_FLOAT_BACKEND_MPFR
-extern void(DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#else
 extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-#endif
 extern double(SquareAdd)(void *a, void *b);
 #endif
 

@@ -22,11 +22,7 @@
 #define ConvertFromFixedFloat DLLConvertFromFixedFloat
 #endif
 
-#ifdef KF_FLOAT_BACKEND_MPFR
-#include <mpfr.h>
-#else
 #include <gmp.h>
-#endif
 
     double g_real=1;
     double g_imag=1;
@@ -214,12 +210,6 @@
     #define FIXEDFLOAT_DIGITS 8
     #define FIXEDFLOAT_PARTMAX (FIXEDFLOAT_TYPE)100000000
 
-#ifdef KF_FLOAT_BACKEND_MPFR
-    EXPORT void ConvertFromFixedFloat(void *p,const mpfr_t value)
-    {
-        *((long double *)p) = mpfr_get_ld(value, MPFR_RNDN);
-    }
-#else
     EXPORT void ConvertFromFixedFloat(void *p,const mpf_t value)
     {
         using std::ldexp;
@@ -230,7 +220,6 @@
             l = -l;
         *((long double *)p) = l;
     }
-#endif
 
     //#define LDBL_MAX 3e4932L
 
