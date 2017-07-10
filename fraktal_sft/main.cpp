@@ -5546,7 +5546,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bFindMinibrot=TRUE;
 		}
 		else if(wParam==ID_MENUITEM40025){
-			char szMsg[1024];
+			char szMsg[2048];
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
