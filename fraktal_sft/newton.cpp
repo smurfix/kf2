@@ -139,11 +139,18 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   int period = 0;
   int i;
   char szStatus[256];
+  wsprintf(szStatus,"Finding period, 0...");
+  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+  uint32_t last = GetTickCount();
   for (i = 0; i < maxperiod && !g_bNewtonStop; ++i) {
-	  if(i%100==0){
-		  wsprintf(szStatus,"Finding period, %d...",i);
-		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
-	  }
+    if(i%100==0){
+      uint32_t now = GetTickCount();
+      if (now - last > 250){
+	wsprintf(szStatus,"Finding period, %d...",i);
+	SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+	last = now;
+      }
+    }
     if (m_d_box_period_have_period(box)) {
       period = m_d_box_period_get_period(box);
       break;
@@ -301,20 +308,27 @@ extern int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int pe
 
 complex<flyttyp> m_d_size(complex<flyttyp> nucleus, int period,HWND hWnd)
 {
-  complex<flyttyp> l(1,0);
-  complex<flyttyp> b(1,0);
+  complex<flyttyp> l(1,0); // FIXME should be floatexp
+  complex<flyttyp> b(1,0); // FIXME should be floatexp
   complex<flyttyp> z(0,0);
   char szStatus[256];
+  uint32_t last = GetTickCount();
   for (int i = 1; i < period && !g_bNewtonStop; ++i) {
 	  if(i%100==0){
-		wsprintf(szStatus,"Determine size %d%%...",100*i/period);
-		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+		uint32_t now = GetTickCount();
+		if (now - last > 250)
+		{
+		  wsprintf(szStatus,"Determine size %d%%...",100*i/period);
+		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+		  last = now;
+		}
 	  }
     z = z * z + nucleus;
-    l = _2 * z * l;
-    b = b + _1 / l;
+    //complex<flyttyp> zlo = z; // FIXME should be floatexp
+    l = _2 * z/*lo*/ * l;
+    b = b + _1 / l; // FIXME _1 should be floatexp
   }  
-  return _1 / (b * l * l);
+  return _1 / (b * l * l); // FIXME _1 should be floatexp
 }
 
 int g_period;
