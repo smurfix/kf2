@@ -9,6 +9,8 @@ https://mathr.co.uk/kf/kf.html
 
 known bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
+- opencl support is very broken, proof of concept only
+- may be difficult to build the source natively on Windows at the moment
 
 configuration (COMPILE_FLAGS in Makefile)
 - add -DKF_THREADED_REFERENCE_EVENT to use original threaded reference
