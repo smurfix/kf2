@@ -619,9 +619,7 @@ int WINAPI ThNewton(HWND hWnd)
 			Precision prec3(exp + 6);
 #endif
 			complex<flyttyp>size = m_d_size(c,g_period,hWnd);
-			flyttyp msize = flyttyp(.25)/size.m_i;
-			if(msize<0)
-				msize = -msize;
+			flyttyp msize = flyttyp(.25)/flyttyp(sqrt(cabs2(size).m_dec));
 
 			std::string sszSize = msize.ToText();
 			char *szSize0 = strdup(sszSize.c_str());
