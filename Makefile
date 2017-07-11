@@ -109,11 +109,11 @@ jpeg_static.o: jpeg_static.cpp jpeg-6b/jconfig.h
 jpeg-6b/libjpeg.a: jpeg-6b/jconfig.h
 	$(MAKE) -C jpeg-6b libjpeg.a
 
-jpeg-6b/jconfig.h: jpeg-6b
-	( cd jpeg-6b ; ./configure CC=x86_64-w64-mingw32-gcc )
+jpeg-6b/jconfig.h: jpeg-6b/configure
+	( cd jpeg-6b ; ./configure CC=x86_64-w64-mingw32-gcc ; touch jconfig.h )
 
-jpeg-6b: jpegsrc.v6b.tar.gz
-	tar xf jpegsrc.v6b.tar.gz
+jpeg-6b/configure: jpegsrc.v6b.tar.gz
+	( tar xf jpegsrc.v6b.tar.gz ; touch jpeg-6b/configure )
 
 jpegsrc.v6b.tar.gz:
 	wget -c "http://www.ijg.org/files/jpegsrc.v6b.tar.gz"
