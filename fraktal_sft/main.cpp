@@ -27,6 +27,7 @@
 #include <malloc.h>
 #include "../formula/formula.h"
 #include "../cl/opencl.h"
+#include "../common/bitmap.h"
 
 std::vector<cldevice> cldevices;
 
@@ -2769,7 +2770,7 @@ HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 	BITMAP bm;
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
 	HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
-	HBITMAP bmResult = CreateCompatibleBitmap(hDC,nX,nY);
+	HBITMAP bmResult = create_bitmap(hDC,nX,nY);
 	HBITMAP bmOldResult = (HBITMAP)SelectObject(dcResult,bmResult);
 	SetStretchBltMode(dcResult,HALFTONE);
 	StretchBlt(dcResult,0,0,nX,nY,dcBmp,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
@@ -2806,7 +2807,7 @@ void SaveZoomImg(char *szFile)
 		bScaled=TRUE;
 	}
 
-	HBITMAP bmTmp = CreateCompatibleBitmap(hDC,scNextZoom.cx,scNextZoom.cy);
+	HBITMAP bmTmp = create_bitmap(hDC,scNextZoom.cx,scNextZoom.cy);
 	HDC dcSaveZoom = CreateCompatibleDC(hDC);
 	HBITMAP dcOldSaveZoom = (HBITMAP)SelectObject(dcSaveZoom,g_bmSaveZoomBuff);
 	HDC dcTmp = CreateCompatibleDC(hDC);
@@ -3295,7 +3296,7 @@ void SkewImage(HBITMAP bmBmp)
 	HDC hDC = GetDC(NULL);
 	BITMAP bm;
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
-	HBITMAP bmNew = CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
+	HBITMAP bmNew = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
 	POINT pm = {bm.bmWidth/2,bm.bmHeight/2};
 	double r=pi*(double)g_nSkewRotate/180;
 	RotateImage(bmBmp,bmNew,pm,r);
@@ -3322,7 +3323,7 @@ void UnSkewImage(HBITMAP bmBmp)
 	HDC hDC = GetDC(NULL);
 	BITMAP bm;
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
-	HBITMAP bmNew = CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
+	HBITMAP bmNew = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
 
 	int nWidth = (10000/g_nSkewStretch)*bm.bmWidth/100;
 	HDC dcNew = CreateCompatibleDC(hDC);
@@ -3992,7 +3993,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HDC dcBmp = CreateCompatibleDC(hDC);
 			HDC dcBuff = CreateCompatibleDC(hDC);
 			HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,g_SFT.GetBitmap());
-			HBITMAP bmBuff = CreateCompatibleBitmap(hDC,rc.right,rc.bottom);
+			HBITMAP bmBuff = create_bitmap(hDC,rc.right,rc.bottom);
 			HBITMAP bmOldBuff = (HBITMAP)SelectObject(dcBuff,bmBuff);
 			SetStretchBltMode(dcBuff,HALFTONE);
 			StretchBlt(dcBuff,p.x,p.y,rc.right,rc.bottom,dcBmp,0,0,g_SFT.GetWidth(),g_SFT.GetHeight(),SRCCOPY);
@@ -4028,7 +4029,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sr.bottom-=sr.top;
 				r.bottom-=sr.bottom;
 				POINT pm={r.right/2,r.bottom/2};
-				HBITMAP bmBmp = CreateCompatibleBitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
+				HBITMAP bmBmp = create_bitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
@@ -4151,7 +4152,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sr.bottom-=sr.top;
 				r.bottom-=sr.bottom;
 				POINT pm={r.right/2,r.bottom/2};
-				HBITMAP bmBmp = CreateCompatibleBitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
+				HBITMAP bmBmp = create_bitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
@@ -4298,7 +4299,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				pSelect.y = g_pSelect.y*sb.cy/rc.bottom;
 				sc.cx = sb.cx/(g_nZoomSize);
 				sc.cy = sb.cy/(g_nZoomSize);
-				HBITMAP bmSBmp = CreateCompatibleBitmap(hDC,sc.cx,sc.cy);
+				HBITMAP bmSBmp = create_bitmap(hDC,sc.cx,sc.cy);
 				HBITMAP bmSOld = (HBITMAP)SelectObject(dcSBmp,bmSBmp);
 				SetStretchBltMode(dcSBmp,HALFTONE);
 				SetStretchBltMode(dcBmp,HALFTONE);

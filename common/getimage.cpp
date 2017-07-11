@@ -16,6 +16,8 @@
 #define sprintf_s snprintf
 #include <comdef.h>
 
+#include "bitmap.h"
+
 HBITMAP GetImageFromData(char *szImgData,int nImgData)
 {
 	BITMAP bm;
@@ -49,7 +51,7 @@ HBITMAP GetImageFromData(char *szImgData,int nImgData)
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
 
 	hDC = GetDC(NULL);
-	bmRet = CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
+	bmRet = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
 	dcBmp = CreateCompatibleDC(hDC);
 	dcRet = CreateCompatibleDC(hDC);
 	bmBmpOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
@@ -136,7 +138,7 @@ HBITMAP GetImage(char *szFile)
 		pPicture->get_Height(&nHeight);
 		hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
-		HBITMAP bmBmp = CreateCompatibleBitmap(hDC,nWidth/4,nHeight/4);
+		HBITMAP bmBmp = create_bitmap(hDC,nWidth/4,nHeight/4);
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		RECT r={0,0,nWidth/4,nHeight/4};
 		FillRect(dcBmp,&r,(HBRUSH)GetStockObject(WHITE_BRUSH));
@@ -155,7 +157,7 @@ HBITMAP GetImage(char *szFile)
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
 
 	hDC = GetDC(NULL);
-	bmRet = CreateCompatibleBitmap(hDC,bm.bmWidth,bm.bmHeight);
+	bmRet = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
 	dcBmp = CreateCompatibleDC(hDC);
 	dcRet = CreateCompatibleDC(hDC);
 	bmBmpOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
@@ -323,7 +325,7 @@ void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNe
 
 	HDC hDC = GetDC(NULL);
 	HDC dcNew = CreateCompatibleDC(hDC);
-	HBITMAP bmNew = CreateCompatibleBitmap(hDC,nNewWidth,nNewHeight);
+	HBITMAP bmNew = create_bitmap(hDC,nNewWidth,nNewHeight);
 	HBITMAP bmOld = (HBITMAP)SelectObject(dcNew,bmNew);
 
 	if(!GetDIBits(dcNew,bmNew,0,0,NULL,(LPBITMAPINFO)&bmiNew,DIB_RGB_COLORS))

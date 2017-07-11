@@ -20,7 +20,7 @@
 #include <malloc.h>
 #include "complex.h"
 #include <iostream>
-
+#include "../common/bitmap.h"
 #include "../formula/formula.h"
 
 double g_real=1;
@@ -426,7 +426,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOO
 	HDC dcSrc = CreateCompatibleDC(hDC);
 	HBITMAP bmOldSrc = (HBITMAP)SelectObject(dcSrc,bmSrc);
 	HDC dcDst = CreateCompatibleDC(hDC);
-	HBITMAP bmDst = CreateCompatibleBitmap(hDC,nNewWidth,nNewHeight);
+	HBITMAP bmDst = create_bitmap(hDC,nNewWidth,nNewHeight);
 	HBITMAP bmOldDst = (HBITMAP)SelectObject(dcDst,bmDst);
 	if(bHalfTone)
 		SetStretchBltMode(dcDst,HALFTONE);
@@ -2131,7 +2131,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 
 	HDC hDC = GetDC(NULL);
 	if (!m_bmBmp)
-		m_bmBmp = CreateCompatibleBitmap(hDC, m_nX, m_nY);
+		m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
 	if (!m_bAddReference){
 		if (m_bmi)
 			free(m_bmi);
@@ -3681,7 +3681,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	if (m_bmBmp)
 		DeleteObject(m_bmBmp);
 	HDC hDC = GetDC(NULL);
-	m_bmBmp = CreateCompatibleBitmap(hDC, m_nX, m_nY);
+	m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
 	if (m_bmi)
 		free(m_bmi);
 	m_bmi = (BITMAPINFOHEADER *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
@@ -3876,7 +3876,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 		HDC dcBmp = CreateCompatibleDC(hDC);
 		HBITMAP bmOldBmp = (HBITMAP)SelectObject(dcBmp, m_bmBmp);
 		HDC dcSave = CreateCompatibleDC(hDC);
-		HBITMAP bmSave = CreateCompatibleBitmap(hDC, nWidth, nHeight);
+		HBITMAP bmSave = create_bitmap(hDC, nWidth, nHeight);
 		HBITMAP bmOldSave = (HBITMAP)SelectObject(dcSave, bmSave);
 		SetStretchBltMode(dcSave, HALFTONE);
 		StretchBlt(dcSave, 0, 0, nWidth, nHeight, dcBmp, 0, 0, m_nX, m_nY, SRCCOPY);

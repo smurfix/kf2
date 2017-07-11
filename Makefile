@@ -40,14 +40,16 @@ common/FolderBrowser.cpp \
 common/getimage.cpp \
 common/parallell.cpp \
 common/StringVector.cpp \
-common/tooltip.cpp
+common/tooltip.cpp \
+common/bitmap.cpp
 
 COMMON_SOURCES_H = \
 common/FolderBrowser.h \
 common/getimage.h \
 common/parallell.h \
 common/StringVector.h \
-common/tooltip.h 
+common/tooltip.h \
+common/bitmap.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 

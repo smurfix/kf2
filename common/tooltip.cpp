@@ -5,6 +5,7 @@
 #include "tooltip.h"
 #include "StringVector.h"
 #include <cinttypes>
+#include "bitmap.h"
 
 HWND hToolTip;
 HWND hSkugga;
@@ -78,7 +79,7 @@ long WINAPI SkuggaProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 		GetClientRect(hWnd,&r);
 		BeginPaint(hWnd,&ps);
 		hDC = CreateCompatibleDC(ps.hdc);
-		bm=CreateCompatibleBitmap(ps.hdc,r.right,r.bottom);
+		bm=create_bitmap(ps.hdc,r.right,r.bottom);
 		bmo=(HBITMAP)SelectObject(hDC,bm);
 		if(g_lpfnSetLayeredWindowAttributes){
 			int a = r.bottom;
