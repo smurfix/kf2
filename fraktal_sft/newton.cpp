@@ -40,6 +40,9 @@ static inline bool odd(int a) {
   return a & 1;
 }
 
+static inline floatexp cabs2(complex<floatexp> z) {
+  return z.m_r * z.m_r + z.m_i * z.m_i;
+}
 static inline flyttyp cabs2(complex<flyttyp> z) {
   return z.m_r * z.m_r + z.m_i * z.m_i;
 }
