@@ -352,27 +352,40 @@ DWORD WINAPI ThStep(STEP_STRUCT *pMC)
 }
 #else
 #ifdef KF_THREADED_REFERENCE_BARRIER
-struct STEP_STRUCT
+struct STEP_STRUCT_COMMON
 {
-	int newtonStep;
-	int period;
-	int nType;
-	complex<flyttyp> *z;
-	complex<flyttyp> *dc;
-	complex<flyttyp> *zr;
-	complex<flyttyp> *c_guess;
+	HWND hWnd;
 	barrier *barrier;
 	volatile BOOL *stop;
-	HANDLE hDone;
-	HWND hWnd;
+	int newtonStep;
+	int period;
+	mpf_t zr, zi, zrn, zin, zr2, zi2, cr, ci, dcr, dci, dcrn, dcin, dcrzr, dcrzi, dcizr, dcizi;
 };
-DWORD WINAPI ThStep(STEP_STRUCT *t)
+struct STEP_STRUCT
 {
+	int nType;
+	HANDLE hDone;
+	STEP_STRUCT_COMMON *common;
+};
+DWORD WINAPI ThStep(STEP_STRUCT *t0)
+{
+  struct STEP_STRUCT_COMMON *t = t0->common;
   char szStatus[256];
   uint32_t last = GetTickCount();
-  switch (t->nType)
+  switch (t0->nType)
   {
-    case 0:
+    case 0: // zr
+      for (int i = 0; i < t->period; ++i)
+      {
+	mpf_mul(t->zr2, t->zr, t->zr);
+	mpf_mul(t->zi2, t->zi, t->zi);
+	mpf_sub(t->zrn, t->zr2, t->zi2);
+	if (t->barrier->wait(t->stop)) break;
+	mpf_add(t->zr, t->zrn, t->cr);
+	if (t->barrier->wait(t->stop)) break;
+      }
+      break;
+    case 1: // zi
       for (int i = 0; i < t->period; ++i)
       {
 	if(i%100==0){
@@ -384,70 +397,113 @@ DWORD WINAPI ThStep(STEP_STRUCT *t)
 			last = now;
 		}
 	}
-        *t->zr = *t->z * *t->z; // FIXME implement optimized complex squaring
+	mpf_mul(t->zin, t->zr, t->zi);
+	mpf_mul_2exp(t->zin, t->zin, 1);
 	if (t->barrier->wait(t->stop)) break;
-	*t->z = *t->zr + *t->c_guess;
+	mpf_add(t->zi, t->zin, t->ci);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
-    case 1:
+    case 2: // dcr
       for (int i = 0; i < t->period; ++i)
       {
-	*t->dc = *t->z * *t->dc;
+	mpf_mul(t->dcrzr, t->dcr, t->zr);
+	mpf_mul(t->dcizi, t->dci, t->zi);
+	mpf_sub(t->dcrn, t->dcrzr, t->dcizi);
+	mpf_mul_2exp(t->dcrn, t->dcrn, 1);
 	if (t->barrier->wait(t->stop)) break;
-	*t->dc = *t->dc + *t->dc + _1; // FIXME implement optimized complex mul_2exp
+	mpf_add_ui(t->dcr, t->dcrn, 1);
+	if (t->barrier->wait(t->stop)) break;
+      }
+      break;
+    case 3: // dci
+      for (int i = 0; i < t->period; ++i)
+      {
+	mpf_mul(t->dcrzi, t->dcr, t->zi);
+	mpf_mul(t->dcizr, t->dci, t->zr);
+	mpf_add(t->dcin, t->dcrzi, t->dcizr);
+	mpf_mul_2exp(t->dcin, t->dcin, 1);
+	if (t->barrier->wait(t->stop)) break;
+	mpf_set(t->dci, t->dcin);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
   }
-  SetEvent(t->hDone);
+  SetEvent(t0->hDone);
   return 0;
 }
 #endif
 #endif
-extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
+extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
   char szStatus[256];
   int i;
 
-	STEP_STRUCT mc[2];
-	HANDLE hDone[2];
 #ifdef KF_THREADED_REFERENCE_EVENT
+	int threads = 2;
+	STEP_STRUCT mc[2];
 	HANDLE hWait[2];
 	HANDLE hExit[2];
-#else
-#ifdef KF_THREADED_REFERENCE_BARRIER
-	barrier *bar = new barrier(2);
-#endif
-#endif
+	HANDLE hDone[2];
 	for (i = 0; i<2; i++){
 		mc[i].z = &z;
 		mc[i].zr = &zr;
 		mc[i].dc = &dc;
 		mc[i].c_guess = &c_guess;
 		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-#ifdef KF_THREADED_REFERENCE_EVENT
 		hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
 		hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-#else
-#ifdef KF_THREADED_REFERENCE_BARRIER
-		mc[i].newtonStep = newtonStep;
-		mc[i].period = period;
-		mc[i].stop = &g_bNewtonStop;
-		mc[i].barrier = bar;
-		mc[i].hWnd = hWnd;
-#endif
-#endif
 		mc[i].nType = i;
 	}
+#else
+
+#ifdef KF_THREADED_REFERENCE_BARRIER
+	int threads = 4;
+	mp_bitcnt_t bits = mpf_get_prec(c_guess.m_r.m_dec.backend().data());
+	barrier bar(4);
+	STEP_STRUCT_COMMON m;
+	m.hWnd = hWnd;
+	m.barrier = &bar;
+	m.stop = &g_bNewtonStop;
+	m.newtonStep = newtonStep;
+	m.period = period;
+	mpf_init2(m.zr, bits); mpf_set_ui(m.zr, 0);
+	mpf_init2(m.zi, bits); mpf_set_ui(m.zi, 0);
+	mpf_init2(m.zrn, bits);
+	mpf_init2(m.zin, bits);
+	mpf_init2(m.zr2, bits);
+	mpf_init2(m.zi2, bits);
+	mpf_init2(m.cr, bits); mpf_set(m.cr, c_guess.m_r.m_dec.backend().data());
+	mpf_init2(m.ci, bits); mpf_set(m.ci, c_guess.m_i.m_dec.backend().data());
+	mpf_init2(m.dcr, bits); mpf_set_ui(m.dcr, 0);
+	mpf_init2(m.dci, bits); mpf_set_ui(m.dci, 0);
+	mpf_init2(m.dcrn, bits);
+	mpf_init2(m.dcin, bits);
+	mpf_init2(m.dcrzr, bits);
+	mpf_init2(m.dcrzi, bits);
+	mpf_init2(m.dcizr, bits);
+	mpf_init2(m.dcizi, bits);
+	STEP_STRUCT mc[4];
+	HANDLE hDone[4];
+	for (i = 0; i<4; i++){
+		mc[i].nType =i;
+		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+		mc[i].common = &m;
+	}
+
+#endif
+#endif
+
 	HANDLE hThread;
 	DWORD dw;
-	for (i = 0; i<2; i++){
+	for (i = 0; i<threads; i++){
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
+		SetThreadAffinityMask(hThread, 1<<i);
 		CloseHandle(hThread);
 	}
+
 #ifdef KF_THREADED_REFERENCE_EVENT
   uint32_t last = GetTickCount();
   for (i = 0; i < period && !g_bNewtonStop; ++i) {
@@ -470,17 +526,37 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, complex<flyttyp> c_guess, i
 	SetEvent(hExit[0]);
 	SetEvent(hExit[1]);
 #endif
-	WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
-	for (i = 0; i<2; i++){
+
+	WaitForMultipleObjects(threads, hDone, TRUE, INFINITE);
+	for (i = 0; i<threads; i++){
 		CloseHandle(hDone[i]);
 #ifdef KF_THREADED_REFERENCE_EVENT
 		CloseHandle(hWait[i]);
 		CloseHandle(hExit[i]);
 #endif
 	}
+
 #ifdef KF_THREADED_REFERENCE_BARRIER
-  delete bar;
-  bar = 0;
+	mpf_set(z.m_r.m_dec.backend().data(), m.zr);
+	mpf_set(z.m_i.m_dec.backend().data(), m.zi);
+	mpf_set(dc.m_r.m_dec.backend().data(), m.dcr);
+	mpf_set(dc.m_i.m_dec.backend().data(), m.dci);
+	mpf_clear(m.zr);
+	mpf_clear(m.zi);
+	mpf_clear(m.zrn);
+	mpf_clear(m.zin);
+	mpf_clear(m.zr2);
+	mpf_clear(m.zi2);
+	mpf_clear(m.cr);
+	mpf_clear(m.ci);
+	mpf_clear(m.dcr);
+	mpf_clear(m.dci);
+	mpf_clear(m.dcrn);
+	mpf_clear(m.dcin);
+	mpf_clear(m.dcrzr);
+	mpf_clear(m.dcrzi);
+	mpf_clear(m.dcizr);
+	mpf_clear(m.dcizi);
 #endif
 
   SetDlgItemText(hWnd,IDC_EDIT4,"");
