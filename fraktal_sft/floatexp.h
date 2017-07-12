@@ -331,6 +331,14 @@ inline floatexp abs(floatexp a)
 	return a.abs();
 }
 
+inline floatexp sqrt(floatexp a)
+{
+  return floatexp
+    ( std::sqrt((a.exp & 1) ? 2.0 * a.val : a.val)
+    , (a.exp & 1) ? (a.exp - 1) / 2 : a.exp / 2
+    );
+}
+
 inline floatexp mpf_get_fe(const mpf_t value)
 {
 	using std::ldexp;
