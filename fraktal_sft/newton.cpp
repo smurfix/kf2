@@ -134,18 +134,14 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   return box->p;
 }
 
-#ifdef KF_THREADED_BOXPERIOD_BARRIER
-// FIXME get this threaded version working correctly somehow
-// FIXME it gives wrong results (too high period)
+#ifdef KF_THREADED_REFERENCE_BARRIER
 struct BoxPeriod
 {
   int threadid;
   barrier *barrier;
   volatile BOOL *stop;
   int maxperiod;
-  complex<flyttyp> *z;
-  complex<flyttyp> *z2;
-  complex<flyttyp> *c;
+  mpf_t zr, zi, zr2, zi2, zri, cr, ci, t, *z2r, *z2i;
   int *crossing[4];
   int *haveperiod;
   int *period;
@@ -156,9 +152,6 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
 {
   int t = b->threadid;
   barrier *barrier = b->barrier;
-  complex<flyttyp> *z = b->z;
-  complex<flyttyp> *z2 = b->z2;
-  complex<flyttyp> *c = b->c;
   volatile BOOL *stop = b->stop;
   int *haveperiod = b->haveperiod;
   int *period = b->period;
@@ -172,7 +165,22 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   }
   for (int i = 1; i < b->maxperiod; ++i)
   {
-    *b->crossing[t] = crosses_positive_real_axis(*z, *z2);
+    // *b->crossing[t] = crosses_positive_real_axis(&b->zr, &b->zi, b->z2r, b->z2i);
+    bool crossing = false;
+    if (mpf_sgn(b->zi) != mpf_sgn(*b->z2i))
+    {
+      // d = b - a;
+      mpf_sub(b->zr2, *b->z2r, b->zr);
+      mpf_sub(b->zi2, *b->z2i, b->zi);
+      int fs = mpf_sgn(b->zi2);
+      // t = cross(d, a);
+      mpf_mul(b->zri, b->zi2, b->zr);
+      mpf_mul(b->zi2, b->zr2, b->zi);
+      mpf_sub(b->t, b->zri, b->zi2);
+      int ft = mpf_sgn(b->t);
+      crossing = fs == ft;
+    }
+    *b->crossing[t] = crossing;
     if (barrier->wait(stop)) break;
     if (t == 0)
     {
@@ -195,27 +203,34 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
 	*period = i;
       }
     }
+    // z = z * z + c
+    mpf_mul(b->zr2, b->zr, b->zr);
+    mpf_mul(b->zri, b->zr, b->zi);
+    mpf_mul(b->zi2, b->zi, b->zi);
+    mpf_sub(b->t, b->zr2, b->zi2);
+    mpf_add(b->zr, b->t, b->cr);
+    mpf_mul_2exp(b->zri, b->zri, 1);
+    mpf_add(b->zi, b->zri, b->ci);
     if (barrier->wait(stop)) break;
     if (*haveperiod) break;
-    *z = *z * *z + *c; // FIXME optimize complex squaring
-    if (barrier->wait(stop)) break;
   }
   SetEvent(b->hDone);
   return 0;
 }
 #endif
 
- int m_d_box_period_do(complex<flyttyp> center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
+ int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
 	 radius = flyttyp(4)/radius;
 
-#ifdef KF_THREADED_BOXPERIOD_BARRIER
+#ifdef KF_THREADED_REFERENCE_BARRIER
 
-  barrier *bar = new barrier(4);
-  complex<flyttyp> z[4], c[4];
-  z[0] = c[0] = center + complex<flyttyp>(-radius, -radius);
-  z[1] = c[1] = center + complex<flyttyp>(radius, -radius);
-  z[2] = c[2] = center + complex<flyttyp>(radius, radius);
-  z[3] = c[3] = center + complex<flyttyp>(-radius, radius);
+  mp_bitcnt_t bits = mpf_get_prec(center.m_r.m_dec.backend().data());
+  barrier bar(4);
+  complex<flyttyp> c[4];
+  c[0] = center + complex<flyttyp>(-radius, -radius);
+  c[1] = center + complex<flyttyp>(radius, -radius);
+  c[2] = center + complex<flyttyp>(radius, radius);
+  c[3] = center + complex<flyttyp>(-radius, radius);
   int crossing[4] = { 0, 0, 0, 0 };
   int haveperiod = false;
   int period = 0;
@@ -225,11 +240,18 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   for (int t = 0; t < 4; ++t)
   {
     box[t].threadid = t;
-    box[t].barrier = bar;
+    box[t].barrier = &bar;
     box[t].maxperiod = maxperiod;
-    box[t].z = &z[t];
-    box[t].z2 = &z[(t + 1) % 4];
-    box[t].c = &c[t];
+    mpf_init2(box[t].cr, bits); mpf_set(box[t].cr, c[t].m_r.m_dec.backend().data());
+    mpf_init2(box[t].ci, bits); mpf_set(box[t].ci, c[t].m_i.m_dec.backend().data());
+    mpf_init2(box[t].zr, bits); mpf_set(box[t].zr, c[t].m_r.m_dec.backend().data());
+    mpf_init2(box[t].zi, bits); mpf_set(box[t].zi, c[t].m_i.m_dec.backend().data());
+    mpf_init2(box[t].zr2, bits);
+    mpf_init2(box[t].zi2, bits);
+    mpf_init2(box[t].zri, bits);
+    mpf_init2(box[t].t, bits);
+    box[t].z2r = &box[(t + 1) % 4].zr;
+    box[t].z2i = &box[(t + 1) % 4].zi;
     box[t].stop = &g_bNewtonStop;
     box[t].crossing[0] = &crossing[0];
     box[t].crossing[1] = &crossing[1];
@@ -245,13 +267,23 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBoxPeriod, (LPVOID)&box[i], 0, &dw);
+    SetThreadAffinityMask(hThread, 1<<i);
     CloseHandle(hThread);
   }
   // wait for threads to complete
   WaitForMultipleObjects(4, hDone, TRUE, INFINITE);
   for (int i = 0; i < 4; i++)
+  {
     CloseHandle(hDone[i]);
-  delete bar;
+    mpf_clear(box[i].cr);
+    mpf_clear(box[i].ci);
+    mpf_clear(box[i].zr);
+    mpf_clear(box[i].zi);
+    mpf_clear(box[i].zr2);
+    mpf_clear(box[i].zi2);
+    mpf_clear(box[i].zri);
+    mpf_clear(box[i].t);
+  }
   steps = period;
   return haveperiod ? period : 0;
 
