@@ -624,10 +624,17 @@ extern int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int pe
   return result;
 }
 
-complex<flyttyp> m_d_size(complex<flyttyp> nucleus, int period,HWND hWnd)
+static inline complex<floatexp> fec(const complex<flyttyp> &z)
 {
-  complex<flyttyp> l(1,0); // FIXME should be floatexp
-  complex<flyttyp> b(1,0); // FIXME should be floatexp
+  return complex<floatexp>(mpf_get_fe(z.m_r.m_dec.backend().data()), mpf_get_fe(z.m_i.m_dec.backend().data()));
+}
+
+complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd)
+{
+  complex<floatexp> fec1(1,0);
+  complex<floatexp> fec2(2,0);
+  complex<floatexp> l(1,0);
+  complex<floatexp> b(1,0);
   complex<flyttyp> z(0,0);
   char szStatus[256];
   uint32_t last = GetTickCount();
@@ -642,11 +649,11 @@ complex<flyttyp> m_d_size(complex<flyttyp> nucleus, int period,HWND hWnd)
 		}
 	  }
     z = z * z + nucleus;
-    //complex<flyttyp> zlo = z; // FIXME should be floatexp
-    l = _2 * z/*lo*/ * l;
-    b = b + _1 / l; // FIXME _1 should be floatexp
+    complex<floatexp> zlo = fec(z);
+    l = fec2 * zlo * l;
+    b = b + fec1 / l;
   }  
-  return _1 / (b * l * l); // FIXME _1 should be floatexp
+  return fec1 / (b * l * l);
 }
 
 int g_period;
@@ -705,8 +712,10 @@ int WINAPI ThNewton(HWND hWnd)
 			strcpy(g_szIm,sz.c_str());
 
 			Precision prec3(exp + 6);
-			complex<flyttyp>size = m_d_size(c,g_period,hWnd);
-			flyttyp msize = flyttyp(.25)/flyttyp(sqrt(cabs2(size).m_dec));
+			complex<floatexp>size = m_d_size(c,g_period,hWnd);
+			floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
+			flyttyp msize = 0;
+			mpf_set_fe(msize.m_dec.backend().data(), msizefe);
 
 			std::string sszSize = msize.ToText();
 			char *szSize0 = strdup(sszSize.c_str());
