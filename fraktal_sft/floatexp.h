@@ -340,4 +340,17 @@ inline floatexp mpf_get_fe(const mpf_t value)
 	return floatexp(l, e);
 }
 
+inline void mpf_set_fe(mpf_t value, floatexp fe)
+{
+	mpf_set_d(value, fe.val);
+	if (fe.exp >= 0)
+	{
+		mpf_mul_2exp(value, value, fe.exp);
+	}
+	else
+	{
+		mpf_div_2exp(value, value, -fe.exp);
+	}
+}
+
 #endif //__FLOATEXP_H__
