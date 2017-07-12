@@ -18,15 +18,6 @@ extern double g_FactorAI;
 
 #include "../common/barrier.h"
 
-floatexp mpf_get_fe(const mpf_t value)
-{
-	using std::ldexp;
-	signed long int e = 0;
-	double l = mpf_get_d_2exp(&e, value);
-	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
-	return floatexp(l, e);
-}
-
 struct mcthread_common
 {
 	barrier *barrier;
