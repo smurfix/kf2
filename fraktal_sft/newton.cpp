@@ -59,11 +59,11 @@ static inline bool cisfinite(complex<flyttyp> z) {
 static const flyttyp pi = 3.141592653589793;
 static const flyttyp twopi = 6.283185307179586;
 
-static flyttyp cross(complex<flyttyp> a, complex<flyttyp> b) {
+static flyttyp cross(const complex<flyttyp> &a, const complex<flyttyp> &b) {
 	return a.m_i * b.m_r - a.m_r * b.m_i;
 }
 
-static bool crosses_positive_real_axis(complex<flyttyp> a, complex<flyttyp> b) {
+static bool crosses_positive_real_axis(const complex<flyttyp> &a, const complex<flyttyp> &b) {
   if (sgn(a.m_i) != sgn(b.m_i)) {
     complex<flyttyp> d = b - a;
     int s = sgn(d.m_i);
@@ -73,7 +73,7 @@ static bool crosses_positive_real_axis(complex<flyttyp> a, complex<flyttyp> b) {
   return false;
 }
 
-static bool surrounds_origin(complex<flyttyp> a, complex<flyttyp> b, complex<flyttyp> c, complex<flyttyp> d) {
+static bool surrounds_origin(const complex<flyttyp> &a, const complex<flyttyp> &b, const complex<flyttyp> &c, const complex<flyttyp> &d) {
   return odd
     ( crosses_positive_real_axis(a, b)
     + crosses_positive_real_axis(b, c)
@@ -88,7 +88,7 @@ struct m_d_box_period {
   int p;
 };
 
-m_d_box_period *m_d_box_period_new(complex<flyttyp> center, flyttyp radius) {
+m_d_box_period *m_d_box_period_new(const complex<flyttyp> &center, const flyttyp &radius) {
   m_d_box_period *box = new m_d_box_period;
   if (! box) {
     return 0;
