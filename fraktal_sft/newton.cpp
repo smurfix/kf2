@@ -267,7 +267,9 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBoxPeriod, (LPVOID)&box[i], 0, &dw);
+#ifdef KF_THREAD_AFFINITY
     SetThreadAffinityMask(hThread, 1<<i);
+#endif
     CloseHandle(hThread);
   }
   // wait for threads to complete
@@ -500,7 +502,9 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	DWORD dw;
 	for (i = 0; i<threads; i++){
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
+#ifdef KF_THREAD_AFFINITY
 		SetThreadAffinityMask(hThread, 1<<i);
+#endif
 		CloseHandle(hThread);
 	}
 

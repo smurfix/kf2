@@ -220,7 +220,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
 			mc[i].common = &co;
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
+#ifdef KF_THREAD_AFFINITY
 			SetThreadAffinityMask(hThread, 3);
+#endif
 			CloseHandle(hThread);
 		}
 		// wait for completion
