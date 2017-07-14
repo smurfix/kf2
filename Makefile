@@ -2,7 +2,8 @@ WINPREFIX ?= $(HOME)/win64
 CLEWPREFIX ?= ../clew
 COMPILE := x86_64-w64-mingw32-g++
 LINK := x86_64-w64-mingw32-g++
-FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -I$(CLEWPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER -Dclew_STATIC
+FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
+# -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg
@@ -53,8 +54,13 @@ common/bitmap.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) cl/opencl.cpp jpeg_static.cpp
-SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
+OPENCL_SOURCES_CPP =
+OPENCL_SOURCES_C =
+#OPENCL_SOURCES_CPP = cl/opencl.cpp
+#OPENCL_SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
+
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP) jpeg_static.cpp
+SOURCES_C = $(OPENCL_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)

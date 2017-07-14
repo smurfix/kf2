@@ -1,3 +1,4 @@
+#ifdef KF_OPENCL
 #include <assert.h>
 #include <math.h>
 #include <string.h>
@@ -498,3 +499,4 @@ void OpenCL::download_iterations(int **m_nPixels, float **m_nTrans, size_t m_nX,
 }
 
 #include "opencl.inc"
+#endif

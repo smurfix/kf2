@@ -179,10 +179,11 @@
 
 
 // OpenCL
+#ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
 #define IDC_COMBO_OPENCL_DEVICE  1100
 #define ID_SPECIAL_OPENCL       40100
-
+#endif
 
 // Next default values for new objects
 // 

@@ -1,3 +1,4 @@
+#ifdef KF_OPENCL
 #ifndef OPENCL_H
 #define OPENCL_H 1
 
@@ -148,4 +149,5 @@ public:
 
 std::vector<cldevice> initialize_opencl();
 
+#endif
 #endif

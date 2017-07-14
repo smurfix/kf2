@@ -60,6 +60,7 @@ BEGIN
 END
 
 
+#ifdef KF_OPENCL
 // OpenCL
 IDD_DIALOG_OPENCL DIALOGEX 0, 0, 300, 100
 STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
@@ -71,7 +72,7 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,7,50,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,60,50,50,14
 END
-
+#endif
 
 
 /////////////////////////////////////////////////////////////////////////////
@@ -582,7 +583,9 @@ BEGIN
         MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
         MENUITEM "Show glitches",               ID_SPECIAL_SHOWGLITCHES,MFT_STRING,MFS_ENABLED
         MENUITEM "Newton-Raphson zooming\tCtrl+D", ID_SPECIAL_NEWTON,MFT_STRING,MFS_ENABLED
+#ifdef KF_OPENCL
         MENUITEM "OpenCL",                      ID_SPECIAL_OPENCL,MFT_STRING,MFS_ENABLED
+#endif
     END
     MENUITEM "?",                           40025,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END

@@ -9,8 +9,10 @@
 
 #include "floatexp.h"
 
+#ifdef KF_OPENCL
 #include "../cl/opencl.h"
 extern std::vector<cldevice> cldevices;
+#endif
 
 class CPixels
 {
@@ -266,16 +268,20 @@ class CFraktalSFT
 	char *ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
+#ifdef KF_OPENCL
 	void RenderFractalOpenCL();
 	void RenderFractalOpenCLEXP();
+#endif
 	int GetArea(int **Node, int nXStart, int nXStop, int nEqSpan = 2, int **Pixels = NULL, int nDone = -1);
 
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone=TRUE);
 	void SetTexture(int nIndex, int x, int y);
 	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1);
 
+#ifdef KF_OPENCL
 	int clid;
   OpenCL *cl;
+#endif
 
 public:
 	BOOL m_bRunning;
@@ -400,8 +406,10 @@ public:
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();
 
+#ifdef KF_OPENCL
   int GetOpenCLDeviceIndex();
   void SetOpenCLDeviceIndex(int i);
+#endif
 
 };
 

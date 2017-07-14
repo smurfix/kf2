@@ -98,8 +98,10 @@ void ErrorText()
 
 CFraktalSFT::CFraktalSFT()
 {
+#ifdef KF_OPENCL
 	clid = -1;
 	cl = NULL;
+#endif
 
 	m_bTexture=FALSE;
 	m_nImgMerge=1;
@@ -2227,11 +2229,13 @@ void CFraktalSFT::RenderFractal()
 			delete[] m_dxi;
 			m_dxi = NULL;
 		}
+#ifdef KF_OPENCL
 		if (cl)
 		{
 			RenderFractalOpenCLEXP();
 		}
 		else
+#endif
 		{
 			RenderFractalLDBL();
 		}
@@ -2254,11 +2258,13 @@ void CFraktalSFT::RenderFractal()
 			ReleaseArray(m_ldxi);
 			m_ldxi = NULL;
 		}
+#ifdef KF_OPENCL
 		if (cl)
 		{
 			RenderFractalOpenCLEXP();
 		}
 		else
+#endif
 		{
 			RenderFractalEXP();
 		}
@@ -2354,11 +2360,13 @@ void CFraktalSFT::RenderFractal()
        else
                m_bNoGlitchDetection = TRUE;
 
+#ifdef KF_OPENCL
 	if (cl)
 	{
 		RenderFractalOpenCL();
 	}
 	else
+#endif
 	{
 		// CalcStart
 		if (!m_bAddReference){
@@ -2685,6 +2693,7 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	m_istop = istop.m_dec;
 }
 
+#ifdef KF_OPENCL
 void CFraktalSFT::RenderFractalOpenCL()
 {
 	int32_t antal = 0;
@@ -2781,7 +2790,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 }
-
+#endif
 
 void CFraktalSFT::SetPosition(const char *szR, const char *szI, const std::string &szZ)
 {
@@ -4708,6 +4717,7 @@ void CFraktalSFT::RemoveInflectionPoint()
 		m_nInflections--;
 }
 
+#ifdef KF_OPENCL
 int CFraktalSFT::GetOpenCLDeviceIndex()
 {
 	return clid;
@@ -4729,6 +4739,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 		}
 	}
 }
+#endif
 
 CPixels::CPixels()
 {

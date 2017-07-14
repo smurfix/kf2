@@ -26,10 +26,14 @@
 #include "fraktal_sft.h"
 #include <malloc.h>
 #include "../formula/formula.h"
+#ifdef KF_OPENCL
 #include "../cl/opencl.h"
+#endif
 #include "../common/bitmap.h"
 
+#ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
+#endif
 
 POINT g_pInflections[10];
 int g_nInflection=0;
@@ -53,7 +57,9 @@ POINT g_pTrackStart;
 int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
 
+#ifdef KF_OPENCL
 HWND g_hwOpenCL = NULL;
+#endif
 
 
 HBITMAP g_bmMarilyn=NULL;
@@ -366,8 +372,10 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Apply and close";
 		case IDCANCEL:
 			return "Close and undo";
+#ifdef KF_OPENCL
 		case IDC_COMBO_OPENCL_DEVICE:
 			return "Select the OpenCL device to use for per-pixel iteration calculations";
+#endif
 		}
 	}
 	else if(lParam==2){
@@ -3696,6 +3704,7 @@ int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	return 0;
 }
 
+#ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   switch(msg)
@@ -3747,6 +3756,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+#endif
 
 long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -4652,6 +4662,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 	}
 
+#ifdef KF_OPENCL
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_OPENCL){
 		if(g_hwOpenCL){
 			DestroyWindow(g_hwOpenCL);
@@ -4660,6 +4671,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_hwOpenCL = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG_OPENCL),hWnd,(DLGPROC)OpenCLProc);
 		ShowWindow(g_hwOpenCL,SW_SHOW);
 	}
+#endif
 
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SKEW){
 		g_bShowSkew=TRUE;
@@ -5561,7 +5573,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- JPEG 6b <http://www.ijg.org>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
+#ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
+#endif
 				"\nAcknowledgements:\n"
 				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
 				" - Thanks to Pauldelbrot for finding the reliable glitch detection method\n"
@@ -5644,7 +5658,9 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
 //	return Test();
 
+#ifdef KF_OPENCL
 	cldevices = initialize_opencl();
+#endif
 
 	GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
 	strcpy(strrchr(g_szRecovery,'.'),".rec");
