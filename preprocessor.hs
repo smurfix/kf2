@@ -107,7 +107,7 @@ term = m_parens exprparser
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
        <|> (m_reserved "abs" >> EAbs <$ string "(" *> exprparser <* string ")")
-       <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" *> exprparser <* string "," *> exprparser <* string ")")
+       <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
 
 data CL
   = Context String
