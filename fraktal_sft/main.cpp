@@ -5564,7 +5564,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
 				"©2013-2017 Karl Runmo version 2.11.1\n"
-				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170714\n\n"
+				"©2017 Claude Heiland-Allen 2.11.1+gmp.20170822\n\n"
 				"Processors: %d\n"
 				// mpf_t decimal digits = floor(64.0 * ((1<<31)-1) * log2(10))
 				"Precision: 456562320657\n"
