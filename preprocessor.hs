@@ -106,7 +106,7 @@ term = m_parens exprparser
        <|> (EVar <$> m_identifier)
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
-       <|> (m_reserved "abs" >> EAbs <$ string "(" *> exprparser <* string ")")
+       <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
 
 data CL
