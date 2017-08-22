@@ -653,7 +653,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 //			iter/=4;
 //			iter*=iter;
 			iter*=(double)m_nX / (double)640;
-			iter=sqrt(iter);
+			iter=log(iter+1);
 			/*iter=log(iter);
 			if(iter<0)
 				iter=0;*/
