@@ -899,48 +899,41 @@ BOOL ISFLOATOK(double a)
 void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
+	int nProbeX = 3;
+	int nProbeY = 3;
+	int nProbe = nProbeX * nProbeY;
 	floatexp _1 = 1;
 	floatexp _3 = 3;
 	floatexp _6 = 6;
 	CFixedFloat cr, ci;
-	int i, j;
-	floatexp dbTr[8], dbTi[8], dbTr0[8], dbTi0[8];
+	int i, j, k;
+	floatexp *dbTr = new floatexp[nProbe];
+	floatexp *dbTi = new floatexp[nProbe];
+	floatexp *dbTr0 = new floatexp[nProbe];
+	floatexp *dbTi0 = new floatexp[nProbe];
 	cr = m_rstart;
 	ci = m_istart;
 
-	POINT p[8];
-	int nDirection = 0;
-	p[0].x = m_rApprox.left;
-	p[0].y = m_rApprox.top;
-	for (j = 1; j<8; j++){
-		p[j].x = p[j - 1].x;
-		p[j].y = p[j - 1].y;
-		if (nDirection == 0){
-			p[j].x += (m_rApprox.left + m_rApprox.right) / 2 - 1;
-			if (j == 2)
-				nDirection++;
+	POINT *p = new POINT[nProbe];
+	for (j = 0; j < nProbeY; ++j)
+	{
+		int y = m_rApprox.top + j * (m_rApprox.bottom - m_rApprox.top) / (nProbeY - 1);
+		if (y < m_rApprox.top) y = m_rApprox.top;
+		if (y >= m_rApprox.bottom) y = m_rApprox.bottom - 1;
+		for (i = 0; i < nProbeX; ++i)
+		{
+			int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeY - 1);
+			if (x < m_rApprox.left) x = m_rApprox.left;
+			if (x >= m_rApprox.right) x = m_rApprox.right - 1;
+			p[k].x = x;
+			p[k].y = y;
+			++k;
 		}
-		else if (nDirection == 1){
-			p[j].y += (m_rApprox.top + m_rApprox.bottom) / 2 - 1;
-			if (j == 4)
-				nDirection++;
-		}
-		else if (nDirection == 2){
-			p[j].x -= (m_rApprox.left + m_rApprox.right) / 2 - 1;
-			if (j == 6)
-				nDirection++;
-		}
-		else if (nDirection == 3){
-			p[j].y -= (m_rApprox.top + m_rApprox.bottom) / 2 - 1;
-		}
-		if (p[j].x<m_rApprox.left) p[j].x = m_rApprox.left;
-		if (p[j].x >= m_rApprox.right) p[j].x = m_rApprox.right - 1;
-		if (p[j].y<m_rApprox.top) p[j].y = m_rApprox.top;
-		if (p[j].y >= m_rApprox.bottom) p[j].y = m_rApprox.bottom - 1;
 	}
+	assert(k == nProbe);
 
 	if (nType == 0){
-		for (j = 0; j<8; j++){
+		for (j = 0; j<nProbe; j++){
 			dbTr0[j] = m_pDX[p[j].x];
 			dbTi0[j] = m_pDY[p[j].y];
 			if (m_nScalingOffset){
@@ -952,7 +945,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		}
 	}
 	else if (nType == 1){
-		for (j = 0; j<8; j++){
+		for (j = 0; j<nProbe; j++){
 			ToFloatExp(&m_lDX[p[j].x], &dbTr0[j]);
 			dbTr[j] = dbTr0[j];
 			ToFloatExp(&m_lDX[p[j].y], &dbTi0[j]);
@@ -960,7 +953,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		}
 	}
 	else{
-		for (j = 0; j<8; j++){
+		for (j = 0; j<nProbe; j++){
 			dbTr[j] = dbTr0[j] = m_DX[p[j].x];
 			dbTi[j] = dbTi0[j] = m_DY[p[j].y];
 		}
@@ -1096,7 +1089,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				dxr = m_dxr[i];
 				dxi = m_dxi[i];
 			}
-			for (j = 0; j<8; j++){
+			for (j = 0; j<nProbe; j++){
 				floatexp Dnr = m_APr[0] * dbTr0[j] - m_APi[0] * dbTi0[j];
 				floatexp Dni = m_APr[0] * dbTi0[j] + m_APi[0] * dbTr0[j];
 				floatexp D_r = dbTr0[j] * dbTr0[j] - dbTi0[j] * dbTi0[j];
@@ -1220,7 +1213,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				dbTr[j] = Dnr;
 				dbTi[j] = Dni;
 			}
-			if (j<8)
+			if (j<nProbe)
 				break;
 		}
 	}
@@ -1232,6 +1225,11 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		m_nMaxApproximation = 0;
 	delete[] APr;
 	delete[] APi;
+	delete[] dbTr;
+	delete[] dbTi;
+	delete[] dbTr0;
+	delete[] dbTi0;
+	delete[] p;
 }
 
 DWORD WINAPI ThMC(MC *pMC)
