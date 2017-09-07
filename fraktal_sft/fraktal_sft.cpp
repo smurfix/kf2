@@ -982,6 +982,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		int nT = sqrt((double)m_nTotal)*0.021;
 		if (nT<5)
 			nT = 5;
+		if (nT>60)
+			nT = 60;
 		SetTerms(nT);
 	}
 	for (i = 1; i<m_nTerms; i++){
