@@ -899,8 +899,12 @@ BOOL ISFLOATOK(double a)
 void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
-	int nProbeX = 3;
-	int nProbeY = 3;
+	double nProbeRatio = 1.0 / 65536.0;
+	double r = sqrt(nProbeRatio);
+	int nProbeX = ceil(fabs(m_rApprox.right - m_rApprox.left) * r);
+	int nProbeY = ceil(fabs(m_rApprox.bottom - m_rApprox.top) * r);
+	if (nProbeX < 3) nProbeX = 3;
+	if (nProbeY < 3) nProbeY = 3;
 	int nProbe = nProbeX * nProbeY;
 	floatexp _1 = 1;
 	floatexp _3 = 3;
