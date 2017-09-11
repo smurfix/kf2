@@ -3,6 +3,9 @@
 *.dll
 *.d
 *.hi
+*.jpg
+*.kfr
+*.kfb
 .cabal-sandbox
 cabal.sandbox.config
 preprocessor
