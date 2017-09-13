@@ -148,14 +148,16 @@ skip the chroot step and install natively.
         su - build
         export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
         mkdir -p ~/win64/src
+        # mkdir -p ~/win32/src
 
 - Download sources:
 
-    Visit <http://boost.org> and download the latest 7z archive to
-    `./vm/home/build/win64/src/`, then download the latest GMP (which is at time
-    of writing version 6.1.2) and clone kf git sources:
+    Download the latest Boost (which is at time of writing is 1.65.1) and
+    latest GMP (currently version 6.1.2) and clone kf git sources:
 
         cd ~/win64/src
+        # cd ~/win32/src
+        wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
         wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
 
@@ -167,6 +169,7 @@ skip the chroot step and install natively.
         tar xf gmp-6.1.2.tar.lz
         cd gmp-6.1.2
         ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+        # ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
         make -j 8
         make install
         make check
@@ -174,16 +177,18 @@ skip the chroot step and install natively.
 - Prepare Boost headers
 
         cd ~/win64/src
+        # cd ~/win32/src
         7zr x boost*.7z
         cd ~/win64/include
+        # cd ~/win32/include
         ln -s ../src/boost*/boost/
 
 - Finally, build Kalles Fraktaler 2 + GMP
 
         cd ~/win64/src
         cd kalles-fraktaler-2
-        git checkout claude-gmp
-        make -j 8 SYSTEM=64   # or SYSTEM=32 for 32bit version
+        git checkout formulas
+        make -j 8 SYSTEM=64  # or SYSTEM=32 for 32bit version FIXME incomplete
         ./kf.exe  # test to see if it works
 
 - To cut a release bundle, use the script
