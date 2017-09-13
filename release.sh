@@ -21,6 +21,7 @@ make -j 8
 strip kf.exe
 cp -avit "${BIN}/" kf.exe "${SRC}.zip"
 cp -avi README.md "${BIN}/kf.txt"
+cp -avi README.pdf "${BIN}/kf.pdf"
 zip -9 -r "${BIN}.zip" "${BIN}/"
 gpg -b "${BIN}.zip"
 

@@ -71,7 +71,7 @@ OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
 DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 
-all: kf.exe
+all: kf.exe README.pdf
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
