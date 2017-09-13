@@ -124,5 +124,7 @@ jpeg-6b/configure: jpegsrc.v6b.tar.gz
 jpegsrc.v6b.tar.gz:
 	wget -c "http://www.ijg.org/files/jpegsrc.v6b.tar.gz"
 
+README.pdf: README.md
+	pandoc -f markdown -t latex < README.md -o README.pdf
 
 -include $(DEPENDS)
