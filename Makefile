@@ -1,17 +1,13 @@
-WINPREFIX ?= $(HOME)/win64
-CLEWPREFIX ?= ../clew
-COMPILE := x86_64-w64-mingw32-g++
-LINK := x86_64-w64-mingw32-g++
+# make SYSTEM=64 for 64bit
+# make SYSTEM=32 for 32bit (experimental)
+SYSTEM ?= 64
+include $(SYSTEM).mk
+
 FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg
-XSLTPROC ?= xsltproc
-WINDRES ?= x86_64-w64-mingw32-windres
-RM := rm -f
-AR := x86_64-w64-mingw32-ar
-AR2 := x86_64-w64-mingw32-ranlib
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \

@@ -1,0 +1,9 @@
+WINPREFIX ?= $(HOME)/win32
+# CLEWPREFIX ?= ../clew
+COMPILE ?= i686-w64-mingw32-g++
+LINK ?= i686-w64-mingw32-g++
+WINDRES ?= i686-w64-mingw32-windres
+AR ?= i686-w64-mingw32-ar
+AR2 ?= i686-w64-mingw32-ranlib
+XSLTPROC ?= xsltproc
+RM ?= rm -f
