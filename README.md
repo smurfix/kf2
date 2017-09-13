@@ -225,7 +225,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
         pacman -S mingw-w64-x86_64-toolchain
 
     one can also install 32 bit version by:
-    
+
         pacman -S mingw-w64-i686-toolchain
 
 - Install Boost
@@ -258,9 +258,10 @@ Build instructions for compiling on Windows (thanks to knighty!):
         ./fraktal_sft64    # for the claude branch
         ./kf.exe           # for the claude-gmp branch
 
-    because it is linked dynamically to some libraries. In order to execute it from
-    the explorer one needs to copy `libgmp-10.dll` and `libwinpthread-1.dll` from
-    `msys64/mingw64/bin` next to the generated executable.
+    because it is linked dynamically to some libraries. In order to execute it
+    from the explorer one needs to copy `libgmp-10.dll` and
+    `libwinpthread-1.dll` from `msys64/mingw64/bin` next to the generated
+    executable.
 
 
 Configuration (`COMPILE_FLAGS` in `Makefile`)
