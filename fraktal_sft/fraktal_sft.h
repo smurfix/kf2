@@ -151,6 +151,19 @@ public:
 		return m_dbBuf[nMapIndex];
 	}
 };
+
+enum ColorMethod
+{
+	ColorMethod_Standard = 0,
+	ColorMethod_SquareRoot = 1,
+	ColorMethod_CubicRoot = 2,
+	ColorMethod_Logarithm = 3,
+	ColorMethod_Stretched = 4,
+	ColorMethod_DistanceSqrt = 5,
+	ColorMethod_DEPlusStandard = 6,
+	ColorMethod_DistanceLog = 7
+};
+
 class CFraktalSFT
 {
 	MULTIWAVE m_MW[MULTIWAVE_MAX];
@@ -196,7 +209,7 @@ class CFraktalSFT
 	double m_nBailout;
 	double m_nBailout2;
 	int m_nSmoothMethod;
-	int m_nColorMethod;
+	ColorMethod m_nColorMethod;
 	int m_nColorOffset;
 	BOOL m_bIterChanged;
 	int m_nMinI, m_nMaxI;
@@ -360,7 +373,7 @@ public:
 	BOOL GetLowTolerance();
 	void SetLowTolerance(BOOL bLowTolerance);
 	void SetColorMethod(int nColorMethod);
-	int GetColorMethod();
+	ColorMethod GetColorMethod();
 	void SetColorOffset(int nColorOffset);
 	int GetColorOffset();
 	void ErasePixel(int x, int y);

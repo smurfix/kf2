@@ -36,9 +36,15 @@ Differences From Upstream 2.11.1
 
 ### Incompatible Changes
 
-- DE colouring uses log instead of sqrt for a more linear effect
-  (requested and implemented by Kalles Fraktaler)
-  Note: this may be reverted and implemented in a different way.
+- **In version `kf-2.11.1+gmp.20170822` only**, DE colouring method #5 used log
+  instead of sqrt for a more perceptually linear effect.  In later versions,
+  this log scaling is achieved with a new colouring method #7, while the DE
+  colouring method #5 reverts to sqrt as before.  The new colouring method ID
+  allows old parameter files to be loaded into current versions and display as
+  intended.  Any parameter files saved with the new Distance (Logarithm)
+  colouring method will not display as intended in older versions.  Parameter
+  files using Distance colouring method saved with this particular version
+  should be modified to use Distance (Logarithm) in the latest version.
 
 ### Other Changes
 
