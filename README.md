@@ -1,7 +1,7 @@
 Kalles Fraktaler 2
 ==================
 
-Forked for cross-compilation to Windows 64bit from Linux MINGW64, using GMP.
+Forked for cross-compilation to Windows from Linux MINGW64, using GMP.
 Now with many other enhancements (mostly speed optimisations and bugfixes).
 
 Original upstream version:
@@ -70,7 +70,6 @@ Differences From Upstream 2.11.1
 TODO
 ----
 
-- building: 32bit version
 - building: document the current system requirements
 - user interface: batch mode
 - user interface: PNG image export (JPEG is 8bit YUV which means colour gamut
@@ -184,7 +183,7 @@ skip the chroot step and install natively.
         cd ~/win64/src
         cd kalles-fraktaler-2
         git checkout claude-gmp
-        make -j 8
+        make -j 8 SYSTEM=64   # or SYSTEM=32 for 32bit version
         ./kf.exe  # test to see if it works
 
 - To cut a release bundle, use the script

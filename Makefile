@@ -3,7 +3,7 @@
 SYSTEM ?= 64
 include $(SYSTEM).mk
 
-FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -mfpmath=sse -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
+FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
@@ -71,6 +71,7 @@ all: kf.exe README.pdf
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
+	rm -f jpeg-6b/libjpeg.a jpeg-6b/jconfig.h jpeg-6b/configure
 	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
@@ -112,7 +113,7 @@ jpeg-6b/libjpeg.a: jpeg-6b/jconfig.h
 	$(MAKE) -C jpeg-6b libjpeg.a
 
 jpeg-6b/jconfig.h: jpeg-6b/configure
-	( cd jpeg-6b ; ./configure CC=x86_64-w64-mingw32-gcc ; touch jconfig.h )
+	( cd jpeg-6b ; ./configure CC=$(GCC) ; touch jconfig.h )
 
 jpeg-6b/configure: jpegsrc.v6b.tar.gz
 	( tar xf jpegsrc.v6b.tar.gz ; touch jpeg-6b/configure )

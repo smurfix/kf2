@@ -1,10 +1,6 @@
 #include <windows.h>
 #include "CFixedFloat.h"
-#ifdef _WIN64
 #include "CDecNumber.h"
-#else
-#include "CDecNumber_old.h"
-#endif
 #include "complex.h"
 
 #include "floatexp.h"

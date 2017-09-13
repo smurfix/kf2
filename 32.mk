@@ -7,3 +7,4 @@ AR ?= i686-w64-mingw32-ar
 AR2 ?= i686-w64-mingw32-ranlib
 XSLTPROC ?= xsltproc
 RM ?= rm -f
+GCC ?= i686-w64-mingw32-gcc
