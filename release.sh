@@ -12,7 +12,7 @@ make clean
 
 SRC="kf-${VERSION}-src"
 mkdir "${SRC}"
-cp -avit "${SRC}/" fraktal_sft formula cl ldbl64 common jpeg_static.cpp preprocessor.hs Makefile README "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl ldbl64 common jpeg_static.cpp preprocessor.hs Makefile README.md "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 
 BIN="kf-${VERSION}"
@@ -20,7 +20,7 @@ mkdir "${BIN}"
 make -j 8
 strip kf.exe
 cp -avit "${BIN}/" kf.exe "${SRC}.zip"
-cp -avi README "${BIN}/kf.txt"
+cp -avi README.md "${BIN}/kf.txt"
 zip -9 -r "${BIN}.zip" "${BIN}/"
 gpg -b "${BIN}.zip"
 
