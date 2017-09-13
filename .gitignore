@@ -6,6 +6,7 @@
 *.jpg
 *.kfr
 *.kfb
+*.pdf
 .cabal-sandbox
 cabal.sandbox.config
 preprocessor
