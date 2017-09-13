@@ -121,7 +121,8 @@ inline CDecNumber operator*(const CDecNumber &a, const CDecNumber &b)
 inline CDecNumber operator/(const CDecNumber &a, const CDecNumber &b)
 {
 	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
-	assert(! (b.m_dec == 0));
+	if (b.m_dec == 0)
+		return CDecNumber(0);
 	return CDecNumber(a.m_dec / b.m_dec);
 }
 
