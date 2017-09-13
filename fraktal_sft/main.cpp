@@ -2197,6 +2197,7 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		strcpy(szExamine,szA);
 		*strrchr(szExamine,'.')=0;
 		CDecNumber A(szExamine);
+		// FIXME this will crash when there is only one image
 		szA = strrchr(g_stExamine[1][0],'_');
 		szA++;
 		strcpy(szExamine,szA);
