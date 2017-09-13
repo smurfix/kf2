@@ -4,9 +4,19 @@ Kalles Fraktaler 2
 Forked for cross-compilation to Windows 64bit from Linux MINGW64, using GMP.
 Now with many other enhancements (mostly speed optimisations and bugfixes).
 
-Original upstream version: <http://www.chillheimer.de/kallesfraktaler/>
+Original upstream version:
 
-This version: <https://mathr.co.uk/kf/kf.html>
+- <http://www.chillheimer.de/kallesfraktaler/>
+
+This version:
+
+- <https://mathr.co.uk/kf/kf.html>
+
+Feedback:
+
+- <https://fractalforums.org/kalles-fraktaler/> current forum
+- <http://www.fractalforums.com/kalles-fraktaler/> legacy forum
+- <mailto:claude@mathr.co.uk?subject=Kalles%20Fraktaler%202> personal mail
 
 
 Known Bugs
@@ -208,7 +218,9 @@ Build instructions for compiling on Windows (thanks to knighty!):
 
         pacman -S mingw-w64-x86_64-toolchain
 
-    (one can also install 32 bit version by: pacman -S mingw-w64-i686-toolchain)
+    one can also install 32 bit version by:
+    
+        pacman -S mingw-w64-i686-toolchain
 
 - Install Boost
 
@@ -219,7 +231,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
 - Close msys2 shell then open "msys2 mingw 64 bit" shell (in order to have all
   the environment variables properly set)
 
-- Change directory to the kalles fraktaler sources (where Makefile resides).
+- Change directory to the kalles fraktaler sources (where `Makefile` resides).
 
 - Compile
 
@@ -233,7 +245,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
 
         WINDRES ?= windres
 
-    and run mingw32-make without arguments)
+    and run `mingw32-make` without arguments)
 
 - Execute it this way from (msys2 mingw 64 bit) command line:
 
@@ -241,17 +253,17 @@ Build instructions for compiling on Windows (thanks to knighty!):
         ./kf.exe           # for the claude-gmp branch
 
     because it is linked dynamically to some libraries. In order to execute it from
-    the explorer one needs to copy libgmp-10.dll and libwinpthread-1.dll from
-    msys64/mingw64/bin next to the generated executable.
+    the explorer one needs to copy `libgmp-10.dll` and `libwinpthread-1.dll` from
+    `msys64/mingw64/bin` next to the generated executable.
 
 
-Configuration (COMPILE_FLAGS in Makefile)
------------------------------------------
+Configuration (`COMPILE_FLAGS` in `Makefile`)
+---------------------------------------------
 
-- add -DKF_THREADED_REFERENCE_EVENT to use original threaded reference
+- add `-DKF_THREADED_REFERENCE_EVENT` to use original threaded reference
   calculations (too much overhead in WINE to make it worthwhile, except at very
   deep zooms)
-- add -DKF_THREADED_REFERENCE_BARRIER to use barrier() threaded reference
+- add `-DKF_THREADED_REFERENCE_BARRIER` to use barrier() threaded reference
   (acceptable overhead in WINE, CPU affinity is adjusted with zoom depth,
   enabled by default)
 
