@@ -1,5 +1,5 @@
-Kalles Fraktaler 2
-==================
+Kalles Fraktaler 2 + GMP
+========================
 
 Forked for cross-compilation to Windows from Linux MINGW64, using GMP.
 Now with many other enhancements (mostly speed optimisations and bugfixes).
@@ -22,7 +22,6 @@ Feedback:
 Known Bugs
 ----------
 
-- crash (divide by zero assertion fail) in glitch repair (reported by Dinkydau)
 - crash in "examine zoom sequence" with only 1 .kfb file (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
@@ -67,6 +66,100 @@ Differences From Upstream 2.11.1
 - very experimental and broken OpenCL using CLEW (still disabled at build time)
 
 
+Change Log
+----------
+
+- **next**
+
+    built for 64bit (as before) and 32bit (new);
+    documentation improvements;
+    fix division by zero assertion failure in File -> Examine zoom sequence;
+    fix crash in File -> Examine zoom sequence with only 1 image file;
+
+- **kf-2.11.1+gmp.20170913**
+
+    revert incompatible de log vs sqrt colouring change, instead add a new
+    Distance (Logarithm) colouring method #7; documentation improvements; limit
+    maximum series approximation terms to 60 to try to fix overskipping with
+    large images
+
+- **kf-2.11.1+gmp.20170822**
+
+    bugfix preprocessor for abs() formulas, de colouring with log instead of sqrt
+
+- **kf-2.11.1+gmp.20170820**
+
+    bugfix preprocessor for diffabs() formulas
+
+- **kf-2.11.1+gmp.20170714**
+
+    disabled OpenCL (be more compatible)
+
+- **kf-2.11.1+gmp.20170713**
+
+    optimized Newton-Raphson zooming (3x faster in one test)
+
+- **kf-2.11.1+gmp.20170711**
+
+    workaround for WINE issue artificially limiting image size (now bitmaps up to
+    2GiB can be created on all platforms)
+
+- **kf-2.11.1+gmp.20170710**
+
+    optimized formulas (reference calculation for quadratic Mandlebrot is much
+    faster due to lower-level calls to gmp, very experimental opencl support
+    (mostly broken)); bugfixes (fix hang loading deep zoom locations, fix newton
+    size in new view radius calculation, more complete library credits in
+    documentation); prune dead code (incomplete jpeg library deleted from source,
+    complete version downloaded at build time as needed, delete rudimentary openmp
+    support, delete non-performant barrier variant, delete slower-than-gmp mpfr
+    support, delete custom floating point support)
+
+- **kf-2.11.1+gmp.20170703**
+
+    formulas now generated at compile time from formula definition XML using XSL
+    stylesheet; used fixed format floats instead of scientific; try to hide
+    command prompt window on Windows
+
+- **kf-2.11.1+gmp.20170508**
+
+    restored threaded reference calculations (reimplemented with barrier()
+    semantics to avoid single-threaded WINE SetEvent() rendezvous)
+
+- **kf-2.11.1+gmp.20170504**
+
+    removed threaded reference calculations (too much overhead), miscellaneous
+    code cleanups (no need for -fpermissive, const fixes, delete[] fixes, 64bit
+    compatibility paranoia)
+
+- **kf-2.11.1+gmp.20170406**
+
+    fixed precision bugs (easy deep zoom, interactive failure), fixed performance
+    bug with inflections, fixed cross-hair resource bug, added WINDRES argument
+    to build system, added more info to about dialog, include source code with
+    release
+
+- **kf-2.11.1+gmp.20170330.1**
+
+    fixes a crasher bug in the previous version
+
+- **kf-2.11.1+gmp.20170330**
+
+    unlimited precision, separate compilation
+
+- **kf-2.11.1+gmp.20170313**
+
+    long double compiled into exe (no dll)
+
+- **kf-2.11.1+gmp.20170307**
+
+    kf-2.11.1 + gmp
+
+- **kf-2.9.3+gmp.20170307**
+
+    kf-2.9.3 + gmp
+
+
 TODO
 ----
 
@@ -74,14 +167,13 @@ TODO
 - user interface: batch mode
 - user interface: PNG image export (JPEG is 8bit YUV which means colour gamut
   and precision is lost, even before lossy compression artifacts...)
-- user interface: scripting support
+- user interface: scripting interface
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - preprocessor: float out temporaries from reference iterations
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
-- colouring: restore sqrt DE colouring for compatibility, add log DE separately
 - colouring: assume sRGB display and gamma-correct downscaling
 - colouring: load/save palette to/from image (PNG required)
 - colouring: rework entirely (now: 1024 colours with mandatory interpolation)
@@ -131,6 +223,7 @@ skip the chroot step and install natively.
           cabal-install \
           ghc \
           git \
+          libghc-parsec3-dev \
           libtool \
           lzip \
           m4 \
