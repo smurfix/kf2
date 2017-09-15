@@ -655,7 +655,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			iter*=(double)m_nX / (double)640;
 			if (m_nColorMethod == ColorMethod_DistanceSqrt || m_nColorMethod == ColorMethod_DEPlusStandard)
 				iter=sqrt(iter);
-			else if (m_nColorMethod = ColorMethod_DistanceLog)
+			else if (m_nColorMethod == ColorMethod_DistanceLog)
 				iter=log(iter+1);
 			/*iter=log(iter);
 			if(iter<0)
