@@ -9,9 +9,7 @@ As the orginal upstream author Karl Runmo says:
 
 I (Claude Heiland-Allen) forked the code and swapped out the custom arbitrary
 precision floating point code for the highly optimized GMP library, making it
-even faster.
-
-Cross-compiled to Windows from Linux MINGW64, using GMP.  Now with many other
+even faster.  Cross-compiled to Windows from Linux MINGW64.  Now with many other
 enhancements (mostly speed optimisations and bugfixes).
 
 Original upstream version:
@@ -36,7 +34,8 @@ Known Bugs
   period detected (reported by Kalles Fraktaler)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - opencl support is very broken, proof of concept only
-- may be difficult to build the source at the moment (out of date instructions)
+- may be difficult to build the source natively at the moment
+  (out of date instructions for Windows)
 
 
 Differences From Upstream 2.11.1
@@ -187,7 +186,6 @@ Change Log
 TODO
 ----
 
-- building: document the current system requirements
 - user interface: batch mode
 - user interface: PNG image export (JPEG is 8bit YUV which means colour gamut
   and precision is lost, even before lossy compression artifacts...)
@@ -223,12 +221,12 @@ The latest source code is available from my git repository:
 Building On Linux
 -----------------
 
-(note: these instructions are out of date)
-
-Build instructions for cross-compiling from GNU/Linux require about 3.5GB of
-disk space and good internet download speed (or patience). About 410MB of
-downloads after the chroot debootstrap step. If you have recent Debian you can
-skip the chroot step and install natively.
+Build instructions for cross-compiling from GNU/Linux require about 4.2GB of
+disk space and good internet download speed (or patience). About 600MB of
+downloads including the chroot debootstrap step. To build the PDF manual needs
+some more packages, adding another 600MB of downloads and 1GB of space, so I
+left that optional.  If you have recent Debian you can skip the chroot step and
+install natively.
 
 0. Setup Debian Stretch chroot:
 
@@ -242,6 +240,8 @@ skip the chroot step and install natively.
 
 1. Install dependencies (inside the chroot if you made one):
 
+        dpkg --add-architecture i386
+        apt-get update
         apt-get install \
           build-essential \
           cabal-install \
@@ -253,10 +253,14 @@ skip the chroot step and install natively.
           m4 \
           mingw-w64 \
           p7zip \
+          wine32 \
           wine64 \
           wine-binfmt \
           xsltproc \
           zip
+        apt-get install \
+          pandoc \
+          texlive-latex-recommended   # optional, for PDF manual
 
 2. Prepare non-root build user:
 
@@ -265,7 +269,7 @@ skip the chroot step and install natively.
         su - build
         export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
         mkdir -p ~/win64/src
-        # mkdir -p ~/win32/src
+        mkdir -p ~/win32/src
 
 3. Download sources:
 
@@ -273,20 +277,31 @@ skip the chroot step and install natively.
     latest GMP (currently version 6.1.2) and clone kf git sources:
 
         cd ~/win64/src
-        # cd ~/win32/src
         wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
         wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
+        cd kalles-fraktaler-2
+        git checkout formulas
+        make jpegsrc.v6b.tar.gz
+        cd ..
+        cp -avit ~/win32/src boost*.7z gmp*.lz kalles-fraktaler-2/
 
     Internet access is no longer required after this step.
 
-4. Build GMP
+4. Build GMP (64bit and 32bit):
 
         cd ~/win64/src
         tar xf gmp-6.1.2.tar.lz
         cd gmp-6.1.2
         ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-        # ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
+        make -j 8
+        make install
+        make check
+
+        cd ~/win32/src
+        tar xf gmp-6.1.2.tar.lz
+        cd gmp-6.1.2
+        ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
         make -j 8
         make install
         make check
@@ -294,19 +309,23 @@ skip the chroot step and install natively.
 5. Prepare Boost headers
 
         cd ~/win64/src
-        # cd ~/win32/src
         7zr x boost*.7z
         cd ~/win64/include
-        # cd ~/win32/include
         ln -s ../src/boost*/boost/
 
-6. Finally, build Kalles Fraktaler 2 + GMP
+        cd ~/win32/include
+        ln -s ../../win64/src/boost*/boost/
+
+6. Finally, build Kalles Fraktaler 2 + GMP (64bit and 32bit):
 
         cd ~/win64/src
         cd kalles-fraktaler-2
-        git checkout formulas
-        make -j 8 SYSTEM=64  # or SYSTEM=32 for 32bit version FIXME incomplete
-        ./kf.exe  # test to see if it works
+        make -j 8 SYSTEM=64
+        make README.pdf   # optional, for PDF manual
+
+        cd ~/win32/src
+        cd kalles-fraktaler-2
+        make -j 8 SYSTEM=32
 
 7. To cut a release bundle, use the script
 
@@ -406,9 +425,10 @@ Legal
 - the Boost library is used under the Boost Software License Version 1.0
 - the CLEW library is used under the Boost Software License Version 1.0
 
-NOTE: the binaries are statically linked with GMP, which is under dual LGPLv3 /
-GPLv2 license. If you redistribute the binaries you must also be prepared to
-distribute the source corresponding to those binaries to anyone you distribute
-the binary to. To make this easier for you, the more recent zips include the
-source too (though you'll also need to get the Boost and GMP sources). And of
-course insert here the usual legal disclaimers about NO WARRANTY OF ANY KIND.
+**NOTE**: the binaries are statically linked with GMP, which is under dual
+LGPLv3 / GPLv2 license. If you redistribute the binaries you must also be
+prepared to distribute the source corresponding to those binaries to anyone you
+distribute the binary to. To make this easier for you, the more recent zips
+include the source too (though you'll also need to get the Boost and GMP
+sources). And of course insert here the usual legal disclaimers about
+**NO WARRANTY OF ANY KIND**.
