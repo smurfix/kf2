@@ -2213,8 +2213,8 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		char *szIm = new char[strlen(szI)+1];
 		strcpy(szIm,szI);
 		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete szRe;
-		delete szIm;
+		delete[] szRe;
+		delete[] szIm;
 
 		PostMessage(GetParent(hWnd),WM_USER+199,0,0);
 		SetTimer(hWnd,0,100,NULL);
