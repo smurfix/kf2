@@ -96,11 +96,8 @@ cl/kf_opencl_source.c: cl/kf.cl cl/s2c.sh
 cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml preprocessor
 	( cat cl/common.cl ; $(XSLTPROC) cl/formula.xsl formula/formula.xml | ./preprocessor ) > $@
 
-cabal.sandbox.config:
-	( cabal sandbox init ; cabal install parsec )
-
-preprocessor: preprocessor.hs cabal.sandbox.config
-	( cabal exec -- ghc -O preprocessor.hs )
+preprocessor: preprocessor.hs
+	ghc -O preprocessor.hs
 
 cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
