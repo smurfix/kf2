@@ -28,6 +28,8 @@ make -j 8 SYSTEM=64
 strip kf.exe
 cp -avit "${BIN}/kf.64.exe" kf.exe
 
+make README.pdf
+
 cp -avi README.md "${BIN}/kf.txt"
 cp -avi README.pdf "${BIN}/kf.pdf"
 zip -9 -r "${BIN}.zip" "${BIN}/"
