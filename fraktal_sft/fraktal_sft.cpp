@@ -599,7 +599,10 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			GetIterations(nMin, nMax,NULL,NULL,TRUE);
 			iter = (double)1024 * ((double)iter - (double)nMin) / ((double)nMax - (double)nMin);
 		}
-		else if (m_nColorMethod == ColorMethod_DistanceSqrt || m_nColorMethod == ColorMethod_DEPlusStandard || m_nColorMethod == ColorMethod_DistanceLog){
+		else if (m_nColorMethod == ColorMethod_DistanceLinear ||
+		         m_nColorMethod == ColorMethod_DEPlusStandard ||
+		         m_nColorMethod == ColorMethod_DistanceLog ||
+		         m_nColorMethod == ColorMethod_DistanceSqrt){
 			double p1, p2, p3, p4;
 			iter=0;
 			if (x){
@@ -3420,7 +3423,7 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
-		if (m<0 || m>7)
+		if (m<0 || m>8)
 			m = 0;
 		m_nColorMethod = ColorMethod(m);
 	}
@@ -4484,7 +4487,7 @@ void CFraktalSFT::SetLowTolerance(BOOL bLowTolerance)
 void CFraktalSFT::SetColorMethod(int nColorMethod)
 {
   if (nColorMethod < 0) nColorMethod = 0;
-  if (nColorMethod > 7) nColorMethod = 0;
+  if (nColorMethod > 8) nColorMethod = 0;
 	m_nColorMethod = ColorMethod(nColorMethod);
 }
 ColorMethod CFraktalSFT::GetColorMethod()

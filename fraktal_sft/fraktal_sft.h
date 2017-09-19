@@ -155,9 +155,10 @@ enum ColorMethod
 	ColorMethod_CubicRoot = 2,
 	ColorMethod_Logarithm = 3,
 	ColorMethod_Stretched = 4,
-	ColorMethod_DistanceSqrt = 5,
+	ColorMethod_DistanceLinear = 5,
 	ColorMethod_DEPlusStandard = 6,
-	ColorMethod_DistanceLog = 7
+	ColorMethod_DistanceLog = 7,
+	ColorMethod_DistanceSqrt = 8
 };
 
 class CFraktalSFT
