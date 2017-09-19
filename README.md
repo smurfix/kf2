@@ -404,17 +404,6 @@ Build instructions for compiling on Windows (thanks to knighty!):
     executable.
 
 
-Configuration (`COMPILE_FLAGS` in `Makefile`)
----------------------------------------------
-
-- add `-DKF_THREADED_REFERENCE_EVENT` to use original threaded reference
-  calculations (too much overhead in WINE to make it worthwhile, except at very
-  deep zooms)
-- add `-DKF_THREADED_REFERENCE_BARRIER` to use barrier() threaded reference
-  (acceptable overhead in WINE, CPU affinity is adjusted with zoom depth,
-  enabled by default)
-
-
 Legal
 -----
 
