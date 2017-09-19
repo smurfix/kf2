@@ -2198,11 +2198,13 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		strcpy(szExamine,szA);
 		*strrchr(szExamine,'.')=0;
 		CDecNumber A(szExamine);
-		// FIXME this will crash when there is only one image
 		szA = strrchr(g_stExamine[1][0],'_');
-		szA++;
-		strcpy(szExamine,szA);
-		*strrchr(szExamine,'.')=0;
+		if (szA)
+		{
+			szA++;
+			strcpy(szExamine,szA);
+			*strrchr(szExamine,'.')=0;
+		}
 		CDecNumber B(szExamine);
 		g_nExamineZoom = (B/A+CDecNumber(0.5)).ToInt();
 		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
