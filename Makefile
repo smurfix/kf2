@@ -122,6 +122,6 @@ jpegsrc.v6b.tar.gz:
 	wget -c "http://www.ijg.org/files/jpegsrc.v6b.tar.gz"
 
 README.pdf: README.md
-	pandoc -f markdown -t latex < README.md -o README.pdf
+	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < README.md -o README.pdf
 
 -include $(DEPENDS)
