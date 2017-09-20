@@ -437,4 +437,9 @@ inline CFixedFloat operator^(const CFixedFloat &A,long nB)
 	return CFixedFloat(FixedFloat(pow(A.m_f, nB)));
 }
 
+inline CFixedFloat sqr(const CFixedFloat &A)
+{
+	return A.Square();
+}
+
 #endif
