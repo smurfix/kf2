@@ -301,59 +301,59 @@ install natively.
 
 4. Build dependencies
 
-  1. Build GMP (64bit and 32bit):
+    1. Build GMP (64bit and 32bit):
 
-        cd ~/win64/src
-        tar xf gmp-6.1.2.tar.lz
-        cd gmp-6.1.2
-        ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-        make -j 8
-        make install
-        make check
+            cd ~/win64/src
+            tar xf gmp-6.1.2.tar.lz
+            cd gmp-6.1.2
+            ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+            make -j 8
+            make install
+            make check
 
-        cd ~/win32/src
-        tar xf gmp-6.1.2.tar.lz
-        cd gmp-6.1.2
-        ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
-        make -j 8
-        make install
-        make check
+            cd ~/win32/src
+            tar xf gmp-6.1.2.tar.lz
+            cd gmp-6.1.2
+            ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
+            make -j 8
+            make install
+            make check
 
-  2. Build ZLIB (64bit and 32bit):
+    2. Build ZLIB (64bit and 32bit):
 
-        cd ~/win64/src
-        tar xf zlib-1.2.11.tar.xz
-        cd zlib-1.2.11
-        CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
-        CC=x86_64-w64-mingw32-gcc make -j 8
-        CC=x86_64-w64-mingw32-gcc make install
+            cd ~/win64/src
+            tar xf zlib-1.2.11.tar.xz
+            cd zlib-1.2.11
+            CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
+            CC=x86_64-w64-mingw32-gcc make -j 8
+            CC=x86_64-w64-mingw32-gcc make install
 
-        cd ~/win32/src
-        tar xf zlib-1.2.11.tar.xz
-        cd zlib-1.2.11
-        CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
-        CC=i686-w64-mingw32-gcc make -j 8
-        CC=i686-w64-mingw32-gcc make install
+            cd ~/win32/src
+            tar xf zlib-1.2.11.tar.xz
+            cd zlib-1.2.11
+            CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
+            CC=i686-w64-mingw32-gcc make -j 8
+            CC=i686-w64-mingw32-gcc make install
 
-  3. Build PNG (64bit and 32bit):
+    3. Build PNG (64bit and 32bit):
 
-        cd ~/win64/src
-        tar xf libpng-1.6.32.tar.xz
-        cd libpng-1.6.32
-        ./configure --disable-shared --host=x86_64-w64-mingw32 \
-          CPPFLAGS=-I$HOME/win64/include LDFLAGS=-L$HOME/win64/lib \
-          --prefix=$HOME/win64
-        make -j 8
-        make install
+            cd ~/win64/src
+            tar xf libpng-1.6.32.tar.xz
+            cd libpng-1.6.32
+            ./configure --disable-shared --host=x86_64-w64-mingw32 \
+              CPPFLAGS=-I$HOME/win64/include LDFLAGS=-L$HOME/win64/lib \
+              --prefix=$HOME/win64
+            make -j 8
+            make install
 
-        cd ~/win32/src
-        tar xf libpng-1.6.32.tar.xz
-        cd libpng-1.6.32
-        ./configure --disable-shared --host=i686-w64-mingw32 \
-          CPPFLAGS=-I$HOME/win32/include LDFLAGS=-L$HOME/win32/lib \
-          --prefix=$HOME/win32
-        make -j 8
-        make install
+            cd ~/win32/src
+            tar xf libpng-1.6.32.tar.xz
+            cd libpng-1.6.32
+            ./configure --disable-shared --host=i686-w64-mingw32 \
+              CPPFLAGS=-I$HOME/win32/include LDFLAGS=-L$HOME/win32/lib \
+              --prefix=$HOME/win32
+            make -j 8
+            make install
 
 5. Prepare Boost headers
 
