@@ -82,6 +82,17 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 
 #undef LOOP
 
+    mpf_clear(Cr);
+    mpf_clear(Ci);
+    mpf_clear(Xr);
+    mpf_clear(Xi);
+    mpf_clear(Xr2);
+    mpf_clear(Xi2);
+    mpf_clear(Xrn);
+    mpf_clear(Xin);
+    mpf_clear(Ar);
+    mpf_clear(Ai);
+
     return true;
   }
   return false;
