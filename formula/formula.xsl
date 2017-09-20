@@ -26,54 +26,62 @@ static inline long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 <xsl:for-each select="formulas/group/formula">
 
 
-bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag)
+bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag)
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
   {
-    CFixedFloat Xr = g_SeedR, Xi = g_SeedI, Xr2 = Xr.Square(), Xi2 = Xi.Square(), Xin, Xrn;
-    complex&lt;CFixedFloat&gt; A(g_FactorAR,g_FactorAI);
     m_nGlitchIter = m_nMaxIter + 1;
     int nMaxIter = m_nMaxIter;
     int i;
-    for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
-    {
+    mp_bitcnt_t bits = mpf_get_prec(Cr0.m_f.backend().data());
+    mpf_t Cr; mpf_init2(Cr, bits); mpf_set(Cr, Cr0.m_f.backend().data());
+    mpf_t Ci; mpf_init2(Ci, bits); mpf_set(Ci, Ci0.m_f.backend().data());
+    mpf_t Xr; mpf_init2(Xr, bits); mpf_set_d(Xr, g_SeedR);
+    mpf_t Xi; mpf_init2(Xi, bits); mpf_set_d(Xi, g_SeedI);
+    mpf_t Xr2; mpf_init2(Xr2, bits); mpf_mul(Xr2, Xr, Xr);
+    mpf_t Xi2; mpf_init2(Xi2, bits); mpf_mul(Xi2, Xi, Xi);
+    mpf_t Xrn; mpf_init2(Xrn, bits);
+    mpf_t Xin; mpf_init2(Xin, bits);
+    mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
+    mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+
+#define LOOP \
+      mpf_set(Xr, Xrn); \
+      mpf_set(Xi, Xin); \
+      mpf_mul(Xr2, Xr, Xr); \
+      mpf_mul(Xi2, Xi, Xi); \
+      m_nRDone++; \
+      const double Xrd = mpf_get_d(Xr); \
+      const double Xid = mpf_get_d(Xi); \
+      const double abs_val = g_real * Xrd * Xrd + g_imag * Xid * Xid; \
+      const double Xz = abs_val * <xsl:value-of select="@glitch" />; \
+      m_db_dxr[i] = Xrd; \
+      m_db_dxi[i] = Xid; \
+      m_db_z[i] = Xz; \
+      if (abs_val &gt;= terminate) { \
+        if (nMaxIter == m_nMaxIter) { \
+          nMaxIter = i + 3; \
+          if (nMaxIter &gt; m_nMaxIter) \
+            nMaxIter = m_nMaxIter; \
+          m_nGlitchIter = nMaxIter; \
+        } \
+      }
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
-      complex&lt;CFixedFloat&gt; X(Xr, Xi), C(Cr, Ci), Xn;
-      {
+@rdc  {
         <xsl:value-of select="reference" />
       }
-      Xrn = Xn.m_r; Xin = Xn.m_i;
 </xsl:when>
 <xsl:when test="reference/@t='R'">
-      {
+@rd   {
         <xsl:value-of select="reference" />
       }
 </xsl:when>
 </xsl:choose>
 
-      Xr = Xrn;
-      Xi = Xin;
-      Xr2 = Xr.Square();
-      Xi2 = Xi.Square();
-      m_nRDone++;
-      const double Xrd = Xr.ToDouble();
-      const double Xid = Xi.ToDouble();
-      const double abs_val = g_real * Xrd * Xrd + g_imag * Xid * Xid;
-      const double Xz = abs_val * <xsl:value-of select="@glitch" />;
-      m_db_dxr[i] = Xrd;
-      m_db_dxi[i] = Xid;
-      m_db_z[i] = Xz;
-      if (abs_val &gt;= terminate) {
-        if (nMaxIter == m_nMaxIter) {
-          nMaxIter = i + 3;
-          if (nMaxIter &gt; m_nMaxIter)
-            nMaxIter = m_nMaxIter;
-          m_nGlitchIter = nMaxIter;
-        }
-      }
-    }
+#undef LOOP
+
     return true;
   }
   return false;

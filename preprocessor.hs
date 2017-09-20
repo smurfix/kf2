@@ -3,6 +3,7 @@ import Text.Parsec.Token
 import Text.Parsec.Expr
 import Text.Parsec.Language
 
+import Control.Monad.Trans.RWS
 import Control.Monad.Identity (Identity)
 
 import Data.Char (isSpace)
@@ -17,8 +18,146 @@ data Expr
   | ESub Expr Expr
   | ENeg Expr
   | EAbs Expr
+  | ESqr Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
+  deriving Show
+
+data Instruction
+  = ISet String String
+  | IAbs String String
+  | INeg String String
+  | ISub String String String
+  | IAdd String String String
+  | IMul String String String
+  | IMulI String String Int
+  | ISqr String String
+  deriving Show
+
+temporaries = [ "t" ++ show i | i <- [0..] ]
+
+isTemporary ('t':_) = True
+isTemporary _ = False
+
+allocate = do
+  t:ts <- get
+  put ts
+  return t
+
+deallocate t = do
+  if isTemporary t
+    then do
+      ts <- get
+      put (t:ts)
+    else do
+      return ()
+
+instruction (ISet a b) = tell (["mpf_set(", a, ",", b, ");\n"], [a, b])
+instruction (IAbs a b) = tell (["mpf_abs(", a, ",", b, ");\n"], [a, b])
+instruction (INeg a b) = tell (["mpf_neg(", a, ",", b, ");\n"], [a, b])
+instruction (ISub a b c) = tell (["mpf_sub(", a, ",", b, ",", c, ");\n"], [a, b, c])
+instruction (IAdd a b c) = tell (["mpf_add(", a, ",", b, ",", c, ");\n"], [a, b, c])
+instruction (IMulI a b c) = tell (["mpf_mul_ui(", a, ",", b, ",", show (abs c), ");\n"] ++ if c < 0 then ["mpf_neg(", a, ",", a, ");"] else [], [a, b])
+instruction (IMul a b c) = tell (["mpf_mul(", a, ",", b, ",", c, ");\n"], [a, b, c])
+instruction (ISqr a b) = tell (["mpf_mul(", a, ",", b, ",", b, ");\n"], [a, b])
+
+compile (EAssign (EVar v) a) = do
+  Just u <- compile a
+  instruction (ISet v u)
+  deallocate u
+  return Nothing
+
+compile (EVar v) = do
+  return (Just v)
+
+compile (EAbs a) = do
+  Just u <- compile a
+  v <- allocate
+  instruction (IAbs v u)
+  deallocate u
+  return (Just v)
+
+compile (ENeg a) = do
+  Just u <- compile a
+  v <- allocate
+  instruction (INeg v u)
+  deallocate u
+  return (Just v)
+
+compile (ESub a b) = do
+  Just u <- compile a
+  Just v <- compile b
+  w <- allocate
+  instruction (ISub w u v)
+  deallocate u
+  deallocate v
+  return (Just w)
+
+compile (EAdd a b) = do
+  Just u <- compile a
+  Just v <- compile b
+  w <- allocate
+  instruction (IAdd w u v)
+  deallocate u
+  deallocate v
+  return (Just w)
+
+compile (EMul (EInt a) b) = do
+  Just v <- compile b
+  w <- allocate
+  instruction (IMulI w v a)
+  deallocate v
+  return (Just w)
+
+compile (EMul a (EInt b)) = do
+  Just u <- compile a
+  w <- allocate
+  instruction (IMulI w u b)
+  deallocate u
+  return (Just w)
+
+compile (EMul (ENeg (EInt a)) b) = do
+  Just v <- compile b
+  w <- allocate
+  instruction (IMulI w v (negate a))
+  deallocate v
+  return (Just w)
+
+compile (EMul a (ENeg (EInt b))) = do
+  Just u <- compile a
+  w <- allocate
+  instruction (IMulI w u (negate b))
+  deallocate u
+  return (Just w)
+
+compile (EMul a b) = do
+  Just u <- compile a
+  Just v <- compile b
+  w <- allocate
+  instruction (IMul w u v)
+  deallocate u
+  deallocate v
+  return (Just w)
+
+compile (ESqr a) = do
+  Just u <- compile a
+  v <- allocate
+  instruction (ISqr v u)
+  deallocate u
+  return (Just v)
+
+compile x = error (show x)
+
+init2 = concatMap (\t -> "mpf_t " ++ t ++ "; mpf_init2(" ++ t ++ ", bits);\n")
+clear = concatMap (\t -> "mpf_clear(" ++ t ++ ");\n")
+
+runCompile es = case evalRWS (mapM_ compile es) () temporaries of
+  ((), (is, vs)) ->
+    let ts = filter isTemporary (nub vs)
+    in  init2 ts ++ loopStart ++ concat is ++ loopEnd ++ clear ts
+
+loopStart = "for (i = 0; i < nMaxIter && !m_bStop; i++) {\n"
+loopEnd   = "LOOP }\n"
 
 vars (EInt _) = []
 vars (EVar a) = [a]
@@ -28,6 +167,7 @@ vars (EAdd a b) = vars a ++ vars b
 vars (ESub a b) = vars a ++ vars b
 vars (ENeg a) = vars a
 vars (EAbs a) = vars a
+vars (ESqr a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
 vars (EAssign a b) = vars a ++ vars b
 
@@ -44,6 +184,7 @@ interpret t (ESub a b) = t ++ "sub(" ++ interpret t a ++ "," ++ interpret t b ++
 interpret t (ENeg (EInt v)) = interpret t (EInt (negate v))
 interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
+interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 
@@ -84,7 +225,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["abs", "diffabs"]
+              , reservedNames = ["sqr", "abs", "diffabs"]
               }
   where ops = "=+-*^"
 
@@ -106,6 +247,7 @@ term = m_parens exprparser
        <|> (EVar <$> m_identifier)
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
+       <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
 
@@ -131,6 +273,10 @@ parseCL s = case parse (many (block <|> context) <* eof) "" s of
   Left e -> error (show e)
 
 interpretCL (Context s) = s
+interpretCL (Block "rd" s) = case parse blockp "" $ filter (not . isSpace) s of
+  Right es -> runCompile es
+  Left e -> error (show e ++ " : " ++ show s)
+interpretCL (Block "rdc" s) = "assert(! \"implemented yet\");\n"
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
   Right es -> "{" ++ prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es) ++ "}"
   Left e -> error (show e ++ " : " ++ show s)
