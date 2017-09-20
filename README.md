@@ -78,10 +78,16 @@ Differences From Upstream 2.11.1
 - optimized some reference calculations by floating temporaries out of loops
 - optimized Newton-Raphson zooming by using lower-level GMP calls
 - very experimental and broken OpenCL using CLEW (still disabled at build time)
+- save images to PNG format as well as JPEG
 
 
 Change Log
 ----------
+
+- **kf-2.12.2** (????-??-??)
+
+    - PNG image saving support using libpng and zlib;
+    - JPEG default quality to 100 (was 99);
 
 - **kf-2.12.1** (2017-09-19)
 
@@ -187,12 +193,11 @@ TODO
 ----
 
 - user interface: batch mode
-- user interface: PNG image export (JPEG is 8bit YUV which means colour gamut
-  and precision is lost, even before lossy compression artifacts...)
 - user interface: scripting interface
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
+- calculations: optimize diffabs() to reduce branching
 - preprocessor: float out temporaries from reference iterations
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
@@ -279,16 +284,24 @@ install natively.
         cd ~/win64/src
         wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
         wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+        wget https://zlib.net/zlib-1.2.11.tar.xz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout formulas
         make jpegsrc.v6b.tar.gz
         cd ..
-        cp -avit ~/win32/src boost*.7z gmp*.lz kalles-fraktaler-2/
+        cp -avit ~/win32/src boost*.7z gmp*.lz zlib*.xz kalles-fraktaler-2/
+
+    You also need to get libpng (version 1.6.32) from a non-automatable link at
+    <http://www.libpng.org/pub/png/libpng.html> (save it to
+    `.../vm/home/build/win64/src` and copy it to `.../vm/home/build/win32/src`
+    too).
 
     Internet access is no longer required after this step.
 
-4. Build GMP (64bit and 32bit):
+4. Build dependencies
+
+  1. Build GMP (64bit and 32bit):
 
         cd ~/win64/src
         tar xf gmp-6.1.2.tar.lz
@@ -305,6 +318,42 @@ install natively.
         make -j 8
         make install
         make check
+
+  2. Build ZLIB (64bit and 32bit):
+
+        cd ~/win64/src
+        tar xf zlib-1.2.11.tar.xz
+        cd zlib-1.2.11
+        CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
+        CC=x86_64-w64-mingw32-gcc make -j 8
+        CC=x86_64-w64-mingw32-gcc make install
+
+        cd ~/win32/src
+        tar xf zlib-1.2.11.tar.xz
+        cd zlib-1.2.11
+        CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
+        CC=i686-w64-mingw32-gcc make -j 8
+        CC=i686-w64-mingw32-gcc make install
+
+  3. Build PNG (64bit and 32bit):
+
+        cd ~/win64/src
+        tar xf libpng-1.6.32.tar.xz
+        cd libpng-1.6.32
+        ./configure --disable-shared --host=x86_64-w64-mingw32 \
+          CPPFLAGS=-I$HOME/win64/include LDFLAGS=-L$HOME/win64/lib \
+          --prefix=$HOME/win64
+        make -j 8
+        make install
+
+        cd ~/win32/src
+        tar xf libpng-1.6.32.tar.xz
+        cd libpng-1.6.32
+        ./configure --disable-shared --host=i686-w64-mingw32 \
+          CPPFLAGS=-I$HOME/win32/include LDFLAGS=-L$HOME/win32/lib \
+          --prefix=$HOME/win32
+        make -j 8
+        make install
 
 5. Prepare Boost headers
 
@@ -409,6 +458,8 @@ Legal
 
 - Copyright (c) 2013-2017 Karl Runmo, (c) 2017 Claude Heiland-Allen
 - this software is based in part on the work of the Independent JPEG Group
+- the PNG library is used under the libpng license
+- the ZLIB library is used under the zlib license
 - the GMP library is used under the conditions of the GNU Lesser General Public
   License version 3 and the GNU General Public License version 2
 - the Boost library is used under the Boost Software License Version 1.0

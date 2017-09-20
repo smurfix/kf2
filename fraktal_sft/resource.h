@@ -176,6 +176,7 @@
 #define ID_SPECIAL_SHOWGLITCHES         40075
 #define ID_ZOOMSIZE_CUSTOM              40076
 #define ID_SPECIAL_NEWTON               40077
+#define ID_FILE_SAVEASPNG               40078
 
 
 // OpenCL
@@ -190,7 +191,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        117
-#define _APS_NEXT_COMMAND_VALUE         40078
+#define _APS_NEXT_COMMAND_VALUE         40079
 #define _APS_NEXT_CONTROL_VALUE         1056
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

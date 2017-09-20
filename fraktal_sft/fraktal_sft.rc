@@ -520,7 +520,8 @@ BEGIN
         MENUITEM "&Open\tCtrl+O",               40020,MFT_STRING,MFS_ENABLED
         MENUITEM "&Save\tCtrl+S",               40021,MFT_STRING,MFS_ENABLED
         MENUITEM "Save &As\tCtrl+A",            40018,MFT_STRING,MFS_ENABLED
-        MENUITEM "Save as &Jpeg...\tCtrl+J",    40027,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save as &PNG...\tCtrl+P",     ID_FILE_SAVEASPNG,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save as &JPEG...\tCtrl+J",    40027,MFT_STRING,MFS_ENABLED
         MENUITEM "Store Zoom-out images...\tCtrl+Q", 40038,MFT_STRING,MFS_ENABLED
         MENUITEM "Save &map...",                ID_FILE_SAVEMAP,MFT_STRING,MFS_ENABLED
         MENUITEM "Examine Zoom sequence",       ID_FILE_EXAMINEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED

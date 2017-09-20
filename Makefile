@@ -7,7 +7,7 @@ FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -18,7 +18,8 @@ fraktal_sft/exp_functions.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/main.cpp \
-fraktal_sft/newton.cpp
+fraktal_sft/newton.cpp \
+fraktal_sft/png.cpp
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \

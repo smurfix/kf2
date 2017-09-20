@@ -30,6 +30,8 @@
 #include "../cl/opencl.h"
 #endif
 #include "../common/bitmap.h"
+#include <png.h>
+#include <zlib.h>
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -104,6 +106,7 @@ int g_nPrevGlitchX=-1;
 int g_nPrevGlitchY=-1;
 BOOL g_bStoreZoom=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
+BOOL g_bStoreZoomPng=FALSE;
 BOOL g_bWaitRead=FALSE;
 int MakePrime(int n);
 int g_nStopAtExponent=0;
@@ -124,6 +127,7 @@ char *g_pszStatus[] = {
 int g_nStatus=0;
 BOOL g_bFirstDone=TRUE;
 BOOL g_bSaveJpeg=FALSE;
+BOOL g_bSavePng=FALSE;
 char g_szRecovery[256];
 
 BOOL g_bResetReference=FALSE;
@@ -140,7 +144,25 @@ int g_nExamine=-1;
 int g_nExamineZoom=-1;
 BOOL g_bExamineDirty=FALSE;
 int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality);
-int SaveJpg(char *szFileName,HBITMAP bmBmp,int nQuality)
+int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors);
+void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
+{
+	// TODO add support for strict aliasing optimisations, "restrict" etc
+	for (int y = height; y >= 0; --y)
+	{
+		int k = y * stride;
+		for (int x = 0; x < width; ++x)
+			if (k + 2 < bytes)
+			{
+				k += 3;
+				*rgb++ = bmp[--k];
+				*rgb++ = bmp[--k];
+				*rgb++ = bmp[--k];
+				k += 3;
+			}
+	}
+}
+int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
 {
 	int row, height, nXStart, nYStart;
 	BYTE *lpBits, *lpJeg;
@@ -158,18 +180,12 @@ int SaveJpg(char *szFileName,HBITMAP bmBmp,int nQuality)
 	if(!GetDIBits(hDC,bmBmp,0,bmi.biHeight,lpBits,
 			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS))
 		Beep(1000,10);
-
-	int nPos=0;
-	for(nYStart=bmi.biHeight;nYStart>=0;nYStart--){
-		for(nXStart=0;nXStart<bmi.biWidth;nXStart++){
-			if(nXStart*3 + nYStart*row + 2 < (int)bmi.biSizeImage){
-				lpJeg[nPos++]=lpBits[nXStart*3 + nYStart*row + 2];
-				lpJeg[nPos++]=lpBits[nXStart*3 + nYStart*row + 1];
-				lpJeg[nPos++]=lpBits[nXStart*3 + nYStart*row];
-			}
-		}
-	}
-	int nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality);
+	bmp2rgb(lpJeg, lpBits, bmi.biHeight, bmi.biWidth, row, bmi.biSizeImage);
+	int nRet;
+	if (nQuality < 0)
+		nRet = SavePNG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3);
+	else
+		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality);
 	delete [] lpJeg;
 	delete [] lpBits;
 	ReleaseDC(NULL,hDC);
@@ -2239,7 +2255,7 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				strcpy(szFile,g_stExamine[g_nExamine][0]);
 				strcpy(strrchr(szFile,'.'),".jpg");
 				if(FileExists(szFile))
-					g_SFT.SaveJpg(szFile,99);
+					g_SFT.SaveJpg(szFile,100);
 			}
 			if(wParam==IDC_BUTTON5)
 				g_bExamineDirty=TRUE;
@@ -2424,7 +2440,16 @@ int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomJpg=0;
-
+	sz = strrchr(g_szFile,'\\');
+	if(sz)
+		strcpy(sz+1,"*_*.png");
+	hFind = FindFirstFile(g_szFile,&fd);
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomPng=1;
+		FindClose(hFind);
+	}
+	else
+		g_bStoreZoomPng=0;
 	if(sz)
 		strcpy(sz+1,"*_*.kfb");
 	hFind = FindFirstFile(g_szFile,&fd);
@@ -2498,7 +2523,7 @@ int ResumeZoomSequence(HWND hWnd)
 	g_bStoreZoom=atoi(stExamine[0][1])+1;
 	g_JpegParams.nWidth = g_SFT.GetWidth();
 	g_JpegParams.nHeight = g_SFT.GetHeight();
-	g_JpegParams.nQuality = 99;
+	g_JpegParams.nQuality = 100;
 	//g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	if(g_bAutoIterations){
 		int nMax = g_SFT.GetMaxExceptCenter();//GetIterationOnPoint(g_SFT.GetWidth()/2-1,g_SFT.GetHeight()/2-1);
@@ -2847,7 +2872,7 @@ void SaveZoomImg(char *szFile)
 	ReleaseDC(NULL,hDC);
 	g_bmSaveZoomBuff = bmTmp;
 	bmSave = ShrinkBitmap2(bmTmp,bm.bmWidth,bm.bmHeight);
-	SaveJpg(szFile,bmSave,99);
+	SaveImage(szFile,bmSave,100);
 	//SaveJpg(szFile,bmTmp,99);
 	DeleteObject(bmSave);
 	g_scSaveZoomBuff.cx = scNextZoom.cx;
@@ -2951,7 +2976,17 @@ nPos=13;
 				if(g_nZoomSize<2 && !g_bAnimateEachFrame)
 					SaveZoomImg(g_szFile);
 				else
-					g_SFT.SaveJpg(g_szFile,99);
+					g_SFT.SaveJpg(g_szFile,100);
+			}
+			if(g_bStoreZoomPng){
+				wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.png",g_bStoreZoom,szZ);
+#ifdef PARAM_ANIMATION
+				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).png",g_bStoreZoom,g_SeedR,g_SeedI);
+#endif
+				if(g_nZoomSize<2 && !g_bAnimateEachFrame)
+					SaveZoomImg(g_szFile);
+				else
+					g_SFT.SaveJpg(g_szFile,-1);
 			}
 #ifndef PARAM_ANIMATION
 			wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.kfb",g_bStoreZoom,szZ);
@@ -3076,13 +3111,23 @@ nPos=23;
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
+		if(g_bSavePng){
+			g_bSavePng=FALSE;
+nPos=24;
+			char szFile[256]={0};
+			if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0",szFile,sizeof(szFile))){
+				if(!g_SFT.SaveJpg(szFile,-1))
+					MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			}
+		}
 /*			int nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
 		if(nMax<g_SFT.GetIterations())
 			g_SFT.SetIterations(nMax+nMax/3);
 */		
 	}
-nPos=24;
+nPos=25;
 	return 0;
 }
 int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
@@ -4779,7 +4824,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MainProc(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 		g_JpegParams.nWidth = g_SFT.GetWidth();
 		g_JpegParams.nHeight = g_SFT.GetHeight();
-		g_JpegParams.nQuality = 99;
+		g_JpegParams.nQuality = 100;
 		while(1){
 			if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0))
 				return 0;
@@ -4801,7 +4846,11 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			strcat(g_szFile,"\\");
 		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
-		if(MessageBox(hWnd,"Do you want to store jpeg images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
+		if(MessageBox(hWnd,"Do you want to store PNG images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
+			g_bStoreZoomPng=1;
+		else
+			g_bStoreZoomPng=0;
+		if(MessageBox(hWnd,"Do you want to store JPEG images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
 			g_bStoreZoomJpg=1;
 		else
 			g_bStoreZoomJpg=0;
@@ -5164,6 +5213,8 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='J' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEASJPEG,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='P' && HIWORD(GetKeyState(VK_CONTROL)))
+		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEASPNG,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='R' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ADDREFERENCE,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)))
@@ -5423,7 +5474,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_FILE_SAVEASJPEG){
 			g_JpegParams.nWidth = g_SFT.GetWidth();
 			g_JpegParams.nHeight = g_SFT.GetHeight();
-			g_JpegParams.nQuality = 99;
+			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0)){
 				char szFile[256]={0};
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
@@ -5434,6 +5485,32 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0",szFile,sizeof(szFile))){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality,g_JpegParams.nWidth,g_JpegParams.nHeight))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					char *e = strrchr(szFile,'.');
+					if(e)
+						e++;
+					else
+						e = szFile+strlen(szFile);
+					strcpy(e,"kfb");
+					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
+						g_SFT.SaveMapB(szFile);
+				}
+			}
+		}
+		else if(wParam==ID_FILE_SAVEASPNG){
+			g_JpegParams.nWidth = g_SFT.GetWidth();
+			g_JpegParams.nHeight = g_SFT.GetHeight();
+			g_JpegParams.nQuality = 100;
+			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0)){
+				char szFile[256]={0};
+				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
+					g_bSavePng=TRUE;
+					SetTimer(hWnd,0,500,NULL);
+					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					return 0;
+				}
+				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0",szFile,sizeof(szFile))){
+					if(!g_SFT.SaveJpg(szFile,-1,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					char *e = strrchr(szFile,'.');
 					if(e)
@@ -5568,7 +5645,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
-				"version 2.12.1\n"
+				"version 2.12.2\n"
 				"©2013-2017 Karl Runmo\n"
 				"©2017 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
@@ -5576,7 +5653,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Precision: 456562320657\n"
 				"%s\n"
 				"\nLibraries:\n"
-				"- JPEG 6b <http://www.ijg.org>\n"
+				"- JPEG 6b <http://ijg.org>\n"
+				"- PNG %s <http://libpng.org>\n"
+				"- ZLIB %s <http://zlib.net>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
@@ -5594,6 +5673,8 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
 				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
+				png_libpng_ver,
+				zlib_version,
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 				);

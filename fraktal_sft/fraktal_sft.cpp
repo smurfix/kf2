@@ -3888,7 +3888,7 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-int SaveJpg(char *szFileName, HBITMAP bmBmp, int nQuality);
+int SaveImage(char *szFileName, HBITMAP bmBmp, int nQuality);
 
 int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 {
@@ -3897,7 +3897,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveJpg(szFile, m_bmBmp, nQuality);
+		return ::SaveImage(szFile, m_bmBmp, nQuality);
 	else{
 		HDC hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
@@ -3911,7 +3911,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 		SelectObject(dcSave, bmOldSave);
 		DeleteDC(dcBmp);
 		DeleteDC(dcSave);
-		int nRet = ::SaveJpg(szFile, bmSave, nQuality);
+		int nRet = ::SaveImage(szFile, bmSave, nQuality);
 		DeleteObject(bmSave);
 		ReleaseDC(NULL, hDC);
 		return nRet;
