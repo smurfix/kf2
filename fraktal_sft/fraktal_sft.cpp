@@ -22,6 +22,7 @@
 #include <iostream>
 #include "../common/bitmap.h"
 #include "../formula/formula.h"
+#include "colour.h"
 
 double g_real=1;
 double g_imag=1;
@@ -376,50 +377,22 @@ void CFraktalSFT::ApplySmoothColors()
 		}
 	}
 }
+
 void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 {
-	hue *= 6;
-	int i = (int)floor(hue);
-
-	double f = (hue)-i;
-	if (!(i & 1))
-		f = 1 - f;
-
-	double m = bri * (1 - sat);
-	double n = bri * (1 - sat * f);
-
-	bri *= 255.0;
-	n *= 255.0;
-	m *= 255.0;
-
-	switch (i)
-	{
-	case 6:
-	case 0: cPos.b = (byte)bri;
-		cPos.g = (byte)n;
-		cPos.r = (byte)m;
-		break;
-	case 1: cPos.b = (byte)n;
-		cPos.g = (byte)bri;
-		cPos.r = (byte)m;
-		break;
-	case 2: cPos.b = (byte)m;
-		cPos.g = (byte)bri;
-		cPos.r = (byte)n;
-		break;
-	case 3: cPos.b = (byte)m;
-		cPos.g = (byte)n;
-		cPos.r = (byte)bri;
-		break;
-	case 4: cPos.b = (byte)n;
-		cPos.g = (byte)m;
-		cPos.r = (byte)bri;
-		break;
-	case 5: cPos.b = (byte)bri;
-		cPos.g = (byte)m;
-		cPos.r = (byte)n;
-	}
+	hsv a;
+	a.h = hue;
+	a.s = sat;
+	a.v = bri;
+	srgb c = hsv2rgb(a);
+	c.r *= 255.0;
+	c.g *= 255.0;
+	c.b *= 255.0;
+	cPos.r = (byte) c.r;
+	cPos.g = (byte) c.g;
+	cPos.b = (byte) c.b;
 }
+
 HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone)
 {
 	HDC hDC = GetDC(NULL);
@@ -561,15 +534,20 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 	m_lpBits[nIndex+1] = m_lpTextureBits[nIndexBkg+1]*m_nImgMerge + m_lpBits[nIndex+1]*(1-m_nImgMerge);
 	m_lpBits[nIndex+2] = m_lpTextureBits[nIndexBkg+2]*m_nImgMerge + m_lpBits[nIndex+2]*(1-m_nImgMerge);
 }
+
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
+	srgb s;
 	if (nIter<0 || (!g_bShowGlitches && offs==2))
 		return;
 	if (nIter == m_nMaxIter)
-		m_lpBits[nIndex] = m_lpBits[nIndex + 1] = m_lpBits[nIndex + 2] = 0;
+	{
+		s.r = 0;
+		s.g = 0;
+		s.b = 0;
+	}
 	else{
 		double iter = (double)nIter + (double)1 - offs;
-
 		/*		if(1){//DE
 		double p1, p2;
 		if(x){
@@ -617,7 +595,6 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 			double _abs_val;
 			iter += _abs(p1 - p2)*1.414;
-
 			if (x && y){
 				p1 = (double)m_nPixels[x - 1][y - 1] + (double)1 - m_nTrans[x - 1][y - 1];
 				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
@@ -629,7 +606,6 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			else
 				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 			iter += _abs(p1 - p2);
-
 			if (y){
 				p1 = (double)m_nPixels[x][y - 1] + (double)1 - m_nTrans[x][y - 1];
 				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
@@ -641,7 +617,6 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			else
 				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 			iter += _abs(p1 - p2)*1.414;
-
 			if (y && x<m_nX-1){
 				p1 = (double)m_nPixels[x + 1][y - 1] + (double)1 - m_nTrans[x + 1][y - 1];
 				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
@@ -710,15 +685,13 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				nS /= nDG;
 			if (nDB)
 				nB /= nDB;
-			COLOR14 cPos;
-			HSVToRGB(nH, nS, nB, cPos);
-
-			m_lpBits[nIndex] = cPos.r;
-			m_lpBits[nIndex + 1] = cPos.g;
-			m_lpBits[nIndex + 2] = cPos.b;
-
+			hsv nHSV;
+			nHSV.h = nH;
+			nHSV.s = nS;
+			nHSV.v = nB;
+			srgb nRGB = hsv2rgb(nHSV);
 			if (m_bBlend){
-				int nR, nG, nB;
+				double nR, nG, nB;
 				if (m_bTrans && offs){
 					double g1 = (1 - offs);
 					int col = nIter % 1024;
@@ -733,9 +706,13 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 					nG = m_cPos[col].g;//+n;
 					nB = m_cPos[col].b;//+n;
 				}
-				m_lpBits[nIndex] = (m_lpBits[nIndex] + nR) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex + 1] + nG) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex + 2] + nB) / 2;
+				srgb nRGB2;
+				nRGB2.r = nR / 255.0f;
+				nRGB2.g = nG / 255.0f;
+				nRGB2.b = nB / 255.0f;
+				s.r = (nRGB.r + nRGB2.r) * 0.5f;
+				s.g = (nRGB.g + nRGB2.g) * 0.5f;
+				s.b = (nRGB.b + nRGB2.b) * 0.5f;
 			}
 		}
 		else{
@@ -743,15 +720,15 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				double g1 = (1 - offs);
 				int col = nIter % 1024;
 				int ncol = (col + 1) % 1024;
-				m_lpBits[nIndex] = m_cPos[col].r*offs + m_cPos[ncol].r*g1;
-				m_lpBits[nIndex + 1] = m_cPos[col].g*offs + m_cPos[ncol].g*g1;
-				m_lpBits[nIndex + 2] = m_cPos[col].b*offs + m_cPos[ncol].b*g1;
+				s.r = (m_cPos[col].r*offs + m_cPos[ncol].r*g1) / 255.0f;
+				s.g = (m_cPos[col].g*offs + m_cPos[ncol].g*g1) / 255.0f;
+				s.b = (m_cPos[col].b*offs + m_cPos[ncol].b*g1) / 255.0f;
 			}
 			else{
 				int col = nIter % 1024;
-				m_lpBits[nIndex] = m_cPos[col].r;//+n;
-				m_lpBits[nIndex + 1] = m_cPos[col].g;//+n;
-				m_lpBits[nIndex + 2] = m_cPos[col].b;//+n;
+				s.r = m_cPos[col].r / 255.0f;
+				s.g = m_cPos[col].g / 255.0f;
+				s.b = m_cPos[col].b / 255.0f;
 			}
 		}
 	}
@@ -783,7 +760,6 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		else
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		diffx = p1 - p2;
-
 		if (y){
 			p1 = (double)m_nPixels[x][y - 1] + (double)1 - m_nTrans[x][y - 1];
 			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
@@ -795,29 +771,32 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		else
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		diffy = p1 - p2;
-
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
 		p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		diff = (p1 + diff) / p1;
-
 		diff = pow(diff, (double)m_nSlopePower*(double)(m_nZoom*1.75 + 1)*(double)m_nX / (double)640);
 		if (diff>1){
 			diff = (atan(diff) - pi / 4) / (pi / 4);
 			diff = diff*(double)m_nSlopeRatio / 100;;
-			m_lpBits[nIndex] = (1 - diff)*m_lpBits[nIndex];
-			m_lpBits[nIndex + 1] = (1 - diff)*m_lpBits[nIndex + 1];
-			m_lpBits[nIndex + 2] = (1 - diff)*m_lpBits[nIndex + 2];
+			s.r = (1 - diff)*s.r;
+			s.g = (1 - diff)*s.g;
+			s.b = (1 - diff)*s.b;
 		}
 		else{
 			diff = 1 / diff;
 			diff = (atan(diff) - pi / 4) / (pi / 4);
 			diff = diff*(double)m_nSlopeRatio / 100;;
-			m_lpBits[nIndex] = (1 - diff)*m_lpBits[nIndex] + diff * 255;
-			m_lpBits[nIndex + 1] = (1 - diff)*m_lpBits[nIndex + 1] + diff * 255;
-			m_lpBits[nIndex + 2] = (1 - diff)*m_lpBits[nIndex + 2] + diff * 255;
+			s.r = (1 - diff)*s.r + diff;
+			s.g = (1 - diff)*s.g + diff;
+			s.b = (1 - diff)*s.b + diff;
 		}
 	}
+	srgb8 s8 = dither(s, x, y);
+	m_lpBits[nIndex    ] = s8.r;
+	m_lpBits[nIndex + 1] = s8.g;
+	m_lpBits[nIndex + 2] = s8.b;
 }
+
 void CFraktalSFT::ApplyColors()
 {
 	int i, p = 0;

@@ -24,6 +24,7 @@ fraktal_sft/png.cpp
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
 fraktal_sft/CFixedFloat.h \
+fraktal_sft/colour.h \
 fraktal_sft/complex.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \

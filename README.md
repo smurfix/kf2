@@ -81,6 +81,8 @@ Differences From Upstream 2.11.1
 - optimized Newton-Raphson zooming by using lower-level GMP calls
 - very experimental and broken OpenCL using CLEW (still disabled at build time)
 - save images to PNG format as well as JPEG
+- colouring uses floating point internally (fewer quantisation steps)
+- dithering at end of colouring to improve perceptual quality (reduced banding)
 
 
 Change Log
@@ -90,6 +92,8 @@ Change Log
 
     - PNG image saving support using libpng and zlib;
     - JPEG default quality to 100 (was 99);
+    - colouring uses floating point internally to reduce quantisation steps;
+    - dithering at end of colouring to improve perceptual quality;
 
 - **kf-2.12.1** (2017-09-19)
 
