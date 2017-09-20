@@ -22,7 +22,7 @@ This version:
 
 Feedback:
 
-- <https://fractalforums.org/kalles-fraktaler/> new forum (still in beta)
+- <https://fractalforums.org/kalles-fraktaler/15> new forum (still in beta)
 - <http://www.fractalforums.com/kalles-fraktaler/> legacy forum
 - <mailto:claude@mathr.co.uk?subject=Kalles%20Fraktaler%202> personal mail
 
