@@ -273,10 +273,10 @@ parseCL s = case parse (many (block <|> context) <* eof) "" s of
   Left e -> error (show e)
 
 interpretCL (Context s) = s
-interpretCL (Block "rd" s) = case parse blockp "" $ filter (not . isSpace) s of
+interpretCL (Block "rr" s) = case parse blockp "" $ filter (not . isSpace) s of
   Right es -> runCompile es
   Left e -> error (show e ++ " : " ++ show s)
-interpretCL (Block "rdc" s) = "assert(! \"implemented yet\");\n"
+interpretCL (Block "rc" s) = "assert(! \"implemented yet\");\n"
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
   Right es -> "{" ++ prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es) ++ "}"
   Left e -> error (show e ++ " : " ++ show s)
