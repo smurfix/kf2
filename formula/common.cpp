@@ -558,3 +558,13 @@ bool optimized_reference_double_0_2(int m_nFractalType, int m_nPower, double *m_
   }
   return false;
 }
+
+static inline long double mpf_get_ld(const mpf_t &value)
+{
+  using std::ldexp;
+  signed long int e = 0;
+  long double l = mpf_get_d_2exp(&e, value);
+  l = ldexp(l, e);
+  if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
+  return l;
+}
