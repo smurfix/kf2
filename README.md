@@ -94,6 +94,9 @@ Change Log
     - JPEG default quality to 100 (was 99);
     - colouring uses floating point internally to reduce quantisation steps;
     - dithering at end of colouring to improve perceptual quality;
+    - `formula.cpp` included in source zip so GHC is not needed unless changing
+      formula code;
+    - optimized `diffabs()` code: one test Burning Ship location is 7.5% faster;
 
 - **kf-2.12.1** (2017-09-19)
 

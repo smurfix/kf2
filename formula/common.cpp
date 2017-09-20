@@ -54,32 +54,29 @@ static inline int d_cmp(const double a, const double b)
 
 static inline double d_diffabs(const double c, const double d)
 {
-  int s = d_cmp(c, 0);
-  if (s > 0)
+  double cd = c + d;
+  if (c >= 0.0)
   {
-    int t = d_cmp(c + d, 0.0);
-    if (t >= 0)
+    if (cd >= 0.0)
     {
       return d;
     }
     else
     {
-      return -d - 2 * c;
+      return -d - 2.0 * c;
     }
   }
-  else if (s < 0)
+  else
   {
-    int t = d_cmp(c + d, 0.0);
-    if (t > 0)
+    if (cd > 0.0)
     {
-      return d + 2 * c;
+      return d + 2.0 * c;
     }
     else
     {
       return -d;
     }
   }
-  return d_abs(d);
 }
 
 static inline long double ld_add(const long double a, const long double b)
@@ -134,32 +131,29 @@ static inline int ld_cmp(const long double a, const long double b)
 
 static inline long double ld_diffabs(const long double c, const long double d)
 {
-  int s = ld_cmp(c, 0);
-  if (s > 0)
+  long double cd = c + d;
+  if (c >= 0.0L)
   {
-    int t = ld_cmp(c + d, 0.0);
-    if (t >= 0)
+    if (cd >= 0.0L)
     {
       return d;
     }
     else
     {
-      return -d - 2 * c;
+      return - d - 2.0L * c;
     }
   }
-  else if (s < 0)
+  else
   {
-    int t = ld_cmp(c + d, 0.0);
-    if (t > 0)
+    if (cd > 0.0L)
     {
-      return d + 2 * c;
+      return d + 2.0L * c;
     }
     else
     {
       return -d;
     }
   }
-  return ld_abs(d);
 }
 
 static inline int64_t as_long(double d)
@@ -310,11 +304,10 @@ static inline int fe_cmp(const floatexp a, const floatexp b)
 
 static inline floatexp fe_diffabs(const floatexp c, const floatexp d)
 {
-  int s = d_cmp(c.val, 0.0);
-  if (s > 0)
+  floatexp cd = fe_add(c, d);
+  if (c.val >= 0.0)
   {
-    int t = d_cmp(fe_add(c, d).val, 0.0);
-    if (t >= 0)
+    if (cd.val >= 0.0)
     {
       return d;
     }
@@ -323,10 +316,9 @@ static inline floatexp fe_diffabs(const floatexp c, const floatexp d)
       return fe_neg(fe_add(d, fe_mul_2si(c, 1)));
     }
   }
-  else if (s < 0)
+  else
   {
-    int t = d_cmp(fe_add(c, d).val, 0.0);
-    if (t > 0)
+    if (cd.val > 0.0)
     {
       return fe_add(d, fe_mul_2si(c, 1));
     }
@@ -335,7 +327,6 @@ static inline floatexp fe_diffabs(const floatexp c, const floatexp d)
       return fe_neg(d);
     }
   }
-  return fe_abs(d);
 }
 
 static inline floatexp fe_pow(const floatexp a, int b)
