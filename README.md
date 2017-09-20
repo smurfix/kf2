@@ -89,7 +89,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.2** (????-??-??)
+- **kf-2.12.2** (2017-09-20)
 
     - PNG image saving support using libpng and zlib;
     - JPEG default quality to 100 (was 99);
