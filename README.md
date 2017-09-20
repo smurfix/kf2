@@ -33,6 +33,8 @@ Known Bugs
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
+- PNG save option opens a dialog called "JPEG properties" with an unused
+  "quality" option (you can still set image size, but potentially confusing)
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
   (out of date instructions for Windows)
