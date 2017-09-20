@@ -481,7 +481,7 @@ User Manual
 
 Shortcut only:
 
-- Ctrl+B
+- **Ctrl+B**
 
     Toggle skew animation. Enter the number of frames in the popup dialog
 
@@ -490,64 +490,68 @@ Menu items:
 File
 ----
 
-  - Open
+  - **Open**
 
     Opens the current location from a parameter file (*.kfr)
 
-  - Save
+  - **Save**
 
     Saves the current location in the current parameter file (*.kfr)
 
-  - Save as
+  - **Save as**
 
     Saves the current location in a new parameter file (*.kfr)
 
-  - Save as Jpeg
+  - **Save as PNG**
+
+    Saves the current location in a PNG file (*.png)
+
+  - **Save as Jpeg**
 
     Saves the current location in a jpeg file (*.jpg)
 
-  - Store zoom-out images
+  - **Store zoom-out images**
 
-    Zoom out automatically with the selected Zoom size and store jpeg image
-    file and map file (*.kfb) for each zoom out. The zoom out stops when the
+    Zoom out automatically with the selected Zoom size and store JPEG and/or PNG
+    images and map file (*.kfb) for each zoom out. The zoom out stops when the
     depth is lower than 1. The resulting files can be used by the KeyFramMovie
     program to create a zoom-in animation.
 
-  - Save map
+  - **Save map**
 
     Saves the current location in a map file (*.kfb). This file can be used by
     the KeyFramMovie program.
 
-  - Examine Zoom sequence
+  - **Examine Zoom sequence**
 
     Make sure you store the end location as a kfr file in the same directory
     as you store the zoom sequence frames. This function allows you to examine
     the frames one by one and add references to remove eventual visible glitch
     blobs, or choose another pixel as the main reference.
 
-  - Resume Zoom sequence
+  - **Resume Zoom sequence**
 
     Make sure you store the end location as a kfr file in the same directory as
     you store the zoom sequence frames. This function allows you to resume and
     continue the zoom out sequnce, if it got interrupted.
 
-  - Exit
+  - **Exit**
 
     Exit this program
 
 Action
 ------
 
-  - Zoom size
+  - **Zoom size**
 
     Set the level of zoom, left mouse click to zoom in, right to zoom out
 
-  - Location...
+  - **Location...**
 
     Displays the Location dialog where the coordinates for this location is
     displayed and can be edited.
 
-  - Iterations...
+  - **Iterations...**
 
     Displays the Iterations dialog where the maximum iteration number for this
     location is displayed and can be edited.
@@ -560,101 +564,101 @@ Action
 
     This dialog also displays
 
-    - Min: The minimum iteration count for a pixel in this location
+    - **Min:** The minimum iteration count for a pixel in this location
 
-    - Max: The maximum iteration count for a pixel in this location
+    - **Max:** The maximum iteration count for a pixel in this location
 
-    - Appr: The number of iterations given by Series approximation
+    - **Appr:** The number of iterations given by Series approximation
 
-    - Calculations: The number of calculations performed and also the number of
+    - **Calculations:** The number of calculations performed and also the number of
       calculations per second is shown if this dialog is displayed while the
       image is rendered
 
-  - Set colors...
+  - **Set colors...**
 
     Displays the Number of colors dialog where the colors can be edited.
 
-  - Reset
+  - **Reset**
 
     Set the location to the start point
 
-  - Center cursor
+  - **Center cursor**
 
     Center the cursor to image's pattern center
 
-  - Find Minibrot
+  - **Find Minibrot**
 
     Starts an automatic zoom-in in the image's pattern center, until a Minibrot
     is found or if it fails to find the center.
 
-  - Set window size
+  - **Set window size**
 
     Set the size of the display window.
 
-  - Set image size
+  - **Set image size**
 
     Set the size of the internal image size. If this is larger than the window
     size, an anti-alias effect is achieved
 
-  - Refresh
+  - **Refresh**
 
     Render the current location
 
-  - Cancel rendering
+  - **Cancel rendering**
 
     Cancel the current rendering
 
-  - Rotate
+  - **Rotate**
 
     Activate rotation, drag to rotate the image
 
-  - Reset rotation
+  - **Reset rotation**
 
     Clear any rotation
 
-  - Show Inflection
+  - **Show Inflection**
 
     Activate or deactivate display of Inflection
 
-  - Skew
+  - **Skew**
 
     Opens the Skew dialog which allows to "un-skew" locations that are skewed
 
-  - Zoom animation
+  - **Zoom animation**
 
     Turns animation on or off when zooming
 
 Special
 -------
 
-  - Add reference (Color)
+  - **Add reference (Color)**
 
     Add a reference and re-calculates the pixels with the same iteration count
     as the reference. This is useful if the Auto solve glitches function fails
     to find and solve glitches in the image
 
-  - Set main reference
+  - **Set main reference**
 
     Let you click the image and select the main reference for the whole image.
     This can be useful when glitches appears on top of minibrots when the
     reference is outside this minibrot. The glitch pattern disappears from the
     minibrot if the main reference is selected inside the minibrot.
 
-  - Reuse reference
+  - **Reuse reference**
 
     Do not re-calculate the reference for further zooming. This can be useful
     when during automatic zoom-out and to test different reference points, but
     must not be used together with the Auto solve glitches function active
 
-  - Find center of glitch (Color)
+  - **Find center of glitch (Color)**
 
     Centers the mouse pointer over the glitch blob found, if any
 
-  - Auto solve glitches
+  - **Auto solve glitches**
 
     Turns the Auto solve glitches function on or off
 
-  - Solve glitch with near pixel method
+  - **Solve glitch with near pixel method**
 
     Instead of re-render all pixels with the same iteration count value(color)
     only the connected pixels are re-rendered. On some locations other areas in
@@ -662,73 +666,73 @@ Special
     be correctly rendered and may be incorrect if re-rendered with another
     reference
 
-  - Find highest iteration
+  - **Find highest iteration**
 
     Centers the mouse pointer over the pixel with the highest iteration
 
-  - Show iterations
+  - **Show iterations**
 
     Displays the image black-and-white with the pixels with the highest
     iteration as white and the pixels with the lowest iteration as black
 
-  - No approximation
+  - **No approximation**
 
     Turns the Series approximation function on or off.
 
-  - Non exact find Minibrot
+  - **Non exact find Minibrot**
 
     Makes the Find Minibrot function fail every 20 zoom-in, in order to gain
     depth automatically without ending up in a Minibrot
 
-  - Special
+  - **Special**
 
-    - Mirror
+    - **Mirror**
 
       mirrors the image around the x-axis. Can be used on the deeper half of a
       zoom sequence to a minibrot - but not too close to the minibrot and too
       close to the half...
 
-  - Show smooth transition colors
+  - **Show smooth transition colors**
 
     Displays the image black-and-white representing the smoothing coefficient
 
-  - Use long double always
+  - **Use long double always**
 
     Use always the 80-bit long double hardware data type. This can solve some
     type of glitches
 
-  - Use floatexp always
+  - **Use floatexp always**
 
     Use always the double mantissa/integer exponent data type. This probably
     only make the render slower
 
-  - Use auto iterations
+  - **Use auto iterations**
 
     Turns automatic iteration control on or off. This is on per default.
 
-  - Set Ratio
+  - **Set Ratio**
 
     Enables changing the ratio between height and width of the background image
     in order to enable stretching locations. Combinated with rotation, an
     almost infinite skewing ability is enabled, useful when exploring the
     hidden treasures of the new Fractals!
 
-  - Reset Ratio
+  - **Reset Ratio**
 
     Reset ratio to default
 
-  - Skew animation
+  - **Skew animation**
 
     Activates or deactivas skew animation. If activated, a popup allows you to
     specify end skew parameters and number of frames. The fractal will be
     rendered frame by frame, and can be combined with frame by frame rendering
     in KeyFrameMovieMaker or MMY3D
 
-  - Show glitches
+  - **Show glitches**
 
     When activated, glitches are displayed with a solid color
 
-  - Newton-Raphson zooming
+  - **Newton-Raphson zooming**
 
     When activated, a dialog will be displayed, which allows you to select if
     the zoom should jump directly to the minibrot, or to 3/4 zooms to the
@@ -749,33 +753,33 @@ Special
 Number of colors dialog
 -----------------------
 
-  - Number of key colors
+  - **Number of key colors**
 
     Set the number of key colors between 1 and 1024.
 
-  - Divide iteration
+  - **Divide iteration**
 
     Divide each iteration number with this value, for dense images this value
     can be greater than 1
 
-  - Color offset
+  - **Color offset**
 
     Offset the colors in the palette
 
-  - Random
+  - **Random**
 
     Fill the palette with random colors made from the Seed value. The Seed
     button select a seed value randomly.
 
-  - More contrast
+  - **More contrast**
 
     Move RGB values closer to max or min
 
-  - Less contrast
+  - **Less contrast**
 
     Move RGB values closer to the middle
 
-  - Show slopes
+  - **Show slopes**
 
     Enable slope encoding for 3D effect.
 
@@ -787,52 +791,52 @@ Number of colors dialog
     on the coloring. 100 is max, however flat areas will still have the palette
     color visible.
 
-  - Save palette
+  - **Save palette**
 
     Save the current palette in file
 
-  - Open palette
+  - **Open palette**
 
     Load palette from file
 
-  - Expand double
+  - **Expand double**
 
     Double the number of key colors without changing the palette. This allows
     finer control of individual colors without changing the palette for other
     colors
 
-  - Expand all
+  - **Expand all**
 
     Increase the number of key color to maximum 1024 without changing the
     palette
 
-  - Double
+  - **Double**
 
     Double the key colors by repeating them
 
-  - Merge Colors
+  - **Merge Colors**
 
     Allows a selected color to be merged to every specied key color
 
-  - Show index
+  - **Show index**
 
     Capture the mouse, hover the mouse over the fractal image and the
     corresponding color in the list will be highlighted. Click and the color
     selection dialog will be displayed for the active color
 
-  - Smooth color transition
+  - **Smooth color transition**
 
     Makes the transitions of colors smooth
 
-  - Inverse smooth color transition
+  - **Inverse smooth color transition**
 
     Inverse the smooth color transition which makes edges more visible
 
-  - Unnamed dropdown box
+  - **Unnamed dropdown box**
 
     Specifies handling of the iteration count values prior to coloring
 
-  - Palette waves
+  - **Palette waves**
 
     The palette can be filled from sine waves applied on Red, Green, Blue and
     Black-and-white. Each input box specifies the number of periods applied on
@@ -844,7 +848,7 @@ Number of colors dialog
     The button "Generate" applies the waves on the palette, the "Seed" button
     fills the fields with random values
 
-  - Infinite waves
+  - **Infinite waves**
 
     Waves can be applied on Hue, Saturation and Brightness rather than RGB
     values. The Period value specifies the length of the period (not the
