@@ -44,6 +44,15 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
     mpf_t Xin; mpf_init2(Xin, bits);
     mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
     mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+<xsl:choose>
+<xsl:when test="reference/@t='C'">
+    complex&lt;CFixedFloat&gt; C, A, X, Xn;
+    mpf_set(C.m_r.m_f.backend().data(), Cr);
+    mpf_set(C.m_i.m_f.backend().data(), Ci);
+    mpf_set(A.m_r.m_f.backend().data(), Ar);
+    mpf_set(A.m_i.m_f.backend().data(), Ai);
+</xsl:when>
+</xsl:choose>
 
 #define LOOP \
       mpf_set(Xr, Xrn); \
@@ -69,8 +78,14 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
-@rc   {
-        <xsl:value-of select="reference" />
+      {
+        mpf_set(X.m_r.m_f.backend().data(), Xr);
+        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        {
+          <xsl:value-of select="reference" />
+        }
+        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
+        mpf_set(Xin, Xn.m_i.m_f.backend().data());
       }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
@@ -117,6 +132,15 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
     mpf_t Xin; mpf_init2(Xin, bits);
     mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
     mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+<xsl:choose>
+<xsl:when test="reference/@t='C'">
+    complex&lt;CFixedFloat&gt; C, A, X, Xn;
+    mpf_set(C.m_r.m_f.backend().data(), Cr);
+    mpf_set(C.m_i.m_f.backend().data(), Ci);
+    mpf_set(A.m_r.m_f.backend().data(), Ar);
+    mpf_set(A.m_i.m_f.backend().data(), Ai);
+</xsl:when>
+</xsl:choose>
 
 #define LOOP \
       mpf_set(Xr, Xrn); \
@@ -146,8 +170,14 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
-@rc   {
-        <xsl:value-of select="reference" />
+      {
+        mpf_set(X.m_r.m_f.backend().data(), Xr);
+        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        {
+          <xsl:value-of select="reference" />
+        }
+        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
+        mpf_set(Xin, Xn.m_i.m_f.backend().data());
       }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
@@ -194,6 +224,15 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
     mpf_t Xin; mpf_init2(Xin, bits);
     mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
     mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+<xsl:choose>
+<xsl:when test="reference/@t='C'">
+    complex&lt;CFixedFloat&gt; C, A, X, Xn;
+    mpf_set(C.m_r.m_f.backend().data(), Cr);
+    mpf_set(C.m_i.m_f.backend().data(), Ci);
+    mpf_set(A.m_r.m_f.backend().data(), Ar);
+    mpf_set(A.m_i.m_f.backend().data(), Ai);
+</xsl:when>
+</xsl:choose>
 
 #define LOOP \
       mpf_set(Xr, Xrn); \
@@ -223,8 +262,14 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
-@rc   {
-        <xsl:value-of select="reference" />
+      {
+        mpf_set(X.m_r.m_f.backend().data(), Xr);
+        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        {
+          <xsl:value-of select="reference" />
+        }
+        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
+        mpf_set(Xin, Xn.m_i.m_f.backend().data());
       }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
