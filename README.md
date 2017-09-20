@@ -78,6 +78,7 @@ Differences From Upstream 2.11.1
 - formula inner loops generated at compile time from high level specification
   XML using XSLT and a preprocessor implemented in Haskell
 - optimized some reference calculations by floating temporaries out of loops
+- XML preprocessor optimizes more reference calculations in the same way
 - optimized Newton-Raphson zooming by using lower-level GMP calls
 - very experimental and broken OpenCL using CLEW (still disabled at build time)
 - save images to PNG format as well as JPEG
@@ -97,6 +98,9 @@ Change Log
     - `formula.cpp` included in source zip so GHC is not needed unless changing
       formula code;
     - optimized `diffabs()` code: one test Burning Ship location is 7.5% faster;
+    - preprocessor optimizes reference calculations by floating temporary
+      variable (re)allocations out of the inner loops: one test Burning Ship
+      location is 30% faster;
 
 - **kf-2.12.1** (2017-09-19)
 
@@ -206,12 +210,10 @@ TODO
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
-- calculations: optimize diffabs() to reduce branching
-- preprocessor: float out temporaries from reference iterations
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
 - colouring: assume sRGB display and gamma-correct downscaling
-- colouring: load/save palette to/from image (PNG required)
+- colouring: load/save palette to/from image
 - colouring: rework entirely (now: 1024 colours with mandatory interpolation)
 - colouring: implement Pauldelbrot's multiwave colouring
 
