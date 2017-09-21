@@ -214,6 +214,9 @@ TODO
 - calculations: work on OpenCL some more (try to get it working)
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
+- colouring: try out central instead of one-sided difference for derivatives to
+  improve appearance of distance method and reduce need for large supersampling
+  factors (suggested by gerrit)
 - colouring: assume sRGB display and gamma-correct downscaling
 - colouring: load/save palette to/from image
 - colouring: rework entirely (now: 1024 colours with mandatory interpolation)
