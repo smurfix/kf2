@@ -217,6 +217,7 @@ TODO
 - colouring: try out central instead of one-sided difference for derivatives to
   improve appearance of distance method and reduce need for large supersampling
   factors (suggested by gerrit)
+- colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
 - colouring: assume sRGB display and gamma-correct downscaling
 - colouring: load/save palette to/from image
 - colouring: rework entirely (now: 1024 colours with mandatory interpolation)
