@@ -5658,7 +5658,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bFindMinibrot=TRUE;
 		}
 		else if(wParam==ID_MENUITEM40025){
-			char szMsg[2048];
+			char szMsg[1024]; // this is the size limit for MessageBox, longer is truncated
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
@@ -5678,14 +5678,14 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 #endif
-				"\nAcknowledgements:\n"
-				" - Thanks to K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
-				" - Thanks to Pauldelbrot for finding the reliable glitch detection method\n"
-				" - Thanks to Botond Kósa and knighty for the extensions of Series Approximation\n"
-				" - Thanks to laser blaster for the Burning ship formula\n"
-				" - Thanks to stardust4ever for other fractal types\n"
-				" - Thanks to claude for the Newton-Raphson method\n"
-				" - Thanks to Chillheimer for hosting my program\n\n"
+				"\nThanks to:\n"
+				" - K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
+				" - Pauldelbrot for finding the reliable glitch detection method\n"
+				" - Botond Kósa and knighty for the extensions of Series Approximation\n"
+				" - laser blaster for the Burning ship formula\n"
+				" - stardust4ever for other fractal types\n"
+				" - claude for the Newton-Raphson method\n"
+				" - Chillheimer for hosting my program\n\n"
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
 				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",

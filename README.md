@@ -499,6 +499,24 @@ sources). And of course insert here the usual legal disclaimers about
 **NO WARRANTY OF ANY KIND**.
 
 
+Acknowledgements
+----------------
+
+Thanks to:
+
+- K.I.Martin for applying Perturbation and Series Approximation on the
+  Mandelbrot set and generously sharing the theory and Java source code!
+- Pauldelbrot for finding the reliable glitch detection method
+- Botond Kósa and knighty for the extensions of Series Approximation
+- laser blaster for the Burning ship formula
+- stardust4ever for other fractal types
+- claude for the Newton-Raphson method
+- Chillheimer for hosting my program
+
+Claude also thanks Karl for releasing the source to this program so that
+we all could learn from it and make modifications.
+
+
 User Manual
 ===========
 
