@@ -65,6 +65,9 @@ Differences From Upstream 2.11.1
   files using Distance colouring method saved with this particular version
   should be modified to use Distance (Logarithm) in the latest version.
 
+- multiple finite difference methods for distance colouring
+  (only the default `Traditional` is available in `2.11.1`)
+
 ### Other Changes
 
 - Makefile build system using MINGW to cross-compile to Windows from Linux
@@ -92,6 +95,11 @@ Differences From Upstream 2.11.1
 
 Change Log
 ----------
+
+- **next** (unreleased)
+
+    - multiple finite difference methods for distance colouring
+      (suggested by gerrit)
 
 - **kf-2.12.2** (2017-09-20)
 
@@ -217,9 +225,6 @@ TODO
 - calculations: work on OpenCL some more (try to get it working)
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
-- colouring: try out central instead of one-sided difference for derivatives to
-  improve appearance of distance method and reduce need for large supersampling
-  factors (suggested by gerrit)
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
 - colouring: assume sRGB display and gamma-correct downscaling
 - colouring: load/save palette to/from image

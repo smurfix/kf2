@@ -161,6 +161,14 @@ enum ColorMethod
 	ColorMethod_DistanceSqrt = 8
 };
 
+enum Differences
+{
+	Differences_Traditional = 0,
+	Differences_Forward3x3 = 1,
+	Differences_Central3x3 = 2,
+	Differences_Diagonal2x2 = 3
+};
+
 class CFraktalSFT
 {
 	MULTIWAVE m_MW[MULTIWAVE_MAX];
@@ -207,6 +215,7 @@ class CFraktalSFT
 	double m_nBailout2;
 	int m_nSmoothMethod;
 	ColorMethod m_nColorMethod;
+	Differences m_nDifferences;
 	int m_nColorOffset;
 	BOOL m_bIterChanged;
 	int m_nMinI, m_nMaxI;
@@ -371,6 +380,8 @@ public:
 	void SetLowTolerance(BOOL bLowTolerance);
 	void SetColorMethod(int nColorMethod);
 	ColorMethod GetColorMethod();
+	void SetDifferences(int nDifferences);
+	Differences GetDifferences();
 	void SetColorOffset(int nColorOffset);
 	int GetColorOffset();
 	void ErasePixel(int x, int y);

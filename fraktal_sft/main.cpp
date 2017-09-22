@@ -269,7 +269,9 @@ char * GetToolText(int nID,LPARAM lParam)
 		case IDC_CHECK3:
 			return "Inverse color transition";
 		case IDC_COMBO1:
-			return "Color method. Available methods are\nStandard: Standard iteration band coloring\nSquare root: Iterations are squared before colors are appplied\nCubic root: Cube root is applied before colors\nLogarithm: Logarithm is applied before colors\nStretched: The palette is stretched over min-max iteration values\nDistance: Distance Estimation";
+			return "Color method. Available methods are\nStandard: Standard iteration band coloring\nSquare root: Iterations are squared before colors are appplied\nCubic root: Cube root is applied before colors\nLogarithm: Logarithm is applied before colors\nStretched: The palette is stretched over min-max iteration values\nDistance (Linear): Distance Estimation with linear transfer (2.11.1 compatible)\nDE+Standard: hybrid mode\nDistance (Logarithm) DE with log transfer\nDistance (Square Root) DE with sqrt transfer (2.11.1+gmp.DATE compatible)";
+		case IDC_DIFFERENCES:
+			return "Derivative differencing calculation method for distance colouring";
 		case IDC_RADIO4:
 			return "Colors are merged on distinct steps";
 		case IDC_RADIO5:
@@ -883,6 +885,13 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SendDlgItemMessage(hWnd,IDC_COMBO1,CB_ADDSTRING,0,(LPARAM)"Distance (Square Root)");
 			}
 
+			if(SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_GETCOUNT,0,0)==0){
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Traditional");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Forward 3x3");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Central 3x3");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Diagonal 2x2");
+			}
+
 			if(uMsg==WM_INITDIALOG){
 				SendDlgItemMessage(hWnd,IDC_RADIO4,BM_SETCHECK,1,0);
 				SendDlgItemMessage(hWnd,IDC_RADIO5,BM_SETCHECK,0,0);
@@ -891,6 +900,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			InvalidateRect(hWnd,NULL,FALSE);
 		SendDlgItemMessage(hWnd,IDC_COMBO1,CB_SETCURSEL,g_SFT.GetColorMethod(),0);
+		SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_SETCURSEL,g_SFT.GetDifferences(),0);
 		g_bInitColorDialog=TRUE;
 		return 1;
 	}
@@ -943,7 +953,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT20),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT21),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT22),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
-		if(g_bInitColorDialog && (HIWORD(wParam)==EN_UPDATE && (LOWORD(wParam)==IDC_EDIT1 || LOWORD(wParam)==IDC_EDIT3 || LOWORD(wParam)==IDC_EDIT12 || LOWORD(wParam)==IDC_EDIT20 || LOWORD(wParam)==IDC_EDIT21 || LOWORD(wParam)==IDC_EDIT22)) || (HIWORD(wParam)==CBN_SELCHANGE && LOWORD(wParam)==IDC_COMBO1)){
+		if(g_bInitColorDialog && (HIWORD(wParam)==EN_UPDATE && (LOWORD(wParam)==IDC_EDIT1 || LOWORD(wParam)==IDC_EDIT3 || LOWORD(wParam)==IDC_EDIT12 || LOWORD(wParam)==IDC_EDIT20 || LOWORD(wParam)==IDC_EDIT21 || LOWORD(wParam)==IDC_EDIT22)) || (HIWORD(wParam)==CBN_SELCHANGE && (LOWORD(wParam)==IDC_COMBO1 || LOWORD(wParam)==IDC_DIFFERENCES))){
 			g_bInitColorDialog=FALSE;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			return 0;
@@ -990,6 +1000,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(nO!=g_SFT.GetColorOffset())
 				SetDlgItemInt(hWnd,IDC_EDIT12,g_SFT.GetColorOffset(),FALSE);
 			g_SFT.SetColorMethod(SendDlgItemMessage(hWnd,IDC_COMBO1,CB_GETCURSEL,0,0));
+			g_SFT.SetDifferences(SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_GETCURSEL,0,0));
 			g_SFT.SetTransition(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
 			g_SFT.SetITransition(SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0));
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -1280,6 +1291,12 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					nID = atoi(stParams[nID][1]);
 					g_SFT.SetColorMethod(nID);
 					SendDlgItemMessage(hWnd,IDC_COMBO1,CB_SETCURSEL,nID,0);
+				}
+				nID = stParams.FindString(0,"Differences");
+				if(nID!=-1){
+					nID = atoi(stParams[nID][1]);
+					g_SFT.SetDifferences(nID);
+					SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_SETCURSEL,nID,0);
 				}
 				SendMessage(hWnd,WM_USER+99,0,0);
 				g_SFT.ApplyColors();

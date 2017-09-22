@@ -165,6 +165,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nBailout2 = m_nBailout*m_nBailout;
 	m_nSmoothMethod = 0;
 	m_nColorMethod = ColorMethod_Standard;
+	m_nDifferences = Differences_Traditional;
 
 	m_db_dxr = NULL;
 	m_db_dxi = NULL;
@@ -581,53 +582,84 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		         m_nColorMethod == ColorMethod_DEPlusStandard ||
 		         m_nColorMethod == ColorMethod_DistanceLog ||
 		         m_nColorMethod == ColorMethod_DistanceSqrt){
-			double p1, p2, p3, p4;
 			iter=0;
-			if (x){
-				p1 = (double)m_nPixels[x - 1][y] + (double)1 - m_nTrans[x - 1][y];
-				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+			// load 3x3 stencil around the pixel
+			int X = m_nX - 1;
+			int Y = m_nY - 1;
+			static const double ninf = 1.0 / 0.0;
+			double p[3][3] = { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
+			if (0 < x && 0 < y) p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];
+			if (0 < x         ) p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];
+			if (0 < x && y < Y) p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];
+			if (         0 < y) p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];
+			                    p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];
+			if (         y < Y) p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];
+			if (x < X && 0 < y) p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];
+			if (x < X         ) p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];
+			if (x < X && y < Y) p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];
+			// reflect at boundaries if necessary
+			// this will break (result is infinite or NaN) for image size of 1 pixel
+			p[1][1] *= 2.0;
+			if (ninf == p[0][0]) p[0][0] = p[1][1] - p[2][2];
+			if (ninf == p[0][1]) p[0][1] = p[1][1] - p[2][1];
+			if (ninf == p[0][2]) p[0][2] = p[1][1] - p[2][0];
+			if (ninf == p[1][0]) p[1][0] = p[1][1] - p[1][2];
+			if (ninf == p[1][2]) p[1][2] = p[1][1] - p[1][0];
+			if (ninf == p[2][0]) p[2][0] = p[1][1] - p[0][2];
+			if (ninf == p[2][1]) p[2][1] = p[1][1] - p[0][1];
+			if (ninf == p[2][2]) p[2][2] = p[1][1] - p[0][0];
+			p[1][1] *= 0.5;
+			// do the differencing
+			switch (m_nDifferences)
+			{
+			case Differences_Central3x3:
+				{
+					// gerrit's central difference formula
+					double gx = (p[2][1] - p[0][1]) * 0.5;
+					double gy = (p[1][2] - p[1][0]) * 0.5;
+					double g1 = (p[2][2] - p[0][0]) * 0.35355339059327373; // 1/(2 sqrt(2))
+					double g2 = (p[2][0] - p[2][0]) * 0.35355339059327373;
+					double g = sqrt(0.5 * (gx*gx + gy*gy + g1*g1 + g2*g2));
+					iter = g * 2.8284271247461903;
+				}
+				break;
+			case Differences_Forward3x3:
+				{
+					// forward differencing in 8 directions from the target point
+					double gx0 = (p[0][1] - p[1][1]);
+					double gx2 = (p[2][1] - p[1][1]);
+					double gy0 = (p[1][0] - p[1][1]);
+					double gy2 = (p[1][2] - p[1][1]);
+					double gu0 = (p[0][0] - p[1][1]) * 0.7071067811865475; // 1/sqrt(2)
+					double gu2 = (p[2][2] - p[1][1]) * 0.7071067811865475;
+					double gv0 = (p[2][0] - p[1][1]) * 0.7071067811865475;
+					double gv2 = (p[0][2] - p[1][1]) * 0.7071067811865475;
+					double g = sqrt(0.25 * (gx0*gx0 + gx2*gx2 + gy0*gy0 + gy2*gy2 + gu0*gu0 + gu2*gu2 + gv0*gv0 + gv2*gv2));
+					iter = g * 2.8284271247461903;
+				}
+				break;
+			case Differences_Diagonal2x2:
+				{
+					// forward differencing in 2 diagonals of a 2x2 substencil
+					double gu = (p[0][0] - p[1][1]) * 0.7071067811865475; // 1/sqrt(2)
+					double gv = (p[0][1] - p[1][0]) * 0.7071067811865475;
+					double g = sqrt(gu * gu + gv * gv);
+					iter = g * 2.8284271247461903;
+				}
+				break;
+			case Differences_Traditional:
+				{
+					// traditional method reverse engineered from original code
+					double gx = (p[0][1] - p[1][1]) * 1.414;
+					double gy = (p[1][0] - p[1][1]) * 1.414;
+					double gu = (p[0][0] - p[1][1]);
+					double gv = (p[0][2] - p[1][1]);
+					double g = fabs(gx) + fabs(gy) + fabs(gu) + fabs(gv);
+					iter = g;
+				}
+				break;
 			}
-			else if (x<m_nX - 1){
-				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-				p2 = (double)m_nPixels[x + 1][y] + (double)1 - m_nTrans[x + 1][y];
-			}
-			else
-				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			double _abs_val;
-			iter += _abs(p1 - p2)*1.414;
-			if (x && y){
-				p1 = (double)m_nPixels[x - 1][y - 1] + (double)1 - m_nTrans[x - 1][y - 1];
-				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			}
-			else if (x<m_nX - 1 && y<m_nY - 1){
-				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-				p2 = (double)m_nPixels[x + 1][y + 1] + (double)1 - m_nTrans[x + 1][y + 1];
-			}
-			else
-				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			iter += _abs(p1 - p2);
-			if (y){
-				p1 = (double)m_nPixels[x][y - 1] + (double)1 - m_nTrans[x][y - 1];
-				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			}
-			else if (y<m_nY - 1){
-				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-				p2 = (double)m_nPixels[x][y + 1] + (double)1 - m_nTrans[x][y + 1];
-			}
-			else
-				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			iter += _abs(p1 - p2)*1.414;
-			if (y && x<m_nX-1){
-				p1 = (double)m_nPixels[x + 1][y - 1] + (double)1 - m_nTrans[x + 1][y - 1];
-				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			}
-			else if (x && y<m_nY - 1){
-				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-				p2 = (double)m_nPixels[x - 1][y + 1] + (double)1 - m_nTrans[x - 1][y + 1];
-			}
-			else
-				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			iter += _abs(p1 - p2);
+			// post differencing transfer functions
 //			iter/=4;
 //			iter*=iter;
 			iter*=(double)m_nX / (double)640;
@@ -3408,6 +3440,16 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 	}
 	else
 		m_nColorMethod = ColorMethod_Standard;
+	nID = stParams.FindString(0, "Differences");
+	if (nID != -1)
+	{
+		int m = atoi(stParams[nID][1]);
+		if (m < 0 || m > 3)
+			m = 0;
+		m_nDifferences = Differences(m);
+	}
+	else
+		m_nDifferences = Differences_Traditional;
 	nID = stParams.FindString(0, "ColorOffset");
 	if (nID != -1){
 		m_nColorOffset = atoi(stParams[nID][1]);
@@ -3741,6 +3783,9 @@ BOOL CFraktalSFT::SaveFile(char *szFile)
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "ColorMethod");
 	stSave.AddInt(stSave.GetCount() - 1, m_nColorMethod);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Differences");
+	stSave.AddInt(stSave.GetCount() - 1, m_nDifferences);
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "ColorOffset");
 	stSave.AddInt(stSave.GetCount() - 1, m_nColorOffset);
@@ -4461,6 +4506,17 @@ BOOL CFraktalSFT::GetLowTolerance()
 void CFraktalSFT::SetLowTolerance(BOOL bLowTolerance)
 {
 	m_bLowTolerance = bLowTolerance;
+}
+
+void CFraktalSFT::SetDifferences(int nDifferences)
+{
+	if (nDifferences < 0) nDifferences = 0;
+	if (nDifferences > 3) nDifferences = 0;
+	m_nDifferences = Differences(nDifferences);
+}
+Differences CFraktalSFT::GetDifferences()
+{
+	return m_nDifferences;
 }
 
 void CFraktalSFT::SetColorMethod(int nColorMethod)
