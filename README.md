@@ -209,6 +209,7 @@ Change Log
 TODO
 ----
 
+- building: build against an installed libjpeg instead of each time after clean
 - user interface: batch mode
 - user interface: scripting interface
 - calculations: implement scaled long double for e4900 to e9800
