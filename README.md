@@ -37,6 +37,8 @@ Known Bugs
   "quality" option (you can still set image size, but potentially confusing)
 - examine zoom sequence glitch correction works on last frame only (reported
   by Dinkydau)
+- occasional randomly bright single pixels: possible race condition in
+  rendering completion testing meaning some pixels are not rendered?
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
   (out of date instructions for Windows)
