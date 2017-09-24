@@ -32,6 +32,8 @@ Known Bugs
 
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
+- out of memory conditions cause crashes (for example, if bitmap creation
+  fails - also need to check huge sizes) (reported by gerrit)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
