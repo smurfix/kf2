@@ -525,6 +525,8 @@ Thanks to:
 - laser blaster for the Burning ship formula
 - stardust4ever for other fractal types
 - claude for the Newton-Raphson method
+- gerrit for the distance colouring differencing variations
+- Dinkydau, Fractal universe and others for reporting bugs
 - Chillheimer for hosting my program
 
 Claude also thanks Karl for releasing the source to this program so that

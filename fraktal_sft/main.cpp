@@ -5701,15 +5701,17 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 #endif
 				"\nThanks to:\n"
-				" - K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and generously sharing the theory and Java source code!\n"
-				" - Pauldelbrot for finding the reliable glitch detection method\n"
-				" - Botond Kósa and knighty for the extensions of Series Approximation\n"
-				" - laser blaster for the Burning ship formula\n"
+				" - K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and sharing theory and source code!\n"
+				" - Pauldelbrot for reliable glitch detection method\n"
+				" - Botond Kósa and knighty for extensions of Series Approximation\n"
+				" - laser blaster for Burning ship formula\n"
 				" - stardust4ever for other fractal types\n"
-				" - claude for the Newton-Raphson method\n"
+				" - claude for Newton-Raphson method\n"
+				" - gerrit for differencing variations\n"
+				" - Dinkydau, Fractal universe and others for bug reports\n"
 				" - Chillheimer for hosting my program\n\n"
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
-				"Claude also thanks Karl for releasing the source to this program so that we all could learn from it and make modifications.\n\n"
+				"Claude also thanks Karl for releasing source code so we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
 				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
 				png_libpng_ver,
