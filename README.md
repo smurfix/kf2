@@ -38,7 +38,7 @@ Known Bugs
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
 - examine zoom sequence glitch correction works on last frame only (reported
-  by Dinkydau)
+  by Dinkydau and Fractal universe)
 - occasional randomly bright single pixels: possible race condition in
   rendering completion testing meaning some pixels are not rendered?
 - opencl support is very broken, proof of concept only
