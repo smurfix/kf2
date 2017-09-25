@@ -5684,7 +5684,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
-				"version 2.12.2\n"
+				"version 2.12.3\n"
 				"©2013-2017 Karl Runmo\n"
 				"©2017 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
