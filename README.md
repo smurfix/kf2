@@ -37,8 +37,6 @@ Known Bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
-- examine zoom sequence glitch correction works on last frame only (reported
-  by Dinkydau and Fractal universe)
 - occasional randomly bright single pixels: possible race condition in
   rendering completion testing meaning some pixels are not rendered?
 - opencl support is very broken, proof of concept only
@@ -98,10 +96,12 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **next** (unreleased)
+- **kf-2.12.3** (2017-09-25)
 
     - multiple finite difference methods for distance colouring
       (suggested by gerrit)
+    - fix bug in examine zoom sequence auto solve glitches (first frame only)
+      (reported by Dinkydau and Fractal universe)
 
 - **kf-2.12.2** (2017-09-20)
 

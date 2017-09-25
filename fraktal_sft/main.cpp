@@ -2226,12 +2226,13 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nExamine=0;
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_nExamine,FALSE);
 		g_bExamineDirty=FALSE;
-		char *szA = strrchr(g_stExamine[0][0],'_');
+		int last = g_stExamine.GetCount() - 1;
+		char *szA = strrchr(g_stExamine[last][0],'_');
 		szA++;
 		strcpy(szExamine,szA);
 		*strrchr(szExamine,'.')=0;
 		CDecNumber A(szExamine);
-		szA = strrchr(g_stExamine[1][0],'_');
+		szA = strrchr(g_stExamine[last-1][0],'_');
 		if (szA)
 		{
 			szA++;
@@ -2239,7 +2240,7 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			*strrchr(szExamine,'.')=0;
 		}
 		CDecNumber B(szExamine);
-		g_nExamineZoom = (B/A+CDecNumber(0.5)).ToInt();
+		g_nExamineZoom = (A/B+CDecNumber(0.5)).ToInt();
 		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
 		char *szR = g_SFT.GetRe();
 		char *szRe = new char[strlen(szR)+1];
