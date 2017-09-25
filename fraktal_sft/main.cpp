@@ -214,6 +214,18 @@ void SetDlgItemFloat(HWND hWnd,int nID,double val)
 	sprintf(szText,"%.4f",val);
 	SetDlgItemText(hWnd,nID,szText);
 }
+int kGetDlgItemInt(HWND hWnd,int nID)
+{
+	char szText[256];
+	GetDlgItemText(hWnd,nID,szText,sizeof(szText));
+	return atoi(szText);
+}
+void kSetDlgItemInt(HWND hWnd,int nID,int val)
+{
+	char szText[256];
+	sprintf(szText,"%d",val);
+	SetDlgItemText(hWnd,nID,szText);
+}
 int g_nPrevCalc=-1;
 
 char * GetToolText(int nID,LPARAM lParam)
@@ -462,6 +474,8 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Automatically solve glitches in Key Frames\nThe Key Frames will be browsed backwards\nand stop on the first frame\nStart this function preferable from the last frame";
 		case IDC_EDIT4:
 			return "Shows status of automatically glitch solving";
+		case IDC_EDITMAXREFS:
+			return "Choose maximum number of references to add per frame when solving glitches";
 
 		}
 	}
@@ -2187,6 +2201,7 @@ int WINAPI ThAnim(ANIM *pAnim)
 }
 int g_nPrevAutoGlitchNP;
 BOOL g_bAutoSolveGlitch=FALSE;
+int g_nAutoSolveGlitchLimit=10;
 int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
@@ -2325,7 +2340,13 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SetTimer(hWnd,2,10,NULL);
 			g_bAutoSolveGlitch = !g_bAutoSolveGlitch;
 			if(g_bAutoSolveGlitch)
+			{
+				// update additional references limit from GUI
+				g_nAutoSolveGlitchLimit = kGetDlgItemInt(hWnd, IDC_EDITMAXREFS);
+				if (g_nAutoSolveGlitchLimit < 1) g_nAutoSolveGlitchLimit = 10;
+				kSetDlgItemInt(hWnd, IDC_EDITMAXREFS, g_nAutoSolveGlitchLimit);
 				SetDlgItemText(hWnd,IDC_BUTTON4,"Stop Auto solve glitch");
+			}
 			else{
 				SetDlgItemText(hWnd,IDC_EDIT4,"");
 				SetDlgItemText(hWnd,IDC_BUTTON4,"Auto solve glitch");
@@ -2386,7 +2407,7 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 		int rx, ry;
 SetDlgItemText(hWnd,IDC_EDIT4,"Search for glitch");
 UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-		while(!g_SFT.FindCenterOfGlitch(rx,ry) || g_bAutoSolveGlitch>=11){
+		while(!g_SFT.FindCenterOfGlitch(rx,ry) || g_bAutoSolveGlitch>=g_nAutoSolveGlitchLimit){
 			if(g_nExamine==0){
 				g_bAutoSolveGlitch=0;
 				SetDlgItemText(hWnd,IDC_BUTTON4,"Auto solve glitch");

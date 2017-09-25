@@ -34,6 +34,14 @@ Known Bugs
   period detected (reported by Kalles Fraktaler)
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
+- resizing window during examine zoom sequence auto solve glitches leads to
+  corruption of the zoom sequence data
+- examine zoom sequence auto solve glitches is much less effective at solving
+  glitches than when rendering with auto solve glitches: possible precision
+  loss / misalignment between pixels and true parameter plane locations?  for
+  now it is recommended to avoid the "reuse reference" setting, and keep "auto
+  solve glitches" enabled, when rendering zoom out sequences (reported by
+  Fractal universe)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
@@ -102,6 +110,10 @@ Change Log
       (suggested by gerrit)
     - fix bug in examine zoom sequence auto solve glitches (first frame only)
       (reported by Dinkydau and Fractal universe)
+    - raise limit for maximum number of references from 199 to 10000
+      (default still 69, you can change it in iterations dialog)
+    - settable number of references per pass for examine zoom sequence auto
+      solve glitches (default still 10)
 
 - **kf-2.12.2** (2017-09-20)
 
