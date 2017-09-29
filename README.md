@@ -244,6 +244,7 @@ TODO
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference
+- calculations: calculate derivatives for "true" distance estimates
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
