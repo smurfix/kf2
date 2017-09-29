@@ -243,6 +243,7 @@ TODO
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
+- calculations: calculate series approximation in parallel with reference
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
