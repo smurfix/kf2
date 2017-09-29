@@ -30,12 +30,17 @@ Feedback:
 Known Bugs
 ----------
 
-- "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
-  period detected (reported by Kalles Fraktaler)
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
+- "Olbaid-ST-023.kfr" undetected/uncorrected glitches (empty structures) even
+  with series approximation disabled (possible Pauldelbrot criterion failure?)
+  (reported by Kalles Fraktaler)
+- translating location while reuse reference is active leads to bad images
+  (reported by Dinkydau)
+- "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
+  period detected (reported by Kalles Fraktaler)
 - examine zoom sequence auto solve glitches is much less effective at solving
   glitches than when rendering with auto solve glitches: possible precision
   loss / misalignment between pixels and true parameter plane locations?  for
