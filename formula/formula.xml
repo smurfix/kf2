@@ -2,6 +2,18 @@
 <formulas>
   <group type="0" name="Mandelbrot">
 
+    <!--
+
+      IMPORTANT NOTE:
+
+      Mandelbrot power 2 has separate threaded implementations for reference
+      calculations, which need to be updated by hand when you change the glitch
+      threshold (or the reference formula).  You can find those implementations
+      in these files:
+        - fraktal_sft/dbl_functions.cpp
+        - fraktal_sft/exp_functions.cpp
+
+    -->
     <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = Xr2 - Xi2 + Cr;
