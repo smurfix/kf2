@@ -103,6 +103,7 @@ Differences From Upstream 2.11.1
 - dithering at end of colouring to improve perceptual quality (reduced banding)
 - "glitch low tolerance" checkbox that can be enabled to detect glitches more
   aggressively (disabled by default, enable it if you get undetected glitches)
+- updated program icon with transparent background and large version
 
 
 Change Log
@@ -110,10 +111,11 @@ Change Log
 
 - **kf-2.12.4** (????-??-??)
 
-     - "glitch low tolerance" checkbox that can be enabled to detect glitches
-       more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
-       correctly, but taking 16x longer than with it disabled) (incorrect
-       render reported by Kalles Fraktaler)
+    - "glitch low tolerance" checkbox that can be enabled to detect glitches
+      more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
+      correctly, but taking 16x longer than with it disabled) (incorrect
+      render reported by Kalles Fraktaler)
+    - updated program icon with transparent background and large version
 
 - **kf-2.12.3** (2017-09-25)
 
