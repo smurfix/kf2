@@ -178,6 +178,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	if (m_nFractalType == 0 && m_nPower == 2){
 		double glitch_threshold = 0.0000001;
+		if (m_bGlitchLowTolerance) {
+			glitch_threshold = sqrt(glitch_threshold);
+		}
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
 		mcthread mc[3];
@@ -346,7 +349,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 #else
 
-    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
     assert(ok && "reference_long_double");
 
 #endif
@@ -360,6 +363,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
+    if (m_bGlitchLowTolerance) {
+			threashold = sqrt(threashold);
+		}
 		if (threashold>.5)
 			threashold = .5;
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
@@ -386,7 +392,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
     assert(ok && "reference_long_double");
 
 	}

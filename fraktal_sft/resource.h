@@ -114,6 +114,7 @@
 #define IDC_BUTTON30                    1082
 #define IDC_DIFFERENCES                 1083
 #define IDC_EDITMAXREFS                 1084
+#define IDC_GLITCHLOWTOLERANCE          1085
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
 #define ID_ACTIONS_POSITION             40003

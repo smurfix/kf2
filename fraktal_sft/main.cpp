@@ -380,6 +380,8 @@ char * GetToolText(int nID,LPARAM lParam)
 			return "Power of Mandelbrot function";
 		case IDC_EDIT3:
 			return "Maximum of extra references for glitch correction";
+		case IDC_GLITCHLOWTOLERANCE:
+			return "Checked for low tolerance of Glitch Detection\nComplex images may need this to be checked to be rendered correctly\nThe render time may be faster if this checkbox is not checked";
 		case IDC_CHECK1:
 			return "Checked for low tolerance of Series Approximation\nComplex images may need this to be checked to be rendered correctly\nThe render time may be faster if this checkbox is not checked";
 		case IDC_CHECK2:
@@ -557,6 +559,7 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(nType>=51)
 				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
 			
+			SendDlgItemMessage(hWnd,IDC_GLITCHLOWTOLERANCE,BM_SETCHECK,g_SFT.GetGlitchLowTolerance(),0);
 			SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,g_SFT.GetLowTolerance(),0);
 			SendDlgItemMessage(hWnd,IDC_CHECK2,BM_SETCHECK,g_SFT.GetAutoTerms(),0);
 			SetDlgItemInt(hWnd,IDC_COMBO3,g_SFT.GetPower(),FALSE);
@@ -643,6 +646,7 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			char szPower[256];
 			GetDlgItemText(hWnd,IDC_COMBO6,szPower,sizeof(szPower));
 			g_SFT.SetTerms(atoi(szPower));
+			g_SFT.SetGlitchLowTolerance(SendDlgItemMessage(hWnd,IDC_GLITCHLOWTOLERANCE,BM_GETCHECK,0,0));
 			g_SFT.SetLowTolerance(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0));
 			g_SFT.SetAutoTerms(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
 			ExitToolTip(hWnd);

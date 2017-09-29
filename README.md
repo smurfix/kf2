@@ -34,10 +34,6 @@ Known Bugs
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
-- "Olbaid-ST-023.kfr" undetected/uncorrected glitches (empty structures) even
-  with series approximation disabled (with 0.0000001 threshold for Pauldelbrot
-  glitch detection criterion - Pauldelbrot's original 0.001 threshold works
-  but is much much slower) (reported by Kalles Fraktaler)
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
@@ -105,10 +101,19 @@ Differences From Upstream 2.11.1
 - save images to PNG format as well as JPEG
 - colouring uses floating point internally (fewer quantisation steps)
 - dithering at end of colouring to improve perceptual quality (reduced banding)
+- "glitch low tolerance" checkbox that can be enabled to detect glitches more
+  aggressively (disabled by default, enable it if you get undetected glitches)
 
 
 Change Log
 ----------
+
+- **kf-2.12.4** (????-??-??)
+
+     - "glitch low tolerance" checkbox that can be enabled to detect glitches
+       more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
+       correctly, but taking 16x longer than with it disabled) (incorrect
+       render reported by Kalles Fraktaler)
 
 - **kf-2.12.3** (2017-09-25)
 

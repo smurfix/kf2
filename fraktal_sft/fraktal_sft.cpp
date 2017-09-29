@@ -125,6 +125,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bNoGlitchDetection = FALSE;
 	m_nPrevPower = m_nPower = 2;
 	m_bLowTolerance = TRUE;
+	m_bGlitchLowTolerance = FALSE;
 	m_nMaxOldGlitches = 69;
 
 	m_bAutoTerms = TRUE;
@@ -1331,6 +1332,9 @@ void CFraktalSFT::CalculateReference()
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
+		if (m_bGlitchLowTolerance) {
+			threashold = sqrt(threashold);
+		}
 		if (threashold>.5)
 			threashold = .5;
 		complex<CFixedFloat> r(m_rref, m_iref);
@@ -1356,7 +1360,7 @@ void CFraktalSFT::CalculateReference()
 	else
 	{
 
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag);
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
 		assert(ok && "reference_double");
 
 	}
@@ -4499,6 +4503,15 @@ BOOL CFraktalSFT::GetLowTolerance()
 void CFraktalSFT::SetLowTolerance(BOOL bLowTolerance)
 {
 	m_bLowTolerance = bLowTolerance;
+}
+
+BOOL CFraktalSFT::GetGlitchLowTolerance()
+{
+	return m_bGlitchLowTolerance;
+}
+void CFraktalSFT::SetGlitchLowTolerance(BOOL bGlitchLowTolerance)
+{
+	m_bGlitchLowTolerance = bGlitchLowTolerance;
 }
 
 void CFraktalSFT::SetDifferences(int nDifferences)

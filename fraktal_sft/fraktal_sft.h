@@ -199,6 +199,7 @@ class CFraktalSFT
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
 	BOOL m_bLowTolerance;
+	BOOL m_bGlitchLowTolerance;
 	int m_nPrevPower;
 	int *m_pnExpConsts;
 	int m_nMaxOldGlitches;
@@ -379,6 +380,8 @@ public:
 	void SetSmoothMethod(int nSmoothMethod);
 	int GetPower();
 	void SetPower(int nPower);
+	BOOL GetGlitchLowTolerance();
+	void SetGlitchLowTolerance(BOOL bGlitchLowTolerance);
 	BOOL GetLowTolerance();
 	void SetLowTolerance(BOOL bLowTolerance);
 	void SetColorMethod(int nColorMethod);
