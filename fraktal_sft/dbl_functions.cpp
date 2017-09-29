@@ -40,7 +40,7 @@ struct mcthread_common
 	barrier *barrier;
 	mpf_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	long double *m_ldxr, *m_ldxi;
-	double *m_db_z, *terminate;
+	double *m_db_z, *terminate, *glitch_threshold;
 	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
 	volatile BOOL *stop;
 };
@@ -55,6 +55,7 @@ struct mcthread
 static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
 	mcthread_common *p = p0->common;
+	const double glitch_threshold = *p->glitch_threshold;
 	int i;
 	switch (p0->nType)
 	{
@@ -96,7 +97,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 					const long double lr = p->m_ldxr[i-1];
 					const long double li = p->m_ldxi[i-1];
 					const double abs_val = g_real * lr * lr + g_imag * li * li;
-					p->m_db_z[i-1] = abs_val * 0.0000001;
+					p->m_db_z[i-1] = abs_val * glitch_threshold;
 					if (abs_val >= *p->terminate){
 						if (*p->nMaxIter == *p->m_nMaxIter)
 						{
@@ -128,7 +129,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			const long double lr = p->m_ldxr[i-1];
 			const long double li = p->m_ldxi[i-1];
 			const double abs_val = g_real * lr * lr + g_imag * li * li;
-			p->m_db_z[i-1] = abs_val * 0.0000001;
+			p->m_db_z[i-1] = abs_val * glitch_threshold;
 			if (abs_val >= *p->terminate){
 				if (*p->nMaxIter == *p->m_nMaxIter)
 				{
@@ -176,6 +177,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	int nMaxIter = m_nMaxIter;
 
 	if (m_nFractalType == 0 && m_nPower == 2){
+		double glitch_threshold = 0.0000001;
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
 		mcthread mc[3];
@@ -208,6 +210,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		co.m_ldxi = m_ldxi;
 		co.m_db_z = m_db_z;
 		co.terminate = &terminate;
+		co.glitch_threshold = &glitch_threshold;
 		co.m_nMaxIter = &m_nMaxIter;
 		co.m_nGlitchIter = &m_nGlitchIter;
 		co.nMaxIter = &nMaxIter;
@@ -308,7 +311,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			ConvertFromFixedFloat(&m_ldxr[i], xr);
 			ConvertFromFixedFloat(&m_ldxi[i], xi);
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*0.0000001;
+			m_db_z[i] = abs_val*glitch_threshold;
 			//m_db_z[i] = abs_val*0.000001;
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){

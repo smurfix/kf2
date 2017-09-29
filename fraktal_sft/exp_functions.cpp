@@ -23,7 +23,7 @@ struct mcthread_common
 	barrier *barrier;
 	mpf_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	floatexp *m_dxr, *m_dxi;
-	double *m_db_z, *terminate;
+	double *m_db_z, *terminate, *glitch_threshold;
 	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
 	volatile BOOL *stop;
 };
@@ -40,6 +40,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	const floatexp real(g_real);
 	const floatexp imag(g_imag);
 	mcthread_common *p = p0->common;
+	double glitch_threshold = *p->glitch_threshold;
 	int i;
 	switch (p0->nType)
 	{
@@ -81,7 +82,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 					const floatexp lr = p->m_dxr[i-1];
 					const floatexp li = p->m_dxi[i-1];
 					const double abs_val = (real * lr * lr + imag * li * li).todouble();
-					p->m_db_z[i-1] = abs_val * 0.0000001;
+					p->m_db_z[i-1] = abs_val * glitch_threshold;
 					if (abs_val >= *p->terminate){
 						if (*p->nMaxIter == *p->m_nMaxIter)
 						{
@@ -113,7 +114,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			const floatexp lr = p->m_dxr[i-1];
 			const floatexp li = p->m_dxi[i-1];
 			const double abs_val = (real * lr * lr + imag * li * li).todouble();
-			p->m_db_z[i-1] = abs_val * 0.0000001;
+			p->m_db_z[i-1] = abs_val * glitch_threshold;
 			if (abs_val >= *p->terminate){
 				if (*p->nMaxIter == *p->m_nMaxIter)
 				{
@@ -162,6 +163,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 	if (m_nFractalType == 0 && m_nPower == 2){
+		double glitch_threshold = 0.0000001;
 
 #ifdef KF_THREADED_REFERENCE_BARRIER
 
@@ -194,6 +196,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 		co.m_dxi = m_dxi;
 		co.m_db_z = m_db_z;
 		co.terminate = &terminate;
+		co.glitch_threshold = &glitch_threshold;
 		co.m_nMaxIter = &m_nMaxIter;
 		co.m_nGlitchIter = &m_nGlitchIter;
 		co.nMaxIter = &nMaxIter;
@@ -294,7 +297,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 			m_dxr[i] = xr;
 			m_dxi[i] = xi;
 			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
-			m_db_z[i] = abs_val*0.0000001;
+			m_db_z[i] = abs_val*glitch_threshold;
 			//m_db_z[i] = abs_val*0.000001;
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
