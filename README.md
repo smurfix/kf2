@@ -35,8 +35,9 @@ Known Bugs
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - "Olbaid-ST-023.kfr" undetected/uncorrected glitches (empty structures) even
-  with series approximation disabled (possible Pauldelbrot criterion failure?)
-  (reported by Kalles Fraktaler)
+  with series approximation disabled (with 0.0000001 threshold for Pauldelbrot
+  glitch detection criterion - Pauldelbrot's original 0.001 threshold works
+  but is much much slower) (reported by Kalles Fraktaler)
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
