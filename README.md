@@ -306,6 +306,9 @@ install natively.
           pandoc \
           texlive-latex-recommended   # optional, for PDF manual
 
+    For Ubuntu replace "wine32 wine64 wine-binfmt" with "wine" (but see note
+    about build failures with some versions).
+
 2. Prepare non-root build user:
 
         adduser build
@@ -420,6 +423,29 @@ install natively.
         export VERSION=2.whatever
         git tag -s kf-${VERSION}
         ./release.sh ${VERSION}
+
+Note: build fails on Ubuntu 16.04.3 LTS (xenial):
+
+    $ make
+    x86_64-w64-mingw32-g++ -mfpmath=sse -xc++ -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I/home/claude/win64/include -DKF_THREADED_REFERENCE_BARRIER -o fraktal_sft/CDecNumber.o -c fraktal_sft/CDecNumber.cpp
+    In file included from fraktal_sft/CDecNumber.cpp:1:0:
+    fraktal_sft/CDecNumber.h:5:76: error: ‘decNumber’ was not declared in this scope
+     typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
+                                                                                ^
+    fraktal_sft/CDecNumber.h:5:76: error: template argument 1 is invalid
+    fraktal_sft/CDecNumber.h:5:62: error: template argument 1 is invalid
+     typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
+                                                                  ^
+    fraktal_sft/CDecNumber.h:5:62: error: template argument 2 is invalid
+    fraktal_sft/CDecNumber.h:5:32: warning: ‘typedef’ was ignored in this declaration
+     typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
+                                    ^
+    ...
+    $ x86_64-w64-mingw32-g++ --version
+    x86_64-w64-mingw32-g++ (GCC) 5.3.1 20160211
+    Copyright (C) 2015 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
 Building on Windows
