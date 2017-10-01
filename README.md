@@ -447,6 +447,14 @@ Note: build fails on Ubuntu 16.04.3 LTS (xenial):
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+The working Debian Stretch has:
+
+    $ x86_64-w64-mingw32-g++ --version
+    x86_64-w64-mingw32-g++ (GCC) 6.3.0 20170516
+    Copyright (C) 2016 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
 
 Building on Windows
 -------------------
