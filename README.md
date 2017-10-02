@@ -122,6 +122,9 @@ Change Log
       by Kalles Fraktaler)
     - fix distance colouring grid artifacts with small zoom size by disabling
       "reuse center" when zoom size is not an integer (reported by gerrit)
+    - fix some iteration band edge artifacts (with external postprocessing of
+      kfb map files) by increasing the smooth bailout radius from 100 to 10000
+      (reported by gerrit)
 
 - **kf-2.12.3** (2017-09-25)
 

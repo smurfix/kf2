@@ -34,7 +34,7 @@ public:
 	BOOL GetPixels(int *px, int *py, int &nCount);
 };
 
-#define SMOOTH_BAILOUT 100
+#define SMOOTH_BAILOUT 10000
 struct MC
 {
 	CFixedFloat *xr, *xi, *sr, *si, *xrxid;
