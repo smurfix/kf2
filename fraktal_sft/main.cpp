@@ -2578,7 +2578,10 @@ int ResumeZoomSequence(HWND hWnd)
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,FALSE,TRUE);
 	}
 	else
-		g_SFT.Zoom(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_nZoomSize,g_JpegParams.nWidth,g_JpegParams.nHeight,TRUE/*!g_bAutoGlitch*/);
+	{
+		bool bReuseCenter = (g_nZoomSize == round(g_nZoomSize));
+		g_SFT.Zoom(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_nZoomSize,g_JpegParams.nWidth,g_JpegParams.nHeight,bReuseCenter/* TRUE */ /* !g_bAutoGlitch */);
+	}
 	SetTimer(hWnd,0,500,NULL);
 	return 0;
 }
@@ -3102,7 +3105,8 @@ nPos=14;
 				else{
 //					if(g_bAnimateEachFrame)
 //						g_Degree+=0.01;
-					g_SFT.Zoom(g_nZoomSize==1?-g_JpegParams.nWidth/2:g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_nZoomSize,g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame);
+					bool bReuseCenter = (g_nZoomSize == round(g_nZoomSize));
+					g_SFT.Zoom(g_nZoomSize==1?-g_JpegParams.nWidth/2:g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_nZoomSize,g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame && bReuseCenter);
 				}
 				SetTimer(hWnd,0,500,NULL);
 				return 0;
@@ -5328,9 +5332,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ReleaseDC(NULL,hDC);
 			g_SFT.UpdateBitmap();
 		}
-
+		bool bReuseCenter = (g_nZoomSize == round(g_nZoomSize));
 		if(!g_bAutoGlitch && g_bReuseRef && g_pSelect.x==g_SFT.GetWidth()/2 && g_pSelect.y==g_SFT.GetHeight()/2)
-			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_nZoomSize,g_SFT.GetWidth(),g_SFT.GetHeight(),TRUE);
+			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_nZoomSize,g_SFT.GetWidth(),g_SFT.GetHeight(),bReuseCenter);
 		else
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_nZoomSize,g_SFT.GetWidth(),g_SFT.GetHeight());
 		SetTimer(hWnd,0,500,NULL);

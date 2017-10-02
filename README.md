@@ -120,6 +120,8 @@ Change Log
     - floatexp implementation bug fixes (0.0 was implemented incorrectly)
       (caused a series approximation underskipping failure that was reported
       by Kalles Fraktaler)
+    - fix distance colouring grid artifacts with small zoom size by disabling
+      "reuse center" when zoom size is not an integer (reported by gerrit)
 
 - **kf-2.12.3** (2017-09-25)
 
