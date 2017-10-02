@@ -926,11 +926,10 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	if (nProbeX < 3) nProbeX = 3;
 	if (nProbeY < 3) nProbeY = 3;
 #else
-	// one more probe point in the center of the image, compared to upstream
 	int nProbeX = 3;
 	int nProbeY = 3;
 #endif
-	int nProbe = nProbeX * nProbeY;
+	int nProbe = nProbeX * nProbeY - 1;
 	floatexp _1 = 1;
 	floatexp _3 = 3;
 	floatexp _6 = 6;
@@ -951,6 +950,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		if (y >= m_rApprox.bottom) y = m_rApprox.bottom - 1;
 		for (i = 0; i < nProbeX; ++i)
 		{
+			if (i == nProbeX/2 && j == nProbeY/2)
+				continue;
 			int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeX - 1);
 			if (x < m_rApprox.left) x = m_rApprox.left;
 			if (x >= m_rApprox.right) x = m_rApprox.right - 1;
