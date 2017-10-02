@@ -116,6 +116,7 @@ Change Log
       correctly, but taking 16x longer than with it disabled) (incorrect
       render reported by Kalles Fraktaler)
     - updated program icon with transparent background and large version
+    - long double off-by-one bug fixed (incorrect render reported by CFJH)
 
 - **kf-2.12.3** (2017-09-25)
 

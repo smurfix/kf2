@@ -1964,6 +1964,7 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 
     if (m_nFractalType == 0 && m_nPower > 10)
     {
+			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
 			m_nPixels[x][y] = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
 		}
 		else
@@ -1973,11 +1974,10 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 			assert(ok && "perturbation_long_double");
 			m_nPixels[x][y] = antal2;
 		}
+		antal = m_nPixels[x][y];
 
 		if (antal == m_nGlitchIter)
 			bGlitch = TRUE;
-		if (m_nPixels[x][y]<m_nMaxIter)
-			m_nPixels[x][y] += 1;
 		if (!bGlitch && m_nSmoothMethod == 1){
 			if (m_nPixels[x][y] == m_nMaxIter)
 				m_nTrans[x][y] = 0;
