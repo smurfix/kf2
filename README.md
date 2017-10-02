@@ -117,6 +117,9 @@ Change Log
       render reported by Kalles Fraktaler)
     - updated program icon with transparent background and large version
     - long double off-by-one bug fixed (incorrect render reported by CFJH)
+    - floatexp implementation bug fixes (0.0 was implemented incorrectly)
+      (caused a series approximation underskipping failure that was reported
+      by Kalles Fraktaler)
 
 - **kf-2.12.3** (2017-09-25)
 

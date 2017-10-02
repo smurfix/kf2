@@ -6,6 +6,9 @@
 #include "CFixedFloat.h"
 
 #define MAX_PREC 1020
+// this has two fewer 0 than you might expect, this is to give headroom for
+// avoiding overflow in + and other functions. it is the exponent for 0.0
+#define EXP_MIN (-0x80000000000000LL)
 
 #define _ALIGN_(val,exp) exp += ((*((int64_t*)&val) & 0x7FF0000000000000LL)>>52) - 1023; *((int64_t*)&val) = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
 class floatexp
@@ -13,7 +16,19 @@ class floatexp
 public:
 	double val;
 	int64_t exp;
-	__inline floatexp &abs()
+	inline void align()
+	{
+		if (val != 0)
+		{
+			_ALIGN_(val,exp)
+		}
+		else
+		{
+			val = 0;
+			exp = EXP_MIN;
+		}
+	}
+	inline floatexp &abs()
 	{
 		if(val<0)
 			val=-val;
@@ -23,14 +38,7 @@ public:
 	{
 		val=a;
 		exp=0;
-		_ALIGN_(val,exp)
-	}
-	inline void align()
-	{
-		exp += ((*((int64_t*)&val) & 0x7FF0000000000000LL)>>52) - 1023;
-//		int64_t tmpval = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFF) | 0x3FF0000000000000;
-//		memcpy(&val,&tmpval,sizeof(double));
-		*((int64_t*)&val) = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
+		align();
 	}
 	inline double setExp(double newval,int64_t newexp) const
 	{
@@ -43,7 +51,7 @@ public:
 	inline floatexp()
 	{
 		val = 0;
-		exp = 0;
+		exp = EXP_MIN;
 	}
 	inline floatexp(double a)
 	{
@@ -53,7 +61,7 @@ public:
 	{
 		val = a;
 		exp = e;
-		_ALIGN_(val,exp)
+		align();
 	}
 	inline floatexp(double a, int64_t e, int dummy)
 	{
@@ -81,7 +89,7 @@ public:
 		floatexp r;
 		r.val = a.val*val;
 		r.exp = a.exp+exp;
-		_ALIGN_(r.val,r.exp)
+		r.align();
 		return r;
 	}
 	inline floatexp operator /(const floatexp &a) const
@@ -89,7 +97,7 @@ public:
 		floatexp r;
 		r.val = val/a.val;
 		r.exp = exp - a.exp;
-		_ALIGN_(r.val,r.exp)
+		r.align();
 		return r;
 	}
 	inline floatexp &mul2()
@@ -126,7 +134,7 @@ public:
 				r.val = a.val+aval;
 			}
 		}
-		_ALIGN_(r.val,r.exp)
+		r.align();
 		return r;
 	}
 	inline floatexp operator -() const
@@ -164,7 +172,7 @@ public:
 				r.val = aval-a.val;
 			}
 		}
-		_ALIGN_(r.val,r.exp)
+		r.align();
 		return r;
 	}
 	inline floatexp &operator -=(const floatexp &a)
@@ -262,13 +270,13 @@ public:
 	inline floatexp &operator /=(double a)
 	{
 		val/=a;
-		_ALIGN_(val,exp)
+		align();
 		return *this;
 	}
 	inline floatexp &operator *=(double a)
 	{
 		val*=a;
-		_ALIGN_(val,exp)
+		align();
 		return *this;
 	}
 
@@ -276,42 +284,31 @@ public:
 	{
 		signed long int e = 0;
 		val = mpf_get_d_2exp(&e, a.m_f.backend().data());
-		if ((mpf_sgn(a.m_f.backend().data()) >= 0) != (val >= 0))
-			val = -val;
+		if ((mpf_sgn(a.m_f.backend().data()) >= 0) != (val >= 0)) val = -val; // workaround GMP bug
 		exp = e;
-		_ALIGN_(val, exp);
-		if ((a > 0) != (val > 0))
-			val = -val;
+		align();
 		return *this;
 	}
 	inline void ToFixedFloat(CFixedFloat &a) const
 	{
 		a = val;
-		mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
+		if (exp >= 0)
+			mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
+		else
+			mpf_div_2exp(a.m_f.backend().data(), a.m_f.backend().data(), -exp);
 	}
 
 	inline floatexp setLongDouble(long double a)
 	{
-		int64_t val[2]={0};
-		memcpy(val,(void*)&a,sizeof(val));
-		exp = (val[1]&0x7FFF)-16383;
-		val[1] = (val[1]&0x8000) + 16383;
-		if(val[0] && val[1]){
-			memcpy((void*)&a,val,sizeof(val));
-			this->val = (double)a;
-		}
-		else{
-			this->val=1;
-			exp=-16383;
-		}
+		int e = 0;
+		val = std::frexp(a, &e);
+		exp = e;
+		align();
 		return *this;
 	}
 	inline long double toLongDouble() const
 	{
-		long double ret = val;
-		int64_t *v = (int64_t*)&ret;
-		v[1] = (v[1]&0x8000) | (exp + 16383);
-		return ret;
+		return std::ldexp((long double) val, exp);
 	}
 
 };
@@ -341,7 +338,6 @@ inline floatexp sqrt(floatexp a)
 
 inline floatexp mpf_get_fe(const mpf_t value)
 {
-	using std::ldexp;
 	signed long int e = 0;
 	double l = mpf_get_d_2exp(&e, value);
 	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
