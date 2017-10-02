@@ -951,7 +951,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		if (y >= m_rApprox.bottom) y = m_rApprox.bottom - 1;
 		for (i = 0; i < nProbeX; ++i)
 		{
-			int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeY - 1);
+			int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeX - 1);
 			if (x < m_rApprox.left) x = m_rApprox.left;
 			if (x >= m_rApprox.right) x = m_rApprox.right - 1;
 			p[k].x = x;
