@@ -3927,7 +3927,6 @@ BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 }
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNP, BOOL bNoGlitchDetection, BOOL bResuming)
 {
-std::cout << "AddReference(x = "<<nXPos<<", y = " << nYPos << ", erase = " << bEraseAll << ", near = " << bNP << ", nodetect = " << bNoGlitchDetection << ", resume = " << bResuming << ")" << std::endl;
 g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
 	if (!m_nPixels || (m_nZoom<g_nRefZero && !bEraseAll))
