@@ -3701,7 +3701,8 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	}
 	return TRUE;
 }
-BOOL CFraktalSFT::SaveFile(char *szFile)
+
+std::string CFraktalSFT::ToText()
 {
 	CStringTable stSave;
 	stSave.AddRow();
@@ -3712,7 +3713,7 @@ BOOL CFraktalSFT::SaveFile(char *szFile)
 	stSave.AddString(stSave.GetCount() - 1, GetIm());
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Zoom");
-	stSave.AddString(stSave.GetCount() - 1, GetZoom());
+	stSave.AddString(stSave.GetCount() - 1, ToZoom());
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Iterations");
 	stSave.AddInt(stSave.GetCount() - 1, m_nMaxIter);
@@ -3835,17 +3836,25 @@ BOOL CFraktalSFT::SaveFile(char *szFile)
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "FactorAI");
 	stSave.AddString(stSave.GetCount() - 1, szTmp);
+	char *szData = stSave.ToText(": ", "\r\n");
+	std::string ret(szData);
+	stSave.DeleteToText(szData);
+	return ret;
+}
 
+BOOL CFraktalSFT::SaveFile(char *szFile)
+{
+	std::string szText(ToText());
+	const char *szData = szText.c_str();
 	DWORD dw;
 	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return FALSE;
-	char *szData = stSave.ToText(": ", "\r\n");
 	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
-	stSave.DeleteToText(szData);
 	CloseHandle(hFile);
 	return TRUE;
 }
+
 double CFraktalSFT::GetIterDiv()
 {
 	return m_nIterDiv;
@@ -3856,16 +3865,17 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-int SaveImage(char *szFileName, HBITMAP bmBmp, int nQuality);
+int SaveImage(char *szFileName, HBITMAP bmBmp, int nQuality, const char *comment);
 
 int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 {
+	std::string comment(ToText());
 	if (nWidth == 0)
 		nWidth = m_nX;
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveImage(szFile, m_bmBmp, nQuality);
+		return ::SaveImage(szFile, m_bmBmp, nQuality, comment.c_str());
 	else{
 		HDC hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
@@ -3879,7 +3889,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 		SelectObject(dcSave, bmOldSave);
 		DeleteDC(dcBmp);
 		DeleteDC(dcSave);
-		int nRet = ::SaveImage(szFile, bmSave, nQuality);
+		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment.c_str());
 		DeleteObject(bmSave);
 		ReleaseDC(NULL, hDC);
 		return nRet;

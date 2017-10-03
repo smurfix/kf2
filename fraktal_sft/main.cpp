@@ -144,8 +144,8 @@ CStringTable g_stExamine;
 int g_nExamine=-1;
 int g_nExamineZoom=-1;
 BOOL g_bExamineDirty=FALSE;
-int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality);
-int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors);
+int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment);
+int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment);
 void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
 	// TODO add support for strict aliasing optimisations, "restrict" etc
@@ -163,7 +163,7 @@ void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int 
 			}
 	}
 }
-int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
+int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality, const char *comment)
 {
 	int row;
 	BYTE *lpBits, *lpJeg;
@@ -183,9 +183,9 @@ int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
 	bmp2rgb(lpJeg, lpBits, bmi.biHeight, bmi.biWidth, row, bmi.biSizeImage);
 	int nRet;
 	if (nQuality < 0)
-		nRet = SavePNG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3);
+		nRet = SavePNG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else
-		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality);
+		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality,comment);
 	delete [] lpJeg;
 	delete [] lpBits;
 	ReleaseDC(NULL,hDC);
@@ -2885,7 +2885,7 @@ double g_length=0;
 double g_degree=0;
 HBITMAP g_bmSaveZoomBuff=NULL;
 SIZE g_scSaveZoomBuff;
-void SaveZoomImg(char *szFile)
+void SaveZoomImg(char *szFile, char *comment)
 {
 	HBITMAP bmSave;
 	HDC hDC = GetDC(NULL);
@@ -2934,7 +2934,7 @@ void SaveZoomImg(char *szFile)
 	ReleaseDC(NULL,hDC);
 	g_bmSaveZoomBuff = bmTmp;
 	bmSave = ShrinkBitmap2(bmTmp,bm.bmWidth,bm.bmHeight);
-	SaveImage(szFile,bmSave,100);
+	SaveImage(szFile,bmSave,100,comment);
 	//SaveJpg(szFile,bmTmp,99);
 	DeleteObject(bmSave);
 	g_scSaveZoomBuff.cx = scNextZoom.cx;
@@ -3036,7 +3036,7 @@ nPos=13;
 				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).jpg",g_bStoreZoom,g_SeedR,g_SeedI);
 #endif
 				if(g_nZoomSize<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(g_szFile);
+					SaveZoomImg(g_szFile, "KF2");
 				else
 					g_SFT.SaveJpg(g_szFile,100);
 			}
@@ -3046,7 +3046,7 @@ nPos=13;
 				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).png",g_bStoreZoom,g_SeedR,g_SeedI);
 #endif
 				if(g_nZoomSize<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(g_szFile);
+					SaveZoomImg(g_szFile, "KF2");
 				else
 					g_SFT.SaveJpg(g_szFile,-1);
 			}

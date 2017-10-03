@@ -17,7 +17,7 @@ static void save_png_warning_handler(png_structp png, png_const_charp msg)
 	fprintf(stderr, "PNG WARNING: %s\n", msg);
 }
 
-int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors)
+int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment)
 {
 	jmp_buf jmpbuf;
 	if (nColors != 3)
@@ -45,14 +45,11 @@ int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors)
 	png_time mtime;
 	png_convert_from_time_t(&mtime, time(0));
 	png_set_tIME(png, info, &mtime);
-/*
-	// FIXME save .kfr text inside image file
 	png_text text;
 	text.compression = PNG_TEXT_COMPRESSION_NONE;
-	text.key = "Description";
-	text.text = "...";
+	text.key = "Comment";
+	text.text = (char *) comment;
 	png_set_text(png, info, &text, 1);
-*/
 	png_write_info(png, info);
 	png_bytepp row = new png_bytep[nHeight];
 	for (int y = 0; y < nHeight; ++y)

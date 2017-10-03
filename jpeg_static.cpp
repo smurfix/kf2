@@ -1,5 +1,6 @@
 #include <assert.h>
 #include <stdio.h>
+#include <string.h>
 #define HAVE_PROTOTYPES
 extern "C"
 {
@@ -166,7 +167,7 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 }
 
 
-int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality)
+int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment)
 {
   assert(nColors == 3);
   struct jpeg_compress_struct cinfo;
@@ -190,6 +191,14 @@ int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, nQuality, TRUE /* limit to baseline-JPEG values */);
   jpeg_start_compress(&cinfo, TRUE);
+  size_t comment_length = strlen(comment);
+  if (comment_length > 65533)
+  {
+    // FIXME: JPEG comment is truncated by file format limitations
+    fprintf(stderr, "JPEG WARNING: comment truncated\n");
+    comment_length = 65533;
+  }
+  jpeg_write_marker(&cinfo, JPEG_COM, (const unsigned char *) comment, comment_length);
   row_stride = nWidth * 3;	/* JSAMPLEs per row in image_buffer */
   while (cinfo.next_scanline < cinfo.image_height) {
     row_pointer[0] = (unsigned char*)& Data[cinfo.next_scanline * row_stride];

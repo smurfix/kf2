@@ -103,6 +103,7 @@ Differences From Upstream 2.11.1
 - "glitch low tolerance" checkbox that can be enabled to detect glitches more
   aggressively (disabled by default, enable it if you get undetected glitches)
 - updated program icon with transparent background and large version
+- parameter data is saved as comment in image files (both PNG and JPEG)
 
 
 Change Log
@@ -137,6 +138,7 @@ Change Log
     - compile as C++17
     - delete bitrotten code paths for SetEvent()-based multithreading
     - delete unused thread affinity setting code
+    - parameter data is saved as comment in image files (both PNG and JPEG)
 
 - **kf-2.12.3** (2017-09-25)
 

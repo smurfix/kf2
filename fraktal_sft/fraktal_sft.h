@@ -358,6 +358,7 @@ public:
 	COLOR14 GetColor(int i);
 	BOOL OpenFile(char *szFile, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(char *szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
+	std::string ToText();
 	BOOL SaveFile(char *szFile);
 	double GetIterDiv();
 	void SetIterDiv(double nIterDiv);
