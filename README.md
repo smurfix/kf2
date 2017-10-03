@@ -113,7 +113,8 @@ Change Log
       more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
       correctly, but taking 16x longer than with it disabled) (incorrect
       render reported by Kalles Fraktaler)
-    - updated program icon with transparent background and large version
+    - updated program icon with transparent background and large version,
+      and use it for child windows too
     - long double off-by-one bug fixed (incorrect render reported by CFJH)
     - floatexp implementation bug fixes (0.0 was implemented incorrectly)
       (caused a series approximation underskipping failure that was reported

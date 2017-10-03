@@ -55,6 +55,7 @@ HWND g_hwNewton=NULL;
 BOOL g_bResizing=FALSE;
 BOOL g_bTrackSelect=FALSE;
 POINT g_pTrackStart;
+HICON g_hIcon;
 
 int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
@@ -491,6 +492,8 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG || uMsg==WM_TIMER){
 		if(uMsg==WM_INITDIALOG){
+			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
 			SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetIterations(),FALSE);
 			SetTimer(hWnd,0,1000,NULL);
@@ -762,7 +765,11 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SaveFile(g_szTmpFile);
 	}
 	if(uMsg==WM_INITDIALOG)
+	{
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,0);
+	}
 	if(uMsg==WM_INITDIALOG || uMsg==WM_USER+99 || (uMsg==WM_SHOWWINDOW && wParam) || (uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7))){
 		char szTexture[256];
 		double nRatio, nPower;
@@ -1743,6 +1750,8 @@ int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	(void) wParam;
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		SetTimer(hWnd,1,50,NULL);
 
 		HWND hwPrev = GetDlgItem(hWnd,IDC_PREV);
@@ -1809,6 +1818,8 @@ int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,2);
 		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
 		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,0,0);
@@ -2042,6 +2053,8 @@ struct JPEG_PARAMS
 int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_JpegParams.nWidth,0);
 		SetDlgItemInt(hWnd,IDC_EDIT3,g_JpegParams.nHeight,0);
 		if(lParam){
@@ -2211,6 +2224,8 @@ int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,4);
 		g_nPrevAutoGlitchNP=g_bAutoGlitchNP;
 		g_bAutoGlitchNP=FALSE;
@@ -3194,6 +3209,8 @@ int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		SetDlgItemText(hWnd,IDC_LABEL,"Zoom size(float value)");
 		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		return 1;
@@ -3212,6 +3229,8 @@ int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
 int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		if(lParam){
 			char *szTitle = (char*)lParam;
 			SetWindowText(hWnd,szTitle);
@@ -3453,6 +3472,8 @@ double g_nTestRatio;
 int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,3);
 		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(10000,1));
@@ -3776,6 +3797,8 @@ int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		SetDlgItemText(hWnd,IDC_EDIT1,"400");
 		SetDlgItemText(hWnd,IDC_EDIT3,"100");
 		SetDlgItemText(hWnd,IDC_EDIT4,"0");
@@ -3803,6 +3826,8 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
   {
     case WM_INITDIALOG:
 		{
+			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
 
 			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) "(none)");
@@ -5799,6 +5824,7 @@ int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 	wc.lpfnWndProc = (WNDPROC)MainProc;
 	wc.hCursor = LoadCursor(NULL,IDC_CROSS);
 	wc.hIcon = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON1));
+	g_hIcon = wc.hIcon;
 	RegisterClass(&wc);
 	HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,200,200,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 	ShowWindow(hWnd,SW_SHOW);
