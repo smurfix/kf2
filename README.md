@@ -275,6 +275,7 @@ TODO
 - user interface: undo history for location data (suggested by TwinDragon)
 - user interface: undo history for calculation data (suggested by TwinDragon)
 - user interface: online help within program (suggested by TwinDragon)
+- user interface: load parameters from image file comments (PNG and JPEG)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
