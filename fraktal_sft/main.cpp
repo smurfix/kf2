@@ -4913,7 +4913,10 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_CENTERCURSOR) || (uMsg==WM_KEYDOWN && wParam=='U' && HIWORD(GetKeyState(VK_CONTROL)))){
 		POINT p;
-		if(g_SFT.Center((int&)p.x, (int&)p.y)){
+		int p_x, p_y;
+		if(g_SFT.Center(p_x, p_y)){
+			p.x = p_x;
+			p.y = p_y;
 			RECT rc;
 			GetClientRect(hWnd,&rc);
 			RECT sr;
@@ -4978,7 +4981,10 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
 		POINT p;
-		if(g_SFT.HighestIteration((int&)p.x, (int&)p.y)){
+		int p_x, p_y;
+		if(g_SFT.HighestIteration(p_x, p_y)){
+			p.x = p_x;
+			p.y = p_y;
 			RECT rc;
 			GetClientRect(hWnd,&rc);
 			RECT sr;
@@ -5013,7 +5019,8 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDCENTEROFGLITCH){
 		POINT p;
-		if(g_SFT.FindCenterOfGlitch((int&)p.x, (int&)p.y,g_bAutoGlitchNP)){ // FIMXE is this safe?
+		int p_x, p_y;
+		if(g_SFT.FindCenterOfGlitch(p_x, p_y, g_bAutoGlitchNP)){
 			RECT rc;
 			GetClientRect(hWnd,&rc);
 			RECT sr;
