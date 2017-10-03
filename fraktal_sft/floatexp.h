@@ -10,7 +10,6 @@
 // avoiding overflow in + and other functions. it is the exponent for 0.0
 #define EXP_MIN (-0x80000000000000LL)
 
-#define _ALIGN_(val,exp) exp += ((*((int64_t*)&val) & 0x7FF0000000000000LL)>>52) - 1023; *((int64_t*)&val) = (*((int64_t*)&val) & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
 class floatexp
 {
 public:
@@ -20,7 +19,11 @@ public:
 	{
 		if (val != 0)
 		{
-			_ALIGN_(val,exp)
+			union { double d; int64_t i; } u;
+			u.d = val;
+			exp += ((u.i & 0x7FF0000000000000LL) >> 52) - 1023;
+			u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
+			val = u.d;
 		}
 		else
 		{
@@ -45,7 +48,10 @@ public:
 //		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
 //		memcpy(&newval,&tmpval,sizeof(double));
 //		return newval;
-		*((int64_t*)&newval) = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFFLL) | ((newexp+1023)<<52);
+		union { double d; int64_t i; } u;
+		u.d = newval;
+		u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | ((newexp + 1023) << 52);
+		newval = u.d;
 		return newval;
 	}
 	inline floatexp()
@@ -250,17 +256,17 @@ public:
 		floatexp ret = *this;
 		while(nScaling>9){
 			ret.val*=1e10;
-			_ALIGN_(ret.val,ret.exp)
+			ret.align();
 			nScaling-=10;
 		}
 		while(nScaling>2){
 			ret.val*=1e3;
-			_ALIGN_(ret.val,ret.exp)
+			ret.align();
 			nScaling-=3;
 		}
 		while(nScaling){
 			ret.val*=1e1;
-			_ALIGN_(ret.val,ret.exp)
+			ret.align();
 			nScaling--;
 		}
 		if(ret.exp<-MAX_PREC || ret.exp>MAX_PREC)
