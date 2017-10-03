@@ -47,6 +47,7 @@ Known Bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
+- help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
   (out of date instructions for Windows)
