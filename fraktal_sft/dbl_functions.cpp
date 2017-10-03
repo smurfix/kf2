@@ -223,7 +223,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	double test1 = 0;
 	double test2 = 0;
 
-	double abs_val = 0;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;

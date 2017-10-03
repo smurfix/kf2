@@ -132,6 +132,7 @@ Change Log
     - build against an installed libjpeg instead of each time after clean
     - fix broken complex formula reference calculations
     - fix strict aliasing warnings in floatexp implementation and elsewhere
+    - fix unused variable warnings
 
 - **kf-2.12.3** (2017-09-25)
 

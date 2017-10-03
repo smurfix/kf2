@@ -164,7 +164,7 @@ void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int 
 }
 int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
 {
-	int row, height, nXStart, nYStart;
+	int row, height;
 	BYTE *lpBits, *lpJeg;
 	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 	HDC hDC = GetDC(NULL);
@@ -503,7 +503,7 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			SIZE sc;
 			HDC hDC = GetDC(NULL);
-			HFONT hfOld = (HFONT)SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
+			SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
 			int i, nMaxWidth=0;
 			for(i=0;i<SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCOUNT,0,0);i++){
 				int n = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETLBTEXTLEN,i,0);
@@ -993,7 +993,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==IDOK){
 			char szTexture[256];
-			double nMerge, nPower;
+			double nPower;
 			int nRatio;
 			GetDlgItemText(hWnd,IDC_EDIT29,szTexture,sizeof(szTexture));
 			BOOL bTexture = SendDlgItemMessage(hWnd,IDC_CHECK8,BM_GETCHECK,0,0);
@@ -2189,7 +2189,6 @@ int WINAPI ThAnim_(ANIM *pAnim)
 }
 int WINAPI ThAnim(ANIM *pAnim)
 {
-	int nPos=0;
 //#ifndef _DEBUG
 	try{
 //#endif
@@ -2614,7 +2613,6 @@ double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
 	bmi.biBitCount = 24;
 	int row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
-	int height = bmi.biHeight*3;
 	bmi.biSizeImage=row*bmi.biHeight;
 	BYTE *lpBits1 = new BYTE[bmi.biSizeImage];
 	BYTE *lpBits2 = new BYTE[bmi.biSizeImage];
@@ -3230,7 +3228,6 @@ void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 {
 	HDC hDC = GetDC(NULL);
 	BYTE *lpBits=NULL;
-	int nBits=0;
 	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 	int row;
 	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
@@ -3290,7 +3287,6 @@ void RotateImage(HBITMAP bmBkg,HBITMAP bmBkgDraw,POINT pm,double nDegree)
 	double c = cos(nDegree);
 	HDC hDC = GetDC(NULL);
 	BYTE *lpBits=NULL;
-	int nBits=0;
 	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 	int row;
 	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
@@ -3580,7 +3576,9 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_TIMER){
 		SkewProc(hWnd,WM_COMMAND,0,0);
 		double nTestDegree = g_nTestDegree;
+#ifdef _TEST_RATIO
 		double nTestRatio = g_nTestRatio;
+#endif
 		double nSkewStretch = GetDlgItemFloat(hWnd,IDC_EDIT1);
 		double nSkewRotate = GetDlgItemFloat(hWnd,IDC_EDIT2);
 		double nTestStretch = nSkewStretch;
@@ -3589,9 +3587,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		double nBestRotate = nSkewRotate;
 		double nStretchOffs = nTestStretch/40;
 		double nRotateOffs = .2; 
-		double nBestDegree=0;
 		int bSet=0;
-		int nBestScore=0;
 		if(nStretchOffs==0)
 			nStretchOffs=1;
 		BOOL bSetValue=0;
@@ -3904,7 +3900,6 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_bAutoGlitch?MF_CHECKED:MF_UNCHECKED));
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(g_bAutoIterations?MF_CHECKED:MF_UNCHECKED));
 
-		char szTmp[10];
 		g_nAnimateZoom = GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini");
 		g_bArbitrarySize = GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini");
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ANIMATEZOOM,MF_BYCOMMAND|(g_nAnimateZoom?MF_CHECKED:MF_UNCHECKED));
@@ -4048,7 +4043,6 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(g_bTrackSelect==1){
 			HDC hDC = GetDC(hWnd);
 			SetROP2(hDC,R2_NOT);
-			POINT pStart;
 			MoveToEx(hDC,g_pTrackStart.x,g_pTrackStart.y,NULL);
 			POINT pOffs;
 			pOffs.x = g_pSelect.x - g_pTrackStart.x;
@@ -4299,7 +4293,6 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		ReleaseCapture();
 		HDC hDC = GetDC(hWnd);
 		SetROP2(hDC,R2_NOT);
-		POINT pStart;
 		MoveToEx(hDC,g_pTrackStart.x,g_pTrackStart.y,NULL);
 		LineTo(hDC,g_pSelect.x,g_pTrackStart.y);
 		LineTo(hDC,g_pSelect.x,g_pSelect.y);
@@ -5745,7 +5738,6 @@ int Test()
 	int i;
 	for(i=0;i<3000;i++)
 		tmp[i] = i;
-	double d = tmp[23];
 	for(i=0;i<3000;i++)
 		if(tmp[i]!=i)
 			break;

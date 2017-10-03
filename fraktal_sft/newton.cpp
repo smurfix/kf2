@@ -440,7 +440,6 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
-  char szStatus[256];
   int i;
 
 #ifdef KF_THREADED_REFERENCE_EVENT
@@ -515,6 +514,7 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 		  uint32_t now = GetTickCount();
 		  if (now - last > 250)
 		  {
+		    char szStatus[256];
 		    wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",newtonStep,i*100/period,g_szProgress);
 		    SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		    last = now;
@@ -616,7 +616,6 @@ extern int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int pe
   complex<flyttyp> c = c_guess;
 
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-  int nNextlog=1;
   for (i = 0; i < maxsteps && !g_bNewtonStop && !g_bNewtonExit; ++i) {
     if (1 != (result = m_d_nucleus_step(&c, c, period,epsilon2,hWnd,i)))
       break;

@@ -1309,7 +1309,6 @@ void CFraktalSFT::CalculateReference()
 	m_db_z = new double [m_nMaxIter];
 
 	CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
-	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 
 	if (m_nInflections)
@@ -1498,7 +1497,7 @@ double lb_abs_db(double c, double d)
 void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 {
 	m_bIterChanged = TRUE;
-	double Dnr, Dni, yr, yi, _abs_val;
+	double Dnr, Dni, yr, yi;
 	int antal, x, y;
 	int nPStep, nStepSize;
 
@@ -3123,7 +3122,6 @@ char *CFraktalSFT::GetRe(int nXPos, int nYPos, int width, int height)
 	double ratio = (((double)height/(double)width)/(360.0/640.0)) * ((double)360 / (double)m_scRatio.cy);
 	double xpos = (nXPos - mr)*ratio + mr;
 	double dbD0r = mr + m_C*(xpos - mr) + m_S*(nYPos - mi);
-	double dbD0i = mi - m_S*(xpos - mr) + m_C*(nYPos - mi);
 	dbD0r = (dbD0r - mr) / ratio + mr;
 
 	CFixedFloat re = m_rstart + ((double)dbD0r/(double)width)*(m_rstop - m_rstart);
@@ -3985,7 +3983,6 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 			m_nPixels[x][y] = -1;
 	}
 */	else if (!bResuming){
-		int t = SMOOTH_TOLERANCE*m_nTrans[nXPos][nYPos];
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
 #if 0
@@ -4005,7 +4002,6 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		}
 	}
 
-	BOOL bPrevReuseRef = m_bReuseRef;
 	m_bAddReference = TRUE;
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, FALSE, FALSE);
 	return TRUE;

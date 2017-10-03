@@ -210,7 +210,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double test1 = 0;
 	double test2 = 0;
 
-	double abs_val;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
