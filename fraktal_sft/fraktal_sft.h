@@ -61,20 +61,7 @@ struct COLOR14 { unsigned char r, g, b; };
 // this sets the maximum number of references per image
 #define OLD_GLITCH 10000
 
-#ifdef KF_LONG_DOUBLE_DLL
-struct ldbl {
-	unsigned char val[
-#ifdef _WIN64
-		16
-#else
-		12
-#endif
-	];
-};
-#else
 typedef long double ldbl;
-#endif
-
 
 struct ldblexp {
 	ldbl val;
