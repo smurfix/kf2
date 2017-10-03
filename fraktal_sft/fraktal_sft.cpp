@@ -1445,7 +1445,7 @@ void CFraktalSFT::SetMirror(BOOL bMirror)
 
 #define GET_EXP(val) ((*((__int64*)&val) & 0x7FF0000000000000)>>52)
 
-#define GUESS
+#undef GUESS
 //#define HARD_GUESS_EXP
 //60 2.5
 /*

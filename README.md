@@ -47,8 +47,6 @@ Known Bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
-- occasional randomly bright single pixels: possible race condition in
-  rendering completion testing meaning some pixels are not rendered?
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
   (out of date instructions for Windows)
@@ -129,6 +127,8 @@ Change Log
       Pauldelbrot) (prevents loop in auto solve glitches whereby a reference
       was repeatedly being added at the same location without progress being
       made)
+    - disable "guessing" (was causing occasional randomly bright single pixels
+      at low zoom levels, possibly a race condition?)
 
 - **kf-2.12.3** (2017-09-25)
 

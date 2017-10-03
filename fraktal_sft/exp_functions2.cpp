@@ -4,7 +4,7 @@
 
 #include "../formula/formula.h"
 
-#define GUESS
+#undef GUESS
 
 BOOL ISFLOATOK(double a);
 extern double g_real;
