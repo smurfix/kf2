@@ -286,7 +286,7 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 				for (q = 0; q<nE; q++){
 					int tx = x + q%nStepSize;
 					int ty = y + q / nStepSize;
-					if (tx<m_nX - 1 && ty<m_nY - 1 && m_nPixels[tx][ty] == -1){
+					if (tx<m_nX && ty<m_nY && m_nPixels[tx][ty] == -1){
 						int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
 						m_lpBits[nIndex1] = m_lpBits[nIndex];
 						m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
