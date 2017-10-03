@@ -103,6 +103,7 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpf_set(X.m_r.m_f.backend().data(), Xr);
         mpf_set(X.m_i.m_f.backend().data(), Xi);
@@ -111,7 +112,7 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
         }
         mpf_set(Xrn, Xn.m_r.m_f.backend().data());
         mpf_set(Xin, Xn.m_i.m_f.backend().data());
-      }
+LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rr   {
@@ -219,6 +220,7 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpf_set(X.m_r.m_f.backend().data(), Xr);
         mpf_set(X.m_i.m_f.backend().data(), Xi);
@@ -227,7 +229,7 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
         }
         mpf_set(Xrn, Xn.m_r.m_f.backend().data());
         mpf_set(Xin, Xn.m_i.m_f.backend().data());
-      }
+LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rr   {
@@ -335,6 +337,7 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpf_set(X.m_r.m_f.backend().data(), Xr);
         mpf_set(X.m_i.m_f.backend().data(), Xi);
@@ -343,7 +346,7 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
         }
         mpf_set(Xrn, Xn.m_r.m_f.backend().data());
         mpf_set(Xin, Xn.m_i.m_f.backend().data());
-      }
+LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rr   {
