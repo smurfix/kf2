@@ -127,7 +127,7 @@ Change Log
       Pauldelbrot) (prevents loop in auto solve glitches whereby a reference
       was repeatedly being added at the same location without progress being
       made)
-    - disable "guessing" (was causing occasional randomly bright single pixels
+    - disabled "guessing" (was causing occasional randomly bright single pixels
       at low zoom levels, possibly a race condition?)
 
 - **kf-2.12.3** (2017-09-25)
