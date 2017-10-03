@@ -132,6 +132,7 @@ Change Log
     - build against an installed libjpeg instead of each time after clean
     - fix broken complex formula reference calculations
     - fix compilation warnings (now almost clean with -Wall -Wextra)
+    - compile as C++17
 
 - **kf-2.12.3** (2017-09-25)
 
