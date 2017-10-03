@@ -175,6 +175,7 @@ HBITMAP GetImage(char *szFile)
 
 HBITMAP GetImageFromResource(char *szResourceType, char *szResourceName,HINSTANCE hInstance)
 {
+	(void) hInstance;
 	HGLOBAL hGlobal;
 	HRSRC hResource;
 	if(!(hResource=FindResourceA(GetModuleHandle(NULL),szResourceName,szResourceType)))

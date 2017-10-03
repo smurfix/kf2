@@ -47,6 +47,7 @@ static inline flyttyp cabs2(complex<flyttyp> z) {
   return z.m_r * z.m_r + z.m_i * z.m_i;
 }
 static inline bool isfinite(flyttyp a){
+	(void) a;
 	return true;
 /*	if (a <= DBL_MAX && a >= -DBL_MAX)
 		return true;

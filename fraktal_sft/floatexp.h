@@ -71,6 +71,7 @@ public:
 	}
 	inline floatexp(double a, int64_t e, int dummy)
 	{
+		(void) dummy;
 		val = a;
 		exp = e;
 	}

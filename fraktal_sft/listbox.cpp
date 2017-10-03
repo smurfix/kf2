@@ -229,6 +229,7 @@ void CListBox::ClearList()
 }
 int CListBox::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) hWnd;
 	if(uMsg==WM_DRAWITEM && wParam==(UINT)GetDlgCtrlID(m_hwList)){
 		DrawItem((LPDRAWITEMSTRUCT)lParam);
 		if(!m_bShowSelection)
@@ -251,6 +252,7 @@ CListBoxEdit::CListBoxEdit(HWND hwAdd, HWND hwUpdate, HWND hwRemove, HWND hwEdit
 }
 int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) hWnd;
 	if(uMsg==WM_COMMAND){
 		if(lParam==(LPARAM)m_hwAdd){
 			int nLen = GetWindowTextLength(m_hwEdit);

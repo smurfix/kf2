@@ -12,6 +12,7 @@ static void save_png_error_handler(png_structp png, png_const_charp msg)
 
 static void save_png_warning_handler(png_structp png, png_const_charp msg)
 {
+	(void) png;
 	// FIXME make this display in the GUI or something
 	fprintf(stderr, "PNG WARNING: %s\n", msg);
 }

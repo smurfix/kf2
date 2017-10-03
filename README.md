@@ -131,7 +131,7 @@ Change Log
       at low zoom levels, possibly a race condition?)
     - build against an installed libjpeg instead of each time after clean
     - fix broken complex formula reference calculations
-    - fix compilation warnings (now clean with -Wall -Wno-write-strings)
+    - fix compilation warnings (now almost clean with -Wall -Wextra)
 
 - **kf-2.12.3** (2017-09-25)
 

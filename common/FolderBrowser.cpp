@@ -67,6 +67,7 @@ int WINAPI lpfnEdit(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 int WINAPI lpfnCallBack(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	(void) lParam;
 	HWND hEdit;
 
 	if(uMsg==BFFM_INITIALIZED){
@@ -115,6 +116,7 @@ long WINAPI FilterProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 }
 int WINAPI lpfnCallBack2(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	(void) lParam;
 	HWND hEdit;
 
 	if(uMsg==BFFM_INITIALIZED){
@@ -220,6 +222,7 @@ int *g_pnExtraValue1;
 char *g_szExtraName1;
 UINT WINAPI HookProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) wParam;
 	RECT rWnd;
 	HWND hwTmp;
 	LPOFNOTIFY lpon;
@@ -313,6 +316,7 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 
 UINT WINAPI HookProc2(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) wParam;
 	RECT rWnd;
 	HWND hwTmp;
 	LPOFNOTIFY lpon;
@@ -395,6 +399,7 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 
 UINT WINAPI HookProc4(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) wParam;
 	RECT rWnd;
 	HWND hwTmp;
 	LPOFNOTIFY lpon;
@@ -485,6 +490,7 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 CStringVektor *g_psvExtraList=NULL;
 UINT WINAPI HookProc3(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) wParam;
 	RECT rWnd;
 	HWND hwTmp;
 	LPOFNOTIFY lpon;

@@ -36,7 +36,7 @@ floatexp lb_abs_exp(const floatexp &c, const floatexp &d)
 	return abs_val;
 }
 
-void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
+void CFraktalSFT::MandelCalcEXP()
 {
 	m_bIterChanged = TRUE;
 	floatexp Dnr, Dni, yr, yi;

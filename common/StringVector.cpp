@@ -206,7 +206,7 @@ void *realloc_stringtable(void *p,size_t n)
 	while(!pp){
 		if(p){
 			size_t a = *((int*)((char*)p-sizeof(int)));
-			if(a>100000000 || a<0)
+			if(a>100000000)
 				Beep(1000,10);
 
 			char *TEST = (char*)p;

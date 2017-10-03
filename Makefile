@@ -3,7 +3,7 @@
 SYSTEM ?= 64
 include $(SYSTEM).mk
 
-FLAGS := -Wall -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
+FLAGS := -Wall -Wextra -Wno-write-strings -Wno-missing-field-initializers -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math

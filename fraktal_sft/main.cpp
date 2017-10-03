@@ -488,6 +488,7 @@ char * GetToolText(int nID,LPARAM lParam)
 
 int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) lParam;
 	if(uMsg==WM_INITDIALOG || uMsg==WM_TIMER){
 		if(uMsg==WM_INITDIALOG){
 			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
@@ -1739,6 +1740,8 @@ char *Trim(char *sz,int nLen=-1)
 }
 int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) wParam;
+	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		SetTimer(hWnd,1,50,NULL);
 
@@ -1804,6 +1807,7 @@ void FixNumber(char *sz)
 }
 int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,2);
 		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
@@ -2205,6 +2209,7 @@ BOOL g_bAutoSolveGlitch=FALSE;
 int g_nAutoSolveGlitchLimit=10;
 int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,4);
 		g_nPrevAutoGlitchNP=g_bAutoGlitchNP;
@@ -2572,7 +2577,7 @@ int ResumeZoomSequence(HWND hWnd)
 	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
-		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,FALSE,TRUE);
+		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE);
 	}
 	else
 	{
@@ -2954,7 +2959,7 @@ nPos=3;
 nPos=4;
 			int x, y;
 
-			if(g_SFT.FindCenterOfGlitch(x, y,g_bAutoGlitchNP)){
+			if(g_SFT.FindCenterOfGlitch(x, y)){
 nPos=5;
 				if(g_nPrevGlitchX!=x || g_nPrevGlitchY!=y){
 nPos=6;
@@ -3769,6 +3774,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 }
 int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		SetDlgItemText(hWnd,IDC_EDIT1,"400");
 		SetDlgItemText(hWnd,IDC_EDIT3,"100");
@@ -5003,7 +5009,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDCENTEROFGLITCH){
 		POINT p;
 		int p_x, p_y;
-		if(g_SFT.FindCenterOfGlitch(p_x, p_y, g_bAutoGlitchNP)){
+		if(g_SFT.FindCenterOfGlitch(p_x, p_y)){
 			RECT rc;
 			GetClientRect(hWnd,&rc);
 			RECT sr;

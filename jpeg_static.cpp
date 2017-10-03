@@ -1,3 +1,4 @@
+#include <assert.h>
 #include <stdio.h>
 #define HAVE_PROTOTYPES
 extern "C"
@@ -7,6 +8,10 @@ extern "C"
 #include <setjmp.h>
 #include <memory.h>
 #include <malloc.h>
+
+#if defined(__GNUC__) && !defined(__clang__)
+#pragma GCC diagnostic ignored "-Wclobbered"
+#endif
 
 struct my_error_mgr {
   struct jpeg_error_mgr pub;	/* "public" fields */
@@ -163,6 +168,7 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 
 int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality)
 {
+  assert(nColors == 3);
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
 

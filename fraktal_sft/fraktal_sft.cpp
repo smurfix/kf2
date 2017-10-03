@@ -1399,7 +1399,7 @@ int ThMandelCalc(TH_PARAMS *pMan)
 #ifndef _DEBUG
 	try{
 #endif
-		pMan->p->MandelCalc(pMan->nXStart, pMan->nXStop);
+		pMan->p->MandelCalc();
 #ifndef _DEBUG
 	}
 	catch (...) {
@@ -1411,12 +1411,12 @@ MessageBox(GetActiveWindow(),"Krash - 1","Krash",MB_OK);
 }
 int ThMandelCalcEXP(TH_PARAMS *pMan)
 {
-	pMan->p->MandelCalcEXP(pMan->nXStart, pMan->nXStop);
+	pMan->p->MandelCalcEXP();
 	return 0;
 }
 int ThMandelCalcLDBL(TH_PARAMS *pMan)
 {
-	pMan->p->MandelCalcLDBL(pMan->nXStart, pMan->nXStop);
+	pMan->p->MandelCalcLDBL();
 	return 0;
 }
 void CFraktalSFT::Mirror(int x, int y)
@@ -1494,7 +1494,7 @@ double lb_abs_db(double c, double d)
 	}
 	return abs_val;
 }
-void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
+void CFraktalSFT::MandelCalc()
 {
 	m_bIterChanged = TRUE;
 	double Dnr, Dni, yr, yi;
@@ -1738,7 +1738,7 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 }
 
 
-void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
+void CFraktalSFT::MandelCalcLDBL()
 {
 	m_bIterChanged = TRUE;
 	int antal, x, y;
@@ -2114,7 +2114,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 		memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 		m_bmi->biSize = sizeof(BITMAPINFOHEADER);
 		if (!GetDIBits(hDC, m_bmBmp, 0, 0, NULL, (LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-			/*Beep(1000,10)*/;
+			{ /*Beep(1000,10)*/ }
 		m_bmi->biCompression = m_bmi->biClrUsed = m_bmi->biClrImportant = 0;
 		m_bmi->biBitCount = 24;
 		if (m_bmi->biBitCount != 24)
@@ -2129,7 +2129,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 
 			if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
 				(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-				/*Beep(1000,10)*/;
+				{ /*Beep(1000,10)*/ }
 		}
 	}
 	ReleaseDC(NULL, hDC);
@@ -2790,7 +2790,7 @@ void CFraktalSFT::UpdateBitmap()
 		HDC hDC = GetDC(NULL);
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
 			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-			/*Beep(1000,10)*/;
+			{ /*Beep(1000,10)*/ }
 		ReleaseDC(NULL, hDC);
 	}
 	ReleaseMutex(m_hMutex);
@@ -3680,7 +3680,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 	m_bmi->biSize = sizeof(BITMAPINFOHEADER);
 	if (!GetDIBits(hDC, m_bmBmp, 0, 0, NULL, (LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-		/*Beep(1000,10)*/;
+		{ /*Beep(1000,10)*/ }
 	ReleaseDC(NULL, hDC);
 	m_bmi->biCompression = m_bmi->biClrUsed = m_bmi->biClrImportant = 0;
 	m_bmi->biBitCount = 24;
@@ -3697,7 +3697,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
 			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-			/*Beep(1000,10)*/;
+			{ /*Beep(1000,10)*/ }
 	}
 	return TRUE;
 }
@@ -3923,7 +3923,7 @@ BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 		diff = -diff;
 	return diff<nSpan;
 }
-BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNP, BOOL bNoGlitchDetection, BOOL bResuming)
+BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
 {
 g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
@@ -4128,7 +4128,7 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 	delete [] pQ;
 	return nAreaC;
 }
-BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y,BOOL bNP)
+BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
 	int x, y, i=0, io;
 	int rx, ry;

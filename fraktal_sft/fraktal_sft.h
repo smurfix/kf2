@@ -312,9 +312,9 @@ class CFraktalSFT
 public:
 	BOOL m_bRunning;
 	int nPos;
-	void MandelCalc(int nX, int nY);
-	void MandelCalcEXP(int nX, int nY);
-	void MandelCalcLDBL(int nX, int nY);
+	void MandelCalc();
+	void MandelCalcEXP();
+	void MandelCalcLDBL();
 
 	CFraktalSFT();
 	~CFraktalSFT();
@@ -365,9 +365,9 @@ public:
 	int GetMaxApproximation();
 	int GetIterationOnPoint(int x, int y);
 	int GetTransOnPoint(int x, int y);
-	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNP = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
+	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
 	BOOL HighestIteration(int &rx, int &ry);
-	BOOL FindCenterOfGlitch(int &rx, int &ry, BOOL bNP = FALSE);
+	BOOL FindCenterOfGlitch(int &rx, int &ry);
 	BOOL GetNoApproximation();
 	void SetNoApproximation(BOOL bNoApproximation);
 	int GetColorIndex(int x, int y);
