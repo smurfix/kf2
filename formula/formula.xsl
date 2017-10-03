@@ -380,6 +380,8 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
   {
     const dcomplex A = { g_FactorAR, g_FactorAI };
     const dcomplex c = { cr, ci };
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
     int antal = antal0;
     double test1 = test10;
     double test2 = test20;
@@ -435,6 +437,8 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
   {
     const ldcomplex A = { g_FactorAR, g_FactorAI };
     const ldcomplex c = { cr, ci };
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
     const bool no_g = g_real == 1 &amp;&amp; g_imag == 1;
     int antal = antal0;
     double test1 = test10;
@@ -496,6 +500,8 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
   {
     const fecomplex A = { g_FactorAR, g_FactorAI };
     const fecomplex c = { cr, ci };
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
     for (; antal &lt; nMaxIter &amp;&amp; test1 &lt;= m_nBailout2; antal++)
     {
       const floatexp Xr = m_dxr[antal];
