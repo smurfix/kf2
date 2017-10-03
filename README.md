@@ -139,6 +139,7 @@ Change Log
     - delete bitrotten code paths for SetEvent()-based multithreading
     - delete unused thread affinity setting code
     - parameter data is saved as comment in image files (both PNG and JPEG)
+    - delete obsolete VS build system
 
 - **kf-2.12.3** (2017-09-25)
 
