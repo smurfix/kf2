@@ -134,6 +134,7 @@ Change Log
     - fix compilation warnings (now almost clean with -Wall -Wextra)
     - compile as C++17
     - delete bitrotten code paths for SetEvent()-based multithreading
+    - delete unused thread affinity setting code
 
 - **kf-2.12.3** (2017-09-25)
 
