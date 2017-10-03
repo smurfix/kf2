@@ -8,10 +8,7 @@
 #include "complex.h"
 #include "fraktal_sft.h"
 #include "CDecNumber.h"
-
-#ifdef KF_THREADED_REFERENCE_BARRIER
 #include "../common/barrier.h"
-#endif
 
 extern CFraktalSFT g_SFT;
 BOOL g_bNewtonRunning=FALSE;
@@ -135,7 +132,6 @@ int m_d_box_period_get_period(const m_d_box_period *box) {
   return box->p;
 }
 
-#ifdef KF_THREADED_REFERENCE_BARRIER
 struct BoxPeriod
 {
   int threadid;
@@ -218,12 +214,9 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   SetEvent(b->hDone);
   return 0;
 }
-#endif
 
  int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
 	 radius = flyttyp(4)/radius;
-
-#ifdef KF_THREADED_REFERENCE_BARRIER
 
   mp_bitcnt_t bits = mpf_get_prec(center.m_r.m_dec.backend().data());
   barrier bar(4);
@@ -290,71 +283,8 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   steps = period;
   return haveperiod ? period : 0;
 
-#else
-
-  m_d_box_period *box = m_d_box_period_new(center, radius);
-  if (! box) {
-    return 0;
-  }
-  int period = 0;
-  int i;
-  char szStatus[256];
-  wsprintf(szStatus,"Finding period, 0...");
-  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
-  uint32_t last = GetTickCount();
-  for (i = 0; i < maxperiod && !g_bNewtonStop; ++i) {
-    if(i%100==0){
-      uint32_t now = GetTickCount();
-      if (now - last > 250){
-	wsprintf(szStatus,"Finding period, %d...",i);
-	SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
-	last = now;
-      }
-    }
-    if (m_d_box_period_have_period(box)) {
-      period = m_d_box_period_get_period(box);
-      break;
-    }
-    if (! m_d_box_period_step(box)) {
-      break;
-    }
-  }
-  steps=i;
-  m_d_box_period_delete(box);
-  return period;
-
-#endif
 }
 
-#ifdef KF_THREADED_REFERENCE_EVENT
-struct STEP_STRUCT
-{
-	int nType;
-	complex<flyttyp> *z;
-	complex<flyttyp> *dc;
-	complex<flyttyp> *zr;
-	complex<flyttyp> *c_guess;
-	HANDLE hWait;
-	HANDLE hExit;
-	HANDLE hDone;
-};
-DWORD WINAPI ThStep(STEP_STRUCT *pMC)
-{
-	HANDLE hW[2];
-	hW[0] = pMC->hWait;
-	hW[1] = pMC->hExit;
-	while (WaitForMultipleObjects(2, hW, FALSE, INFINITE) == WAIT_OBJECT_0){
-		if (pMC->nType == 0)
-			(*pMC->dc) = _2 * (*pMC->z) * (*pMC->dc) + _1;
-		else
-			(*pMC->zr) = (*pMC->z) * (*pMC->z) + (*pMC->c_guess);
-		SetEvent(pMC->hDone);
-	}
-	SetEvent(pMC->hDone);
-	return 0;
-}
-#else
-#ifdef KF_THREADED_REFERENCE_BARRIER
 struct STEP_STRUCT_COMMON
 {
 	HWND hWnd;
@@ -435,33 +365,13 @@ DWORD WINAPI ThStep(STEP_STRUCT *t0)
   SetEvent(t0->hDone);
   return 0;
 }
-#endif
-#endif
+
 extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
   int i;
 
-#ifdef KF_THREADED_REFERENCE_EVENT
-	int threads = 2;
-	STEP_STRUCT mc[2];
-	HANDLE hWait[2];
-	HANDLE hExit[2];
-	HANDLE hDone[2];
-	for (i = 0; i<2; i++){
-		mc[i].z = &z;
-		mc[i].zr = &zr;
-		mc[i].dc = &dc;
-		mc[i].c_guess = &c_guess;
-		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-		hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-		hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-		mc[i].nType = i;
-	}
-#else
-
-#ifdef KF_THREADED_REFERENCE_BARRIER
 	int threads = 4;
 	mp_bitcnt_t bits = mpf_get_prec(c_guess.m_r.m_dec.backend().data());
 	barrier bar(4);
@@ -495,9 +405,6 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 		mc[i].common = &m;
 	}
 
-#endif
-#endif
-
 	HANDLE hThread;
 	DWORD dw;
 	for (i = 0; i<threads; i++){
@@ -508,40 +415,11 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 		CloseHandle(hThread);
 	}
 
-#ifdef KF_THREADED_REFERENCE_EVENT
-  uint32_t last = GetTickCount();
-  for (i = 0; i < period && !g_bNewtonStop; ++i) {
-	  if(i%100==0){
-		  uint32_t now = GetTickCount();
-		  if (now - last > 250)
-		  {
-		    char szStatus[256];
-		    wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",newtonStep,i*100/period,g_szProgress);
-		    SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
-		    last = now;
-		  }
-	  }
-//	  dc = _2 * z * dc + _1;
-//	  z = z * z + c_guess;
-		SetEvent(hWait[0]);
-		SetEvent(hWait[1]);
-		WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
-		z=zr;
-  }
-	SetEvent(hExit[0]);
-	SetEvent(hExit[1]);
-#endif
-
 	WaitForMultipleObjects(threads, hDone, TRUE, INFINITE);
 	for (i = 0; i<threads; i++){
 		CloseHandle(hDone[i]);
-#ifdef KF_THREADED_REFERENCE_EVENT
-		CloseHandle(hWait[i]);
-		CloseHandle(hExit[i]);
-#endif
 	}
 
-#ifdef KF_THREADED_REFERENCE_BARRIER
 	mpf_set(z.m_r.m_dec.backend().data(), m.zr);
 	mpf_set(z.m_i.m_dec.backend().data(), m.zi);
 	mpf_set(dc.m_r.m_dec.backend().data(), m.dcr);
@@ -562,7 +440,6 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpf_clear(m.dcrzi);
 	mpf_clear(m.dcizr);
 	mpf_clear(m.dcizi);
-#endif
 
   SetDlgItemText(hWnd,IDC_EDIT4,"");
   flyttyp ad = 1/cabs2(dc);

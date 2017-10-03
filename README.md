@@ -133,6 +133,7 @@ Change Log
     - fix broken complex formula reference calculations
     - fix compilation warnings (now almost clean with -Wall -Wextra)
     - compile as C++17
+    - delete bitrotten code paths for SetEvent()-based multithreading
 
 - **kf-2.12.3** (2017-09-25)
 

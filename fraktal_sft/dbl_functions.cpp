@@ -21,8 +21,6 @@ extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 extern double(SquareAdd)(void *a, void *b);
 
-#ifdef KF_THREADED_REFERENCE_BARRIER
-
 #include "../common/barrier.h"
 
 long double mpf_get_ld(const mpf_t value)
@@ -201,8 +199,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	return 0;
 }
 
-#endif
-
 void CFraktalSFT::CalculateReferenceLDBL()
 {
 	int i;
@@ -233,7 +229,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			glitch_threshold = sqrt(glitch_threshold);
 		}
 
-#ifdef KF_THREADED_REFERENCE_BARRIER
 		mcthread mc[3];
 		barrier barrier(3);
 		HANDLE hDone[3];
@@ -303,129 +298,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		mpf_clear(co.si);
 		mpf_clear(co.cr);
 		mpf_clear(co.ci);
-
-#else
-
-#ifdef KF_THREADED_REFERENCE_CUSTOM
-		CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
-		MC mc[3];
-		HANDLE hDone[3];
-		HANDLE hWait[3];
-		HANDLE hExit[3];
-		for (i = 0; i<3; i++){
-			mc[i].xr = &xr;
-			mc[i].xi = &xi;
-			mc[i].sr = &sr;
-			mc[i].si = &si;
-			mc[i].xrxid = &xrxid;
-			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait[i] = mc[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit[i] = mc[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc[i].nType = i;
-		}
-		HANDLE hThread;
-		DWORD dw;
-		for (i = 0; i<3; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC, (LPVOID)&mc[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-		MC2 mc2[2];
-		HANDLE hDone2[2];
-		HANDLE hWait2[2];
-		HANDLE hExit2[2];
-		for (i = 0; i<2; i++){
-			mc2[i].xrn = &xrn;
-			mc2[i].xin = &xin;
-			mc2[i].xrxid = &xrxid;
-			mc2[i].sr = &sr;
-			mc2[i].si = &si;
-			mc2[i].m_iref = &m_iref;
-			mc2[i].m_rref = &m_rref;
-			hDone2[i] = mc2[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-			hWait2[i] = mc2[i].hWait = CreateEvent(NULL, 0, 0, NULL);
-			hExit2[i] = mc2[i].hExit = CreateEvent(NULL, 0, 0, NULL);
-			mc2[i].nType = i;
-		}
-		for (i = 0; i<2; i++){
-			hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThMC2, (LPVOID)&mc2[i], 0, &dw);
-			CloseHandle(hThread);
-		}
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			//xin = xrxid-sr-si + m_iref;
-			//xrn = sr - si + m_rref; 
-			SetEvent(hWait2[0]);
-			SetEvent(hWait2[1]);
-			WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-			xr = xrn;
-			xi = xin;
-			//sr = xr.Square();
-			//si = xi.Square(); 
-			//xrxid = (xr+xi).Square(); 
-			SetEvent(hWait[0]);
-			SetEvent(hWait[1]);
-			SetEvent(hWait[2]);
-			WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-			old_absval = abs_val;
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
-			m_db_z[i] = abs_val*glitch_threshold;
-			//m_db_z[i] = abs_val*0.000001;
-			if (abs_val >= 4)
-			{
-				if (terminate == 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-			}
-			if (abs_val >= terminate){
-				if (terminate > 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-		SetEvent(hExit[0]);
-		SetEvent(hExit[1]);
-		SetEvent(hExit[2]);
-		SetEvent(hExit2[0]);
-		SetEvent(hExit2[1]);
-		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
-		WaitForMultipleObjects(2, hDone2, TRUE, INFINITE);
-		for (; i<nMaxIter && !m_bStop; i++){
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
-		}
-		for (i = 0; i<3; i++){
-			CloseHandle(hDone[i]);
-			CloseHandle(hWait[i]);
-			CloseHandle(hExit[i]);
-		}
-		for (i = 0; i<2; i++){
-			CloseHandle(hDone2[i]);
-			CloseHandle(hWait2[i]);
-			CloseHandle(hExit2[i]);
-		}
-#else
-
-    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
-    assert(ok && "reference_long_double");
-
-#endif
-#endif
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
