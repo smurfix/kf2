@@ -130,6 +130,7 @@ Change Log
     - disabled "guessing" (was causing occasional randomly bright single pixels
       at low zoom levels, possibly a race condition?)
     - build against an installed libjpeg instead of each time after clean
+    - bug fix for broken complex formula reference calculations
 
 - **kf-2.12.3** (2017-09-25)
 
