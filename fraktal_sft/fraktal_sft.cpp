@@ -1725,7 +1725,7 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 			}
 
 			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = 2;
+				m_nTrans[x][y] = TRANS_GLITCH;
 				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
 			}
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
@@ -1774,8 +1774,8 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 		if (nPStep && nStepSize==1){
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
-				if (m_nTrans[x][y] == 2)
-					m_nTrans[x - 1][y] = 2;
+				if (m_nTrans[x][y] == TRANS_GLITCH)
+					m_nTrans[x - 1][y] = TRANS_GLITCH;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
 				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
 				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
@@ -2011,7 +2011,7 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
 			}
 		}
 		if (bGlitch && !m_bNoGlitchDetection){
-			m_nTrans[x][y] = 2;
+			m_nTrans[x][y] = TRANS_GLITCH;
 			m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
 		}
 
@@ -4197,7 +4197,7 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y,BOOL bNP)
 	for(x=1;x<m_nX-1;x++){
 		for(y=1;y<nHeight-1;y++){
 			int nDone = - (x*m_nY+y);
-			if(Node[x][y]>0 && m_nTrans[x][y]==2 && Pixels[x][y]!=m_nMaxIter){
+			if(Node[x][y]>0 && m_nTrans[x][y]==TRANS_GLITCH && Pixels[x][y]!=m_nMaxIter){
 				int nMatch=1;
 				if(Pixels[x][y]==Pixels[x][y-1])nMatch++;
 				if(Pixels[x][y]==Pixels[x][y+1])nMatch++;

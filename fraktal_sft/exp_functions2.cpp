@@ -326,7 +326,7 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 				}
 			}
 			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = 2;
+				m_nTrans[x][y] = TRANS_GLITCH;
 				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
 			}
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
