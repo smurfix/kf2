@@ -279,7 +279,11 @@ void free_stringtable(void *p)
 		pAlloc->Free((char*)p-sizeof(int));
 	}
 }
-CStringVektor::CStringVektor() : m_nStrings(0), m_pszStrings(NULL), m_pnStrings(NULL), m_pnIndexValues(NULL)
+CStringVektor::CStringVektor()
+	: m_pszStrings(NULL)
+	, m_pnStrings(NULL)
+	, m_pnIndexValues(NULL)
+	, m_nStrings(0)
 {
 	nullstr[0] = 0;
 }
@@ -538,10 +542,28 @@ int CStringVektor::FindString(const char *szString,int nLen)
 	return -1;
 }
 
-CStringTable::CStringTable() : m_nVektors(0), m_pVektors(NULL), m_nRowSize(0), 	m_pnOrders(NULL), m_pnHash(NULL), m_nHash(0), m_nHashColumn(-1), m_bHashDirty(FALSE), m_nLastHash(-1)
+CStringTable::CStringTable()
+	: m_pVektors(NULL)
+	, m_nVektors(0)
+	, m_nRowSize(0)
+	, m_pnOrders(NULL)
+	, m_pnHash(NULL)
+	, m_nHash(0)
+	, m_nHashColumn(-1)
+	, m_nLastHash(-1)
+	, m_bHashDirty(FALSE)
 {
 }
-CStringTable::CStringTable(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo) : m_nVektors(0), m_pVektors(NULL), m_nRowSize(0), 	m_pnOrders(NULL), m_pnHash(NULL), m_nHash(0), m_nHashColumn(-1), m_bHashDirty(FALSE), m_nLastHash(-1)
+CStringTable::CStringTable(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo)
+	: m_pVektors(NULL)
+	, m_nVektors(0)
+	, m_nRowSize(0)
+	, m_pnOrders(NULL)
+	, m_pnHash(NULL)
+	, m_nHash(0)
+	, m_nHashColumn(-1)
+	, m_nLastHash(-1)
+	, m_bHashDirty(FALSE)
 {
 	SplitString(szData,szFieldSep,szRowSep,bApo);
 }
@@ -622,8 +644,9 @@ int CStringTable::AddString(int nRow, char *szString, int nString)
 int CStringTable::AddString(int nRow, const std::string &szString, int nString)
 {
 	char *s = strdup(szString.c_str());
-	AddString(nRow, s, nString);
+	int ret = AddString(nRow, s, nString);
 	free(s);
+	return ret;
 }
 
 int CStringTable::AddInt(int nRow, intptr_t nVal)
@@ -730,7 +753,7 @@ CStringVektor &CStringTable::operator [] (int nRow)
 CStringTable &CStringTable::operator = (CStringTable &st)
 {
 	Reset();
-	int i, j, n;
+	int i, j, n = 0;
 	for(i=0;i<st.GetCount();i++){
 		AddRow();
 		for(j=0;j<st.GetRowSize(i);j++){
@@ -740,7 +763,16 @@ CStringTable &CStringTable::operator = (CStringTable &st)
 	}
 	return *this;
 }
-CStringTable::CStringTable(CStringTable &st) : m_nVektors(0), m_pVektors(NULL), m_nRowSize(0), 	m_pnOrders(NULL), m_pnHash(NULL), m_nHash(0), m_nHashColumn(-1), m_bHashDirty(FALSE), m_nLastHash(-1)
+CStringTable::CStringTable(CStringTable &st)
+	: m_pVektors(NULL)
+	, m_nVektors(0)
+	, m_nRowSize(0)
+	, m_pnOrders(NULL)
+	, m_pnHash(NULL)
+	, m_nHash(0)
+	, m_nHashColumn(-1)
+	, m_nLastHash(-1)
+	, m_bHashDirty(FALSE)
 {
 	*this = st;
 }
@@ -1171,7 +1203,7 @@ int CStringTable::FindStringBinary(int nColumn, char *szString, int nLength)
 	int t;
 	if(nLength==-1)
 		nLength = strlen(szString);
-	while(t = strncmp(GetString(k,nColumn),szString,nLength)){
+	while((t = strncmp(GetString(k,nColumn),szString,nLength))){
 		if(t<0)
 			m = k;
 		else

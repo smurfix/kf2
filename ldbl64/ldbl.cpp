@@ -173,7 +173,7 @@
     }
     EXPORT void Print(void *a,char *szRet)
     {
-           sprintf(szRet,"%ld",*((long double*)a));
+           sprintf(szRet,"%Le",*((long double*)a));
     }
     EXPORT int Version()
     {
@@ -241,7 +241,7 @@
     			complex D0(D0r,D0i);
     			complex c(m_pnExpConsts[0],0);
     			int nXExp=m_nPower-2, nDExp=2, ci=1;
-    			complex Dn = c*(X^m_nPower-1)*D;
+    			complex Dn = c*(X^(m_nPower-1))*D;
     			while(nXExp){
     				c.m_r = m_pnExpConsts[ci++];
     				Dn += c*(X^nXExp)*(D^nDExp);

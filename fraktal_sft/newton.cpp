@@ -156,7 +156,7 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   int *haveperiod = b->haveperiod;
   int *period = b->period;
   char szStatus[300];
-  uint32_t last;
+  uint32_t last = 0;
   if (t == 0)
   {
     wsprintf(szStatus,"Finding period, 0...");

@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include <iostream>
 #include "bitmap.h"
 
 // based on: https://source.winehq.org/git/wine.git/blob/39935fe5ad889d537d828cc82771bdb969cdb2d4:/dlls/gdi32/gdi_private.h#l561
@@ -16,7 +16,7 @@ HBITMAP create_bitmap(HDC hdc, int width, int height)
   long long bytes = stride * height;
   if (bytes >= 2LL * 1024LL * 1024LL * 1024LL || bytes <= 0LL)
   {
-    fprintf(stderr, "ERROR image too large (%lld bytes)\n", bytes);
+    std::cerr << "ERROR image too large (" << bytes << " bytes)" << std::endl;
     return 0;
   }
   BITMAPINFO bmi;

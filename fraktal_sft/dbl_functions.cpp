@@ -66,7 +66,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 	mcthread_common *p = p0->common;
 	const double glitch_threshold = *p->glitch_threshold;
-	int i;
+	int i = 0;
 	switch (p0->nType)
 	{
 		case 0:

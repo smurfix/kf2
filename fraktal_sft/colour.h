@@ -15,6 +15,7 @@ inline lrgb blend(const lrgb &a, const lrgb &b, float t)
   o.r = a.r * t1 + t * b.r;
   o.r = a.g * t1 + t * b.g;
   o.r = a.b * t1 + t * b.b;
+  return o;
 }
 
 // srgb in 0..1

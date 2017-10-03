@@ -40,7 +40,6 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 {
 	m_bIterChanged = TRUE;
 	floatexp Dnr, Dni, yr, yi;
-	floatexp _2 = 2, _3 = 3, _5=5, _4 = 4, _6 = 6, _8=8, _9=9, _10=10, _12=12, _20=20, _24=24, _30=30, _40=40, _60=60;
 	int antal, x, y;
 	int nPStep, nStepSize;
 	floatexp real(g_real), imag(g_imag), _abs_val;
@@ -255,7 +254,7 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 					complex<floatexp> D0(D0r, D0i);
 					complex<floatexp> c(m_pnExpConsts[0], 0);
 					int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-					complex<floatexp> Dn = c*(X^m_nPower - 1)*D;
+					complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
 					while (nXExp){
 						c.m_r = m_pnExpConsts[ci++];
 						Dn += c*(X^nXExp)*(D^nDExp);

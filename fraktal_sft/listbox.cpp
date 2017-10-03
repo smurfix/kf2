@@ -36,7 +36,7 @@ char *CListBox::CopyString(char *szString)
 }
 void CListBox::DrawItem(LPDRAWITEMSTRUCT lpdis)
 {
-	if(lpdis->itemID==-1)
+	if(lpdis->itemID==(UINT)(-1))
 		return;
 	int i;
 	COLORREF col = (lpdis->itemID%2?m_colRow2:m_colRow1);
@@ -380,7 +380,7 @@ int CListBoxEdit::GetStrings(CStringVektor *psv)
 }
 void CListBox::DrawButton(LPDRAWITEMSTRUCT lpdis)
 {
-	int i, j;
+	int i, j = 0;
 	for(i=0;i<m_nRows;i++){
 		for(j=0;j<m_pRows[i].nButtons;j++)
 			if(m_pRows[i].phwButtons[j]==lpdis->hwndItem)

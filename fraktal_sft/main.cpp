@@ -164,7 +164,7 @@ void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int 
 }
 int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
 {
-	int row, height;
+	int row;
 	BYTE *lpBits, *lpJeg;
 	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 	HDC hDC = GetDC(NULL);
@@ -173,7 +173,6 @@ int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality)
 	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
 	bmi.biBitCount = 24;
 	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
-	height = bmi.biHeight*3;
 	bmi.biSizeImage=row*bmi.biHeight;
 	lpBits = new BYTE[bmi.biSizeImage];
 	lpJeg = new BYTE[bmi.biSizeImage];
@@ -971,7 +970,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT20),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT21),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT22),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
-		if(g_bInitColorDialog && (HIWORD(wParam)==EN_UPDATE && (LOWORD(wParam)==IDC_EDIT1 || LOWORD(wParam)==IDC_EDIT3 || LOWORD(wParam)==IDC_EDIT12 || LOWORD(wParam)==IDC_EDIT20 || LOWORD(wParam)==IDC_EDIT21 || LOWORD(wParam)==IDC_EDIT22)) || (HIWORD(wParam)==CBN_SELCHANGE && (LOWORD(wParam)==IDC_COMBO1 || LOWORD(wParam)==IDC_DIFFERENCES))){
+		if((g_bInitColorDialog && (HIWORD(wParam)==EN_UPDATE && (LOWORD(wParam)==IDC_EDIT1 || LOWORD(wParam)==IDC_EDIT3 || LOWORD(wParam)==IDC_EDIT12 || LOWORD(wParam)==IDC_EDIT20 || LOWORD(wParam)==IDC_EDIT21 || LOWORD(wParam)==IDC_EDIT22))) || (HIWORD(wParam)==CBN_SELCHANGE && (LOWORD(wParam)==IDC_COMBO1 || LOWORD(wParam)==IDC_DIFFERENCES))){
 			g_bInitColorDialog=FALSE;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			return 0;
@@ -1036,7 +1035,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			sv.DeleteToText(szSV);
 			int i;
 			for(i=0;i<stMW.GetCount();i++){
-				int nType;
+				int nType = 0;
 				if(*stMW[i][0]=='H')
 					nType=0;
 				else if(*stMW[i][0]=='S')
@@ -1719,9 +1718,8 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetKeyColor(c,i);
 		InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 	}
-	int nRet=0;
 	if(g_pWaves)
-		nRet = g_pWaves->ProcessMessage(hWnd,uMsg,wParam,lParam);
+		g_pWaves->ProcessMessage(hWnd,uMsg,wParam,lParam);
 	if(uMsg==WM_COMMAND && (wParam==IDC_BUTTON26 || wParam==IDC_BUTTON27 || wParam==IDC_BUTTON28))
 		PostMessage(hWnd,WM_COMMAND,IDOK,0);
 	return 0;
@@ -2013,7 +2011,7 @@ int WINAPI ZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SetDlgItemText(hWnd,IDC_EDIT6,szDisplay);
 		}
 	}
-/*	else if(uMsg==WM_TIMER){
+/ *	else if(uMsg==WM_TIMER){
 		static char szPev[256]={0};
 		char szStatus[256];
 		if(g_nFrames==g_SFT.GetFramesDone()){
@@ -3252,11 +3250,6 @@ void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 				else
 					degree=pi/2;
 			}
-			BOOL bXSign;
-			if(x-pm.x>0)
-				bXSign=TRUE;
-			else
-				bXSign=FALSE;
 			if(x>pm.x)
 				degree-=pi;
 			double dist = sqrt((double)((x-pm.x)*(x-pm.x)+(y-pm.y)*(y-pm.y)))/diagonal;
@@ -4044,9 +4037,6 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HDC hDC = GetDC(hWnd);
 			SetROP2(hDC,R2_NOT);
 			MoveToEx(hDC,g_pTrackStart.x,g_pTrackStart.y,NULL);
-			POINT pOffs;
-			pOffs.x = g_pSelect.x - g_pTrackStart.x;
-			pOffs.y = g_pSelect.y - g_pTrackStart.y;
 
 			LineTo(hDC,g_pSelect.x,g_pTrackStart.y);
 			LineTo(hDC,g_pSelect.x,g_pSelect.y);
@@ -5242,7 +5232,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))){
-		if(g_nInflection<sizeof(g_pInflections)/sizeof(POINT)){
+		if(size_t(g_nInflection)<sizeof(g_pInflections)/sizeof(POINT)){
 			GetCursorPos(&g_pInflections[g_nInflection]);
 			ScreenToClient(hWnd,&g_pInflections[g_nInflection]);
 			g_nInflection++;
@@ -5692,7 +5682,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SYSTEM_INFO sysinfo; 
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
-				"version 2.12.3\n"
+				"version 2.12.4\n"
 				"©2013-2017 Karl Runmo\n"
 				"©2017 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
@@ -5757,7 +5747,6 @@ int Test1()
 {
 	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	CFixedFloat m_rref = 0.25, m_iref=0;
-	double dr, di;
 	int antal;
 	SYSTEMTIME st;
 	__int64 t1, t2;
@@ -5775,8 +5764,6 @@ int Test1()
 		sr = xr.Square();
 		si = xi.Square();
 
-		dr = xr.ToDouble();
-		di = xi.ToDouble();
 	}
 	GetLocalTime(&st);
 	SystemTimeToFileTime(&st,(LPFILETIME)&t2);

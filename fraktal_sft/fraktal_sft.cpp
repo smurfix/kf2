@@ -540,13 +540,14 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
 	srgb s;
+	s.r = 0;
+	s.g = 0;
+	s.b = 0;
 	if (nIter<0 || (!g_bShowGlitches && offs==2))
 		return;
 	if (nIter == m_nMaxIter)
 	{
-		s.r = 0;
-		s.g = 0;
-		s.b = 0;
+		// nothing
 	}
 	else{
 		double iter = (double)nIter + (double)1 - offs;
@@ -592,7 +593,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			if (0 < x && 0 < y) p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];
 			if (0 < x         ) p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];
 			if (0 < x && y < Y) p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];
-			if (         0 < y) p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];
+			if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];}
 			                    p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];
 			if (         y < Y) p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];
 			if (x < X && 0 < y) p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];
@@ -932,9 +933,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	int nProbe = nProbeX * nProbeY - 1;
 	floatexp _1 = 1;
 	floatexp _3 = 3;
-	floatexp _6 = 6;
 	CFixedFloat cr, ci;
-	int i, j, k;
+	int i, j, k = 0;
 	floatexp *dbTr = new floatexp[nProbe];
 	floatexp *dbTi = new floatexp[nProbe];
 	floatexp *dbTr0 = new floatexp[nProbe];
@@ -1228,7 +1228,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 					complex<floatexp> D0(dbTr0[j], dbTi0[j]);
 					complex<floatexp> c(m_pnExpConsts[0], 0);
 					int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-					complex<floatexp> Dn = c*(X^m_nPower - 1)*D;
+					complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
 					while (nXExp){
 						c.m_r = m_pnExpConsts[ci++];
 						Dn += c*(X^nXExp)*(D^nDExp);
@@ -1473,7 +1473,7 @@ res = -d;				\
 */
 double lb_abs_db(double c, double d)
 {
-	double abs_val;
+	double abs_val = 0;
 	if (c>0){
 		if (c + d>0)
 			abs_val = d;
@@ -1694,7 +1694,7 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 						complex<double> D0(dbD0r, m_pDY[y]);
 						complex<double> c(m_pnExpConsts[0], 0);
 						int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-						complex<double> Dn = c*(X^m_nPower - 1)*D;
+						complex<double> Dn = c*(X^(m_nPower - 1))*D;
 						while (nXExp){
 							c.m_r = m_pnExpConsts[ci++];
 							Dn += c*(X^nXExp)*(D^nDExp);
@@ -3265,7 +3265,7 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 					y2 = ty - y;
 					nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
 					nIndex2 = x2 * 3 + (m_bmi->biHeight - 1 - y2)*m_row;
-					if(nIndex2>m_bmi->biSizeImage-3)
+					if(((unsigned int)(nIndex2))>m_bmi->biSizeImage-3)
 						continue;
 					t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
 					val += (t<0 ? -t : t);
@@ -3524,11 +3524,11 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 }
 BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 {
-	int **Org;
-	float **OrgT;
-	int nOX, nOY;
+	int **Org = 0;
+	float **OrgT = 0;
+	int nOX = 0, nOY = 0;
 	int i;
-	int x, y, a, b;
+	int x, y, a = 0, b = 0;
 	if (bReuseCenter && nZoomSize<1){
 		int i;
 		nOX = m_nX*nZoomSize;
@@ -4782,7 +4782,7 @@ void CPixels::Init(int nStep, int nX, int nY)
 	m_pPixels = new POINT[m_nPixels];
 
 	int i = 0;
-	int rx, ry;
+	int rx = 0, ry = 0;
 	CStringTable st;
 	st.BuildHash(0);
 	while (i<m_nPixels){
@@ -4890,7 +4890,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
 }
 BOOL CPixels::GetPixels(int *prx, int *pry, int &nCount)
 {
-	int i, bRet = 0;
+	int i;
 	if (m_nNextPixel == m_nPixels)
 		return FALSE;
 	WaitForSingleObject(m_hMutex, INFINITE);
@@ -4900,7 +4900,6 @@ BOOL CPixels::GetPixels(int *prx, int *pry, int &nCount)
 		m_nNextPixel++;
 		if (m_nNextPixel == m_nPixels)
 			break;
-		bRet = 1;
 		return TRUE;
 	}
 	nCount = i;
