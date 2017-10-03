@@ -42,6 +42,9 @@ struct mcthread_common
 	long double *m_ldxr, *m_ldxi;
 	double *m_db_z, *terminate, *glitch_threshold;
 	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	int *antal;
+	double *test1;
+	double *test2;
 	volatile BOOL *stop;
 };
 
@@ -54,6 +57,13 @@ struct mcthread
 
 static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
+	int antal = 0;
+	double test1 = 0;
+	double test2 = 0;
+	bool stored = false;
+	double old_absval = 0;
+	double abs_val = 0;
+
 	mcthread_common *p = p0->common;
 	const double glitch_threshold = *p->glitch_threshold;
 	int i;
@@ -96,9 +106,27 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				{
 					const long double lr = p->m_ldxr[i-1];
 					const long double li = p->m_ldxi[i-1];
-					const double abs_val = g_real * lr * lr + g_imag * li * li;
+					old_absval = abs_val;
+					abs_val = g_real * lr * lr + g_imag * li * li;
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
+					if (abs_val >= 4)
+					{
+						if (*p->terminate == 4 && !stored)
+						{
+							stored = true;
+							antal = i;
+							test1 = abs_val;
+							test2 = old_absval;
+						}
+					}
 					if (abs_val >= *p->terminate){
+						if (*p->terminate > 4 && !stored)
+						{
+							stored = true;
+							antal = i;
+							test1 = abs_val;
+							test2 = old_absval;
+						}
 						if (*p->nMaxIter == *p->m_nMaxIter)
 						{
 							*p->nMaxIter = i-1 + 3;
@@ -130,7 +158,24 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			const long double li = p->m_ldxi[i-1];
 			const double abs_val = g_real * lr * lr + g_imag * li * li;
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
+			if (abs_val >= 4)
+			{
+				if (*p->terminate == 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
+			}
 			if (abs_val >= *p->terminate){
+				if (*p->terminate > 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
 				if (*p->nMaxIter == *p->m_nMaxIter)
 				{
 					*p->nMaxIter = i-1 + 3;
@@ -148,6 +193,9 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			p->m_ldxr[i] = xr;
 			p->m_ldxi[i] = xi;
 		}
+		*p->antal = antal;
+		*p->test1 = test1;
+		*p->test2 = test2;
 	}
 	SetEvent(p0->hDone);
 	return 0;
@@ -171,7 +219,11 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	ldbl noll;
 	AssignInt(&noll,0);
 
-	double abs_val;
+	int antal = 0;
+	double test1 = 0;
+	double test2 = 0;
+
+	double abs_val = 0;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
@@ -219,6 +271,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		co.nMaxIter = &nMaxIter;
 		co.m_nRDone = &m_nRDone;
 		co.stop = &m_bStop;
+		co.antal = &antal;
+		co.test1 = &test1;
+		co.test2 = &test2;
 		// spawn threads
 		for (i = 0; i < 3; i++)
 		{
@@ -313,10 +368,28 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
 			ConvertFromFixedFloat(&m_ldxr[i], xr);
 			ConvertFromFixedFloat(&m_ldxi[i], xi);
+			old_absval = abs_val;
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*glitch_threshold;
 			//m_db_z[i] = abs_val*0.000001;
+			if (abs_val >= 4)
+			{
+				if (terminate == 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
+			}
 			if (abs_val >= terminate){
+				if (terminate > 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
 				if (nMaxIter == m_nMaxIter){
 					nMaxIter = i + 3;
 					if (nMaxIter>m_nMaxIter)
@@ -349,7 +422,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 #else
 
-    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
+    bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
     assert(ok && "reference_long_double");
 
 #endif
@@ -358,7 +431,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
-
+		bool stored = false;
+		double old_absval = 0;
+		double abs_val = 0;
 		CFixedFloat xr = g_SeedR, xi = g_SeedI;
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
@@ -375,9 +450,27 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			xi = Xn.m_i;
 			ConvertFromFixedFloat(&m_ldxr[i], xr);
 			ConvertFromFixedFloat(&m_ldxi[i], xi);
+			old_absval = abs_val;
 			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
 			m_db_z[i] = abs_val*threashold;
+			if (abs_val >= 4)
+			{
+				if (terminate == 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
+			}
 			if (abs_val >= terminate){
+				if (terminate > 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
 				if (nMaxIter == m_nMaxIter){
 					nMaxIter = i + 3;
 					if (nMaxIter>m_nMaxIter)
@@ -392,8 +485,11 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
     assert(ok && "reference_long_double");
 
 	}
+
+	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
+		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal, test1, test2);
 }

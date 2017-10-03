@@ -277,15 +277,9 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 
 		}
 
+		OutputIterationData(x, y, bGlitch, antal, test1, test2);
+
 		InterlockedIncrement((LPLONG)&m_nDone);
-		if (antal == m_nGlitchIter)
-			bGlitch = TRUE;
-		if (antal == m_nMaxIter){
-			m_nPixels[x][y] = antal;
-			m_nTrans[x][y] = 0;
-			m_lpBits[nIndex] = 0;
-			m_lpBits[nIndex + 1] = 0;
-			m_lpBits[nIndex + 2] = 0;
 			if (!nPStep && (!bGlitch || g_bShowGlitches)){
 				int q;
 				int nE = nStepSize*nStepSize;
@@ -300,52 +294,5 @@ void CFraktalSFT::MandelCalcEXP(int nXStart, int nXStop)
 					}
 				}
 			}
-		}
-		else{
-			m_nPixels[x][y] = antal;
-			if (!bGlitch && m_nSmoothMethod == 1){
-				double div = sqrt(test1) - sqrt(test2);
-				if (div != 0)
-					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
-				else
-					m_nTrans[x][y] = 0;
-			}
-			else if (!bGlitch && m_nSmoothMethod == 0){
-				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
-				if (!ISFLOATOK(m_nTrans[x][y]))
-					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
-			}
-			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = TRANS_GLITCH;
-				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
-			}
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			if (!nPStep && (!bGlitch || g_bShowGlitches)){
-				int q;
-				int nE = nStepSize*nStepSize;
-				for (q = 0; q<nE; q++){
-					int tx = x + q%nStepSize;
-					int ty = y + q / nStepSize;
-					if (tx<m_nX - 1 && ty<m_nY - 1 && m_nPixels[tx][ty] == -1){
-						int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-						m_lpBits[nIndex1] = m_lpBits[nIndex];
-						m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
-						m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
-					}
-				}
-			}
-		}
 	}
 }

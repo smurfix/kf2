@@ -125,6 +125,10 @@ Change Log
     - fix some iteration band edge artifacts (with external postprocessing of
       kfb map files) by increasing the smooth bailout radius from 100 to 10000
       (reported by gerrit)
+    - ensure added references fix their corresponding pixel (suggested by
+      Pauldelbrot) (prevents loop in auto solve glitches whereby a reference
+      was repeatedly being added at the same location without progress being
+      made)
 
 - **kf-2.12.3** (2017-09-25)
 

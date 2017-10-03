@@ -441,6 +441,7 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
+	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
 };
 
 struct TH_PARAMS
@@ -449,3 +450,6 @@ struct TH_PARAMS
 	int nXStop;
 	CFraktalSFT *p;
 };
+
+extern int g_nAddRefX;
+extern int g_nAddRefY;

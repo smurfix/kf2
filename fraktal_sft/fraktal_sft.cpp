@@ -42,7 +42,7 @@ int g_nRefZero = 3;
 #define TERM5
 //#define TERM6
 //#define TERM7
-int g_nAddRefX, g_nAddRefY;
+int g_nAddRefX = -1, g_nAddRefY = -1;
 
 double g_Degree = 0;
 BOOL g_LDBL = TRUE;
@@ -1327,6 +1327,10 @@ void CFraktalSFT::CalculateReference()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
+	int antal = 0;
+	double test1 = 0;
+	double test2 = 0;
+
   if (m_nFractalType == 0 && m_nPower > 10)
 	{
 
@@ -1340,13 +1344,34 @@ void CFraktalSFT::CalculateReference()
 			threashold = .5;
 		complex<CFixedFloat> r(m_rref, m_iref);
 		complex<CFixedFloat> X(g_SeedR, g_SeedI);
+		bool stored = false;
+		double old_absval = 0;
+		double abs_val = 0;
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			X = (X^m_nPower) + r;
 			m_db_dxr[i] = X.m_r.ToDouble();
 			m_db_dxi[i] = X.m_i.ToDouble();
-			double abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			old_absval = abs_val;
+			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
 			m_db_z[i] = abs_val*threashold;
+			if (abs_val >= 4)
+			{
+				if (terminate == 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
+			}
 			if (abs_val >= terminate){
+				if (terminate > 4 && !stored)
+				{
+					stored = true;
+					antal = i;
+					test1 = abs_val;
+					test2 = old_absval;
+				}
 				if (nMaxIter == m_nMaxIter){
 					nMaxIter = i + 3;
 					if (nMaxIter>m_nMaxIter)
@@ -1361,10 +1386,13 @@ void CFraktalSFT::CalculateReference()
 	else
 	{
 
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance);
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
 		assert(ok && "reference_double");
 
 	}
+
+	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
+		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal, test1, test2);
 }
 
 int ThMandelCalc(TH_PARAMS *pMan)
@@ -1689,49 +1717,9 @@ void CFraktalSFT::MandelCalc(int nXStart, int nXStop)
 
 			}
 		}
-		if (antal == m_nGlitchIter)
-			bGlitch = TRUE;
-		if (antal == m_nMaxIter){
-			m_nPixels[x][y] = antal;
-			m_nTrans[x][y] = 0;
-			m_lpBits[nIndex] = 0;
-			m_lpBits[nIndex + 1] = 0;
-			m_lpBits[nIndex + 2] = 0;
-		}
-		else{
-			m_nPixels[x][y] = antal;
-			if (!bGlitch && m_nSmoothMethod == 1){
-				double div = sqrt(test1) - sqrt(test2);
-				if (div != 0)
-					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
-				else
-					m_nTrans[x][y] = 0;
-			}
 
-			else if (!bGlitch && m_nSmoothMethod == 0){
-				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
-				if (!ISFLOATOK(m_nTrans[x][y]))
-					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
-			}
+		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
-			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = TRANS_GLITCH;
-				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
-			}
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-		}
-		if (m_bMirrored)
-			Mirror(x, y);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		if (!nPStep && (!bGlitch || g_bShowGlitches)){
 			int q;
@@ -1966,59 +1954,19 @@ void CFraktalSFT::MandelCalcLDBL(int nXStart, int nXStop)
     if (m_nFractalType == 0 && m_nPower > 10)
     {
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			m_nPixels[x][y] = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
+			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
 		}
 		else
 		{
 			int antal2 = antal;
 			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i);
 			assert(ok && "perturbation_long_double");
-			m_nPixels[x][y] = antal2;
+			antal = antal2;
 		}
-		antal = m_nPixels[x][y];
 
-		if (antal == m_nGlitchIter)
-			bGlitch = TRUE;
-		if (!bGlitch && m_nSmoothMethod == 1){
-			if (m_nPixels[x][y] == m_nMaxIter)
-				m_nTrans[x][y] = 0;
-			else{
-				double div = sqrt(test1) - sqrt(test2);
-				if (div != 0)
-					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
-				else
-					m_nTrans[x][y] = 0;
-			}
-
-		}
-		else if (!bGlitch && m_nSmoothMethod == 0){
-			if (m_nPixels[x][y] == m_nMaxIter)
-				m_nTrans[x][y] = 0;
-			else{
-				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
-				if (!ISFLOATOK(m_nTrans[x][y]))
-					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
-			}
-		}
-		if (bGlitch && !m_bNoGlitchDetection){
-			m_nTrans[x][y] = TRANS_GLITCH;
-			m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
-		}
+		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-		if (m_bMirrored)
-			Mirror(x, y);
 		if (!nPStep && (!bGlitch || g_bShowGlitches)){
 			int q;
 			int nE = nStepSize*nStepSize;
@@ -2099,7 +2047,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	if (m_nPower>10 && m_nPrevPower != m_nPower){
 		m_nPrevPower = m_nPower;
 		if (m_pnExpConsts){
-			delete m_pnExpConsts;
+			delete[] m_pnExpConsts;
 			m_pnExpConsts = NULL;
 		}
 		CStringTable stVal("4,6", "", ",");
@@ -2124,7 +2072,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 			m_pnExpConsts[k++] = atoi(stVal[i][0]);
 	}
 	else if (m_nPower <= 10 && m_pnExpConsts){
-		delete m_pnExpConsts;
+		delete[] m_pnExpConsts;
 		m_pnExpConsts = NULL;
 	}
 
@@ -3979,6 +3927,7 @@ BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 }
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNP, BOOL bNoGlitchDetection, BOOL bResuming)
 {
+std::cout << "AddReference(x = "<<nXPos<<", y = " << nYPos << ", erase = " << bEraseAll << ", near = " << bNP << ", nodetect = " << bNoGlitchDetection << ", resume = " << bResuming << ")" << std::endl;
 g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
 	if (!m_nPixels || (m_nZoom<g_nRefZero && !bEraseAll))
@@ -4040,10 +3989,19 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		int t = SMOOTH_TOLERANCE*m_nTrans[nXPos][nYPos];
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
+#if 0
+				// experimental new glitch method
+				if (m_nTrans[x][y] == TRANS_GLITCH)
+				{
+					m_nPixels[x][y] = -1;
+					nCount++;
+				}
+#else
 				if (IsEqual(i, Pixels[x][y], 1)){// && IsEqual(t, (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]), 4)){
 					m_nPixels[x][y] = -1;
 					nCount++;
 				}
+#endif
 			}
 		}
 	}
@@ -4953,4 +4911,52 @@ BOOL CPixels::GetPixels(int *prx, int *pry, int &nCount)
 	nCount = i;
 	ReleaseMutex(m_hMutex);
 	return TRUE;
+}
+
+void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2)
+{
+		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+		if (antal == m_nGlitchIter)
+			bGlitch = TRUE;
+		if (antal == m_nMaxIter){
+			m_nPixels[x][y] = antal;
+			m_nTrans[x][y] = 0;
+			m_lpBits[nIndex] = 0;
+			m_lpBits[nIndex + 1] = 0;
+			m_lpBits[nIndex + 2] = 0;
+		}
+		else{
+			m_nPixels[x][y] = antal;
+			if (!bGlitch && m_nSmoothMethod == 1){
+				double div = sqrt(test1) - sqrt(test2);
+				if (div != 0)
+					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
+				else
+					m_nTrans[x][y] = 0;
+			}
+
+			else if (!bGlitch && m_nSmoothMethod == 0){
+				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
+				if (!ISFLOATOK(m_nTrans[x][y]))
+					m_nTrans[x][y] = 0;
+				while (m_nTrans[x][y]<0){
+					int offs = 1 + (int)m_nTrans[x][y];
+					m_nPixels[x][y] += offs;
+					m_nTrans[x][y] += offs;
+				}
+				while (m_nTrans[x][y]>1){
+					int offs = (int)m_nTrans[x][y];
+					m_nPixels[x][y] -= offs;
+					m_nTrans[x][y] -= offs;
+				}
+			}
+
+			if (bGlitch && !m_bNoGlitchDetection){
+				m_nTrans[x][y] = TRANS_GLITCH;
+				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
+			}
+			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+		}
+		if (m_bMirrored)
+			Mirror(x, y);
 }
