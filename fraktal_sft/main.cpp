@@ -5013,7 +5013,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDCENTEROFGLITCH){
 		POINT p;
-		if(g_SFT.FindCenterOfGlitch((int&)p.x, (int&)p.y,g_bAutoGlitchNP)){
+		if(g_SFT.FindCenterOfGlitch((int&)p.x, (int&)p.y,g_bAutoGlitchNP)){ // FIMXE is this safe?
 			RECT rc;
 			GetClientRect(hWnd,&rc);
 			RECT sr;
