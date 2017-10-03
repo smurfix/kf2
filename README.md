@@ -260,6 +260,11 @@ TODO
 - building: build against an installed libjpeg instead of each time after clean
 - user interface: batch mode
 - user interface: scripting interface
+- user interface: lock feature to prevent accidentally restarting calculations
+  (suggested by jwm-art)
+- user interface: undo history for location data (suggested by TwinDragon)
+- user interface: undo history for calculation data (suggested by TwinDragon)
+- user interface: online help within program (suggested by TwinDragon)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
