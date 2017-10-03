@@ -81,7 +81,7 @@ Differences From Upstream 2.11.1
 - Makefile build system using MINGW to cross-compile to Windows from Linux
 - uses GMP for arbitrary precision floating point instead of custom code
 - uses Boost wrapper around GMP floats for higher-level coding
-- used JPEG library downloaded as necessary at build time, instead of bundled
+- use installed JPEG library, instead of bundled sources
 - long double support built into EXE (no separate DLL needed)
 - virtually unlimited precision (memory needed for precise numbers is an issue)
 - threaded calculations reimplemented with barriers to avoid WINE slowdown
@@ -129,6 +129,7 @@ Change Log
       made)
     - disabled "guessing" (was causing occasional randomly bright single pixels
       at low zoom levels, possibly a race condition?)
+    - build against an installed libjpeg instead of each time after clean
 
 - **kf-2.12.3** (2017-09-25)
 
@@ -257,7 +258,6 @@ Change Log
 TODO
 ----
 
-- building: build against an installed libjpeg instead of each time after clean
 - user interface: batch mode
 - user interface: scripting interface
 - user interface: lock feature to prevent accidentally restarting calculations
@@ -360,12 +360,12 @@ install natively.
         wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
         wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
         wget https://zlib.net/zlib-1.2.11.tar.xz
+        wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout formulas
-        make jpegsrc.v6b.tar.gz
         cd ..
-        cp -avit ~/win32/src boost*.7z gmp*.lz zlib*.xz kalles-fraktaler-2/
+        cp -avit ~/win32/src *z kalles-fraktaler-2/
 
     You also need to get libpng (version 1.6.32) from a non-automatable link at
     <http://www.libpng.org/pub/png/libpng.html> (save it to
@@ -429,6 +429,26 @@ install natively.
               --prefix=$HOME/win32
             make -j 8
             make install
+
+    4. Build JPEG (64bit and 32bit):
+
+            cd ~/win64/src
+            tar xf jpegsrc.v6b.tar.gz
+            cd jpeg-6b
+            ./configure --disable-shared CC=x86_64-w64-mingw32-gcc \
+              --prefix=$HOME/win64
+            make -j 8
+            cp -av libjpeg.a ~/win64/lib
+            cp -av jpeglib.h jconfig.h jmorecfg.h jpegint.h jerror.h ~/win64/include
+
+            cd ~/win32/src
+            tar xf jpegsrc.v6b.tar.gz
+            cd jpeg-6b
+            ./configure --disable-shared CC=i686-w64-mingw32-gcc \
+              --prefix=$HOME/win32
+            make -j 8
+            cp -av libjpeg.a ~/win32/lib
+            cp -av jpeglib.h jconfig.h jmorecfg.h jpegint.h jerror.h ~/win32/include
 
 5. Prepare Boost headers
 
@@ -575,7 +595,7 @@ Legal
 LGPLv3 / GPLv2 license. If you redistribute the binaries you must also be
 prepared to distribute the source corresponding to those binaries to anyone you
 distribute the binary to. To make this easier for you, the more recent zips
-include the source too (though you'll also need to get the Boost and GMP
+include the source too (though you'll also need to get the library
 sources). And of course insert here the usual legal disclaimers about
 **NO WARRANTY OF ANY KIND**.
 

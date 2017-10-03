@@ -2,7 +2,7 @@
 #define HAVE_PROTOTYPES
 extern "C"
 {
-#include "jpeg-6b/jpeglib.h"
+#include <jpeglib.h>
 }
 #include <setjmp.h>
 #include <memory.h>

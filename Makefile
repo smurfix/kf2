@@ -6,7 +6,7 @@ include $(SYSTEM).mk
 FLAGS := -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include -DKF_THREADED_REFERENCE_BARRIER
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ $(FLAGS)
-LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -Ljpeg-6b -ffast-math
+LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz
 
 FRAKTAL_SOURCES_CPP = \
@@ -73,11 +73,10 @@ all: kf.exe
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
-	rm -f jpeg-6b/libjpeg.a jpeg-6b/jconfig.h jpeg-6b/configure
 	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
-kf.exe: $(OBJECTS) jpeg-6b/libjpeg.a
+kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
 
 res.o: fraktal_sft/fraktal_sft.rc
@@ -105,20 +104,6 @@ cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
-
-jpeg_static.o: jpeg_static.cpp jpeg-6b/jconfig.h
-
-jpeg-6b/libjpeg.a: jpeg-6b/jconfig.h
-	$(MAKE) -C jpeg-6b libjpeg.a
-
-jpeg-6b/jconfig.h: jpeg-6b/configure
-	( cd jpeg-6b ; ./configure CC=$(GCC) ; touch jconfig.h )
-
-jpeg-6b/configure: jpegsrc.v6b.tar.gz
-	( tar xf jpegsrc.v6b.tar.gz ; touch jpeg-6b/configure )
-
-jpegsrc.v6b.tar.gz:
-	wget -c "http://www.ijg.org/files/jpegsrc.v6b.tar.gz"
 
 README.pdf: README.md
 	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < README.md -o README.pdf
