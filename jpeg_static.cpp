@@ -1,6 +1,7 @@
 #include <assert.h>
 #include <stdio.h>
 #include <string.h>
+#include <string>
 #define HAVE_PROTOTYPES
 extern "C"
 {
@@ -169,7 +170,8 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 
 int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment)
 {
-  assert(nColors == 3);
+  if (nColors != 3)
+    return 0;
   struct jpeg_compress_struct cinfo;
   struct jpeg_error_mgr jerr;
 
@@ -191,14 +193,16 @@ int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, nQuality, TRUE /* limit to baseline-JPEG values */);
   jpeg_start_compress(&cinfo, TRUE);
-  size_t comment_length = strlen(comment);
-  if (comment_length > 65533)
-  {
-    // FIXME: JPEG comment is truncated by file format limitations
-    fprintf(stderr, "JPEG WARNING: comment truncated\n");
-    comment_length = 65533;
-  }
-  jpeg_write_marker(&cinfo, JPEG_COM, (const unsigned char *) comment, comment_length);
+  size_t length = strlen(comment);
+  do {
+    size_t wlength = length;
+    if (wlength > 65533)
+      wlength = 65533;
+    if (wlength > 0)
+      jpeg_write_marker(&cinfo, JPEG_COM, (const unsigned char *) comment, wlength);
+    comment += wlength;
+    length -= wlength;
+  } while (length > 0);
   row_stride = nWidth * 3;	/* JSAMPLEs per row in image_buffer */
   while (cinfo.next_scanline < cinfo.image_height) {
     row_pointer[0] = (unsigned char*)& Data[cinfo.next_scanline * row_stride];
@@ -209,4 +213,109 @@ int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
   fclose(outfile);
   jpeg_destroy_compress(&cinfo);
   return 1;
+}
+
+
+std::string ReadJPEGComment(const std::string &filename)
+{
+  std::string comment = "";
+  FILE *file = fopen(filename.c_str(), "rb");
+  if (! file)
+  {
+    return "";
+  }
+  int c = fgetc(file);
+  if (c != 0xFF)
+  {
+    fclose(file);
+    return "";
+  }
+  c = fgetc(file);
+  if (c != 0xD8) // SOI
+  {
+    fclose(file);
+    return "";
+  }
+  do {
+    do {
+      c = fgetc(file);
+    } while (0 <= c && c <= 0xFF && c != 0xFF);
+    if (! (0 <= c && c <= 0xFF))
+      break;
+    // c is 0xFF
+    do {
+      c = fgetc(file);
+    } while (0 <= c && c <= 0xFF && c == 0xFF);
+    if (! (0 <= c && c <= 0xFF))
+      break;
+    // c is now the marker byte
+    if (c == 0xFE) // COM
+    {
+      // read 2 byte length
+      int l1 = fgetc(file);
+      if (! (0 <= l1 && l1 <= 0xFF))
+        break;
+      int l2 = fgetc(file);
+      if (! (0 <= l2 && l2 <= 0xFF))
+        break;
+      int length = 0;
+      length = ((l1 << 8) | l2) - 2; // length includes itself
+      if (length > 0)
+      {
+        // read comment
+        char *buffer = (char *) malloc(length + 1);
+        if (! buffer)
+        {
+          fclose(file);
+          return "";
+        }
+        buffer[length] = 0;
+        if (1 != fread(buffer, length, 1, file))
+        {
+          free(buffer);
+          fclose(file);
+          return "";
+        }
+        comment += buffer;
+        free(buffer);
+      }
+      else if (length < 0)
+      {
+        fclose(file);
+        return "";
+      }
+    }
+    else if (c == 0xD9 || c == 0xDA) // EOI SOS
+    {
+      // end of file, start of compressed data, or so
+      break;
+    }
+    else
+    {
+      // read 2 byte length
+      int l1 = fgetc(file);
+      if (! (0 <= l1 && l1 <= 0xFF))
+        break;
+      int l2 = fgetc(file);
+      if (! (0 <= l2 && l2 <= 0xFF))
+        break;
+      int length = 0;
+      length = ((l1 << 8) | l2) - 2;
+      if (length >= 0)
+      {
+        if (0 != fseek(file, length, SEEK_CUR))
+        {
+          fclose(file);
+          return "";
+        }
+      }
+      else
+      {
+        fclose(file);
+        return "";
+      }
+    }
+  } while(true);
+  fclose(file);
+  return comment;
 }
