@@ -1,16 +1,18 @@
 #include <stdio.h>
+#include <string.h>
 #include <time.h>
+#include <string>
 #include <png.h>
 #include <zlib.h>
 
-static void save_png_error_handler(png_structp png, png_const_charp msg)
+static void kf_png_error_handler(png_structp png, png_const_charp msg)
 {
 	// FIXME make this display in the GUI or something
 	fprintf(stderr, "PNG ERROR: %s\n", msg);
 	longjmp(*static_cast<jmp_buf *>(png_get_error_ptr(png)), 1);
 }
 
-static void save_png_warning_handler(png_structp png, png_const_charp msg)
+static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 {
 	(void) png;
 	// FIXME make this display in the GUI or something
@@ -25,18 +27,20 @@ int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
 	FILE *file = fopen(szFileName, "wb");
 	if (! file)
 		return 0;
-	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &jmpbuf, save_png_error_handler, save_png_warning_handler);
+	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &jmpbuf, kf_png_error_handler, kf_png_warning_handler);
 	if (! png)
 		return 0;
 	png_infop info = png_create_info_struct(png);
 	if (! info)
 	{
 		png_destroy_write_struct(&png, 0);
+		fclose(file);
 		return 0;
 	}
 	if (setjmp(jmpbuf))
 	{
 		png_destroy_write_struct(&png, &info);
+		fclose(file);
 		return 0;
 	}
 	png_init_io(png, file);
@@ -59,4 +63,45 @@ int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
 	delete [] row;
 	fclose(file);
 	return 1;
+}
+
+std::string ReadPNGComment(const std::string &filename)
+{
+	jmp_buf jmpbuf;
+	FILE *file = fopen(filename.c_str(), "rb");
+	if (! file)
+		return "";
+	png_structp png = png_create_read_struct(PNG_LIBPNG_VER_STRING, &jmpbuf, kf_png_error_handler, kf_png_warning_handler);
+	if (! png)
+	{
+		fclose(file);
+		return "";
+	}
+	png_infop info = png_create_info_struct(png);
+	if (! info)
+	{
+		png_destroy_read_struct(&png, 0, 0);
+		fclose(file);
+		return "";
+	}
+	if (setjmp(jmpbuf))
+	{
+		png_destroy_read_struct(&png, &info, 0);
+		fclose(file);
+		return "";
+	}
+	png_init_io(png, file);
+	png_read_info(png, info);
+	png_textp text;
+	int count = 0;
+	std::string comment = "";
+	if (png_get_text(png, info, &text, &count) > 0)
+		for (int t = 0; t < count; t++)
+			if (0 == strcmp("Comment", text[t].key))
+				comment = text[t].text; // copy
+	// FIXME pngmeta (eg) skips the image data chunks and does png_read_info again
+	// FIXME but we only write out comments before the image data, so we should be fine
+	png_destroy_read_struct(&png, &info, 0);
+	fclose(file);
+  return comment;
 }
