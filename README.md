@@ -38,6 +38,7 @@ Known Bugs
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
+- "infinite waves" colouring doesn't work (blank image) (reported by gerrit)
 - examine zoom sequence auto solve glitches is much less effective at solving
   glitches than when rendering with auto solve glitches: possible precision
   loss / misalignment between pixels and true parameter plane locations?  for
