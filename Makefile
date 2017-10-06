@@ -16,6 +16,7 @@ fraktal_sft/dbl_functions.cpp \
 fraktal_sft/exp_functions2.cpp \
 fraktal_sft/exp_functions.cpp \
 fraktal_sft/fraktal_sft.cpp \
+fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/newton.cpp \
@@ -57,7 +58,7 @@ OPENCL_SOURCES_C =
 #OPENCL_SOURCES_CPP = cl/opencl.cpp
 #OPENCL_SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP) jpeg_static.cpp
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
 SOURCES_C = $(OPENCL_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
