@@ -139,6 +139,7 @@ Change Log
     - delete bitrotten code paths for SetEvent()-based multithreading
     - delete unused thread affinity setting code
     - parameter data is saved as comment in image files (both PNG and JPEG)
+    - can load parameters from image file comments (both PNG and JPEG)
     - delete obsolete VS build system
     - fix "infinite waves" colouring (reported by gerrit)
 
@@ -280,7 +281,6 @@ TODO
 - user interface: undo history for location data (suggested by TwinDragon)
 - user interface: undo history for calculation data (suggested by TwinDragon)
 - user interface: online help within program (suggested by TwinDragon)
-- user interface: load parameters from image file comments (PNG and JPEG)
 - user interface: drag-and-drop parameters or images on to main window to load
 - user interface: support system clipboard for parameters
 - calculations: implement scaled long double for e4900 to e9800

@@ -993,7 +993,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_BUTTON23){
 			char szFile[256]={0};
 			GetDlgItemText(hWnd,IDC_EDIT29,szFile,sizeof(szFile));
-			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0",szFile,sizeof(szFile))){
+			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0\0",szFile,sizeof(szFile))){
 				SetDlgItemText(hWnd,IDC_EDIT29,szFile);
 				SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			}
@@ -1072,7 +1072,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
 		else if(wParam==IDC_BUTTON1){
 			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0",szFile,sizeof(szFile)))
+			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile,sizeof(szFile)))
 				g_SFT.SaveFile(szFile);
 		}
 		else if(wParam==IDC_BUTTON29){
@@ -5518,12 +5518,18 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPEN_){
-			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
 				g_SFT.Stop();
 				g_bAnim=FALSE;
 				if(!g_SFT.OpenFile(g_szFile))
 					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
 				else{
+					char *extension = strrchr(g_szFile, '.');
+					if (extension && 0 != strcmp(".kfr", extension))
+					{
+						// prevent ctrl-s save overwriting a file with the wrong extension
+						strcat(extension, ".kfr");
+					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);

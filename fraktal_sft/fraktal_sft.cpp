@@ -19,6 +19,7 @@
 #include <float.h>
 #include <malloc.h>
 #include "complex.h"
+#include <string>
 #include <iostream>
 #include "../common/bitmap.h"
 #include "../formula/formula.h"
@@ -80,6 +81,9 @@ int(Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, vo
 int(Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
 int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
+
+std::string ReadPNGComment(const std::string &filename);
+std::string ReadJPEGComment(const std::string &filename);
 
 void ErrorText()
 {
@@ -3314,15 +3318,44 @@ COLOR14 CFraktalSFT::GetColor(int i)
 }
 BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 {
-	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return FALSE;
-	int nData = GetFileSize(hFile, NULL);
-	char *szData = new char[nData + 1];
-	ReadFile(hFile, szData, nData, &dw, NULL);
-	CloseHandle(hFile);
-	szData[nData] = 0;
+	char *szData = 0;
+
+	char *extension = strrchr(szFile, '.');
+	if (extension && 0 == strcmp(".png", extension))
+	{
+		std::string filename = szFile;
+		std::string comment = ReadPNGComment(filename);
+		if (comment == "")
+		  return FALSE;
+		size_t n = comment.length() + 1;
+		szData = new char[n];
+		strncpy(szData, comment.c_str(), n);
+		szData[n-1] = 0;
+	}
+	else if (extension && (0 == strcmp(".jpg", extension) || 0 == strcmp(".jpeg", extension)))
+	{
+		std::string filename = szFile;
+		std::string comment = ReadJPEGComment(filename);
+		if (comment == "")
+		  return FALSE;
+		size_t n = comment.length() + 1;
+		szData = new char[n];
+		strncpy(szData, comment.c_str(), n);
+		szData[n-1] = 0;
+	}
+	else // anything else, probably .kfr
+	{
+		DWORD dw;
+		HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		if (hFile == INVALID_HANDLE_VALUE)
+			return FALSE;
+		int nData = GetFileSize(hFile, NULL);
+		szData = new char[nData + 1];
+		ReadFile(hFile, szData, nData, &dw, NULL);
+		CloseHandle(hFile);
+		szData[nData] = 0;
+	}
+
 	CStringTable stParams(szData, ": ", "\r\n");
 	delete[] szData;
 	int nR = stParams.FindString(0, "Re");
