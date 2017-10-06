@@ -109,7 +109,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.4** (????-??-??)
+- **kf-2.12.4** (2017-10-06)
 
     - "glitch low tolerance" checkbox that can be enabled to detect glitches
       more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
