@@ -38,7 +38,6 @@ Known Bugs
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
-- "infinite waves" colouring doesn't work (blank image) (reported by gerrit)
 - examine zoom sequence auto solve glitches is much less effective at solving
   glitches than when rendering with auto solve glitches: possible precision
   loss / misalignment between pixels and true parameter plane locations?  for
@@ -136,11 +135,12 @@ Change Log
     - build against an installed libjpeg instead of each time after clean
     - fix broken complex formula reference calculations
     - fix compilation warnings (now almost clean with -Wall -Wextra)
-    - compile as C++17
+    - compile as C++17 (should also still work as C++11 and C++14)
     - delete bitrotten code paths for SetEvent()-based multithreading
     - delete unused thread affinity setting code
     - parameter data is saved as comment in image files (both PNG and JPEG)
     - delete obsolete VS build system
+    - fix "infinite waves" colouring (reported by gerrit)
 
 - **kf-2.12.3** (2017-09-25)
 

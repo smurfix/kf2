@@ -748,6 +748,10 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				s.g = (nRGB.g + nRGB2.g) * 0.5f;
 				s.b = (nRGB.b + nRGB2.b) * 0.5f;
 			}
+			else
+			{
+				s = nRGB;
+			}
 		}
 		else{
 			if (m_bTrans && offs){
