@@ -1217,7 +1217,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==IDC_BUTTON22){
 			char szFile[256]={0};
-			if(!BrowseFile(hWnd,TRUE,"Open image","Image\0*.bmp;*.jp*g;*.gif\0",szFile,sizeof(szFile)))
+			if(!BrowseFile(hWnd,TRUE,"Open image","Image\0*.bmp;*.jp*g;*.gif\0\0",szFile,sizeof(szFile)))
 				return 0;
 			HBITMAP bmBmp = GetImage(szFile);
 			HDC hDC = GetDC(NULL);
@@ -1278,7 +1278,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==IDC_BUTTON5){
 			char szFile[256]={0};
-			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0",szFile,sizeof(szFile))){
+			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0\0",szFile,sizeof(szFile))){
 				DWORD dw;
 				HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
 				if(hFile==INVALID_HANDLE_VALUE)
@@ -2484,7 +2484,7 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 int ResumeZoomSequence(HWND hWnd)
 {
 	memset(g_szFile,0,sizeof(g_szFile));
-	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0",g_szFile,sizeof(g_szFile)))
+	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szFile,sizeof(g_szFile)))
 		return 0;
 	if(!g_SFT.OpenFile(g_szFile))
 		return MessageBox(hWnd,"Could not open file","Error",MB_OK|MB_ICONSTOP);
@@ -3168,7 +3168,7 @@ nPos=22;
 			g_bSaveJpeg=FALSE;
 nPos=23;
 			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0",szFile,sizeof(szFile))){
+			if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
 				if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
 					MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -3178,7 +3178,7 @@ nPos=23;
 			g_bSavePng=FALSE;
 nPos=24;
 			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0",szFile,sizeof(szFile))){
+			if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
 				if(!g_SFT.SaveJpg(szFile,-1))
 					MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -4876,7 +4876,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
-		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0",g_szFile,sizeof(g_szFile)))
+		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0\0",g_szFile,sizeof(g_szFile)))
 			g_SFT.SaveMapB(g_szFile);
 	}
 	else if(uMsg==WM_COMMAND && (wParam==ID_FILE_STOREZOOMOUTIMAGES)){
@@ -5051,7 +5051,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_EXAMINEZOOMSEQUENCE){
 		memset(g_szExamine,0,sizeof(g_szExamine));
-		if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0",g_szExamine,sizeof(g_szExamine)))
+		if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szExamine,sizeof(g_szExamine)))
 			return 0;
 		if(g_hwExamine)
 			SetFocus(g_hwExamine);
@@ -5557,7 +5557,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
-				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0",szFile,sizeof(szFile))){
+				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					char *e = strrchr(szFile,'.');
@@ -5583,7 +5583,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
-				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0",szFile,sizeof(szFile))){
+				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
 					if(!g_SFT.SaveJpg(szFile,-1,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					char *e = strrchr(szFile,'.');
@@ -5598,7 +5598,7 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEAS_){
-			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile,sizeof(g_szFile))){
 				if(!g_SFT.SaveFile(g_szFile))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[369];
