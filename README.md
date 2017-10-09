@@ -283,7 +283,9 @@ TODO
 - user interface: online help within program (suggested by TwinDragon)
 - user interface: drag-and-drop parameters or images on to main window to load
 - user interface: support system clipboard for parameters
+- user interface: save image now function (without waiting for calculations)
 - calculations: implement scaled long double for e4900 to e9800
+- calculations: increase ref count limit without restarting from scratch
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference
