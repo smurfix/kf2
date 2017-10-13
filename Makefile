@@ -23,6 +23,7 @@ fraktal_sft/main.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
 fraktal_sft/main_iterations.cpp \
+fraktal_sft/main_position.cpp \
 fraktal_sft/newton.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/Settings.cpp
@@ -40,6 +41,7 @@ fraktal_sft/main.h \
 fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
 fraktal_sft/main_iterations.h \
+fraktal_sft/main_position.h \
 fraktal_sft/newton.h \
 fraktal_sft/png.h \
 fraktal_sft/resource.h \
