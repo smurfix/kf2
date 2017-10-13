@@ -36,6 +36,7 @@
 #include "jpeg.h"
 #include "png.h"
 #include "main.h"
+#include "main_iterations.h"
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -140,7 +141,7 @@ char g_szExamine[256];
 CStringTable g_stExamine;
 int g_nExamine=-1;
 int g_nExamineZoom=-1;
-BOOL g_bExamineDirty=FALSE;
+bool g_bExamineDirty=false;
 static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
 	// TODO add support for strict aliasing optimisations, "restrict" etc
@@ -219,9 +220,8 @@ static void kSetDlgItemInt(HWND hWnd,int nID,int val)
 	sprintf(szText,"%d",val);
 	SetDlgItemText(hWnd,nID,szText);
 }
-int g_nPrevCalc=-1;
 
-static char * GetToolText(int nID,LPARAM lParam)
+extern char * GetToolText(int nID,LPARAM lParam)
 {
 	if(lParam==0){
 		switch(nID){
@@ -358,50 +358,7 @@ static char * GetToolText(int nID,LPARAM lParam)
 		}
 	}
 	else if(lParam==1){
-		switch(nID){
-		case IDC_EDIT1:
-			return "Maximum number of iterations";
-		case IDC_EDIT2:
-			return "Minimum number of iteration in current view";
-		case IDC_EDIT5:
-			return "Maximum number of iteration in current view";
-		case IDC_EDIT7:
-			return "Iterations skipped by Series Approximation";
-		case IDC_COMBO2:
-			return "Bailout value for iterations";
-		case IDC_COMBO3:
-			return "Power of Mandelbrot function";
-		case IDC_EDIT3:
-			return "Maximum of extra references for glitch correction";
-		case IDC_GLITCHLOWTOLERANCE:
-			return "Checked for low tolerance of Glitch Detection\nComplex images may need this to be checked to be rendered correctly\nThe render time may be faster if this checkbox is not checked";
-		case IDC_CHECK1:
-			return "Checked for low tolerance of Series Approximation\nComplex images may need this to be checked to be rendered correctly\nThe render time may be faster if this checkbox is not checked";
-		case IDC_CHECK2:
-			return "Terms for Series approximation is adjusted\nbased on the number of pixels to be rendered.";
-		case IDC_COMBO5:
-			return "List of type of Mandelbrot based Fractals\nSome of them have additional Power options";
-		case IDC_COMBO6:
-			return "Terms for Series approximation.\nMore terms usually yield more skipped iterations and faster rendering,\nhowever is more time consuming to be processed";
-		case IDC_EDIT8:
-			return "Display number of calculations performed";
-		case IDC_CHECK3:
-			return "Include real part when checking bailout.\nUncheck for variation";
-		case IDC_CHECK5:
-			return "Include imaginary part when checking bailout.\nUncheck for variation";
-		case 1002:
-			return "Real seed value (0 is standard)";
-		case 1003:
-			return "Imaginary seed value (0 is standard)";
-		case IDOK:
-			return "Apply and close";
-		case IDCANCEL:
-			return "Close and undo";
-#ifdef KF_OPENCL
-		case IDC_COMBO_OPENCL_DEVICE:
-			return "Select the OpenCL device to use for per-pixel iteration calculations";
-#endif
-		}
+		return const_cast<char *>(IterationToolTip(nID));
 	}
 	else if(lParam==2){
 		switch(nID){
@@ -477,251 +434,98 @@ static char * GetToolText(int nID,LPARAM lParam)
 	static char szTmp[128];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
 	return szTmp;
+#ifdef KF_OPENCL
+		case IDC_COMBO_OPENCL_DEVICE:
+			return "Select the OpenCL device to use for per-pixel iteration calculations";
+#endif
 }
 
+// settings update
 
-static int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static void UpdateZoomSize(HWND hWnd)
 {
-	(void) lParam;
-	if(uMsg==WM_INITDIALOG || uMsg==WM_TIMER){
-		if(uMsg==WM_INITDIALOG){
-			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
-			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
-			SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetIterations(),FALSE);
-			SetTimer(hWnd,0,1000,NULL);
+	double z = g_SFT.GetZoomSize();
+	// FIXME
+}
 
-			SendDlgItemMessage(hWnd,IDC_COMBO2,CB_ADDSTRING,0,(LPARAM)"High bailout");
-			SendDlgItemMessage(hWnd,IDC_COMBO2,CB_ADDSTRING,0,(LPARAM)"Bailout=2");
-			SendDlgItemMessage(hWnd,IDC_COMBO2,CB_SETCURSEL,g_SFT.GetSmoothMethod(),0);
+static void UpdateWindowSize(HWND hWnd)
+{
+	int w = g_SFT.GetWindowWidth();
+	int h = g_SFT.GetWindowHeight();
+	// FIXME
+}
 
-			combo5_addstrings(hWnd, IDC_COMBO5);
+static void UpdateImageSize(HWND hWnd)
+{
+	int w = g_SFT.GetImageWidth();
+	int h = g_SFT.GetImageHeight();
+	// FIXME
+}
 
-			SIZE sc;
-			HDC hDC = GetDC(NULL);
-			SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
-			int i, nMaxWidth=0;
-			for(i=0;i<SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCOUNT,0,0);i++){
-				int n = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETLBTEXTLEN,i,0);
-				char *szT = new char[n+1];
-				SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETLBTEXT,i,(LPARAM)szT);
-				GetTextExtentPoint32A(hDC,szT,strlen(szT),&sc);
-				if(sc.cx>nMaxWidth)
-					nMaxWidth = sc.cx;
-				delete szT;
-			}
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_SETDROPPEDWIDTH,nMaxWidth+8+GetSystemMetrics(SM_CXHTHUMB),0);
+static void UpdateAnimateZoom(HWND hWnd)
+{
+	bool b = g_SFT.GetAnimateZoom();
+	// FIXME
+}
 
-			SendDlgItemMessage(hWnd,IDC_COMBO5,CB_SETCURSEL,g_SFT.GetFractalType(),0);
-			int nType = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"2");
-			if(nType<=4 || nType>=10)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"3");
-			if(nType==0){
-				int p;
-				for(p=4;p<=10;p++){
-					char szNum[4];
-					wsprintf(szNum,"%d",p);
-					SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)szNum);
-				}
-			}
-			else{
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"4");
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"5");
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"6");
-			}
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,g_SFT.GetPower()-2,0);
-			EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType<=4);
-			if(nType>=10)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-			if(nType>=15)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType>=27)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-			if(nType>=33)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType==40)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-			if(nType==41)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-			if(nType>=42)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-			if(nType==45 || nType==46)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType==47 || nType==48)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-			if(nType==49 || nType==50)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-			if(nType>=51)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+static void UpdateArbitrarySize(HWND hWnd)
+{
+	bool b = g_SFT.GetArbitrarySize();
+	// FIXME
+}
 
-			SendDlgItemMessage(hWnd,IDC_GLITCHLOWTOLERANCE,BM_SETCHECK,g_SFT.GetGlitchLowTolerance(),0);
-			SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,g_SFT.GetApproxLowTolerance(),0);
-			SendDlgItemMessage(hWnd,IDC_CHECK2,BM_SETCHECK,g_SFT.GetAutoApproxTerms(),0);
-			SetDlgItemInt(hWnd,IDC_COMBO3,g_SFT.GetPower(),FALSE);
-			SetDlgItemInt(hWnd,IDC_EDIT3,g_SFT.GetMaxReferences(),FALSE);
+static void UpdateReuseReference(HWND hWnd)
+{
+	bool b = g_SFT.GetReuseReference();
+	// FIXME
+}
 
-			SendDlgItemMessage(hWnd,IDC_COMBO6,CB_ADDSTRING,0,(LPARAM)"5");
-			SendDlgItemMessage(hWnd,IDC_COMBO6,CB_ADDSTRING,0,(LPARAM)"10");
-			SendDlgItemMessage(hWnd,IDC_COMBO6,CB_ADDSTRING,0,(LPARAM)"15");
-			SendDlgItemMessage(hWnd,IDC_COMBO6,CB_ADDSTRING,0,(LPARAM)"20");
-			SendDlgItemMessage(hWnd,IDC_COMBO6,CB_ADDSTRING,0,(LPARAM)"30");
-			SetDlgItemInt(hWnd,IDC_COMBO6,g_SFT.GetApproxTerms(),FALSE);
+static void UpdateAutoSolveGlitches(HWND hWnd)
+{
+	bool b = g_SFT.GetAutoSolveGlitches();
+	// FIXME
+}
 
-			//if(nType)
-			//	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-			//EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType==0);
-			EnableWindow(GetDlgItem(hWnd,IDC_CHECK2),nType==0 && g_SFT.GetPower()==2);
-			EnableWindow(GetDlgItem(hWnd,IDC_COMBO6),nType==0 && g_SFT.GetPower()==2);
+static void UpdateSolveGlitchNear(HWND hWnd)
+{
+	bool b = g_SFT.GetSolveGlitchNear();
+	// FIXME
+}
 
-			SendDlgItemMessage(hWnd,IDC_CHECK3,BM_SETCHECK,g_real==0?0:1,0);
-			SendDlgItemMessage(hWnd,IDC_CHECK5,BM_SETCHECK,g_imag==0?0:1,0);
+static void UpdateNoApprox(HWND hWnd)
+{
+	bool b = g_SFT.GetNoApprox();
+	// FIXME
+}
 
-			char szTmp[40];
-			sprintf(szTmp,"%g",g_SeedR);
-			SetDlgItemText(hWnd,IDC_EDIT4,szTmp);
-			sprintf(szTmp,"%g",g_SeedI);
-			SetDlgItemText(hWnd,IDC_EDIT9,szTmp);
+static void UpdateMirror(HWND hWnd)
+{
+	bool b = g_SFT.GetMirror();
+	// FIXME
+}
 
-			sprintf(szTmp,"%g",g_FactorAR);
-			SetDlgItemText(hWnd,IDC_EDIT28,szTmp);
-			sprintf(szTmp,"%g",g_FactorAI);
-			SetDlgItemText(hWnd,IDC_EDIT10,szTmp);
-		}
-		int nMin, nMax, nCalc=0,nType=0;
-		g_SFT.GetIterations(nMin,nMax,&nCalc,&nType);
-		SetDlgItemInt(hWnd,IDC_EDIT2,nMin,FALSE);
-		SetDlgItemInt(hWnd,IDC_EDIT5,nMax,FALSE);
-		SetDlgItemInt(hWnd,IDC_EDIT7,g_SFT.GetMaxApproximation(),FALSE);
-		if(uMsg==WM_TIMER){
-			char szCalc[128];
-			wsprintf(szCalc,"%d",nCalc);
-			int k=strlen(szCalc);
-			while(k>3){
-				int n=strlen(szCalc);
-				while(n>k-4){
-					szCalc[n+1]=szCalc[n];
-					n--;
-				}
-				szCalc[k-3]=' ';
-				k-=3;
-			}
-			if(nType)
-				strcat(szCalc," 000 000");
-			if(g_nPrevCalc!=-1){
-				int nC = nCalc-g_nPrevCalc;
-				if(!nType)
-					nC/=1000000;
-				wsprintf(szCalc+strlen(szCalc),", %d M/s",nC);
-			}
-			g_nPrevCalc=nCalc;
-			SetDlgItemText(hWnd,IDC_EDIT8,szCalc);
-			if(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0))
-				SetDlgItemInt(hWnd,IDC_COMBO6,g_SFT.GetApproxTerms(),FALSE);
-		}
-		else
-			g_nPrevCalc=-1;
-		return 1;
-	}
-	else if(uMsg==WM_COMMAND){
-		if(wParam==IDOK){
-			g_real = SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0);
-			g_imag = SendDlgItemMessage(hWnd,IDC_CHECK5,BM_GETCHECK,0,0);
-			char szTmp[40];
-			GetDlgItemText(hWnd,IDC_EDIT4,szTmp,sizeof(szTmp));
-			g_SeedR = atof(szTmp);
-			GetDlgItemText(hWnd,IDC_EDIT9,szTmp,sizeof(szTmp));
-			g_SeedI = atof(szTmp);
-			GetDlgItemText(hWnd,IDC_EDIT28,szTmp,sizeof(szTmp));
-			g_FactorAR = atof(szTmp);
-			GetDlgItemText(hWnd,IDC_EDIT10,szTmp,sizeof(szTmp));
-			g_FactorAI = atof(szTmp);
+static void UpdateLongDoubleAlways(HWND hWnd)
+{
+	bool b = g_SFT.GetLongDoubleAlways();
+	// FIXME
+}
 
-			g_bExamineDirty=TRUE;
-			g_SFT.SetSmoothMethod(SendDlgItemMessage(hWnd,IDC_COMBO2,CB_GETCURSEL,0,0));
-			char szPower[256];
-			GetDlgItemText(hWnd,IDC_COMBO6,szPower,sizeof(szPower));
-			g_SFT.SetApproxTerms(atoi(szPower));
-			g_SFT.SetGlitchLowTolerance(SendDlgItemMessage(hWnd,IDC_GLITCHLOWTOLERANCE,BM_GETCHECK,0,0));
-			g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0));
-			g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
-			ExitToolTip(hWnd);
-			EndDialog(hWnd,GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0));
-			g_SFT.SetFractalType(SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0));
-			g_SFT.SetMaxReferences(GetDlgItemInt(hWnd,IDC_EDIT3,NULL,FALSE));
-			GetDlgItemText(hWnd,IDC_COMBO3,szPower,sizeof(szPower));
-			g_SFT.SetPower(atoi(szPower));
-		}
-		else if(wParam==IDC_CHECK3){
-			if(!SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0) && !SendDlgItemMessage(hWnd,IDC_CHECK5,BM_GETCHECK,0,0))
-				SendDlgItemMessage(hWnd,IDC_CHECK5,BM_SETCHECK,1,0);
-		}
-		else if(wParam==IDC_CHECK5){
-			if(!SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0) && !SendDlgItemMessage(hWnd,IDC_CHECK5,BM_GETCHECK,0,0))
-				SendDlgItemMessage(hWnd,IDC_CHECK3,BM_SETCHECK,1,0);
-		}
-		else if(wParam==IDCANCEL){
-			ExitToolTip(hWnd);
-			EndDialog(hWnd,0);
-		}
-		else if(HIWORD(wParam)==CBN_SELCHANGE && LOWORD(wParam)==IDC_COMBO5){
-			int nType = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
-			int nPow = SendDlgItemMessage(hWnd,IDC_COMBO3,CB_GETCURSEL,0,0);
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_RESETCONTENT,0,0);
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"2");
-			if(nType<=4 || nType>=10)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"3");
-			if(nType==0){
-				int p;
-				for(p=4;p<=10;p++){
-					char szNum[4];
-					wsprintf(szNum,"%d",p);
-					SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)szNum);
-				}
-			}
-			else{
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"4");
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"5");
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"6");
-			}
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,nPow,0);
-			if(SendDlgItemMessage(hWnd,IDC_COMBO3,CB_GETCURSEL,0,0)==-1)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-#ifndef _DEBUG
-			EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType<=4);
-#endif
-			if(nType>=10)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-			if(nType>=15)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType>=27)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-			if(nType>=33)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType==40)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-			if(nType==41)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-			if(nType>=42)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-			if(nType==45 || nType==46)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-			if(nType==47 || nType==48)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-			if(nType==49 || nType==50)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-			if(nType>=51)
-				SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-		}
-		int nType = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
-//		if(nType)
-//			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-//		EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType==0);
-		EnableWindow(GetDlgItem(hWnd,IDC_CHECK2),nType==0 && GetDlgItemInt(hWnd,IDC_COMBO3,NULL,FALSE)==2);
-		EnableWindow(GetDlgItem(hWnd,IDC_COMBO6),nType==0 && GetDlgItemInt(hWnd,IDC_COMBO3,NULL,FALSE)==2);
-		EnableWindow(GetDlgItem(hWnd,IDC_COMBO6),!SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
-	}
-	return 0;
+static void UpdateFloatExpAlways(HWND hWnd)
+{
+	bool b = g_SFT.GetFloatExpAlways();
+	// FIXME
+}
+
+static void UpdateAutoIterations(HWND hWnd)
+{
+	bool b = g_SFT.GetAutoIterations();
+	// FIXME
+}
+
+static void UpdateShowGlitches(HWND hWnd)
+{
+	bool b = g_SFT.GetShowGlitches();
+	// FIXME
 }
 
 #if 0

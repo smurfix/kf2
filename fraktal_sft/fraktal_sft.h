@@ -481,4 +481,7 @@ extern BOOL g_LDBL;
 
 const double pi = 3.141592653589793;
 
+// singleton instance
+extern CFraktalSFT g_SFT;
+
 #endif
