@@ -5,8 +5,8 @@
 
 #include <windows.h>
 #include "../common/StringVector.h"
-std::string ReadPNGComment(const std::string &filename);
-std::string ReadJPEGComment(const std::string &filename);
+#include "jpeg.h"
+#include "png.h"
 
 bool Settings::FromText(const std::string &text)
 {

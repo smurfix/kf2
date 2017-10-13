@@ -1,5 +1,5 @@
-#ifndef COLOUR_H
-#define COLOUR_H 1
+#ifndef KF_COLOUR_H
+#define KF_COLOUR_H 1
 
 // linear rgb in 0..1
 

@@ -5,6 +5,8 @@
 #include <png.h>
 #include <zlib.h>
 
+#include "png.h"
+
 static void kf_png_error_handler(png_structp png, png_const_charp msg)
 {
 	// FIXME make this display in the GUI or something
@@ -19,7 +21,7 @@ static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 	fprintf(stderr, "PNG WARNING: %s\n", msg);
 }
 
-int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment)
+extern int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment)
 {
 	jmp_buf jmpbuf;
 	if (nColors != 3)
@@ -65,7 +67,7 @@ int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
 	return 1;
 }
 
-std::string ReadPNGComment(const std::string &filename)
+extern std::string ReadPNGComment(const std::string &filename)
 {
 	jmp_buf jmpbuf;
 	FILE *file = fopen(filename.c_str(), "rb");

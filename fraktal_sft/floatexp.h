@@ -1,5 +1,5 @@
-#ifndef __FLOATEXP_H__
-#define __FLOATEXP_H__
+#ifndef KF_FLOATEXP_H
+#define KF_FLOATEXP_H
 
 #include <math.h>
 #include <stdint.h>
@@ -364,4 +364,4 @@ inline void mpf_set_fe(mpf_t value, floatexp fe)
 	}
 }
 
-#endif //__FLOATEXP_H__
+#endif

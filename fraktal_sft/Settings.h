@@ -1,5 +1,5 @@
-#ifndef SETTINGS_H
-#define SETTINGS_H 1
+#ifndef KF_SETTINGS_H
+#define KF_SETTINGS_H 1
 
 #include <string>
 

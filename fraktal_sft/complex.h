@@ -1,5 +1,6 @@
-#ifndef __COMPLEX_H__
-#define __COMPLEX_H__
+#ifndef KF_COMPLEX_H
+#define KF_COMPLEX_H
+
 template <class tt> class complex
 {
 public:
@@ -119,4 +120,4 @@ inline complex<tt> operator*(int a, const complex<tt> &b)
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
-#endif //__COMPLEX_H__
+#endif

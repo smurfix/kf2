@@ -1,5 +1,5 @@
-#ifndef FRAKTAL_SFT_H
-#define FRAKTAL_SFT_H 1
+#ifndef KF_FRAKTAL_SFT_H
+#define KF_FRAKTAL_SFT_H 1
 
 #include <windows.h>
 #include "Settings.h"

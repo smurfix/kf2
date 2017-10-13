@@ -30,8 +30,10 @@ fraktal_sft/colour.h \
 fraktal_sft/complex.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
+fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
 fraktal_sft/newton.h \
+fraktal_sft/png.h \
 fraktal_sft/resource.h \
 fraktal_sft/Settings.h
 

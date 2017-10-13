@@ -24,6 +24,8 @@
 #include "../common/bitmap.h"
 #include "../formula/formula.h"
 #include "colour.h"
+#include "jpeg.h"
+#include "png.h"
 
 double g_real=1;
 double g_imag=1;
@@ -80,9 +82,6 @@ int(Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, vo
 int(Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
 int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
-
-std::string ReadPNGComment(const std::string &filename);
-std::string ReadJPEGComment(const std::string &filename);
 
 void ErrorText()
 {

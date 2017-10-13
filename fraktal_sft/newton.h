@@ -1,5 +1,5 @@
-#ifndef NEWTON_H
-#define NEWTON_H 1
+#ifndef KF_NEWTON_H
+#define KF_NEWTON_H 1
 
 extern BOOL g_bNewtonRunning;
 extern BOOL g_bNewtonStop;

@@ -11,6 +11,10 @@ extern "C"
 #include <memory.h>
 #include <malloc.h>
 
+#include "jpeg.h"
+
+#if 0
+
 #if defined(__GNUC__) && !defined(__clang__)
 #pragma GCC diagnostic ignored "-Wclobbered"
 #endif
@@ -166,6 +170,8 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
   /* And we're done! */
   return 1;
 }
+
+#endif
 
 
 int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment)

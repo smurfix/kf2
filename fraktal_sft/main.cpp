@@ -33,6 +33,8 @@
 #include "../common/bitmap.h"
 #include <png.h>
 #include <zlib.h>
+#include "jpeg.h"
+#include "png.h"
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -138,8 +140,6 @@ CStringTable g_stExamine;
 int g_nExamine=-1;
 int g_nExamineZoom=-1;
 BOOL g_bExamineDirty=FALSE;
-int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment);
-int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment);
 void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
 	// TODO add support for strict aliasing optimisations, "restrict" etc

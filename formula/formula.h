@@ -1,5 +1,5 @@
-#ifndef FORMULA_H
-#define FORMULA_H 1
+#ifndef KF_FORMULA_H
+#define KF_FORMULA_H 1
 
 class CFixedFloat;
 class floatexp;
