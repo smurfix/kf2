@@ -54,7 +54,6 @@ extern double g_FactorAI;
 
 //#define PARAM_ANIMATION
 
-BOOL g_nAnimateZoom=TRUE;
 BOOL g_bNewton=FALSE;
 HWND g_hwNewton=NULL;
 BOOL g_bResizing=FALSE;
@@ -262,7 +261,13 @@ extern char * GetToolText(int nID,LPARAM lParam)
 static void UpdateZoomSize(HWND hWnd)
 {
 	double z = g_SFT.GetZoomSize();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_16,MF_BYCOMMAND|(z==16?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_32,MF_BYCOMMAND|(z==32?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_64,MF_BYCOMMAND|(z==64?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(z==128?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -282,7 +287,7 @@ static void UpdateImageSize(HWND hWnd)
 static void UpdateAnimateZoom(HWND hWnd)
 {
 	bool b = g_SFT.GetAnimateZoom();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ANIMATEZOOM,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateArbitrarySize(HWND hWnd)
@@ -864,13 +869,7 @@ static int ResumeZoomSequence(HWND hWnd)
 		CDecNumber B(g_szExamine);
 		g_SFT.SetZoomSize((B/A+CDecNumber(0.5)).ToInt());
 	}
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_2,MF_BYCOMMAND|(g_SFT.GetZoomSize()==2?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|(g_SFT.GetZoomSize()==4?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_8,MF_BYCOMMAND|(g_SFT.GetZoomSize()==8?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_16,MF_BYCOMMAND|(g_SFT.GetZoomSize()==16?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_32,MF_BYCOMMAND|(g_SFT.GetZoomSize()==32?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_64,MF_BYCOMMAND|(g_SFT.GetZoomSize()==64?MF_CHECKED:MF_UNCHECKED));
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(g_SFT.GetZoomSize()==128?MF_CHECKED:MF_UNCHECKED));
+	UpdateZoomSize(hWnd);
 	if(stExamine.GetCount()){
 		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(stExamine.GetCount()-(bRecoveryFile?0:1)));
 		char *szR = g_SFT.GetRe();
@@ -1265,7 +1264,7 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 nPos=0;
 	int nG, nR, nA;
 	int nP = g_SFT.GetProgress(&nG,&nR,&nA);
-	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_nAnimateZoom)){
+	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
@@ -1317,7 +1316,7 @@ nPos=9;
 	}
 nPos=10;
 	SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
-	if(nP && (!g_bAnim || !g_nAnimateZoom))
+	if(nP && (!g_bAnim || !g_SFT.GetAnimateZoom()))
 		InvalidateRect(hWnd,NULL,FALSE);
 nPos=11;
 	if(uMsg==WM_USER+199){
@@ -1325,7 +1324,7 @@ nPos=11;
 //			g_nAnim++;
 //			g_bAnim=FALSE;
 		g_SFT.ApplyColors();
-		if(!g_bAnim || !g_nAnimateZoom){
+		if(!g_bAnim || !g_SFT.GetAnimateZoom()){
 			InvalidateRect(hWnd,NULL,FALSE);
 			UpdateWindow(hWnd);
 		}
@@ -2232,9 +2231,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_SFT.GetAutoSolveGlitches()?MF_CHECKED:MF_UNCHECKED));
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(g_SFT.GetAutoIterations()?MF_CHECKED:MF_UNCHECKED));
 
-		g_nAnimateZoom = GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini");
+		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
+		UpdateAnimateZoom(hWnd);
+
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ANIMATEZOOM,MF_BYCOMMAND|(g_nAnimateZoom?MF_CHECKED:MF_UNCHECKED));
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_CLOSE)
@@ -2300,7 +2300,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(g_hwNewton,WM_USER+1,0,(LPARAM)&r);
 			return 0;
 		}
-		if(!HIWORD(GetKeyState(VK_CONTROL)) && !g_bRotate && !g_bFindMinibrot && g_nAnimateZoom && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
+		if(!HIWORD(GetKeyState(VK_CONTROL)) && !g_bRotate && !g_bFindMinibrot && g_SFT.GetAnimateZoom() && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
 			while(g_bAnim){
 				Sleep(3);
 			}
@@ -2648,7 +2648,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (g_pSelect.x+g_pTrackStart.x)/2;
 		p.y = (g_pSelect.y+g_pTrackStart.y)/2;
 
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = -g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()/2;
 			ANIM* pAnim = new ANIM;
@@ -2700,7 +2700,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		LineTo(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2));
 		ReleaseDC(hWnd,hDC);
 		if(uMsg==WM_LBUTTONUP || uMsg==WM_CAPTURECHANGED){
-			if(g_nAnimateZoom && !g_bAddMainReference && !g_bAddReference && !g_bEraser){
+			if(g_SFT.GetAnimateZoom() && !g_bAddMainReference && !g_bAddReference && !g_bEraser){
 				ANIM* pAnim = new ANIM;
 				pAnim->nZoomSize = g_SFT.GetZoomSize();
 				pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
@@ -2741,7 +2741,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				DeleteDC(dcSBmp);
 				ReleaseDC(NULL,hDC);
 				g_SFT.UpdateBitmap();
-				if(!g_nAnimateZoom){
+				if(!g_SFT.GetAnimateZoom()){
 					InvalidateRect(hWnd,NULL,FALSE);
 					UpdateWindow(hWnd);
 				}
@@ -2924,7 +2924,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		if(!g_nAnimateZoom){
+		if(!g_SFT.GetAnimateZoom()){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_LBUTTONDOWN,0,MAKELONG(p.x,p.y));
 			PostMessage(hWnd,WM_LBUTTONUP,0,MAKELONG(p.x,p.y));
@@ -2953,7 +2953,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOut = FALSE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			DWORD dw;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
 			CloseHandle(hThread);
@@ -2991,7 +2991,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		if(!g_nAnimateZoom){
+		if(!g_SFT.GetAnimateZoom()){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_RBUTTONDOWN,0,MAKELONG(p.x,p.y));
 			PostMessage(hWnd,WM_RBUTTONUP,0,MAKELONG(p.x,p.y));
@@ -3015,7 +3015,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOut = TRUE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			DWORD dw;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
 			CloseHandle(hThread);
@@ -3047,9 +3047,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_ANIMATEZOOM){
-		g_nAnimateZoom=!g_nAnimateZoom;
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ANIMATEZOOM,MF_BYCOMMAND|(g_nAnimateZoom?MF_CHECKED:MF_UNCHECKED));
-		WritePrivateProfileString("SETTINGS","AnimateZoom",g_nAnimateZoom?"1":"0","fraktal_sft.ini");
+		g_SFT.SetAnimateZoom(! g_SFT.GetAnimateZoom());
+		UpdateAnimateZoom(hWnd);
+		WritePrivateProfileString("SETTINGS","AnimateZoom",g_SFT.GetAnimateZoom()?"1":"0","fraktal_sft.ini");
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_ARBITRARYSIZE){
 		if(g_SFT.GetArbitrarySize()){
@@ -3425,7 +3425,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		r.bottom-=(sr.bottom-sr.top);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = -g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()/2;
 			ANIM* pAnim = new ANIM;
@@ -3449,7 +3449,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		r.bottom-=(sr.bottom-sr.top);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()+g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()/2;
 			ANIM* pAnim = new ANIM;
@@ -3473,7 +3473,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		r.bottom-=(sr.bottom-sr.top);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()/2;
 			g_pSelect.y = -g_SFT.GetHeight()/2;
 			ANIM* pAnim = new ANIM;
@@ -3497,7 +3497,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		r.bottom-=(sr.bottom-sr.top);
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()+g_SFT.GetHeight()/2;
 			ANIM* pAnim = new ANIM;
@@ -3618,7 +3618,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		rc.bottom-=sr.bottom;
 		g_pSelect.x = (short)LOWORD(lParam)*g_SFT.GetWidth()/rc.right;
 		g_pSelect.y = (short)HIWORD(lParam)*g_SFT.GetHeight()/rc.bottom;
-		if(g_nAnimateZoom){
+		if(g_SFT.GetAnimateZoom()){
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
@@ -3801,14 +3801,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 						g_SFT.SetZoomSize(2);
 				}
 			}
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_1,MF_BYCOMMAND|(g_SFT.GetZoomSize()==1?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_2,MF_BYCOMMAND|(g_SFT.GetZoomSize()==2?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|(g_SFT.GetZoomSize()==4?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_8,MF_BYCOMMAND|(g_SFT.GetZoomSize()==8?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_16,MF_BYCOMMAND|(g_SFT.GetZoomSize()==16?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_32,MF_BYCOMMAND|(g_SFT.GetZoomSize()==32?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_64,MF_BYCOMMAND|(g_SFT.GetZoomSize()==64?MF_CHECKED:MF_UNCHECKED));
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(g_SFT.GetZoomSize()==128?MF_CHECKED:MF_UNCHECKED));
+			UpdateZoomSize(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_REUSEREFERENCE){
 			g_SFT.SetReuseReference(! g_SFT.GetReuseReference());
