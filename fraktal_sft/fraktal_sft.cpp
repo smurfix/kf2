@@ -32,7 +32,6 @@ double g_SeedI=0;
 double g_FactorAR=1;
 double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
-double pi = 3.14159265;
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
 int g_nLDBL = 600;
@@ -114,7 +113,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nImgRatio=100;
 	*m_szTexture=0;
 
-	g_bShowGlitches=TRUE;
 	m_bSlopes = FALSE;
 	m_nSlopePower = 50;
 	m_nSlopeRatio = 50;
@@ -154,7 +152,6 @@ CFraktalSFT::CFraktalSFT()
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
-	m_bNoApproximation = FALSE;
 	m_nXPrev = m_nYPrev = -1;
 	m_nSizeImage = -1;
 	m_nTotal = -1;
@@ -178,7 +175,6 @@ CFraktalSFT::CFraktalSFT()
 	m_lpBits = NULL;
 	m_row = 0;
 	m_nMaxIter = 200;
-	m_bReuseRef = FALSE;
 	m_nIterDiv = 1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
@@ -547,7 +543,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	s.r = 0;
 	s.g = 0;
 	s.b = 0;
-	if (nIter<0 || (!g_bShowGlitches && offs==2))
+	if (nIter<0 || (!GetShowGlitches() && offs==2))
 		return;
 	if (nIter == m_nMaxIter)
 	{
@@ -1005,7 +1001,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		mindiff = 0.001;
 	//	if(dbTr[0]<0 && dbTi[0]<1e-16 && dbTi[0]>-1e-16)
 	//		mindiff = 0.0000001;
-	if (m_bNoApproximation)
+	if (GetNoApprox())
 		mindiff = 0;
 	m_APr[0] = 1;
 	m_APi[0] = 0;
@@ -1015,7 +1011,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			nT = 5;
 		if (nT>60)
 			nT = 60;
-		SetTerms(nT);
+		SetApproxTerms(nT);
 	}
 	for (i = 1; i<m_nTerms; i++){
 		m_APr[i] = 0;
@@ -1259,7 +1255,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		m_APr[i] = APr[i];
 		m_APi[i] = APi[i];
 	}
-	if (m_bNoApproximation)
+	if (GetNoApprox())
 		m_nMaxApproximation = 0;
 	delete[] APr;
 	delete[] APi;
@@ -1440,14 +1436,6 @@ void CFraktalSFT::Mirror(int x, int y)
 	m_nTrans[tx][ty] = m_nTrans[x][y];
 	int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
 	SetColor(nIndex1, m_nPixels[x][ty], m_nTrans[x][ty], x, ty);
-}
-int CFraktalSFT::GetMirror()
-{
-	return m_bMirrored;
-}
-void CFraktalSFT::SetMirror(BOOL bMirror)
-{
-	m_bMirrored = bMirror;
 }
 
 #define GET_EXP(val) ((*((__int64*)&val) & 0x7FF0000000000000)>>52)
@@ -1728,7 +1716,7 @@ void CFraktalSFT::MandelCalc()
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-		if (!nPStep && (!bGlitch || g_bShowGlitches)){
+		if (!nPStep && (!bGlitch || GetShowGlitches())){
 			int q;
 			int nE = nStepSize*nStepSize;
 			for (q = 0; q<nE; q++){
@@ -1974,7 +1962,7 @@ void CFraktalSFT::MandelCalcLDBL()
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-		if (!nPStep && (!bGlitch || g_bShowGlitches)){
+		if (!nPStep && (!bGlitch || GetShowGlitches())){
 			int q;
 			int nE = nStepSize*nStepSize;
 			for (q = 0; q<nE; q++){
@@ -2269,7 +2257,7 @@ void CFraktalSFT::RenderFractal()
 	}
 	m_P.Init(2, m_nX, m_nY);
 	int i;
-	if (!m_bReuseRef || !m_db_dxr || m_nZoom<g_nRefZero){
+	if (!GetReuseReference() || !m_db_dxr || m_nZoom<g_nRefZero){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
@@ -2415,7 +2403,7 @@ void CFraktalSFT::RenderFractalLDBL()
 		2
 #endif
 		, m_nX, m_nY);
-	if (!m_bReuseRef || !m_ldxr){
+	if (!GetReuseReference() || !m_ldxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
@@ -2524,7 +2512,7 @@ void CFraktalSFT::RenderFractalEXP()
 		2
 #endif
 		, m_nX, m_nY);
-	if (!m_bReuseRef || !m_dxr){
+	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
@@ -2701,7 +2689,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 		2
 #endif
 		, m_nX, m_nY);
-	if (!m_bReuseRef || !m_dxr){
+	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
@@ -3290,10 +3278,6 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 	if (minval == 0)
 		return FALSE;
 	return TRUE;
-}
-void CFraktalSFT::ReuseReference(BOOL bReuse)
-{
-	m_bReuseRef = bReuse;
 }
 
 COLOR14 CFraktalSFT::GetKeyColor(int i)
@@ -4370,14 +4354,7 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		delete [] Node[i];
 	return nDistance!=-1;
 }
-BOOL CFraktalSFT::GetNoApproximation()
-{
-	return m_bNoApproximation;
-}
-void CFraktalSFT::SetNoApproximation(BOOL bNoApproximation)
-{
-	m_bNoApproximation = bNoApproximation;
-}
+
 BOOL CFraktalSFT::GetTransition()
 {
 	return m_bTrans;
@@ -4496,23 +4473,6 @@ void CFraktalSFT::SetPower(int nPower)
 		else
 			g_nLDBL = 300;
 	}
-}
-BOOL CFraktalSFT::GetLowTolerance()
-{
-	return m_bLowTolerance;
-}
-void CFraktalSFT::SetLowTolerance(BOOL bLowTolerance)
-{
-	m_bLowTolerance = bLowTolerance;
-}
-
-BOOL CFraktalSFT::GetGlitchLowTolerance()
-{
-	return m_bGlitchLowTolerance;
-}
-void CFraktalSFT::SetGlitchLowTolerance(BOOL bGlitchLowTolerance)
-{
-	m_bGlitchLowTolerance = bGlitchLowTolerance;
 }
 
 void CFraktalSFT::SetDifferences(int nDifferences)
@@ -4649,53 +4609,22 @@ int CFraktalSFT::GetFractalType()
 {
 	return m_nFractalType;
 }
-int CFraktalSFT::GetMaxOldGlitches()
-{
-	return m_nMaxOldGlitches;
-}
-void CFraktalSFT::SetMaxOldGlitches(int nMaxOldGlitches)
-{
-	m_nMaxOldGlitches = nMaxOldGlitches;
-	if (m_nMaxOldGlitches<0)
-		m_nMaxOldGlitches = 0;
-	if (m_nMaxOldGlitches>OLD_GLITCH)
-		m_nMaxOldGlitches = OLD_GLITCH;
 
-}
 int CFraktalSFT::GetExponent()
 {
 	return m_nZoom;
 }
-void CFraktalSFT::SetTerms(int nTerms)
+
+void CFraktalSFT::SetApproxTerms(int nTerms)
 {
-	m_nTerms = nTerms;
-	if (m_nTerms<1)
-		m_nTerms = 1;
+	m_Settings.SetApproxTerms(nTerms);
+	m_nTerms = GetApproxTerms();
 	delete[] m_APr;
 	delete[] m_APi;
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
 }
-int CFraktalSFT::GetTerms()
-{
-	return m_nTerms;
-}
-void CFraktalSFT::SetAutoTerms(BOOL bAuto)
-{
-	m_bAutoTerms = bAuto;
-}
-BOOL CFraktalSFT::GetAutoTerms()
-{
-	return m_bAutoTerms;
-}
-void CFraktalSFT::SetShowGlitches(BOOL bShowGlitches)
-{
-	g_bShowGlitches = bShowGlitches;
-}
-BOOL CFraktalSFT::GetShowGlitches()
-{
-	return g_bShowGlitches;
-}
+
 double CFraktalSFT::GetRatioX()
 {
 	return m_scRatio.cx;

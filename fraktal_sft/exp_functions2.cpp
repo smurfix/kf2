@@ -279,7 +279,7 @@ void CFraktalSFT::MandelCalcEXP()
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-			if (!nPStep && (!bGlitch || g_bShowGlitches)){
+			if (!nPStep && (!bGlitch || GetShowGlitches())){
 				int q;
 				int nE = nStepSize*nStepSize;
 				for (q = 0; q<nE; q++){

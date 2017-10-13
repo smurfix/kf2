@@ -20,7 +20,8 @@ fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/newton.cpp \
-fraktal_sft/png.cpp
+fraktal_sft/png.cpp \
+fraktal_sft/Settings.cpp
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
@@ -30,7 +31,9 @@ fraktal_sft/complex.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
 fraktal_sft/listbox.h \
-fraktal_sft/resource.h
+fraktal_sft/newton.h \
+fraktal_sft/resource.h \
+fraktal_sft/Settings.h
 
 LDBL_SOURCES_CPP = \
 ldbl64/ldbl.cpp

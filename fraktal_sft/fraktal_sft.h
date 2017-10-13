@@ -1,4 +1,8 @@
+#ifndef FRAKTAL_SFT_H
+#define FRAKTAL_SFT_H 1
+
 #include <windows.h>
+#include "Settings.h"
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
 #include "complex.h"
@@ -57,9 +61,6 @@ struct MC2
 
 
 struct COLOR14 { unsigned char r, g, b; };
-
-// this sets the maximum number of references per image
-#define OLD_GLITCH 10000
 
 typedef long double ldbl;
 
@@ -164,6 +165,8 @@ enum Differences
 
 class CFraktalSFT
 {
+	Settings m_Settings;
+
 	MULTIWAVE m_MW[MULTIWAVE_MAX];
 	int m_nMW;
 	BOOL m_bMW;
@@ -193,7 +196,6 @@ class CFraktalSFT
 	int m_nPrevPower;
 	int *m_pnExpConsts;
 	int m_nMaxOldGlitches;
-	BOOL g_bShowGlitches;
 	double m_C, m_S;
 	struct SIZE_F { double cx; double cy; };
 	SIZE_F m_scRatio;
@@ -339,7 +341,6 @@ public:
 	void ApplyIterationColors();
 	void ApplySmoothColors();
 	int GetSeed();
-	void ReuseReference(BOOL bReuse);
 	COLOR14 GetKeyColor(int i);
 	void SetKeyColor(COLOR14 col, int i);
 	COLOR14 GetColor(int i);
@@ -356,8 +357,6 @@ public:
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
 	BOOL HighestIteration(int &rx, int &ry);
 	BOOL FindCenterOfGlitch(int &rx, int &ry);
-	BOOL GetNoApproximation();
-	void SetNoApproximation(BOOL bNoApproximation);
 	int GetColorIndex(int x, int y);
 	BOOL GetTransition();
 	void SetTransition(BOOL bTransition);
@@ -371,10 +370,6 @@ public:
 	void SetSmoothMethod(int nSmoothMethod);
 	int GetPower();
 	void SetPower(int nPower);
-	BOOL GetGlitchLowTolerance();
-	void SetGlitchLowTolerance(BOOL bGlitchLowTolerance);
-	BOOL GetLowTolerance();
-	void SetLowTolerance(BOOL bLowTolerance);
 	void SetColorMethod(int nColorMethod);
 	ColorMethod GetColorMethod();
 	void SetDifferences(int nDifferences);
@@ -385,8 +380,6 @@ public:
 
 	void StoreLocation();
 	void Mirror(int x, int y);
-	int GetMirror();
-	void SetMirror(BOOL bMirror);
 
 	int GetMWCount();
 	void SetMW(BOOL bMW, BOOL bBlend);
@@ -400,16 +393,7 @@ public:
 	void SetFractalType(int nFractalType);
 	int GetFractalType();
 
-	int GetMaxOldGlitches();
-	void SetMaxOldGlitches(int nMaxOldGlitches);
 	int GetExponent();
-
-	void SetTerms(int nTerms);
-	int GetTerms();
-	void SetAutoTerms(BOOL bAuto);
-	BOOL GetAutoTerms();
-	void SetShowGlitches(BOOL bShowGlitches);
-	BOOL GetShowGlitches();
 
 	double GetRatioX();
 	double GetRatioY();
@@ -430,6 +414,42 @@ public:
 #endif
 
 	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
+
+#define DOUBLE(KEY) \
+	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
+	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };
+#define INT(KEY) \
+	inline int    Get##KEY() const { return m_Settings.Get##KEY(); }; \
+	inline void   Set##KEY(int x) { return m_Settings.Set##KEY(x); };
+#define BOOL(KEY) \
+	inline bool   Get##KEY() const { return m_Settings.Get##KEY(); }; \
+	inline void   Set##KEY(bool x) { return m_Settings.Set##KEY(x); };
+  DOUBLE(ZoomSize)
+  INT(MaxReferences)
+  BOOL(GlitchLowTolerance)
+  BOOL(ApproxLowTolerance)
+  BOOL(AutoApproxTerms)
+	inline int    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
+	       void   SetApproxTerms(int t);
+  INT(WindowWidth)
+  INT(WindowHeight)
+  INT(ImageWidth)
+  INT(ImageHeight)
+  BOOL(AnimateZoom)
+  BOOL(ArbitrarySize)
+  BOOL(ReuseReference)
+  BOOL(AutoSolveGlitches)
+  BOOL(SolveGlitchNear)
+  BOOL(NoApprox)
+  BOOL(Mirror)
+  BOOL(LongDoubleAlways)
+  BOOL(FloatExpAlways)
+  BOOL(AutoIterations)
+  BOOL(ShowGlitches)
+#undef DOUBLE
+#undef INT
+#undef BOOL
+
 };
 
 struct TH_PARAMS
@@ -441,3 +461,21 @@ struct TH_PARAMS
 
 extern int g_nAddRefX;
 extern int g_nAddRefY;
+
+extern double g_real;
+extern double g_imag;
+extern double g_SeedR;
+extern double g_SeedI;
+extern double g_FactorAR;
+extern double g_FactorAI;
+
+extern int g_nLDBL;
+extern int g_nEXP;
+extern int g_nRefZero;
+
+extern double g_Degree;
+extern BOOL g_LDBL;
+
+const double pi = 3.141592653589793;
+
+#endif

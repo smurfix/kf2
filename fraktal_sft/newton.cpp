@@ -9,25 +9,26 @@
 #include "fraktal_sft.h"
 #include "CDecNumber.h"
 #include "../common/barrier.h"
+#include "newton.h"
 
 extern CFraktalSFT g_SFT;
+
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
-BOOL g_bNewtonExit=FALSE;
-char g_szProgress[128];
-char *g_szRe=NULL;
-char *g_szIm=NULL;
-char *g_szZoom=NULL;
-BOOL g_nMinibrotPos=0;
-extern double g_nZoomSize;
+static BOOL g_bNewtonExit=FALSE;
 
+static char *g_szRe=NULL;
+static char *g_szIm=NULL;
+static char *g_szZoom=NULL;
+static char g_szProgress[128];
+static int g_nMinibrotPos=0;
 
 #define flyttyp CDecNumber
 
-complex<flyttyp> _2(2,0);
-complex<flyttyp> _1(1,0);
+const complex<flyttyp> _2(2,0);
+const complex<flyttyp> _1(1,0);
 
-static inline int sgn(flyttyp z) {
+static inline int sgn(const flyttyp &z) {
   if (z > 0) { return  1; }
   if (z < 0) { return -1; }
   return 0;
@@ -37,26 +38,24 @@ static inline bool odd(int a) {
   return a & 1;
 }
 
-static inline floatexp cabs2(complex<floatexp> z) {
+static inline floatexp cabs2(const complex<floatexp> &z) {
   return z.m_r * z.m_r + z.m_i * z.m_i;
 }
-static inline flyttyp cabs2(complex<flyttyp> z) {
+static inline flyttyp cabs2(const complex<flyttyp> &z) {
   return z.m_r * z.m_r + z.m_i * z.m_i;
 }
-static inline bool isfinite(flyttyp a){
+static inline bool isfinite(const flyttyp &a){
 	(void) a;
 	return true;
 /*	if (a <= DBL_MAX && a >= -DBL_MAX)
 		return true;
 	return false;*/
 }
-static inline bool cisfinite(complex<flyttyp> z) {
+static inline bool cisfinite(const complex<flyttyp> &z) {
   return isfinite(z.m_r) && isfinite(z.m_i);
 }
 
-static const flyttyp pi = 3.141592653589793;
-static const flyttyp twopi = 6.283185307179586;
-
+#if 0
 static flyttyp cross(const complex<flyttyp> &a, const complex<flyttyp> &b) {
 	return a.m_i * b.m_r - a.m_r * b.m_i;
 }
@@ -86,7 +85,7 @@ struct m_d_box_period {
   int p;
 };
 
-m_d_box_period *m_d_box_period_new(const complex<flyttyp> &center, const flyttyp &radius) {
+static m_d_box_period *m_d_box_period_new(const complex<flyttyp> &center, const flyttyp &radius) {
   m_d_box_period *box = new m_d_box_period;
   if (! box) {
     return 0;
@@ -99,13 +98,13 @@ m_d_box_period *m_d_box_period_new(const complex<flyttyp> &center, const flyttyp
   return box;
 }
 
-void m_d_box_period_delete(m_d_box_period *box) {
+static void m_d_box_period_delete(m_d_box_period *box) {
   if (box) {
     delete box;
   }
 }
 
-bool m_d_box_period_step(m_d_box_period *box) {
+static bool m_d_box_period_step(m_d_box_period *box) {
   if (! box) {
     return false;
   }
@@ -118,19 +117,20 @@ bool m_d_box_period_step(m_d_box_period *box) {
   return ok;
 }
 
-bool m_d_box_period_have_period(m_d_box_period *box) {
+static bool m_d_box_period_have_period(m_d_box_period *box) {
   if (! box) {
     return true;
   }
   return surrounds_origin(box->z[0], box->z[1], box->z[2], box->z[3]);
 }
 
-int m_d_box_period_get_period(const m_d_box_period *box) {
+static int m_d_box_period_get_period(const m_d_box_period *box) {
   if (! box) {
     return 0;
   }
   return box->p;
 }
+#endif
 
 struct BoxPeriod
 {
@@ -145,7 +145,7 @@ struct BoxPeriod
   HANDLE hDone;
   HWND hWnd;
 };
-DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
+static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
 {
   int t = b->threadid;
   barrier *barrier = b->barrier;
@@ -215,7 +215,7 @@ DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   return 0;
 }
 
- int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
+static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
 	 radius = flyttyp(4)/radius;
 
   mp_bitcnt_t bits = mpf_get_prec(center.m_r.m_dec.backend().data());
@@ -297,7 +297,7 @@ struct STEP_STRUCT
 	HANDLE hDone;
 	STEP_STRUCT_COMMON *common;
 };
-DWORD WINAPI ThStep(STEP_STRUCT *t0)
+static DWORD WINAPI ThStep(STEP_STRUCT *t0)
 {
   struct STEP_STRUCT_COMMON *t = t0->common;
   char szStatus[256];
@@ -363,7 +363,7 @@ DWORD WINAPI ThStep(STEP_STRUCT *t0)
   return 0;
 }
 
-extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
+static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
@@ -483,7 +483,7 @@ extern int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   }
 }
 
-extern int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period, int maxsteps,int &steps,flyttyp radius,HWND hWnd) {
+static int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period, int maxsteps,int &steps,flyttyp radius,HWND hWnd) {
   int result = -1, i;
   complex<flyttyp> c = c_guess;
 
@@ -504,7 +504,7 @@ static inline complex<floatexp> fec(const complex<flyttyp> &z)
   return complex<floatexp>(mpf_get_fe(z.m_r.m_dec.backend().data()), mpf_get_fe(z.m_i.m_dec.backend().data()));
 }
 
-complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd)
+static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd)
 {
   complex<floatexp> fec1(1,0);
   complex<floatexp> fec2(2,0);
@@ -531,13 +531,13 @@ complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd
   return fec1 / (b * l * l);
 }
 
-int g_period;
-int WINAPI ThNewton(HWND hWnd)
+static int g_period;
+static int WINAPI ThNewton(HWND hWnd)
 {
 	char szStatus[300];
 
 	flyttyp radius = g_szZoom;
-	radius*=g_nZoomSize;
+	radius*=g_SFT.GetZoomSize();
 	char *e = strstr(g_szZoom,"E");
 	if(!e)
 		e = strstr(g_szZoom,"e");
@@ -657,9 +657,9 @@ int WINAPI ThNewton(HWND hWnd)
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	return 0;
 }
-__int64 t1, t2;
-SYSTEMTIME st1, st2;
-int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static __int64 t1, t2;
+static SYSTEMTIME st1, st2;
+extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		if(g_nMinibrotPos==1)
