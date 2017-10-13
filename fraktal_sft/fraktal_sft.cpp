@@ -26,6 +26,7 @@
 #include "colour.h"
 #include "jpeg.h"
 #include "png.h"
+#include "main.h"
 
 double g_real=1;
 double g_imag=1;
@@ -48,13 +49,11 @@ int g_nAddRefX = -1, g_nAddRefY = -1;
 
 double g_Degree = 0;
 BOOL g_LDBL = TRUE;
+#if 0
 void(SetParts)(double,double);
 int(SizeOfLD)();
 int(Version)();
-void *(AllocateArray)(int nSize);
-void(ReleaseArray)(void *p);
 void(AssignInt)(void *p, int nValue);
-void(AssignDouble)(void *p, double nDouble);
 void(AssignLD)(void *p, void *ld);
 void(AssignFloatExp)(void *p, floatexp *fe);
 void(ToInt)(void *p, int *pnValue);
@@ -82,6 +81,7 @@ int(Perturbation_9th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, vo
 int(Perturbation_10th)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch, int nPower, int *nExpConsts);
 int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
+#endif
 
 void ErrorText()
 {
@@ -979,9 +979,9 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	}
 	else if (nType == 1){
 		for (j = 0; j<nProbe; j++){
-			ToFloatExp(&m_lDX[p[j].x], &dbTr0[j]);
+			dbTr0[j] = m_lDX[p[j].x];
 			dbTr[j] = dbTr0[j];
-			ToFloatExp(&m_lDX[p[j].y], &dbTi0[j]);
+			dbTi0[j] = m_lDX[p[j].y];
 			dbTi[j] = dbTi0[j];
 		}
 	}
@@ -1041,8 +1041,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			xi = m_db_dxi[n];
 		}
 		else if (nType == 1){
-			ToFloatExp(&m_ldxr[n], &xr);
-			ToFloatExp(&m_ldxi[n], &xi);
+			xr = m_ldxr[n];
+			xi = m_ldxi[n];
 		}
 		else{
 			xr = m_dxr[n];
@@ -1115,8 +1115,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				dxi = m_db_dxi[i];
 			}
 			else if (nType == 1){
-				ToFloatExp(&m_ldxr[i], &dxr);
-				ToFloatExp(&m_ldxi[i], &dxi);
+				dxr = m_ldxr[i];
+				dxi = m_ldxi[i];
 			}
 			else{
 				dxr = m_dxr[i];
@@ -1733,250 +1733,6 @@ void CFraktalSFT::MandelCalc()
 }
 
 
-void CFraktalSFT::MandelCalcLDBL()
-{
-	m_bIterChanged = TRUE;
-	int antal, x, y;
-	int nPStep, nStepSize;
-
-	SetParts(g_real,g_imag);
-
-	while (!m_bStop && m_P.GetPixel(x, y)){
-		nStepSize = nPStep = m_P.GetStep();
-		if (nPStep>1)
-			nPStep = 0;
-		else
-			nPStep = 1;
-		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		if (m_nPixels[x][y] != -1){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			continue;
-		}
-#ifdef GUESS
-		if (nPStep && nStepSize==1){
-			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
-				if (m_nTrans[x][y] == TRANS_GLITCH)
-					m_nTrans[x - 1][y] = TRANS_GLITCH;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != -1 && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-#ifdef HARD_GUESS_EXP
-			if (x && x<m_nX - 2 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 2][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 2][y])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 2])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 2][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 2][y + 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != -1 && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y>1 && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != -1 && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-#endif
-		}
-#endif
-		if (m_nPixels[x][y] != -1){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			continue;
-		}
-		// Series approximation - Start
-		floatexp D0r;
-		floatexp D0i;
-
-		ldbl lD0r, mmr, lD0i, mmi, c, s, t1, t2;
-		AssignDouble(&c, m_C);
-		AssignDouble(&s, m_S);
-		Subtract(&m_lDX[x], &m_lDX[m_nX / 2], &mmr);
-		Subtract(&m_lDY[y], &m_lDY[m_nY / 2], &mmi);
-
-		Multiply(&c, &mmr, &t1);
-		Multiply(&s, &mmi, &t2);
-		Add(&m_lDX[m_nX / 2], &t1, &lD0r);
-		Add(&lD0r, &t2, &lD0r);
-
-		Multiply(&s, &mmr, &t1);
-		Multiply(&c, &mmi, &t2);
-		Subtract(&m_lDY[m_nY / 2], &t1, &lD0i);
-		Add(&lD0i, &t2, &lD0i);
-
-		ToFloatExp(&lD0r, &D0r);
-		ToFloatExp(&lD0i, &D0i);
-		floatexp TDnr;
-		floatexp TDni;
-		if (m_nMaxApproximation){
-			antal = m_nMaxApproximation - 1;
-			TDnr = m_APr[0] * D0r - m_APi[0] * D0i;
-			TDni = m_APr[0] * D0i + m_APi[0] * D0r;
-			floatexp D_r = D0r*D0r - D0i*D0i;
-			floatexp D_i = (D0r*D0i).mul2();
-			TDnr += m_APr[1] * D_r - m_APi[1] * D_i;
-			TDni += m_APr[1] * D_i + m_APi[1] * D_r;
-			int k;
-			for (k = 2; k<m_nTerms; k++){
-				floatexp  t = D_r*D0r - D_i*D0i;
-				D_i = D_r*D0i + D_i*D0r;
-				D_r = t;
-				TDnr += m_APr[k] * D_r - m_APi[k] * D_i;
-				TDni += m_APr[k] * D_i + m_APi[k] * D_r;
-			}
-		}
-		else{
-			antal = 0;
-			TDnr = D0r;
-			TDni = D0i;
-		}
-		ldbl Dr, Di;
-		AssignFloatExp(&Dr, &TDnr);
-		AssignFloatExp(&Di, &TDni);
-		double test1 = 0, test2 = 0;
-		BOOL bGlitch = FALSE;
-		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
-
-    if (m_nFractalType == 0 && m_nPower > 10)
-    {
-			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, &Dr, &Di, &lD0r, &lD0i, &test1, &test2, m_nBailout2, nMaxIter, m_db_z, &bGlitch, m_nPower, m_pnExpConsts);
-		}
-		else
-		{
-			int antal2 = antal;
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i);
-			assert(ok && "perturbation_long_double");
-			antal = antal2;
-		}
-
-		OutputIterationData(x, y, bGlitch, antal, test1, test2);
-
-		InterlockedIncrement((LPLONG)&m_nDone);
-		if (!nPStep && (!bGlitch || GetShowGlitches())){
-			int q;
-			int nE = nStepSize*nStepSize;
-			for (q = 0; q<nE; q++){
-				int tx = x + q%nStepSize;
-				int ty = y + q / nStepSize;
-				if (tx<m_nX && ty<m_nY && m_nPixels[tx][ty] == -1){
-					int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-					m_lpBits[nIndex1] = m_lpBits[nIndex];
-					m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
-					m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
-				}
-			}
-		}
-	}
-}
 int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 #ifndef _DEBUG
@@ -2029,11 +1785,11 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 		m_DY = NULL;
 	}
 	if (m_lDX){
-		ReleaseArray(m_lDX);
+		delete[] m_lDX;
 		m_lDX = NULL;
 	}
 	if (m_lDY){
-		ReleaseArray(m_lDY);
+		delete[] m_lDY;
 		m_lDY = NULL;
 	}
 	if (bResetOldGlitch)
@@ -2141,6 +1897,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 		CloseHandle(hThread);
 	}
 }
+
 void CFraktalSFT::RenderFractal()
 {
 	m_C = cos(g_Degree);
@@ -2219,11 +1976,11 @@ void CFraktalSFT::RenderFractal()
 			m_db_dxi = NULL;
 		}
 		if (m_ldxr){
-			ReleaseArray(m_ldxr);
+			delete[] m_ldxr;
 			m_ldxr = NULL;
 		}
 		if (m_ldxi){
-			ReleaseArray(m_ldxi);
+			delete[] m_ldxi;
 			m_ldxi = NULL;
 		}
 #ifdef KF_OPENCL
@@ -2239,11 +1996,11 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 	if (m_ldxr){
-		ReleaseArray(m_ldxr);
+		delete[] m_ldxr;
 		m_ldxr = NULL;
 	}
 	if (m_ldxi){
-		ReleaseArray(m_ldxi);
+		delete[] m_ldxi;
 		m_ldxi = NULL;
 	}
 	if (m_dxr){
@@ -2420,18 +2177,18 @@ void CFraktalSFT::RenderFractalLDBL()
 	if (!m_lDX || !m_lDY){
 		CFixedFloat c = m_rstart;
 		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_lDX = (ldbl*)AllocateArray(m_nX);
+		m_lDX = new long double[m_nX];
 		CFixedFloat tmp;
 		for (x = 0; x<m_nX; x++, c += step){
 			tmp = c - m_rref;
-			ConvertFromFixedFloat(&m_lDX[x], tmp);
+			m_lDX[x] = mpf_get_ld(tmp.m_f.backend().data());
 		}
 		c = m_istart;
 		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_lDY = (ldbl*)AllocateArray(m_nY);
+		m_lDY = new long double[m_nY];
 		for (y = 0; y<m_nY; y++, c += step){
 			tmp = c - m_iref;
-			ConvertFromFixedFloat(&m_lDY[y], tmp);
+			m_lDY[y] = mpf_get_ld(tmp.m_f.backend().data());
 		}
 	}
 	m_rApprox.left = 0;
@@ -3885,8 +3642,6 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-int SaveImage(char *szFileName, HBITMAP bmBmp, int nQuality, const char *comment);
-
 int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment(ToText());
@@ -3941,7 +3696,7 @@ int CFraktalSFT::GetTransOnPoint(int x, int y)
 	}
 	return (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]);
 }
-BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
+static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 {
 	//	return a==b;
 	if (a == -1 || b == -1)

@@ -35,6 +35,7 @@
 #include <zlib.h>
 #include "jpeg.h"
 #include "png.h"
+#include "main.h"
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -140,7 +141,7 @@ CStringTable g_stExamine;
 int g_nExamine=-1;
 int g_nExamineZoom=-1;
 BOOL g_bExamineDirty=FALSE;
-void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
+static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
 	// TODO add support for strict aliasing optimisations, "restrict" etc
 	for (int y = height; y >= 0; --y)
@@ -157,7 +158,7 @@ void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int 
 			}
 	}
 }
-int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality, const char *comment)
+extern int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality, const char *comment)
 {
 	int row;
 	BYTE *lpBits, *lpJeg;
@@ -194,25 +195,25 @@ HWND g_hwHair;
 HWND g_hwColors=NULL;
 char g_szFile[256]={0};
 
-double GetDlgItemFloat(HWND hWnd,int nID)
+static double GetDlgItemFloat(HWND hWnd,int nID)
 {
 	char szText[256];
 	GetDlgItemText(hWnd,nID,szText,sizeof(szText));
 	return atof(szText);
 }
-void SetDlgItemFloat(HWND hWnd,int nID,double val)
+static void SetDlgItemFloat(HWND hWnd,int nID,double val)
 {
 	char szText[256];
 	sprintf(szText,"%.4f",val);
 	SetDlgItemText(hWnd,nID,szText);
 }
-int kGetDlgItemInt(HWND hWnd,int nID)
+static int kGetDlgItemInt(HWND hWnd,int nID)
 {
 	char szText[256];
 	GetDlgItemText(hWnd,nID,szText,sizeof(szText));
 	return atoi(szText);
 }
-void kSetDlgItemInt(HWND hWnd,int nID,int val)
+static void kSetDlgItemInt(HWND hWnd,int nID,int val)
 {
 	char szText[256];
 	sprintf(szText,"%d",val);
@@ -220,7 +221,7 @@ void kSetDlgItemInt(HWND hWnd,int nID,int val)
 }
 int g_nPrevCalc=-1;
 
-char * GetToolText(int nID,LPARAM lParam)
+static char * GetToolText(int nID,LPARAM lParam)
 {
 	if(lParam==0){
 		switch(nID){
@@ -479,7 +480,7 @@ char * GetToolText(int nID,LPARAM lParam)
 }
 
 
-int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG || uMsg==WM_TIMER){
@@ -722,7 +723,9 @@ int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+
+#if 0
+static long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_PAINT){
 		PAINTSTRUCT ps;
@@ -742,13 +745,15 @@ long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return CallWindowProc((WNDPROC)GetClassLongPtr(hWnd,GCLP_WNDPROC),hWnd,uMsg,lParam,wParam);
 }
+#endif
+
 RECT g_rShow;
 COLOR14 g_colCopy={0};
 BOOL g_bCaptureMouse=FALSE;
 BOOL g_bInitColorDialog=FALSE;
 CListBoxEdit *g_pWaves=NULL;
 char g_szTmpFile[MAX_PATH];
-int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	static COLORREF colCust[16]={0};
 	if(uMsg==WM_SHOWWINDOW && wParam){
@@ -1724,7 +1729,7 @@ int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,IDOK,0);
 	return 0;
 }
-char *Trim(char *sz,int nLen=-1)
+static char *Trim(char *sz,int nLen=-1)
 {
 	if(nLen==-1)
 		nLen = strlen(sz);
@@ -1737,7 +1742,7 @@ char *Trim(char *sz,int nLen=-1)
 		sz++;
 	return sz;
 }
-int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) wParam;
 	(void) lParam;
@@ -1790,7 +1795,7 @@ int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-void FixNumber(char *sz)
+static void FixNumber(char *sz)
 {
 	int a, b, p, e, m;
 	for(a=0;sz[a]==' ' || sz[a]=='\t' || sz[a]=='\r' || sz[a]=='\n';a++);
@@ -1806,7 +1811,7 @@ void FixNumber(char *sz)
 	}
 	sz[b]=0;
 }
-int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
@@ -2042,7 +2047,7 @@ struct JPEG_PARAMS
 	int nHeight;
 	int nQuality;
 }g_JpegParams;
-int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
@@ -2083,7 +2088,7 @@ int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-int FileExists(char *szFind)
+static int FileExists(char *szFind)
 {
 	WIN32_FIND_DATA wf;
 	HANDLE hFind = FindFirstFile(szFind,&wf);
@@ -2104,7 +2109,7 @@ struct ANIM
 };
 int g_nAnim=0;
 BOOL g_bAnim=FALSE;
-void UpdateBkpImage(ANIM *pAnim)
+static void UpdateBkpImage(ANIM *pAnim)
 {
 	double zoomDiff = pAnim->nZoomSize;
 	if(pAnim->bZoomOut)
@@ -2137,7 +2142,7 @@ void UpdateBkpImage(ANIM *pAnim)
 	DeleteDC(dcBmp);
 	ReleaseDC(NULL,hDC);
 }
-int WINAPI ThAnim_(ANIM *pAnim)
+static int WINAPI ThAnim_(ANIM *pAnim)
 {
 	int nParts = 10;// * log((double)g_SFT.GetZoomSize())/log((double)2);
 	g_bAnim=TRUE;
@@ -2194,7 +2199,7 @@ int WINAPI ThAnim_(ANIM *pAnim)
 	delete pAnim;
 	return 0;
 }
-int WINAPI ThAnim(ANIM *pAnim)
+static int WINAPI ThAnim(ANIM *pAnim)
 {
 //#ifndef _DEBUG
 	try{
@@ -2212,7 +2217,7 @@ int WINAPI ThAnim(ANIM *pAnim)
 int g_nPrevAutoGlitchNP;
 int g_bAutoSolveGlitch=0;
 int g_nAutoSolveGlitchLimit=10;
-int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
@@ -2473,7 +2478,7 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 	}
 	return 0;
 }
-int ResumeZoomSequence(HWND hWnd)
+static int ResumeZoomSequence(HWND hWnd)
 {
 	memset(g_szFile,0,sizeof(g_szFile));
 	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szFile,sizeof(g_szFile)))
@@ -2609,7 +2614,7 @@ int g_nMarilynDir=0;
 int g_nMarilynX=0;
 int g_nMarilynY=0;
 
-double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
+static double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 {
 	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 	BITMAPINFOHEADER bmi2={sizeof(BITMAPINFOHEADER)};
@@ -2628,14 +2633,14 @@ double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 	BYTE *lpBits2 = new BYTE[bmi.biSizeImage];
 	if(!GetDIBits(hDC,bm1,0,bmi.biHeight,lpBits1,
 			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS)){
-		delete lpBits1;
-		delete lpBits2;
+		delete[] lpBits1;
+		delete[] lpBits2;
 		return 0;
 	}
 	if(!GetDIBits(hDC,bm2,0,bmi.biHeight,lpBits2,
 			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS)){
-		delete lpBits1;
-		delete lpBits2;
+		delete[] lpBits1;
+		delete[] lpBits2;
 		return 0;
 	}
 	int x, y;
@@ -2655,11 +2660,13 @@ double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 		}
 	}
 	ret+=nLM;
-	delete lpBits1;
-	delete lpBits2;
+	delete[] lpBits1;
+	delete[] lpBits2;
 	return ret;
 }
-int KRYield(HWND hWnd)
+
+#if 0
+static int KRYield(HWND hWnd)
 {
 	UpdateWindow(hWnd);
 	MSG msg;
@@ -2673,7 +2680,9 @@ int KRYield(HWND hWnd)
 	}
 	return 1;
 }
-int Marilyn(HWND hWnd)
+#endif
+
+static int Marilyn(HWND hWnd)
 {
 	g_SFT.ApplyColors();
 	InvalidateRect(hWnd,NULL,FALSE);
@@ -2854,7 +2863,7 @@ int Marilyn(HWND hWnd)
 	SetTimer(hWnd,0,500,NULL);
 	return 0;
 }
-HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
+static HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 {
 	HDC hDC = GetDC(NULL);
 	HDC dcBmp = CreateCompatibleDC(hDC);
@@ -2877,7 +2886,7 @@ double g_length=0;
 double g_degree=0;
 HBITMAP g_bmSaveZoomBuff=NULL;
 SIZE g_scSaveZoomBuff;
-void SaveZoomImg(char *szFile, char *comment)
+static void SaveZoomImg(char *szFile, char *comment)
 {
 	HBITMAP bmSave;
 	HDC hDC = GetDC(NULL);
@@ -2932,7 +2941,7 @@ void SaveZoomImg(char *szFile, char *comment)
 	g_scSaveZoomBuff.cx = scNextZoom.cx;
 	g_scSaveZoomBuff.cy = scNextZoom.cy;
 }
-int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
+static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
 		strcpy(strrchr(g_szFile,'\\')+1,"recovery.kfb");
@@ -3185,7 +3194,7 @@ nPos=24;
 nPos=25;
 	return 0;
 }
-int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	int nPos=0;
 #ifndef _DEBUG
@@ -3199,7 +3208,7 @@ int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	return 0;
 }
 
-int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
+static int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
@@ -3218,7 +3227,7 @@ int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
 	}
 	return 0;
 }
-int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
@@ -3238,7 +3247,7 @@ int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
+static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 {
 	HDC hDC = GetDC(NULL);
 	BYTE *lpBits=NULL;
@@ -3289,7 +3298,7 @@ void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	delete lpOrgBits;
 	delete lpBits;
 }
-void RotateImage(HBITMAP bmBkg,HBITMAP bmBkgDraw,POINT pm,double nDegree)
+static void RotateImage(HBITMAP bmBkg,HBITMAP bmBkgDraw,POINT pm,double nDegree)
 {
 
 	double s = sin(nDegree);
@@ -3401,7 +3410,7 @@ void RotateImage(HBITMAP bmBkg,HBITMAP bmBkgDraw,POINT pm,double nDegree)
 	delete lpOrgBits;
 	ReleaseDC(NULL,hDC);
 }
-void SkewImage(HBITMAP bmBmp)
+static void SkewImage(HBITMAP bmBmp)
 {
 	HDC hDC = GetDC(NULL);
 	BITMAP bm;
@@ -3428,7 +3437,7 @@ void SkewImage(HBITMAP bmBmp)
 	DeleteObject(bmNew);
 	ReleaseDC(NULL,hDC);
 }
-void UnSkewImage(HBITMAP bmBmp)
+static void UnSkewImage(HBITMAP bmBmp)
 {
 	HDC hDC = GetDC(NULL);
 	BITMAP bm;
@@ -3461,7 +3470,7 @@ POINT g_Cross[4];
 int g_nCrossPos=0;
 double g_nTestDegree;
 double g_nTestRatio;
-int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
@@ -3785,7 +3794,7 @@ int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
@@ -3867,7 +3876,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
 		g_hwStatus = CreateStatusWindow(WS_CHILD|WS_VISIBLE,"",hWnd,0);
@@ -5750,7 +5759,9 @@ long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return DefWindowProc(hWnd,uMsg,wParam,lParam);
 }
-int Test()
+
+#if 0
+static int Test()
 {
 	CFileFloat <double>tmp(3000);
 	int i;
@@ -5766,12 +5777,12 @@ int Test()
 	return 0;
 }
 
-int Test2()
+static int Test2()
 {
 	return 0;
 }
 
-int Test1()
+static int Test1()
 {
 	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
 	CFixedFloat m_rref = 0.25, m_iref=0;
@@ -5803,8 +5814,9 @@ int Test1()
 //	wsprintf(szRes+strlen(szRes),"\n%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	return MessageBox(NULL,szRes,"Res",MB_OK);
 }
+#endif
 
-int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
+extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 {
 //	return Test();
 

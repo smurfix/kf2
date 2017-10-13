@@ -62,12 +62,15 @@ struct MC2
 
 struct COLOR14 { unsigned char r, g, b; };
 
+#if 0
 typedef long double ldbl;
 
 struct ldblexp {
 	ldbl val;
 	__int64 exp;
 };
+#endif
+
 #define MULTIWAVE_MAX 30
 struct MULTIWAVE
 {
@@ -229,9 +232,9 @@ class CFraktalSFT
 	BOOL m_bMirrored;
 	int m_nFractalType;
 
-	ldbl *m_ldxr, *m_ldxi;
-	ldbl *m_lDX;
-	ldbl *m_lDY;
+	long double *m_ldxr, *m_ldxi;
+	long double *m_lDX;
+	long double *m_lDY;
 
 	double m_nIterDiv;
 	int m_nMaxApproximation;

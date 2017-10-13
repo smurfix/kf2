@@ -14,24 +14,7 @@ DWORD WINAPI ThMC(MC *pMC);
 extern double g_SeedR;
 extern double g_SeedI;
 
-extern void *(AllocateArray)(int nSize);
-extern void(ReleaseArray)(void *p);
-extern void(AssignInt)(void *p, int nValue);
-extern void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
-#define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
-extern double(SquareAdd)(void *a, void *b);
-
 #include "../common/barrier.h"
-
-long double mpf_get_ld(const mpf_t value)
-{
-	using std::ldexp;
-	signed long int e = 0;
-	long double l = mpf_get_d_2exp(&e, value);
-	l = ldexp(l, e);
-	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
-	return l;
-}
 
 struct mcthread_common
 {
@@ -203,17 +186,14 @@ void CFraktalSFT::CalculateReferenceLDBL()
 {
 	int i;
 	if (m_ldxr)
-		ReleaseArray(m_ldxr);
-	m_ldxr = (ldbl*)AllocateArray(m_nMaxIter);
+		delete[] m_ldxr;
+	m_ldxr = new long double[m_nMaxIter];
 	if (m_ldxi)
-		ReleaseArray(m_ldxi);
-	m_ldxi = (ldbl*)AllocateArray(m_nMaxIter);
+		delete[] m_ldxi;
+	m_ldxi = new long double[m_nMaxIter];
 	if (m_db_z)
 		delete[] m_db_z;
 	m_db_z = new double [m_nMaxIter];
-
-	ldbl noll;
-	AssignInt(&noll,0);
 
 	int antal = 0;
 	double test1 = 0;
@@ -316,10 +296,10 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
-			ConvertFromFixedFloat(&m_ldxr[i], xr);
-			ConvertFromFixedFloat(&m_ldxi[i], xi);
+			m_ldxr[i] = mpf_get_ld(xr.m_f.backend().data());
+			m_ldxi[i] = mpf_get_ld(xi.m_f.backend().data());
 			old_absval = abs_val;
-			abs_val = SquareAdd(g_real==0?&noll:&m_ldxr[i], g_imag==0?&noll:&m_ldxi[i]);
+			abs_val = g_real * m_ldxr[i] * m_ldxr[i] + g_imag * m_ldxi[i] * m_ldxi[i];
 			m_db_z[i] = abs_val*threashold;
 			if (abs_val >= 4)
 			{
@@ -353,7 +333,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, (long double *)m_ldxr, (long double *)m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
     assert(ok && "reference_long_double");
 
 	}

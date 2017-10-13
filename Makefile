@@ -13,6 +13,7 @@ FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
 fraktal_sft/dbl_functions.cpp \
+fraktal_sft/dbl_functions2.cpp \
 fraktal_sft/exp_functions2.cpp \
 fraktal_sft/exp_functions.cpp \
 fraktal_sft/fraktal_sft.cpp \
@@ -37,9 +38,6 @@ fraktal_sft/png.h \
 fraktal_sft/resource.h \
 fraktal_sft/Settings.h
 
-LDBL_SOURCES_CPP = \
-ldbl64/ldbl.cpp
-
 COMMON_SOURCES_CPP = \
 common/FolderBrowser.cpp \
 common/getimage.cpp \
@@ -63,7 +61,7 @@ OPENCL_SOURCES_C =
 #OPENCL_SOURCES_CPP = cl/opencl.cpp
 #OPENCL_SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(LDBL_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
 SOURCES_C = $(OPENCL_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 

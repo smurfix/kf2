@@ -43,6 +43,15 @@ public:
 		exp=0;
 		align();
 	}
+	inline void initFromLongDouble(long double a)
+	{
+		using std::frexp;
+		int e = 0;
+		a = frexp(a, &e);
+		val=a;
+		exp=e;
+		align();
+	}
 	inline double setExp(double newval,int64_t newexp) const
 	{
 //		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
@@ -58,6 +67,10 @@ public:
 	{
 		val = 0;
 		exp = EXP_MIN;
+	}
+	inline floatexp(int a)
+	{
+		initFromDouble(a);
 	}
 	inline floatexp(double a)
 	{
@@ -75,6 +88,10 @@ public:
 		val = a;
 		exp = e;
 	}
+	inline floatexp(long double a)
+	{
+		initFromLongDouble(a);
+	}
 	inline floatexp &operator =(const floatexp &a)
 	{
 		val=a.val;
@@ -89,6 +106,11 @@ public:
 	inline floatexp &operator =(double a)
 	{
 		initFromDouble(a);
+		return *this;
+	}
+	inline floatexp &operator =(long double a)
+	{
+		initFromLongDouble(a);
 		return *this;
 	}
 	inline floatexp operator *(const floatexp &a) const
@@ -362,6 +384,16 @@ inline void mpf_set_fe(mpf_t value, floatexp fe)
 	{
 		mpf_div_2exp(value, value, -fe.exp);
 	}
+}
+
+inline long double mpf_get_ld(const mpf_t value)
+{
+	using std::ldexp;
+	signed long int e = 0;
+	long double l = mpf_get_d_2exp(&e, value);
+	l = ldexp(l, e);
+	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
+	return l;
 }
 
 #endif
