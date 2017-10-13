@@ -530,6 +530,8 @@ BEGIN
         MENUITEM "Save &map...",                ID_FILE_SAVEMAP,MFT_STRING,MFS_ENABLED
         MENUITEM "Examine Zoom sequence",       ID_FILE_EXAMINEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
         MENUITEM "Resume Zoom sequence",        ID_FILE_RESUMEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Open Settings...",            ID_FILE_OPENSETTINGS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save Settings...",            ID_FILE_SAVESETTINGS,MFT_STRING,MFS_ENABLED
         MENUITEM "&Exit",                       40002,MFT_STRING,MFS_ENABLED
     END
     POPUP "&Actions",                       65535,MFT_STRING,MFS_ENABLED

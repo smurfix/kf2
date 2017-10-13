@@ -1822,7 +1822,9 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 
 int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 {
-	std::string comment(ToText());
+	std::string comment1(ToText());
+	std::string comment2(m_Settings.ToText());
+	std::string comment = comment1 + comment2;
 	if (nWidth == 0)
 		nWidth = m_nX;
 	if (nHeight == 0)

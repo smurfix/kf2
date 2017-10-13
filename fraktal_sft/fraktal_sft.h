@@ -418,6 +418,9 @@ public:
 
 	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
 
+	inline bool OpenSettings(const char *filename) { return m_Settings.OpenFile(filename); }
+	inline bool SaveSettings(const char *filename) const { return m_Settings.SaveFile(filename); }
+
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
 	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };

@@ -337,6 +337,22 @@ static void UpdateShowGlitches(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateMenusFromSettings(HWND hWnd)
+{
+	UpdateZoomSize(hWnd);
+	UpdateAnimateZoom(hWnd);
+	UpdateArbitrarySize(hWnd);
+	UpdateReuseReference(hWnd);
+	UpdateAutoSolveGlitches(hWnd);
+	UpdateSolveGlitchNear(hWnd);
+	UpdateNoApprox(hWnd);
+	UpdateMirror(hWnd);
+	UpdateLongDoubleAlways(hWnd);
+	UpdateFloatExpAlways(hWnd);
+	UpdateAutoIterations(hWnd);
+	UpdateShowGlitches(hWnd);
+}
+
 #if 0
 static long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -3802,6 +3818,26 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(g_SFT.GetReuseReference()){
 				g_SFT.SetAutoSolveGlitches(!g_SFT.GetReuseReference());
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_SFT.GetAutoSolveGlitches()?MF_CHECKED:MF_UNCHECKED));
+			}
+		}
+		else if(wParam==ID_FILE_OPENSETTINGS){
+			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
+				g_SFT.Stop();
+				g_bAnim=false;
+				if(!g_SFT.OpenSettings(g_szFile))
+					return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
+				else{
+					UpdateMenusFromSettings(hWnd);
+					if(g_hwColors)
+						SendMessage(g_hwColors,WM_USER+99,0,0);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
+			}
+		}
+		else if(wParam==ID_FILE_SAVESETTINGS){
+			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szFile,sizeof(g_szFile))){
+				if(!g_SFT.SaveSettings(g_szFile))
+					return MessageBox(hWnd,"Could not save settings","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
 		else if(wParam==ID_FILE_OPEN_){
