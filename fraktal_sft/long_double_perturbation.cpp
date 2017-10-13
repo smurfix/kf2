@@ -3,6 +3,8 @@
 #include "complex.h"
 #include "../formula/formula.h"
 
+#undef GUESS
+
 static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts)
 {
   long double yr, yi;
