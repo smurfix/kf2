@@ -28,6 +28,7 @@ fraktal_sft/main_examine.cpp \
 fraktal_sft/main_iterations.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/newton.cpp \
+fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/Settings.cpp
