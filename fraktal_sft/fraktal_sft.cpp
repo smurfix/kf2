@@ -1630,6 +1630,42 @@ COLOR14 CFraktalSFT::GetColor(int i)
 		return m_cPos[i];
 }
 
+void CFraktalSFT::SetImageSize(int nx, int ny)
+{
+	m_bResized = m_nXPrev != nx || m_nYPrev != ny;
+	if (m_bResized && m_nPixels){
+		int i;
+		for (i = 0; i<m_nXPrev; i++)
+			delete[] m_nPixels[i];
+		delete[] m_nPixels;
+		m_nPixels = 0;
+
+		for (i = 0; i<m_nXPrev; i++)
+			delete[] m_nTrans[i];
+		delete[] m_nTrans;
+		m_nTrans = 0;
+	}
+	m_nX = nx;
+	m_nY = ny;
+	m_nXPrev = m_nX;
+	m_nYPrev = m_nY;
+	if (! m_nPixels)
+	{
+		m_nPixels = new int*[m_nX];
+		m_nTrans = new float*[m_nX];
+		for (int x = 0; x<m_nX; x++){
+			m_nPixels[x] = new int[m_nY];
+			m_nTrans[x] = new float[m_nY];
+		}
+	}
+	for (int x = 0; x<m_nX; x++){
+		memset(m_nPixels[x], 0, sizeof(int) * m_nY);
+		memset(m_nTrans[x], 0, sizeof(float) * m_nY);
+	}
+	SetImageWidth(nx);
+	SetImageHeight(ny);
+}
+
 BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 {
 	int **Org = 0;
@@ -1681,22 +1717,10 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	}
 	//ReadFile(hFile,&m_nX,sizeof(int),&dw,NULL);
 	//ReadFile(hFile,&m_nY,sizeof(int),&dw,NULL);
-	fread(&m_nX, 1, sizeof(int), hFile);
-	fread(&m_nY, 1, sizeof(int), hFile);
-	if (m_nPixels){
-		int i;
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nPixels[i];
-		delete[] m_nPixels;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nTrans[i];
-		delete[] m_nTrans;
-	}
-	m_nXPrev = m_nX;
-	m_nYPrev = m_nY;
-	m_nPixels = new int*[m_nX];
-	m_nTrans = new float*[m_nX];
+	int nx = -1, ny = -1;
+	fread(&nx, 1, sizeof(int), hFile);
+	fread(&ny, 1, sizeof(int), hFile);
+	SetImageSize(nx, ny);
 	float *pLine = NULL;
 	if (bNewFormat == 1)
 		pLine = new float[m_nY];
@@ -1707,10 +1731,6 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 			//ReadFile(hFile,pLine,sizeof(float)*m_nX,&dw,NULL);
 			fread(pLine, 1, sizeof(float)*m_nX, hFile);
 			for (x = 0; x<m_nX; x++){
-				if (y == 0){
-					m_nTrans[x] = new float[m_nY];
-					m_nPixels[x] = new int[m_nY];
-				}
 				m_nPixels[x][y] = (int)pLine[x];
 				m_nTrans[x][y] = pLine[x] - (int)m_nPixels[x][y];
 			}
@@ -1718,9 +1738,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	}
 	else{
 		for (x = 0; x<m_nX; x++){
-			m_nPixels[x] = new int[m_nY];
 			if (bNewFormat){
-				m_nTrans[x] = new float[m_nY];
 				//ReadFile(hFile,pLine,sizeof(float)*m_nY,&dw,NULL);
 				fread(pLine, 1, sizeof(float)*m_nY, hFile);
 				for (y = 0; y<m_nY; y++){

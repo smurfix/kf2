@@ -353,6 +353,15 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateShowGlitches(hWnd);
 }
 
+static void UpdateWindowSize(HWND hWnd)
+{
+	int l = g_SFT.GetWindowLeft();
+	int t = g_SFT.GetWindowTop();
+	int r = g_SFT.GetWindowRight();
+	int b = g_SFT.GetWindowBottom();
+	MoveWindow(hWnd,l,t,r,b,TRUE);
+}
+
 #if 0
 static long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -2212,7 +2221,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		RECT r;
 		GetClientRect(GetDesktopWindow(),&r);
-		MoveWindow(hWnd,r.right/2-wr.right/2,r.bottom/2-wr.bottom/2,wr.right,wr.bottom,TRUE);
+		g_SFT.SetWindowLeft(r.right/2-wr.right/2);
+		g_SFT.SetWindowTop(r.bottom/2-wr.bottom/2);
+		g_SFT.SetWindowRight(wr.right);
+		g_SFT.SetWindowBottom(wr.bottom);
+		UpdateWindowSize(hWnd);
+
 		g_SFT.SetPosition((CFixedFloat)-2,(CFixedFloat)2,(CFixedFloat)-2,(CFixedFloat)2,640,360);
 		SetTimer(hWnd,0,500,NULL);
 		SYSTEMTIME st;
@@ -2230,7 +2244,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.GenerateColors(g_SFT.GetNumOfColors(),1);
 		g_SFT.ApplyColors();
-		g_SFT.RenderFractal(640,360,g_SFT.GetIterations(),hWnd);
 		UpdateAutoSolveGlitches(hWnd);
 		UpdateAutoIterations(hWnd);
 
@@ -2239,6 +2252,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateArbitrarySize(hWnd);
+
+		g_SFT.RenderFractal(640,360,g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
@@ -3304,7 +3319,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		wr.top-=nYOffs/2+sr.bottom/2;
 		g_SFT.SetWindowWidth(g_JpegParams.nWidth);
 		g_SFT.SetWindowHeight(g_JpegParams.nHeight);
-		MoveWindow(hWnd,wr.left,wr.top,wr.right,wr.bottom,TRUE);
+		g_SFT.SetWindowLeft(wr.left);
+		g_SFT.SetWindowTop(wr.top);
+		g_SFT.SetWindowRight(wr.right);
+		g_SFT.SetWindowBottom(wr.bottom);
+		UpdateWindowSize(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
 		POINT p;
@@ -3828,8 +3847,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
 				else{
 					UpdateMenusFromSettings(hWnd);
-					if(g_hwColors)
-						SendMessage(g_hwColors,WM_USER+99,0,0);
+					UpdateWindowSize(hWnd);
+					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}

@@ -19,6 +19,10 @@ private:
   int m_ApproxTerms;
   int m_WindowWidth;
   int m_WindowHeight;
+  int m_WindowTop;
+  int m_WindowLeft;
+  int m_WindowBottom;
+  int m_WindowRight;
   int m_ImageWidth;
   int m_ImageHeight;
   bool m_AnimateZoom;
@@ -44,6 +48,10 @@ public:
   , m_ApproxTerms(10)
   , m_WindowWidth(640)
   , m_WindowHeight(360)
+  , m_WindowTop(-1)
+  , m_WindowLeft(-1)
+  , m_WindowBottom(-1)
+  , m_WindowRight(-1)
   , m_ImageWidth(640)
   , m_ImageHeight(360)
   , m_AnimateZoom(true)
@@ -96,6 +104,18 @@ public:
 
   inline int    GetWindowHeight() const { return m_WindowHeight; };
   inline void   SetWindowHeight(int h) { m_WindowHeight = h; };
+
+  inline int    GetWindowTop() const { return m_WindowTop; };
+  inline void   SetWindowTop(int w) { m_WindowTop = w; };
+
+  inline int    GetWindowLeft() const { return m_WindowLeft; };
+  inline void   SetWindowLeft(int w) { m_WindowLeft = w; };
+
+  inline int    GetWindowBottom() const { return m_WindowBottom; };
+  inline void   SetWindowBottom(int w) { m_WindowBottom = w; };
+
+  inline int    GetWindowRight() const { return m_WindowRight; };
+  inline void   SetWindowRight(int w) { m_WindowRight = w; };
 
   inline int    GetImageWidth() const { return m_ImageWidth; };
   inline void   SetImageWidth(int w) { m_ImageWidth = w; };

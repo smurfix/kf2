@@ -104,10 +104,19 @@ Differences From Upstream 2.11.1
   aggressively (disabled by default, enable it if you get undetected glitches)
 - updated program icon with transparent background and large version
 - parameter data is saved as comment in image files (both PNG and JPEG)
+- preferences (rendering settings not related to location) save and load
+  (.kfs files and PNG/JPEG comments too)
 
 
 Change Log
 ----------
+
+- **kf.2.12.5** (????-??-??)
+
+    - preferences (rendering settings not related to location) save and load
+      (.kfs files and PNG/JPEG comments too)
+    - major code refactoring into multiple files for ease of maintenance
+    - delete no-longer-used single-threaded Newton-Raphson zooming code
 
 - **kf-2.12.4** (2017-10-06)
 
@@ -286,6 +295,7 @@ TODO
 - user interface: save image now function (without waiting for calculations)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
+- calculations: increase maxiters limit without restarting from scratch
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference

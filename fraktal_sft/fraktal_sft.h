@@ -250,6 +250,7 @@ class CFraktalSFT
 	BYTE *m_lpBits;
 	int m_row;
 	BITMAPINFOHEADER *m_bmi;
+	bool m_bResized;
 	int m_nX, m_nXPrev;
 	int m_nY, m_nYPrev;
 	int m_nDone;
@@ -315,6 +316,7 @@ public:
 	void SetPosition(const char *szR, const char *szI, const char *szZ);
 	void SetPosition(const char *szR, const char *szI, const std::string &szZ);
 	char *ToZoom();
+	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
 	HBITMAP GetBitmap();
@@ -439,6 +441,10 @@ public:
 	       void   SetApproxTerms(int t);
   INT(WindowWidth)
   INT(WindowHeight)
+  INT(WindowTop)
+  INT(WindowLeft)
+  INT(WindowBottom)
+  INT(WindowRight)
   INT(ImageWidth)
   INT(ImageHeight)
   BOOL(AnimateZoom)

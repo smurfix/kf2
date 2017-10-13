@@ -128,37 +128,19 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	}
 
 	WaitForSingleObject(m_hMutex, INFINITE);
-	int i;
-	if (m_nXPrev != m_nX || m_nYPrev != m_nY){
-		if (m_nPixels){
-			for (i = 0; i<m_nXPrev; i++)
-				delete[] m_nPixels[i];
-			delete[] m_nPixels;
-		}
-		m_nPixels = new int*[m_nX];
-		for (i = 0; i<m_nX; i++)
-			m_nPixels[i] = new int[m_nY];
-
-		if (m_nTrans){
-			for (i = 0; i<m_nXPrev; i++)
-				delete[] m_nTrans[i];
-			delete[] m_nTrans;
-		}
-		m_nTrans = new float*[m_nX];
-		for (i = 0; i<m_nX; i++){
-			m_nTrans[i] = new float[m_nY];
-			memset(m_nTrans[i], 0, sizeof(float)*m_nY);
-		}
-
-		m_nXPrev = m_nX;
-		m_nYPrev = m_nY;
+	bool resize = m_nXPrev != m_nX || m_nYPrev != m_nY;
+	if (resize){
+		SetImageSize(m_nX, m_nY);
+	}
+	if (m_bResized || resize)
+	{
 		DeleteObject(m_bmBmp);
 		m_bmBmp = NULL;
 	}
-
 	HDC hDC = GetDC(NULL);
 	if (!m_bmBmp)
 		m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
+
 	if (!m_bAddReference){
 		if (m_bmi)
 			free(m_bmi);
