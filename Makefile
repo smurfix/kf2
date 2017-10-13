@@ -14,6 +14,7 @@ fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
 fraktal_sft/double_perturbation.cpp \
 fraktal_sft/double_reference.cpp \
+fraktal_sft/floatexp_approximation.cpp \
 fraktal_sft/floatexp_perturbation.cpp \
 fraktal_sft/floatexp_reference.cpp \
 fraktal_sft/fraktal_sft.cpp \
@@ -28,6 +29,7 @@ fraktal_sft/main_iterations.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/newton.cpp \
 fraktal_sft/png.cpp \
+fraktal_sft/render.cpp \
 fraktal_sft/Settings.cpp
 
 FRAKTAL_SOURCES_H = \
