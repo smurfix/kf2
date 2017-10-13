@@ -201,7 +201,7 @@ void CFraktalSFT::GenerateColors(int nParts, int nSeed)
 	m_cKeys[m_nParts].g = m_cKeys[0].g;
 	m_cKeys[m_nParts].b = m_cKeys[0].b;
 }
-int MakePrime(int n)
+extern int MakePrime(int n)
 {
 	int i;
 	int nE = n / 2;
@@ -379,7 +379,7 @@ void CFraktalSFT::ApplySmoothColors()
 	}
 }
 
-void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
+extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 {
 	hsv a;
 	a.h = hue;

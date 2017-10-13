@@ -481,6 +481,9 @@ extern BOOL g_LDBL;
 
 const double pi = 3.141592653589793;
 
+extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
+extern int MakePrime(int n);
+
 // singleton instance
 extern CFraktalSFT g_SFT;
 
