@@ -85,9 +85,10 @@ extern double g_Degree;
 extern double g_real;
 extern double g_imag;
 
-double CHECK_FLOAT(double a);
 BOOL ISFLOATOK(double a);
+
 CFraktalSFT g_SFT;
+
 bool g_bAddMainReference=false;
 int g_bAutoGlitch = 1;
 BOOL g_bRotate=FALSE;
@@ -270,20 +271,6 @@ static void UpdateZoomSize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(z==128?MF_CHECKED:MF_UNCHECKED));
 }
 
-static void UpdateWindowSize(HWND hWnd)
-{
-	int w = g_SFT.GetWindowWidth();
-	int h = g_SFT.GetWindowHeight();
-	// FIXME
-}
-
-static void UpdateImageSize(HWND hWnd)
-{
-	int w = g_SFT.GetImageWidth();
-	int h = g_SFT.GetImageHeight();
-	// FIXME
-}
-
 static void UpdateAnimateZoom(HWND hWnd)
 {
 	bool b = g_SFT.GetAnimateZoom();
@@ -293,61 +280,61 @@ static void UpdateAnimateZoom(HWND hWnd)
 static void UpdateArbitrarySize(HWND hWnd)
 {
 	bool b = g_SFT.GetArbitrarySize();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateReuseReference(HWND hWnd)
 {
 	bool b = g_SFT.GetReuseReference();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_REUSEREFERENCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateAutoSolveGlitches(HWND hWnd)
 {
 	bool b = g_SFT.GetAutoSolveGlitches();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateSolveGlitchNear(HWND hWnd)
 {
 	bool b = g_SFT.GetSolveGlitchNear();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateNoApprox(HWND hWnd)
 {
 	bool b = g_SFT.GetNoApprox();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOAPPROXIMATION,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateMirror(HWND hWnd)
 {
 	bool b = g_SFT.GetMirror();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateLongDoubleAlways(HWND hWnd)
 {
 	bool b = g_SFT.GetLongDoubleAlways();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateFloatExpAlways(HWND hWnd)
 {
 	bool b = g_SFT.GetFloatExpAlways();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateAutoIterations(HWND hWnd)
 {
 	bool b = g_SFT.GetAutoIterations();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateShowGlitches(HWND hWnd)
 {
 	bool b = g_SFT.GetShowGlitches();
-	// FIXME
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 #if 0
@@ -2205,7 +2192,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		wr.bottom+=nYOffs+sr.bottom;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|MF_CHECKED);
 		g_SFT.SetShowGlitches(GetPrivateProfileInt("SETTINGS","ShowGlitches",0,"fraktal_sft.ini"));
-		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(g_SFT.GetShowGlitches()?MF_CHECKED:MF_UNCHECKED));
+		UpdateShowGlitches(hWnd);
 
 		RECT r;
 		GetClientRect(GetDesktopWindow(),&r);
@@ -2228,14 +2215,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.GenerateColors(g_SFT.GetNumOfColors(),1);
 		g_SFT.ApplyColors();
 		g_SFT.RenderFractal(640,360,g_SFT.GetIterations(),hWnd);
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_SFT.GetAutoSolveGlitches()?MF_CHECKED:MF_UNCHECKED));
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(g_SFT.GetAutoIterations()?MF_CHECKED:MF_UNCHECKED));
+		UpdateAutoSolveGlitches(hWnd);
+		UpdateAutoIterations(hWnd);
 
 		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
 		UpdateAnimateZoom(hWnd);
 
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
-		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
+		UpdateArbitrarySize(hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
@@ -3167,7 +3154,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetMirror(0);
 		else
 			g_SFT.SetMirror(1);
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MF_BYCOMMAND|(g_SFT.GetMirror()?MF_CHECKED:MF_UNCHECKED));
+		UpdateMirror(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO){
 		g_JpegParams.nWidth = g_SFT.GetRatioX();
@@ -3256,7 +3243,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOAPPROXIMATION){
 		g_SFT.SetNoApprox(!g_SFT.GetNoApprox());
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOAPPROXIMATION,MF_BYCOMMAND|(g_SFT.GetNoApprox()?MF_CHECKED:MF_UNCHECKED));
+		UpdateNoApprox(hWnd);
 	}
 
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETIMAGESIZE) || (uMsg==WM_KEYDOWN && wParam=='Z' && HIWORD(GetKeyState(VK_CONTROL)))){
@@ -3299,6 +3286,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int nYOffs = g_JpegParams.nHeight-cr.bottom;
 		wr.bottom+=nYOffs+sr.bottom;
 		wr.top-=nYOffs/2+sr.bottom/2;
+		g_SFT.SetWindowWidth(g_JpegParams.nWidth);
+		g_SFT.SetWindowHeight(g_JpegParams.nHeight);
 		MoveWindow(hWnd,wr.left,wr.top,wr.right,wr.bottom,TRUE);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
@@ -3367,16 +3356,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD){
 		g_SFT.SetSolveGlitchNear(! g_SFT.GetSolveGlitchNear());
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
+		UpdateSolveGlitchNear(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
 		g_bAutoGlitch=!g_bAutoGlitch;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_SFT.SetAutoSolveGlitches(g_bAutoGlitch);
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_SFT.GetAutoSolveGlitches()?MF_CHECKED:MF_UNCHECKED));
+		UpdateAutoSolveGlitches(hWnd);
 		if(g_bAutoGlitch){
 			g_SFT.SetReuseReference(!g_bAutoGlitch);
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_REUSEREFERENCE,MF_BYCOMMAND|(g_SFT.GetReuseReference()?MF_CHECKED:MF_UNCHECKED));
+			UpdateReuseReference(hWnd);
 		}
 		else{
 			g_SFT.SetSolveGlitchNear(false);
@@ -3399,8 +3388,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nLDBL=300;
 		}
 		g_nEXP=4900;
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(g_nLDBL<100?MF_CHECKED:MF_UNCHECKED));
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(g_nEXP==3?MF_CHECKED:MF_UNCHECKED));
+		g_SFT.SetLongDoubleAlways(g_nLDBL < 100);
+		g_SFT.SetFloatExpAlways(g_nEXP == 3);
+		UpdateLongDoubleAlways(hWnd);
+		UpdateFloatExpAlways(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
 		if(g_nEXP==4900){
@@ -3416,8 +3407,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nLDBL=300;
 			g_nEXP=4900;
 		}
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|MF_UNCHECKED);
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(g_nEXP==3?MF_CHECKED:MF_UNCHECKED));
+		g_SFT.SetLongDoubleAlways(false);
+		g_SFT.SetFloatExpAlways(g_nEXP == 3);
+		UpdateLongDoubleAlways(hWnd);
+		UpdateFloatExpAlways(hWnd);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

@@ -65,6 +65,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 		m_hWnd = hWnd;
 	m_nX = nX;
 	m_nY = nY;
+	SetImageWidth(nX);
+	SetImageHeight(nY);
 	m_nMaxIter = nMaxIter;
 	m_nRDone = m_nDone = m_nGuessed = 0;
 	if (m_pDX){
