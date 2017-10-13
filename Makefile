@@ -12,13 +12,13 @@ LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg $(W
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
-fraktal_sft/dbl_functions.cpp \
-fraktal_sft/dbl_functions2.cpp \
-fraktal_sft/exp_functions2.cpp \
-fraktal_sft/exp_functions.cpp \
+fraktal_sft/floatexp_perturbation.cpp \
+fraktal_sft/floatexp_reference.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
+fraktal_sft/long_double_perturbation.cpp \
+fraktal_sft/long_double_reference.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
