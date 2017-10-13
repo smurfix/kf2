@@ -36,8 +36,9 @@
 #include "jpeg.h"
 #include "png.h"
 #include "main.h"
-#include "main_iterations.h"
 #include "main_color.h"
+#include "main_examine.h"
+#include "main_iterations.h"
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -60,6 +61,8 @@ BOOL g_bTrackSelect=FALSE;
 POINT g_pTrackStart;
 HICON g_hIcon;
 
+bool g_bAddReference=false;
+bool g_bEraser=false;
 
 #ifdef KF_OPENCL
 HWND g_hwOpenCL = NULL;
@@ -85,9 +88,7 @@ extern double g_imag;
 double CHECK_FLOAT(double a);
 BOOL ISFLOATOK(double a);
 CFraktalSFT g_SFT;
-BOOL g_bAddReference=FALSE;
-BOOL g_bEraser=FALSE;
-BOOL g_bAddMainReference=FALSE;
+bool g_bAddMainReference=false;
 int g_bAutoGlitch = 1;
 BOOL g_bRotate=FALSE;
 BOOL g_bMove=FALSE;
@@ -106,7 +107,7 @@ int g_nPrevGlitchY=-1;
 BOOL g_bStoreZoom=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
-BOOL g_bWaitRead=FALSE;
+bool g_bWaitRead=false;
 int g_nStopAtExponent=0;
 
 char *g_pszStatus[] = {
@@ -135,12 +136,7 @@ int g_bFindMinibrotPos=0;
 
 BOOL g_bZoomRunning=FALSE;
 BOOL g_bZoomStop=FALSE;
-HWND g_hwExamine=NULL;
-char g_szExamine[256];
-CStringTable g_stExamine;
-int g_nExamine=-1;
-int g_nExamineZoom=-1;
-bool g_bExamineDirty=false;
+
 static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
 	// TODO add support for strict aliasing optimisations, "restrict" etc
@@ -209,17 +205,14 @@ extern void SetDlgItemFloat(HWND hWnd,int nID,double val)
 	SetDlgItemText(hWnd,nID,szText);
 }
 
-static int kGetDlgItemInt(HWND hWnd,int nID)
+extern int FileExists(char *szFind)
 {
-	char szText[256];
-	GetDlgItemText(hWnd,nID,szText,sizeof(szText));
-	return atoi(szText);
-}
-static void kSetDlgItemInt(HWND hWnd,int nID,int val)
-{
-	char szText[256];
-	sprintf(szText,"%d",val);
-	SetDlgItemText(hWnd,nID,szText);
+	WIN32_FIND_DATA wf;
+	HANDLE hFind = FindFirstFile(szFind,&wf);
+	if(hFind==INVALID_HANDLE_VALUE)
+		return 0;
+	FindClose(hFind);
+	return 1;
 }
 
 extern char * GetToolText(int nID,LPARAM lParam)
@@ -267,39 +260,7 @@ extern char * GetToolText(int nID,LPARAM lParam)
 		}
 	}
 	else if(lParam==4){
-		switch(nID){
-		case IDC_RADIO1:
-			return "Add Reference\nclick in the view to add additional references";
-		case IDC_RADIO2:
-			return "Set main reference.\nThe whole image will be rendered";
-		case IDC_RADIO3:
-			return "Erase specific parts of the view by clicking\nAfter erased add references in the erased areas";
-		case IDC_BUTTON1:
-			return "Save eventual changes and go to previous Key Frame";
-		case IDOK:
-			return "Save eventual changes and go to next Key Frame";
-		case IDC_BUTTON5:
-			return "Save eventual changes and go to previous Key Frame\nThe current frame will be applied on the center of the previous frame";
-		case IDC_BUTTON2:
-			return "Undo all changes on current Key Frame";
-		case IDC_EDIT1:
-			return "Current Key Frame index";
-		case IDC_BUTTON3:
-			return "Jump to specified Key Frame index";
-		case IDCANCEL:
-			return "Close this dialog";
-		case IDC_EDIT2:
-			return "Show if current Key Frame is changed";
-		case IDC_EDIT3:
-			return "Status of reading/saving current Key Frame";
-		case IDC_BUTTON4:
-			return "Automatically solve glitches in Key Frames\nThe Key Frames will be browsed backwards\nand stop on the first frame\nStart this function preferable from the last frame";
-		case IDC_EDIT4:
-			return "Shows status of automatically glitch solving";
-		case IDC_EDITMAXREFS:
-			return "Choose maximum number of references to add per frame when solving glitches";
-
-		}
+		return const_cast<char *>(ExamineToolTip(nID));
 	}
 	static char szTmp[128];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
@@ -781,15 +742,6 @@ static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
-static int FileExists(char *szFind)
-{
-	WIN32_FIND_DATA wf;
-	HANDLE hFind = FindFirstFile(szFind,&wf);
-	if(hFind==INVALID_HANDLE_VALUE)
-		return 0;
-	FindClose(hFind);
-	return 1;
-}
 struct ANIM
 {
 	HBITMAP bmBmp;
@@ -801,7 +753,7 @@ struct ANIM
 	int nPos;
 };
 int g_nAnim=0;
-BOOL g_bAnim=FALSE;
+bool g_bAnim=false;
 static void UpdateBkpImage(ANIM *pAnim)
 {
 	double zoomDiff = pAnim->nZoomSize;
@@ -838,7 +790,7 @@ static void UpdateBkpImage(ANIM *pAnim)
 static int WINAPI ThAnim_(ANIM *pAnim)
 {
 	int nParts = 10;// * log((double)g_SFT.GetZoomSize())/log((double)2);
-	g_bAnim=TRUE;
+	g_bAnim=true;
 	int pMyID = InterlockedIncrement((LPLONG)&g_nAnim);
 	HDC hDC = GetDC(pAnim->hWnd);
 	SetStretchBltMode(hDC,HALFTONE);
@@ -884,7 +836,7 @@ static int WINAPI ThAnim_(ANIM *pAnim)
 		InvalidateRect(pAnim->hWnd,NULL,FALSE);
 	}
 	if(pMyID==g_nAnim)
-		g_bAnim=FALSE;
+		g_bAnim=false;
 	SelectObject(dcBmp,bmOld);
 	DeleteDC(dcBmp);
 	ReleaseDC(pAnim->hWnd,hDC);
@@ -907,270 +859,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 //#endif
 	return 0;
 }
-int g_nPrevAutoGlitchNP;
-int g_bAutoSolveGlitch=0;
-int g_nAutoSolveGlitchLimit=10;
-static int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
-{
-	(void) lParam;
-	if(uMsg==WM_INITDIALOG){
-		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
-		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,4);
-		g_nPrevAutoGlitchNP=g_SFT.GetSolveGlitchNear();
-		g_SFT.SetSolveGlitchNear(false);
-		CheckMenuItem(GetMenu(GetParent(hWnd)),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
-		g_bAddReference=TRUE;
-		g_bEraser=FALSE;
-		g_stExamine.Reset();
-		SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
-		WIN32_FIND_DATA fd;
-		char szExamine[256];
-		strcpy(szExamine,g_szExamine);
-		char *sz = strrchr(szExamine,'\\');
-		if(sz)
-			strcpy(sz+1,"*_*.kfb");
-		HANDLE hFind = FindFirstFile(szExamine,&fd);
-		if(!sz || hFind==INVALID_HANDLE_VALUE){
-			if(hFind)
-				FindClose(hFind);
-			MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
-			DestroyWindow(hWnd);
-			g_hwExamine=NULL;
-			return 0;
-		}
-		do{
-			strcpy(strrchr(szExamine,'\\')+1,fd.cFileName);
-			g_stExamine.AddRow();
-			g_stExamine.AddString(g_stExamine.GetCount()-1,szExamine);
-		}while(FindNextFile(hFind,&fd));
-		FindClose(hFind);
-		g_stExamine.M3QSort(0,1);
-		g_SFT.OpenFile(g_szExamine);
-		g_SFT.OpenMapB(g_stExamine[0][0]);
-		g_SFT.ApplyColors();
-		g_nExamine=0;
-		SetDlgItemInt(hWnd,IDC_EDIT1,g_nExamine,FALSE);
-		g_bExamineDirty=FALSE;
-		int last = g_stExamine.GetCount() - 1;
-		char *szA = strrchr(g_stExamine[last][0],'_');
-		szA++;
-		strcpy(szExamine,szA);
-		*strrchr(szExamine,'.')=0;
-		CDecNumber A(szExamine);
-		szA = strrchr(g_stExamine[last-1][0],'_');
-		if (szA)
-		{
-			szA++;
-			strcpy(szExamine,szA);
-			*strrchr(szExamine,'.')=0;
-		}
-		CDecNumber B(szExamine);
-		g_nExamineZoom = (A/B+CDecNumber(0.5)).ToInt();
-		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
-		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
 
-		PostMessage(GetParent(hWnd),WM_USER+199,0,0);
-		SetTimer(hWnd,0,100,NULL);
-	}
-	else if(uMsg==WM_COMMAND){
-		if(wParam==IDCANCEL){
-			DestroyWindow(hWnd);
-			g_hwExamine=NULL;
-			g_SFT.SetSolveGlitchNear(g_nPrevAutoGlitchNP);
-			CheckMenuItem(GetMenu(GetParent(hWnd)),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
-		}
-		else if(wParam==IDOK || wParam==IDC_BUTTON1 || wParam==IDC_BUTTON2 || wParam==IDC_BUTTON5){
-			SetDlgItemText(hWnd,IDC_EDIT3,"Reading...");
-			g_SFT.Stop();
-			g_bAnim=FALSE;
-			KillTimer(hWnd,1);
-			if(wParam!=IDC_BUTTON2 && g_bExamineDirty){
-				g_SFT.SaveMapB(g_stExamine[g_nExamine][0]);
-				char szFile[256];
-				strcpy(szFile,g_stExamine[g_nExamine][0]);
-				strcpy(strrchr(szFile,'.'),".jpg");
-				if(FileExists(szFile))
-					g_SFT.SaveJpg(szFile,100);
-			}
-			if(wParam==IDC_BUTTON5)
-				g_bExamineDirty=TRUE;
-			else
-				g_bExamineDirty=FALSE;
-			if(wParam==IDOK){
-				g_nExamine++;
-				if(g_nExamine>g_stExamine.GetCount()-1)
-					g_nExamine=0;
-			}
-			else if(wParam==IDC_BUTTON1 || wParam==IDC_BUTTON5){
-				g_nExamine--;
-				if(g_nExamine<0){
-					wParam=IDC_BUTTON1;
-					g_nExamine=g_stExamine.GetCount()-1;
-					g_bExamineDirty=FALSE;
-				}
-			}
-			SetDlgItemInt(hWnd,IDC_EDIT1,g_nExamine,FALSE);
-			UpdateWindow(GetDlgItem(hWnd,IDC_EDIT1));
-			g_SFT.OpenMapB(g_stExamine[g_nExamine][0],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
-			g_SFT.ApplyColors();
-			if(wParam!=IDC_BUTTON2)
-				SetTimer(hWnd,1,500,NULL);
-			InvalidateRect(GetParent(hWnd),NULL,FALSE);
-			UpdateWindow(GetParent(hWnd));
-//			SetCapture(hWnd);
-			g_bWaitRead=TRUE;
-		}
-		else if(wParam==IDC_BUTTON3){
-			SetDlgItemText(hWnd,IDC_EDIT3,"Reading...");
-			g_SFT.Stop();
-			g_bAnim=FALSE;
-			KillTimer(hWnd,1);
-			g_nExamine = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,FALSE);
-			if(g_nExamine<0)
-				g_nExamine=0;
-			else if(g_nExamine>=g_stExamine.GetCount())
-				g_nExamine = g_stExamine.GetCount()-1;
-			g_SFT.OpenMapB(g_stExamine[g_nExamine][0],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
-			g_SFT.ApplyColors();
-			SetTimer(hWnd,1,500,NULL);
-			InvalidateRect(GetParent(hWnd),NULL,FALSE);
-			UpdateWindow(GetParent(hWnd));
-			g_bWaitRead=TRUE;
-		}
-		else if(wParam==IDC_BUTTON4){
-			if(!g_SFT.GetAutoSolveGlitches())
-				SetTimer(hWnd,2,10,NULL);
-			g_SFT.SetAutoSolveGlitches(! g_SFT.GetAutoSolveGlitches());
-			if(g_SFT.GetAutoSolveGlitches())
-			{
-				// update additional references limit from GUI
-				g_nAutoSolveGlitchLimit = kGetDlgItemInt(hWnd, IDC_EDITMAXREFS);
-				if (g_nAutoSolveGlitchLimit < 1) g_nAutoSolveGlitchLimit = 10;
-				kSetDlgItemInt(hWnd, IDC_EDITMAXREFS, g_nAutoSolveGlitchLimit);
-				SetDlgItemText(hWnd,IDC_BUTTON4,"Stop Auto solve glitch");
-			}
-			else{
-				SetDlgItemText(hWnd,IDC_EDIT4,"");
-				SetDlgItemText(hWnd,IDC_BUTTON4,"Auto solve glitch");
-			}
-		}
-		else if(wParam==IDC_RADIO1){
-			g_bAddReference=TRUE;
-			g_bAddMainReference=FALSE;
-			g_bEraser=FALSE;
-			EnableWindow(GetDlgItem(hWnd,IDC_CHECK1),TRUE);
-		}
-		else if(wParam==IDC_RADIO2){
-			g_bAddReference=FALSE;
-			g_bAddMainReference=TRUE;
-			g_bEraser=FALSE;
-			EnableWindow(GetDlgItem(hWnd,IDC_CHECK1),FALSE);
-		}
-		else if(wParam==IDC_RADIO3){
-			g_bEraser=TRUE;
-			g_bAddReference=FALSE;
-			g_bAddMainReference=FALSE;
-			EnableWindow(GetDlgItem(hWnd,IDC_CHECK1),FALSE);
-		}
-		else if(wParam==IDC_CHECK1){
-			g_SFT.SetSolveGlitchNear(! g_SFT.GetSolveGlitchNear());
-			CheckMenuItem(GetMenu(GetParent(hWnd)),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
-		}
-	}
-	else if(uMsg==WM_TIMER && wParam==0)
-		SetDlgItemText(hWnd,IDC_EDIT2,g_bExamineDirty?"Changed":"");
-	else if(uMsg==WM_TIMER && wParam==1){
-		g_bWaitRead=FALSE;
-		SetDlgItemText(hWnd,IDC_EDIT3,"");
-		KillTimer(hWnd,1);
-		ReleaseCapture();
-		int nMI = g_SFT.GetIterations();
-		g_SFT.OpenFile(g_szExamine);
-		g_SFT.SetIterations(nMI);
-		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
-		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
-
-		PostMessage(GetParent(hWnd),WM_USER+199,0,0);
-	}
-	else if(uMsg==WM_TIMER && wParam==2){
-		KillTimer(hWnd,2);
-		if(!g_bAutoSolveGlitch)
-			return 0;
-SetDlgItemText(hWnd,IDC_EDIT4,"AutoSolveGlitch");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-		int rx, ry;
-SetDlgItemText(hWnd,IDC_EDIT4,"Search for glitch");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-		while(!g_SFT.FindCenterOfGlitch(rx,ry) || g_bAutoSolveGlitch>=g_nAutoSolveGlitchLimit){
-			if(g_nExamine==0){
-				g_bAutoSolveGlitch=0;
-				SetDlgItemText(hWnd,IDC_BUTTON4,"Auto solve glitch");
-SetDlgItemText(hWnd,IDC_EDIT4,"Done");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-				return 0;
-			}
-			if(g_bAutoSolveGlitch>1){
-SetDlgItemText(hWnd,IDC_EDIT4,"No more glitch found - save and previous");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-				SendMessage(hWnd,WM_COMMAND,IDC_BUTTON5,0);
-			}
-			else{
-SetDlgItemText(hWnd,IDC_EDIT4,"No glitch found - previous");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-				SendMessage(hWnd,WM_COMMAND,IDC_BUTTON1,0);
-			}
-			KillTimer(hWnd,1);
-			g_bAutoSolveGlitch=1;
-		}
-		if(g_bAutoSolveGlitch==1){
-SetDlgItemText(hWnd,IDC_EDIT4,"First glitch found - read location");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-			int nMI = g_SFT.GetIterations();
-			g_SFT.OpenFile(g_szExamine);
-			g_SFT.SetIterations(nMI);
-			CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
-			char *szR = g_SFT.GetRe();
-			char *szRe = new char[strlen(szR)+1];
-			strcpy(szRe,szR);
-			char *szI = g_SFT.GetIm();
-			char *szIm = new char[strlen(szI)+1];
-			strcpy(szIm,szI);
-			g_SFT.SetPosition(szRe,szIm,A.ToText());
-			delete[] szRe;
-			delete[] szIm;
-		}
-
-char szAdd[128];
-wsprintf(szAdd,"Add reference %d",g_bAutoSolveGlitch);
-SetDlgItemText(hWnd,IDC_EDIT4,szAdd);
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
-		g_SFT.AddReference(rx,ry);
-		g_bAutoSolveGlitch++;
-		SetTimer(GetParent(hWnd),0,500,NULL);
-		g_bExamineDirty=TRUE;
-	}
-	else if(uMsg==WM_USER+199 && g_bAutoSolveGlitch){
-		SendMessage(hWnd,WM_TIMER,2,0);
-	}
-	return 0;
-}
 static int ResumeZoomSequence(HWND hWnd)
 {
 	memset(g_szFile,0,sizeof(g_szFile));
@@ -1238,6 +927,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	if(stExamine.GetCount()<2)
 		g_SFT.SetZoomSize(2);
 	else{
+		char g_szExamine[256];
 		char *szA = strrchr(stExamine[0][0],'_');
 		szA++;
 		strcpy(g_szExamine,szA);
@@ -1843,7 +1533,7 @@ nPos=18;
 nPos=19;
 				CloseHandle(hFile);
 				g_SFT.Stop();
-				g_bAnim=FALSE;
+				g_bAnim=false;
 				g_SFT.OpenFile(g_szRecovery);
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
@@ -2699,7 +2389,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(g_bRotate){
 			g_SFT.Stop();
-			g_bAnim=FALSE;
+			g_bAnim=false;
 			RECT r;
 			GetClientRect(hWnd,&r);
 				RECT sr;
@@ -2726,7 +2416,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MSG msg;
 		int nButtons=0;
 		g_SFT.Stop();
-		g_bAnim=FALSE;
+		g_bAnim=false;
 		while(PeekMessage(&msg,hWnd,WM_LBUTTONDOWN,WM_LBUTTONDOWN,PM_REMOVE)){
 			nButtons++;
 			Sleep(10);
@@ -3151,7 +2841,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			if(g_bAddMainReference){
 				if(!g_hwExamine)
-					g_bAddMainReference=FALSE;
+					g_bAddMainReference=false;
 				if(g_hwExamine){
 					g_bExamineDirty=TRUE;
 					SetFocus(g_hwExamine);
@@ -3203,7 +2893,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bExamineDirty=TRUE;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_SFT.Stop();
-		g_bAnim=FALSE;
+		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		DeleteObject(g_bmSaveZoomBuff);
@@ -3235,11 +2925,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 		}
 		if(g_bAddMainReference){
-			g_bAddMainReference=FALSE;
+			g_bAddMainReference=false;
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 		}
 		g_SFT.Stop();
-		g_bAnim=FALSE;
+		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		DeleteObject(g_bmSaveZoomBuff);
@@ -3268,7 +2958,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 				if(stP.FindString(0,"MANDELBROT")!=-1){
 					g_SFT.Stop();
-					g_bAnim=FALSE;
+					g_bAnim=false;
 					g_bFindMinibrot=FALSE;
 					g_bStoreZoom=FALSE;
 					DeleteObject(g_bmSaveZoomBuff);
@@ -3293,7 +2983,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam==187){
 		lParam=9;
 		g_bAddReference=FALSE;
-		g_bAddMainReference=FALSE;
+		g_bAddMainReference=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		DeleteObject(g_bmSaveZoomBuff);
@@ -3360,7 +3050,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam==189){
 		lParam=9;
 		g_bAddReference=FALSE;
-		g_bAddMainReference=FALSE;
+		g_bAddMainReference=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		DeleteObject(g_bmSaveZoomBuff);
@@ -3543,7 +3233,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_RESETROTATION){
 		g_SFT.Stop();
-		g_bAnim=FALSE;
+		g_bAnim=false;
 		g_Degree=0;
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
@@ -3651,7 +3341,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1))
 			return 0;
 		g_SFT.Stop();
-		g_bAnim=FALSE;
+		g_bAnim=false;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
@@ -3709,17 +3399,17 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAddReference=TRUE;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_CHECKED);
 
-		g_bAddMainReference=FALSE;
+		g_bAddMainReference=false;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_ADDREFERENCEERRORS){
 		g_bAddReference=FALSE;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
-		g_bAddMainReference=FALSE;
+		g_bAddMainReference=false;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SETMAINREFERENCE){
-		g_bAddMainReference=TRUE;
+		g_bAddMainReference=true;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_CHECKED);
 
 		g_bAddReference=FALSE;
@@ -3744,15 +3434,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			MessageBox(hWnd,"Could not find any glitches","Kalle's Fraktaler",MB_OK|MB_ICONINFORMATION);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_EXAMINEZOOMSEQUENCE){
-		memset(g_szExamine,0,sizeof(g_szExamine));
-		if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szExamine,sizeof(g_szExamine)))
+		bool ok = Examine(hWnd);
+		if (! ok)
 			return 0;
-		if(g_hwExamine)
-			SetFocus(g_hwExamine);
-		else{
-			g_hwExamine = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG8),hWnd,(DLGPROC)ExamineProc);
-			ShowWindow(g_hwExamine,SW_SHOW);
-		}
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_RESUMEZOOMSEQUENCE){
 		return ResumeZoomSequence(hWnd);
@@ -3990,7 +3674,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bTrackSelect=0;
 		else{
 			g_SFT.Stop();
-			g_bAnim=FALSE;
+			g_bAnim=false;
 			SYSTEMTIME st;
 			GetLocalTime(&st);
 			SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -4151,7 +3835,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sr.bottom-=sr.top;
 				r.bottom-=sr.bottom;
 				g_SFT.Stop();
-				g_bAnim=FALSE;
+				g_bAnim=false;
 				g_SFT.SetIterations(n);
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
@@ -4213,7 +3897,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_FILE_OPEN_){
 			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
 				g_SFT.Stop();
-				g_bAnim=FALSE;
+				g_bAnim=false;
 				if(!g_SFT.OpenFile(g_szFile))
 					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
 				else{
@@ -4330,7 +4014,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(g_nStopAtExponent && g_nStopAtExponent<=g_SFT.GetExponent())
 				return MessageBox(hWnd,"Done","Error",MB_OK|MB_ICONINFORMATION);
 			g_SFT.Stop();
-			g_bAnim=FALSE;
+			g_bAnim=false;
 			g_bStoreZoom=FALSE;
 			DeleteObject(g_bmSaveZoomBuff);
 			g_bmSaveZoomBuff=NULL;

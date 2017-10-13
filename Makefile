@@ -21,6 +21,7 @@ fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/main_color.cpp \
+fraktal_sft/main_examine.cpp \
 fraktal_sft/main_iterations.cpp \
 fraktal_sft/newton.cpp \
 fraktal_sft/png.cpp \
@@ -37,6 +38,7 @@ fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
 fraktal_sft/main.h \
 fraktal_sft/main_color.h \
+fraktal_sft/main_examine.h \
 fraktal_sft/main_iterations.h \
 fraktal_sft/newton.h \
 fraktal_sft/png.h \
