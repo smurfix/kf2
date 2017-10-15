@@ -38,6 +38,8 @@ Known Bugs
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
   period detected (reported by Kalles Fraktaler)
+- "newton-fails.kfr" half-blank image on load and newton-raphson zoom fails
+  (reported by Kalles Fraktaler)
 - examine zoom sequence auto solve glitches is much less effective at solving
   glitches than when rendering with auto solve glitches: possible precision
   loss / misalignment between pixels and true parameter plane locations?  for
@@ -280,10 +282,9 @@ TODO
 ----
 
 - user interface: batch mode
-- user interface: config/control file for rendering settings that aren't saved
-  inside the .kfr file, could be useful for batch mode
 - user interface: slower view refresh rate for larger images to optimize for
   calculations rather than responsiveness (downscaling takes lots of time)
+- user interface: even lower resolution preview for more intensive locations
 - user interface: scripting interface
 - user interface: lock feature to prevent accidentally restarting calculations
   (suggested by jwm-art)
