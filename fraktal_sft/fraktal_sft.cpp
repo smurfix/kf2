@@ -1967,14 +1967,15 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 */	else if (!bResuming){
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
-#if 0
-				// experimental new glitch method
+#if 1
+				// re-render all and only glitched pixels
 				if (m_nTrans[x][y] == TRANS_GLITCH)
 				{
 					m_nPixels[x][y] = -1;
 					nCount++;
 				}
 #else
+				// re-render all and only pixels with the same integer iteration count
 				if (IsEqual(i, Pixels[x][y], 1)){// && IsEqual(t, (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]), 4)){
 					m_nPixels[x][y] = -1;
 					nCount++;
