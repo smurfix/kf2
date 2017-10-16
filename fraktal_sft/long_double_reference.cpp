@@ -205,7 +205,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	if (m_nFractalType == 0 && m_nPower == 2){
 		double glitch_threshold = 0.0000001;
-		if (m_bGlitchLowTolerance) {
+		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
 		}
 
@@ -286,7 +286,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
-    if (m_bGlitchLowTolerance) {
+    if (GetGlitchLowTolerance()) {
 			threashold = sqrt(threashold);
 		}
 		if (threashold>.5)
@@ -333,7 +333,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2);
     assert(ok && "reference_long_double");
 
 	}

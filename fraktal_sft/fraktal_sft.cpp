@@ -126,7 +126,6 @@ CFraktalSFT::CFraktalSFT()
 	m_bNoGlitchDetection = FALSE;
 	m_nPrevPower = m_nPower = 2;
 	m_bLowTolerance = TRUE;
-	m_bGlitchLowTolerance = FALSE;
 	m_nMaxOldGlitches = 69;
 
 	m_bAutoTerms = TRUE;

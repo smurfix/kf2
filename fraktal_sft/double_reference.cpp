@@ -43,7 +43,7 @@ void CFraktalSFT::CalculateReference()
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
-		if (m_bGlitchLowTolerance) {
+		if (GetGlitchLowTolerance()) {
 			threashold = sqrt(threashold);
 		}
 		if (threashold>.5)
@@ -92,7 +92,7 @@ void CFraktalSFT::CalculateReference()
 	else
 	{
 
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2);
 		assert(ok && "reference_double");
 
 	}
