@@ -1905,6 +1905,8 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 		diff = -diff;
 	return diff<nSpan;
 }
+
+#define KF_RERENDER_ONLY_ALL_GLITCHES
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
 {
 g_nAddRefX=nXPos;g_nAddRefY=nYPos;
@@ -1919,7 +1921,10 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
+#else
 	int **Pixels = m_nPixels;
+#endif
 	if (m_nZoom >= g_nRefZero){
 		double mr = m_nX / 2;
 		double mi = m_nY / 2;
@@ -1939,9 +1944,16 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		m_iref = 0;
 	}
 	int x, y;
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
+#else
 	int i = 0;
+#endif
 	if(nXPos>=0 && nXPos<m_nX && nYPos>=0 && nYPos<m_nY)
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
+		;
+#else
 		i = Pixels[nXPos][nYPos];
+#endif
 	else
 		bResuming=TRUE;
 
@@ -1967,7 +1979,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 */	else if (!bResuming){
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
-#if 1
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
 				// re-render all and only glitched pixels
 				if (m_nTrans[x][y] == TRANS_GLITCH)
 				{
@@ -1989,6 +2001,8 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, FALSE, FALSE);
 	return TRUE;
 }
+#undef KF_RERENDER_ONLY_ALL_GLITCHES
+
 #define SMOOTH_TO 7
 int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **Pixels,int nDone)
 {
