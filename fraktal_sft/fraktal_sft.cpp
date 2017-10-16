@@ -2143,13 +2143,18 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 				if(Pixels[x][y]==Pixels[x+1][y-1])nMatch++;
 				if(Pixels[x][y]==Pixels[x-1][y+1])nMatch++;
 				if(Pixels[x][y]==Pixels[x+1][y+1])nMatch++;
-*/				if(nMatch==1){
+*/
+#if 0
+				// this seems to try to "fix" single pixel glitches by copying neighbour
+				// this doesn't seem to be desirable for high quality rendering
+				if(nMatch==1){
 					m_nTrans[x][y]=m_nTrans[x-1][y];
 					m_nPixels[x][y]=m_nPixels[x-1][y];
 					if(m_bMirrored)
 						Mirror(x,y);
 					continue;
 				}
+#endif
 				int nDist = GetArea(Node,x,y,1,NULL,nDone);
 				if(nDistance<nDist){
 					nDistance=nDist;
