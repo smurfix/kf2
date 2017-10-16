@@ -131,13 +131,14 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		SetEvent(p0->hDone);
 		return 0;
 	}
-	if (p0->nType == 0)
+	if (p0->nType == 2)
 	{
 		if (i > 0)
 		{
 			const long double lr = p->m_ldxr[i-1];
 			const long double li = p->m_ldxi[i-1];
-			const double abs_val = g_real * lr * lr + g_imag * li * li;
+			old_absval = abs_val;
+			abs_val = g_real * lr * lr + g_imag * li * li;
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
 			if (abs_val >= 4)
 			{

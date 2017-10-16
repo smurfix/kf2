@@ -132,7 +132,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		SetEvent(p0->hDone);
 		return 0;
 	}
-	if (p0->nType == 0)
+	if (p0->nType == 2)
 	{
 		if (i > 0)
 		{
@@ -176,10 +176,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			p->m_dxr[i] = xr;
 			p->m_dxi[i] = xi;
 		}
+		*p->antal = antal;
+		*p->test1 = test1;
+		*p->test2 = test2;
 	}
-	*p->antal = antal;
-	*p->test1 = test1;
-	*p->test2 = test2;
 	SetEvent(p0->hDone);
 	return 0;
 }
