@@ -2309,6 +2309,7 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	}
 	for(i=0;i<m_nX;i++)
 		delete [] Node[i];
+	delete[] Node;
 	return nDistance!=-1;
 }
 
