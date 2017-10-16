@@ -34,6 +34,7 @@ Known Bugs
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
+- minimizing window during command line rendering corrupts image
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
 - "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
@@ -108,6 +109,8 @@ Differences From Upstream 2.11.1
 - parameter data is saved as comment in image files (both PNG and JPEG)
 - preferences (rendering settings not related to location) save and load
   (.kfs files and PNG/JPEG comments too)
+- command line arguments to load settings and/or location
+- command line arguments to render and save PNG/JPEG/KFB Map before quiting
 
 
 Change Log
@@ -117,6 +120,15 @@ Change Log
 
     - preferences (rendering settings not related to location) save and load
       (.kfs files and PNG/JPEG comments too)
+    - command line arguments to load settings and/or location
+    - command line arguments to render and save PNG/JPEG/KFB Map before quiting
+    - auto-added new references recalculate only all glitched pixels (in earlier
+      versions it would recalculate all pixels with same integer iteration
+      count, which may or may not have been glitched, and may have missed some
+      glitches)
+    - fix bugs with references when calculating their own pixels
+    - single pixel glitches are no longer fixed by copying neighbour
+    - fixed memory leak in glitch correction
     - major code refactoring into multiple files for ease of maintenance
     - delete no-longer-used single-threaded Newton-Raphson zooming code
 
@@ -281,13 +293,8 @@ Change Log
 TODO
 ----
 
-- user interface: batch mode
-- user interface: slower view refresh rate for larger images to optimize for
-  calculations rather than responsiveness (downscaling takes lots of time)
 - user interface: even lower resolution preview for more intensive locations
-- user interface: scripting interface
-- user interface: lock feature to prevent accidentally restarting calculations
-  (suggested by jwm-art)
+  (suggested by Foxxie)
 - user interface: undo history for location data (suggested by TwinDragon)
 - user interface: undo history for calculation data (suggested by TwinDragon)
 - user interface: online help within program (suggested by TwinDragon)
@@ -297,10 +304,12 @@ TODO
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
 - calculations: increase maxiters limit without restarting from scratch
+- calculations: refine minibrot boundary by iterating border only (like gmndl)
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference
 - calculations: calculate derivatives for "true" distance estimates
+- calculations: refine minibrot using interior distance estimates
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
@@ -925,6 +934,20 @@ Special
     in the view, or with the automatic search of minibrot that is also using
     the pattern center
 
+
+About
+-----
+
+At the very top right:
+
+  - **?**
+
+    Open about dialog, with version information and credits.
+
+    This also functions as a lock mechanism, preventing accidental zooming
+    while a long render is taking place.
+
+
 Number of colors dialog
 -----------------------
 
@@ -1032,3 +1055,43 @@ Number of colors dialog
 
     A negative value on Hue, Saturation or Brightness makes a flat percentage
     value to be applied on all iterations.
+
+
+Command Line Usage
+------------------
+
+    kf.exe [options]
+        -l, --load-location [FILE.kfr]  load location file
+        -s, --load-settings [FILE.kfs]  load settings file
+        -p, --save-png      [FILE.png]  save PNG
+        -j, --save-jpg      [FILE.jpg]  save JPEG
+        -m, --save-map      [FILE.kfb]  save KFB
+        -v, -V, --version               show version
+        -h, -H, -?, --help              show this help
+
+Locations and settings can also be image files with embedded comments.
+
+If any of the save options are give, KF switches to a non-interactive mode - it
+will render the image and save to all specified types before quitting.  The
+GUI is updated less frequently (only after each reference, instead of twice a
+second) which should improve rendering times, particularly for large images.
+
+A typical workflow would be to start KF without arguments, set up the window
+size (eg 640x360), image size (eg 3840x2160), glitch low tolerance flag, etc,
+then save the settings to a .kfs file, before quitting.
+
+Then launch KF from the command line telling it to load the settings file you
+just saved, plus the location file you want to render, and where to save the
+output images to.  Then wait patiently.  You can write a script that renders
+multiple locations in succession, either in batch .BAT on Windows, or in Shell
+.sh on *nix with WINE.
+
+Note that you might have to double up backslashes within quoted paths (if they
+contain spaces).  Maybe forward slashes work instead, but you do need quotes
+(either single '' or double "", in a matching pair around the whole argument)
+if there are spaces.  Your shell might also do funky stuff with slashes and
+quotes, so you might need to double up or quadruple up the backslashes and
+quotes.  Easiest to avoid spaces and keep your files in the current working
+directory...  Example:
+
+    kf.exe -s settings.kfs -l location.kfr -p out.png -j out.jpg -m out.kfb

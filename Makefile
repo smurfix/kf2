@@ -12,6 +12,7 @@ LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg $(W
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
+fraktal_sft/cmdline.cpp \
 fraktal_sft/double_perturbation.cpp \
 fraktal_sft/double_reference.cpp \
 fraktal_sft/floatexp_approximation.cpp \
@@ -36,6 +37,7 @@ fraktal_sft/Settings.cpp
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
 fraktal_sft/CFixedFloat.h \
+fraktal_sft/cmdline.h \
 fraktal_sft/colour.h \
 fraktal_sft/complex.h \
 fraktal_sft/floatexp.h \

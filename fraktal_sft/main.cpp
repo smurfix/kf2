@@ -40,6 +40,8 @@
 #include "main_examine.h"
 #include "main_iterations.h"
 #include "main_position.h"
+#include "cmdline.h"
+#include <iostream>
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -128,6 +130,10 @@ int g_nStatus=0;
 BOOL g_bFirstDone=TRUE;
 BOOL g_bSaveJpeg=FALSE;
 BOOL g_bSavePng=FALSE;
+BOOL g_bSaveMap=FALSE;
+BOOL g_bInteractive=TRUE;
+const CommandLineArguments *g_args = 0;
+
 char g_szRecovery[256];
 
 BOOL g_bResetReference=FALSE;
@@ -190,7 +196,7 @@ __int64 g_nTStart;
 BOOL g_bRunning=FALSE;
 HWND g_hwHair;
 HWND g_hwColors=NULL;
-char g_szFile[256]={0};
+char g_szFile[1024]={0};
 
 extern double GetDlgItemFloat(HWND hWnd,int nID)
 {
@@ -1261,6 +1267,10 @@ static void SaveZoomImg(char *szFile, char *comment)
 }
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
+	if (! g_bInteractive)
+	{
+		std::cerr << "reference " << g_bAutoGlitch << std::endl;
+	}
 	if(g_bStoreZoom){
 		strcpy(strrchr(g_szFile,'\\')+1,"recovery.kfb");
 		if(uMsg==WM_USER+199)
@@ -1484,24 +1494,63 @@ nPos=21;
 nPos=22;
 		g_SFT.ApplyColors();
 		if(g_bSaveJpeg){
-			g_bSaveJpeg=FALSE;
 nPos=23;
-			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
-				if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
-					MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			if (g_bInteractive)
+			{
+				g_bSaveJpeg=FALSE;
+				char szFile[256]={0};
+				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
+					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
+			}
+			else if (uMsg==WM_USER+199 && wParam==0)
+			{
+				g_bSaveJpeg=FALSE;
+				char szFile[1024]={0};
+				strncpy(szFile, g_args->sSaveJPG.c_str(), sizeof(szFile));
+				if(!g_SFT.SaveJpg(szFile,100))
+					std::cerr << "ERROR in save jpg: " << szFile << std::endl;
 			}
 		}
 		if(g_bSavePng){
-			g_bSavePng=FALSE;
 nPos=24;
-			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
-				if(!g_SFT.SaveJpg(szFile,-1))
-					MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			if (g_bInteractive)
+			{
+				g_bSavePng=FALSE;
+				char szFile[1024]={0};
+				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
+					if(!g_SFT.SaveJpg(szFile,-1))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
 			}
+			else if (uMsg==WM_USER+199 && wParam==0)
+			{
+				g_bSavePng=FALSE;
+				char szFile[1024]={0};
+				strncpy(szFile, g_args->sSavePNG.c_str(), sizeof(szFile));
+				if(!g_SFT.SaveJpg(szFile,-1))
+					std::cerr << "ERROR in save png: " << szFile << std::endl;
+			}
+		}
+		if(g_bSaveMap){
+			if (g_bInteractive)
+			{
+				g_bSaveMap = FALSE;
+			}
+			else if (uMsg==WM_USER+199 && wParam==0)
+			{
+				g_bSaveMap=FALSE;
+				char szFile[1024]={0};
+				strncpy(szFile, g_args->sSaveMap.c_str(), sizeof(szFile));
+				g_SFT.SaveMapB(szFile);
+			}
+		}
+		if (uMsg==WM_USER+199 && wParam==0 && !g_bInteractive)
+		{
+			PostQuitMessage(0);
 		}
 /*			int nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
@@ -2194,6 +2243,52 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
+static long OpenFile(HWND hWnd, bool &ret)
+{
+				g_SFT.Stop();
+				g_bAnim=false;
+				if(!g_SFT.OpenFile(g_szFile))
+				{
+					ret = true;
+					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
+				}
+				else{
+					char *extension = strrchr(g_szFile, '.');
+					if (extension && 0 != strcmp(".kfr", extension))
+					{
+						// prevent ctrl-s save overwriting a file with the wrong extension
+						strcat(extension, ".kfr");
+					}
+					if(g_hwColors)
+						SendMessage(g_hwColors,WM_USER+99,0,0);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					char szTitle[1000];
+					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
+					SetWindowText(hWnd,szTitle);
+				}
+				ret = false;
+				return 0;
+}
+
+static long OpenSettings(HWND hWnd, bool &ret)
+{
+				g_SFT.Stop();
+				g_bAnim=false;
+				if(!g_SFT.OpenSettings(g_szFile))
+				{
+					ret = true;
+					return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
+				}
+				else{
+					UpdateMenusFromSettings(hWnd);
+					UpdateWindowSize(hWnd);
+					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
+				ret = false;
+				return 0;
+}
+
 static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
@@ -2253,7 +2348,23 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateArbitrarySize(hWnd);
 
-		g_SFT.RenderFractal(640,360,g_SFT.GetIterations(),hWnd);
+		if (g_args->bLoadSettings)
+		{
+			bool ret;
+			strncpy(g_szFile, g_args->sLoadSettings.c_str(), sizeof(g_szFile));
+			OpenSettings(hWnd, ret);
+		}
+		if (g_args->bLoadLocation)
+		{
+			bool ret;
+			strncpy(g_szFile, g_args->sLoadLocation.c_str(), sizeof(g_szFile));
+			OpenFile(hWnd, ret);
+		}
+		g_bSaveJpeg = g_args->bSaveJPG;
+		g_bSavePng = g_args->bSavePNG;
+		g_bSaveMap = g_args->bSaveMap;
+		g_bInteractive = !(g_args->bSaveJPG || g_args->bSavePNG || g_args->bSaveMap);
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
@@ -2633,6 +2744,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 		SetTimer(hWnd,0,500,NULL);
+//		std::cerr << "WM_LBUTTONUP && g_bRotate" << std::endl;
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(g_bTrackSelect==1 && (uMsg==WM_CAPTURECHANGED || uMsg==WM_RBUTTONUP || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE))){
@@ -2850,16 +2962,26 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
+#if 0
 		if(g_SFT.GetWidth()<r.right || g_SFT.GetHeight()<r.bottom)
+		{
+//			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && small" << std::endl;
 			g_SFT.RenderFractal(r.right,r.bottom,g_SFT.GetIterations(),hWnd);
-		else if(g_SFT.GetArbitrarySize()){
+		}
+		else
+#endif
+		if(g_SFT.GetArbitrarySize()){
 			SIZE sc;
 			sc.cy = g_SFT.GetHeight();
 			sc.cx = (double)r.right*((double)sc.cy/(double)r.bottom);
+//			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
 			g_SFT.RenderFractal(sc.cx,sc.cy,g_SFT.GetIterations(),hWnd);
 		}
 		else
+		{
+//			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && otherwise" << std::endl;
 			g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+		}
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_ESCAPE){
 		if(g_bAddReference){
@@ -3841,16 +3963,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
 			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
-				g_SFT.Stop();
-				g_bAnim=false;
-				if(!g_SFT.OpenSettings(g_szFile))
-					return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
-				else{
-					UpdateMenusFromSettings(hWnd);
-					UpdateWindowSize(hWnd);
-					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-				}
+				bool ret;
+				long r = OpenSettings(hWnd, ret);
+				if (ret) return r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVESETTINGS){
@@ -3861,24 +3976,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_OPEN_){
 			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
-				g_SFT.Stop();
-				g_bAnim=false;
-				if(!g_SFT.OpenFile(g_szFile))
-					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
-				else{
-					char *extension = strrchr(g_szFile, '.');
-					if (extension && 0 != strcmp(".kfr", extension))
-					{
-						// prevent ctrl-s save overwriting a file with the wrong extension
-						strcat(extension, ".kfr");
-					}
-					if(g_hwColors)
-						SendMessage(g_hwColors,WM_USER+99,0,0);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-					char szTitle[369];
-					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
-					SetWindowText(hWnd,szTitle);
-				}
+				bool ret;
+				long r = OpenFile(hWnd, ret);
+				if (ret) return r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVE_){
@@ -4061,7 +4161,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
-				"version 2.12.4\n"
+				"version %s\n"
 				"©2013-2017 Karl Runmo\n"
 				"©2017 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
@@ -4090,6 +4190,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
 				"Claude also thanks Karl for releasing source code so we all could learn from it and make modifications.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
+				version.c_str(),
 				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
 				png_libpng_ver,
 				zlib_version,
@@ -4158,9 +4259,28 @@ static int Test1()
 }
 #endif
 
-extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
+extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 {
 //	return Test();
+
+	CommandLineArguments args(commandline);
+	if (args.bError)
+	{
+		std::cerr << "ERROR: bad command line arguments" << std::endl;
+	}
+	if (args.bVersion)
+	{
+		std::cout << version << std::endl;
+	}
+	if (args.bHelp)
+	{
+		std::cout << usage;
+	}
+	if (args.bVersion || args.bHelp || args.bError)
+	{
+		return 0;
+	}
+	g_args = &args;
 
 #ifdef KF_OPENCL
 	cldevices = initialize_opencl();
@@ -4179,6 +4299,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR,int)
 	RegisterClass(&wc);
 	HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,200,200,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 	ShowWindow(hWnd,SW_SHOW);
+
 	MSG msg;
 	while(GetMessage(&msg,NULL,0,0)){
 		if(GetDlgCtrlID(msg.hwnd)==IDC_LIST1 && msg.message==WM_RBUTTONDOWN)
