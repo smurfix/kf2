@@ -2143,11 +2143,16 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	int nHeight = m_nY;
 	if(m_bMirrored)
 		nHeight=(nHeight+1)/2;
-
+#if 0
 	for(x=1;x<m_nX-1;x++){
 		for(y=1;y<nHeight-1;y++){
+#else
+	for(x=0;x<m_nX;x++){
+		for(y=0;y<nHeight;y++){
+#endif
 			int nDone = - (x*m_nY+y);
 			if(Node[x][y]>0 && m_nTrans[x][y]==TRANS_GLITCH && Pixels[x][y]!=m_nMaxIter){
+#if 0
 				int nMatch=1;
 				if(Pixels[x][y]==Pixels[x][y-1])nMatch++;
 				if(Pixels[x][y]==Pixels[x][y+1])nMatch++;
@@ -2168,6 +2173,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 						Mirror(x,y);
 					continue;
 				}
+#endif
 #endif
 				int nDist = GetArea(Node,x,y,1,NULL,nDone);
 				if(nDistance<nDist){
