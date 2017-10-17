@@ -2125,10 +2125,10 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 	delete [] pQ;
 	return nAreaC;
 }
-BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
+int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
 	int x, y, i=0, io;
-	int rx, ry;
+	int rx = -1, ry = -1;
 
 	int **Pixels = m_nPixels;
 	int **Node = new int*[m_nX];
@@ -2324,7 +2324,7 @@ BOOL CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	for(i=0;i<m_nX;i++)
 		delete [] Node[i];
 	delete[] Node;
-	return nDistance!=-1;
+	return nDistance + 1; // -1 becomes 0
 }
 
 BOOL CFraktalSFT::GetTransition()

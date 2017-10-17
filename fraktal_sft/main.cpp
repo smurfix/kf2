@@ -1301,12 +1301,16 @@ nPos=3;
 		if(g_bAutoGlitch && g_bAutoGlitch-1<g_SFT.GetMaxReferences()){
 			g_bAutoGlitch++;
 nPos=4;
-			int x, y;
+			int x, y, d;
 
-			if(g_SFT.FindCenterOfGlitch(x, y)){
+			if((d = g_SFT.FindCenterOfGlitch(x, y))){
 nPos=5;
 				if(g_nPrevGlitchX!=x || g_nPrevGlitchY!=y){
 nPos=6;
+					if (! g_bInteractive)
+					{
+						std::cerr << "add reference " << g_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
+					}
 					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
 						return 0;

@@ -362,7 +362,7 @@ public:
 	int GetTransOnPoint(int x, int y);
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
 	BOOL HighestIteration(int &rx, int &ry);
-	BOOL FindCenterOfGlitch(int &rx, int &ry);
+	int FindCenterOfGlitch(int &rx, int &ry);
 	int GetColorIndex(int x, int y);
 	BOOL GetTransition();
 	void SetTransition(BOOL bTransition);
