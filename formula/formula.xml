@@ -10,8 +10,8 @@
       calculations, which need to be updated by hand when you change the glitch
       threshold (or the reference formula).  You can find those implementations
       in these files:
-        - fraktal_sft/dbl_functions.cpp
-        - fraktal_sft/exp_functions.cpp
+        - fraktal_sft/long_double_reference.cpp
+        - fraktal_sft/floatexp_reference.cpp
 
     -->
     <formula power="2" glitch="0.0000001">
