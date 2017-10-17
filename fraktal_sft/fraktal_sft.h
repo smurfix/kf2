@@ -311,6 +311,8 @@ public:
 	CFraktalSFT();
 	~CFraktalSFT();
 
+	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
+
 	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
 	void SetPosition(const char *szR, const char *szI, const char *szZ);
 	void SetPosition(const char *szR, const char *szI, const std::string &szZ);

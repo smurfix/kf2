@@ -4298,6 +4298,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	g_hIcon = wc.hIcon;
 	RegisterClass(&wc);
 	HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,200,200,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
+	g_SFT.SetWindow(hWnd);
 	ShowWindow(hWnd,SW_SHOW);
 
 	MSG msg;
