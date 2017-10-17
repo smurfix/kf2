@@ -1267,10 +1267,6 @@ static void SaveZoomImg(char *szFile, char *comment)
 }
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
-	if (! g_bInteractive)
-	{
-		std::cerr << "reference " << g_bAutoGlitch << std::endl;
-	}
 	if(g_bStoreZoom){
 		strcpy(strrchr(g_szFile,'\\')+1,"recovery.kfb");
 		if(uMsg==WM_USER+199)
@@ -2356,18 +2352,21 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		{
 			bool ret;
 			strncpy(g_szFile, g_args->sLoadSettings.c_str(), sizeof(g_szFile));
+			std::cerr << "loading settings: " << g_szFile << std::endl;
 			OpenSettings(hWnd, ret);
 		}
 		if (g_args->bLoadLocation)
 		{
 			bool ret;
 			strncpy(g_szFile, g_args->sLoadLocation.c_str(), sizeof(g_szFile));
+			std::cerr << "loading location: " << g_szFile << std::endl;
 			OpenFile(hWnd, ret);
 		}
 		g_bSaveJpeg = g_args->bSaveJPG;
 		g_bSavePng = g_args->bSavePNG;
 		g_bSaveMap = g_args->bSaveMap;
 		g_bInteractive = !(g_args->bSaveJPG || g_args->bSavePNG || g_args->bSaveMap);
+		std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
