@@ -3,6 +3,8 @@
 #include "jpeg.h"
 #include "../common/StringVector.h"
 
+#include <iostream>
+
 BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 {
 	char *szData = 0;
@@ -242,7 +244,7 @@ BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
 	if (i != -1)
 		m_bBlend = atoi(stParams[i][1]);
 	ApplyColors();
-	InvalidateRect(m_hWnd, NULL, FALSE);
+	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
 	m_nMaxIter = atoi(stParams[nIterations][1]);
 	return TRUE;
 }
