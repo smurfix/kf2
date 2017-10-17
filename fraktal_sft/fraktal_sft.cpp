@@ -2024,51 +2024,51 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 		y = pQ[nQ-1].y;
 		nQ--;
 		nValidate--;
-		if(IsEqual(Node[x][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && nQ<nQSize){
+		if(IsEqual(Node[x][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && nQ<nQSize && m_nTrans[x][y] == TRANS_GLITCH){
 			nAreaC++;
 			Node[x][y]=nDone;
-			if(Pixels)
+			if(Pixels && m_nTrans[x][y] == TRANS_GLITCH)
 				Pixels[x][y]=-1;
 			int w=x, e=x;
-			while(nValidate && w && IsEqual(Node[w-1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE)){
+			while(nValidate && w && IsEqual(Node[w-1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[w-1][y] == TRANS_GLITCH){
 				nAreaC++;
 				nValidate--;
 				w--;
 				Node[w][y]=nDone;
-				if(Pixels)
+				if(Pixels && m_nTrans[w][y] == TRANS_GLITCH)
 					Pixels[w][y]=-1;
 				if(y &&
 					IsEqual(Node[w][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[w][y-1] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = w;
 					pQ[nQ-1].y = y-1;
 				}
 				if(y<m_nY-1 &&
 					IsEqual(Node[w][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[w][y+1] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = w;
 					pQ[nQ-1].y = y+1;
 				}
 			}
-			while(nValidate && e<m_nX-1 && IsEqual(Node[e+1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE)){
+			while(nValidate && e<m_nX-1 && IsEqual(Node[e+1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[e+1][y] == TRANS_GLITCH){
 				nAreaC++;
 				nValidate--;
 				e++;
 				Node[e][y]=nDone;
-				if(Pixels)
+				if(Pixels && m_nTrans[e][y] == TRANS_GLITCH)
 					Pixels[e][y]=-1;
 				if(y &&
 					IsEqual(Node[e][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[e][y-1] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y-1;
 				}
 				if(y<m_nY-1 &&
 					IsEqual(Node[e][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[e][y+1] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y+1;
@@ -2076,45 +2076,45 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 			}
 			w=y;
 			e=y;
-			while(nValidate && w && IsEqual(Node[x][w-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)){
+			while(nValidate && w && IsEqual(Node[x][w-1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[x][w-1] == TRANS_GLITCH){
 				nAreaC++;
 				nValidate--;
 				w--;
 				Node[x][w]=nDone;
-				if(Pixels)
+				if(Pixels && m_nTrans[x][w] == TRANS_GLITCH)
 					Pixels[x][w]=-1;
 				if(x &&
 					IsEqual(Node[x-1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[x-1][w] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = w;
 				}
 				if(x<m_nX-1 &&
 					IsEqual(Node[x+1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[x+1][w] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = x+1;
 					pQ[nQ-1].y = w;
 				}
 			}
-			while(nValidate && e<m_nY-1 && IsEqual(Node[x][e+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)){
+			while(nValidate && e<m_nY-1 && IsEqual(Node[x][e+1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[x][e+1] == TRANS_GLITCH){
 				nAreaC++;
 				nValidate--;
 				e++;
 				Node[x][e]=nDone;
-				if(Pixels)
+				if(Pixels && m_nTrans[x][e] == TRANS_GLITCH)
 					Pixels[x][e]=-1;
 				if(x &&
 					IsEqual(Node[x-1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[x-1][e] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = e;
 				}
 				if(x<m_nX-1 &&
 					IsEqual(Node[x+1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1){
+					&& nQ<nQSize-1 && m_nTrans[x+1][e] == TRANS_GLITCH){
 					nQ++;
 					pQ[nQ-1].x = x+1;
 					pQ[nQ-1].y = e;
