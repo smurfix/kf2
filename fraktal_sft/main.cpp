@@ -2261,10 +2261,10 @@ static long OpenFile(HWND hWnd, bool &ret)
 					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 					char szTitle[1000];
 					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
 					SetWindowText(hWnd,szTitle);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 				ret = false;
 				return 0;
