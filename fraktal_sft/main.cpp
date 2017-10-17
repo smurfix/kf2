@@ -2804,11 +2804,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
 			CloseHandle(hThread);
 		}
-		int nMin, nMax, nIter;
-		g_SFT.GetIterations(nMin,nMax);
-		nIter = g_SFT.GetIterations();
-		if(nIter<nMin+nMin+2000)
-			g_SFT.SetIterations(nMin+nMin+3000);
+		if (g_SFT.GetAutoIterations())
+		{
+			int nMin, nMax, nIter;
+			g_SFT.GetIterations(nMin,nMax);
+			nIter = g_SFT.GetIterations();
+			if(nIter<nMin+nMin+2000)
+				g_SFT.SetIterations(nMin+nMin+3000);
+		}
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -3083,12 +3086,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			p.x=rc.right/2 + (p.x-rc.right/2)/2;
 			p.y=rc.bottom/2 + (p.y-rc.bottom/2)/2;
 		}
-		int nMin, nMax, nIter;
-		g_SFT.GetIterations(nMin,nMax);
-		nIter = g_SFT.GetIterations();
-		if(nIter<nMin+nMin/2+2000)
-			g_SFT.SetIterations(nMin+nMin/2+3000);
-
+		if (g_SFT.GetAutoIterations())
+		{
+			int nMin, nMax, nIter;
+			g_SFT.GetIterations(nMin,nMax);
+			nIter = g_SFT.GetIterations();
+			if(nIter<nMin+nMin/2+2000)
+				g_SFT.SetIterations(nMin+nMin/2+3000);
+		}
 		g_pSelect.x = -g_SFT.GetWidth()/2;
 		g_pSelect.y = g_SFT.GetHeight()/2;
 		ANIM* pAnim = new ANIM;
@@ -4145,7 +4150,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.GetIterations(nMin,nMax);
 			nIter = g_SFT.GetIterations();
 			if(nIter<nMin+nMin/2+2000)
+			{
+				// ignore auto iterations setting, otherwise it could stop early
 				g_SFT.SetIterations(nMin+nMin/2+3000);
+			}
 			if(nIter==nMax && !g_bFindMinibrotCount){
 				g_bFindMinibrot=FALSE;
 				MessageBox(hWnd,"Done","Kalle's Fraktaler",MB_OK);
