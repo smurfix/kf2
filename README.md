@@ -47,6 +47,7 @@ Known Bugs
   now it is recommended to avoid the "reuse reference" setting, and keep "auto
   solve glitches" enabled, when rendering zoom out sequences (reported by
   Fractal universe)
+- auto-iterations is always enabled despite GUI (reported by Foxxie)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
