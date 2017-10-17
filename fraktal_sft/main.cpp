@@ -4194,7 +4194,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				" - stardust4ever for other fractal types\n"
 				" - claude for Newton-Raphson method\n"
 				" - gerrit for differencing variations\n"
-				" - Dinkydau, Fractal universe, CFJH and others for bug reports\n"
+				" - Dinkydau, Fractal universe, CFJH, Foxxie and others for bug reports\n"
 				" - Chillheimer for hosting my program\n\n"
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
 				"Claude also thanks Karl for releasing source code so we all could learn from it and make modifications.\n\n"
