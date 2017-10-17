@@ -2184,6 +2184,9 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			}
 		}
 	}
+	// now (rx,ry) is a point in the largest glitch of size (nDistance)
+	// or (nDistance == -1) for no glitches
+
 
 	if(nDistance!=-1){
 		for(io=0;io<m_nMaxOldGlitches;io++){
