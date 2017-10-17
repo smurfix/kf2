@@ -47,7 +47,6 @@ Known Bugs
   now it is recommended to avoid the "reuse reference" setting, and keep "auto
   solve glitches" enabled, when rendering zoom out sequences (reported by
   Fractal universe)
-- auto-iterations is always enabled despite GUI (reported by Foxxie)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
@@ -127,9 +126,15 @@ Change Log
       versions it would recalculate all pixels with same integer iteration
       count, which may or may not have been glitched, and may have missed some
       glitches)
+    - glitch correction now uses glitch flag instead of just iteration count
+      (this ensures the reference is added in a really glitched pixel, so at
+      least one pixel will be fixed by each reference, ensuring termination
+      with a finite number of references)
     - fix bugs with references when calculating their own pixels
     - single pixel glitches are no longer fixed by copying neighbour
+    - fixed glitch at image boundary correction
     - fixed memory leak in glitch correction
+    - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - major code refactoring into multiple files for ease of maintenance
     - delete no-longer-used single-threaded Newton-Raphson zooming code
 
