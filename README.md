@@ -47,6 +47,16 @@ Known Bugs
   now it is recommended to avoid the "reuse reference" setting, and keep "auto
   solve glitches" enabled, when rendering zoom out sequences (reported by
   Fractal universe)
+- crash (assertion failure) when trying Burning Ship Power 6 (reported by
+  Foxxie)
+- crash when zooming too quickly near interior black regions (reported by
+  Foxxie) "usually near the elephant valley area or seahorse valley area of
+  minibrots, happens worse the faster you zoom, usually if you try to zoom at
+  the skinniest part very quickly"
+- non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
+  depend on zoom level) (reported by Foxxie)
+- signed integer overflow reports negative percentage in status bar when the
+  number of iterations is large (reported by Foxxie and someone else)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
