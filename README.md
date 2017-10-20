@@ -47,8 +47,6 @@ Known Bugs
   now it is recommended to avoid the "reuse reference" setting, and keep "auto
   solve glitches" enabled, when rendering zoom out sequences (reported by
   Fractal universe)
-- crash (assertion failure) when trying Burning Ship Power 6 (reported by
-  Foxxie)
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
@@ -146,6 +144,7 @@ Change Log
     - fixed memory leak in glitch correction
     - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
+    - fix for crash selecting invalid power (reported by Foxxie)
     - major code refactoring into multiple files for ease of maintenance
     - delete no-longer-used single-threaded Newton-Raphson zooming code
 

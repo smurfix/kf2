@@ -28,8 +28,7 @@ static inline long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 
 bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
     double old_absval = 0;
@@ -142,8 +141,7 @@ LOOP  }
 
 bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
     double old_absval = 0;
@@ -260,8 +258,7 @@ LOOP  }
 
 bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const floatexp real, const floatexp imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
     double old_absval = 0;
@@ -379,8 +376,7 @@ LOOP  }
 
 bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch, double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, const double xr0, const double xi0, const double cr, const double ci)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     const dcomplex A = { g_FactorAR, g_FactorAI };
     const dcomplex c = { cr, ci };
@@ -437,8 +433,7 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
 
 bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const long double *dxr, const long double *dxi, const double *m_db_z, int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, double g_real, double g_imag, double g_FactorAR, double g_FactorAI, long double xr, long double xi, const long double cr, const long double ci)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     const ldcomplex A = { g_FactorAR, g_FactorAI };
     const ldcomplex c = { cr, ci };
@@ -501,8 +496,7 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
 
 bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(int m_nFractalType, int m_nPower, const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, floatexp real, floatexp imag, double g_FactorAR, double g_FactorAI, floatexp xr, floatexp xi, const floatexp cr, const floatexp ci)
 {
-  (void) m_nPower; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /><xsl:choose><xsl:when test="@power!=''"> &amp;&amp; m_nPower == <xsl:value-of select="@power" /></xsl:when></xsl:choose>)
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     const fecomplex A = { g_FactorAR, g_FactorAI };
     const fecomplex c = { cr, ci };
@@ -561,11 +555,7 @@ bool reference_double(int m_nFractalType, int m_nPower, double *m_db_dxr, double
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
       </xsl:for-each>
       }
@@ -586,11 +576,7 @@ bool reference_long_double(int m_nFractalType, int m_nPower, long double *m_ldxr
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2);
       </xsl:for-each>
       }
@@ -611,11 +597,7 @@ bool reference_floatexp(int m_nFractalType, int m_nPower, floatexp *m_dxr, float
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, real, imag, m_bGlitchLowTolerance, antal, test1, test2);
       </xsl:for-each>
       }
@@ -637,11 +619,7 @@ bool perturbation_double(int m_nFractalType, int m_nPower, const double *m_db_dx
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci);
       </xsl:for-each>
       }
@@ -663,11 +641,7 @@ bool perturbation_long_double(int m_nFractalType, int m_nPower, const long doubl
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, dxr, dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci);
       </xsl:for-each>
       }
@@ -689,11 +663,7 @@ bool perturbation_floatexp(int m_nFractalType, int m_nPower, const floatexp *m_d
       switch (m_nPower)
       {
       <xsl:for-each select="formula">
-      <xsl:choose><xsl:when test="not(@power) or @power=''">
-        default:
-      </xsl:when><xsl:when test="@power!=''">
         case <xsl:value-of select="@power" />:
-      </xsl:when></xsl:choose>
           return FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, real, imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci);
       </xsl:for-each>
       }
@@ -709,6 +679,53 @@ void combo5_addstrings(HWND hWnd, int IDC_COMBO5)
   <xsl:for-each select="formulas/group">
     SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"<xsl:value-of select="@name" />"); // <xsl:value-of select="@type" />
   </xsl:for-each>
+}
+
+
+int validate_power_for_fractal_type(int m_nFractalType, int m_nPower)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+        default:
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />: return <xsl:value-of select="@power" />;
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+    default:
+      return 2;
+  }
+}
+
+
+void update_power_dropdown_for_fractal_type(HWND hWnd, int IDC_COMBO3, int m_nFractalType, int m_nPower)
+{
+  SendDlgItemMessage(hWnd,IDC_COMBO3,CB_RESETCONTENT,0,0);
+  int selected = 0;
+  int ix = 0;
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+    {
+      <xsl:for-each select="formula">
+        if (<xsl:value-of select="@power" /> == m_nPower) selected = ix;
+        SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"<xsl:value-of select="@power" />");
+        ix++;
+      </xsl:for-each>
+      break;
+    }
+  </xsl:for-each>
+  }
+	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,selected,0);
+	EnableWindow(GetDlgItem(hWnd,IDC_COMBO3), ix > 1);
 }
 
 

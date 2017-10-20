@@ -13,5 +13,7 @@ bool perturbation_long_double(int m_nFractalType, int m_nPower, const long doubl
 bool perturbation_floatexp(int m_nFractalType, int m_nPower, const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, double m_nBailout2, int nMaxIter, int m_bNoGlitchDetection, floatexp real, floatexp imag, double g_FactorAR, double g_FactorAI, floatexp xr, floatexp xi, const floatexp cr, const floatexp ci);
 
 void combo5_addstrings(HWND hWnd, int combo);
+int validate_power_for_fractal_type(int m_nFractalType, int m_nPower);
+void update_power_dropdown_for_fractal_type(HWND hWnd, int combo, int m_nFractalType, int m_nPower);
 
 #endif

@@ -61,7 +61,11 @@ static int RefreshPower(HWND hWnd, bool refresh = true)
 	char szPower[256];
 	GetDlgItemText(hWnd,IDC_COMBO3,szPower,sizeof(szPower));
 	int i = atoi(szPower);
-	if (refresh) g_SFT.SetPower(i);
+	if (refresh)
+	{
+		i = validate_power_for_fractal_type(g_SFT.GetFractalType(), i);
+		g_SFT.SetPower(i);
+	}
 	return i;
 }
 
@@ -70,48 +74,11 @@ static void UpdateFractalType(HWND hWnd, int i = -1, int p = -1)
 	if (i < 0) i = g_SFT.GetFractalType();
 	if (p < 0) p = g_SFT.GetPower();
 	SendDlgItemMessage(hWnd,IDC_COMBO5,CB_SETCURSEL,i,0);
-	int nType = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
-	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_RESETCONTENT,0,0);
-	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"2");
-	if(nType<=4 || nType>=10)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"3");
-	if(nType==0){
-		int p;
-		for(p=4;p<=10;p++){
-			char szNum[4];
-			wsprintf(szNum,"%d",p);
-			SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)szNum);
-		}
-	}
-	else{
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"4");
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"5");
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_ADDSTRING,0,(LPARAM)"6");
-	}
-	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,p-2,0);
-	EnableWindow(GetDlgItem(hWnd,IDC_COMBO3),nType<=4);
-	if(nType>=10)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-	if(nType>=15)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-	if(nType>=27)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-	if(nType>=33)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-	if(nType==40)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-	if(nType==41)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,0,0);
-	if(nType>=42)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,1,0);
-	if(nType==45 || nType==46)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
-	if(nType==47 || nType==48)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,3,0);
-	if(nType==49 || nType==50)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,4,0);
-	if(nType>=51)
-		SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,2,0);
+	i = SendDlgItemMessage(hWnd,IDC_COMBO5,CB_GETCURSEL,0,0);
+	p = validate_power_for_fractal_type(i, p);
+	update_power_dropdown_for_fractal_type(hWnd, IDC_COMBO3, i, p);
+	g_SFT.SetFractalType(i);
+	g_SFT.SetPower(p);
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
