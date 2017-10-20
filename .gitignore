@@ -8,8 +8,10 @@ kf.64.exe
 *.kfr
 *.kfs
 *.kfb
+*.f32
 *.pdf
 *.pgm
+*.ppm
 *.png
 *.log
 kf.rec
