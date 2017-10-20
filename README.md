@@ -144,6 +144,7 @@ Change Log
     - single pixel glitches are no longer fixed by copying neighbour
     - fixed glitch at image boundary correction
     - fixed memory leak in glitch correction
+    - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - major code refactoring into multiple files for ease of maintenance
     - delete no-longer-used single-threaded Newton-Raphson zooming code

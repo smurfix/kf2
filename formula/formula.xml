@@ -296,8 +296,8 @@
         Xin = Ci - Xr*Xi*2;
       </reference>
       <perturbation t="R">
-        xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xi + xr2 - 2 * Xi*xi - xi2) + cr;
-        xin = (Xr*xi + xi*Xi + xr*xi)*(-2) + ci;
+        xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
+        xin = (Xr*xi + xr*Xi + xr*xi)*(-2) + ci;
       </perturbation>
     </formula>
   </group>
