@@ -290,7 +290,7 @@
 
   </group>
   <group type="5" name="Mandelbar Celtic">
-    <formula glitch="0.0000001">
+    <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = abs(Xr2 - Xi2) + Cr;
         Xin = Ci - Xr*Xi*2;
@@ -303,7 +303,7 @@
   </group>
 
   <group type="6" name="Perpendicular Mandelbrot">
-    <formula glitch="0.0000001">
+    <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = Xr2 - Xi2 + Cr;
         Xin = Ci - abs(Xr)*Xi*2;
@@ -316,7 +316,7 @@
   </group>
 
   <group type="7" name="Perpendicular Burning Ship">
-    <formula glitch="0.0000001">
+    <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = Xr2 - Xi2 + Cr;
         Xin = Ci - Xr*abs(Xi)*2;
@@ -329,7 +329,7 @@
   </group>
 
   <group type="8" name="Perpendicular Celtic">
-    <formula glitch="0.0000001">
+    <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = abs(Xr2 - Xi2) + Cr;
         Xin = Ci - abs(Xr)*Xi*2;
@@ -342,7 +342,7 @@
   </group>
 
   <group type="9" name="Perpendicular Buffalo">
-    <formula glitch="0.0000001">
+    <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = abs(Xr2 - Xi2) + Cr;
         Xin = Ci - Xr*abs(Xi)*2;
@@ -355,7 +355,7 @@
   </group>
 
   <group type="10" name="Cubic Quasi Burning Ship">
-    <formula glitch="0.0000001">
+    <formula power="3" glitch="0.0000001">
       <reference t="R">
         Xrn = (Xr2 - (Xi2 * 3)) * abs(Xr) + Cr;
         Xin = Ci - abs(((Xr2 * 3) - Xi2) * Xi);
@@ -368,7 +368,7 @@
   </group>
 
   <group type="11" name="Cubic Partial BS Real">
-    <formula glitch="0.0000001">
+    <formula power="3" glitch="0.0000001">
       <reference t="R">
         Xrn = (Xr2 - (Xi2 * 3)) * abs(Xr) + Cr;
         Xin = (Xr2 * 3 - Xi2) * Xi + Ci;
@@ -381,7 +381,7 @@
   </group>
 
   <group type="12" name="Cubic Partial BS Imag">
-    <formula glitch="0.0000001">
+    <formula power="3" glitch="0.0000001">
       <reference t="R">
         Xrn = (Xr2 - Xi2 * 3) * Xr + Cr;
         Xin = ((Xr2 * 3) - Xi2) * abs(Xi) + Ci;
@@ -394,7 +394,7 @@
   </group>
 
   <group type="13" name="Cubic Flying Squirrel (Buffalo Imag)">
-    <formula glitch="0.0000001">
+    <formula power="3" glitch="0.0000001">
       <reference t="R">
         Xrn = (Xr2 - Xi2 * 3) * Xr + Cr;
         Xin = abs(((Xr2 * 3) - Xi2) * Xi) + Ci;
@@ -407,7 +407,7 @@
   </group>
 
   <group type="14" name="Cubic Quasi Perpendicular">
-    <formula glitch="0.0000001">
+    <formula power="3" glitch="0.0000001">
       <reference t="R">
         Xrn = (Xr2 - Xi2 * 3) * abs(Xr) + Cr;
         Xin = Ci - abs(Xr2 * 3 - Xi2) * Xi;
@@ -420,7 +420,7 @@
   </group>
 
   <group type="15" name="4th Burning Ship Partial Imag">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = 4 * Xr * abs(Xi) * (Xr2 - Xi2) + Ci;
@@ -433,7 +433,7 @@
   </group>
 
   <group type="16" name="4th Burning Ship Partial Real">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = 4 * abs(Xr) * Xi * (Xr2 - Xi2) + Ci;
@@ -446,7 +446,7 @@
   </group>
 
   <group type="17" name="4th Burning Ship Partial Real Mbar">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = Ci - 4 * abs(Xr) * Xi * (Xr2 - Xi2);
@@ -459,7 +459,7 @@
   </group>
 
   <group type="18" name="4th Celtic Burning Ship Partial Imag">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = 4 * Xr * abs(Xi) * (Xr2 - Xi2) + Ci;
@@ -472,7 +472,7 @@
   </group>
 
   <group type="19" name="4th Celtic Burning Ship Partial Real">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = 4 * abs(Xr) * Xi * (Xr2 - Xi2) + Ci;
@@ -485,7 +485,7 @@
   </group>
 
   <group type="20" name="4th Celtic Burning Ship Partial Real Mbar">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = Ci - 4 * abs(Xr) * Xi * (Xr2 - Xi2);
@@ -498,7 +498,7 @@
   </group>
 
   <group type="21" name="4th Buffalo Partial Imag">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = abs(4 * Xr * Xi * (Xr2 - Xi2)) + Ci;
@@ -511,7 +511,7 @@
   </group>
 
   <group type="22" name="4th Celtic Mbar">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = Ci - 4 * Xr * Xi * (Xr2 - Xi2);
@@ -524,7 +524,7 @@
   </group>
 
   <group type="23" name="4th False Quasi Perpendicular">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = Ci - 4 * Xr * Xi * abs(Xr2 - Xi2);
@@ -537,7 +537,7 @@
   </group>
 
   <group type="24" name="4th False Quasi Heart">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = 4 * Xr * Xi * abs(Xr2 - Xi2) + Ci;
@@ -550,7 +550,7 @@
   </group>
 
   <group type="25" name="4th Celtic False Quasi Perpendicular">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = (-4) * Xr * Xi * abs(Xr2 - Xi2) + Ci;
@@ -563,7 +563,7 @@
   </group>
 
   <group type="26" name="4th Celtic False Quasi HEart">
-    <formula glitch="0.00001">
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = 4 * Xr * Xi * abs(Xr2 - Xi2) + Ci;
@@ -576,7 +576,7 @@
   </group>
 
   <group type="27" name="5th Burning Ship Partial">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="R">
         Xrn = abs(Xr) * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2) +Cr;
         Xin = Xi * (5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2) +Ci;
@@ -589,7 +589,7 @@
   </group>
 
   <group type="28" name="5th Burning Ship Partial Mbar">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="R">
         Xrn = abs(Xr) * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2) +Cr;
         Xin = Ci - Xi * (5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2);
@@ -602,7 +602,7 @@
   </group>
 
   <group type="29" name="5th Celtic Mbar">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="R">
         Xrn = abs(Xr * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2)) +Cr;
         Xin = Ci - Xi * (5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2);
@@ -615,7 +615,7 @@
   </group>
 
   <group type="30" name="5th Quasi Burning Ship (BS/Buffalo Hybrid)">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="R">
         Xrn = abs(Xr) * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2) +Cr;
         Xin = Ci - abs(Xi * (5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2));
@@ -628,7 +628,7 @@
   </group>
 
   <group type="31" name="5th Quasi Perpendicular">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="R">
         Xrn = abs(Xr) * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2) +Cr;
         Xin = Ci - Xi * abs(5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2);
@@ -641,7 +641,7 @@
   </group>
 
   <group type="32" name="5th Quasi Heart">
-    <formula glitch="0.00001">
+    <formula power="5" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr) * (Xr2*Xr2 - 10 * Xr2*Xi2 + 5 * Xi2*Xi2) +Cr;
         Xin = Xi * abs(5 * Xr2*Xr2 - 10 * Xr2*Xi2 + Xi2*Xi2) +Ci;
@@ -654,7 +654,7 @@
   </group>
 
   <group type="33" name="SimonBrot 4th">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = Xi2*abs(Xi2)-4*Xi*abs(Xr*Xi)*Xr-Xr2*abs(Xi2)-Xi2*abs(Xr2)+Xr2*abs(Xr2) + Cr;
         Xin = Ci - 2*Xr*Xi*abs(Xi2)-2*Xi2*abs(Xr*Xi)+2*Xr2*abs(Xr*Xi)+2*Xr*Xi*abs(Xr2);
@@ -667,7 +667,7 @@
   </group>
 
   <group type="34" name="4th Imag Quasi Perpendicular / Heart">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = 4 * Xr * abs(Xi*Xr2 - Xi*Xi2) + Ci;
@@ -680,7 +680,7 @@
   </group>
 
   <group type="35" name="4th Real Quasi Perpendicular">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = Ci - 4 * Xi * abs(Xr*Xr2 - Xr*Xi2);
@@ -693,7 +693,7 @@
   </group>
 
   <group type="36" name="4th Real Quasi Heart">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 +Cr;
         Xin = 4 * Xi * abs(Xr*Xr2 - Xr*Xi2) + Ci;
@@ -706,7 +706,7 @@
   </group>
 
   <group type="37" name="4th Celtic Imag Quasi Perpendicular / Heart">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = 4 * Xr * abs(Xi*Xr2 - Xi*Xi2) + Ci;
@@ -719,7 +719,7 @@
   </group>
 
   <group type="38" name="4th Celtic Real Quasi Perpendicular">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = Ci - 4 * Xi * abs(Xr*Xr2 - Xr*Xi2);
@@ -732,7 +732,7 @@
   </group>
 
   <group type="39" name="4th Celtic Real Quasi Heart">
-    <formula glitch="0.000001">
+    <formula power="4" glitch="0.000001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
         Xin = 4 * Xi * abs(Xr*Xr2 - Xr*Xi2) + Ci;
@@ -745,7 +745,7 @@
   </group>
 
   <group type="40" name="SimonBrot 6th">
-    <formula glitch="0.0001">
+    <formula power="6" glitch="0.0001">
       <reference t="R">
         Xrn = 3*abs(Xr2*Xi)*Xi2*Xi-abs(Xi2*Xi)*Xi2*Xi+9*abs(Xr*Xi2)*Xr*Xi2-3*abs(Xr2*Xr)*Xr*Xi2+3*abs(Xi2*Xi)*Xr2*Xi-9*abs(Xr2*Xi)*Xr2*Xi-3*abs(Xr*Xi2)*Xr2*Xr+abs(Xr2*Xr)*Xr2*Xr + Cr;
         Xin = 3*Xi2*Xi*abs(Xr*Xi2)-abs(Xr2*Xr)*Xi2*Xi-9*abs(Xr2*Xi)*Xi2*Xr-9*abs(Xr*Xi2)*Xi*Xr2+3*abs(Xr2*Xr)*Xi*Xr2+3*abs(Xi2*Xi)*Xr*Xi2-abs(Xi2*Xi)*Xr2*Xr+3*abs(Xi*Xr2)*Xr2*Xr + Ci;
@@ -758,7 +758,7 @@
   </group>
 
   <group type="41" name="HPDZ Buffalo">
-    <formula glitch="0.0001">
+    <formula power="2" glitch="0.0001">
       <reference t="R">
         Xrn = (Xr2 - Xi2) - abs(Xr) + Cr;
         Xin = abs(Xr * Xi) * 2 - abs(Xi) + Ci;
@@ -771,7 +771,7 @@
   </group>
 
   <group type="42" name="TheRedshiftRider 1: a*z^2+z^3+c">
-    <formula glitch="0.0001">
+    <formula power="3" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) + (X^3) + C;
       </reference>
@@ -782,7 +782,7 @@
   </group>
 
   <group type="43" name="TheRedshiftRider 2: a*z^2-z^3+c">
-    <formula glitch="0.0001">
+    <formula power="3" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) - (X^3) + C;
       </reference>
@@ -793,7 +793,7 @@
   </group>
 
   <group type="44" name="TheRedshiftRider 3: 2*z^2-z^3+c">
-    <formula glitch="0.0001">
+    <formula power="3" glitch="0.0001">
       <reference t="C">
         Xn = 2 * (X^2) - (X^3) + C;
       </reference>
@@ -804,7 +804,7 @@
   </group>
 
   <group type="45" name="TheRedshiftRider 4: a*z^2+z^4+c">
-    <formula glitch="0.0001">
+    <formula power="4" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) + (X^4) + C;
       </reference>
@@ -815,7 +815,7 @@
   </group>
 
   <group type="46" name="TheRedshiftRider 5: a*z^2-z^4+c">
-    <formula glitch="0.0001">
+    <formula power="4" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) - (X^4) + C;
       </reference>
@@ -826,7 +826,7 @@
   </group>
 
   <group type="47" name="TheRedshiftRider 6: a*z^2+z^5+c">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) + (X^5) + C;
       </reference>
@@ -837,7 +837,7 @@
   </group>
 
   <group type="48" name="TheRedshiftRider 7: a*z^2-z^5+c">
-    <formula glitch="0.0001">
+    <formula power="5" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) - (X^5) + C;
       </reference>
@@ -848,7 +848,7 @@
   </group>
 
   <group type="49" name="TheRedshiftRider 8: a*z^2+z^6+c">
-    <formula glitch="0.0001">
+    <formula power="6" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) + (X^6) + C;
       </reference>
@@ -859,7 +859,7 @@
   </group>
 
   <group type="50" name="TheRedshiftRider 9: a*z^2-z^6+c">
-    <formula glitch="0.0001">
+    <formula power="6" glitch="0.0001">
       <reference t="C">
         Xn = A * (X^2) - (X^6) + C;
       </reference>
@@ -870,7 +870,7 @@
   </group>
 
   <group type="51" name="SimonBrot2 4th">
-    <formula glitch="0.0001">
+    <formula power="4" glitch="0.0001">
       <reference t="R">
         Xrn = (Xr2-Xi2)*abs(Xr2-Xi2) - 2*Xr*Xi*abs(2*Xr*Xi) + Cr;
         Xin = (Xr2-Xi2)*abs(2*Xr*Xi) + 2*Xr*Xi*abs(Xr2-Xi2) + Ci;
