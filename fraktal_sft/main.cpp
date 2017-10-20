@@ -4031,7 +4031,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_JpegParams.nWidth = g_SFT.GetWidth();
 			g_JpegParams.nHeight = g_SFT.GetHeight();
 			g_JpegParams.nQuality = 100;
-			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0)){
+			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
 				char szFile[256]={0};
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSavePng=TRUE;
