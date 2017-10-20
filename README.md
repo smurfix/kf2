@@ -53,8 +53,6 @@ Known Bugs
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
-- signed integer overflow reports negative percentage in status bar when the
-  number of iterations is large (reported by Foxxie and someone else)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - PNG save option opens a dialog called "JPEG properties" with an unused
   "quality" option (you can still set image size, but potentially confusing)
@@ -145,6 +143,8 @@ Change Log
     - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - fix for crash selecting invalid power (reported by Foxxie)
+    - fix for signed integer overflow reports negative percentage in status bar
+      when the number of iterations is large (reported by Foxxie and another)
     - major code refactoring into multiple files for ease of maintenance
     - delete no-longer-used single-threaded Newton-Raphson zooming code
 

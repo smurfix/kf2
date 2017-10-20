@@ -1279,33 +1279,19 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 
 int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP)
 {
-	int nG = m_nGuessed;
-	int nD = m_nDone;
-	int nR = m_nRDone;
-	int nA = m_nApprox;
-	int nMI = m_nMaxIter;
-	int nT = m_nTotal;
-	while (nD>1000){
-		nD /= 10;
-		nG /= 10;
-		nR /= 10;
-		nA /= 10;
-		nMI /= 10;
-		nT /= 10;
-	}
-	if (pnGuessed){
-		*pnGuessed = nG * 100 / (nD ? nD : 1);
-	}
+	if (pnGuessed)
+		*pnGuessed = m_nGuessed * 100.0 / (m_nDone ? m_nDone : 1);
 	if (pnRDone)
-		*pnRDone = nR * 100 / (nMI ? nMI : 1);
+		*pnRDone = m_nRDone * 100.0 / (m_nMaxIter ? m_nMaxIter : 1);
 	if (pnAP)
-		*pnAP = nA * 100 / (nMI ? nMI : 1);
+		*pnAP = m_nApprox * 100.0 / (m_nMaxIter ? m_nMaxIter : 1);
 	if (!m_bmi)
 		return 0;
-	if (!nT)
+	if (!m_nTotal)
 		return 100;
-	return nD * 100 / nT;
+	return m_nDone * 100.0 / m_nTotal;
 }
+
 char *CFraktalSFT::GetPosition()
 {
 	CStringTable st;
