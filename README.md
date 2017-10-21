@@ -53,6 +53,8 @@ Known Bugs
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
+- "Glitches.kfr" power 10 Mandelbrot broken (off center, glitchy) (reported by
+  Foxxie)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
@@ -310,12 +312,19 @@ TODO
 
 - user interface: even lower resolution preview for more intensive locations
   (suggested by Foxxie)
+- user interface: show box-region for nr-zoom before clicking (suggested by
+  Foxxie)
+- user-interface: adjust the size of the box via slider or like shift_scroll
+  wheel or something like that? (suggested by Foxxie for nr-zoom, could also
+  be useful for ctrl-left-click zoom)
 - user interface: undo history for location data (suggested by TwinDragon)
 - user interface: undo history for calculation data (suggested by TwinDragon)
 - user interface: online help within program (suggested by TwinDragon)
 - user interface: drag-and-drop parameters or images on to main window to load
 - user interface: support system clipboard for parameters
 - user interface: save image now function (without waiting for calculations)
+- calculations: store -|log|z|| in trans array for glitched pixels, should
+  enable better glitch correction (find minimum, instead of image shape search)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
 - calculations: increase maxiters limit without restarting from scratch
@@ -325,6 +334,7 @@ TODO
 - calculations: calculate series approximation in parallel with reference
 - calculations: calculate derivatives for "true" distance estimates
 - calculations: refine minibrot using interior distance estimates
+- calculations: refine minibrot using boundary shrinking (calculate edges only)
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: automatically parallelize reference iterations
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
