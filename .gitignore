@@ -14,6 +14,7 @@ kf.64.exe
 *.ppm
 *.png
 *.log
+*.mdz
 kf.rec
 preprocessor
 formula/formula.cpp
