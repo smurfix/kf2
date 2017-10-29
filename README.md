@@ -55,8 +55,6 @@ Known Bugs
   depend on zoom level) (reported by Foxxie)
 - "Glitches.kfr" power 10 Mandelbrot broken (off center, glitchy) (reported by
   Foxxie)
-- "Broken.kfr" power 4 Burning Ship broken (glitchy minibrots) (reported by
-  Foxxie)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
@@ -144,6 +142,7 @@ Change Log
     - fixed memory leak in glitch correction
     - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
     - fixed "Mandelbar" formula (reported by Foxxie)
+    - fixed "Burning Ship Power 4" formula (reported by Foxxie)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - fix for crash selecting invalid power (reported by Foxxie)
     - fix for signed integer overflow reports negative percentage in status bar
