@@ -1111,7 +1111,7 @@ multiple locations in succession, either in batch .BAT on Windows, or in Shell
 
 Note that you might have to double up backslashes within quoted paths (if they
 contain spaces).  Maybe forward slashes work instead, but you do need quotes
-(either single '' or double "", in a matching pair around the whole argument)
+(either single `''` or double `""`, in a matching pair around the whole argument)
 if there are spaces.  Your shell might also do funky stuff with slashes and
 quotes, so you might need to double up or quadruple up the backslashes and
 quotes.  Easiest to avoid spaces and keep your files in the current working
