@@ -141,6 +141,7 @@ Change Log
     - fixed glitch at image boundary correction
     - fixed memory leak in glitch correction
     - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
+    - fixed "Mandelbar" formula (reported by Foxxie)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - fix for crash selecting invalid power (reported by Foxxie)
     - fix for signed integer overflow reports negative percentage in status bar
