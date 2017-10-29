@@ -185,7 +185,10 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==IDC_BUTTON4){
 			if(!g_SFT.GetAutoSolveGlitches())
+			{
+				g_bAutoSolveGlitch = 1;
 				SetTimer(hWnd,2,10,NULL);
+			}
 			g_SFT.SetAutoSolveGlitches(! g_SFT.GetAutoSolveGlitches());
 			if(g_SFT.GetAutoSolveGlitches())
 			{
