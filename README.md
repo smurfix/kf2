@@ -41,12 +41,6 @@ Known Bugs
   period detected (reported by Kalles Fraktaler)
 - "newton-fails.kfr" half-blank image on load and newton-raphson zoom fails
   (reported by Kalles Fraktaler)
-- examine zoom sequence auto solve glitches is much less effective at solving
-  glitches than when rendering with auto solve glitches: possible precision
-  loss / misalignment between pixels and true parameter plane locations?  for
-  now it is recommended to avoid the "reuse reference" setting, and keep "auto
-  solve glitches" enabled, when rendering zoom out sequences (reported by
-  Fractal universe)
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
@@ -138,6 +132,8 @@ Change Log
     - single pixel glitches are no longer fixed by copying neighbour
     - fixed glitch at image boundary correction
     - fixed memory leak in glitch correction
+    - fixed horizontal line corruption in examine zoom sequence glitch
+      correction (reported by Fractal universe)
     - fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
     - fixed "Mandelbar" formula (reported by Foxxie)
     - fixed "Burning Ship Power 4" formula (reported by Foxxie)
