@@ -47,6 +47,7 @@ Known Bugs
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
+- speckles when rendering zoom out sequence
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
