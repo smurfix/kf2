@@ -185,6 +185,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 void CFraktalSFT::CalculateReferenceLDBL()
 {
+	Precision prec(m_rref.m_f.precision());
+
 	int i;
 	if (m_ldxr)
 		delete[] m_ldxr;

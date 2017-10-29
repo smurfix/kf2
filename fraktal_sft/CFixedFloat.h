@@ -12,7 +12,7 @@ public:
 
 	inline CFixedFloat()
 	{
-		unsigned p = LOW_PRECISION;
+		unsigned p = FixedFloat::default_precision();
 		Precision q(p);
 		m_f.precision(p);
 		m_f = 0;
@@ -43,7 +43,7 @@ public:
 
 	inline CFixedFloat(int a)
 	{
-		unsigned p = LOW_PRECISION;
+		unsigned p = FixedFloat::default_precision();
 		Precision q(p);
 		m_f.precision(p);
 		m_f = a;
@@ -51,7 +51,7 @@ public:
 
 	inline CFixedFloat(double a)
 	{
-		unsigned p = LOW_PRECISION;
+		unsigned p = FixedFloat::default_precision();
 		Precision q(p);
 		m_f.precision(p);
 		m_f = a;

@@ -4,6 +4,8 @@
 
 void CFraktalSFT::CalculateReference()
 {
+	Precision prec(m_rref.m_f.precision());
+
 	int i;
 	if (m_db_dxr)
 		delete[] m_db_dxr;

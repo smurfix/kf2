@@ -187,6 +187,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 void CFraktalSFT::CalculateReferenceEXP()
 {
+	Precision prec(m_rref.m_f.precision());
+
 	int i;
 	if (m_dxr)
 		delete[] m_dxr;
