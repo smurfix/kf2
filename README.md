@@ -55,6 +55,8 @@ Known Bugs
   depend on zoom level) (reported by Foxxie)
 - "Glitches.kfr" power 10 Mandelbrot broken (off center, glitchy) (reported by
   Foxxie)
+- "Broken.kfr" power 4 Burning Ship broken (glitchy minibrots) (reported by
+  Foxxie)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
