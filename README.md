@@ -141,6 +141,8 @@ Change Log
     - fixed complex formulas reference precision problems (reported by Foxxie)
     - fix for auto-iterations (now respects GUI) (reported by Foxxie)
     - fix for crash selecting invalid power (reported by Foxxie)
+    - fix for gigantic zoom value bug in Newton zooming (reported by Foxxie and
+      gerrit)
     - fix for signed integer overflow reports negative percentage in status bar
       when the number of iterations is large (reported by Foxxie and another)
     - fix for confusing PNG save options dialog called "JPEG properties"

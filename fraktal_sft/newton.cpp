@@ -578,7 +578,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			free(szSize0);
 			if(g_nMinibrotPos)
 			  free(szSize);
-			if(zooms>startZooms)
+			if(4 * g_period > zooms && zooms>startZooms)
 				bOK=TRUE;
 		}
 	}
