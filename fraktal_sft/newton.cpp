@@ -550,10 +550,12 @@ static int WINAPI ThNewton(HWND hWnd)
 				e = strstr(szSize,"E");
 				if(!e)
 					e = strstr(szSize,"e");
-				zooms = (e?atof(e+1)/0.30103:0) + log10(atof(szVal));
+#define LOG_10_2 0.30102999566398114
+				zooms = (e?atof(e+1)/LOG_10_2:0) + log10(atof(szVal));
 			}
 			else
-				zooms = log10(atof(szSize))/0.30103;
+				zooms = log10(atof(szSize))/LOG_10_2;
+#undef LOG_10_2
 			std::string sradius;
 			if(g_nMinibrotPos){
 				if(g_nMinibrotPos==1)
