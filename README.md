@@ -143,6 +143,8 @@ Change Log
     - fix for crash selecting invalid power (reported by Foxxie)
     - fix for gigantic zoom value bug in Newton zooming (reported by Foxxie and
       gerrit)
+    - added "no reuse center" option to prevent rectangle pasting (suggested by
+      quaz0r)
     - fix for signed integer overflow reports negative percentage in status bar
       when the number of iterations is large (reported by Foxxie and another)
     - fix for confusing PNG save options dialog called "JPEG properties"

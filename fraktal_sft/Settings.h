@@ -36,6 +36,7 @@ private:
   bool m_FloatExpAlways;
   bool m_AutoIterations;
   bool m_ShowGlitches;
+  bool m_NoReuseCenter;
 
 public:
 
@@ -65,6 +66,7 @@ public:
   , m_FloatExpAlways(false)
   , m_AutoIterations(true)
   , m_ShowGlitches(true)
+  , m_NoReuseCenter(false)
   { };
 
   bool FromText(const std::string &text);
@@ -155,6 +157,9 @@ public:
 
   inline bool   GetShowGlitches() const { return m_ShowGlitches; };
   inline void   SetShowGlitches(bool b) { m_ShowGlitches = b; };
+
+  inline bool   GetNoReuseCenter() const { return m_NoReuseCenter; };
+  inline void   SetNoReuseCenter(bool b) { m_NoReuseCenter = b; };
 
 };
 

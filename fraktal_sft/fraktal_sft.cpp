@@ -1191,7 +1191,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		delete[] m_nTrans;
 		m_nTrans = NULL;
 	}
-	else if (bReuseCenter && nZoomSize<=1){
+	else if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
 		m_bAddReference = 2;
 		nOX = nWidth*nZoomSize;
 		nOY = nHeight*nZoomSize;
@@ -1658,7 +1658,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	int nOX = 0, nOY = 0;
 	int i;
 	int x, y, a = 0, b = 0;
-	if (bReuseCenter && nZoomSize<1){
+	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<1){
 		int i;
 		nOX = m_nX*nZoomSize;
 		nOY = m_nY*nZoomSize;
@@ -1765,7 +1765,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 	//CloseHandle(hFile);
 	fclose(hFile);
 
-	if (bReuseCenter && nZoomSize<1){
+	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<1){
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
 				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){

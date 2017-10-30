@@ -459,6 +459,7 @@ public:
   BOOL(FloatExpAlways)
   BOOL(AutoIterations)
   BOOL(ShowGlitches)
+  BOOL(NoReuseCenter)
 #undef DOUBLE
 #undef INT
 #undef BOOL

@@ -40,6 +40,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(FloatExpAlways)
   BOOL(AutoIterations)
   BOOL(ShowGlitches)
+  BOOL(NoReuseCenter)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -78,6 +79,7 @@ std::string Settings::ToText() const
   BOOL(FloatExpAlways)
   BOOL(AutoIterations)
   BOOL(ShowGlitches)
+  BOOL(NoReuseCenter)
 #undef DOUBLE
 #undef INT
 #undef BOOL

@@ -343,6 +343,12 @@ static void UpdateShowGlitches(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateNoReuseCenter(HWND hWnd)
+{
+	bool b = g_SFT.GetNoReuseCenter();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOREUSECENTER,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateZoomSize(hWnd);
@@ -357,6 +363,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateFloatExpAlways(hWnd);
 	UpdateAutoIterations(hWnd);
 	UpdateShowGlitches(hWnd);
+	UpdateNoReuseCenter(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -3304,6 +3311,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetShowGlitches(!g_SFT.GetShowGlitches());
 		WritePrivateProfileString("SETTINGS","ShowGlitches",g_SFT.GetShowGlitches()?"1":"0","fraktal_sft.ini");
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(g_SFT.GetShowGlitches()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOREUSECENTER){
+		g_SFT.SetNoReuseCenter(!g_SFT.GetNoReuseCenter());
+		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOREUSECENTER,MF_BYCOMMAND|(g_SFT.GetNoReuseCenter()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_ROTATE){
 		g_bRotate=!g_bRotate;
