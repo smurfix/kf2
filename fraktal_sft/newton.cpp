@@ -10,6 +10,7 @@
 #include "CDecNumber.h"
 #include "../common/barrier.h"
 #include "newton.h"
+#include <iostream>
 
 extern CFraktalSFT g_SFT;
 
@@ -515,11 +516,14 @@ static int WINAPI ThNewton(HWND hWnd)
 			flyttyp msize = 0;
 			mpf_set_fe(msize.m_dec.backend().data(), msizefe);
 
-			std::string sszSize = msize.ToText();
+			std::ostringstream oss;
+			oss << std::scientific << msize.m_dec;
+			std::string sszSize = oss.str();
 			char *szSize0 = strdup(sszSize.c_str());
 			char *szSize = szSize0;
 			char szTmpSize[200];
 			double zooms;
+
 			if(!strstr(szSize,"e") && !strstr(szSize,"E")){
 				char *szP = strstr(szSize, ".");
 				if (szP)
