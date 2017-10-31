@@ -49,6 +49,7 @@ Known Bugs
   depend on zoom level) (reported by Foxxie)
 - speckles when rendering zoom out sequence
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
+- status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
