@@ -328,17 +328,20 @@ TODO
 - user interface: save image now function (without waiting for calculations)
 - calculations: store -|log|z|| in trans array for glitched pixels, should
   enable better glitch correction (find minimum, instead of image shape search)
+  (use piecewise linear fake log2 for speed)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
 - calculations: increase maxiters limit without restarting from scratch
-- calculations: refine minibrot boundary by iterating border only (like gmndl)
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference
 - calculations: calculate derivatives for "true" distance estimates
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
+- calculations: Horner's rule for polynomial evaluation (if not used already)
 - preprocessor: flatten complex numbers to separate real and imaginary parts
+- preprocessor: common subexpression elimination (share results, might be
+  especially useful for large powers of complex numbers)
 - preprocessor: automatically parallelize reference iterations
 - colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
 - colouring: assume sRGB display and gamma-correct downscaling
