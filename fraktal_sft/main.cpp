@@ -1298,6 +1298,19 @@ nPos=1;
 	char szTmp[154];
 	wsprintf(szTmp,"%d%% R:%d%% G:%d%% A:%d%%",nP,nR,nG,nA);
 	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
+	SYSTEMTIME st;
+	__int64 nTStop;
+	GetLocalTime(&st);
+	SystemTimeToFileTime(&st,(LPFILETIME)&nTStop);
+	nTStop-=g_nTStart;
+	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
+	if(st.wDay>1)
+		st.wHour+=(st.wDay-1)*24;
+	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",g_SFT.ToZoom(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+nPos=9;
+	if(g_bAutoGlitch){
+		wsprintf(szTmp+strlen(szTmp)," Ref: %d",g_bAutoGlitch);
+	}
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
 nPos=3;
@@ -1313,6 +1326,7 @@ nPos=6;
 					if (! g_bInteractive)
 					{
 						std::cerr << "add reference " << g_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
+						SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
 					}
 					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
@@ -1325,26 +1339,15 @@ nPos=7;
 nPos=8;
 		}
 	}
+	if(g_bAutoGlitch){
+		wsprintf(szTmp+strlen(szTmp)," %s", uMsg==WM_USER+199?"Done":"");
+nPos=10;
+		SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
+		if (uMsg==WM_USER+199)
+			g_bAutoGlitch=1;
+	}
 	if(g_hwExamine && uMsg==WM_USER+199)
 		PostMessage(g_hwExamine,uMsg,wParam,lParam);
-	SYSTEMTIME st;
-	__int64 nTStop;
-	GetLocalTime(&st);
-	SystemTimeToFileTime(&st,(LPFILETIME)&nTStop);
-	nTStop-=g_nTStart;
-	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
-	if(st.wDay>1)
-		st.wHour+=(st.wDay-1)*24;
-	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d %s",g_SFT.ToZoom(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds,uMsg==WM_USER+199?"Done":"");
-nPos=9;
-	if(g_bAutoGlitch){
-		wsprintf(szTmp+strlen(szTmp)," Ref: %d",g_bAutoGlitch);
-		if(uMsg==WM_USER+199){
-			g_bAutoGlitch=1;
-		}
-	}
-nPos=10;
-	SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
 	if(nP && (!g_bAnim || !g_SFT.GetAnimateZoom()))
 		InvalidateRect(hWnd,NULL,FALSE);
 nPos=11;
