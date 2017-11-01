@@ -345,6 +345,6 @@ void CFraktalSFT::CalculateReferenceEXP()
 	}
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal, test1, test2);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2);
 
 }

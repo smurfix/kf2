@@ -131,6 +131,7 @@ Change Log
       least one pixel will be fixed by each reference, ensuring termination
       with a finite number of references)
     - fix bugs with references when calculating their own pixels
+    - fix off-by-one when references fix their own pixels (reported by gerrit)
     - single pixel glitches are no longer fixed by copying neighbour
     - fixed glitch at image boundary correction
     - fixed memory leak in glitch correction
