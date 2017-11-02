@@ -56,7 +56,7 @@ plot [0.5:5e7] \
   0 t "software\t\t\tthreshold" lc rgb "white" dt 30 lw 10 w l, \
   0 t "mandelbrot-perturbator\t1×10^{-3}"  w lp lc 0 dt 1 lw 1 pt 9, \
   0 t "mandelbrot-perturbator\t1×10^{-6}"  w lp lc 0 dt 1 lw 1 pt 10 ps 4.25, \
-  0 t "Kalles Fraktaler 2.12.5\t3×10^{-3}" w lp lc 0 dt 2 lw 2 pt 13, \
+  0 t "Kalles Fraktaler 2.12.5\t3×10^{-4}" w lp lc 0 dt 2 lw 2 pt 13, \
   0 t "Kalles Fraktaler 2.12.5\t1×10^{-7}" w lp lc 0 dt 2 lw 2 pt 4, \
   0 t "MDZ 0.1.3\t\t\tn/a"                      w lp lc 0 dt 3 lw 1.5 pt 3, \
   "grid.log" t "" lt 0 lw 1 lc 0 w l, \
