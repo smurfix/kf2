@@ -480,7 +480,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		e = strstr(g_szZoom,"e");
 	int startZooms = (e?atof(e+1)/0.30103:0) + log10(atof(szVal));
 
-	int steps;
+	int steps = 0;
 	if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
 		g_period = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
 		uprec *= 3;
