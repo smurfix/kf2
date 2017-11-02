@@ -340,6 +340,8 @@ TODO
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
 - calculations: Horner's rule for polynomial evaluation (if not used already)
+- newton: use triangle instead of square for box period detection (optimisation)
+- newton: properly debug huge zoom values from size estimate
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: common subexpression elimination (share results, might be
   especially useful for large powers of complex numbers)
