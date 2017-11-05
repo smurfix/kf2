@@ -618,7 +618,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 					double gx = (p[2][1] - p[0][1]) * 0.5;
 					double gy = (p[1][2] - p[1][0]) * 0.5;
 					double g1 = (p[2][2] - p[0][0]) * 0.35355339059327373; // 1/(2 sqrt(2))
-					double g2 = (p[2][0] - p[2][0]) * 0.35355339059327373;
+					double g2 = (p[0][2] - p[2][0]) * 0.35355339059327373;
 					double g = sqrt(0.5 * (gx*gx + gy*gy + g1*g1 + g2*g2));
 					iter = g * 2.8284271247461903;
 				}

@@ -116,7 +116,11 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf.2.12.5** (2017-11-02)
+- **kf-2.12.6** (????-??-??)
+
+    - fix central differences (reported by gerrit)
+
+- **kf-2.12.5** (2017-11-02)
 
     - preferences (rendering settings not related to location) save and load
       (.kfs files and PNG/JPEG comments too)
