@@ -47,6 +47,8 @@ Known Bugs
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
+- still some spots in DE rendering when translating view in "spotsBug.kfr"
+  (reported by gerrit)
 - speckles when rendering zoom out sequence
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
