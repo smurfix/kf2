@@ -260,7 +260,7 @@ std::string CFraktalSFT::ToText()
 	stSave.AddString(stSave.GetCount() - 1, GetIm());
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Zoom");
-	stSave.AddString(stSave.GetCount() - 1, ToZoom());
+	stSave.AddString(stSave.GetCount() - 1, GetZoom());
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Iterations");
 	stSave.AddInt(stSave.GetCount() - 1, m_nMaxIter);

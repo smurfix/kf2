@@ -49,7 +49,6 @@ Known Bugs
   depend on zoom level) (reported by Foxxie)
 - still some spots in DE rendering when translating view in "spotsBug.kfr"
   (reported by gerrit)
-- insufficient precision in Zoom: saved in .kfr (reported by CFJH)
 - lines in the rendering (reported by CFJH)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
@@ -125,6 +124,7 @@ Change Log
 - **kf-2.12.6** (????-??-??)
 
     - fix central differences (reported by gerrit)
+    - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
 
 - **kf-2.12.5** (2017-11-02)
 
@@ -327,8 +327,6 @@ TODO
 - user interface: crosshair cursor with more contrast (suggested by CFJH)
 - user interface: control over when to stop saving zoom out sequence (either
   number of frames or zoom factor) (suggested by CFJH)
-- user interface: render zoom out sequence without saving KFB maps (suggested
-  by CFJH)
 - user interface: even lower resolution preview for more intensive locations
   (suggested by Foxxie)
 - user interface: show box-region for nr-zoom before clicking (suggested by
