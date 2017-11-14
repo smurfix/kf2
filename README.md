@@ -53,6 +53,7 @@ Known Bugs
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - can't "resume zoom sequence" if no KFB maps were saved
+- "resume zoom sequence" assumes "zoom size" is an integer
 - speckles when rendering zoom out sequence
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
