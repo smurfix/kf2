@@ -828,8 +828,12 @@ static int ResumeZoomSequence(HWND hWnd)
 		strcpy(sz+1,"*_*.jpg");
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(g_szFile,&fd);
+	int countJpg = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomJpg=1;
+		do{
+			countJpg++;
+		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
 	}
 	else
@@ -838,8 +842,12 @@ static int ResumeZoomSequence(HWND hWnd)
 	if(sz)
 		strcpy(sz+1,"*_*.png");
 	hFind = FindFirstFile(g_szFile,&fd);
+	int countPng = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomPng=1;
+		do{
+			countPng++;
+		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
 	}
 	else
@@ -855,8 +863,10 @@ static int ResumeZoomSequence(HWND hWnd)
 		g_bStoreZoomMap=0;
 
 	CStringTable stExamine;
+	int countMap = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		do{
+			countMap++;
 			strcpy(strrchr(g_szFile,'\\')+1,fd.cFileName);
 			stExamine.AddRow();
 			stExamine.AddString(stExamine.GetCount()-1,g_szFile);
@@ -875,10 +885,19 @@ static int ResumeZoomSequence(HWND hWnd)
 		bRecoveryFile=TRUE;
 	}
 	else{
-		if(stExamine.GetCount())
-			g_SFT.OpenMapB(stExamine[0][0]);
-		else
-			return MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
+		strcpy(strrchr(g_szFile,'\\')+1,"last.kfb");
+		hFind = FindFirstFile(g_szFile,&fd);
+		if(hFind!=INVALID_HANDLE_VALUE){
+			FindClose(hFind);
+			g_SFT.OpenMapB(g_szFile);
+			bRecoveryFile=FALSE;
+		}
+		else{
+			if(stExamine.GetCount())
+				g_SFT.OpenMapB(stExamine[0][0]);
+			else
+				return MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
+		}
 	}
 
 	if(stExamine.GetCount()<2)
@@ -898,8 +917,12 @@ static int ResumeZoomSequence(HWND hWnd)
 		g_SFT.SetZoomSize((B/A+CDecNumber(0.5)).ToInt());
 	}
 	UpdateZoomSize(hWnd);
-	if(stExamine.GetCount()){
-		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(stExamine.GetCount()-(bRecoveryFile?0:1)));
+	int zoomCount = countMap ? countMap
+	              : countPng ? countPng
+	              : countJpg ? countJpg
+	              : stExamine.GetCount();
+	if(zoomCount){
+		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(zoomCount-(bRecoveryFile?0:1)));
 		char *szR = g_SFT.GetRe();
 		char *szRe = new char[strlen(szR)+1];
 		strcpy(szRe,szR);
@@ -911,15 +934,20 @@ static int ResumeZoomSequence(HWND hWnd)
 		delete[] szIm;
 	}
 
-	g_bStoreZoom=atoi(stExamine[0][1])+1;
+	g_bStoreZoom=zoomCount+1;
 	g_JpegParams.nWidth = g_SFT.GetWidth();
 	g_JpegParams.nHeight = g_SFT.GetHeight();
 	g_JpegParams.nQuality = 100;
 	//g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	if(g_SFT.GetAutoIterations()){
-		int nMax = g_SFT.GetMaxExceptCenter();//GetIterationOnPoint(g_SFT.GetWidth()/2-1,g_SFT.GetHeight()/2-1);
+		int nMin, nMax, nIter;
+		g_SFT.GetIterations(nMin,nMax);
+		nIter = g_SFT.GetIterations();
+		if(nIter<nMax)
+			g_SFT.SetIterations(nMax); // increase iterations
+		nMax = g_SFT.GetMaxExceptCenter();//GetIterationOnPoint(g_SFT.GetWidth()/2-1,g_SFT.GetHeight()/2-1);
 		if(nMax<g_SFT.GetIterations()/3)
-			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
+			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000); // decrease iterations
 	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
