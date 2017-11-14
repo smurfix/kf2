@@ -108,6 +108,7 @@ BOOL g_bAnimateEachFrame=FALSE;
 int g_nPrevGlitchX=-1;
 int g_nPrevGlitchY=-1;
 BOOL g_bStoreZoom=FALSE;
+BOOL g_bStoreZoomMap=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
 bool g_bWaitRead=false;
@@ -843,14 +844,16 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomPng=0;
+	sz = strrchr(g_szFile,'\\');
 	if(sz)
 		strcpy(sz+1,"*_*.kfb");
 	hFind = FindFirstFile(g_szFile,&fd);
-/*	if(!sz || hFind==INVALID_HANDLE_VALUE){
-		if(hFind)
-			FindClose(hFind);
-		return MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
-	}*/
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomMap=1;
+	}
+	else
+		g_bStoreZoomMap=0;
+
 	CStringTable stExamine;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		do{
@@ -1391,7 +1394,7 @@ nPos=13;
 			}
 #ifndef PARAM_ANIMATION
 			wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.kfb",g_bStoreZoom,szZ);
-			if(!g_bAnimateEachFrame)
+			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(g_szFile);
 #endif
 nPos=14;
@@ -3383,6 +3386,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			strcat(g_szFile,"\\");
 		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
+		if(MessageBox(hWnd,"Do you want to store raw KFB maps?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
+			g_bStoreZoomMap=1;
+		else
+			g_bStoreZoomMap=0;
 		if(MessageBox(hWnd,"Do you want to store PNG images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
 			g_bStoreZoomPng=1;
 		else

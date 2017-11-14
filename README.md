@@ -125,6 +125,8 @@ Change Log
 
     - fix central differences (reported by gerrit)
     - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
+    - option to render zoom out sequence without saving KFB maps (suggested by
+      CFJH)
 
 - **kf-2.12.5** (2017-11-02)
 
