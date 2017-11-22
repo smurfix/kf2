@@ -1441,6 +1441,9 @@ nPos=13;
 			wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.kfb",g_bStoreZoom,szZ);
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(g_szFile);
+			wsprintf(strrchr(g_szFile,'\\')+1,"last.kfb");
+			if(!g_bAnimateEachFrame && !g_bStoreZoomMap)
+				g_SFT.SaveMapB(g_szFile);
 #endif
 nPos=14;
 			g_bStoreZoom++;
