@@ -18,6 +18,8 @@
 #define IDD_DIALOG10                    114
 #define IDD_DIALOG11                    115
 #define IDD_DIALOG12                    116
+#define IDD_STOREZOOM                   117
+
 #define IDC_EDIT1                       1000
 #define IDC_EDIT3                       1001
 #define IDC_SPIN1                       1002
@@ -115,6 +117,13 @@
 #define IDC_DIFFERENCES                 1083
 #define IDC_EDITMAXREFS                 1084
 #define IDC_GLITCHLOWTOLERANCE          1085
+
+#define IDC_STOREZOOM_KFB               1086
+#define IDC_STOREZOOM_JPG               1087
+#define IDC_STOREZOOM_PNG               1088
+#define IDC_STOREZOOM_COUNT             1089
+#define IDC_STOREZOOM_COUNTAUTO         1090
+
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
 #define ID_ACTIONS_POSITION             40003
@@ -196,9 +205,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        117
+#define _APS_NEXT_RESOURCE_VALUE        118
 #define _APS_NEXT_COMMAND_VALUE         40082
-#define _APS_NEXT_CONTROL_VALUE         1056
+#define _APS_NEXT_CONTROL_VALUE         1091
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

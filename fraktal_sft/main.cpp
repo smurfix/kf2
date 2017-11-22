@@ -111,6 +111,9 @@ BOOL g_bStoreZoom=FALSE;
 BOOL g_bStoreZoomMap=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
+int g_nStoreZoomCount = 0;
+int g_nStoreZoomLimit = 0;
+
 bool g_bWaitRead=false;
 int g_nStopAtExponent=0;
 
@@ -229,7 +232,15 @@ extern char * GetToolText(int nID,LPARAM lParam)
 		return const_cast<char *>(ColorToolTip(nID));
 	}
 	else if(lParam==1){
-		return const_cast<char *>(IterationToolTip(nID));
+		switch (nID)
+		{
+			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
+			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
+			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
+			case IDC_STOREZOOM_COUNTAUTO: return "Automatically stop when completely zoomed out";
+			case IDC_STOREZOOM_COUNT: return "Render this many frames (if auto is unchecked)";
+			default: return const_cast<char *>(IterationToolTip(nID));
+		}
 	}
 	else if(lParam==2){
 		return const_cast<char *>(PositionToolTip(nID));
@@ -1427,7 +1438,8 @@ nPos=13;
 #endif
 nPos=14;
 			g_bStoreZoom++;
-			if(!atof(szZ)){
+			g_nStoreZoomCount++;
+			if(!atof(szZ) || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
 				g_bStoreZoom=FALSE;
 				DeleteObject(g_bmSaveZoomBuff);
 				g_bmSaveZoomBuff=NULL;
@@ -2331,6 +2343,45 @@ static long OpenSettings(HWND hWnd, bool &ret)
 				}
 				ret = false;
 				return 0;
+}
+
+static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+{
+	(void) lParam;
+	switch (uMsg)
+	{
+		case WM_INITDIALOG:
+		{
+			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
+		  break;
+		}
+		case WM_COMMAND:
+		{
+			if (wParam == IDOK)
+			{
+				g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
+				g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
+				g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
+				g_nStoreZoomCount = 0;
+				g_nStoreZoomLimit = GetDlgItemInt(hWnd, IDC_STOREZOOM_COUNT, NULL, FALSE);
+				if (g_nStoreZoomLimit <= 0 || SendDlgItemMessage(hWnd, IDC_STOREZOOM_COUNTAUTO, BM_GETCHECK, 0, 0))
+				{
+					g_nStoreZoomLimit = 0;
+				}
+				ExitToolTip(hWnd);
+				EndDialog(hWnd, 1);
+			}
+			else if(wParam == IDCANCEL)
+			{
+				ExitToolTip(hWnd);
+				EndDialog(hWnd, 0);
+			}
+			break;
+		}
+	}
+	return 0;
 }
 
 static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
@@ -3406,6 +3457,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else
 				break;
 		}
+		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_STOREZOOM),hWnd,(DLGPROC)StoreZoomProc,0))
+			return 0;
 		if(strrchr(g_szFile,'\\'))
 			*strrchr(g_szFile,'\\')=0;
 		if(!Browse(hWnd,g_szFile,sizeof(g_szFile)))
@@ -3414,18 +3467,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			strcat(g_szFile,"\\");
 		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
-		if(MessageBox(hWnd,"Do you want to store raw KFB maps?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
-			g_bStoreZoomMap=1;
-		else
-			g_bStoreZoomMap=0;
-		if(MessageBox(hWnd,"Do you want to store PNG images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
-			g_bStoreZoomPng=1;
-		else
-			g_bStoreZoomPng=0;
-		if(MessageBox(hWnd,"Do you want to store JPEG images?","Kalle's Fraktaler",MB_YESNO|MB_ICONQUESTION)==IDYES)
-			g_bStoreZoomJpg=1;
-		else
-			g_bStoreZoomJpg=0;
 		char szFile[256];
 		strcpy(szFile,g_szFile);
 		wsprintf(strrchr(szFile,'\\')+1,"%05d_*.kfb",g_bStoreZoom);
