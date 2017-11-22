@@ -232,15 +232,7 @@ extern char * GetToolText(int nID,LPARAM lParam)
 		return const_cast<char *>(ColorToolTip(nID));
 	}
 	else if(lParam==1){
-		switch (nID)
-		{
-			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
-			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
-			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
-			case IDC_STOREZOOM_COUNTAUTO: return "Automatically stop when completely zoomed out";
-			case IDC_STOREZOOM_COUNT: return "Render this many frames (if auto is unchecked)";
-			default: return const_cast<char *>(IterationToolTip(nID));
-		}
+		return const_cast<char *>(IterationToolTip(nID));
 	}
 	else if(lParam==2){
 		return const_cast<char *>(PositionToolTip(nID));
@@ -265,6 +257,16 @@ extern char * GetToolText(int nID,LPARAM lParam)
 	}
 	else if(lParam==4){
 		return const_cast<char *>(ExamineToolTip(nID));
+	}
+	else if(lParam==5){
+		switch (nID)
+		{
+			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
+			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
+			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
+			case IDC_STOREZOOM_COUNTAUTO: return "Automatically stop when completely zoomed out";
+			case IDC_STOREZOOM_COUNT: return "Render this many frames (if auto is unchecked)";
+		}
 	}
 	static char szTmp[128];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
@@ -2354,7 +2356,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 		{
 			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
+			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,5);
 		  break;
 		}
 		case WM_COMMAND:
@@ -2371,7 +2373,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 					g_nStoreZoomLimit = 0;
 				}
 				ExitToolTip(hWnd);
-				EndDialog(hWnd, 1);
+				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomPng || g_bStoreZoomJpg);
 			}
 			else if(wParam == IDCANCEL)
 			{
