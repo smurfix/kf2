@@ -37,7 +37,9 @@ public:
       {
         if (*stop)
           return 1;
+#if 0
         SwitchToThread();
+#endif
       }
     return 0;
   };

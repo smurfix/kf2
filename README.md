@@ -129,6 +129,8 @@ Change Log
     - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
     - option to render zoom out sequence without saving KFB maps (suggested by
       CFJH)
+    - barrier no longer yields (fixes priority inversion on heavily loaded
+      systems) (reported by gerrit)
 
 - **kf-2.12.5** (2017-11-02)
 
