@@ -266,6 +266,8 @@ extern char * GetToolText(int nID,LPARAM lParam)
 			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
 			case IDC_STOREZOOM_COUNTAUTO: return "Automatically stop when completely zoomed out";
 			case IDC_STOREZOOM_COUNT: return "Render this many frames (if auto is unchecked)";
+			case IDOK: return "Apply and close";
+			case IDCANCEL: return "Close and undo";
 		}
 	}
 	static char szTmp[128];
