@@ -949,6 +949,8 @@ static int ResumeZoomSequence(HWND hWnd)
 		delete[] szIm;
 	}
 
+	g_nStoreZoomCount = 0;
+	// g_nStoreZoomLimit = 0; // FIXME should there be another dialog?
 	g_bStoreZoom=zoomCount+1;
 	g_JpegParams.nWidth = g_SFT.GetWidth();
 	g_JpegParams.nHeight = g_SFT.GetHeight();
