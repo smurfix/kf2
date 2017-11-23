@@ -86,6 +86,8 @@ public:
   inline friend bool operator==(const CDecNumber &a, int b);
   inline friend bool operator<(const CDecNumber &a, const CDecNumber &b);
 
+  inline friend CDecNumber sqrt(const CDecNumber &a);
+
   std::string ToText() const;
 
   inline int ToInt() const
@@ -151,6 +153,13 @@ inline bool operator==(const CDecNumber &a, int b)
 inline bool operator<(const CDecNumber &a, const CDecNumber &b)
 {
 	return a.m_dec < b.m_dec;
+}
+
+inline CDecNumber sqrt(const CDecNumber &a)
+{
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
+	using std::sqrt;
+	return CDecNumber(sqrt(a.m_dec));
 }
 
 #endif
