@@ -52,8 +52,8 @@ Known Bugs
 - lines in the rendering (reported by CFJH)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
-- can't "resume zoom sequence" if no KFB maps were saved
 - "resume zoom sequence" assumes "zoom size" is an integer
+- "resume zoom sequence" re-uses last set zoom count limit
 - speckles when rendering zoom out sequence
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
@@ -129,6 +129,10 @@ Change Log
     - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
     - option to render zoom out sequence without saving KFB maps (suggested by
       CFJH)
+    - option to stop rendering zoom out sequence after a certain number of
+      frames (suggested by CFJH)
+    - resume zoom sequence works without KFB maps saved every frame (still needs
+      a "last.kfb", this is saved automatically when needed)
     - barrier no longer yields (fixes priority inversion on heavily loaded
       systems) (reported by gerrit)
 
@@ -331,8 +335,6 @@ TODO
 ----
 
 - user interface: crosshair cursor with more contrast (suggested by CFJH)
-- user interface: control over when to stop saving zoom out sequence (either
-  number of frames or zoom factor) (suggested by CFJH)
 - user interface: even lower resolution preview for more intensive locations
   (suggested by Foxxie)
 - user interface: show box-region for nr-zoom before clicking (suggested by
@@ -706,7 +708,7 @@ Thanks to:
 - stardust4ever for other fractal types
 - claude for the Newton-Raphson method
 - gerrit for the distance colouring differencing variations
-- Dinkydau, Fractal universe, CFJH and others for reporting bugs
+- Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
 Claude also thanks Karl for releasing the source to this program so that
