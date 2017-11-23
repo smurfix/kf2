@@ -19,7 +19,7 @@ extern double g_SeedI;
 struct mcthread_common
 {
 	barrier *barrier;
-	mpf_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
+	mpfr_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	long double *m_ldxr, *m_ldxi;
 	double *m_db_z, *terminate, *glitch_threshold;
 	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
@@ -54,12 +54,12 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		{
 			for (i = 0; i < *p->nMaxIter; i++)
 			{
-				mpf_sub(p->xrn1, p->sr, p->si);
-				mpf_add(p->xrn, p->cr, p->xrn1);
+				mpfr_sub(p->xrn1, p->sr, p->si, MPFR_RNDN);
+				mpfr_add(p->xrn, p->cr, p->xrn1, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
-				mpf_set(p->xr, p->xrn);
-				mpf_mul(p->sr, p->xrn, p->xrn);
-				p->m_ldxr[i] = mpf_get_ld(p->xrn);
+				mpfr_set(p->xr, p->xrn, MPFR_RNDN);
+				mpfr_sqr(p->sr, p->xrn, MPFR_RNDN);
+				p->m_ldxr[i] = mpfr_get_ld(p->xrn, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
 			}
 		}
@@ -68,13 +68,13 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		{
 			for (i = 0; i < *p->nMaxIter; i++)
 			{
-				mpf_add(p->xin, p->sr, p->si);
-				mpf_sub(p->xin1, p->ci, p->xin);
-				mpf_add(p->xin, p->xin1, p->xrxid);
+				mpfr_add(p->xin, p->sr, p->si, MPFR_RNDN);
+				mpfr_sub(p->xin1, p->ci, p->xin, MPFR_RNDN);
+				mpfr_add(p->xin, p->xin1, p->xrxid, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
-				mpf_set(p->xi, p->xin);
-				mpf_mul(p->si, p->xin, p->xin);
-				p->m_ldxi[i] = mpf_get_ld(p->xin);
+				mpfr_set(p->xi, p->xin, MPFR_RNDN);
+				mpfr_sqr(p->si, p->xin, MPFR_RNDN);
+				p->m_ldxi[i] = mpfr_get_ld(p->xin, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
 			}
 		}
@@ -119,8 +119,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 					(*p->m_nRDone)++;
 				}
 				if (p->barrier->wait(p->stop)) break;
-				mpf_add(p->xrxid1, p->xrn, p->xin);
-				mpf_mul(p->xrxid, p->xrxid1, p->xrxid1);
+				mpfr_add(p->xrxid1, p->xrn, p->xin, MPFR_RNDN);
+				mpfr_sqr(p->xrxid, p->xrxid1, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
 			}
 		}
@@ -168,8 +168,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			}
 			(*p->m_nRDone)++;
 		}
-		const long double xr = mpf_get_ld(p->xr);
-		const long double xi = mpf_get_ld(p->xi);
+		const long double xr = mpfr_get_ld(p->xr, MPFR_RNDN);
+		const long double xi = mpfr_get_ld(p->xi, MPFR_RNDN);
 		for (; i < *p->nMaxIter && !*p->stop; i++)
 		{
 			p->m_ldxr[i] = xr;
@@ -218,26 +218,26 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 		mcthread_common co;
 	  co.barrier = &barrier;
-		mp_bitcnt_t bits = mpf_get_prec(m_rref.m_f.backend().data());
-		mpf_init2(co.xr, bits);
-		mpf_init2(co.xi, bits);
-		mpf_init2(co.xrn, bits);
-		mpf_init2(co.xin, bits);
-		mpf_init2(co.xrn1, bits);
-		mpf_init2(co.xin1, bits);
-		mpf_init2(co.xrxid, bits);
-		mpf_init2(co.xrxid1, bits);
-		mpf_init2(co.sr, bits);
-		mpf_init2(co.si, bits);
-		mpf_init2(co.cr, bits);
-		mpf_init2(co.ci, bits);
-		mpf_set(co.cr, m_rref.m_f.backend().data());
-		mpf_set(co.ci, m_iref.m_f.backend().data());
-		mpf_set_d(co.xr, g_SeedR);
-		mpf_set_d(co.xi, g_SeedI);
-		mpf_mul(co.sr, co.xr, co.xr);
-		mpf_mul(co.si, co.xi, co.xi);
-		mpf_set_d(co.xrxid, 0);
+		mp_bitcnt_t bits = mpfr_get_prec(m_rref.m_f.backend().data());
+		mpfr_init2(co.xr, bits);
+		mpfr_init2(co.xi, bits);
+		mpfr_init2(co.xrn, bits);
+		mpfr_init2(co.xin, bits);
+		mpfr_init2(co.xrn1, bits);
+		mpfr_init2(co.xin1, bits);
+		mpfr_init2(co.xrxid, bits);
+		mpfr_init2(co.xrxid1, bits);
+		mpfr_init2(co.sr, bits);
+		mpfr_init2(co.si, bits);
+		mpfr_init2(co.cr, bits);
+		mpfr_init2(co.ci, bits);
+		mpfr_set(co.cr, m_rref.m_f.backend().data(), MPFR_RNDN);
+		mpfr_set(co.ci, m_iref.m_f.backend().data(), MPFR_RNDN);
+		mpfr_set_d(co.xr, g_SeedR, MPFR_RNDN);
+		mpfr_set_d(co.xi, g_SeedI, MPFR_RNDN);
+		mpfr_sqr(co.sr, co.xr, MPFR_RNDN);
+		mpfr_sqr(co.si, co.xi, MPFR_RNDN);
+		mpfr_set_d(co.xrxid, 0, MPFR_RNDN);
 		co.m_ldxr = m_ldxr;
 		co.m_ldxi = m_ldxi;
 		co.m_db_z = m_db_z;
@@ -266,18 +266,18 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			CloseHandle(hDone[i]);
 		}
 
-		mpf_clear(co.xr);
-		mpf_clear(co.xi);
-		mpf_clear(co.xrn);
-		mpf_clear(co.xin);
-		mpf_clear(co.xrn1);
-		mpf_clear(co.xin1);
-		mpf_clear(co.xrxid);
-		mpf_clear(co.xrxid1);
-		mpf_clear(co.sr);
-		mpf_clear(co.si);
-		mpf_clear(co.cr);
-		mpf_clear(co.ci);
+		mpfr_clear(co.xr);
+		mpfr_clear(co.xi);
+		mpfr_clear(co.xrn);
+		mpfr_clear(co.xin);
+		mpfr_clear(co.xrn1);
+		mpfr_clear(co.xin1);
+		mpfr_clear(co.xrxid);
+		mpfr_clear(co.xrxid1);
+		mpfr_clear(co.sr);
+		mpfr_clear(co.si);
+		mpfr_clear(co.cr);
+		mpfr_clear(co.ci);
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
@@ -299,8 +299,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
-			m_ldxr[i] = mpf_get_ld(xr.m_f.backend().data());
-			m_ldxi[i] = mpf_get_ld(xi.m_f.backend().data());
+			m_ldxr[i] = mpfr_get_ld(xr.m_f.backend().data(), MPFR_RNDN);
+			m_ldxi[i] = mpfr_get_ld(xi.m_f.backend().data(), MPFR_RNDN);
 			old_absval = abs_val;
 			abs_val = g_real * m_ldxr[i] * m_ldxr[i] + g_imag * m_ldxi[i] * m_ldxi[i];
 			m_db_z[i] = abs_val*threashold;

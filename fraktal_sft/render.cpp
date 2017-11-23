@@ -464,14 +464,14 @@ void CFraktalSFT::RenderFractalLDBL()
 		CFixedFloat tmp;
 		for (x = 0; x<m_nX; x++, c += step){
 			tmp = c - m_rref;
-			m_lDX[x] = mpf_get_ld(tmp.m_f.backend().data());
+			m_lDX[x] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
 		}
 		c = m_istart;
 		step = (m_istop - m_istart)*(1 / (double)m_nY);
 		m_lDY = new long double[m_nY];
 		for (y = 0; y<m_nY; y++, c += step){
 			tmp = c - m_iref;
-			m_lDY[y] = mpf_get_ld(tmp.m_f.backend().data());
+			m_lDY[y] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
 		}
 	}
 	m_rApprox.left = 0;

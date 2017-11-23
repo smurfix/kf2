@@ -101,7 +101,7 @@ public:
 	{
 		Precision p(m_f.precision());
 		FixedFloat r(m_f);
-		mpf_mul(r.backend().data(), r.backend().data(), r.backend().data());
+		mpfr_sqr(r.backend().data(), r.backend().data(), MPFR_RNDN);
 		return CFixedFloat(r);
 	};
 
@@ -113,7 +113,7 @@ public:
 
 	inline CFixedFloat &Double()
 	{
-		mpf_mul_2exp(m_f.backend().data(), m_f.backend().data(), 1);
+		mpfr_mul_2ui(m_f.backend().data(), m_f.backend().data(), 1, MPFR_RNDN);
 		return *this;
 	};
 
@@ -127,7 +127,7 @@ public:
 
 	inline CFixedFloat &Abs()
 	{
-		mpf_abs(m_f.backend().data(), m_f.backend().data());
+		mpfr_abs(m_f.backend().data(), m_f.backend().data(), MPFR_RNDN);
 		return *this;
 	};
 

@@ -16,9 +16,8 @@ static inline long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 {
   using std::ldexp;
   signed long int e = 0;
-  long double l = mpf_get_d_2exp(&amp;e, f.m_f.backend().data());
+  long double l = mpfr_get_ld_2exp(&amp;e, f.m_f.backend().data(), MPFR_RNDN);
   l = ldexp(l, e);
-  if ((mpf_sgn(f.m_f.backend().data()) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
   return l;
 }
 
@@ -40,35 +39,35 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
     if (m_bGlitchLowTolerance) {
       glitch = sqrt(glitch);
     }
-    mp_bitcnt_t bits = mpf_get_prec(Cr0.m_f.backend().data());
-    mpf_t Cr; mpf_init2(Cr, bits); mpf_set(Cr, Cr0.m_f.backend().data());
-    mpf_t Ci; mpf_init2(Ci, bits); mpf_set(Ci, Ci0.m_f.backend().data());
-    mpf_t Xr; mpf_init2(Xr, bits); mpf_set_d(Xr, g_SeedR);
-    mpf_t Xi; mpf_init2(Xi, bits); mpf_set_d(Xi, g_SeedI);
-    mpf_t Xr2; mpf_init2(Xr2, bits); mpf_mul(Xr2, Xr, Xr);
-    mpf_t Xi2; mpf_init2(Xi2, bits); mpf_mul(Xi2, Xi, Xi);
-    mpf_t Xrn; mpf_init2(Xrn, bits);
-    mpf_t Xin; mpf_init2(Xin, bits);
-    mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
-    mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+    mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
+    mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
+    mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
+    mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
+    mpfr_t Xrn; mpfr_init2(Xrn, bits);
+    mpfr_t Xin; mpfr_init2(Xin, bits);
+    mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
+    mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
-    mpf_set(C.m_r.m_f.backend().data(), Cr);
-    mpf_set(C.m_i.m_f.backend().data(), Ci);
-    mpf_set(A.m_r.m_f.backend().data(), Ar);
-    mpf_set(A.m_i.m_f.backend().data(), Ai);
+    mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
+    mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
+    mpfr_set(A.m_r.m_f.backend().data(), Ar, MPFR_RNDN);
+    mpfr_set(A.m_i.m_f.backend().data(), Ai, MPFR_RNDN);
 </xsl:when>
 </xsl:choose>
 
 #define LOOP \
-      mpf_set(Xr, Xrn); \
-      mpf_set(Xi, Xin); \
-      mpf_mul(Xr2, Xr, Xr); \
-      mpf_mul(Xi2, Xi, Xi); \
+      mpfr_set(Xr, Xrn, MPFR_RNDN); \
+      mpfr_set(Xi, Xin, MPFR_RNDN); \
+      mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
+      mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const double Xrd = mpf_get_d(Xr); \
-      const double Xid = mpf_get_d(Xi); \
+      const double Xrd = mpfr_get_d(Xr, MPFR_RNDN); \
+      const double Xid = mpfr_get_d(Xi, MPFR_RNDN); \
       old_absval = abs_val; \
       abs_val = g_real * Xrd * Xrd + g_imag * Xid * Xid; \
       const double Xz = abs_val * glitch; \
@@ -105,13 +104,13 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 <xsl:when test="reference/@t='C'">
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
-        mpf_set(X.m_r.m_f.backend().data(), Xr);
-        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
+        mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
         {
           <xsl:value-of select="reference" />
         }
-        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
-        mpf_set(Xin, Xn.m_i.m_f.backend().data());
+        mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
+        mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
@@ -123,16 +122,16 @@ LOOP  }
 
 #undef LOOP
 
-    mpf_clear(Cr);
-    mpf_clear(Ci);
-    mpf_clear(Xr);
-    mpf_clear(Xi);
-    mpf_clear(Xr2);
-    mpf_clear(Xi2);
-    mpf_clear(Xrn);
-    mpf_clear(Xin);
-    mpf_clear(Ar);
-    mpf_clear(Ai);
+    mpfr_clear(Cr);
+    mpfr_clear(Ci);
+    mpfr_clear(Xr);
+    mpfr_clear(Xi);
+    mpfr_clear(Xr2);
+    mpfr_clear(Xi2);
+    mpfr_clear(Xrn);
+    mpfr_clear(Xin);
+    mpfr_clear(Ar);
+    mpfr_clear(Ai);
 
     return true;
   }
@@ -154,35 +153,35 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
       glitch = sqrt(glitch);
     }
     const bool no_g = g_real == 1 &amp;&amp; g_imag == 1;
-    mp_bitcnt_t bits = mpf_get_prec(Cr0.m_f.backend().data());
-    mpf_t Cr; mpf_init2(Cr, bits); mpf_set(Cr, Cr0.m_f.backend().data());
-    mpf_t Ci; mpf_init2(Ci, bits); mpf_set(Ci, Ci0.m_f.backend().data());
-    mpf_t Xr; mpf_init2(Xr, bits); mpf_set_d(Xr, g_SeedR);
-    mpf_t Xi; mpf_init2(Xi, bits); mpf_set_d(Xi, g_SeedI);
-    mpf_t Xr2; mpf_init2(Xr2, bits); mpf_mul(Xr2, Xr, Xr);
-    mpf_t Xi2; mpf_init2(Xi2, bits); mpf_mul(Xi2, Xi, Xi);
-    mpf_t Xrn; mpf_init2(Xrn, bits);
-    mpf_t Xin; mpf_init2(Xin, bits);
-    mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
-    mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+    mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
+    mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
+    mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
+    mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
+    mpfr_t Xrn; mpfr_init2(Xrn, bits);
+    mpfr_t Xin; mpfr_init2(Xin, bits);
+    mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
+    mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
-    mpf_set(C.m_r.m_f.backend().data(), Cr);
-    mpf_set(C.m_i.m_f.backend().data(), Ci);
-    mpf_set(A.m_r.m_f.backend().data(), Ar);
-    mpf_set(A.m_i.m_f.backend().data(), Ai);
+    mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
+    mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
+    mpfr_set(A.m_r.m_f.backend().data(), Ar, MPFR_RNDN);
+    mpfr_set(A.m_i.m_f.backend().data(), Ai, MPFR_RNDN);
 </xsl:when>
 </xsl:choose>
 
 #define LOOP \
-      mpf_set(Xr, Xrn); \
-      mpf_set(Xi, Xin); \
-      mpf_mul(Xr2, Xr, Xr); \
-      mpf_mul(Xi2, Xi, Xi); \
+      mpfr_set(Xr, Xrn, MPFR_RNDN); \
+      mpfr_set(Xi, Xin, MPFR_RNDN); \
+      mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
+      mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const long double Xrl = mpf_get_ld(Xr); \
-      const long double Xil = mpf_get_ld(Xi); \
+      const long double Xrl = mpfr_get_ld(Xr, MPFR_RNDN); \
+      const long double Xil = mpfr_get_ld(Xi, MPFR_RNDN); \
       old_absval = abs_val; \
       if (no_g) \
         abs_val = Xrl * Xrl + Xil * Xil; \
@@ -222,13 +221,13 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 <xsl:when test="reference/@t='C'">
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
-        mpf_set(X.m_r.m_f.backend().data(), Xr);
-        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
+        mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
         {
           <xsl:value-of select="reference" />
         }
-        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
-        mpf_set(Xin, Xn.m_i.m_f.backend().data());
+        mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
+        mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
@@ -240,16 +239,16 @@ LOOP  }
 
 #undef LOOP
 
-    mpf_clear(Cr);
-    mpf_clear(Ci);
-    mpf_clear(Xr);
-    mpf_clear(Xi);
-    mpf_clear(Xr2);
-    mpf_clear(Xi2);
-    mpf_clear(Xrn);
-    mpf_clear(Xin);
-    mpf_clear(Ar);
-    mpf_clear(Ai);
+    mpfr_clear(Cr);
+    mpfr_clear(Ci);
+    mpfr_clear(Xr);
+    mpfr_clear(Xi);
+    mpfr_clear(Xr2);
+    mpfr_clear(Xi2);
+    mpfr_clear(Xrn);
+    mpfr_clear(Xin);
+    mpfr_clear(Ar);
+    mpfr_clear(Ai);
 
     return true;
   }
@@ -271,35 +270,35 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
       glitch = sqrt(glitch);
     }
     const bool no_g = real == 1 &amp;&amp; imag == 1;
-    mp_bitcnt_t bits = mpf_get_prec(Cr0.m_f.backend().data());
-    mpf_t Cr; mpf_init2(Cr, bits); mpf_set(Cr, Cr0.m_f.backend().data());
-    mpf_t Ci; mpf_init2(Ci, bits); mpf_set(Ci, Ci0.m_f.backend().data());
-    mpf_t Xr; mpf_init2(Xr, bits); mpf_set_d(Xr, g_SeedR);
-    mpf_t Xi; mpf_init2(Xi, bits); mpf_set_d(Xi, g_SeedI);
-    mpf_t Xr2; mpf_init2(Xr2, bits); mpf_mul(Xr2, Xr, Xr);
-    mpf_t Xi2; mpf_init2(Xi2, bits); mpf_mul(Xi2, Xi, Xi);
-    mpf_t Xrn; mpf_init2(Xrn, bits);
-    mpf_t Xin; mpf_init2(Xin, bits);
-    mpf_t Ar; mpf_init2(Ar, bits); mpf_set_d(Ar, g_FactorAR);
-    mpf_t Ai; mpf_init2(Ai, bits); mpf_set_d(Ai, g_FactorAI);
+    mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
+    mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
+    mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
+    mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
+    mpfr_t Xrn; mpfr_init2(Xrn, bits);
+    mpfr_t Xin; mpfr_init2(Xin, bits);
+    mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
+    mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
-    mpf_set(C.m_r.m_f.backend().data(), Cr);
-    mpf_set(C.m_i.m_f.backend().data(), Ci);
-    mpf_set(A.m_r.m_f.backend().data(), Ar);
-    mpf_set(A.m_i.m_f.backend().data(), Ai);
+    mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
+    mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
+    mpfr_set(A.m_r.m_f.backend().data(), Ar, MPFR_RNDN);
+    mpfr_set(A.m_i.m_f.backend().data(), Ai, MPFR_RNDN);
 </xsl:when>
 </xsl:choose>
 
 #define LOOP \
-      mpf_set(Xr, Xrn); \
-      mpf_set(Xi, Xin); \
-      mpf_mul(Xr2, Xr, Xr); \
-      mpf_mul(Xi2, Xi, Xi); \
+      mpfr_set(Xr, Xrn, MPFR_RNDN); \
+      mpfr_set(Xi, Xin, MPFR_RNDN); \
+      mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
+      mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const floatexp Xrf = mpf_get_fe(Xr); \
-      const floatexp Xif = mpf_get_fe(Xi); \
+      const floatexp Xrf = mpfr_get_fe(Xr); \
+      const floatexp Xif = mpfr_get_fe(Xi); \
       old_absval = abs_val; \
       if (no_g) \
         abs_val = (Xrf * Xrf + Xif * Xif).todouble(); \
@@ -339,13 +338,13 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 <xsl:when test="reference/@t='C'">
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
-        mpf_set(X.m_r.m_f.backend().data(), Xr);
-        mpf_set(X.m_i.m_f.backend().data(), Xi);
+        mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
+        mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
         {
           <xsl:value-of select="reference" />
         }
-        mpf_set(Xrn, Xn.m_r.m_f.backend().data());
-        mpf_set(Xin, Xn.m_i.m_f.backend().data());
+        mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
+        mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
@@ -357,16 +356,16 @@ LOOP  }
 
 #undef LOOP
 
-    mpf_clear(Cr);
-    mpf_clear(Ci);
-    mpf_clear(Xr);
-    mpf_clear(Xi);
-    mpf_clear(Xr2);
-    mpf_clear(Xi2);
-    mpf_clear(Xrn);
-    mpf_clear(Xin);
-    mpf_clear(Ar);
-    mpf_clear(Ai);
+    mpfr_clear(Cr);
+    mpfr_clear(Ci);
+    mpfr_clear(Xr);
+    mpfr_clear(Xi);
+    mpfr_clear(Xr2);
+    mpfr_clear(Xi2);
+    mpfr_clear(Xrn);
+    mpfr_clear(Xin);
+    mpfr_clear(Ar);
+    mpfr_clear(Ai);
 
     return true;
   }

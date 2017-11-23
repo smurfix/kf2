@@ -494,13 +494,3 @@ static inline fecomplex fec_pow(const fecomplex a, const int b)
   }
   return r;
 }
-
-static inline long double mpf_get_ld(const mpf_t &value)
-{
-  using std::ldexp;
-  signed long int e = 0;
-  long double l = mpf_get_d_2exp(&e, value);
-  l = ldexp(l, e);
-  if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
-  return l;
-}

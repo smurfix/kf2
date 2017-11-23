@@ -4273,7 +4273,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bFindMinibrot=TRUE;
 		}
 		else if(wParam==ID_MENUITEM40025){
-			char szMsg[1024]; // this is the size limit for MessageBox, longer is truncated
+			char szMsg[1024]; // this is the size limit for wsprintf, longer is truncated
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo( &sysinfo );  //©
 			wsprintf(szMsg,
@@ -4281,14 +4281,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"©2013-2017 Karl Runmo\n"
 				"©2017 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
-				// mpf_t decimal digits = floor(64.0 * ((1<<31)-1) * log2(10))
-				"Precision: 456562320657\n"
-				"%s\n"
+				"Compiled for %s\n"
+				"Precision: %d bits (%d decimal digits)\n"
 				"\nLibraries:\n"
 				"- JPEG 6b <http://ijg.org>\n"
 				"- PNG %s <http://libpng.org>\n"
 				"- ZLIB %s <http://zlib.net>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
+				"- MPFR %s <http://mpfr.org>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
@@ -4304,15 +4304,20 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				" - Dinkydau, Fractal universe, CFJH, Foxxie and others for bug reports\n"
 				" - Chillheimer for hosting my program\n\n"
 				"http://www.chillheimer.de/kallesfraktaler/\n\n"
-				"Claude also thanks Karl for releasing source code so we all could learn from it and make modifications.\n\n"
+				"Claude also thanks Karl for releasing the source code.\n\n"
 				"https://mathr.co.uk/kf/kf.html",
 				version.c_str(),
-				sysinfo.dwNumberOfProcessors,sizeof(void*)==4?"32-bit":"64-bit",
+				sysinfo.dwNumberOfProcessors,
+				sizeof(void*)==4?"32-bit":"64-bit",
+				int(MPFR_PREC_MAX),
+				int(MPFR_PREC_MAX * log10(2.0)),
 				png_libpng_ver,
 				zlib_version,
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
+				MPFR_VERSION_STRING,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 				);
+			szMsg[1024-1] = 0;
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
 	}

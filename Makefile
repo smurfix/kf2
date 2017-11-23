@@ -7,7 +7,7 @@ FLAGS := -Wall -Wextra -Wno-write-strings -Wno-missing-field-initializers -pipe 
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \

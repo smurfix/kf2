@@ -68,7 +68,7 @@ int(GT)(void *a, void *b);
 int(LT)(void *a, void *b);
 int(Equal)(void *a, void *b);
 void(Print)(void *a, char *szRet);
-void(DLLConvertFromFixedFloat)(void *p, const mpf_t value);
+void(DLLConvertFromFixedFloat)(void *p, const mpfr_t value);
 #define ConvertFromFixedFloat(p,x) DLLConvertFromFixedFloat((p),(x).m_f.backend().data())
 int(Perturbation4)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
 int(Perturbation_3rd)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch);
@@ -965,7 +965,7 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 	CDecNumber z(szZ);
 	CDecNumber di(2 / z);
 	long e = 0;
-	mpf_get_d_2exp(&e, z.m_dec.backend().data());
+	mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
 	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
 	Precision pHi(digits10);
 	m_rref.m_f.precision(digits10);
@@ -1255,7 +1255,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		Precision pLo(20u);
 		CFixedFloat pixelSpacing(min(abs((m_rstop - m_rstart) / m_nX), abs((m_rstop - m_rstart) / m_nY)));
 		long e = 0;
-		mpf_get_d_2exp(&e, pixelSpacing.m_f.backend().data());
+		mpfr_get_d_2exp(&e, pixelSpacing.m_f.backend().data(), MPFR_RNDN);
 		digits10 = std::max(20.0, 20 + 0.30102999566398114 * (log2(nZoomSize) - e));
 	}
 	Precision p(digits10);

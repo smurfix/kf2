@@ -62,7 +62,7 @@ struct BoxPeriod
   barrier *barrier;
   volatile BOOL *stop;
   int maxperiod;
-  mpf_t zr, zi, zr2, zi2, zri, cr, ci, t, *z2r, *z2i;
+  mpfr_t zr, zi, zr2, zi2, zri, cr, ci, t, *z2r, *z2i;
   int *crossing[4];
   int *haveperiod;
   int *period;
@@ -88,17 +88,17 @@ static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   {
     // *b->crossing[t] = crosses_positive_real_axis(&b->zr, &b->zi, b->z2r, b->z2i);
     bool crossing = false;
-    if (mpf_sgn(b->zi) != mpf_sgn(*b->z2i))
+    if (mpfr_sgn(b->zi) != mpfr_sgn(*b->z2i))
     {
       // d = b - a;
-      mpf_sub(b->zr2, *b->z2r, b->zr);
-      mpf_sub(b->zi2, *b->z2i, b->zi);
-      int fs = mpf_sgn(b->zi2);
+      mpfr_sub(b->zr2, *b->z2r, b->zr, MPFR_RNDN);
+      mpfr_sub(b->zi2, *b->z2i, b->zi, MPFR_RNDN);
+      int fs = mpfr_sgn(b->zi2);
       // t = cross(d, a);
-      mpf_mul(b->zri, b->zi2, b->zr);
-      mpf_mul(b->zi2, b->zr2, b->zi);
-      mpf_sub(b->t, b->zri, b->zi2);
-      int ft = mpf_sgn(b->t);
+      mpfr_mul(b->zri, b->zi2, b->zr, MPFR_RNDN);
+      mpfr_mul(b->zi2, b->zr2, b->zi, MPFR_RNDN);
+      mpfr_sub(b->t, b->zri, b->zi2, MPFR_RNDN);
+      int ft = mpfr_sgn(b->t);
       crossing = fs == ft;
     }
     *b->crossing[t] = crossing;
@@ -125,13 +125,13 @@ static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
       }
     }
     // z = z * z + c
-    mpf_mul(b->zr2, b->zr, b->zr);
-    mpf_mul(b->zri, b->zr, b->zi);
-    mpf_mul(b->zi2, b->zi, b->zi);
-    mpf_sub(b->t, b->zr2, b->zi2);
-    mpf_add(b->zr, b->t, b->cr);
-    mpf_mul_2exp(b->zri, b->zri, 1);
-    mpf_add(b->zi, b->zri, b->ci);
+    mpfr_sqr(b->zr2, b->zr, MPFR_RNDN);
+    mpfr_sqr(b->zi2, b->zi, MPFR_RNDN);
+    mpfr_mul(b->zri, b->zr, b->zi, MPFR_RNDN);
+    mpfr_sub(b->t, b->zr2, b->zi2, MPFR_RNDN);
+    mpfr_add(b->zr, b->t, b->cr, MPFR_RNDN);
+    mpfr_mul_2ui(b->zri, b->zri, 1, MPFR_RNDN);
+    mpfr_add(b->zi, b->zri, b->ci, MPFR_RNDN);
     if (barrier->wait(stop)) break;
     if (*haveperiod) break;
   }
@@ -142,7 +142,7 @@ static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
 static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
 	 radius = flyttyp(4)/radius;
 
-  mp_bitcnt_t bits = mpf_get_prec(center.m_r.m_dec.backend().data());
+  mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
   barrier bar(4);
   complex<flyttyp> c[4];
   c[0] = center + complex<flyttyp>(-radius, -radius);
@@ -160,14 +160,14 @@ static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int
     box[t].threadid = t;
     box[t].barrier = &bar;
     box[t].maxperiod = maxperiod;
-    mpf_init2(box[t].cr, bits); mpf_set(box[t].cr, c[t].m_r.m_dec.backend().data());
-    mpf_init2(box[t].ci, bits); mpf_set(box[t].ci, c[t].m_i.m_dec.backend().data());
-    mpf_init2(box[t].zr, bits); mpf_set(box[t].zr, c[t].m_r.m_dec.backend().data());
-    mpf_init2(box[t].zi, bits); mpf_set(box[t].zi, c[t].m_i.m_dec.backend().data());
-    mpf_init2(box[t].zr2, bits);
-    mpf_init2(box[t].zi2, bits);
-    mpf_init2(box[t].zri, bits);
-    mpf_init2(box[t].t, bits);
+    mpfr_init2(box[t].cr, bits); mpfr_set(box[t].cr, c[t].m_r.m_dec.backend().data(), MPFR_RNDN);
+    mpfr_init2(box[t].ci, bits); mpfr_set(box[t].ci, c[t].m_i.m_dec.backend().data(), MPFR_RNDN);
+    mpfr_init2(box[t].zr, bits); mpfr_set(box[t].zr, c[t].m_r.m_dec.backend().data(), MPFR_RNDN);
+    mpfr_init2(box[t].zi, bits); mpfr_set(box[t].zi, c[t].m_i.m_dec.backend().data(), MPFR_RNDN);
+    mpfr_init2(box[t].zr2, bits);
+    mpfr_init2(box[t].zi2, bits);
+    mpfr_init2(box[t].zri, bits);
+    mpfr_init2(box[t].t, bits);
     box[t].z2r = &box[(t + 1) % 4].zr;
     box[t].z2i = &box[(t + 1) % 4].zi;
     box[t].stop = &g_bNewtonStop;
@@ -192,14 +192,14 @@ static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int
   for (int i = 0; i < 4; i++)
   {
     CloseHandle(hDone[i]);
-    mpf_clear(box[i].cr);
-    mpf_clear(box[i].ci);
-    mpf_clear(box[i].zr);
-    mpf_clear(box[i].zi);
-    mpf_clear(box[i].zr2);
-    mpf_clear(box[i].zi2);
-    mpf_clear(box[i].zri);
-    mpf_clear(box[i].t);
+    mpfr_clear(box[i].cr);
+    mpfr_clear(box[i].ci);
+    mpfr_clear(box[i].zr);
+    mpfr_clear(box[i].zi);
+    mpfr_clear(box[i].zr2);
+    mpfr_clear(box[i].zi2);
+    mpfr_clear(box[i].zri);
+    mpfr_clear(box[i].t);
   }
   steps = period;
   return haveperiod ? period : 0;
@@ -213,7 +213,7 @@ struct STEP_STRUCT_COMMON
 	volatile BOOL *stop;
 	int newtonStep;
 	int period;
-	mpf_t zr, zi, zrn, zin, zr2, zi2, cr, ci, dcr, dci, dcrn, dcin, dcrzr, dcrzi, dcizr, dcizi;
+	mpfr_t zr, zi, zrn, zin, zr2, zi2, cr, ci, dcr, dci, dcrn, dcin, dcrzr, dcrzi, dcizr, dcizi;
 };
 struct STEP_STRUCT
 {
@@ -231,11 +231,11 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
     case 0: // zr
       for (int i = 0; i < t->period; ++i)
       {
-	mpf_mul(t->zr2, t->zr, t->zr);
-	mpf_mul(t->zi2, t->zi, t->zi);
-	mpf_sub(t->zrn, t->zr2, t->zi2);
+	mpfr_sqr(t->zr2, t->zr, MPFR_RNDN);
+	mpfr_sqr(t->zi2, t->zi, MPFR_RNDN);
+	mpfr_sub(t->zrn, t->zr2, t->zi2, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
-	mpf_add(t->zr, t->zrn, t->cr);
+	mpfr_add(t->zr, t->zrn, t->cr, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
@@ -251,34 +251,34 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
 			last = now;
 		}
 	}
-	mpf_mul(t->zin, t->zr, t->zi);
-	mpf_mul_2exp(t->zin, t->zin, 1);
+	mpfr_mul(t->zin, t->zr, t->zi, MPFR_RNDN);
+	mpfr_mul_2ui(t->zin, t->zin, 1, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
-	mpf_add(t->zi, t->zin, t->ci);
+	mpfr_add(t->zi, t->zin, t->ci, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
     case 2: // dcr
       for (int i = 0; i < t->period; ++i)
       {
-	mpf_mul(t->dcrzr, t->dcr, t->zr);
-	mpf_mul(t->dcizi, t->dci, t->zi);
-	mpf_sub(t->dcrn, t->dcrzr, t->dcizi);
-	mpf_mul_2exp(t->dcrn, t->dcrn, 1);
+	mpfr_mul(t->dcrzr, t->dcr, t->zr, MPFR_RNDN);
+	mpfr_mul(t->dcizi, t->dci, t->zi, MPFR_RNDN);
+	mpfr_sub(t->dcrn, t->dcrzr, t->dcizi, MPFR_RNDN);
+	mpfr_mul_2ui(t->dcrn, t->dcrn, 1, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
-	mpf_add_ui(t->dcr, t->dcrn, 1);
+	mpfr_add_ui(t->dcr, t->dcrn, 1, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
     case 3: // dci
       for (int i = 0; i < t->period; ++i)
       {
-	mpf_mul(t->dcrzi, t->dcr, t->zi);
-	mpf_mul(t->dcizr, t->dci, t->zr);
-	mpf_add(t->dcin, t->dcrzi, t->dcizr);
-	mpf_mul_2exp(t->dcin, t->dcin, 1);
+	mpfr_mul(t->dcrzi, t->dcr, t->zi, MPFR_RNDN);
+	mpfr_mul(t->dcizr, t->dci, t->zr, MPFR_RNDN);
+	mpfr_add(t->dcin, t->dcrzi, t->dcizr, MPFR_RNDN);
+	mpfr_mul_2ui(t->dcin, t->dcin, 1, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
-	mpf_set(t->dci, t->dcin);
+	mpfr_set(t->dci, t->dcin, MPFR_RNDN);
 	if (t->barrier->wait(t->stop)) break;
       }
       break;
@@ -294,7 +294,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   int i;
 
 	int threads = 4;
-	mp_bitcnt_t bits = mpf_get_prec(c_guess.m_r.m_dec.backend().data());
+	mp_bitcnt_t bits = mpfr_get_prec(c_guess.m_r.m_dec.backend().data());
 	barrier bar(4);
 	STEP_STRUCT_COMMON m;
 	m.hWnd = hWnd;
@@ -302,22 +302,22 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	m.stop = &g_bNewtonStop;
 	m.newtonStep = newtonStep;
 	m.period = period;
-	mpf_init2(m.zr, bits); mpf_set_ui(m.zr, 0);
-	mpf_init2(m.zi, bits); mpf_set_ui(m.zi, 0);
-	mpf_init2(m.zrn, bits);
-	mpf_init2(m.zin, bits);
-	mpf_init2(m.zr2, bits);
-	mpf_init2(m.zi2, bits);
-	mpf_init2(m.cr, bits); mpf_set(m.cr, c_guess.m_r.m_dec.backend().data());
-	mpf_init2(m.ci, bits); mpf_set(m.ci, c_guess.m_i.m_dec.backend().data());
-	mpf_init2(m.dcr, bits); mpf_set_ui(m.dcr, 0);
-	mpf_init2(m.dci, bits); mpf_set_ui(m.dci, 0);
-	mpf_init2(m.dcrn, bits);
-	mpf_init2(m.dcin, bits);
-	mpf_init2(m.dcrzr, bits);
-	mpf_init2(m.dcrzi, bits);
-	mpf_init2(m.dcizr, bits);
-	mpf_init2(m.dcizi, bits);
+	mpfr_init2(m.zr, bits); mpfr_set_ui(m.zr, 0, MPFR_RNDN);
+	mpfr_init2(m.zi, bits); mpfr_set_ui(m.zi, 0, MPFR_RNDN);
+	mpfr_init2(m.zrn, bits);
+	mpfr_init2(m.zin, bits);
+	mpfr_init2(m.zr2, bits);
+	mpfr_init2(m.zi2, bits);
+	mpfr_init2(m.cr, bits); mpfr_set(m.cr, c_guess.m_r.m_dec.backend().data(), MPFR_RNDN);
+	mpfr_init2(m.ci, bits); mpfr_set(m.ci, c_guess.m_i.m_dec.backend().data(), MPFR_RNDN);
+	mpfr_init2(m.dcr, bits); mpfr_set_ui(m.dcr, 0, MPFR_RNDN);
+	mpfr_init2(m.dci, bits); mpfr_set_ui(m.dci, 0, MPFR_RNDN);
+	mpfr_init2(m.dcrn, bits);
+	mpfr_init2(m.dcin, bits);
+	mpfr_init2(m.dcrzr, bits);
+	mpfr_init2(m.dcrzi, bits);
+	mpfr_init2(m.dcizr, bits);
+	mpfr_init2(m.dcizi, bits);
 	STEP_STRUCT mc[4];
 	HANDLE hDone[4];
 	for (i = 0; i<4; i++){
@@ -338,26 +338,26 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 		CloseHandle(hDone[i]);
 	}
 
-	mpf_set(z.m_r.m_dec.backend().data(), m.zr);
-	mpf_set(z.m_i.m_dec.backend().data(), m.zi);
-	mpf_set(dc.m_r.m_dec.backend().data(), m.dcr);
-	mpf_set(dc.m_i.m_dec.backend().data(), m.dci);
-	mpf_clear(m.zr);
-	mpf_clear(m.zi);
-	mpf_clear(m.zrn);
-	mpf_clear(m.zin);
-	mpf_clear(m.zr2);
-	mpf_clear(m.zi2);
-	mpf_clear(m.cr);
-	mpf_clear(m.ci);
-	mpf_clear(m.dcr);
-	mpf_clear(m.dci);
-	mpf_clear(m.dcrn);
-	mpf_clear(m.dcin);
-	mpf_clear(m.dcrzr);
-	mpf_clear(m.dcrzi);
-	mpf_clear(m.dcizr);
-	mpf_clear(m.dcizi);
+	mpfr_set(z.m_r.m_dec.backend().data(), m.zr, MPFR_RNDN);
+	mpfr_set(z.m_i.m_dec.backend().data(), m.zi, MPFR_RNDN);
+	mpfr_set(dc.m_r.m_dec.backend().data(), m.dcr, MPFR_RNDN);
+	mpfr_set(dc.m_i.m_dec.backend().data(), m.dci, MPFR_RNDN);
+	mpfr_clear(m.zr);
+	mpfr_clear(m.zi);
+	mpfr_clear(m.zrn);
+	mpfr_clear(m.zin);
+	mpfr_clear(m.zr2);
+	mpfr_clear(m.zi2);
+	mpfr_clear(m.cr);
+	mpfr_clear(m.ci);
+	mpfr_clear(m.dcr);
+	mpfr_clear(m.dci);
+	mpfr_clear(m.dcrn);
+	mpfr_clear(m.dcin);
+	mpfr_clear(m.dcrzr);
+	mpfr_clear(m.dcrzi);
+	mpfr_clear(m.dcizr);
+	mpfr_clear(m.dcizi);
 
   SetDlgItemText(hWnd,IDC_EDIT4,"");
   flyttyp ad = 1/cabs2(dc);
@@ -425,7 +425,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int pe
 
 static inline complex<floatexp> fec(const complex<flyttyp> &z)
 {
-  return complex<floatexp>(mpf_get_fe(z.m_r.m_dec.backend().data()), mpf_get_fe(z.m_i.m_dec.backend().data()));
+  return complex<floatexp>(mpfr_get_fe(z.m_r.m_dec.backend().data()), mpfr_get_fe(z.m_i.m_dec.backend().data()));
 }
 
 static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd)
@@ -514,7 +514,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			complex<floatexp>size = m_d_size(c,g_period,hWnd);
 			floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
 			flyttyp msize = 0;
-			mpf_set_fe(msize.m_dec.backend().data(), msizefe);
+			mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
 
 			std::ostringstream oss;
 			oss << std::scientific << msize.m_dec;

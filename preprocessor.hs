@@ -52,14 +52,14 @@ deallocate t = do
     else do
       return ()
 
-instruction (ISet a b) = tell (["mpf_set(", a, ",", b, ");\n"], [a, b])
-instruction (IAbs a b) = tell (["mpf_abs(", a, ",", b, ");\n"], [a, b])
-instruction (INeg a b) = tell (["mpf_neg(", a, ",", b, ");\n"], [a, b])
-instruction (ISub a b c) = tell (["mpf_sub(", a, ",", b, ",", c, ");\n"], [a, b, c])
-instruction (IAdd a b c) = tell (["mpf_add(", a, ",", b, ",", c, ");\n"], [a, b, c])
-instruction (IMulI a b c) = tell (["mpf_mul_ui(", a, ",", b, ",", show (abs c), ");\n"] ++ if c < 0 then ["mpf_neg(", a, ",", a, ");"] else [], [a, b])
-instruction (IMul a b c) = tell (["mpf_mul(", a, ",", b, ",", c, ");\n"], [a, b, c])
-instruction (ISqr a b) = tell (["mpf_mul(", a, ",", b, ",", b, ");\n"], [a, b])
+instruction (ISet a b) = tell (["mpfr_set(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (IAbs a b) = tell (["mpfr_abs(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (INeg a b) = tell (["mpfr_neg(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ISub a b c) = tell (["mpfr_sub(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IAdd a b c) = tell (["mpfr_add(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c), ",MPFR_RNDN);\n"] ++ if c < 0 then ["mpfr_neg(", a, ",", a, ",MPFR_RNDN);"] else [], [a, b])
+instruction (IMul a b c) = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (ISqr a b) = tell (["mpfr_mul(", a, ",", b, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
   Just u <- compile a
@@ -148,8 +148,8 @@ compile (ESqr a) = do
 
 compile x = error (show x)
 
-init2 = concatMap (\t -> "mpf_t " ++ t ++ "; mpf_init2(" ++ t ++ ", bits);\n")
-clear = concatMap (\t -> "mpf_clear(" ++ t ++ ");\n")
+init2 = concatMap (\t -> "mpfr_t " ++ t ++ "; mpfr_init2(" ++ t ++ ", bits);\n")
+clear = concatMap (\t -> "mpfr_clear(" ++ t ++ ");\n")
 
 runCompile es = case evalRWS (mapM_ compile es) () temporaries of
   ((), (is, vs)) ->

@@ -37,10 +37,6 @@ Known Bugs
 - minimizing window during command line rendering corrupts image
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
-- "no newton.kfr" blank image on load and newton-raphson zoom fails with bad
-  period detected (reported by Kalles Fraktaler)
-- "newton-fails.kfr" half-blank image on load and newton-raphson zoom fails
-  (reported by Kalles Fraktaler)
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
@@ -135,6 +131,9 @@ Change Log
       a "last.kfb", this is saved automatically when needed)
     - barrier no longer yields (fixes priority inversion on heavily loaded
       systems) (reported by gerrit)
+    - switch from GMP mpf_t to MPFR (fixes some blank images on load, also some
+      Newton-Raphson zoom failures - possibly a GMP bug in mpf_sub?) (reported
+      by Kalles Fraktaler and gerrit)
 
 - **kf-2.12.5** (2017-11-02)
 
@@ -448,19 +447,20 @@ install natively.
 
 3. Download sources:
 
-    Download the latest Boost (which is at time of writing is 1.65.1) and
-    latest GMP (currently version 6.1.2) and clone kf git sources:
+    Download current versions of the needed libraries, and clone kf git sources:
 
         cd ~/win64/src
         wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
         wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+        wget http://www.mpfr.org/mpfr-current/mpfr-3.1.6.tar.xz
+        wget http://www.mpfr.org/mpfr-current/allpatches -O mpfr-3.1.6.patch
         wget https://zlib.net/zlib-1.2.11.tar.xz
         wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout formulas
         cd ..
-        cp -avit ~/win32/src *z kalles-fraktaler-2/
+        cp -avit ~/win32/src *z mpfr-3.1.6.patch kalles-fraktaler-2/
 
     You also need to get libpng (version 1.6.32) from a non-automatable link at
     <http://www.libpng.org/pub/png/libpng.html> (save it to
@@ -489,7 +489,29 @@ install natively.
             make install
             make check
 
-    2. Build ZLIB (64bit and 32bit):
+    2. Build MPFR (64bit and 32bit):
+
+            cd ~/win64/src
+            tar xf mpfr-3.1.6.tar.xz
+            cd mpfr-3.1.6
+            patch -N -Z -p1 < ../mpfr-3.1.6.patch
+            ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 \
+              --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+            make -j 8
+            make install
+            make check
+
+            cd ~/win32/src
+            tar xf mpfr-3.1.6.tar.xz
+            cd mpfr-3.1.6
+            patch -N -Z -p1 < ../mpfr-3.1.6.patch
+            ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 \
+              --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+            make -j 8
+            make install
+            make check
+
+    3. Build ZLIB (64bit and 32bit):
 
             cd ~/win64/src
             tar xf zlib-1.2.11.tar.xz
@@ -505,7 +527,7 @@ install natively.
             CC=i686-w64-mingw32-gcc make -j 8
             CC=i686-w64-mingw32-gcc make install
 
-    3. Build PNG (64bit and 32bit):
+    4. Build PNG (64bit and 32bit):
 
             cd ~/win64/src
             tar xf libpng-1.6.32.tar.xz
@@ -525,7 +547,7 @@ install natively.
             make -j 8
             make install
 
-    4. Build JPEG (64bit and 32bit):
+    5. Build JPEG (64bit and 32bit):
 
             cd ~/win64/src
             tar xf jpegsrc.v6b.tar.gz
@@ -711,8 +733,7 @@ Thanks to:
 - Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
-Claude also thanks Karl for releasing the source to this program so that
-we all could learn from it and make modifications.
+Claude also thanks Karl for releasing the source code.
 
 
 User Manual

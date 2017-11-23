@@ -312,8 +312,7 @@ public:
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
 		signed long int e = 0;
-		val = mpf_get_d_2exp(&e, a.m_f.backend().data());
-		if ((mpf_sgn(a.m_f.backend().data()) >= 0) != (val >= 0)) val = -val; // workaround GMP bug
+		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
 		exp = e;
 		align();
 		return *this;
@@ -322,9 +321,9 @@ public:
 	{
 		a = val;
 		if (exp >= 0)
-			mpf_mul_2exp(a.m_f.backend().data(), a.m_f.backend().data(), exp);
+			mpfr_mul_2ui(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
 		else
-			mpf_div_2exp(a.m_f.backend().data(), a.m_f.backend().data(), -exp);
+			mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
 	}
 
 	inline floatexp setLongDouble(long double a)
@@ -365,34 +364,32 @@ inline floatexp sqrt(floatexp a)
     );
 }
 
-inline floatexp mpf_get_fe(const mpf_t value)
+inline floatexp mpfr_get_fe(const mpfr_t value)
 {
 	signed long int e = 0;
-	double l = mpf_get_d_2exp(&e, value);
-	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
+	double l = mpfr_get_d_2exp(&e, value, MPFR_RNDN);
 	return floatexp(l, e);
 }
 
-inline void mpf_set_fe(mpf_t value, floatexp fe)
+inline void mpfr_set_fe(mpfr_t value, floatexp fe)
 {
-	mpf_set_d(value, fe.val);
+	mpfr_set_d(value, fe.val, MPFR_RNDN);
 	if (fe.exp >= 0)
 	{
-		mpf_mul_2exp(value, value, fe.exp);
+		mpfr_mul_2ui(value, value, fe.exp, MPFR_RNDN);
 	}
 	else
 	{
-		mpf_div_2exp(value, value, -fe.exp);
+		mpfr_div_2ui(value, value, -fe.exp, MPFR_RNDN);
 	}
 }
 
-inline long double mpf_get_ld(const mpf_t value)
+inline long double mpfr_get_ld(const mpfr_t value)
 {
 	using std::ldexp;
 	signed long int e = 0;
-	long double l = mpf_get_d_2exp(&e, value);
+	long double l = mpfr_get_ld_2exp(&e, value, MPFR_RNDN);
 	l = ldexp(l, e);
-	if ((mpf_sgn(value) >= 0) != (l >= 0)) l = -l; // workaround GMP bug
 	return l;
 }
 
