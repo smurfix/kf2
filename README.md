@@ -121,7 +121,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.6** (????-??-??)
+- **kf-2.12.6** (2017-11-24)
 
     - fix central differences (reported by gerrit)
     - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
