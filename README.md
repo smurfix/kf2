@@ -35,6 +35,8 @@ Known Bugs
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - minimizing window during command line rendering corrupts image
+- minimizing window during zoom sequence rendering corrupts image (saves blank
+  image or repeated frame) (reported by gerrit and CFJH)
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
 - crash when zooming too quickly near interior black regions (reported by
@@ -132,8 +134,8 @@ Change Log
     - barrier no longer yields (fixes priority inversion on heavily loaded
       systems) (reported by gerrit)
     - switch from GMP mpf_t to MPFR (fixes some blank images on load, also some
-      Newton-Raphson zoom failures - possibly a GMP bug in mpf_sub?) (reported
-      by Kalles Fraktaler and gerrit)
+      Newton-Raphson zoom failures - bug involved incorrect normalization)
+      (reported by Kalles Fraktaler and gerrit)
 
 - **kf-2.12.5** (2017-11-02)
 
