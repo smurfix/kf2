@@ -633,6 +633,7 @@ void CFraktalSFT::RenderFractalEXP()
 		}
 	}
 	P.Execute();
+	P.Reset();
 	delete[] pMan;
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
