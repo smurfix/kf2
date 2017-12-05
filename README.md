@@ -131,6 +131,7 @@ Change Log
     - compiles clean with -Wwrite-strings
     - even lower resolution preview for more intensive locations (suggested by
       Foxxie) (implemented with Adam7-style interlacing with circular sorting)
+    - copy (Ctrl-X) and paste (Ctrl-V) parameters from the system clipboard
     - fixed hang crash bug when normalizing smooth iteration values
 
 - **kf-2.12.6** (2017-11-24)
@@ -357,7 +358,6 @@ TODO
 - user interface: undo history for calculation data (suggested by TwinDragon)
 - user interface: online help within program (suggested by TwinDragon)
 - user interface: drag-and-drop parameters or images on to main window to load
-- user interface: support system clipboard for parameters
 - user interface: save image now function (without waiting for calculations)
 - calculations: store -|log|z|| in trans array for glitched pixels, should
   enable better glitch correction (find minimum, instead of image shape search)

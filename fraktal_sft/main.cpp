@@ -436,19 +436,6 @@ static long WINAPI ShowProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #endif
 
 
-static char *Trim(char *sz,int nLen=-1)
-{
-	if(nLen==-1)
-		nLen = strlen(sz);
-	if(nLen>(int)strlen(sz))
-		nLen = strlen(sz);
-	int i;
-	for(i=nLen;i>0 && (sz[i-1]==(char)-96 || sz[i-1]==' ' || sz[i-1]=='\r' || sz[i-1]=='\n' || sz[i-1]=='\t');i--);
-	sz[i]=0;
-	while(*sz==' ')
-		sz++;
-	return sz;
-}
 static int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) wParam;
@@ -3166,53 +3153,55 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		DeleteObject(g_bmSaveZoomBuff);
 		g_bmSaveZoomBuff=NULL;
 	}
-	else if(uMsg==WM_KEYDOWN && wParam=='V'){
-		if(wParam=='V'){
-			if(HIWORD(GetKeyState(VK_CONTROL))){
-				std::string pos = g_SFT.GetPosition();
-				std::string z = g_SFT.ToZoom();
-				MessageBox(NULL,pos.c_str(),z.c_str(),MB_OK);
-			}
-			else{
+
+	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL)))
+	{
+				std::string str = g_SFT.ToText();
+				if (!OpenClipboard(hWnd))
+					return 0;
+				EmptyClipboard();
+				HANDLE hclip = GlobalAlloc(GMEM_MOVEABLE, (str.length() + 1) * sizeof(TCHAR));
+				if (! hclip)
+				{
+					CloseClipboard();
+					return 0;
+				}
+				char *s = (char *) GlobalLock(hclip);
+				memcpy(s, str.c_str(), str.length() + 1);
+				GlobalUnlock(hclip);
+				SetClipboardData(CF_TEXT, hclip);
+				CloseClipboard();
+	}
+
+	else if(uMsg==WM_KEYDOWN && wParam=='V' && HIWORD(GetKeyState(VK_CONTROL)))
+	{
 				if(!OpenClipboard(hWnd))
 					return 0;
 				HANDLE hTemp;
-				char *szTemp=0;
+				const char *szTemp=0;
 				if((hTemp = GetClipboardData(CF_TEXT)))
-					szTemp = (char*)GlobalLock(hTemp);
+					szTemp = (const char*)GlobalLock(hTemp);
 				if(!szTemp || !*szTemp){
 					GlobalUnlock(hTemp);
 					CloseClipboard();
 					return 0;
 				}
-				CStringTable stP(szTemp,":","\r\n");
+				std::string str(szTemp);
 				GlobalUnlock(hTemp);
 				CloseClipboard();
-
-				if(stP.FindString(0,"MANDELBROT")!=-1){
+				BOOL ok = g_SFT.OpenString(str, FALSE);
+				if (ok)
+				{
 					g_SFT.Stop();
 					g_bAnim=false;
 					g_bFindMinibrot=FALSE;
 					g_bStoreZoom=FALSE;
 					DeleteObject(g_bmSaveZoomBuff);
 					g_bmSaveZoomBuff=NULL;
-					RECT r;
-					GetClientRect(hWnd,&r);
-					RECT sr;
-					GetWindowRect(g_hwStatus,&sr);
-					sr.bottom-=sr.top;
-					r.bottom-=sr.bottom;
-					g_SFT.SetPosition(
-						(CFixedFloat)Trim(stP[stP.FindString(0,"R-Start")][1]),
-						(CFixedFloat)Trim(stP[stP.FindString(0,"R-Stop")][1]),
-						(CFixedFloat)Trim(stP[stP.FindString(0,"I-Start")][1]),
-						(CFixedFloat)Trim(stP[stP.FindString(0,"I-Stop")][1]),
-						r.right,r.bottom);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
-			}
-		}
 	}
+
 	else if(uMsg==WM_KEYDOWN && wParam==187){
 		lParam=9;
 		g_bAddReference=FALSE;
@@ -3885,6 +3874,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RemoveInflectionPoint();
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
+#if 0
 	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))){
 		if(size_t(g_nInflection)<sizeof(g_pInflections)/sizeof(POINT)){
 			GetCursorPos(&g_pInflections[g_nInflection]);
@@ -3892,6 +3882,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nInflection++;
 		}
 	}
+#endif
 	else if((uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL))) || (uMsg==WM_COMMAND && wParam==ID_SPECIAL_SKEWANIMATION)){
 		g_bSkewAnimation=!g_bSkewAnimation;
 		if(g_bSkewAnimation)
