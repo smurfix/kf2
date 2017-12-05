@@ -126,6 +126,7 @@ Change Log
 
     - renabled guessing conditional on menu option (was disabled in 2.12.4 as
       enabling it makes some random speckles, possibly due to a race condition)
+      (requested by Kalles Fraktaler and Fractal universe)
     - added "threads per cpu core" setting
     - compiles clean with -Wwrite-strings
     - even lower resolution preview for more intensive locations (suggested by
