@@ -11,7 +11,9 @@
 // SERVICING, REPAIR OR CORRECTION. THIS DISCLAIMER OF WARRANTY CONSTITUTES AN ESSENTIAL
 // PART OF THIS LICENSE. NO USE OF ANY COVERED CODE IS AUTHORIZED HEREUNDER EXCEPT UNDER
 // THIS DISCLAIMER.
-#include <windows.h>
+
+#include "getimage.h"
+
 #include <stdio.h>
 #define sprintf_s snprintf
 #include <comdef.h>
@@ -96,7 +98,7 @@ void UpsideBitmap(HBITMAP bmBitmap)
 	delete lpBitsNew;
 	delete lpBits;
 }
-HBITMAP GetImage(const char *szFile)
+HBITMAP GetImage(const std::string &szFile)
 {
 	BITMAP bm;
 	HBITMAP bmBmp, bmRet, bmBmpOld, bmRetOld;
@@ -109,7 +111,7 @@ HBITMAP GetImage(const char *szFile)
 	DWORD dwRead;
 	HANDLE hFile, hMem;
 
-	if((hFile = CreateFileA(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL))==INVALID_HANDLE_VALUE)
+	if((hFile = CreateFileA(szFile.c_str(),GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL))==INVALID_HANDLE_VALUE)
 		return NULL;
 	nLen = GetFileSize(hFile,NULL);
 	hMem = GlobalAlloc(GMEM_FIXED,nLen);
@@ -119,14 +121,14 @@ HBITMAP GetImage(const char *szFile)
 
 	if(FAILED(hr = CreateStreamOnHGlobal(hMem,FALSE,&pStream))){
 		GlobalFree(hMem);
-		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 	}
 	hr = OleLoadPicture(pStream,nLen,TRUE,IID_IPicture,(void**)&pPicture);
 
 	pStream->Release();
 	GlobalFree(hMem);
 	if(FAILED(hr))
-		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 
 	short nType;
 	pPicture->get_Type(&nType);
@@ -152,7 +154,7 @@ HBITMAP GetImage(const char *szFile)
 	}
 	if(FAILED(hr = pPicture->get_Handle((OLE_HANDLE*)&bmBmp))){
 		pPicture->Release();
-		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile,IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
+		return (HBITMAP)LoadImageA(GetModuleHandle(NULL),szFile.c_str(),IMAGE_BITMAP,0,0,LR_LOADFROMFILE);
 	}
 	GetObject(bmBmp,sizeof(BITMAP),&bm);
 

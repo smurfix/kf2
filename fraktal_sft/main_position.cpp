@@ -30,9 +30,12 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,2);
 		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
 		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,0,0);
-		SetDlgItemText(hWnd,IDC_EDIT1,g_SFT.GetRe());
-		SetDlgItemText(hWnd,IDC_EDIT3,g_SFT.GetIm());
-		SetDlgItemText(hWnd,IDC_EDIT4,g_SFT.GetZoom());
+    std::string re = g_SFT.GetRe();
+    std::string im = g_SFT.GetIm();
+    std::string z = g_SFT.GetZoom();
+		SetDlgItemText(hWnd,IDC_EDIT1,re.c_str());
+		SetDlgItemText(hWnd,IDC_EDIT3,im.c_str());
+		SetDlgItemText(hWnd,IDC_EDIT4,z.c_str());
 		int nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
 		SetDlgItemInt(hWnd,IDC_EDIT2,nMin,FALSE);

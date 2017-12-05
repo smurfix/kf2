@@ -78,6 +78,8 @@ struct MULTIWAVE
 	int nStart;
 	int nType;
 };
+
+#if 0
 template <class T> class CFileFloat
 {
 	HANDLE m_hFile;
@@ -144,6 +146,7 @@ public:
 		return m_dbBuf[nMapIndex];
 	}
 };
+#endif
 
 enum ColorMethod
 {
@@ -270,7 +273,7 @@ class CFraktalSFT
 	double m_nImgMerge;
 	double m_nImgPower;
 	int m_nImgRatio;
-	char m_szTexture[256];
+	std::string m_szTexture;
 	BYTE *m_lpTextureBits;
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
@@ -283,7 +286,7 @@ class CFraktalSFT
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
 	void CreateLists();
-	char *ToZoom(const CDecNumber &z, int &zoom);
+	std::string ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
 #ifdef KF_OPENCL
@@ -314,9 +317,8 @@ public:
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
 	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
-	void SetPosition(const char *szR, const char *szI, const char *szZ);
-	void SetPosition(const char *szR, const char *szI, const std::string &szZ);
-	char *ToZoom();
+	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
+	std::string ToZoom();
 	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
@@ -329,15 +331,15 @@ public:
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	int GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL);
-	char *GetPosition();
+	std::string GetPosition();
 	void GetIterations(int &nMin, int &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
 	int GetIterations();
 	void SetIterations(int nIterations);
-	char *GetRe();
-	char *GetRe(int nXPos, int nYPos, int width, int height);
-	char *GetIm();
-	char *GetIm(int nXPos, int nYPos, int width, int height);
-	char *GetZoom();
+	std::string GetRe();
+	std::string GetRe(int nXPos, int nYPos, int width, int height);
+	std::string GetIm();
+	std::string GetIm(int nXPos, int nYPos, int width, int height);
+	std::string GetZoom();
 	void GenerateColors(int nParts, int nSeed = -1);
 	void GenerateColors2(int nParts, int nSeed = -1, int nWaves = 9);
 	void AddWave(int nCol, int nPeriod = -1, int nStart = -1);
@@ -408,8 +410,8 @@ public:
 	BOOL GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle);
 	void SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int nSlopeAngle);
 
-	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,char *szTexture);
-	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,char *szTexture);
+	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture);
+	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture);
 
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();

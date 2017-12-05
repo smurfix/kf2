@@ -41,6 +41,13 @@ public:
 		m_f = FixedFloat(sz);
 	};
 
+	inline CFixedFloat(const std::string &sz)
+	{
+		m_f.precision(std::max(FixedFloat::default_precision(), unsigned(sz.length())));
+		Precision p(m_f.precision());
+		m_f = FixedFloat(sz);
+	};
+
 	inline CFixedFloat(int a)
 	{
 		unsigned p = FixedFloat::default_precision();
@@ -150,6 +157,12 @@ public:
 	{
 		m_f.precision(A.m_f.precision());
 		m_f = A.m_f;
+		return *this;
+	};
+
+	inline CFixedFloat &operator=(const std::string &sz)
+	{
+		*this = CFixedFloat(sz);
 		return *this;
 	};
 

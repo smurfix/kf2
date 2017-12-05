@@ -90,15 +90,9 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CDecNumber B(get_filename_zoom_string(g_stExamine[last - 1]));
 		g_nExamineZoom = (A/B+CDecNumber(0.5)).ToInt();
 		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
+		std::string szRe = g_SFT.GetRe();
+		std::string szIm = g_SFT.GetIm();
 		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
 
 		PostMessage(GetParent(hWnd),WM_USER+199,0,0);
 		SetTimer(hWnd,0,100,NULL);
@@ -220,15 +214,9 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.OpenFile(g_szExamine);
 		g_SFT.SetIterations(nMI);
 		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
+		std::string szRe = g_SFT.GetRe();
+		std::string szIm = g_SFT.GetIm();
 		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
 
 		PostMessage(GetParent(hWnd),WM_USER+199,0,0);
 	}
@@ -269,15 +257,9 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 			g_SFT.OpenFile(g_szExamine);
 			g_SFT.SetIterations(nMI);
 			CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
-			char *szR = g_SFT.GetRe();
-			char *szRe = new char[strlen(szR)+1];
-			strcpy(szRe,szR);
-			char *szI = g_SFT.GetIm();
-			char *szIm = new char[strlen(szI)+1];
-			strcpy(szIm,szI);
+			std::string szRe = g_SFT.GetRe();
+			std::string szIm = g_SFT.GetIm();
 			g_SFT.SetPosition(szRe,szIm,A.ToText());
-			delete[] szRe;
-			delete[] szIm;
 		}
 
 char szAdd[128];

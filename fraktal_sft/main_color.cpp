@@ -33,11 +33,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,0);
 	}
 	if(uMsg==WM_INITDIALOG || uMsg==WM_USER+99 || (uMsg==WM_SHOWWINDOW && wParam) || (uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7))){
-		char szTexture[256];
+		std::string szTexture;
 		double nRatio, nPower;
 		int nMerge;
 		BOOL bTexture = g_SFT.GetTexture(nRatio,nPower,nMerge,szTexture);
-		SetDlgItemText(hWnd,IDC_EDIT29,szTexture);
+		SetDlgItemText(hWnd,IDC_EDIT29,szTexture.c_str());
 		SendDlgItemMessage(hWnd,IDC_CHECK8,BM_SETCHECK,bTexture,0);
 		SetDlgItemFloat(hWnd,IDC_EDIT26,nPower);
 		SetDlgItemInt(hWnd,IDC_EDIT27,nRatio*100,FALSE);
@@ -262,7 +262,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==IDOK){
-			char szTexture[256];
+			char szTexture[1024];
 			double nPower;
 			int nRatio;
 			GetDlgItemText(hWnd,IDC_EDIT29,szTexture,sizeof(szTexture));

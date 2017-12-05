@@ -1,8 +1,12 @@
-#ifndef __GETIMAGE_H__
-#define __GETIMAGE_H__
+#ifndef KF_GETIMAGE_H
+#define KF_GETIMAGE_H 1
+
+#include <string>
+
+#include <windows.h>
 
 HBITMAP GetImageFromData(char *szImgData,int nImgData);
-HBITMAP GetImage(const char *szFile);
+HBITMAP GetImage(const std::string &szFile);
 void FillRectShade(HDC hDC, RECT r, int nR1, int nG1, int nB1,int nR2, int nG2, int nB2,int nType=0);
 void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark, int nCorner=0);
 void SkuggadCirkle(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark);
@@ -16,4 +20,4 @@ void SetPixelDIB(HDC hDC, HBITMAP bmBitmap,int x, int y,COLORREF col,BOOL bCreat
 
 void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNewHeight,BOOL bHalftone=TRUE,__int64 *pnData=NULL);
 
-#endif//__GETIMAGE_H__
+#endif

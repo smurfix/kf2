@@ -1003,15 +1003,9 @@ static int ResumeZoomSequence(HWND hWnd)
 	              : stExamine.size();
 	if(zoomCount){
 		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(zoomCount-(bRecoveryFile?0:1)));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
+		std::string szRe = g_SFT.GetRe();
+		std::string szIm = g_SFT.GetIm();
 		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
 	}
 
 	g_nStoreZoomCount = 0;
@@ -1419,7 +1413,8 @@ nPos=1;
 	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
 	if(st.wDay>1)
 		st.wHour+=(st.wDay-1)*24;
-	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",g_SFT.ToZoom(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	std::string z = g_SFT.ToZoom();
+	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 nPos=9;
 	if(g_bAutoGlitch){
 		wsprintf(szTmp+strlen(szTmp)," Ref: %d",g_bAutoGlitch);
@@ -3164,7 +3159,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam=='V'){
 		if(wParam=='V'){
 			if(HIWORD(GetKeyState(VK_CONTROL))){
-				MessageBox(NULL,g_SFT.GetPosition(),g_SFT.ToZoom(),MB_OK);
+				std::string pos = g_SFT.GetPosition();
+				std::string z = g_SFT.ToZoom();
+				MessageBox(NULL,pos.c_str(),z.c_str(),MB_OK);
 			}
 			else{
 				if(!OpenClipboard(hWnd))

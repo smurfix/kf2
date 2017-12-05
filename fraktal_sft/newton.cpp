@@ -18,9 +18,9 @@ BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
 static BOOL g_bNewtonExit=FALSE;
 
-static char *g_szRe=NULL;
-static char *g_szIm=NULL;
-static char *g_szZoom=NULL;
+static std::string g_szRe;
+static std::string g_szIm;
+static std::string g_szZoom;
 static char g_szProgress[128];
 static int g_nMinibrotPos=0;
 
@@ -462,9 +462,9 @@ static int WINAPI ThNewton(HWND hWnd)
 
 	flyttyp radius = g_szZoom;
 	radius*=g_SFT.GetZoomSize();
-	char *e = strstr(g_szZoom,"E");
+	const char *e = strstr(g_szZoom.c_str(),"E");
 	if(!e)
-		e = strstr(g_szZoom,"e");
+		e = strstr(g_szZoom.c_str(),"e");
 	int exp = (e?atoi(e+1):0);
 	unsigned uprec = exp + 6;
 	Precision prec(uprec);
@@ -475,9 +475,9 @@ static int WINAPI ThNewton(HWND hWnd)
 	for(i=0;i<24 && g_szZoom[i] && g_szZoom[i]!='e' && g_szZoom[i]!='E' && g_szZoom[i]!='+' && g_szZoom[i]!='-';i++)
 		szVal[i]=g_szZoom[i];
 	szVal[i]=0;
-	e = strstr(g_szZoom,"E");
+	e = strstr(g_szZoom.c_str(),"E");
 	if(!e)
-		e = strstr(g_szZoom,"e");
+		e = strstr(g_szZoom.c_str(),"e");
 	int startZooms = (e?atof(e+1)/0.30103:0) + log10(atof(szVal));
 
 	int steps = 0;
@@ -500,15 +500,8 @@ static int WINAPI ThNewton(HWND hWnd)
 		int test = m_d_nucleus(&c,center,g_period,100,steps,radius,hWnd);
 
 		if(test==0 && steps){
-			delete[] g_szRe;
-			std::string sz = c.m_r.ToText();
-			g_szRe = new char[strlen(sz.c_str())+1];
-			strcpy(g_szRe,sz.c_str());
-
-			delete[] g_szIm;
-			sz = c.m_i.ToText();
-			g_szIm = new char[strlen(sz.c_str())+1];
-			strcpy(g_szIm,sz.c_str());
+			g_szRe = c.m_r.ToText();
+			g_szIm = c.m_i.ToText();
 
 			Precision prec3(exp + 6);
 			complex<floatexp>size = m_d_size(c,g_period,hWnd);
@@ -572,9 +565,7 @@ static int WINAPI ThNewton(HWND hWnd)
 				sradius = radius.ToText();
 				szSize = strdup(sradius.c_str());
 			}
-			delete[] g_szZoom;
-			g_szZoom = new char[strlen(szSize)+1];
-			strcpy(g_szZoom,szSize);
+			g_szZoom = szSize;
 			free(szSize0);
 			if(g_nMinibrotPos)
 			  free(szSize);
@@ -631,21 +622,9 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_USER+1){
 		if(!g_bNewtonRunning){
 			RECT r = *(RECT*)lParam;
-			char *sz = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
-			if(g_szRe)
-				delete[] g_szRe;
-			g_szRe = new char[strlen(sz)+1];
-			strcpy(g_szRe,sz);
-			sz = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
-			if(g_szIm)
-				delete[] g_szIm;
-			g_szIm = new char[strlen(sz)+1];
-			strcpy(g_szIm,sz);
-			sz = g_SFT.GetZoom();
-			if(g_szZoom)
-				delete[] g_szZoom;
-			g_szZoom = new char[strlen(sz)+1];
-			strcpy(g_szZoom,sz);
+			g_szRe = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
+			g_szIm = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
+			g_szZoom = g_SFT.GetZoom();
 			g_nMinibrotPos=0;
 			if(SendDlgItemMessage(hWnd,IDC_RADIO2,BM_GETCHECK,0,0))
 				g_nMinibrotPos=1;
