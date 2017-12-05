@@ -165,7 +165,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
-extern int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality, const char *comment)
+extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
 	BYTE *lpBits, *lpJeg;
@@ -1272,7 +1272,7 @@ double g_length=0;
 double g_degree=0;
 HBITMAP g_bmSaveZoomBuff=NULL;
 SIZE g_scSaveZoomBuff;
-static void SaveZoomImg(char *szFile, char *comment)
+static void SaveZoomImg(const std::string &szFile, const std::string &comment)
 {
 	HBITMAP bmSave;
 	HDC hDC = GetDC(NULL);

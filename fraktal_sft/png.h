@@ -3,7 +3,7 @@
 
 #include <string>
 
-extern int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment);
+extern int SavePNG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, const std::string &comment);
 extern std::string ReadPNGComment(const std::string &filename);
 
 #endif
