@@ -562,12 +562,6 @@ BEGIN
             MENUITEM "128",                         40028,MFT_STRING,MFS_ENABLED
             MENUITEM "Custom...",                   ID_ZOOMSIZE_CUSTOM,MFT_STRING,MFS_ENABLED
         END
-        POPUP "Threads per CPU",                65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "1",                           ID_ACTIONS_THREADS_1,MFT_STRING,MFS_ENABLED
-            MENUITEM "2",                           ID_ACTIONS_THREADS_2,MFT_STRING,MFS_ENABLED
-            MENUITEM "4",                           ID_ACTIONS_THREADS_4,MFT_STRING,MFS_ENABLED
-        END
         MENUITEM "&Location...\tCtrl+L",        40003,MFT_STRING,MFS_ENABLED
         MENUITEM "&Iterations...\tCtrl+I",      40004,MFT_STRING,MFS_ENABLED
         MENUITEM "Set &Colors...\tCtrl+C",      40005,MFT_STRING,MFS_ENABLED
@@ -606,6 +600,12 @@ BEGIN
         MENUITEM "Use floatexp always",         ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MFT_STRING,MFS_ENABLED
         MENUITEM "Use auto iterations",         ID_ACTIONS_SPECIAL_AUTOITERATION,MFT_STRING,MFS_ENABLED
         MENUITEM "Use guessing",                ID_ACTIONS_SPECIAL_GUESSING,MFT_STRING,MFS_ENABLED
+        POPUP "Threads per CPU",                65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "1",                           ID_ACTIONS_THREADS_1,MFT_STRING,MFS_ENABLED
+            MENUITEM "2",                           ID_ACTIONS_THREADS_2,MFT_STRING,MFS_ENABLED
+            MENUITEM "4",                           ID_ACTIONS_THREADS_4,MFT_STRING,MFS_ENABLED
+        END
         MENUITEM "Set ratio",                   ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO,MFT_STRING,MFS_ENABLED
         MENUITEM "Reset ratio",                 ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,MFT_STRING,MFS_ENABLED
         MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
