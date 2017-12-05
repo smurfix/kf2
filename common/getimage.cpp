@@ -96,7 +96,7 @@ void UpsideBitmap(HBITMAP bmBitmap)
 	delete lpBitsNew;
 	delete lpBits;
 }
-HBITMAP GetImage(char *szFile)
+HBITMAP GetImage(const char *szFile)
 {
 	BITMAP bm;
 	HBITMAP bmBmp, bmRet, bmBmpOld, bmRetOld;

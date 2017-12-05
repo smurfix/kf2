@@ -1651,7 +1651,7 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	SetImageHeight(ny);
 }
 
-BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
+BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
 {
 	int **Org = 0;
 	float **OrgT = 0;
@@ -1682,7 +1682,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 		b = (m_nY - nOY) / 2;
 	}
 	//HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
-	FILE *hFile = fopen(szFile, "rb");
+	FILE *hFile = fopen(szFile.c_str(), "rb");
 	//if(hFile==INVALID_HANDLE_VALUE)
 	if (hFile == NULL)
 		return FALSE;
@@ -1823,7 +1823,7 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
+int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment1(ToText());
 	std::string comment2(m_Settings.ToText());
@@ -1833,7 +1833,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveImage(szFile, m_bmBmp, nQuality, comment.c_str());
+		return ::SaveImage(szFile, m_bmBmp, nQuality, comment);
 	else{
 		HDC hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
@@ -1847,7 +1847,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 		SelectObject(dcSave, bmOldSave);
 		DeleteDC(dcBmp);
 		DeleteDC(dcSave);
-		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment.c_str());
+		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
 		ReleaseDC(NULL, hDC);
 		return nRet;
@@ -2345,12 +2345,12 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 		return -1;
 	return ((int)(m_nPixels[x][y] / m_nIterDiv)) % 1024;
 }
-void CFraktalSFT::SaveMap(char *szFile)
+void CFraktalSFT::SaveMap(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	int x, y;
 	char szNum[64];
 	for (y = 0; y<m_nY; y++){
@@ -2363,8 +2363,8 @@ void CFraktalSFT::SaveMap(char *szFile)
 			WriteFile(hFile, szNum, strlen(szNum), &dw, NULL);
 		}
 	}
-	char *szC = "\r\nColors: ";
-	WriteFile(hFile, szC, strlen(szC), &dw, NULL);
+	const char *szC0 = "\r\nColors: ";
+	WriteFile(hFile, szC0, strlen(szC0), &dw, NULL);
 	CStringTable stColors;
 	int i;
 	for (i = 0; i<m_nParts; i++){
@@ -2375,17 +2375,17 @@ void CFraktalSFT::SaveMap(char *szFile)
 		stColors.AddRow();
 		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
 	}
-	szC = stColors.ToText("", ",");
+	char *szC = stColors.ToText("", ",");
 	WriteFile(hFile, szC, strlen(szC), &dw, NULL);
 	stColors.DeleteToText(szC);
 	CloseHandle(hFile);
 }
-void CFraktalSFT::SaveMapB(char *szFile)
+void CFraktalSFT::SaveMapB(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	int x;
 	WriteFile(hFile, "KFB", 3, &dw, NULL);
 	WriteFile(hFile, &m_nX, sizeof(m_nX), &dw, NULL);

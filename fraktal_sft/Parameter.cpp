@@ -1,52 +1,43 @@
 #include "fraktal_sft.h"
 #include "png.h"
 #include "jpeg.h"
+#include "main.h"
 #include "../common/StringVector.h"
 
 #include <iostream>
 
-BOOL CFraktalSFT::OpenFile(char *szFile, BOOL bNoLocation)
+BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 {
-	char *szData = 0;
-
-	char *extension = strrchr(szFile, '.');
-	if (extension && 0 == strcmp(".png", extension))
+	std::string data;
+  std::string extension = get_filename_extension(szFile);
+	if (extension == "png")
 	{
-		std::string filename = szFile;
-		std::string comment = ReadPNGComment(filename);
-		if (comment == "")
+		data = ReadPNGComment(szFile);
+		if (data == "")
 		  return FALSE;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
 	}
-	else if (extension && (0 == strcmp(".jpg", extension) || 0 == strcmp(".jpeg", extension)))
+	else if (extension == "jpg" || extension == "jpeg")
 	{
-		std::string filename = szFile;
-		std::string comment = ReadJPEGComment(filename);
-		if (comment == "")
+		data = ReadJPEGComment(szFile);
+		if (data == "")
 		  return FALSE;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
 	}
 	else // anything else, probably .kfr
 	{
 		DWORD dw;
-		HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
+		HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
 		if (hFile == INVALID_HANDLE_VALUE)
 			return FALSE;
 		int nData = GetFileSize(hFile, NULL);
-		szData = new char[nData + 1];
+		char *szData = new char[nData + 1];
 		ReadFile(hFile, szData, nData, &dw, NULL);
 		CloseHandle(hFile);
 		szData[nData] = 0;
+    data = szData;
+    delete[] szData;
 	}
+	CStringTable stParams(data.c_str(), ": ", "\r\n");
 
-	CStringTable stParams(szData, ": ", "\r\n");
-	delete[] szData;
 	int nR = stParams.FindString(0, "Re");
 	if (nR == -1)
 		return FALSE;
@@ -389,12 +380,12 @@ std::string CFraktalSFT::ToText()
 	return ret;
 }
 
-BOOL CFraktalSFT::SaveFile(char *szFile)
+BOOL CFraktalSFT::SaveFile(const std::string &szFile)
 {
 	std::string szText(ToText());
 	const char *szData = szText.c_str();
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return FALSE;
 	WriteFile(hFile, szData, strlen(szData), &dw, NULL);

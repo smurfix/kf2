@@ -53,7 +53,8 @@ extern int SavePNG(const std::string &szFileName, char *Data, int nHeight, int n
 	png_set_tIME(png, info, &mtime);
 	png_text text;
 	text.compression = PNG_TEXT_COMPRESSION_NONE;
-	text.key = "Comment";
+	const std::string &key = "Comment";
+	text.key = const_cast<char *>(key.c_str());
 	text.text = const_cast<char *>(comment.c_str());
 	png_set_text(png, info, &text, 1);
 	png_write_info(png, info);

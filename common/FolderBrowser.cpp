@@ -86,10 +86,10 @@ int WINAPI lpfnCallBack(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
-intptr_t Browse(HWND hWnd,char *szFolder, int nFolder)
+intptr_t Browse(HWND hWnd, std::string &szFolder)
 {
-	if(*szFolder)
-		strcpy(g_szFolder,szFolder);
+	if(szFolder[0])
+		strcpy(g_szFolder,szFolder.c_str());
 	BROWSEINFO bi={0};
 	char szDisplayName[MAX_PATH];
 	char szPathName[MAX_PATH];
@@ -103,8 +103,7 @@ intptr_t Browse(HWND hWnd,char *szFolder, int nFolder)
 	intptr_t nRet = (intptr_t)SHBrowseForFolderA(&bi);
 	if(!nRet)
 		return 0;
-	memset(szFolder, 0,nFolder);
-	strncpy(szFolder,g_szFolder,nFolder-1);
+	szFolder = g_szFolder;
 	return nRet;
 }
 long WINAPI FilterProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
@@ -168,15 +167,18 @@ intptr_t Browse(HWND hWnd,char *szFolder, int nFolder,char *szLabel,char *szValu
 	return nRet;
 }
 
-int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,int nFile)
+int BrowseFile(HWND hwParent,BOOL bOpen,const std::string &szTitle,const std::string &szExt,std::string &szFile)
 {
+	char buffer[1024] = { 0 };
+	strncpy(buffer, szFile.c_str(), sizeof(buffer));
+	buffer[sizeof(buffer) - 1] = 0;
 	OPENFILENAME ofn={sizeof(OPENFILENAME)};
 	ofn.hInstance = GetModuleHandle(NULL);
-	ofn.lpstrFile = szFile;
-	ofn.lpstrTitle = szTitle;
-	ofn.nMaxFile = nFile;
+	ofn.lpstrFile = buffer;
+	ofn.lpstrTitle = szTitle.c_str();
+	ofn.nMaxFile = sizeof(buffer);
 	ofn.hwndOwner = hwParent;
-	ofn.lpstrFilter = szExt;
+	ofn.lpstrFilter = szExt.c_str();
 	ofn.nFilterIndex = 1;
 	if(bOpen){
 		ofn.Flags = OFN_SHOWHELP | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
@@ -185,13 +187,14 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 	else{
 		ofn.Flags = OFN_SHOWHELP | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
 		if(GetSaveFileName(&ofn)){
-			char *s = strrchr(szFile,'\\');
+			szFile = buffer;
+			char *s = strrchr(buffer,'\\');
 			if(!s)
-				s = szFile;
+				s = buffer;
 			else
 				s++;
 			if(!strrchr(s,'.')){
-				char *e = szExt;
+				const char *e = szExt.c_str();
 				e+=strlen(e)+1;
 				if(*e){
 					for(int i=1;i<(int)ofn.nFilterIndex;i++){
@@ -205,7 +208,7 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 				}
 				if(strstr(e,"."))
 					e = strstr(e,".");
-				strcat(szFile,e);
+				szFile += e;
 			}
 			return 1;
 		}
@@ -214,6 +217,7 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 	}
 }
 
+#if 0
 int g_nExtraMin=0;
 int g_nExtraMax=0;
 int *g_pnExtraValue;
@@ -589,3 +593,4 @@ int BrowseFile(HWND hwParent,BOOL bOpen, char *szTitle,char *szExt,char *szFile,
 			return 0;
 	}
 }
+#endif

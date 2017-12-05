@@ -425,7 +425,7 @@ char *CStringVektor::GetString(int nIndex,int *pnSize)
 	if(nIndex<0 || nIndex>=m_nStrings){
 		if(pnSize)
 			*pnSize=0;
-		return "";
+		return nullstr;
 	}
 	if(pnSize)
 		*pnSize = m_pnStrings[nIndex];
@@ -554,7 +554,7 @@ CStringTable::CStringTable()
 	, m_bHashDirty(FALSE)
 {
 }
-CStringTable::CStringTable(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo)
+CStringTable::CStringTable(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo)
 	: m_pVektors(NULL)
 	, m_nVektors(0)
 	, m_nRowSize(0)
@@ -565,6 +565,7 @@ CStringTable::CStringTable(char *szData,char *szFieldSep, char *szRowSep,BOOL bA
 	, m_nLastHash(-1)
 	, m_bHashDirty(FALSE)
 {
+	nullstr[0] = 0;
 	SplitString(szData,szFieldSep,szRowSep,bApo);
 }
 
@@ -619,7 +620,7 @@ int CStringTable::InsertRow(int nRow)
 	m_pVektors[nRow] = new CStringVektor();
 	return 1;
 }
-int CStringTable::AddString(int nRow, char *szString, int nString)
+int CStringTable::AddString(int nRow, const char *szString, int nString)
 {
 	if(nRow<0 || nRow>=m_nVektors)
 		return 0;
@@ -728,7 +729,7 @@ int CStringTable::SetInt(int nRow, int nIndex, int nVal)
 char *CStringTable::GetString(int nRow, int nIndex,int *pnSize)
 {
 	if(nRow<0 || nRow>=m_nVektors)
-		return "";
+		return nullstr;
 	return m_pVektors[nRow]->GetString(nIndex,pnSize);
 }
 int CStringTable::GetCount()		
@@ -912,7 +913,7 @@ void CStringTable::M3QSort(int nColumn,int nOrder,int nType,int left, int right)
 		m_pnOrders=NULL;
 	}
 }
-int CStringTable::FindString(int nColumn, char *szString, int nLength)
+int CStringTable::FindString(int nColumn, const char *szString, int nLength)
 {
 	if(!m_nVektors || !szString)
 		return -1;
@@ -927,7 +928,7 @@ int CStringTable::FindString(int nColumn, char *szString, int nLength)
 		}
 	return -1;
 }
-int CStringTable::FindStringN(int nColumn, char *szString, int nLength)
+int CStringTable::FindStringN(int nColumn, const char *szString, int nLength)
 {
 	if(!m_nVektors)
 		return -1;
@@ -987,7 +988,7 @@ int CStringTable::Load(char *szFile)
 	return 1;
 }
 
-int CStringTable::SplitString(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo)
+int CStringTable::SplitString(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo)
 {
 	if(!szData)
 		return 0;
@@ -1034,7 +1035,7 @@ int CStringTable::SplitString(char *szData,char *szFieldSep, char *szRowSep,BOOL
 	return 1;
 }
 
-char *CStringTable::ToText(char *szFieldSep, char *szRowSep)
+char *CStringTable::ToText(const char *szFieldSep, const char *szRowSep)
 {
 	int nLen=0;
 	char *szRet=NULL;

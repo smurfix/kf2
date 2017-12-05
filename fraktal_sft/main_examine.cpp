@@ -10,8 +10,8 @@ static int g_nPrevAutoGlitchNP;
 static int g_bAutoSolveGlitch=0;
 static int g_nAutoSolveGlitchLimit=10;
 
-static char g_szExamine[256];
-static CStringTable g_stExamine;
+static std::string g_szExamine;
+static std::vector<std::string> g_stExamine;
 static int g_nExamine=-1;
 static int g_nExamineZoom=-1;
 
@@ -35,8 +35,8 @@ static void kSetDlgItemInt(HWND hWnd,int nID,int val)
 
 extern bool Examine(HWND hWnd)
 {
-	memset(g_szExamine,0,sizeof(g_szExamine));
-	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szExamine,sizeof(g_szExamine)))
+	g_szExamine = "";
+	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szExamine))
 		return false;
 	if(g_hwExamine)
 		SetFocus(g_hwExamine);
@@ -59,16 +59,12 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CheckMenuItem(GetMenu(GetParent(hWnd)),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
 		g_bAddReference=TRUE;
 		g_bEraser=FALSE;
-		g_stExamine.Reset();
+		g_stExamine.resize(0);
 		SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
 		WIN32_FIND_DATA fd;
-		char szExamine[256];
-		strcpy(szExamine,g_szExamine);
-		char *sz = strrchr(szExamine,'\\');
-		if(sz)
-			strcpy(sz+1,"*_*.kfb");
-		HANDLE hFind = FindFirstFile(szExamine,&fd);
-		if(!sz || hFind==INVALID_HANDLE_VALUE){
+		std::string szExamine = replace_path_filename(szExamine, "*_*.kfb");
+		HANDLE hFind = FindFirstFile(szExamine.c_str(),&fd);
+		if(hFind==INVALID_HANDLE_VALUE){
 			if(hFind)
 				FindClose(hFind);
 			MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
@@ -77,34 +73,23 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		}
 		do{
-			strcpy(strrchr(szExamine,'\\')+1,fd.cFileName);
-			g_stExamine.AddRow();
-			g_stExamine.AddString(g_stExamine.GetCount()-1,szExamine);
+			szExamine = replace_path_filename(szExamine, fd.cFileName);
+			g_stExamine.push_back(szExamine);
 		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
-		g_stExamine.M3QSort(0,1);
+		std::sort(g_stExamine.begin(), g_stExamine.end());
+		std::reverse(g_stExamine.begin(), g_stExamine.end());
 		g_SFT.OpenFile(g_szExamine);
-		g_SFT.OpenMapB(g_stExamine[0][0]);
+		g_SFT.OpenMapB(g_stExamine[0]);
 		g_SFT.ApplyColors();
 		g_nExamine=0;
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_nExamine,FALSE);
 		g_bExamineDirty=FALSE;
-		int last = g_stExamine.GetCount() - 1;
-		char *szA = strrchr(g_stExamine[last][0],'_');
-		szA++;
-		strcpy(szExamine,szA);
-		*strrchr(szExamine,'.')=0;
-		CDecNumber A(szExamine);
-		szA = strrchr(g_stExamine[last-1][0],'_');
-		if (szA)
-		{
-			szA++;
-			strcpy(szExamine,szA);
-			*strrchr(szExamine,'.')=0;
-		}
-		CDecNumber B(szExamine);
+		int last = g_stExamine.size() - 1;
+		CDecNumber A(get_filename_zoom_string(g_stExamine[last]));
+		CDecNumber B(get_filename_zoom_string(g_stExamine[last - 1]));
 		g_nExamineZoom = (A/B+CDecNumber(0.5)).ToInt();
-		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
+		A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
 		char *szR = g_SFT.GetRe();
 		char *szRe = new char[strlen(szR)+1];
 		strcpy(szRe,szR);
@@ -131,10 +116,8 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bAnim=FALSE;
 			KillTimer(hWnd,1);
 			if(wParam!=IDC_BUTTON2 && g_bExamineDirty){
-				g_SFT.SaveMapB(g_stExamine[g_nExamine][0]);
-				char szFile[256];
-				strcpy(szFile,g_stExamine[g_nExamine][0]);
-				strcpy(strrchr(szFile,'.'),".jpg");
+				g_SFT.SaveMapB(g_stExamine[g_nExamine]);
+				std::string szFile = replace_path_extension(g_stExamine[g_nExamine], "jpg");
 				if(FileExists(szFile))
 					g_SFT.SaveJpg(szFile,100);
 			}
@@ -144,20 +127,20 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_bExamineDirty=FALSE;
 			if(wParam==IDOK){
 				g_nExamine++;
-				if(g_nExamine>g_stExamine.GetCount()-1)
+				if(g_nExamine>=ssize_t(g_stExamine.size()))
 					g_nExamine=0;
 			}
 			else if(wParam==IDC_BUTTON1 || wParam==IDC_BUTTON5){
 				g_nExamine--;
 				if(g_nExamine<0){
 					wParam=IDC_BUTTON1;
-					g_nExamine=g_stExamine.GetCount()-1;
+					g_nExamine=g_stExamine.size()-1;
 					g_bExamineDirty=FALSE;
 				}
 			}
 			SetDlgItemInt(hWnd,IDC_EDIT1,g_nExamine,FALSE);
 			UpdateWindow(GetDlgItem(hWnd,IDC_EDIT1));
-			g_SFT.OpenMapB(g_stExamine[g_nExamine][0],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
+			g_SFT.OpenMapB(g_stExamine[g_nExamine],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
 			g_SFT.ApplyColors();
 			if(wParam!=IDC_BUTTON2)
 				SetTimer(hWnd,1,500,NULL);
@@ -174,9 +157,9 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nExamine = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,FALSE);
 			if(g_nExamine<0)
 				g_nExamine=0;
-			else if(g_nExamine>=g_stExamine.GetCount())
-				g_nExamine = g_stExamine.GetCount()-1;
-			g_SFT.OpenMapB(g_stExamine[g_nExamine][0],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
+			else if(g_nExamine>=ssize_t(g_stExamine.size()))
+				g_nExamine = g_stExamine.size()-1;
+			g_SFT.OpenMapB(g_stExamine[g_nExamine],wParam==IDC_BUTTON5,(double)1/g_nExamineZoom);
 			g_SFT.ApplyColors();
 			SetTimer(hWnd,1,500,NULL);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
@@ -236,7 +219,7 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int nMI = g_SFT.GetIterations();
 		g_SFT.OpenFile(g_szExamine);
 		g_SFT.SetIterations(nMI);
-		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
+		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
 		char *szR = g_SFT.GetRe();
 		char *szRe = new char[strlen(szR)+1];
 		strcpy(szRe,szR);
@@ -285,7 +268,7 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 			int nMI = g_SFT.GetIterations();
 			g_SFT.OpenFile(g_szExamine);
 			g_SFT.SetIterations(nMI);
-			CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.GetCount()-g_nExamine-1));
+			CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_nExamineZoom)^(g_stExamine.size()-g_nExamine-1));
 			char *szR = g_SFT.GetRe();
 			char *szRe = new char[strlen(szR)+1];
 			strcpy(szRe,szR);

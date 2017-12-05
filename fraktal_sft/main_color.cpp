@@ -253,10 +253,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ShowWindow(hWnd,SW_HIDE);
 		}
 		else if(wParam==IDC_BUTTON23){
-			char szFile[256]={0};
-			GetDlgItemText(hWnd,IDC_EDIT29,szFile,sizeof(szFile));
-			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0\0",szFile,sizeof(szFile))){
-				SetDlgItemText(hWnd,IDC_EDIT29,szFile);
+			char buffer[1024] = {0};
+			GetDlgItemText(hWnd,IDC_EDIT29,buffer,sizeof(buffer));
+			std::string szFile = buffer;
+			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0\0",szFile)){
+				SetDlgItemText(hWnd,IDC_EDIT29,szFile.c_str());
 				SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			}
 		}
@@ -333,8 +334,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
 		else if(wParam==IDC_BUTTON1){
-			char szFile[256]={0};
-			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile,sizeof(szFile)))
+			std::string szFile;
+			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile))
 				g_SFT.SaveFile(szFile);
 		}
 		else if(wParam==IDC_BUTTON29){
@@ -478,10 +479,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
 		}
 		else if(wParam==IDC_BUTTON22){
-			char szFile[256]={0};
-			if(!BrowseFile(hWnd,TRUE,"Open image","Image\0*.bmp;*.jp*g;*.gif\0\0",szFile,sizeof(szFile)))
+			std::string szFile;
+			if(!BrowseFile(hWnd,TRUE,"Open image","Image\0*.bmp;*.jp*g;*.gif\0\0",szFile))
 				return 0;
-			HBITMAP bmBmp = GetImage(szFile);
+			HBITMAP bmBmp = GetImage(szFile.c_str());
 			HDC hDC = GetDC(NULL);
 			BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
 			int row;
@@ -539,10 +540,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==IDC_BUTTON5){
-			char szFile[256]={0};
-			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0\0",szFile,sizeof(szFile))){
+			std::string szFile;
+			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0\0",szFile)){
 				DWORD dw;
-				HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
+				HANDLE hFile = CreateFile(szFile.c_str(),GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
 				if(hFile==INVALID_HANDLE_VALUE)
 					return FALSE;
 				int nData = GetFileSize(hFile,NULL);

@@ -350,13 +350,13 @@ public:
 	COLOR14 GetKeyColor(int i);
 	void SetKeyColor(COLOR14 col, int i);
 	COLOR14 GetColor(int i);
-	BOOL OpenFile(char *szFile, BOOL bNoLocation = FALSE);
-	BOOL OpenMapB(char *szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
+	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
+	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
 	std::string ToText();
-	BOOL SaveFile(char *szFile);
+	BOOL SaveFile(const std::string &szFile);
 	double GetIterDiv();
 	void SetIterDiv(double nIterDiv);
-	int SaveJpg(char *szFile, int nQuality, int nWidth = 0, int nHeight = 0);
+	int SaveJpg(const std::string &szFile, int nQuality, int nWidth = 0, int nHeight = 0);
 	int GetMaxApproximation();
 	int GetIterationOnPoint(int x, int y);
 	int GetTransOnPoint(int x, int y);
@@ -369,8 +369,8 @@ public:
 	BOOL GetITransition();
 	void SetITransition(BOOL bITransition);
 
-	void SaveMap(char *szFile);
-	void SaveMapB(char *szFile);
+	void SaveMap(const std::string &szFile);
+	void SaveMapB(const std::string &szFile);
 
 	int GetSmoothMethod();
 	void SetSmoothMethod(int nSmoothMethod);
@@ -421,8 +421,8 @@ public:
 
 	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
 
-	inline bool OpenSettings(const char *filename) { return m_Settings.OpenFile(filename); }
-	inline bool SaveSettings(const char *filename) const { return m_Settings.SaveFile(filename); }
+	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
+	inline bool SaveSettings(const std::string &filename) const { return m_Settings.SaveFile(filename); }
 
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
