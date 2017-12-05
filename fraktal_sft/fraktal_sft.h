@@ -348,6 +348,7 @@ public:
 	void SetKeyColor(COLOR14 col, int i);
 	COLOR14 GetColor(int i);
 	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
+	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
 	std::string ToText();
 	BOOL SaveFile(const std::string &szFile);

@@ -36,6 +36,11 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
     data = szData;
     delete[] szData;
 	}
+  return OpenString(data, bNoLocation);
+}
+
+BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
+{
 	CStringTable stParams(data.c_str(), ": ", "\r\n");
 
 	int nR = stParams.FindString(0, "Re");
