@@ -174,7 +174,7 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 #endif
 
 
-int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const char *comment)
+int SaveJPG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const std::string &comment)
 {
   if (nColors != 3)
     return 0;
@@ -188,7 +188,7 @@ int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
   cinfo.err = jpeg_std_error(&jerr);
   int nStructSize = sizeof(jpeg_compress_struct);
   jpeg_CreateCompress(&cinfo,JPEG_LIB_VERSION,nStructSize);
-  if ((outfile = fopen(szFileName, "wb")) == NULL) {
+  if ((outfile = fopen(szFileName.c_str(), "wb")) == NULL) {
     return 0;//exit(1);
   }
   jpeg_stdio_dest(&cinfo, outfile);
@@ -199,14 +199,15 @@ int SaveJPG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, 
   jpeg_set_defaults(&cinfo);
   jpeg_set_quality(&cinfo, nQuality, TRUE /* limit to baseline-JPEG values */);
   jpeg_start_compress(&cinfo, TRUE);
-  size_t length = strlen(comment);
+  size_t length = comment.length();
+  const char *comment_str = comment.c_str();
   do {
     size_t wlength = length;
     if (wlength > 65533)
       wlength = 65533;
     if (wlength > 0)
-      jpeg_write_marker(&cinfo, JPEG_COM, (const unsigned char *) comment, wlength);
-    comment += wlength;
+      jpeg_write_marker(&cinfo, JPEG_COM, (const unsigned char *) comment_str, wlength);
+    comment_str += wlength;
     length -= wlength;
   } while (length > 0);
   row_stride = nWidth * 3;	/* JSAMPLEs per row in image_buffer */

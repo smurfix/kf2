@@ -117,7 +117,7 @@ int g_nStoreZoomLimit = 0;
 bool g_bWaitRead=false;
 int g_nStopAtExponent=0;
 
-char *g_pszStatus[] = {
+const char *g_pszStatus[] = {
 			"Generate reference",
 			"Render first image",
 			"Check done images",
@@ -165,7 +165,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
-extern int SaveImage(char *szFileName,HBITMAP bmBmp,int nQuality, const char *comment)
+extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
 	BYTE *lpBits, *lpJeg;
@@ -200,7 +200,7 @@ __int64 g_nTStart;
 BOOL g_bRunning=FALSE;
 HWND g_hwHair;
 HWND g_hwColors=NULL;
-char g_szFile[1024]={0};
+std::string g_szFile;
 
 extern double GetDlgItemFloat(HWND hWnd,int nID)
 {
@@ -216,17 +216,17 @@ extern void SetDlgItemFloat(HWND hWnd,int nID,double val)
 	SetDlgItemText(hWnd,nID,szText);
 }
 
-extern int FileExists(char *szFind)
+extern int FileExists(const std::string &szFind)
 {
 	WIN32_FIND_DATA wf;
-	HANDLE hFind = FindFirstFile(szFind,&wf);
+	HANDLE hFind = FindFirstFile(szFind.c_str(),&wf);
 	if(hFind==INVALID_HANDLE_VALUE)
 		return 0;
 	FindClose(hFind);
 	return 1;
 }
 
-extern char * GetToolText(int nID,LPARAM lParam)
+const char *GetToolText_const(int nID,LPARAM lParam)
 {
 	if(lParam==0){
 		return const_cast<char *>(ColorToolTip(nID));
@@ -270,7 +270,7 @@ extern char * GetToolText(int nID,LPARAM lParam)
 			case IDCANCEL: return "Close and undo";
 		}
 	}
-	static char szTmp[128];
+	static char szTmp[1024];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
 	return szTmp;
 #ifdef KF_OPENCL
@@ -278,6 +278,11 @@ extern char * GetToolText(int nID,LPARAM lParam)
 			return "Select the OpenCL device to use for per-pixel iteration calculations";
 #endif
 }
+extern char *GetToolText(int nID, LPARAM lParam)
+{
+	return const_cast<char *>(GetToolText_const(nID, lParam));
+}
+
 
 // settings update
 
@@ -838,7 +843,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 		return ThAnim_(pAnim);
 //#ifndef _DEBUG
 	}catch(...){
-		char szPos[100];
+		char szPos[1024];
 		wsprintf(szPos,"Krash: %d",pAnim->nPos);
 		MessageBox(pAnim->hWnd,szPos,"Krash",MB_OK);
 	}
@@ -846,19 +851,86 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	return 0;
 }
 
+extern std::string replace_path_filename(const std::string &path, const std::string &file)
+{
+	size_t slash = path.rfind('\\');
+	if (slash == std::string::npos)
+	{
+		return file;
+	}
+	else
+	{
+		return path.substr(0, slash + 1) + file;
+	}
+}
+
+extern std::string replace_path_extension(const std::string &path, const std::string &ext)
+{
+	size_t dot = path.rfind('.');
+	if (dot == std::string::npos)
+	{
+		return path + "." + ext;
+	}
+	else
+	{
+		return path.substr(0, dot + 1) + ext;
+	}
+}
+
+extern std::string get_filename_path(const std::string &path)
+{
+	size_t slash = path.rfind('\\');
+	if (slash == std::string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		return path.substr(0, slash + 1);
+	}
+}
+
+extern std::string get_filename_extension(const std::string &path)
+{
+	size_t dot = path.rfind('.');
+	if (dot == std::string::npos)
+	{
+		return "";
+	}
+	else
+	{
+		return path.substr(dot + 1);
+	}
+}
+
+extern std::string get_filename_zoom_string(const std::string &file)
+{
+	size_t begin = file.rfind('_');
+	size_t end = file.rfind('.');
+	assert(begin != std::string::npos);
+	assert(end != std::string::npos);
+	assert(begin < end);
+	return file.substr(begin + 1, end - (begin + 1));
+}
+
+extern std::string store_zoom_filename(int n, const std::string &z, const std::string &ext)
+{
+	std::ostringstream os;
+	os << std::setfill('0') << std::setw(5) << n << "_" << z << "." << ext;
+	return os.str();
+}
+
 static int ResumeZoomSequence(HWND hWnd)
 {
-	memset(g_szFile,0,sizeof(g_szFile));
-	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szFile,sizeof(g_szFile)))
+	g_szFile = "";
+	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szFile))
 		return 0;
 	if(!g_SFT.OpenFile(g_szFile))
 		return MessageBox(hWnd,"Could not open file","Error",MB_OK|MB_ICONSTOP);
 	g_SFT.StoreLocation();
-	char *sz = strrchr(g_szFile,'\\');
-	if(sz)
-		strcpy(sz+1,"*_*.jpg");
+	g_szFile = replace_path_filename(g_szFile, "*_*.jpg");
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(g_szFile,&fd);
+	HANDLE hFind = FindFirstFile(g_szFile.c_str(),&fd);
 	int countJpg = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomJpg=1;
@@ -869,10 +941,8 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomJpg=0;
-	sz = strrchr(g_szFile,'\\');
-	if(sz)
-		strcpy(sz+1,"*_*.png");
-	hFind = FindFirstFile(g_szFile,&fd);
+	g_szFile = replace_path_filename(g_szFile, "*_*.png");
+	hFind = FindFirstFile(g_szFile.c_str(),&fd);
 	int countPng = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomPng=1;
@@ -883,86 +953,68 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomPng=0;
-	sz = strrchr(g_szFile,'\\');
-	if(sz)
-		strcpy(sz+1,"*_*.kfb");
-	hFind = FindFirstFile(g_szFile,&fd);
+	g_szFile = replace_path_filename(g_szFile, "*_*.kfb");
+	hFind = FindFirstFile(g_szFile.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomMap=1;
 	}
 	else
 		g_bStoreZoomMap=0;
 
-	CStringTable stExamine;
+	std::vector<std::string> stExamine;
 	int countMap = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		do{
 			countMap++;
-			strcpy(strrchr(g_szFile,'\\')+1,fd.cFileName);
-			stExamine.AddRow();
-			stExamine.AddString(stExamine.GetCount()-1,g_szFile);
-			stExamine.AddString(stExamine.GetCount()-1,fd.cFileName);
+			g_szFile = replace_path_filename(g_szFile, fd.cFileName);
+			stExamine.push_back(g_szFile);
 		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
 	}
-	stExamine.M3QSort(0,1);
+	std::sort(stExamine.begin(), stExamine.end());
+	std::reverse(stExamine.begin(), stExamine.end());
 	BOOL bRecoveryFile=FALSE;
 
-	strcpy(strrchr(g_szFile,'\\')+1,"recovery.kfb");
-	hFind = FindFirstFile(g_szFile,&fd);
+	g_szFile = replace_path_filename(g_szFile, "recovery.kfb");
+	hFind = FindFirstFile(g_szFile.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		FindClose(hFind);
 		g_SFT.OpenMapB(g_szFile);
 		bRecoveryFile=TRUE;
 	}
 	else{
-		strcpy(strrchr(g_szFile,'\\')+1,"last.kfb");
-		hFind = FindFirstFile(g_szFile,&fd);
+		g_szFile = replace_path_filename(g_szFile, "last.kfb");
+		hFind = FindFirstFile(g_szFile.c_str(),&fd);
 		if(hFind!=INVALID_HANDLE_VALUE){
 			FindClose(hFind);
 			g_SFT.OpenMapB(g_szFile);
 			bRecoveryFile=FALSE;
 		}
 		else{
-			if(stExamine.GetCount())
-				g_SFT.OpenMapB(stExamine[0][0]);
+			if(stExamine.size())
+				g_SFT.OpenMapB(stExamine[0]);
 			else
 				return MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
 		}
 	}
 
-	if(stExamine.GetCount()<2)
+	if(stExamine.size()<2)
 		g_SFT.SetZoomSize(2);
 	else{
-		char g_szExamine[256];
-		char *szA = strrchr(stExamine[0][0],'_');
-		szA++;
-		strcpy(g_szExamine,szA);
-		*strrchr(g_szExamine,'.')=0;
-		CDecNumber A(g_szExamine);
-		szA = strrchr(stExamine[1][0],'_');
-		szA++;
-		strcpy(g_szExamine,szA);
-		*strrchr(g_szExamine,'.')=0;
-		CDecNumber B(g_szExamine);
+		CDecNumber A(get_filename_zoom_string(stExamine[0]));
+		CDecNumber B(get_filename_zoom_string(stExamine[1]));
 		g_SFT.SetZoomSize((B/A+CDecNumber(0.5)).ToInt());
 	}
 	UpdateZoomSize(hWnd);
 	int zoomCount = countMap ? countMap
 	              : countPng ? countPng
 	              : countJpg ? countJpg
-	              : stExamine.GetCount();
+	              : stExamine.size();
 	if(zoomCount){
 		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(zoomCount-(bRecoveryFile?0:1)));
-		char *szR = g_SFT.GetRe();
-		char *szRe = new char[strlen(szR)+1];
-		strcpy(szRe,szR);
-		char *szI = g_SFT.GetIm();
-		char *szIm = new char[strlen(szI)+1];
-		strcpy(szIm,szI);
+		std::string szRe = g_SFT.GetRe();
+		std::string szIm = g_SFT.GetIm();
 		g_SFT.SetPosition(szRe,szIm,A.ToText());
-		delete[] szRe;
-		delete[] szIm;
 	}
 
 	g_nStoreZoomCount = 0;
@@ -1281,7 +1333,7 @@ double g_length=0;
 double g_degree=0;
 HBITMAP g_bmSaveZoomBuff=NULL;
 SIZE g_scSaveZoomBuff;
-static void SaveZoomImg(char *szFile, char *comment)
+static void SaveZoomImg(const std::string &szFile, const std::string &comment)
 {
 	HBITMAP bmSave;
 	HDC hDC = GetDC(NULL);
@@ -1339,9 +1391,9 @@ static void SaveZoomImg(char *szFile, char *comment)
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
-		strcpy(strrchr(g_szFile,'\\')+1,"recovery.kfb");
+		g_szFile = replace_path_filename(g_szFile, "recovery.kfb");
 		if(uMsg==WM_USER+199)
-			DeleteFile(g_szFile);
+			DeleteFile(g_szFile.c_str());
 		else{
 			g_nHandleDone++;
 			if(g_nHandleDone>60){
@@ -1359,7 +1411,7 @@ nPos=0;
 	}
 
 nPos=1;
-	char szTmp[154];
+	char szTmp[1024];
 	wsprintf(szTmp,"%d%% R:%d%% G:%d%% A:%d%%",nP,nR,nG,nA);
 	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
 	SYSTEMTIME st;
@@ -1370,7 +1422,8 @@ nPos=1;
 	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
 	if(st.wDay>1)
 		st.wHour+=(st.wDay-1)*24;
-	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",g_SFT.ToZoom(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	std::string z = g_SFT.ToZoom();
+	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 nPos=9;
 	if(g_bAutoGlitch){
 		wsprintf(szTmp+strlen(szTmp)," Ref: %d",g_bAutoGlitch);
@@ -1432,39 +1485,32 @@ nPos=12;
 			return Marilyn(hWnd);
 		if(g_bStoreZoom){
 nPos=13;
-			char *szZ = g_SFT.ToZoom();
+			std::string szZ = g_SFT.ToZoom();
 			if(g_bStoreZoomJpg){
-				wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.jpg",g_bStoreZoom,szZ);
-#ifdef PARAM_ANIMATION
-				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).jpg",g_bStoreZoom,g_SeedR,g_SeedI);
-#endif
+				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
 				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
 					SaveZoomImg(g_szFile, "KF2");
 				else
 					g_SFT.SaveJpg(g_szFile,100);
 			}
 			if(g_bStoreZoomPng){
-				wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.png",g_bStoreZoom,szZ);
-#ifdef PARAM_ANIMATION
-				sprintf(strrchr(g_szFile,'\\')+1,"%05d_(%.3f,%.3f).png",g_bStoreZoom,g_SeedR,g_SeedI);
-#endif
+				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
 				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
 					SaveZoomImg(g_szFile, "KF2");
 				else
 					g_SFT.SaveJpg(g_szFile,-1);
 			}
-#ifndef PARAM_ANIMATION
-			wsprintf(strrchr(g_szFile,'\\')+1,"%05d_%s.kfb",g_bStoreZoom,szZ);
+				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(g_szFile);
-			wsprintf(strrchr(g_szFile,'\\')+1,"last.kfb");
+
+			g_szFile = replace_path_filename(g_szFile, "last.kfb");
 			if(!g_bAnimateEachFrame && !g_bStoreZoomMap)
 				g_SFT.SaveMapB(g_szFile);
-#endif
 nPos=14;
 			g_bStoreZoom++;
 			g_nStoreZoomCount++;
-			if(!atof(szZ) || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
+			if(!std::stod(szZ) || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
 				g_bStoreZoom=FALSE;
 				DeleteObject(g_bmSaveZoomBuff);
 				g_bmSaveZoomBuff=NULL;
@@ -1476,15 +1522,6 @@ nPos=14;
 						g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
 				}
 
-#ifdef PARAM_ANIMATION
-				if(g_bSkewAnimation){
-					g_length+=0.001;
-					g_degree+=0.04;
-					g_SeedR = cos(g_degree)*g_length + sin(g_degree)*g_length;
-					g_SeedI = cos(g_degree)*g_length - sin(g_degree)*g_length;
-					g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-				}else
-#endif
 				if(g_bSkewAnimation){
 					if(g_bSkewAnimation==1){
 						g_bSkewAnimation=2;
@@ -1576,8 +1613,8 @@ nPos=23;
 			if (g_bInteractive)
 			{
 				g_bSaveJpeg=FALSE;
-				char szFile[256]={0};
-				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
+				std::string szFile;
+				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -1598,8 +1635,8 @@ nPos=24;
 			if (g_bInteractive)
 			{
 				g_bSavePng=FALSE;
-				char szFile[1024]={0};
-				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
+				std::string szFile;
+				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-1))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -2334,16 +2371,16 @@ static long OpenFile(HWND hWnd, bool &ret)
 					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
 				}
 				else{
-					char *extension = strrchr(g_szFile, '.');
-					if (extension && 0 != strcmp(".kfr", extension))
+					std::string extension = get_filename_extension(g_szFile);
+					if (extension != "kfr")
 					{
 						// prevent ctrl-s save overwriting a file with the wrong extension
-						strcat(extension, ".kfr");
+						g_szFile += ".kfr";
 					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
-					char szTitle[1000];
-					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
+					char szTitle[1024];
+					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
 					SetWindowText(hWnd,szTitle);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
@@ -2472,14 +2509,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
-			strncpy(g_szFile, g_args->sLoadSettings.c_str(), sizeof(g_szFile));
+			g_szFile = g_args->sLoadSettings;
 			std::cerr << "loading settings: " << g_szFile << std::endl;
 			OpenSettings(hWnd, ret);
 		}
 		if (g_args->bLoadLocation)
 		{
 			bool ret;
-			strncpy(g_szFile, g_args->sLoadLocation.c_str(), sizeof(g_szFile));
+			g_szFile = g_args->sLoadLocation;
 			std::cerr << "loading location: " << g_szFile << std::endl;
 			OpenFile(hWnd, ret);
 		}
@@ -2762,7 +2799,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			LineTo(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2));
 			ReleaseDC(hWnd,hDC);
 		}
-		char szI[128];
+		char szI[1024];
 		strcpy(szI,"I:");
 
 		RECT rc;
@@ -3132,13 +3169,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam=='V'){
 		if(wParam=='V'){
 			if(HIWORD(GetKeyState(VK_CONTROL))){
-				MessageBox(NULL,g_SFT.GetPosition(),g_SFT.ToZoom(),MB_OK);
+				std::string pos = g_SFT.GetPosition();
+				std::string z = g_SFT.ToZoom();
+				MessageBox(NULL,pos.c_str(),z.c_str(),MB_OK);
 			}
 			else{
 				if(!OpenClipboard(hWnd))
 					return 0;
 				HANDLE hTemp;
-				char *szTemp="";
+				char *szTemp=0;
 				if((hTemp = GetClipboardData(CF_TEXT)))
 					szTemp = (char*)GlobalLock(hTemp);
 				if(!szTemp || !*szTemp){
@@ -3460,7 +3499,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
-		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0\0",g_szFile,sizeof(g_szFile)))
+		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0\0",g_szFile))
 			g_SFT.SaveMapB(g_szFile);
 	}
 	else if(uMsg==WM_COMMAND && (wParam==ID_FILE_STOREZOOMOUTIMAGES)){
@@ -3485,20 +3524,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_STOREZOOM),hWnd,(DLGPROC)StoreZoomProc,0))
 			return 0;
-		if(strrchr(g_szFile,'\\'))
-			*strrchr(g_szFile,'\\')=0;
-		if(!Browse(hWnd,g_szFile,sizeof(g_szFile)))
+		g_szFile = get_filename_path(g_szFile);
+		if(!Browse(hWnd,g_szFile))
 			return 0;
-		if(g_szFile[strlen(g_szFile)-1]!='\\')
-			strcat(g_szFile,"\\");
+		if (g_szFile[g_szFile.length() - 1] != '\\')
+			g_szFile += "\\";
 		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
-		char szFile[256];
-		strcpy(szFile,g_szFile);
-		wsprintf(strrchr(szFile,'\\')+1,"%05d_*.kfb",g_bStoreZoom);
+		std::string szFile = g_szFile;
+		szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		while(FileExists(szFile)){
 			g_bStoreZoom++;
-			wsprintf(strrchr(szFile,'\\')+1,"%05d_*.kfb",g_bStoreZoom);
+			szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		}
 		g_SFT.StoreLocation();
 		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
@@ -4108,27 +4145,27 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
-			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile)){
 				bool ret;
 				long r = OpenSettings(hWnd, ret);
 				if (ret) return r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVESETTINGS){
-			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szFile)){
 				if(!g_SFT.SaveSettings(g_szFile))
 					return MessageBox(hWnd,"Could not save settings","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
 		else if(wParam==ID_FILE_OPEN_){
-			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile)){
 				bool ret;
 				long r = OpenFile(hWnd, ret);
 				if (ret) return r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVE_){
-			if(!*g_szFile)
+			if(g_szFile == "")
 				PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 			else if(!g_SFT.SaveFile(g_szFile))
 				return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
@@ -4138,22 +4175,17 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_JpegParams.nHeight = g_SFT.GetHeight();
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0)){
-				char szFile[256]={0};
+				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSaveJpeg=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
-				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile,sizeof(szFile))){
+				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					char *e = strrchr(szFile,'.');
-					if(e)
-						e++;
-					else
-						e = szFile+strlen(szFile);
-					strcpy(e,"kfb");
+					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
 						g_SFT.SaveMapB(szFile);
 				}
@@ -4164,33 +4196,28 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_JpegParams.nHeight = g_SFT.GetHeight();
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
-				char szFile[256]={0};
+				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSavePng=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
-				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile,sizeof(szFile))){
+				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-1,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					char *e = strrchr(szFile,'.');
-					if(e)
-						e++;
-					else
-						e = szFile+strlen(szFile);
-					strcpy(e,"kfb");
+					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
 						g_SFT.SaveMapB(szFile);
 				}
 			}
 		}
 		else if(wParam==ID_FILE_SAVEAS_){
-			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile,sizeof(g_szFile))){
+			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
 				if(!g_SFT.SaveFile(g_szFile))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
-				char szTitle[369];
-				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
+				char szTitle[1024];
+				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
 				SetWindowText(hWnd,szTitle);
 			}
 		}
@@ -4198,18 +4225,20 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG6),hWnd,(DLGPROC)ZoomProc,0);
 		}
 */		else if(wParam==ID_ACTIONS_RESET){
-			*g_szFile=0;
+			g_szFile="";
 			SetWindowText(hWnd,"Kalle's Fraktaler 2");
 			g_SFT.SetPosition("0","0","1");
 			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
 		else if(wParam==ID_SPECIAL_NON){
 			if(!g_bFindMinibrotCount){
+#if 0
 				char *e = g_SFT.GetZoom();
 				e = stristr(e,"e");
 				if(e)
 					e++;
 				else e = "1";
+#endif
 				g_bFindMinibrotPos=1;// + 2*log(atof(e))/log((double)2)/3;
 				g_bFindMinibrotCount=1;
 			}
@@ -4272,7 +4301,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bFindMinibrotPos=1;//+=(g_bFindMinibrotPos==1?1:g_bFindMinibrotPos/2);
 				}
 				g_bFindMinibrotCount++;
-				char szTitle[256];
+				char szTitle[1024];
 				wsprintf(szTitle,"Kalle's Fraktaler 2 - %d",g_bFindMinibrotPos-g_bFindMinibrotCount);
 				SetWindowText(hWnd,szTitle);
 			}
@@ -4406,7 +4435,7 @@ static int Test1()
 	t2-=t1;
 	FileTimeToSystemTime((LPFILETIME)&t2,&st);
 	__int64 td = 10000000;
-	char szRes[256];
+	char szRes[1024];
 	wsprintf(szRes,"%02d:%02d:%02d.%07d",t2/(td*3600),(t2/(td*60))%60,(t2/td)%60,t2%td);
 //	wsprintf(szRes+strlen(szRes),"\n%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	return MessageBox(NULL,szRes,"Res",MB_OK);

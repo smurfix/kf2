@@ -21,12 +21,12 @@ static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 	fprintf(stderr, "PNG WARNING: %s\n", msg);
 }
 
-extern int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nColors, const char *comment)
+extern int SavePNG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, const std::string &comment)
 {
 	jmp_buf jmpbuf;
 	if (nColors != 3)
 		return 0;
-	FILE *file = fopen(szFileName, "wb");
+	FILE *file = fopen(szFileName.c_str(), "wb");
 	if (! file)
 		return 0;
 	png_structp png = png_create_write_struct(PNG_LIBPNG_VER_STRING, &jmpbuf, kf_png_error_handler, kf_png_warning_handler);
@@ -53,8 +53,9 @@ extern int SavePNG(char *szFileName, char *Data, int nHeight, int nWidth, int nC
 	png_set_tIME(png, info, &mtime);
 	png_text text;
 	text.compression = PNG_TEXT_COMPRESSION_NONE;
-	text.key = "Comment";
-	text.text = (char *) comment;
+	const std::string &key = "Comment";
+	text.key = const_cast<char *>(key.c_str());
+	text.text = const_cast<char *>(comment.c_str());
 	png_set_text(png, info, &text, 1);
 	png_write_info(png, info);
 	png_bytepp row = new png_bytep[nHeight];

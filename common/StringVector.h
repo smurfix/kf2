@@ -47,15 +47,16 @@ class CStringTable
 	int m_nHashColumn;
 	int m_nLastHash;
 	BOOL m_bHashDirty;
+	char nullstr[1];
 public:
 	CStringTable();
 	CStringTable(CStringTable &stCopy);
-	CStringTable(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo=FALSE);
+	CStringTable(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo=FALSE);
 	~CStringTable();
 	int AddRow(char **pszRow, int nRow);
 	int AddRow();
 	int InsertRow(int nRow);
-	int AddString(int nRow, char *szString, int nString=-1);
+	int AddString(int nRow, const char *szString, int nString=-1);
 	int AddString(int nRow, const std::string &szString, int nString=-1);
 	int AddInt(int nRow, intptr_t nVal);
 	int DeleteRow(int nRow);
@@ -76,8 +77,8 @@ public:
 	void Swap(int a,  int b);
 	void M3QSort(int nColumn,int nOrder=0,int nType=0,int left=0, int right=-1);
 
-	int FindString(int nColumn, char *szString, int nLength=-1);
-	int FindStringN(int nColumn, char *szString, int nLength=-1);
+	int FindString(int nColumn, const char *szString, int nLength=-1);
+	int FindStringN(int nColumn, const char *szString, int nLength=-1);
 	int Save(char *szFile);
 	int Load(char *szFile);
 
@@ -89,8 +90,8 @@ public:
 	// The table must be sorted with order 0 on this column!!
 	int FindStringBinary(int nColumn, char *szString, int nLength=-1);
 
-	int SplitString(char *szData,char *szFieldSep, char *szRowSep,BOOL bApo=FALSE);
-	char *ToText(char *szFieldSep="\t", char *szRowSep="\r\n");
+	int SplitString(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo=FALSE);
+	char *ToText(const char *szFieldSep="\t", const char *szRowSep="\r\n");
 	void DeleteToText(char *szToText);
 
 	int MoveCol(int nFrom, int nTo);

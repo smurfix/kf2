@@ -14,28 +14,23 @@
 extern std::vector<cldevice> cldevices;
 #endif
 
+struct CPixel;
 class CPixels
 {
-	RECT m_rRect;
 	int m_nX;
-	int m_nX2;
 	int m_nY;
 	int m_nY2;
-	int m_nStep;
-	int m_nStepPos;
-	int m_nStepPos8;
-	int m_nRectPos;
-	int m_nRectPart;
-	POINT *m_pPixels;
+	CPixel *m_pPixels;
 	int m_nPixels;
-	int m_nNextPixel;
+	LONG m_nNextPixel;
 	HANDLE m_hMutex;
 public:
 	CPixels();
-	void Init(int nStep, int nX, int nY);
-	int GetStep();
-	BOOL GetPixel(int &x, int &y, BOOL bMirrored = 0);
+	void Init(int nX, int nY);
+	BOOL GetPixel(int &x, int &y, int &w, int &h, BOOL bMirrored = 0);
+#if 0
 	BOOL GetPixels(int *px, int *py, int &nCount);
+#endif
 };
 
 // magic value stored in m_nTrans[][] when a glitch is detected
@@ -78,6 +73,8 @@ struct MULTIWAVE
 	int nStart;
 	int nType;
 };
+
+#if 0
 template <class T> class CFileFloat
 {
 	HANDLE m_hFile;
@@ -144,6 +141,7 @@ public:
 		return m_dbBuf[nMapIndex];
 	}
 };
+#endif
 
 enum ColorMethod
 {
@@ -270,7 +268,7 @@ class CFraktalSFT
 	double m_nImgMerge;
 	double m_nImgPower;
 	int m_nImgRatio;
-	char m_szTexture[256];
+	std::string m_szTexture;
 	BYTE *m_lpTextureBits;
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
@@ -283,7 +281,7 @@ class CFraktalSFT
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
 	void CreateLists();
-	char *ToZoom(const CDecNumber &z, int &zoom);
+	std::string ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
 #ifdef KF_OPENCL
@@ -314,9 +312,8 @@ public:
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
 	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
-	void SetPosition(const char *szR, const char *szI, const char *szZ);
-	void SetPosition(const char *szR, const char *szI, const std::string &szZ);
-	char *ToZoom();
+	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
+	std::string ToZoom();
 	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
@@ -329,15 +326,15 @@ public:
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	int GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL);
-	char *GetPosition();
+	std::string GetPosition();
 	void GetIterations(int &nMin, int &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
 	int GetIterations();
 	void SetIterations(int nIterations);
-	char *GetRe();
-	char *GetRe(int nXPos, int nYPos, int width, int height);
-	char *GetIm();
-	char *GetIm(int nXPos, int nYPos, int width, int height);
-	char *GetZoom();
+	std::string GetRe();
+	std::string GetRe(int nXPos, int nYPos, int width, int height);
+	std::string GetIm();
+	std::string GetIm(int nXPos, int nYPos, int width, int height);
+	std::string GetZoom();
 	void GenerateColors(int nParts, int nSeed = -1);
 	void GenerateColors2(int nParts, int nSeed = -1, int nWaves = 9);
 	void AddWave(int nCol, int nPeriod = -1, int nStart = -1);
@@ -350,13 +347,13 @@ public:
 	COLOR14 GetKeyColor(int i);
 	void SetKeyColor(COLOR14 col, int i);
 	COLOR14 GetColor(int i);
-	BOOL OpenFile(char *szFile, BOOL bNoLocation = FALSE);
-	BOOL OpenMapB(char *szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
+	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
+	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
 	std::string ToText();
-	BOOL SaveFile(char *szFile);
+	BOOL SaveFile(const std::string &szFile);
 	double GetIterDiv();
 	void SetIterDiv(double nIterDiv);
-	int SaveJpg(char *szFile, int nQuality, int nWidth = 0, int nHeight = 0);
+	int SaveJpg(const std::string &szFile, int nQuality, int nWidth = 0, int nHeight = 0);
 	int GetMaxApproximation();
 	int GetIterationOnPoint(int x, int y);
 	int GetTransOnPoint(int x, int y);
@@ -369,8 +366,8 @@ public:
 	BOOL GetITransition();
 	void SetITransition(BOOL bITransition);
 
-	void SaveMap(char *szFile);
-	void SaveMapB(char *szFile);
+	void SaveMap(const std::string &szFile);
+	void SaveMapB(const std::string &szFile);
 
 	int GetSmoothMethod();
 	void SetSmoothMethod(int nSmoothMethod);
@@ -408,8 +405,8 @@ public:
 	BOOL GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle);
 	void SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int nSlopeAngle);
 
-	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,char *szTexture);
-	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,char *szTexture);
+	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture);
+	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture);
 
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();
@@ -421,8 +418,8 @@ public:
 
 	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
 
-	inline bool OpenSettings(const char *filename) { return m_Settings.OpenFile(filename); }
-	inline bool SaveSettings(const char *filename) const { return m_Settings.SaveFile(filename); }
+	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
+	inline bool SaveSettings(const std::string &filename) const { return m_Settings.SaveFile(filename); }
 
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \

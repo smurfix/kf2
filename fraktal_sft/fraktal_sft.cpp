@@ -21,6 +21,7 @@
 #include "complex.h"
 #include <string>
 #include <iostream>
+#include <set>
 #include "../common/bitmap.h"
 #include "../formula/formula.h"
 #include "colour.h"
@@ -110,7 +111,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nImgMerge=1;
 	m_nImgPower=200;
 	m_nImgRatio=100;
-	*m_szTexture=0;
+	m_szTexture="";
 
 	m_bSlopes = FALSE;
 	m_nSlopePower = 50;
@@ -275,8 +276,7 @@ void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
 	for (i = 0; i<1024; i++)
 		m_cKeys[i].r = m_cKeys[i].g = m_cKeys[i].b = 0;
 	int nW;
-	char szTmp[30];
-	CStringTable stPeriods;
+	std::set<int> stPeriods;
 	for (nW = 0; nW<nWaves; nW++){
 		int nTests, nPeriod;
 		for (nTests = 0; nTests<20; nTests++){
@@ -284,11 +284,9 @@ void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
 			if (nPeriod == 0)
 				nPeriod = 1;
 			nPeriod = MakePrime(nPeriod);
-			itoa(nPeriod, szTmp, 10);
-			if (stPeriods.FindString(0, szTmp))
+			if (stPeriods.count(nPeriod) != 0)
 				continue;
-			stPeriods.AddRow();
-			stPeriods.AddString(stPeriods.GetCount() - 1, szTmp);
+			stPeriods.insert(nPeriod);
 		}
 		int nStart = rand() % nPeriod;
 		int nColor = nW % 4;
@@ -865,12 +863,12 @@ CFraktalSFT::~CFraktalSFT()
 	delete[] m_APr;
 	delete[] m_APi;
 }
-char *CFraktalSFT::ToZoom()
+std::string CFraktalSFT::ToZoom()
 {
 	CFixedFloat div = m_istop - m_istart;
 	return ToZoom((CDecNumber)4 / ((CDecNumber)div.m_f), m_nZoom);
 }
-char *CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
+std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
 	static char szRet[40];
 	std::string sszZoom = z.ToText();
@@ -959,7 +957,7 @@ void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rsto
 	m_rstart = re - d;
 	m_rstop = re + d;
 }
-void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
+void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
 	Precision pLo(20u);
 	CDecNumber z(szZ);
@@ -1010,13 +1008,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
 {
-	m_P.Init(
-#ifdef HARD_GUESS_EXP
-		3
-#else
-		2
-#endif
-		, m_nX, m_nY);
+	m_P.Init(m_nX, m_nY);
 	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
@@ -1088,11 +1080,6 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	m_bRunning = FALSE;
 }
 #endif
-
-void CFraktalSFT::SetPosition(const char *szR, const char *szI, const std::string &szZ)
-{
-	SetPosition(szR, szI, szZ.c_str());
-}
 
 HBITMAP CFraktalSFT::GetBitmap()
 {
@@ -1292,11 +1279,12 @@ int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP)
 	return m_nDone * 100.0 / m_nTotal;
 }
 
-char *CFraktalSFT::GetPosition()
+std::string CFraktalSFT::GetPosition()
 {
 	CStringTable st;
 	if (m_szPosition)
 		st.DeleteToText(m_szPosition);
+	m_szPosition = nullptr;
 	st.AddRow();
 	st.AddString(st.GetCount() - 1, "MANDELBROT:");
 	st.AddRow();
@@ -1337,25 +1325,8 @@ char *CFraktalSFT::GetPosition()
 }
 int CFraktalSFT::CountFrames(int nProcent)
 {
-	char szTmp[10];
-	strcpy(szTmp, ToZoom());
-	if (strlen(szTmp)>4)
-		szTmp[4] = 0;
-	return (int)((log10(atof(szTmp)) + m_nZoom) / (log10(1 + (double)2 * (double)nProcent / (double)100))) + 1;
-
-	CFixedFloat t_istart = m_istart;
-	CFixedFloat t_istop = m_istop;
-	if (nProcent == 0)
-		nProcent = 1;
-
-	int i;
-	for (i = 0;; i++){
-		t_istart = t_istart - (CFixedFloat)nProcent*(t_istop - t_istart)*(CFixedFloat)0.01;
-		t_istop = t_istop + (CFixedFloat)nProcent*(t_istop - t_istart)*(CFixedFloat)0.01;
-		if ((t_istop - t_istart)>4)
-			break;
-	}
-	return i + 1;
+	double z = std::stod(ToZoom().substr(0, 4));
+	return (int)((log10(z) + m_nZoom) / (log10(1 + (double)2 * (double)nProcent / (double)100))) + 1;
 }
 void CFraktalSFT::GetIterations(int &nMin, int &nMax, int *pnCalculated, int *pnType, BOOL bSkipMaxIter)
 {
@@ -1414,18 +1385,12 @@ void CFraktalSFT::SetIterations(int nIterations)
 {
 	m_nMaxIter = nIterations;
 }
-char *CFraktalSFT::GetRe()
+std::string CFraktalSFT::GetRe()
 {
 	CFixedFloat re = (m_rstop + m_rstart)*.5;
-	CStringTable stRet;
-	if (m_szPosition)
-		stRet.DeleteToText(m_szPosition);
-	stRet.AddRow();
-	stRet.AddString(stRet.GetCount() - 1, re.ToText());
-	m_szPosition = stRet.ToText("", "");
-	return m_szPosition;
+	return re.ToText();
 }
-char *CFraktalSFT::GetRe(int nXPos, int nYPos, int width, int height)
+std::string CFraktalSFT::GetRe(int nXPos, int nYPos, int width, int height)
 {
 	double mr = width / 2;
 	double mi = height / 2;
@@ -1435,26 +1400,14 @@ char *CFraktalSFT::GetRe(int nXPos, int nYPos, int width, int height)
 	dbD0r = (dbD0r - mr) / ratio + mr;
 
 	CFixedFloat re = m_rstart + ((double)dbD0r/(double)width)*(m_rstop - m_rstart);
-	CStringTable stRet;
-	if (m_szPosition)
-		stRet.DeleteToText(m_szPosition);
-	stRet.AddRow();
-	stRet.AddString(stRet.GetCount() - 1, re.ToText());
-	m_szPosition = stRet.ToText("", "");
-	return m_szPosition;
+	return re.ToText();
 }
-char *CFraktalSFT::GetIm()
+std::string CFraktalSFT::GetIm()
 {
 	CFixedFloat im = (m_istop + m_istart)*.5;
-	CStringTable stRet;
-	if (m_szPosition)
-		stRet.DeleteToText(m_szPosition);
-	stRet.AddRow();
-	stRet.AddString(stRet.GetCount() - 1, im.ToText());
-	m_szPosition = stRet.ToText("", "");
-	return m_szPosition;
+	return im.ToText();
 }
-char *CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
+std::string CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
 {
 	double mr = width / 2;
 	double mi = height / 2;
@@ -1465,20 +1418,15 @@ char *CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
 	dbD0r = (dbD0r - mr) / ratio + mr;
 
 	CFixedFloat im = m_istart + ((double)dbD0i/(double)height)*(m_istop - m_istart);
-	CStringTable stRet;
-	if (m_szPosition)
-		stRet.DeleteToText(m_szPosition);
-	stRet.AddRow();
-	stRet.AddString(stRet.GetCount() - 1, im.ToText());
-	m_szPosition = stRet.ToText("", "");
-	return m_szPosition;
+	return im.ToText();
 }
-char *CFraktalSFT::GetZoom()
+std::string CFraktalSFT::GetZoom()
 {
 	CDecNumber zoom = (CDecNumber)4 / ((CDecNumber)m_istop.ToText() - (CDecNumber)m_istart.ToText());
 	CStringTable stRet;
 	if (m_szPosition)
 		stRet.DeleteToText(m_szPosition);
+	m_szPosition = nullptr;
 	stRet.AddRow();
 	stRet.AddString(stRet.GetCount() - 1, zoom.ToText());
 	m_szPosition = stRet.ToText("", "");
@@ -1651,7 +1599,7 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	SetImageHeight(ny);
 }
 
-BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
+BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
 {
 	int **Org = 0;
 	float **OrgT = 0;
@@ -1682,7 +1630,7 @@ BOOL CFraktalSFT::OpenMapB(char *szFile, BOOL bReuseCenter, double nZoomSize)
 		b = (m_nY - nOY) / 2;
 	}
 	//HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
-	FILE *hFile = fopen(szFile, "rb");
+	FILE *hFile = fopen(szFile.c_str(), "rb");
 	//if(hFile==INVALID_HANDLE_VALUE)
 	if (hFile == NULL)
 		return FALSE;
@@ -1823,7 +1771,7 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
+int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment1(ToText());
 	std::string comment2(m_Settings.ToText());
@@ -1833,7 +1781,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveImage(szFile, m_bmBmp, nQuality, comment.c_str());
+		return ::SaveImage(szFile, m_bmBmp, nQuality, comment);
 	else{
 		HDC hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
@@ -1847,7 +1795,7 @@ int CFraktalSFT::SaveJpg(char *szFile, int nQuality, int nWidth, int nHeight)
 		SelectObject(dcSave, bmOldSave);
 		DeleteDC(dcBmp);
 		DeleteDC(dcSave);
-		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment.c_str());
+		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
 		ReleaseDC(NULL, hDC);
 		return nRet;
@@ -2298,8 +2246,9 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			ret_y=ry;
 		}
 		if(io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1){
-			m_P.Init(3,m_nX,m_nY);
-			while(m_P.GetPixel(x,y)){
+			m_P.Init(m_nX, m_nY);
+			int w,h;
+			while(m_P.GetPixel(x,y,w,h)){
 				if(Node[x][y]==Node[ret_x][ret_y]){
 					for(i=0;i<m_nMaxOldGlitches && m_pOldGlitch[i].x!=-1 && !(m_pOldGlitch[i].x==x && m_pOldGlitch[i].y==y);i++);
 					if(i==m_nMaxOldGlitches || m_pOldGlitch[i].x==-1){
@@ -2345,12 +2294,12 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 		return -1;
 	return ((int)(m_nPixels[x][y] / m_nIterDiv)) % 1024;
 }
-void CFraktalSFT::SaveMap(char *szFile)
+void CFraktalSFT::SaveMap(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	int x, y;
 	char szNum[64];
 	for (y = 0; y<m_nY; y++){
@@ -2363,8 +2312,8 @@ void CFraktalSFT::SaveMap(char *szFile)
 			WriteFile(hFile, szNum, strlen(szNum), &dw, NULL);
 		}
 	}
-	char *szC = "\r\nColors: ";
-	WriteFile(hFile, szC, strlen(szC), &dw, NULL);
+	const char *szC0 = "\r\nColors: ";
+	WriteFile(hFile, szC0, strlen(szC0), &dw, NULL);
 	CStringTable stColors;
 	int i;
 	for (i = 0; i<m_nParts; i++){
@@ -2375,17 +2324,17 @@ void CFraktalSFT::SaveMap(char *szFile)
 		stColors.AddRow();
 		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
 	}
-	szC = stColors.ToText("", ",");
+	char *szC = stColors.ToText("", ",");
 	WriteFile(hFile, szC, strlen(szC), &dw, NULL);
 	stColors.DeleteToText(szC);
 	CloseHandle(hFile);
 }
-void CFraktalSFT::SaveMapB(char *szFile)
+void CFraktalSFT::SaveMapB(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
 	int x;
 	WriteFile(hFile, "KFB", 3, &dw, NULL);
 	WriteFile(hFile, &m_nX, sizeof(m_nX), &dw, NULL);
@@ -2634,23 +2583,23 @@ void CFraktalSFT::SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int n
 	m_nSlopeX = cos(lightAngleRadians);
 	m_nSlopeY = sin(lightAngleRadians);
 }
-BOOL CFraktalSFT::GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,char *szTexture)
+BOOL CFraktalSFT::GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture)
 {
 	nImgMerge = m_nImgMerge;
 	nImgPower = m_nImgPower;
 	nImgRatio = m_nImgRatio;
-	strcpy(szTexture,m_szTexture);
+	szTexture = m_szTexture;
 	return m_bTexture;
 }
-void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,char *szTexture)
+void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture)
 {
-	delete m_lpTextureBits;
+	delete[] m_lpTextureBits;
 	m_lpTextureBits=NULL;
 	m_bTexture = bTexture;
 	m_nImgMerge = nImgMerge;
 	m_nImgPower = nImgPower;
 	m_nImgRatio = nImgRatio;
-	strcpy(m_szTexture,szTexture);
+	m_szTexture = szTexture;
 }
 
 void CFraktalSFT::AddInflectionPont(int nXPos, int nYPos)
@@ -2704,125 +2653,80 @@ CPixels::CPixels()
 	m_pPixels = NULL;
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 }
-void CPixels::Init(int nStep, int nX, int nY)
+
+struct CPixel
 {
-	BOOL bFirst = TRUE;
-	m_nStep = 8;//nStep;
-	m_nRectPos = -m_nStep;
-	m_nRectPart = 3;
-	m_nX = nX;
-	m_nX2 = m_nX / 2;
-	m_nY = nY;
-	m_nY2 = m_nY / 2;
-	m_rRect.left = m_rRect.right = m_nX / 2;
-	m_rRect.top = m_rRect.bottom = m_nY / 2;
-	m_nPixels = m_nX*m_nY;
+	uint16_t x, y; uint8_t w, h;
+	CPixel(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) { }
+	CPixel() : CPixel(0, 0, 0, 0) { }
+};
+
+struct CPixelComparator {
+	double x;
+	double y;
+	CPixelComparator(int x, int y) : x(x), y(y) { }
+  bool operator() (const CPixel &a, const CPixel &b)
+  {
+		double dax = a.x - x;
+		double day = a.y - y;
+		double dbx = b.x - x;
+		double dby = b.y - y;
+		double da = dax * dax + day * day;
+		double db = dbx * dbx + dby * dby;
+		return da < db;
+	}
+};
+
+void CPixels::Init(int width, int height)
+{
 	m_nNextPixel = -1;
+	if (m_nX == width && m_nY == height && m_pPixels)
+		return;
+	m_nX = width;
+	m_nY = height;
+	m_nY2 = m_nY >> 1;
+	m_nPixels = m_nX*m_nY;
 	if (m_pPixels)
 		delete[] m_pPixels;
-	int *pnDone = new int[m_nPixels];
-	memset(pnDone, -1, sizeof(int)*m_nPixels);
-	m_pPixels = new POINT[m_nPixels];
+	CPixel *pixels = m_pPixels = new CPixel[m_nPixels];
 
-	int i = 0;
-	int rx = 0, ry = 0;
-	CStringTable st;
-	st.BuildHash(0);
-	while (i<m_nPixels){
-		while (1){
-			m_nRectPos += m_nStep;
-			if (m_nRectPart == 0){
-				rx = m_rRect.left + m_nRectPos;
-				ry = m_rRect.top;
-				if (rx == m_rRect.right){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 1){
-				rx = m_rRect.right;
-				ry = m_rRect.top + m_nRectPos;
-				if (ry == m_rRect.bottom){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 2){
-				rx = m_rRect.right - m_nRectPos;
-				ry = m_rRect.bottom;
-				if (rx == m_rRect.left){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 3){
-				rx = m_rRect.left;
-				ry = m_rRect.bottom - m_nRectPos;
-				if (ry == m_rRect.top){
-					m_nRectPart = 0;
-					m_nRectPos = -m_nStep;
-					m_rRect.left -= m_nStep;
-					m_rRect.top -= m_nStep;
-					m_rRect.right += m_nStep;
-					m_rRect.bottom += m_nStep;
-					if (m_rRect.left<0 && m_rRect.top<0 && m_rRect.right >= m_nX && m_rRect.bottom >= m_nY){
-						if (m_nStep>1){
-							if (bFirst){
-								m_nStep = nStep;
-								bFirst = FALSE;
-								m_nStepPos8 = i;
-							}
-							else{
-								m_nStep = 1;
-								m_nStepPos = i;
-							}
-							m_nRectPos = -m_nStep;
-							m_nRectPart = 3;
-							m_rRect.left = m_rRect.right = m_nX / 2;
-							m_rRect.top = m_rRect.bottom = m_nY / 2;
-							continue;
-						}
-					}
-				}
-			}
-			if (rx >= 0 && ry >= 0 && rx<m_nX && ry<m_nY)
-				break;
-		}
-		int nDoneIndex = m_nX*ry + rx;
-		if (pnDone[nDoneIndex] == -1){
-			m_pPixels[i].x = rx;
-			m_pPixels[i].y = ry;
-			pnDone[nDoneIndex] = i;
-			i++;
-		}
-	}
-	delete[] pnDone;
-	m_nStep = nStep;
+  // Adam7-style interlacing
+  CPixelComparator cmp(width >> 1, height >> 1);
+	int step = 1 << 7;
+	int ix = 0;
+	int begin = ix;
+	for (int y = 0; y < height; y += step)
+		for (int x = 0; x < width; x += step)
+			pixels[ix++] = CPixel(x, y, step, step);
+	int end = ix;
+	std::sort(&pixels[begin], &pixels[end], cmp);
+  for (; step > 1; step >>= 1)
+  {
+		begin = ix;
+		for (int y = 0;  y < height;  y += step)
+			for (int x = step >> 1; x < width; x += step)
+				pixels[ix++] = CPixel(x, y, step >> 1, step);
+		end = ix;
+		std::sort(&pixels[begin], &pixels[end], cmp);
+		begin = ix;
+		for (int y = step >> 1; y < height; y += step)
+			for (int x = 0; x < width; x += step >> 1)
+				pixels[ix++] = CPixel(x, y, step >> 1, step >> 1);
+		end = ix;
+		std::sort(&pixels[begin], &pixels[end], cmp);
+  }
+	assert(ix == width * height);
 }
-int CPixels::GetStep()
+
+BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 {
-	if (m_nNextPixel<m_nStepPos8)
-		return 8;
-	if (m_nNextPixel<m_nStepPos)
-		return m_nStep;
-	return 1;
-}
-BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
-{
-#ifdef KF_DEBUG_ALIGNMENT
-	static int first = 1;
-	if (first)
-	{
-		first = 0;
-		intptr_t i = &m_nNextPixel;
-		std::cerr << "alignment = " << (i & 3) << std::endl;
-	}
-#endif
 	do{
-		int nNext = InterlockedIncrement((LPLONG)&m_nNextPixel);
-		if (nNext<m_nPixels){
+		int nNext = InterlockedIncrement(&m_nNextPixel);
+		if (nNext < m_nPixels){
 			rx = m_pPixels[nNext].x;
 			ry = m_pPixels[nNext].y;
+			rw = m_pPixels[nNext].w;
+			rh = m_pPixels[nNext].h;
 			if (bMirrored && ry>m_nY2)
 				continue;
 			return TRUE;
@@ -2830,24 +2734,6 @@ BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
 		return FALSE;
 	} while (bMirrored);
 	return FALSE;
-}
-BOOL CPixels::GetPixels(int *prx, int *pry, int &nCount)
-{
-	int i;
-	if (m_nNextPixel == m_nPixels)
-		return FALSE;
-	WaitForSingleObject(m_hMutex, INFINITE);
-	for (i = 0; i<nCount; i++){
-		prx[i] = m_pPixels[m_nNextPixel].x;
-		pry[i] = m_pPixels[m_nNextPixel].y;
-		m_nNextPixel++;
-		if (m_nNextPixel == m_nPixels)
-			break;
-		return TRUE;
-	}
-	nCount = i;
-	ReleaseMutex(m_hMutex);
-	return TRUE;
 }
 
 void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2)
@@ -2876,16 +2762,9 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
 				if (!ISFLOATOK(m_nTrans[x][y]))
 					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
+				double iteration = m_nPixels[x][y] + 1 - m_nTrans[x][y];
+				m_nPixels[x][y] = floor(iteration);
+				m_nTrans[x][y] = 1 - (iteration - m_nPixels[x][y]);
 			}
 
 			if (bGlitch && !m_bNoGlitchDetection){
