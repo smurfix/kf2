@@ -25,6 +25,7 @@ private:
   int m_WindowRight;
   int m_ImageWidth;
   int m_ImageHeight;
+  int m_ThreadsPerCore;
   bool m_AnimateZoom;
   bool m_ArbitrarySize;
   bool m_ReuseReference;
@@ -56,6 +57,7 @@ public:
   , m_WindowRight(-1)
   , m_ImageWidth(640)
   , m_ImageHeight(360)
+  , m_ThreadsPerCore(4)
   , m_AnimateZoom(true)
   , m_ArbitrarySize(true)
   , m_ReuseReference(false)
@@ -126,6 +128,9 @@ public:
 
   inline int    GetImageHeight() const { return m_ImageHeight; };
   inline void   SetImageHeight(int h) { m_ImageHeight = h; };
+
+  inline int    GetThreadsPerCore() const { return m_ThreadsPerCore; };
+  inline void   SetThreadsPerCore(int t) { m_ThreadsPerCore = t; };
 
   inline bool   GetAnimateZoom() const { return m_AnimateZoom; };
   inline void   SetAnimateZoom(bool b) { m_AnimateZoom = b; };

@@ -388,9 +388,7 @@ void CFraktalSFT::RenderFractal()
 
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = 1;
-		if (sysinfo.dwNumberOfProcessors>1)
-			nParallel = 4 * sysinfo.dwNumberOfProcessors;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
 		int nStep = m_nX / nParallel;
 		int nXStart = 0;
 
@@ -492,9 +490,8 @@ void CFraktalSFT::RenderFractalLDBL()
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = 1;
-	if (sysinfo.dwNumberOfProcessors>1)
-		nParallel = 4 * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+
 	CParallell P(
 #ifdef _DEBUG
 		1
@@ -596,9 +593,8 @@ void CFraktalSFT::RenderFractalEXP()
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = 1;
-	if (sysinfo.dwNumberOfProcessors>1)
-		nParallel = 4 * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+
 	CParallell P(
 #ifdef _DEBUG
 		1
