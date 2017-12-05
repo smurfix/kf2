@@ -53,6 +53,7 @@ Known Bugs
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - speckles when rendering zoom out sequence
+- speckles when guessing is enabled (race condition?)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
@@ -120,6 +121,11 @@ Differences From Upstream 2.11.1
 
 Change Log
 ----------
+
+- **kf-2.12.7** (????-??-??)
+
+    - renabled guessing conditional on menu option (was disabled in 2.12.4 as
+      enabling it makes some random speckles, possibly due to a race condition)
 
 - **kf-2.12.6** (2017-11-24)
 

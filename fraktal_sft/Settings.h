@@ -29,6 +29,7 @@ private:
   bool m_ArbitrarySize;
   bool m_ReuseReference;
   bool m_AutoSolveGlitches;
+  bool m_Guessing;
   bool m_SolveGlitchNear;
   bool m_NoApprox;
   bool m_Mirror;
@@ -59,6 +60,7 @@ public:
   , m_ArbitrarySize(true)
   , m_ReuseReference(false)
   , m_AutoSolveGlitches(true)
+  , m_Guessing(false)
   , m_SolveGlitchNear(false)
   , m_NoApprox(false)
   , m_Mirror(false)
@@ -136,6 +138,9 @@ public:
 
   inline bool   GetAutoSolveGlitches() const { return m_AutoSolveGlitches; };
   inline void   SetAutoSolveGlitches(bool b) { m_AutoSolveGlitches = b; };
+
+  inline bool   GetGuessing() const { return m_Guessing; };
+  inline void   SetGuessing(bool b) { m_Guessing = b; };
 
   inline bool   GetSolveGlitchNear() const { return m_SolveGlitchNear; };
   inline void   SetSolveGlitchNear(bool b) { m_SolveGlitchNear = b; };

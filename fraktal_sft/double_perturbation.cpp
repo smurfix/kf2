@@ -2,8 +2,6 @@
 #include "complex.h"
 #include "../formula/formula.h"
 
-#undef GUESS
-
 void CFraktalSFT::MandelCalc()
 {
 	m_bIterChanged = TRUE;
@@ -22,7 +20,8 @@ void CFraktalSFT::MandelCalc()
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			continue;
 		}
-#ifdef GUESS
+if (GetGuessing())
+{
 		if (nPStep && nStepSize==1){
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y]) / 2;
@@ -81,7 +80,7 @@ void CFraktalSFT::MandelCalc()
 				continue;
 			}
 		}
-#endif
+}
 		if (m_nPixels[x][y] != -1){
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			if (m_bMirrored)

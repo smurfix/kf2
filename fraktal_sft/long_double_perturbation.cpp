@@ -3,8 +3,6 @@
 #include "complex.h"
 #include "../formula/formula.h"
 
-#undef GUESS
-
 static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts)
 {
   long double yr, yi;
@@ -57,7 +55,8 @@ void CFraktalSFT::MandelCalcLDBL()
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			continue;
 		}
-#ifdef GUESS
+if (GetGuessing())
+{
 		if (nPStep && nStepSize==1){
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
@@ -190,7 +189,7 @@ void CFraktalSFT::MandelCalcLDBL()
 			}
 #endif
 		}
-#endif
+}
 		if (m_nPixels[x][y] != -1){
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			if (m_bMirrored)

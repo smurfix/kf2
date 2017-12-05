@@ -192,6 +192,7 @@
 #define ID_FILE_OPENSETTINGS            40079
 #define ID_FILE_SAVESETTINGS            40080
 #define ID_ACTIONS_SPECIAL_NOREUSECENTER            40081
+#define ID_ACTIONS_SPECIAL_GUESSING                 40082
 
 
 // OpenCL
@@ -206,7 +207,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40082
+#define _APS_NEXT_COMMAND_VALUE         40083
 #define _APS_NEXT_CONTROL_VALUE         1091
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

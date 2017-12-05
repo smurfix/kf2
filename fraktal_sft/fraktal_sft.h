@@ -452,6 +452,7 @@ public:
   BOOL(ArbitrarySize)
   BOOL(ReuseReference)
   BOOL(AutoSolveGlitches)
+  BOOL(Guessing)
   BOOL(SolveGlitchNear)
   BOOL(NoApprox)
   BOOL(Mirror)

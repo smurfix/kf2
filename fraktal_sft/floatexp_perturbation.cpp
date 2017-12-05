@@ -4,8 +4,6 @@
 
 #include "../formula/formula.h"
 
-#undef GUESS
-
 BOOL ISFLOATOK(double a);
 extern double g_real;
 extern double g_imag;
@@ -58,7 +56,8 @@ void CFraktalSFT::MandelCalcEXP()
 				Mirror(x, y);
 			continue;
 		}
-#ifdef GUESS
+if (GetGuessing())
+{
 		if (nPStep && nStepSize==1){
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
@@ -189,7 +188,7 @@ void CFraktalSFT::MandelCalcEXP()
 			}
 #endif
 		}
-#endif
+}
 		if (m_nPixels[x][y] != -1){
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			if (m_bMirrored)

@@ -353,6 +353,12 @@ static void UpdateAutoIterations(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateGuessing(HWND hWnd)
+{
+	bool b = g_SFT.GetGuessing();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_GUESSING,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateShowGlitches(HWND hWnd)
 {
 	bool b = g_SFT.GetShowGlitches();
@@ -378,6 +384,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateLongDoubleAlways(hWnd);
 	UpdateFloatExpAlways(hWnd);
 	UpdateAutoIterations(hWnd);
+	UpdateGuessing(hWnd);
 	UpdateShowGlitches(hWnd);
 	UpdateNoReuseCenter(hWnd);
 }
@@ -3645,6 +3652,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_AUTOITERATION){
 		g_SFT.SetAutoIterations(! g_SFT.GetAutoIterations());
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(g_SFT.GetAutoIterations()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_GUESSING){
+		g_SFT.SetGuessing(!g_SFT.GetGuessing());
+		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_GUESSING,MF_BYCOMMAND|(g_SFT.GetGuessing()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
 		if(g_nLDBL>100)
