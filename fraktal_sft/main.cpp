@@ -293,6 +293,14 @@ static void UpdateZoomSize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(z==128?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateThreadsPerCore(HWND hWnd)
+{
+	double z = g_SFT.GetThreadsPerCore();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateAnimateZoom(HWND hWnd)
 {
 	bool b = g_SFT.GetAnimateZoom();
@@ -374,6 +382,7 @@ static void UpdateNoReuseCenter(HWND hWnd)
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateZoomSize(hWnd);
+	UpdateThreadsPerCore(hWnd);
 	UpdateAnimateZoom(hWnd);
 	UpdateArbitrarySize(hWnd);
 	UpdateReuseReference(hWnd);
@@ -2422,6 +2431,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int nYOffs = 360-cr.bottom;
 		wr.bottom+=nYOffs+sr.bottom;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|MF_CHECKED);
+		UpdateThreadsPerCore(hWnd);
 		g_SFT.SetShowGlitches(GetPrivateProfileInt("SETTINGS","ShowGlitches",0,"fraktal_sft.ini"));
 		UpdateShowGlitches(hWnd);
 
@@ -4076,6 +4086,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			UpdateZoomSize(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_1){
+			g_SFT.SetThreadsPerCore(1);
+			UpdateThreadsPerCore(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_2){
+			g_SFT.SetThreadsPerCore(2);
+			UpdateThreadsPerCore(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_4){
+			g_SFT.SetThreadsPerCore(4);
+			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_REUSEREFERENCE){
 			g_SFT.SetReuseReference(! g_SFT.GetReuseReference());
