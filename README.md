@@ -359,9 +359,6 @@ TODO
 - user interface: online help within program (suggested by TwinDragon)
 - user interface: drag-and-drop parameters or images on to main window to load
 - user interface: save image now function (without waiting for calculations)
-- calculations: store -|log|z|| in trans array for glitched pixels, should
-  enable better glitch correction (find minimum, instead of image shape search)
-  (use piecewise linear fake log2 for speed)
 - calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
 - calculations: increase maxiters limit without restarting from scratch
