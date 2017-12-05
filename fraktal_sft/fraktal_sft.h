@@ -14,28 +14,23 @@
 extern std::vector<cldevice> cldevices;
 #endif
 
+struct CPixel;
 class CPixels
 {
-	RECT m_rRect;
 	int m_nX;
-	int m_nX2;
 	int m_nY;
 	int m_nY2;
-	int m_nStep;
-	int m_nStepPos;
-	int m_nStepPos8;
-	int m_nRectPos;
-	int m_nRectPart;
-	POINT *m_pPixels;
+	CPixel *m_pPixels;
 	int m_nPixels;
-	int m_nNextPixel;
+	LONG m_nNextPixel;
 	HANDLE m_hMutex;
 public:
 	CPixels();
-	void Init(int nStep, int nX, int nY);
-	int GetStep();
-	BOOL GetPixel(int &x, int &y, BOOL bMirrored = 0);
+	void Init(int nX, int nY);
+	BOOL GetPixel(int &x, int &y, int &w, int &h, BOOL bMirrored = 0);
+#if 0
 	BOOL GetPixels(int *px, int *py, int &nCount);
+#endif
 };
 
 // magic value stored in m_nTrans[][] when a glitch is detected

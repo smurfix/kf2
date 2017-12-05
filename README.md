@@ -128,6 +128,9 @@ Change Log
       enabling it makes some random speckles, possibly due to a race condition)
     - added "threads per cpu core" setting
     - compiles clean with -Wwrite-strings
+    - even lower resolution preview for more intensive locations (suggested by
+      Foxxie) (implemented with Adam7-style interlacing with circular sorting)
+    - fixed hang crash bug when normalizing smooth iteration values
 
 - **kf-2.12.6** (2017-11-24)
 
@@ -344,8 +347,6 @@ TODO
 ----
 
 - user interface: crosshair cursor with more contrast (suggested by CFJH)
-- user interface: even lower resolution preview for more intensive locations
-  (suggested by Foxxie)
 - user interface: show box-region for nr-zoom before clicking (suggested by
   Foxxie)
 - user-interface: adjust the size of the box via slider or like shift_scroll

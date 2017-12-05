@@ -1008,13 +1008,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
 {
-	m_P.Init(
-#ifdef HARD_GUESS_EXP
-		3
-#else
-		2
-#endif
-		, m_nX, m_nY);
+	m_P.Init(m_nX, m_nY);
 	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
@@ -2252,8 +2246,9 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			ret_y=ry;
 		}
 		if(io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1){
-			m_P.Init(3,m_nX,m_nY);
-			while(m_P.GetPixel(x,y)){
+			m_P.Init(m_nX, m_nY);
+			int w,h;
+			while(m_P.GetPixel(x,y,w,h)){
 				if(Node[x][y]==Node[ret_x][ret_y]){
 					for(i=0;i<m_nMaxOldGlitches && m_pOldGlitch[i].x!=-1 && !(m_pOldGlitch[i].x==x && m_pOldGlitch[i].y==y);i++);
 					if(i==m_nMaxOldGlitches || m_pOldGlitch[i].x==-1){
@@ -2658,125 +2653,80 @@ CPixels::CPixels()
 	m_pPixels = NULL;
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 }
-void CPixels::Init(int nStep, int nX, int nY)
+
+struct CPixel
 {
-	BOOL bFirst = TRUE;
-	m_nStep = 8;//nStep;
-	m_nRectPos = -m_nStep;
-	m_nRectPart = 3;
-	m_nX = nX;
-	m_nX2 = m_nX / 2;
-	m_nY = nY;
-	m_nY2 = m_nY / 2;
-	m_rRect.left = m_rRect.right = m_nX / 2;
-	m_rRect.top = m_rRect.bottom = m_nY / 2;
-	m_nPixels = m_nX*m_nY;
+	uint16_t x, y; uint8_t w, h;
+	CPixel(int x, int y, int w, int h) : x(x), y(y), w(w), h(h) { }
+	CPixel() : CPixel(0, 0, 0, 0) { }
+};
+
+struct CPixelComparator {
+	double x;
+	double y;
+	CPixelComparator(int x, int y) : x(x), y(y) { }
+  bool operator() (const CPixel &a, const CPixel &b)
+  {
+		double dax = a.x - x;
+		double day = a.y - y;
+		double dbx = b.x - x;
+		double dby = b.y - y;
+		double da = dax * dax + day * day;
+		double db = dbx * dbx + dby * dby;
+		return da < db;
+	}
+};
+
+void CPixels::Init(int width, int height)
+{
 	m_nNextPixel = -1;
+	if (m_nX == width && m_nY == height && m_pPixels)
+		return;
+	m_nX = width;
+	m_nY = height;
+	m_nY2 = m_nY >> 1;
+	m_nPixels = m_nX*m_nY;
 	if (m_pPixels)
 		delete[] m_pPixels;
-	int *pnDone = new int[m_nPixels];
-	memset(pnDone, -1, sizeof(int)*m_nPixels);
-	m_pPixels = new POINT[m_nPixels];
+	CPixel *pixels = m_pPixels = new CPixel[m_nPixels];
 
-	int i = 0;
-	int rx = 0, ry = 0;
-	CStringTable st;
-	st.BuildHash(0);
-	while (i<m_nPixels){
-		while (1){
-			m_nRectPos += m_nStep;
-			if (m_nRectPart == 0){
-				rx = m_rRect.left + m_nRectPos;
-				ry = m_rRect.top;
-				if (rx == m_rRect.right){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 1){
-				rx = m_rRect.right;
-				ry = m_rRect.top + m_nRectPos;
-				if (ry == m_rRect.bottom){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 2){
-				rx = m_rRect.right - m_nRectPos;
-				ry = m_rRect.bottom;
-				if (rx == m_rRect.left){
-					m_nRectPart++;
-					m_nRectPos = 0;
-				}
-			}
-			else if (m_nRectPart == 3){
-				rx = m_rRect.left;
-				ry = m_rRect.bottom - m_nRectPos;
-				if (ry == m_rRect.top){
-					m_nRectPart = 0;
-					m_nRectPos = -m_nStep;
-					m_rRect.left -= m_nStep;
-					m_rRect.top -= m_nStep;
-					m_rRect.right += m_nStep;
-					m_rRect.bottom += m_nStep;
-					if (m_rRect.left<0 && m_rRect.top<0 && m_rRect.right >= m_nX && m_rRect.bottom >= m_nY){
-						if (m_nStep>1){
-							if (bFirst){
-								m_nStep = nStep;
-								bFirst = FALSE;
-								m_nStepPos8 = i;
-							}
-							else{
-								m_nStep = 1;
-								m_nStepPos = i;
-							}
-							m_nRectPos = -m_nStep;
-							m_nRectPart = 3;
-							m_rRect.left = m_rRect.right = m_nX / 2;
-							m_rRect.top = m_rRect.bottom = m_nY / 2;
-							continue;
-						}
-					}
-				}
-			}
-			if (rx >= 0 && ry >= 0 && rx<m_nX && ry<m_nY)
-				break;
-		}
-		int nDoneIndex = m_nX*ry + rx;
-		if (pnDone[nDoneIndex] == -1){
-			m_pPixels[i].x = rx;
-			m_pPixels[i].y = ry;
-			pnDone[nDoneIndex] = i;
-			i++;
-		}
-	}
-	delete[] pnDone;
-	m_nStep = nStep;
+  // Adam7-style interlacing
+  CPixelComparator cmp(width >> 1, height >> 1);
+	int step = 1 << 7;
+	int ix = 0;
+	int begin = ix;
+	for (int y = 0; y < height; y += step)
+		for (int x = 0; x < width; x += step)
+			pixels[ix++] = CPixel(x, y, step, step);
+	int end = ix;
+	std::sort(&pixels[begin], &pixels[end], cmp);
+  for (; step > 1; step >>= 1)
+  {
+		begin = ix;
+		for (int y = 0;  y < height;  y += step)
+			for (int x = step >> 1; x < width; x += step)
+				pixels[ix++] = CPixel(x, y, step >> 1, step);
+		end = ix;
+		std::sort(&pixels[begin], &pixels[end], cmp);
+		begin = ix;
+		for (int y = step >> 1; y < height; y += step)
+			for (int x = 0; x < width; x += step >> 1)
+				pixels[ix++] = CPixel(x, y, step >> 1, step >> 1);
+		end = ix;
+		std::sort(&pixels[begin], &pixels[end], cmp);
+  }
+	assert(ix == width * height);
 }
-int CPixels::GetStep()
+
+BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 {
-	if (m_nNextPixel<m_nStepPos8)
-		return 8;
-	if (m_nNextPixel<m_nStepPos)
-		return m_nStep;
-	return 1;
-}
-BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
-{
-#ifdef KF_DEBUG_ALIGNMENT
-	static int first = 1;
-	if (first)
-	{
-		first = 0;
-		intptr_t i = &m_nNextPixel;
-		std::cerr << "alignment = " << (i & 3) << std::endl;
-	}
-#endif
 	do{
-		int nNext = InterlockedIncrement((LPLONG)&m_nNextPixel);
-		if (nNext<m_nPixels){
+		int nNext = InterlockedIncrement(&m_nNextPixel);
+		if (nNext < m_nPixels){
 			rx = m_pPixels[nNext].x;
 			ry = m_pPixels[nNext].y;
+			rw = m_pPixels[nNext].w;
+			rh = m_pPixels[nNext].h;
 			if (bMirrored && ry>m_nY2)
 				continue;
 			return TRUE;
@@ -2784,24 +2734,6 @@ BOOL CPixels::GetPixel(int &rx, int &ry, BOOL bMirrored)
 		return FALSE;
 	} while (bMirrored);
 	return FALSE;
-}
-BOOL CPixels::GetPixels(int *prx, int *pry, int &nCount)
-{
-	int i;
-	if (m_nNextPixel == m_nPixels)
-		return FALSE;
-	WaitForSingleObject(m_hMutex, INFINITE);
-	for (i = 0; i<nCount; i++){
-		prx[i] = m_pPixels[m_nNextPixel].x;
-		pry[i] = m_pPixels[m_nNextPixel].y;
-		m_nNextPixel++;
-		if (m_nNextPixel == m_nPixels)
-			break;
-		return TRUE;
-	}
-	nCount = i;
-	ReleaseMutex(m_hMutex);
-	return TRUE;
 }
 
 void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2)
@@ -2830,16 +2762,9 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
 				if (!ISFLOATOK(m_nTrans[x][y]))
 					m_nTrans[x][y] = 0;
-				while (m_nTrans[x][y]<0){
-					int offs = 1 + (int)m_nTrans[x][y];
-					m_nPixels[x][y] += offs;
-					m_nTrans[x][y] += offs;
-				}
-				while (m_nTrans[x][y]>1){
-					int offs = (int)m_nTrans[x][y];
-					m_nPixels[x][y] -= offs;
-					m_nTrans[x][y] -= offs;
-				}
+				double iteration = m_nPixels[x][y] + 1 - m_nTrans[x][y];
+				m_nPixels[x][y] = floor(iteration);
+				m_nTrans[x][y] = 1 - (iteration - m_nPixels[x][y]);
 			}
 
 			if (bGlitch && !m_bNoGlitchDetection){

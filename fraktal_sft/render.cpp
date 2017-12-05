@@ -294,7 +294,7 @@ void CFraktalSFT::RenderFractal()
 		delete[] m_dxi;
 		m_dxi = NULL;
 	}
-	m_P.Init(2, m_nX, m_nY);
+	m_P.Init(m_nX, m_nY);
 	int i;
 	if (!GetReuseReference() || !m_db_dxr || m_nZoom<g_nRefZero){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
@@ -433,13 +433,7 @@ void CFraktalSFT::RenderFractal()
 
 void CFraktalSFT::RenderFractalLDBL()
 {
-	m_P.Init(
-#ifdef HARD_GUESS_EXP
-		3
-#else
-		2
-#endif
-		, m_nX, m_nY);
+	m_P.Init(m_nX, m_nY);
 	if (!GetReuseReference() || !m_ldxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
@@ -541,13 +535,7 @@ void CFraktalSFT::RenderFractalLDBL()
 
 void CFraktalSFT::RenderFractalEXP()
 {
-	m_P.Init(
-#ifdef HARD_GUESS_EXP
-		3
-#else
-		2
-#endif
-		, m_nX, m_nY);
+	m_P.Init(m_nX, m_nY);
 	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){

@@ -6,15 +6,9 @@ void CFraktalSFT::MandelCalc()
 {
 	m_bIterChanged = TRUE;
 	double Dnr, Dni, yr, yi;
-	int antal, x, y;
-	int nPStep, nStepSize;
+	int antal, x, y, w, h;
 
-	while (!m_bStop && m_P.GetPixel(x, y, m_bMirrored)){
-		nStepSize = nPStep = m_P.GetStep();
-		if (nPStep>1)
-			nPStep = 0;
-		else
-			nPStep = 1;
+	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (m_nPixels[x][y] != -1){
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
@@ -22,7 +16,7 @@ void CFraktalSFT::MandelCalc()
 		}
 if (GetGuessing())
 {
-		if (nPStep && nStepSize==1){
+		if (w == 1 && h == 1){
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y]) / 2;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
@@ -229,17 +223,27 @@ if (GetGuessing())
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-		if (!nPStep && (!bGlitch || GetShowGlitches())){
-			int q;
-			int nE = nStepSize*nStepSize;
-			for (q = 0; q<nE; q++){
-				int tx = x + q%nStepSize;
-				int ty = y + q / nStepSize;
-				if (tx<m_nX && ty<m_nY && m_nPixels[tx][ty] == -1){
-					int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-					m_lpBits[nIndex1] = m_lpBits[nIndex];
-					m_lpBits[nIndex1 + 1] = m_lpBits[nIndex + 1];
-					m_lpBits[nIndex1 + 2] = m_lpBits[nIndex + 2];
+		if (!bGlitch || GetShowGlitches())
+    {
+      for (int ty = 0; ty < h; ++ty)
+      {
+        int y2 = y + ty;
+        if (y2 < m_nY)
+        {
+          for (int tx = 0; tx < w; ++tx)
+          {
+            int x2 = x + tx;
+            if (x2 < m_nX)
+            {
+              if (m_nPixels[x2][y2] == -1)
+              {
+                int index2 = x2 * 3 + (m_bmi->biHeight - 1 - y2) * m_row;
+                m_lpBits[index2    ] = m_lpBits[nIndex    ];
+                m_lpBits[index2 + 1] = m_lpBits[nIndex + 1];
+                m_lpBits[index2 + 2] = m_lpBits[nIndex + 2];
+              }
+            }
+          }
 				}
 			}
 		}
