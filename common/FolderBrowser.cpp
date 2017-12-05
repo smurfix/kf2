@@ -182,7 +182,9 @@ int BrowseFile(HWND hwParent,BOOL bOpen,const std::string &szTitle,const std::st
 	ofn.nFilterIndex = 1;
 	if(bOpen){
 		ofn.Flags = OFN_SHOWHELP | OFN_PATHMUSTEXIST | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY;
-		return GetOpenFileName(&ofn);
+		int ret = GetOpenFileName(&ofn);
+		szFile = buffer;
+		return ret;
 	}
 	else{
 		ofn.Flags = OFN_SHOWHELP | OFN_OVERWRITEPROMPT | OFN_HIDEREADONLY;
