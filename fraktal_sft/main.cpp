@@ -2368,7 +2368,7 @@ static long OpenFile(HWND hWnd, bool &ret)
 				}
 				else{
 					std::string extension = get_filename_extension(g_szFile);
-					if (extension != ".kfr")
+					if (extension != "kfr")
 					{
 						// prevent ctrl-s save overwriting a file with the wrong extension
 						g_szFile += ".kfr";
