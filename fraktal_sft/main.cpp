@@ -270,7 +270,7 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 			case IDCANCEL: return "Close and undo";
 		}
 	}
-	static char szTmp[128];
+	static char szTmp[1024];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
 	return szTmp;
 #ifdef KF_OPENCL
@@ -834,7 +834,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 		return ThAnim_(pAnim);
 //#ifndef _DEBUG
 	}catch(...){
-		char szPos[100];
+		char szPos[1024];
 		wsprintf(szPos,"Krash: %d",pAnim->nPos);
 		MessageBox(pAnim->hWnd,szPos,"Krash",MB_OK);
 	}
@@ -1408,7 +1408,7 @@ nPos=0;
 	}
 
 nPos=1;
-	char szTmp[154];
+	char szTmp[1024];
 	wsprintf(szTmp,"%d%% R:%d%% G:%d%% A:%d%%",nP,nR,nG,nA);
 	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
 	SYSTEMTIME st;
@@ -2375,7 +2375,7 @@ static long OpenFile(HWND hWnd, bool &ret)
 					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
-					char szTitle[1000];
+					char szTitle[1024];
 					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
 					SetWindowText(hWnd,szTitle);
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -2794,7 +2794,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			LineTo(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2));
 			ReleaseDC(hWnd,hDC);
 		}
-		char szI[128];
+		char szI[1024];
 		strcpy(szI,"I:");
 
 		RECT rc;
@@ -4197,8 +4197,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
 				if(!g_SFT.SaveFile(g_szFile))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
-				char szTitle[369];
-				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile);
+				char szTitle[1024];
+				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
 				SetWindowText(hWnd,szTitle);
 			}
 		}
@@ -4282,7 +4282,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bFindMinibrotPos=1;//+=(g_bFindMinibrotPos==1?1:g_bFindMinibrotPos/2);
 				}
 				g_bFindMinibrotCount++;
-				char szTitle[256];
+				char szTitle[1024];
 				wsprintf(szTitle,"Kalle's Fraktaler 2 - %d",g_bFindMinibrotPos-g_bFindMinibrotCount);
 				SetWindowText(hWnd,szTitle);
 			}
@@ -4416,7 +4416,7 @@ static int Test1()
 	t2-=t1;
 	FileTimeToSystemTime((LPFILETIME)&t2,&st);
 	__int64 td = 10000000;
-	char szRes[256];
+	char szRes[1024];
 	wsprintf(szRes,"%02d:%02d:%02d.%07d",t2/(td*3600),(t2/(td*60))%60,(t2/td)%60,t2%td);
 //	wsprintf(szRes+strlen(szRes),"\n%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 	return MessageBox(NULL,szRes,"Res",MB_OK);
