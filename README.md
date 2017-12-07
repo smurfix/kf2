@@ -53,7 +53,6 @@ Known Bugs
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - speckles when rendering zoom out sequence
-- speckles when guessing is enabled (race condition?)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing

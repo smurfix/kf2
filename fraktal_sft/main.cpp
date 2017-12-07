@@ -2492,6 +2492,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateArbitrarySize(hWnd);
+		UpdateGuessing(hWnd);
 
 		if (g_args->bLoadSettings)
 		{

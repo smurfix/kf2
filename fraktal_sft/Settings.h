@@ -62,7 +62,7 @@ public:
   , m_ArbitrarySize(true)
   , m_ReuseReference(false)
   , m_AutoSolveGlitches(true)
-  , m_Guessing(false)
+  , m_Guessing(true)
   , m_SolveGlitchNear(false)
   , m_NoApprox(false)
   , m_Mirror(false)
