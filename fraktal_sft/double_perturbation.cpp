@@ -14,73 +14,8 @@ void CFraktalSFT::MandelCalc()
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			continue;
 		}
-if (GetGuessing())
-{
-		if (w == 1 && h == 1){
-			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y]) / 2;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1]) / 2;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1]) / 2;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != -1 && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1]) / 2;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				continue;
-			}
-		}
-}
-		if (m_nPixels[x][y] != -1){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			if (m_bMirrored)
-				Mirror(x, y);
-			continue;
-		}
+    if (GuessPixel(x, y, w, h))
+      continue;
 		// Series approximation
 		double dbD0r = m_pDX[m_nX / 2] + m_C*(m_pDX[x] - m_pDX[m_nX / 2]) + m_S*(m_pDY[y] - m_pDY[m_nY / 2]);
 		double dbD0i = m_pDY[m_nY / 2] - m_S*(m_pDX[x] - m_pDX[m_nX / 2]) + m_C*(m_pDY[y] - m_pDY[m_nY / 2]);
