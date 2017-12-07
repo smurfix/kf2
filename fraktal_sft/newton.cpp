@@ -56,6 +56,167 @@ static inline bool cisfinite(const complex<flyttyp> &z) {
   return isfinite(z.m_r) && isfinite(z.m_i);
 }
 
+struct BallPeriodCommon
+{
+  HWND hWnd;
+  barrier *barrier;
+  volatile BOOL *stop;
+  int *haveperiod;
+  int *period;
+  int maxperiod;
+  mpfr_t cr, ci, zr, zi, zr2, zi2, zri, t;
+  floatexp zradius;
+};
+
+struct BallPeriod
+{
+  int threadid;
+  HANDLE hDone;
+  BallPeriodCommon *c;
+};
+
+static DWORD WINAPI ThBallPeriod(BallPeriod *b)
+{
+  int t = b->threadid;
+  barrier *barrier = b->c->barrier;
+  volatile BOOL *stop = b->c->stop;
+  int *haveperiod = b->c->haveperiod;
+  int *period = b->c->period;
+  char szStatus[300];
+  floatexp zre, zim, absz;
+  floatexp rz = b->c->zradius;
+  uint32_t last = 0;
+  if (t == 0)
+  {
+    wsprintf(szStatus,"Finding period, 0...");
+    SetDlgItemText(b->c->hWnd,IDC_EDIT1,szStatus);
+    last = GetTickCount();
+  }
+  for (int i = 1; i < b->c->maxperiod; ++i)
+  {
+    if (t == 0)
+    {
+      if(i%100==0){
+	uint32_t now = GetTickCount();
+	if (now - last > 250){
+	  wsprintf(szStatus,"Finding period, %d...",i);
+	  SetDlgItemText(b->c->hWnd,IDC_EDIT1,szStatus);
+	  last = now;
+	}
+      }
+      zre = mpfr_get_fe(b->c->zr);
+      zim = mpfr_get_fe(b->c->zi);
+      absz = sqrt(zre * zre + zim * zim);
+      if (absz < rz)
+      {
+	*haveperiod = true;
+	*period = i;
+      }
+      if (absz > 1e100)
+      {
+	*haveperiod = true;
+	*period = 0;
+      }
+    }
+    switch (t)
+    {
+      case 0:
+      {
+	rz = (2 * absz + rz) * rz;
+        mpfr_sqr(b->c->zr2, b->c->zr, MPFR_RNDN);
+        mpfr_sqr(b->c->zi2, b->c->zi, MPFR_RNDN);
+	break;
+      }
+      case 1:
+      {
+        mpfr_mul(b->c->zri, b->c->zr, b->c->zi, MPFR_RNDN);
+	break;
+      }
+    }
+    if (barrier->wait(stop)) break;
+    if (*haveperiod) break;
+    switch (t)
+    {
+      case 0:
+        mpfr_sub(b->c->t, b->c->zr2, b->c->zi2, MPFR_RNDN);
+        mpfr_add(b->c->zr, b->c->t, b->c->cr, MPFR_RNDN);
+	break;
+      case 1:
+        mpfr_mul_2ui(b->c->zri, b->c->zri, 1, MPFR_RNDN);
+        mpfr_add(b->c->zi, b->c->zri, b->c->ci, MPFR_RNDN);
+	break;
+    }
+    if (barrier->wait(stop)) break;
+  }
+  if (t == 0)
+  {
+    if (*period == 0)
+    {
+      *haveperiod = false;
+    }
+  }
+  SetEvent(b->hDone);
+  return 0;
+}
+
+static int ball_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
+  radius = flyttyp(4)/radius;
+  mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
+  barrier bar(2);
+  int haveperiod = false;
+  int period = 0;
+  HANDLE hDone[2];
+  // prepare threads
+  BallPeriod ball[2];
+  BallPeriodCommon c;
+  c.maxperiod = maxperiod;
+  c.hWnd = hWnd;
+  c.barrier = &bar;
+  c.stop = &g_bNewtonStop;
+  c.haveperiod = &haveperiod;
+  c.period = &period;
+  c.maxperiod = maxperiod;
+  mpfr_init2(c.cr, bits); mpfr_set(c.cr, center.m_r.m_dec.backend().data(), MPFR_RNDN);
+  mpfr_init2(c.ci, bits); mpfr_set(c.ci, center.m_i.m_dec.backend().data(), MPFR_RNDN);
+  mpfr_init2(c.zr, bits); mpfr_set(c.zr, center.m_r.m_dec.backend().data(), MPFR_RNDN);
+  mpfr_init2(c.zi, bits); mpfr_set(c.zi, center.m_i.m_dec.backend().data(), MPFR_RNDN);
+  mpfr_init2(c.zr2, bits);
+  mpfr_init2(c.zi2, bits);
+  mpfr_init2(c.zri, bits);
+  mpfr_init2(c.t, bits);
+  c.zradius = mpfr_get_fe(radius.m_dec.backend().data());
+  for (int t = 0; t < 2; ++t)
+  {
+    ball[t].threadid = t;
+    ball[t].hDone = hDone[t] = CreateEvent(NULL, 0, 0, NULL);
+    ball[t].c = &c;
+  }
+  // spawn threads
+  for (int i = 0; i < 2; i++)
+  {
+    DWORD dw;
+    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBallPeriod, (LPVOID)&ball[i], 0, &dw);
+    CloseHandle(hThread);
+  }
+  // wait for threads to complete
+  WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
+  for (int i = 0; i < 2; i++)
+  {
+    CloseHandle(hDone[i]);
+  }
+  mpfr_clear(c.cr);
+  mpfr_clear(c.ci);
+  mpfr_clear(c.zr);
+  mpfr_clear(c.zi);
+  mpfr_clear(c.zr2);
+  mpfr_clear(c.zi2);
+  mpfr_clear(c.zri);
+  mpfr_clear(c.t);
+  steps = period;
+  return haveperiod ? period : 0;
+}
+
+#if 0
 struct BoxPeriod
 {
   int threadid;
@@ -205,6 +366,7 @@ static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int
   return haveperiod ? period : 0;
 
 }
+#endif
 
 struct STEP_STRUCT_COMMON
 {
@@ -486,7 +648,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		uprec *= 3;
 	}
 	else{
-		g_period= m_d_box_period_do(center,radius,100000000,steps,hWnd);
+		g_period= ball_period_do(center,radius,100000000,steps,hWnd);
 		uprec *= 2;
 	}
 	Precision prec2(uprec);

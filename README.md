@@ -133,6 +133,8 @@ Change Log
       Foxxie) (implemented with Adam7-style interlacing with circular sorting)
     - copy (Ctrl-X) and paste (Ctrl-V) parameters from the system clipboard
     - fixed hang crash bug when normalizing smooth iteration values
+    - use interval arithmetic ball-period method instead of box-period (speeds
+      up Newton-Raphson zooming a bit)
 
 - **kf-2.12.6** (2017-11-24)
 
@@ -369,7 +371,6 @@ TODO
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
 - calculations: Horner's rule for polynomial evaluation (if not used already)
-- newton: use triangle instead of square for box period detection (optimisation)
 - newton: properly debug huge zoom values from size estimate
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: common subexpression elimination (share results, might be
