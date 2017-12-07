@@ -62,7 +62,7 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_stExamine.resize(0);
 		SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
 		WIN32_FIND_DATA fd;
-		std::string szExamine = replace_path_filename(szExamine, "*_*.kfb");
+		std::string szExamine = replace_path_filename(g_szExamine, "*_*.kfb");
 		HANDLE hFind = FindFirstFile(szExamine.c_str(),&fd);
 		if(hFind==INVALID_HANDLE_VALUE){
 			if(hFind)
