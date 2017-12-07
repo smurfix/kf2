@@ -263,29 +263,6 @@ if (GetGuessing())
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-		if (!bGlitch || GetShowGlitches())
-    {
-      for (int ty = 0; ty < h; ++ty)
-      {
-        int y2 = y + ty;
-        if (y2 < m_nY)
-        {
-          for (int tx = 0; tx < w; ++tx)
-          {
-            int x2 = x + tx;
-            if (x2 < m_nX)
-            {
-              if (m_nPixels[x2][y2] == -1)
-              {
-                int index2 = x2 * 3 + (m_bmi->biHeight - 1 - y2) * m_row;
-                m_lpBits[index2    ] = m_lpBits[nIndex    ];
-                m_lpBits[index2 + 1] = m_lpBits[nIndex + 1];
-                m_lpBits[index2 + 2] = m_lpBits[nIndex + 2];
-              }
-            }
-          }
-				}
-			}
-		}
+    OutputPixelData(x, y, w, h, bGlitch);
 	}
 }

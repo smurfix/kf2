@@ -418,6 +418,7 @@ public:
 #endif
 
 	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
+	void OutputPixelData(int x, int y, int w, int h, int bGlitch);
 
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
 	inline bool SaveSettings(const std::string &filename) const { return m_Settings.SaveFile(filename); }
