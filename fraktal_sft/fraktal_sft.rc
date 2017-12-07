@@ -562,12 +562,6 @@ BEGIN
             MENUITEM "128",                         40028,MFT_STRING,MFS_ENABLED
             MENUITEM "Custom...",                   ID_ZOOMSIZE_CUSTOM,MFT_STRING,MFS_ENABLED
         END
-        POPUP "Threads per CPU",                65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "1",                           ID_ACTIONS_THREADS_1,MFT_STRING,MFS_ENABLED
-            MENUITEM "2",                           ID_ACTIONS_THREADS_2,MFT_STRING,MFS_ENABLED
-            MENUITEM "4",                           ID_ACTIONS_THREADS_4,MFT_STRING,MFS_ENABLED
-        END
         MENUITEM "&Location...\tCtrl+L",        40003,MFT_STRING,MFS_ENABLED
         MENUITEM "&Iterations...\tCtrl+I",      40004,MFT_STRING,MFS_ENABLED
         MENUITEM "Set &Colors...\tCtrl+C",      40005,MFT_STRING,MFS_ENABLED
