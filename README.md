@@ -34,6 +34,7 @@ Known Bugs
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
+- "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
 - minimizing window during command line rendering corrupts image
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
