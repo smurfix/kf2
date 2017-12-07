@@ -2811,12 +2811,10 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
 	if (GetGuessing())
 	{
-		if (w == 1 && h == 1)
+		if (w == 1 && h <= 2)
 		{
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
-				if (m_nTrans[x][y] == TRANS_GLITCH)
-					m_nTrans[x - 1][y] = TRANS_GLITCH;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
 				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
 				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
@@ -2829,6 +2827,9 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 					Mirror(x, y);
 				return true;
 			}
+		}
+		if (w == 1 && h == 1)
+		{
 			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1]){
 				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
 				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
