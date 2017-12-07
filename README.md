@@ -129,10 +129,10 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.7** (????-??-??)
+- **kf-2.12.7** (2017-12-07)
 
     - renabled guessing conditional on menu option (was disabled in 2.12.4 as
-      enabling it makes some random speckles, possibly due to a race condition)
+      enabling it made some random speckles, possibly due to a race condition)
       (requested by Kalles Fraktaler and Fractal universe)
     - added "threads per cpu core" setting
     - compiles clean with -Wwrite-strings
@@ -141,7 +141,7 @@ Change Log
     - copy (Ctrl-X) and paste (Ctrl-V) parameters from the system clipboard
     - fixed hang crash bug when normalizing smooth iteration values
     - use interval arithmetic ball-period method instead of box-period (speeds
-      up Newton-Raphson zooming a bit)
+      up Newton-Raphson zooming a bit) (idea from knighty and gerrit)
 
 - **kf-2.12.6** (2017-11-24)
 
