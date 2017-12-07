@@ -32,6 +32,10 @@ Known Bugs
 
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
+- maximum image dimension (either width or height) is 65536, this is not checked
+- maximum image size (width * height) is (2^31-1)/3 pixels, equivalent to
+  26754x26754 (1:1) or 35673x20066 (16:9), this is not checked; memory usage is
+  at least 17 bytes per pixel, possibly more for glitch analysis
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
@@ -53,7 +57,10 @@ Known Bugs
   (reported by CFJH)
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
+- "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
+- there is still a race conditions in guessing (doesn't wait for previous
+  progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
