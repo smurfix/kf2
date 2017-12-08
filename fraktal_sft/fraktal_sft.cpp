@@ -539,7 +539,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	s.r = 0;
 	s.g = 0;
 	s.b = 0;
-	if (nIter<0 || (!GetShowGlitches() && offs==2))
+	if (nIter<0 || (!GetShowGlitches() && offs==TRANS_GLITCH))
 		return;
 	if (nIter == m_nMaxIter)
 	{
@@ -1342,7 +1342,7 @@ void CFraktalSFT::GetIterations(int &nMin, int &nMax, int *pnCalculated, int *pn
 			nMin = -1;
 			for (x = 0; x<m_nX; x++){
 				for (y = 0; y<m_nY; y++){
-					if (bSkipMaxIter && m_nPixels[x][y] >= m_nMaxIter - 1)
+					if (bSkipMaxIter && m_nPixels[x][y] >= m_nMaxIter - 1) // FIXME what about glitches?
 						continue;
 					if (m_nPixels[x][y] != -1 && (nMin == -1 || nMin>m_nPixels[x][y]))
 						nMin = m_nPixels[x][y];
@@ -2769,7 +2769,6 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 
 			if (bGlitch && !m_bNoGlitchDetection){
 				m_nTrans[x][y] = TRANS_GLITCH;
-				m_nPixels[x][y] = m_nMaxIter - 1;//(m_nMaxApproximation?m_nMaxApproximation-1:0);
 			}
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 		}
