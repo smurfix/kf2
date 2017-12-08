@@ -462,6 +462,7 @@ public:
   BOOL(AutoIterations)
   BOOL(ShowGlitches)
   BOOL(NoReuseCenter)
+  INT(IsolatedGlitchNeighbourhood)
 #undef DOUBLE
 #undef INT
 #undef BOOL

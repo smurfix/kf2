@@ -587,6 +587,12 @@ BEGIN
         MENUITEM "Find center of glitch (Colors)\tCtrl+F", 40031,MFT_STRING,MFS_ENABLED
         MENUITEM "Auto solve glitches",         40032,MFT_STRING,MFS_ENABLED
         MENUITEM "Solve glitch with near pixels method", ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MFT_STRING,MFS_ENABLED
+        POPUP "Ignore isolated small glitches", 65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "Never",                           ID_ACTIONS_ISOLATED_0,MFT_STRING,MFS_ENABLED
+            MENUITEM "When alone in 8-neighbourhood",   ID_ACTIONS_ISOLATED_8,MFT_STRING,MFS_ENABLED
+            MENUITEM "When alone in 4-neighbourhood",   ID_ACTIONS_ISOLATED_4,MFT_STRING,MFS_ENABLED
+        END
         MENUITEM "Find highest iteration",      40029,MFT_STRING,MFS_ENABLED
         MENUITEM "Show Iterations",             40034,MFT_STRING,MFS_ENABLED
         MENUITEM "No approximation",            40039,MFT_STRING,MFS_ENABLED

@@ -384,6 +384,14 @@ static void UpdateNoReuseCenter(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOREUSECENTER,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateIsolatedGlitchNeighbourhood(HWND hWnd)
+{
+	double z = g_SFT.GetIsolatedGlitchNeighbourhood();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_0,MF_BYCOMMAND|(z==0?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateZoomSize(hWnd);
@@ -401,6 +409,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateGuessing(hWnd);
 	UpdateShowGlitches(hWnd);
 	UpdateNoReuseCenter(hWnd);
+	UpdateIsolatedGlitchNeighbourhood(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -4127,6 +4136,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_ACTIONS_THREADS_4){
 			g_SFT.SetThreadsPerCore(4);
 			UpdateThreadsPerCore(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_ISOLATED_0){
+			g_SFT.SetIsolatedGlitchNeighbourhood(0);
+			UpdateIsolatedGlitchNeighbourhood(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_ISOLATED_4){
+			g_SFT.SetIsolatedGlitchNeighbourhood(4);
+			UpdateIsolatedGlitchNeighbourhood(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_ISOLATED_8){
+			g_SFT.SetIsolatedGlitchNeighbourhood(8);
+			UpdateIsolatedGlitchNeighbourhood(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_REUSEREFERENCE){
 			g_SFT.SetReuseReference(! g_SFT.GetReuseReference());

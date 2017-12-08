@@ -2077,38 +2077,49 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	int nHeight = m_nY;
 	if(m_bMirrored)
 		nHeight=(nHeight+1)/2;
-#if 0
-	for(x=1;x<m_nX-1;x++){
-		for(y=1;y<nHeight-1;y++){
-#else
 	for(x=0;x<m_nX;x++){
 		for(y=0;y<nHeight;y++){
-#endif
 			int nDone = - (x*m_nY+y);
 			if(Node[x][y]>0 && m_nTrans[x][y]==TRANS_GLITCH && Pixels[x][y]!=m_nMaxIter){
-#if 0
-				int nMatch=1;
-				if(Pixels[x][y]==Pixels[x][y-1])nMatch++;
-				if(Pixels[x][y]==Pixels[x][y+1])nMatch++;
-				if(Pixels[x][y]==Pixels[x-1][y])nMatch++;
-				if(Pixels[x][y]==Pixels[x+1][y])nMatch++;
-/*				if(Pixels[x][y]==Pixels[x-1][y-1])nMatch++;
-				if(Pixels[x][y]==Pixels[x+1][y-1])nMatch++;
-				if(Pixels[x][y]==Pixels[x-1][y+1])nMatch++;
-				if(Pixels[x][y]==Pixels[x+1][y+1])nMatch++;
-*/
-#if 0
-				// this seems to try to "fix" single pixel glitches by copying neighbour
-				// this doesn't seem to be desirable for high quality rendering
-				if(nMatch==1){
-					m_nTrans[x][y]=m_nTrans[x-1][y];
-					m_nPixels[x][y]=m_nPixels[x-1][y];
-					if(m_bMirrored)
-						Mirror(x,y);
-					continue;
+				if (GetIsolatedGlitchNeighbourhood())
+				{
+					const double inf = 1.0 / 0.0;
+					double p[3][3] = { { inf, inf, inf }, { inf, inf, inf }, { inf, inf, inf } };
+					for (int dx = -1; dx <= 1; ++dx)
+					{
+						for (int dy = -1; dy <= 1; ++dy)
+						{
+							int x2 = x + dx;
+							int y2 = y + dy;
+							if (x2 < 0 || m_nX <= x2) x2 = x - dx;
+							if (y2 < 0 || m_nY <= y2) y2 = y - dy;
+							p[dx+1][dy+1] = m_nTrans[x2][y2] == TRANS_GLITCH;
+						}
+					}
+					int nMatch = 0;
+					for (int dx = -1; dx <= 1; ++dx)
+					{
+						for (int dy = -1; dy <= 1; ++dy)
+						{
+							if (GetIsolatedGlitchNeighbourhood() == 4 && dx && dy)
+							{
+								continue;
+							}
+							nMatch += p[dx+1][dy+1] == p[1][1];
+						}
+					}
+					// this seems to try to "fix" single pixel glitches by copying neighbour
+					// this doesn't seem to be desirable for high quality rendering
+					// but some like it fast
+					if(nMatch==1){
+						int x2 = x ? x - 1 : x + 1;
+						m_nTrans[x][y]=m_nTrans[x2][y];
+						m_nPixels[x][y]=m_nPixels[x2][y];
+						if(m_bMirrored)
+							Mirror(x,y);
+						continue;
+					}
 				}
-#endif
-#endif
 				int nDist = GetArea(Node,x,y,1,NULL,nDone);
 				if(nDistance<nDist){
 					nDistance=nDist;

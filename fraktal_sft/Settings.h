@@ -39,6 +39,7 @@ private:
   bool m_AutoIterations;
   bool m_ShowGlitches;
   bool m_NoReuseCenter;
+  int m_IsolatedGlitchNeighbourhood;
 
 public:
 
@@ -71,6 +72,7 @@ public:
   , m_AutoIterations(true)
   , m_ShowGlitches(true)
   , m_NoReuseCenter(false)
+  , m_IsolatedGlitchNeighbourhood(0)
   { };
 
   bool FromText(const std::string &text);
@@ -170,6 +172,9 @@ public:
 
   inline bool   GetNoReuseCenter() const { return m_NoReuseCenter; };
   inline void   SetNoReuseCenter(bool b) { m_NoReuseCenter = b; };
+
+  inline int    GetIsolatedGlitchNeighbourhood() const { return m_IsolatedGlitchNeighbourhood; };
+  inline void   SetIsolatedGlitchNeighbourhood(int n) { m_IsolatedGlitchNeighbourhood = n; };
 
 };
 
