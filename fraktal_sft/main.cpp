@@ -687,12 +687,14 @@ struct JPEG_PARAMS
 	int nWidth;
 	int nHeight;
 	int nQuality;
+	int lParam;
 }g_JpegParams;
 static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+		g_JpegParams.lParam = lParam;
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_JpegParams.nWidth,0);
 		SetDlgItemInt(hWnd,IDC_EDIT3,g_JpegParams.nHeight,0);
 		if(lParam){
@@ -719,6 +721,11 @@ static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_JpegParams.nWidth = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0);
 			g_JpegParams.nHeight = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
 			g_JpegParams.nQuality = GetDlgItemInt(hWnd,IDC_EDIT4,NULL,0);
+			if (g_JpegParams.lParam == 2)
+			{
+				EndDialog(hWnd, 1);
+				return 0;
+			}
 			if (0 < g_JpegParams.nWidth && g_JpegParams.nWidth <= 65536 &&
 			    0 < g_JpegParams.nHeight && g_JpegParams.nHeight <= 65536 &&
 			    (uint64_t(g_JpegParams.nWidth) * uint64_t(g_JpegParams.nHeight) * uint64_t(3)) < (uint64_t(1) << uint64_t(31)))
