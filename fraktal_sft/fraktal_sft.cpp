@@ -1214,7 +1214,10 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 							Org[x][y] = m_nMaxIter;
 					}
 					else
+					{
 						Org[x][y] = -1;
+						OrgT[x][y] = TRANS_GLITCH;
+					}
 				}
 			}
 		}
@@ -1222,12 +1225,15 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		b = (nHeight - nOY) / 2;
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
-				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){
+				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
 				}
 				else
+				{
 					m_nPixels[x][y] = -1;
+					m_nTrans[x][y] = TRANS_GLITCH;
+				}
 			}
 		}
 		for (i = 0; i<nOX; i++){
