@@ -137,6 +137,8 @@ Change Log
       the view, probably other badness too)
     - added logic to prevent too-huge image size being entered via the GUI
       (settings files are still not checked...)
+    - fixed store zoom out for deep zooms (bug reported by gerrit) (the issue
+      was exceptions thrown by std::stod(), remember to catch them)
 
 - **kf-2.12.7** (2017-12-07)
 

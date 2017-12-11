@@ -1515,7 +1515,20 @@ nPos=13;
 nPos=14;
 			g_bStoreZoom++;
 			g_nStoreZoomCount++;
-			if(!std::stod(szZ) || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
+			double szZd = 0.0;
+			try
+			{
+				szZd = std::stod(szZ);
+			}
+			catch (std::out_of_range e)
+			{
+				szZd = 1;
+			}
+			catch (std::invalid_argument e)
+			{
+				szZd = 0.0;
+			}
+			if(0.0 == szZd || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
 				g_bStoreZoom=FALSE;
 				DeleteObject(g_bmSaveZoomBuff);
 				g_bmSaveZoomBuff=NULL;
