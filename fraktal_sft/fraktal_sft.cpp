@@ -1014,10 +1014,14 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
 				m_iref = (m_istop + m_istart)*.5;
+				g_nAddRefX = -1;
+				g_nAddRefY = -1;
 			}
 			else{
 				m_rref = 0;
 				m_iref = 0;
+				g_nAddRefX = -1;
+				g_nAddRefY = -1;
 			}
 		}
 		CalculateReferenceEXP();
@@ -1872,10 +1876,14 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		dbD0r = (dbD0r - mr) / ratio + mr;
 		m_rref = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
 		m_iref = (CFixedFloat)dbD0i*(m_istop - m_istart)*(CFixedFloat)((double)1 / m_nY) + m_istart;
+		g_nAddRefX = nXPos;
+		g_nAddRefY = nYPos;
 	}
 	else{
 		m_rref = 0;
 		m_iref = 0;
+		g_nAddRefX = -1;
+		g_nAddRefY = -1;
 	}
 	int x, y;
 #ifdef KF_RERENDER_ONLY_ALL_GLITCHES
