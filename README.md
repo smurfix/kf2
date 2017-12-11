@@ -50,8 +50,6 @@ Known Bugs
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
-- still some spots in DE rendering when translating view in "spotsBug.kfr"
-  (reported by gerrit)
 - lines in the rendering (reported by CFJH)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
@@ -63,6 +61,7 @@ Known Bugs
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
+- confusing UI about zoom count limit vs auto stop in store zoom out sequence
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
@@ -124,6 +123,7 @@ Differences From Upstream 2.11.1
   (.kfs files and PNG/JPEG comments too)
 - command line arguments to load settings and/or location
 - command line arguments to render and save PNG/JPEG/KFB Map before quiting
+- see change log below for more...
 
 
 Change Log
@@ -134,6 +134,12 @@ Change Log
     - fixed the fix for hang in normalisation (was generating bad images)
       (reported by gerrit with bug7.png)
     - restore ignoring isolated glitches
+    - fixed DE spots bug (somehow the reference was being reset to the center
+      of the screen sometimes without its pixel position being updated)
+      (reported by gerrit)
+    - fixed bugs with guessing and glitch status (only interpolate when the
+      glitch status of both neighbours is the same) (caused lines when dragging
+      the view, probably other badness too)
 
 - **kf-2.12.7** (2017-12-07)
 
