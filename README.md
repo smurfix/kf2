@@ -57,7 +57,6 @@ Known Bugs
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
-- confusing UI about zoom count limit vs auto stop in store zoom out sequence
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment

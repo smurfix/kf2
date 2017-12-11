@@ -264,8 +264,8 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
 			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
 			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
-			case IDC_STOREZOOM_COUNTAUTO: return "Automatically stop when completely zoomed out";
-			case IDC_STOREZOOM_COUNT: return "Render this many frames (if auto is unchecked)";
+			case IDC_STOREZOOM_COUNTAUTO: return "Render only a limited number of frames";
+			case IDC_STOREZOOM_COUNT: return "Render this many frames (if above is checked)";
 			case IDOK: return "Apply and close";
 			case IDCANCEL: return "Close and undo";
 		}
@@ -2433,7 +2433,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 				g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
 				g_nStoreZoomCount = 0;
 				g_nStoreZoomLimit = GetDlgItemInt(hWnd, IDC_STOREZOOM_COUNT, NULL, FALSE);
-				if (g_nStoreZoomLimit <= 0 || SendDlgItemMessage(hWnd, IDC_STOREZOOM_COUNTAUTO, BM_GETCHECK, 0, 0))
+				if (g_nStoreZoomLimit <= 0 || !SendDlgItemMessage(hWnd, IDC_STOREZOOM_COUNTAUTO, BM_GETCHECK, 0, 0))
 				{
 					g_nStoreZoomLimit = 0;
 				}
