@@ -129,6 +129,12 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
+- **kf-2.12.8** (????-??-??)
+
+    - fixed the fix for hang in normalisation (was generating bad images)
+      (reported by gerrit with bug7.png)
+    - restore ignoring isolated glitches
+
 - **kf-2.12.7** (2017-12-07)
 
     - renabled guessing conditional on menu option (was disabled in 2.12.4 as

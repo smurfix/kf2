@@ -2770,12 +2770,12 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 			}
 
 			else if (!bGlitch && m_nSmoothMethod == 0){
-				m_nTrans[x][y] = log(log(sqrt(test1))) / log((double)m_nPower);
-				if (!ISFLOATOK(m_nTrans[x][y]))
-					m_nTrans[x][y] = 0;
-				double iteration = m_nPixels[x][y] + 1 - m_nTrans[x][y];
-				m_nPixels[x][y] = floor(iteration);
-				m_nTrans[x][y] = 1 - (iteration - m_nPixels[x][y]);
+				double t = log(log(sqrt(test1))) / log((double)m_nPower);
+				if (!ISFLOATOK(t))
+					t = 0;
+				int i = floor(t);
+				m_nPixels[x][y] -= i;
+				m_nTrans[x][y] = t - i;
 			}
 
 			if (bGlitch && !m_bNoGlitchDetection){
