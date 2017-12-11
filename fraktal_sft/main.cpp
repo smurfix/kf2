@@ -719,7 +719,16 @@ static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_JpegParams.nWidth = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0);
 			g_JpegParams.nHeight = GetDlgItemInt(hWnd,IDC_EDIT3,NULL,0);
 			g_JpegParams.nQuality = GetDlgItemInt(hWnd,IDC_EDIT4,NULL,0);
-			EndDialog(hWnd,1);
+			if (0 < g_JpegParams.nWidth && g_JpegParams.nWidth <= 65536 &&
+			    0 < g_JpegParams.nHeight && g_JpegParams.nHeight <= 65536 &&
+			    (uint64_t(g_JpegParams.nWidth) * uint64_t(g_JpegParams.nHeight) * uint64_t(3)) < (uint64_t(1) << uint64_t(31)))
+			{
+				EndDialog(hWnd,1);
+			}
+			else
+			{
+				MessageBox(hWnd, "Invalid dimensions\n\nMaximum width or height is 65536\nMaximum bitmap size is 2GiB\nIn pixels this makes:\n26754x26754 (1:1)\n35673x20066 (16:9)\n", "Error", MB_OK);
+			}
 		}
 		else if(LOWORD(wParam)==IDC_EDIT1 && HIWORD(wParam)==EN_CHANGE){
 			//int nHeight = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0)*(double)g_SFT.GetRatioY()/(double)g_SFT.GetRatioX();

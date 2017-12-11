@@ -32,10 +32,6 @@ Known Bugs
 
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
-- maximum image dimension (either width or height) is 65536, this is not checked
-- maximum image size (width * height) is (2^31-1)/3 pixels, equivalent to
-  26754x26754 (1:1) or 35673x20066 (16:9), this is not checked; memory usage is
-  at least 17 bytes per pixel, possibly more for glitch analysis
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
@@ -140,6 +136,8 @@ Change Log
     - fixed bugs with guessing and glitch status (only interpolate when the
       glitch status of both neighbours is the same) (caused lines when dragging
       the view, probably other badness too)
+    - added logic to prevent too-huge image size being entered via the GUI
+      (settings files are still not checked...)
 
 - **kf-2.12.7** (2017-12-07)
 
