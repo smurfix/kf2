@@ -83,8 +83,13 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   int *haveperiod = b->c->haveperiod;
   int *period = b->c->period;
   char szStatus[300];
-  floatexp zre, zim, absz;
-  floatexp rz = b->c->zradius;
+  floatexp r = b->c->zradius;
+  complex<floatexp> z(0.0, 0.0);
+  complex<floatexp> dz(0.0, 0.0);
+  floatexp rz = 0.0;
+  floatexp rdz = 0.0;
+  floatexp Ei = 0.0;
+  floatexp rr = 0.0;
   uint32_t last = 0;
   if (t == 0)
   {
@@ -104,25 +109,32 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 	  last = now;
 	}
       }
-      zre = mpfr_get_fe(b->c->zr);
-      zim = mpfr_get_fe(b->c->zi);
-      absz = sqrt(zre * zre + zim * zim);
-      if (absz < rz)
-      {
-	*haveperiod = true;
-	*period = i;
-      }
-      if (absz > 1e100)
+      Ei = rdz * rdz + (2 * rz + r * (2 * rdz + r * Ei)) * Ei;
+      dz = 2 * z * dz + complex<floatexp>(1.0, 0.0);
+      z = complex<floatexp>(mpfr_get_fe(b->c->zr), mpfr_get_fe(b->c->zi));
+      rdz = abs(dz);
+      rz = abs(z);
+      rr = r * (rdz + r * Ei);
+      if (rz - rr > 2) // outside everything
       {
 	*haveperiod = true;
 	*period = 0;
+      }
+      if (rz - rr < -2) // surrounds everything
+      {
+	*haveperiod = true;
+	*period = 0;
+      }
+      if (rz - rr <= 0) // surrounds 0
+      {
+	*haveperiod = true;
+	*period = i;
       }
     }
     switch (t)
     {
       case 0:
       {
-	rz = (2 * absz + rz) * rz;
         mpfr_sqr(b->c->zr2, b->c->zr, MPFR_RNDN);
         mpfr_sqr(b->c->zi2, b->c->zi, MPFR_RNDN);
 	break;
