@@ -120,11 +120,6 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 	*haveperiod = true;
 	*period = 0;
       }
-      if (rz - rr < -2) // surrounds everything
-      {
-	*haveperiod = true;
-	*period = 0;
-      }
       if (rz - rr <= 0) // surrounds 0
       {
 	*haveperiod = true;
