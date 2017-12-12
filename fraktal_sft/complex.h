@@ -120,4 +120,16 @@ inline complex<tt> operator*(int a, const complex<tt> &b)
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
+template <class tt>
+inline tt norm(const complex<tt> &a)
+{
+	return a.m_r * a.m_r + a.m_i * a.m_i;
+}
+
+template <class tt>
+inline tt abs(const complex<tt> &a)
+{
+	return sqrt(norm(a));
+}
+
 #endif
