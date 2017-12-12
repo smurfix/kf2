@@ -932,6 +932,28 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 	return os.str();
 }
 
+static void AutoIterations()
+{
+	if(g_SFT.GetAutoIterations()){
+		int nMin, nMax, nIter;
+		g_SFT.GetIterations(nMin,nMax);
+		// sanity increase
+		nIter = g_SFT.GetIterations();
+		if(nIter<nMax)
+			g_SFT.SetIterations(nMax);
+		// increase
+		nIter = g_SFT.GetIterations();
+		if(nIter<nMin+nMin+2000)
+			g_SFT.SetIterations(nMin+nMin+3000);
+#if 0
+		// decrease
+		nMax = g_SFT.GetMaxExceptCenter();
+		if(nMax<g_SFT.GetIterations()/3)
+			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
+#endif
+	}
+}
+
 static int ResumeZoomSequence(HWND hWnd)
 {
 	g_szFile = "";
@@ -1036,16 +1058,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	g_JpegParams.nHeight = g_SFT.GetHeight();
 	g_JpegParams.nQuality = 100;
 	//g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-	if(g_SFT.GetAutoIterations()){
-		int nMin, nMax, nIter;
-		g_SFT.GetIterations(nMin,nMax);
-		nIter = g_SFT.GetIterations();
-		if(nIter<nMax)
-			g_SFT.SetIterations(nMax); // increase iterations
-		nMax = g_SFT.GetMaxExceptCenter();//GetIterationOnPoint(g_SFT.GetWidth()/2-1,g_SFT.GetHeight()/2-1);
-		if(nMax<g_SFT.GetIterations()/3)
-			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000); // decrease iterations
-	}
+	AutoIterations();
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE);
@@ -1541,11 +1554,7 @@ nPos=14;
 				g_bmSaveZoomBuff=NULL;
 			}
 			else{
-				if(g_SFT.GetAutoIterations()){
-					int nMax = g_SFT.GetMaxExceptCenter();//GetIterationOnPoint(g_SFT.GetWidth()/2-1,g_SFT.GetHeight()/2-1);
-					if(nMax<g_SFT.GetIterations()/3)
-						g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
-				}
+				AutoIterations();
 
 				if(g_bSkewAnimation){
 					if(g_bSkewAnimation==1){
@@ -2985,14 +2994,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
 			CloseHandle(hThread);
 		}
-		if (g_SFT.GetAutoIterations())
-		{
-			int nMin, nMax, nIter;
-			g_SFT.GetIterations(nMin,nMax);
-			nIter = g_SFT.GetIterations();
-			if(nIter<nMin+nMin+2000)
-				g_SFT.SetIterations(nMin+nMin+3000);
-		}
+		AutoIterations();
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -3069,13 +3071,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					UpdateWindow(hWnd);
 				}
 
-				if(!g_hwExamine && g_SFT.GetAutoIterations()){
-					int nMin, nMax, nIter;
-					g_SFT.GetIterations(nMin,nMax);
-					nIter = g_SFT.GetIterations();
-					if(nIter<nMin+nMin+2000)
-						g_SFT.SetIterations(nMin+nMin+3000);
-				}
+				AutoIterations();
 			}
 
 			SYSTEMTIME st;
@@ -3271,14 +3267,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			p.x=rc.right/2 + (p.x-rc.right/2)/2;
 			p.y=rc.bottom/2 + (p.y-rc.bottom/2)/2;
 		}
-		if (g_SFT.GetAutoIterations())
-		{
-			int nMin, nMax, nIter;
-			g_SFT.GetIterations(nMin,nMax);
-			nIter = g_SFT.GetIterations();
-			if(nIter<nMin+nMin/2+2000)
-				g_SFT.SetIterations(nMin+nMin/2+3000);
-		}
+		AutoIterations();
 		g_pSelect.x = -g_SFT.GetWidth()/2;
 		g_pSelect.y = g_SFT.GetHeight()/2;
 		ANIM* pAnim = new ANIM;
