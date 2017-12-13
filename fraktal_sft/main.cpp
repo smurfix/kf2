@@ -945,12 +945,10 @@ static void AutoIterations()
 		nIter = g_SFT.GetIterations();
 		if(nIter<nMin+nMin+2000)
 			g_SFT.SetIterations(nMin+nMin+3000);
-#if 0
 		// decrease
 		nMax = g_SFT.GetMaxExceptCenter();
 		if(nMax<g_SFT.GetIterations()/3)
 			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
-#endif
 	}
 }
 

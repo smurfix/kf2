@@ -53,6 +53,8 @@ Known Bugs
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
+- black regions when rendering zoom out sequence (maximum iterations are reduced
+  too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
@@ -140,7 +142,7 @@ Change Log
     - clarified store zoom count user interface (reported by CFJH)
     - fixed store zoom out for deep zooms (bug reported by gerrit) (the issue
       was exceptions thrown by std::stod(), remember to catch them)
-    - fixed auto iterations to never decrease iterations (reported by gerrit)
+    - refactor auto iterations (issue reported by gerrit remains unresolved)
     - fixed hardcoded count in glitch correction
     - use Taylor intervals in ball-period method (code copied from knighty)
 
