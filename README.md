@@ -395,6 +395,9 @@ TODO
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
 - calculations: Horner's rule for polynomial evaluation (if not used already)
+- newton: custom zoom factor setting (not just 3/4 etc) (suggested by gerrit)
+- newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
+  selection) (suggested by gerrit)
 - newton: properly debug huge zoom values from size estimate
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: common subexpression elimination (share results, might be
