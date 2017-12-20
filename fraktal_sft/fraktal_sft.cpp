@@ -1501,9 +1501,12 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 	int tx, ty;
 	double val, minval = 0;
 	BOOL bFirst = TRUE;
-	int nStep = (bQuick ? 6 : 4)*m_nX*m_nX / (640 * 640);
-	if (nStep == 0)
-		nStep = 1;
+	uint64_t nStep0 = uint64_t(bQuick ? 6 : 4)*uint64_t(m_nX)*uint64_t(m_nX) / uint64_t(640 * 640);
+	if (nStep0 <= 0)
+		nStep0 = 1;
+	if (nStep0 > 1 << 30)
+		nStep0 = 1 << 30;
+	int nStep = nStep0;
 	GetBitmap();
 	int nMin, nMax;
 	GetIterations(nMin, nMax, NULL, NULL, TRUE);
