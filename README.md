@@ -126,7 +126,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.8** (????-??-??)
+- **kf-2.12.8** (2017-12-22)
 
     - fixed the fix for hang in normalisation (was generating bad images)
       (reported by gerrit with bug7.png)
