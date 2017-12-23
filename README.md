@@ -126,6 +126,11 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
+- **kf-2.12.9** (????-??-??)
+
+    - fixed "the maxiterations suddenly resets to some very low value"
+      (reported by gerrit)
+
 - **kf-2.12.8** (2017-12-22)
 
     - fixed the fix for hang in normalisation (was generating bad images)

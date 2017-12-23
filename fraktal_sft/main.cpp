@@ -937,6 +937,9 @@ static void AutoIterations()
 	if(g_SFT.GetAutoIterations()){
 		int nMin, nMax, nIter;
 		g_SFT.GetIterations(nMin,nMax);
+		// sanity check, abort if no pixels have been calculated
+		if (nMax < 0)
+			return;
 		// sanity increase
 		nIter = g_SFT.GetIterations();
 		if(nIter<nMax)
