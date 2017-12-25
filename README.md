@@ -130,6 +130,8 @@ Change Log
 
     - fixed "the maxiterations suddenly resets to some very low value"
       (reported by gerrit)
+    - added shell script containing some of the build instructions from
+      the documentation
 
 - **kf-2.12.8** (2017-12-22)
 
