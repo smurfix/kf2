@@ -37,7 +37,7 @@ floatexp lb_abs_exp(const floatexp &c, const floatexp &d)
 void CFraktalSFT::MandelCalcEXP()
 {
 	m_bIterChanged = TRUE;
-	floatexp Dnr, Dni, yr, yi;
+	floatexp Dnr, Dni, yr, yi, dcr, dci;
 	int antal, x, y, w, h;
 	floatexp real(g_real), imag(g_imag), _abs_val;
 
@@ -127,7 +127,7 @@ void CFraktalSFT::MandelCalcEXP()
     else
     {
 
-			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i);
+			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dcr, dci);
 			assert(ok && "perturbation_floatexp()");
 
 		}

@@ -39,8 +39,11 @@ void CFraktalSFT::CalculateReference()
 	double test1 = 0;
 	double test2 = 0;
 
+  double dcr = 0;
+  double dci = 0;
+
   if (m_nFractalType == 0 && m_nPower > 10)
-	{
+	{ // FIXME derivative
 
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
@@ -94,7 +97,7 @@ void CFraktalSFT::CalculateReference()
 	else
 	{
 
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2);
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dcr, dci);
 		assert(ok && "reference_double");
 
 	}
@@ -102,4 +105,3 @@ void CFraktalSFT::CalculateReference()
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2);
 }
-

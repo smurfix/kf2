@@ -21,8 +21,12 @@
       </reference>
       <perturbation t="R">
         xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
-        xin = 2 * ((Xr + xr) * xi + Xi * xr) + ci;
+        xin = 2 * (Xxr * xi + Xi * xr) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (dr * Xxr - di * Xxi) + 1;
+        din = 2 * (di * Xxr + dr * Xxi);
+      </derivative>
     </formula>
 
     <formula power="3" glitch="0.000001">

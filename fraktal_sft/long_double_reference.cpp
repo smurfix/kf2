@@ -202,6 +202,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	double test1 = 0;
 	double test2 = 0;
 
+	long double dcr = 0;
+	long double dci = 0;
+
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
@@ -281,7 +284,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
-	{
+	{ // FIXME derivatives
 		bool stored = false;
 		double old_absval = 0;
 		double abs_val = 0;
@@ -336,7 +339,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dcr, dci);
     assert(ok && "reference_long_double");
 
 	}

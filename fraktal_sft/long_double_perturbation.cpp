@@ -3,8 +3,10 @@
 #include "complex.h"
 #include "../formula/formula.h"
 
-static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts)
-{
+static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dcr, long double &dci)
+{ // FIXME implement derivative
+(void) dcr;
+(void) dci;
   long double yr, yi;
   bGlitch=FALSE;
   if(antal<m_nMaxIter && test1 <= m_nBailout2){
@@ -99,24 +101,24 @@ void CFraktalSFT::MandelCalcLDBL()
 			TDnr = D0r;
 			TDni = D0i;
 		}
-		long double Dr, Di;
+		long double Dr, Di, dcr, dci;
 		Dr = TDnr.toLongDouble();
 		Di = TDni.toLongDouble();
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-    if (m_nFractalType == 0 && m_nPower > 10)
-    {
+		if (m_nFractalType == 0 && m_nPower > 10)
+		{
 
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts);
+			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dcr, dci);
 
 		}
 		else
 		{
 			int antal2 = antal;
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i);
+			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dcr, dci);
 			assert(ok && "perturbation_long_double");
 			antal = antal2;
 		}
@@ -124,6 +126,6 @@ void CFraktalSFT::MandelCalcLDBL()
 		OutputIterationData(x, y, bGlitch, antal, test1, test2);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
-    OutputPixelData(x, y, w, h, bGlitch);
+		OutputPixelData(x, y, w, h, bGlitch);
 	}
 }

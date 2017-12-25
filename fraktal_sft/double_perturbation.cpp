@@ -5,7 +5,7 @@
 void CFraktalSFT::MandelCalc()
 {
 	m_bIterChanged = TRUE;
-	double Dnr, Dni, yr, yi;
+	double Dnr, Dni, yr, yi, dcr, dci;
 	int antal, x, y, w, h;
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -149,7 +149,7 @@ void CFraktalSFT::MandelCalc()
 			else
 			{
 
-				bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i);
+				bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dcr, dci);
 				assert(ok && "perturbation_double");
 
 			}

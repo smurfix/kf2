@@ -1,6 +1,7 @@
 #include <windows.h>
 #include <stdint.h>
 #include "../fraktal_sft/floatexp.h"
+#include "formula.h"
 
 static inline double d_add(const double a, const double b)
 {
