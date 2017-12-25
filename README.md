@@ -126,6 +126,10 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
+- **kf.2.13.1** (????-??-??)
+
+    - added derivative calculations
+
 - **kf-2.12.9** (????-??-??)
 
     - fixed "the maxiterations suddenly resets to some very low value"

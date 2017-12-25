@@ -25,10 +25,8 @@ static inline long double ConvertFromFixedFloat(const CFixedFloat &amp;f)
 <xsl:for-each select="formulas/group/formula">
 
 
-bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, double &amp;dcr, double &amp;dci)
+bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, double &amp;dcr0, double &amp;dci0)
 {
-(void) dcr;
-(void) dci;
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
@@ -46,12 +44,17 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
     mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    double Xrd = mpfr_get_d(Xr, MPFR_RNDN);
+    double Xid = mpfr_get_d(Xi, MPFR_RNDN);
     mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
     mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
     mpfr_t Xrn; mpfr_init2(Xrn, bits);
     mpfr_t Xin; mpfr_init2(Xin, bits);
     mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
+    double dr = dcr0;
+    double di = dci0;
+    double drn = 0, din = 0;
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
@@ -63,13 +66,15 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 </xsl:choose>
 
 #define LOOP \
+      dr = drn; \
+      di = din; \
       mpfr_set(Xr, Xrn, MPFR_RNDN); \
       mpfr_set(Xi, Xin, MPFR_RNDN); \
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const double Xrd = mpfr_get_d(Xr, MPFR_RNDN); \
-      const double Xid = mpfr_get_d(Xi, MPFR_RNDN); \
+      Xrd = mpfr_get_d(Xr, MPFR_RNDN); \
+      Xid = mpfr_get_d(Xi, MPFR_RNDN); \
       old_absval = abs_val; \
       abs_val = g_real * Xrd * Xrd + g_imag * Xid * Xid; \
       const double Xz = abs_val * glitch; \
@@ -108,14 +113,26 @@ for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
+        const complex&lt;double&gt; Xx(Xrd, Xid), d(dr, di);
+        (void) Xx; // -Wunused-variable
+        (void) d;  // -Wunused-variable
+        complex&lt;double&gt; dn(0.0, 0.0);
         {
+          <xsl:value-of select="derivative" />
           <xsl:value-of select="reference" />
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
+        drn = dn.m_r;
+        din = dn.m_i;
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
+      const double Xxr = Xrd; (void) Xxr; // -Wunused-variable
+      const double Xxi = Xid; (void) Xxi; // -Wunused-variable
+      {
+        <xsl:value-of select="derivative" />
+      }
 @rr   {
         <xsl:value-of select="reference" />
       }
@@ -123,7 +140,6 @@ LOOP  }
 </xsl:choose>
 
 #undef LOOP
-
     mpfr_clear(Cr);
     mpfr_clear(Ci);
     mpfr_clear(Xr);
@@ -134,16 +150,15 @@ LOOP  }
     mpfr_clear(Xin);
     mpfr_clear(Ar);
     mpfr_clear(Ai);
-
+    dcr0 = dr;
+    dci0 = di;
     return true;
   }
   return false;
 }
 
-bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, long double &amp;dcr, long double &amp;dci)
+bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, long double &amp;dcr0, long double &amp;dci0)
 {
-(void) dcr;
-(void) dci;
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
@@ -162,12 +177,17 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
     mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    long double Xrl = mpfr_get_ld(Xr, MPFR_RNDN); \
+    long double Xil = mpfr_get_ld(Xi, MPFR_RNDN); \
     mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
     mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
     mpfr_t Xrn; mpfr_init2(Xrn, bits);
     mpfr_t Xin; mpfr_init2(Xin, bits);
     mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
+    long double dr = dcr0;
+    long double di = dci0;
+    long double drn = 0, din = 0;
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
@@ -179,13 +199,15 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 </xsl:choose>
 
 #define LOOP \
+      dr = drn; \
+      di = din; \
       mpfr_set(Xr, Xrn, MPFR_RNDN); \
       mpfr_set(Xi, Xin, MPFR_RNDN); \
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const long double Xrl = mpfr_get_ld(Xr, MPFR_RNDN); \
-      const long double Xil = mpfr_get_ld(Xi, MPFR_RNDN); \
+      Xrl = mpfr_get_ld(Xr, MPFR_RNDN); \
+      Xil = mpfr_get_ld(Xi, MPFR_RNDN); \
       old_absval = abs_val; \
       if (no_g) \
         abs_val = Xrl * Xrl + Xil * Xil; \
@@ -227,14 +249,26 @@ for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
+        const complex&lt;long double&gt; Xx(Xrl, Xil), d(dr, di);
+        (void) Xx; // -Wunused-variable
+        (void) d;  // -Wunused-variable
+        complex&lt;long double&gt; dn(0.0, 0.0);
         {
+          <xsl:value-of select="derivative" />
           <xsl:value-of select="reference" />
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
+        drn = dn.m_r;
+        din = dn.m_i;
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
+      const long double Xxr = Xrl; (void) Xxr; // -Wunused-variable
+      const long double Xxi = Xil; (void) Xxi; // -Wunused-variable
+      {
+        <xsl:value-of select="derivative" />
+      }
 @rr   {
         <xsl:value-of select="reference" />
       }
@@ -242,7 +276,6 @@ LOOP  }
 </xsl:choose>
 
 #undef LOOP
-
     mpfr_clear(Cr);
     mpfr_clear(Ci);
     mpfr_clear(Xr);
@@ -253,16 +286,15 @@ LOOP  }
     mpfr_clear(Xin);
     mpfr_clear(Ar);
     mpfr_clear(Ai);
-
+    dcr0 = dr;
+    dci0 = di;
     return true;
   }
   return false;
 }
 
-bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const floatexp real, const floatexp imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, floatexp &amp;dcr, floatexp &amp;dci)
+bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const floatexp real, const floatexp imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, floatexp &amp;dcr0, floatexp &amp;dci0)
 {
-(void) dcr;
-(void) dci;
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
@@ -281,12 +313,17 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
     mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
+    floatexp Xrf = mpfr_get_fe(Xr); \
+    floatexp Xif = mpfr_get_fe(Xi); \
     mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
     mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
     mpfr_t Xrn; mpfr_init2(Xrn, bits);
     mpfr_t Xin; mpfr_init2(Xin, bits);
     mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
+    floatexp dr = dcr0;
+    floatexp di = dci0;
+    floatexp drn = 0, din = 0;
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
@@ -298,13 +335,15 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 </xsl:choose>
 
 #define LOOP \
+      dr = drn; \
+      di = din; \
       mpfr_set(Xr, Xrn, MPFR_RNDN); \
       mpfr_set(Xi, Xin, MPFR_RNDN); \
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      const floatexp Xrf = mpfr_get_fe(Xr); \
-      const floatexp Xif = mpfr_get_fe(Xi); \
+      Xrf = mpfr_get_fe(Xr); \
+      Xif = mpfr_get_fe(Xi); \
       old_absval = abs_val; \
       if (no_g) \
         abs_val = (Xrf * Xrf + Xif * Xif).todouble(); \
@@ -346,14 +385,26 @@ for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
+        const complex&lt;floatexp&gt; Xx(Xrf, Xif), d(dr, di);
+        (void) Xx; // -Wunused-variable
+        (void) d;  // -Wunused-variable
+        complex&lt;floatexp&gt; dn(0.0, 0.0);
         {
+          <xsl:value-of select="derivative" />
           <xsl:value-of select="reference" />
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
+        drn = dn.m_r;
+        din = dn.m_i;
 LOOP  }
 </xsl:when>
 <xsl:when test="reference/@t='R'">
+      const floatexp Xxr = Xrf; (void) Xxr; // -Wunused-variable
+      const floatexp Xxi = Xif; (void) Xxi; // -Wunused-variable
+      {
+        <xsl:value-of select="derivative" />
+      }
 @rr   {
         <xsl:value-of select="reference" />
       }
@@ -361,7 +412,6 @@ LOOP  }
 </xsl:choose>
 
 #undef LOOP
-
     mpfr_clear(Cr);
     mpfr_clear(Ci);
     mpfr_clear(Xr);
@@ -372,7 +422,8 @@ LOOP  }
     mpfr_clear(Xin);
     mpfr_clear(Ar);
     mpfr_clear(Ai);
-
+    dcr0 = dr;
+    dci0 = di;
     return true;
   }
   return false;
