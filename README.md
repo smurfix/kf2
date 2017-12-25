@@ -498,16 +498,12 @@ install natively.
         wget http://www.mpfr.org/mpfr-current/allpatches -O mpfr-3.1.6.patch
         wget https://zlib.net/zlib-1.2.11.tar.xz
         wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
+        wget ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout formulas
         cd ..
         cp -avit ~/win32/src *z mpfr-3.1.6.patch kalles-fraktaler-2/
-
-    You also need to get libpng (version 1.6.32) from a non-automatable link at
-    <http://www.libpng.org/pub/png/libpng.html> (save it to
-    `.../vm/home/build/win64/src` and copy it to `.../vm/home/build/win32/src`
-    too).
 
     Internet access is no longer required after this step.
 
@@ -572,8 +568,8 @@ install natively.
     4. Build PNG (64bit and 32bit):
 
             cd ~/win64/src
-            tar xf libpng-1.6.32.tar.xz
-            cd libpng-1.6.32
+            tar xf libpng-1.6.34.tar.xz
+            cd libpng-1.6.34
             ./configure --disable-shared --host=x86_64-w64-mingw32 \
               CPPFLAGS=-I$HOME/win64/include LDFLAGS=-L$HOME/win64/lib \
               --prefix=$HOME/win64
@@ -581,8 +577,8 @@ install natively.
             make install
 
             cd ~/win32/src
-            tar xf libpng-1.6.32.tar.xz
-            cd libpng-1.6.32
+            tar xf libpng-1.6.34.tar.xz
+            cd libpng-1.6.34
             ./configure --disable-shared --host=i686-w64-mingw32 \
               CPPFLAGS=-I$HOME/win32/include LDFLAGS=-L$HOME/win32/lib \
               --prefix=$HOME/win32
