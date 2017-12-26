@@ -136,6 +136,7 @@ Change Log
     - interior is white instead of black
     - series approximation uses Horner's rule to evaluate polynomials
       (minor optimisation)
+    - default settings are best-quality by default
 
 - **kf-2.12.9** (????-??-??)
 
