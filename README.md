@@ -414,6 +414,7 @@ TODO
 - calculations: calculate series approximation in parallel with reference
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
+- calculations: derivatives for Simonbrot formulas 33, 40, 51
 - newton: custom zoom factor setting (not just 3/4 etc) (suggested by gerrit)
 - newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
