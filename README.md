@@ -134,6 +134,8 @@ Change Log
     - added derivative calculations
     - analytic DE colouring mode
     - interior is white instead of black
+    - series approximation uses Horner's rule to evaluate polynomials
+      (minor optimisation)
 
 - **kf-2.12.9** (????-??-??)
 
@@ -412,7 +414,6 @@ TODO
 - calculations: calculate series approximation in parallel with reference
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
-- calculations: Horner's rule for polynomial evaluation (if not used already)
 - newton: custom zoom factor setting (not just 3/4 etc) (suggested by gerrit)
 - newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
