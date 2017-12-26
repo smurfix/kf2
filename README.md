@@ -130,6 +130,9 @@ Change Log
 
     - fixed "the maxiterations suddenly resets to some very low value"
       (reported by gerrit)
+    - barrier implementation yields if there are fewer CPUs than threads
+      (fixes very slow Newton-Raphson zooming on dual-core laptop)
+    - upgrade to libpng 1.6.34
     - added shell script containing some of the build instructions from
       the documentation
 
