@@ -3,6 +3,11 @@
 #include "../fraktal_sft/floatexp.h"
 #include "formula.h"
 
+template <typename T> T sgn(const T &a)
+{
+  return (a > 0) - (a < 0);
+}
+
 static inline double d_add(const double a, const double b)
 {
   return a + b;
@@ -21,6 +26,11 @@ static inline double d_neg(const double a)
 static inline double d_abs(const double a)
 {
   return a < 0.0 ? -a : a;
+}
+
+static inline double d_sgn(const double a)
+{
+  return (a > 0.0) - (a < 0.0);
 }
 
 static inline double d_imul(const int a, const double b)
@@ -98,6 +108,11 @@ static inline long double ld_neg(const long double a)
 static inline long double ld_abs(const long double a)
 {
   return a < 0.0 ? -a : a;
+}
+
+static inline long double ld_sgn(const long double a)
+{
+  return (a > 0.0) - (a < 0.0);
 }
 
 static inline long double ld_imul(const int a, const long double b)
@@ -202,6 +217,11 @@ static inline floatexp fe_abs(const floatexp f)
 {
   floatexp fe(d_abs(f.val), f.exp, 0);
   return fe;
+}
+
+static inline floatexp fe_sgn(const floatexp a)
+{
+  return floatexp((a.val > 0.0) - (a.val < 0.0));
 }
 
 static inline floatexp fe_neg(const floatexp f)
