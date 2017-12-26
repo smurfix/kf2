@@ -165,7 +165,7 @@ runCompile es = case evalRWS (mapM_ compile es) () temporaries of
     let ts = filter isTemporary (nub vs)
     in  init2 ts ++ loopStart ++ concat is ++ loopEnd ++ clear ts
 
-loopStart = "for (i = 0; i < nMaxIter && !m_bStop; i++) {\n"
+loopStart = "for (i = 0; i < nMaxIter && !m_bStop; i++) { DLOOP\n"
 loopEnd   = "LOOP }\n"
 
 vars (EInt _) = []
@@ -285,8 +285,9 @@ parseCL s = case parse (many (block <|> context) <* eof) "" s of
   Left e -> error (show e)
 
 interpretCL (Context s) = s
+interpretCL (Block "rd" s) = unlines . (++ [""]) . map (++ " \\") . ("#define DLOOP" :) . lines $ s
 interpretCL (Block "rr" s) = case parse blockp "" $ filter (not . isSpace) s of
-  Right es -> runCompile es
+  Right es -> runCompile es ++ "#undef DLOOP\n"
   Left e -> error (show e ++ " : " ++ show s)
 interpretCL (Block "rc" s) = "assert(! \"implemented yet\");\n"
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
