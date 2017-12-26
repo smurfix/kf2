@@ -56,13 +56,15 @@
     </formula>
 
     <formula power="4" glitch="0.00001">
-      <reference t="R">
-        Xrn = sqr(Xr2) - 6 * Xr2 * Xi2 + sqr(Xi2) + Cr;
-        Xin = 4 * Xr * Xi * (Xr2 - Xi2) + Ci;
+      <reference t="C">
+        Xn = (X ^ 4) + C;
       </reference>
       <perturbation t="C">
         xn = 4 * (X ^ 3) * x + 6 * (X ^ 2) * (x ^ 2) + 4 * X * (x ^ 3) + (x ^ 4) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
 
     <formula power="5" glitch="0.0001">
@@ -72,6 +74,9 @@
       <perturbation t="C">
         xn = 5 * (X ^ 4) * x + 10 * (X ^ 3) * (x ^ 2) + 10 * (X ^ 2) * (x ^ 3) + 5 * X * (x ^ 4) + (x ^ 5) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
 
     <formula power="6" glitch="0.0001">
@@ -81,6 +86,9 @@
       <perturbation t="C">
         xn = 6 * (X ^ 5) * x + 15 * (X ^ 4) * (x ^ 2) + 20 * (X ^ 3) * (x ^ 3) + 15 * (X ^ 2) * (x ^ 4) + 6 * X * (x ^ 5) + (x ^ 6) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 6 * d * (Xx ^ 5) + 1;
+      </derivative>
     </formula>
 
     <formula power="7" glitch="0.001">
@@ -90,6 +98,9 @@
       <perturbation t="C">
         xn = 7 * (X ^ 6) * x + 21 * (X ^ 5) * (x ^ 2) + 35 * (X ^ 4) * (x ^ 3) + 35 * (X ^ 3) * (x ^ 4) + 21 * (X ^ 2) * (x ^ 5) + 7 * X * (x ^ 6) + (x ^ 7) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 7 * d * (Xx ^ 6) + 1;
+      </derivative>
     </formula>
 
     <formula power="8" glitch="0.001">
@@ -99,6 +110,9 @@
       <perturbation t="C">
         xn = 8 * (X ^ 7) * x + 28 * (X ^ 6) * (x ^ 2) + 56 * (X ^ 5) * (x ^ 3) + 70 * (X ^ 4) * (x ^ 4) + 56 * (X ^ 3) * (x ^ 5) + 28 * (X ^ 2) * (x ^ 6) + 8 * X * (x ^ 7) + (x ^ 8) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 8 * d * (Xx ^ 7) + 1;
+      </derivative>
     </formula>
 
     <formula power="9" glitch="0.01">
@@ -108,6 +122,9 @@
       <perturbation t="C">
         xn = 9 * (X ^ 8) * x + 36 * (X ^ 7) * (x ^ 2) + 84 * (X ^ 6) * (x ^ 3) + 126 * (X ^ 5) * (x ^ 4) + 126 * (X ^ 4) * (x ^ 5) + 84 * (X ^ 3) * (x ^ 6) + 36 * (X ^ 2) * (x ^ 7) + 9 * X * (x ^ 8) + (x ^ 9) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 9 * d * (Xx ^ 8) + 1;
+      </derivative>
     </formula>
 
     <formula power="10" glitch="0.01">
@@ -117,6 +134,9 @@
       <perturbation t="C">
         xn = 10 * (X ^ 9) * x + 45 * (X ^ 8) * (x ^ 2) + 120 * (X ^ 7) * (x ^ 3) + 210 * (X ^ 6) * (x ^ 4) + 252 * (X ^ 5) * (x ^ 5) + 210 * (X ^ 4) * (x ^ 6) + 120 * (X ^ 3) * (x ^ 7) + 45 * (X ^ 2) * (x ^ 8) + 10 * X * (x ^ 9) + (x ^ 10) + c;
       </perturbation>
+      <derivative t="C">
+        dn = 10 * d * (Xx ^ 9) + 1;
+      </derivative>
     </formula>
 
   </group>
@@ -350,7 +370,7 @@
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = (Xr*xi + xr*Xi + xr*xi)*(-2) + ci;
       </perturbation>
-        <derivative t="R">
+      <derivative t="R">
         drn = 2 * (Xxr * dr - Xxi * di) + 1;
         din = 2 * (Xxr * di + Xxi * dr);
       </derivative>
@@ -873,6 +893,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 3*X2*x + 3*X*x2 + x2*x + c;
       </perturbation>
+      <derivative t="C">
+        dn = (2 * A + 3 * Xx) * Xx * d + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -884,6 +907,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 3*X2*x - 3*X*x2 - x2*x + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A - 3 * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -895,6 +921,9 @@
       <perturbation t="C">
         xn = 2*(2*X*x + x2) - 3*X2*x - 3*X*x2 - x2*x + c;
       </perturbation>
+      <derivative t="C">
+        dn = d * Xx * (4 - 3 * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -906,6 +935,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 4*(X^3)*x + 6*(X^2)*x2 + 4*X*x2*x + (x2^2) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A + 4 * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -917,6 +949,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 4*(X^3)*x - 6*(X^2)*x2 - 4*X*x2*x - (x2^2) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A - 4 * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -928,6 +963,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 5*(X^4)*x + 10*(X^3)*x2 + 10*(X^2)*x2*x + 5*X*(x2^2) + (x2*x2*x) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A + 5 * Xx * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -939,6 +977,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 5*(X^4)*x - 10*(X^3)*x2 - 10*(X^2)*x2*x - 5*X*(x2^2) - (x2*x2*x) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A - 5 * Xx * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -950,6 +991,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 6*(X^5)*x + 15*(X^4)*x2 + 20*(X^3)*(x2*x) + 15*(X^2)*(x2^2) + 6*X*(x2*x2*x) + (x2^3) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A + 6 * Xx * Xx * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -961,6 +1005,9 @@
       <perturbation t="C">
         xn = A*(2*X*x + (x^2)) - 6*(X^5)*x - 15*(X^4)*(x^2) - 20*(X^3)*(x^3) - 15*(X^2)*(x^4) - 6*X*(x^5) - (x^6) + c;
       </perturbation>
+      <derivative t="C">
+        dn = Xx * d * (2 * A - 6 * Xx * Xx * Xx * Xx) + 1;
+      </derivative>
     </formula>
   </group>
 
