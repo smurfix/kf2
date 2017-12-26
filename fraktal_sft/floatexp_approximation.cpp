@@ -347,3 +347,33 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	delete[] dbTi0;
 	delete[] p;
 }
+
+void CFraktalSFT::DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni)
+{
+		if (m_nMaxApproximation){
+			antal = m_nMaxApproximation - 1;
+			TDnr = m_APr[0] * D0r - m_APi[0] * D0i;
+			TDni = m_APr[0] * D0i + m_APi[0] * D0r;
+			TDDnr = m_APr[0];
+			TDDni = m_APi[0];
+			floatexp D_r = D0r;
+			floatexp D_i = D0i;
+			for (int k = 1; k < m_nTerms; k++)
+			{
+				TDDnr += (m_APr[k] * D_r - m_APi[k] * D_i) * floatexp(k + 1.0);
+				TDDni += (m_APr[k] * D_i + m_APi[k] * D_r) * floatexp(k + 1.0);
+				floatexp t = D_r*D0r - D_i*D0i;
+				D_i = D_r*D0i + D_i*D0r;
+				D_r = t;
+				TDnr += m_APr[k] * D_r - m_APi[k] * D_i;
+				TDni += m_APr[k] * D_i + m_APi[k] * D_r;
+			}
+		}
+		else{
+			antal = 0;
+			TDnr = D0r;
+			TDni = D0i;
+			TDDnr = 1.0;
+			TDDni = 0.0;
+		}
+}

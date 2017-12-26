@@ -295,6 +295,7 @@ class CFraktalSFT
 	complex<CFixedFloat> *m_pInflections;
 
 	void CalculateApproximation(int nType);
+	void DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
 	void CalculateReference();
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
