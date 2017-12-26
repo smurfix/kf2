@@ -132,7 +132,17 @@ LOOP  }
 @rd   {
         const double Xxr = Xrd; (void) Xxr;
         const double Xxi = Xid; (void) Xxi;
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+        const complex&lt;double&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;double&gt; dn(0.0, 0.0);
         <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
+        <xsl:value-of select="derivative" />
+</xsl:when>
+</xsl:choose>
       }
 @rr   {
         <xsl:value-of select="reference" />
@@ -268,6 +278,17 @@ LOOP  }
 @rd   {
         const long double Xxr = Xrl; (void) Xxr;
         const long double Xxi = Xil; (void) Xxi;
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+        const complex&lt;long double&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;long double&gt; dn(0.0, 0.0);
+        <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
+        <xsl:value-of select="derivative" />
+</xsl:when>
+</xsl:choose>
         <xsl:value-of select="derivative" />
       }
 @rr   {
@@ -404,7 +425,17 @@ LOOP  }
 @rd   {
         const floatexp Xxr = Xrf; (void) Xxr;
         const floatexp Xxi = Xif; (void) Xxi;
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+        const complex&lt;floatexp&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;floatexp&gt; dn(0.0, 0.0);
         <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
+        <xsl:value-of select="derivative" />
+</xsl:when>
+</xsl:choose>
       }
 @rr   {
         <xsl:value-of select="reference" />
@@ -470,6 +501,7 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
 <xsl:when test="perturbation/@t='C'">
       const dcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
       dcomplex xn, dn;
+      (void) X; (void) x; (void) Xx; (void) d;
 @dc   {
         <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
@@ -477,8 +509,23 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
       xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+      const dcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      dcomplex dn;
+      (void) X; (void) x; (void) Xx; (void) d;
+@dc   {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.re; din = dn.im;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
 @d    {
         <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+</xsl:choose>
+@d    {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -547,6 +594,7 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
 <xsl:when test="perturbation/@t='C'">
       const ldcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
       ldcomplex xn, dn;
+      (void) X; (void) x; (void) Xx; (void) d;
 @ldc  {
         <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
@@ -554,8 +602,23 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
       xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+      const ldcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      ldcomplex dn;
+      (void) X; (void) x; (void) Xx; (void) d;
+@ldc  {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.re; din = dn.im;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
 @ld   {
         <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+</xsl:choose>
+@ld   {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
@@ -615,6 +678,7 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
 <xsl:when test="perturbation/@t='C'">
       const fecomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
       fecomplex xn, dn;
+      (void) X; (void) x; (void) Xx; (void) d;
 @fec  {
         <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
@@ -622,8 +686,23 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
       xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+      const fecomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      fecomplex dn;
+      (void) X; (void) x; (void) Xx; (void) d;
+@fec  {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.re; din = dn.im;
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
 @fe   {
         <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+</xsl:choose>
+@fe   {
         <xsl:value-of select="perturbation" />
       }
 </xsl:when>
