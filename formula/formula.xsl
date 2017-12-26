@@ -107,19 +107,26 @@ bool FORMULA(reference_double,<xsl:value-of select="../@type" />,<xsl:value-of s
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+@rd   {
+        const double Xxr = Xrd; (void) Xxr;
+        const double Xxi = Xid; (void) Xxi;
+        const complex&lt;double&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;double&gt; dn(0.0, 0.0);
+        <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+      }
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
-        const complex&lt;double&gt; Xx(Xrd, Xid);
-        (void) Xx; // -Wunused-variable
         {
-          // FIXME derivative
           <xsl:value-of select="reference" />
+          DLOOP
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
+#undef DLOOP
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rd   {
@@ -236,19 +243,26 @@ bool FORMULA(reference_long_double,<xsl:value-of select="../@type" />,<xsl:value
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+@rd   {
+        const long double Xxr = Xrl; (void) Xxr;
+        const long double Xxi = Xil; (void) Xxi;
+        const complex&lt;long double&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;long double&gt; dn(0.0, 0.0);
+        <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+      }
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
-        const complex&lt;long double&gt; Xx(Xrl, Xil);
-        (void) Xx; // -Wunused-variable
         {
-          // FIXME derivative
           <xsl:value-of select="reference" />
+          DLOOP
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
+#undef DLOOP
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rd   {
@@ -365,19 +379,26 @@ bool FORMULA(reference_floatexp,<xsl:value-of select="../@type" />,<xsl:value-of
 
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
+@rd   {
+        const floatexp Xxr = Xrf; (void) Xxr;
+        const floatexp Xxi = Xif; (void) Xxi;
+        const complex&lt;floatexp&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        complex&lt;floatexp&gt; dn(0.0, 0.0);
+        <xsl:value-of select="derivative" />
+        drn = dn.m_r; din = dn.m_i;
+      }
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
-        const complex&lt;floatexp&gt; Xx(Xrf, Xif);
-        (void) Xx; // -Wunused-variable
         {
-          // FIXME derivative
           <xsl:value-of select="reference" />
+          DLOOP
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
+#undef DLOOP
 </xsl:when>
 <xsl:when test="reference/@t='R'">
 @rd   {
@@ -447,13 +468,13 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const dcomplex X = {Xr, Xi}, x = {xr, xi};
-      dcomplex xn;
-      // FIXME derivative
+      const dcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      dcomplex xn, dn;
 @dc   {
+        <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.re; xin = xn.im;
+      xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @d    {
@@ -524,13 +545,13 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const ldcomplex X = {Xr, Xi}, x = {xr, xi};
-      ldcomplex xn;
-      // FIXME derivative
+      const ldcomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      ldcomplex xn, dn;
 @ldc  {
+        <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.re; xin = xn.im;
+      xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @ld   {
@@ -592,13 +613,13 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const fecomplex X = {Xr, Xi}, x = {xr, xi};
-      fecomplex xn;
-      // FIXME derivative
+      const fecomplex X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      fecomplex xn, dn;
 @fec  {
+        <xsl:value-of select="derivative" />
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.re; xin = xn.im;
+      xrn = xn.re; xin = xn.im; drn = dn.re; din = dn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @fe   {
