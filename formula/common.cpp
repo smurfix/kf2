@@ -13,7 +13,17 @@ static inline double d_add(const double a, const double b)
   return a + b;
 }
 
+static inline double d_addi(const double a, const int b)
+{
+  return a + b;
+}
+
 static inline double d_sub(const double a, const double b)
+{
+  return a - b;
+}
+
+static inline double d_isub(const int a, const double b)
 {
   return a - b;
 }
@@ -95,7 +105,17 @@ static inline long double ld_add(const long double a, const long double b)
   return a + b;
 }
 
+static inline long double ld_addi(const long double a, const int b)
+{
+  return a + b;
+}
+
 static inline long double ld_sub(const long double a, const long double b)
+{
+  return a - b;
+}
+
+static inline long double ld_isub(const int a, const long double b)
 {
   return a - b;
 }
@@ -276,9 +296,19 @@ static inline floatexp fe_add(const floatexp a, const floatexp b)
   }
 }
 
+static inline floatexp fe_addi(const floatexp a, const int b)
+{
+  return fe_add(a, fe_floatexp(double(b), 0));
+}
+
 static inline floatexp fe_sub(const floatexp a, const floatexp b)
 {
   return fe_add(a, fe_neg(b));
+}
+
+static inline floatexp fe_isub(const int a, const floatexp b)
+{
+  return fe_addi(fe_neg(b), a);
 }
 
 static inline int fe_cmp(const floatexp a, const floatexp b)
@@ -378,9 +408,21 @@ static inline dcomplex dc_add(const dcomplex a, const dcomplex b)
   return dc;
 }
 
+static inline dcomplex dc_addi(const dcomplex a, const int b)
+{
+  dcomplex dc = { a.re + b, a.im };
+  return dc;
+}
+
 static inline dcomplex dc_sub(const dcomplex a, const dcomplex b)
 {
   dcomplex dc = { a.re - b.re, a.im - b.im };
+  return dc;
+}
+
+static inline dcomplex dc_isub(const int a, const dcomplex b)
+{
+  dcomplex dc = { a - b.re, - b.im };
   return dc;
 }
 
@@ -430,9 +472,21 @@ static inline ldcomplex ldc_add(const ldcomplex a, const ldcomplex b)
   return dc;
 }
 
+static inline ldcomplex ldc_addi(const ldcomplex a, const int b)
+{
+  ldcomplex ldc = { a.re + b, a.im };
+  return ldc;
+}
+
 static inline ldcomplex ldc_sub(const ldcomplex a, const ldcomplex b)
 {
   ldcomplex dc = { a.re - b.re, a.im - b.im };
+  return dc;
+}
+
+static inline ldcomplex ldc_isub(const int a, const ldcomplex b)
+{
+  ldcomplex dc = { a - b.re, - b.im };
   return dc;
 }
 
@@ -482,9 +536,21 @@ static inline fecomplex fec_add(const fecomplex a, const fecomplex b)
   return fec;
 }
 
+static inline fecomplex fec_addi(const fecomplex a, const int b)
+{
+  fecomplex fec = { fe_addi(a.re, b), a.im };
+  return fec;
+}
+
 static inline fecomplex fec_sub(const fecomplex a, const fecomplex b)
 {
   fecomplex fec = { fe_sub(a.re, b.re), fe_sub(a.im, b.im) };
+  return fec;
+}
+
+static inline fecomplex fec_isub(const int a, const fecomplex b)
+{
+  fecomplex fec = { fe_isub(a, b.re), fe_neg(b.im) };
   return fec;
 }
 
