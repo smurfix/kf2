@@ -4,8 +4,8 @@
 #include "../formula/formula.h"
 
 static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di)
-{ // FIXME derivative
-(void) dr, di;
+{
+  complex<long double> d(dr, di);
   long double yr, yi;
   bGlitch=FALSE;
   if(antal<m_nMaxIter && test1 <= m_nBailout2){
@@ -20,6 +20,8 @@ static int Perturbation_Var(int antal,const long double *dxr,const long double *
         }
       if(test1 > m_nBailout2)
         break;
+      complex<long double> y(yr, yi);
+      d = m_nPower * d * (y ^ (m_nPower - 1)) + 1;
       complex<long double> X(dxr[antal],dxi[antal]);
       complex<long double> D(Dr,Di);
       complex<long double> D0(D0r,D0i);
@@ -36,6 +38,8 @@ static int Perturbation_Var(int antal,const long double *dxr,const long double *
       Dr = Dn.m_r;
     }
   }
+  dr = d.m_r;
+  di = d.m_i;
   return antal;
 }
 

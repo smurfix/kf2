@@ -70,10 +70,11 @@ void CFraktalSFT::MandelCalcEXP()
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-    if (m_nFractalType == 0 && m_nPower > 10) // FIXME derivative
+    if (m_nFractalType == 0 && m_nPower > 10)
 		{
+			complex<floatexp> d(dr, di);
 			if (antal<nMaxIter && test1 <= m_nBailout2){
-				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+				for (; antal<nMaxIter; antal++){
 					yr = m_dxr[antal] + Dr;
 					yi = m_dxi[antal] + Di;
 					test2 = test1;
@@ -82,7 +83,14 @@ void CFraktalSFT::MandelCalcEXP()
 						if (!m_bNoGlitchDetection)
 							test1 = m_nBailout2 * 2;
 						bGlitch = TRUE;
+						break;
 					}
+					if (test1 > m_nBailout2)
+					{
+						break;
+					}
+					complex<floatexp> y(yr, yi);
+					d = m_nPower * d * (y ^ (m_nPower - 1)) + 1;
 					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
 					complex<floatexp> D(Dr, Di);
 					complex<floatexp> D0(D0r, D0i);
@@ -100,6 +108,8 @@ void CFraktalSFT::MandelCalcEXP()
 					Dr = Dn.m_r;
 				}
 			}
+			dr = d.m_r;
+			di = d.m_i;
 
 		}
     else
