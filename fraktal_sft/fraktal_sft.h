@@ -36,6 +36,14 @@ public:
 // magic value stored in m_nTrans[][] when a glitch is detected
 #define TRANS_GLITCH (-1)
 
+// thresholds for switching to long double iterations
+#define LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT 600
+#define LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT 400
+#define LONG_DOUBLE_THRESHOLD_DEFAULT 300
+// threshold for switching to scaled double iterations
+// this is lower than the theoretical maximum to avoid derivative overflow
+#define SCALED_DOUBLE_THRESHOLD 290
+
 #define SMOOTH_BAILOUT 10000
 struct MC
 {

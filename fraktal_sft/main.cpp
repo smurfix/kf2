@@ -3727,11 +3727,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nLDBL=0;
 		else{
 			if(g_SFT.GetPower()==2)
-				g_nLDBL=600;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
 			if(g_SFT.GetPower()==3)
-				g_nLDBL=400;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
 			else
-				g_nLDBL=300;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 		}
 		g_nEXP=4900;
 		g_SFT.SetLongDoubleAlways(g_nLDBL < 100);
@@ -3746,11 +3746,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else{
 			if(g_SFT.GetPower()==2)
-				g_nLDBL=600;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
 			else if(g_SFT.GetPower()==3)
-				g_nLDBL=400;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
 			else
-				g_nLDBL=300;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 			g_nEXP=4900;
 		}
 		g_SFT.SetLongDoubleAlways(false);

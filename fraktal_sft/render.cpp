@@ -318,7 +318,7 @@ void CFraktalSFT::RenderFractal()
 		}
 		m_nScalingOffset = 0;
 		m_nScaling = 1;
-		for (i = 300; i<m_nZoom; i++){
+		for (i = SCALED_DOUBLE_THRESHOLD; i<m_nZoom; i++){
 			m_nScalingOffset++;
 			m_nScaling = m_nScaling*.1;
 		}

@@ -2422,11 +2422,11 @@ void CFraktalSFT::SetPower(int nPower)
 //		m_nPower = 3;
 	if (g_nLDBL>100){
 		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = 600;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
 		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = 400;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
 		else
-			g_nLDBL = 300;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 	}
 }
 
@@ -2553,11 +2553,11 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 
 	if (g_nLDBL>100){
 		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = 600;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
 		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = 400;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
 		else
-			g_nLDBL = 300;
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 	}
 }
 int CFraktalSFT::GetFractalType()
