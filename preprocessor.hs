@@ -17,6 +17,7 @@ data Expr
   | EAdd Expr Expr
   | ESub Expr Expr
   | ENeg Expr
+  | ESgn Expr
   | EAbs Expr
   | ESqr Expr
   | EDiffAbs Expr Expr
@@ -27,6 +28,7 @@ data Instruction
   = ISet String String
   | IAbs String String
   | INeg String String
+  | ISgn String String
   | ISub String String String
   | IAdd String String String
   | IMul String String String
@@ -81,6 +83,13 @@ compile (ENeg a) = do
   Just u <- compile a
   v <- allocate
   instruction (INeg v u)
+  deallocate u
+  return (Just v)
+
+compile (ESgn a) = do
+  Just u <- compile a
+  v <- allocate
+  instruction (ISgn v u)
   deallocate u
   return (Just v)
 
@@ -166,6 +175,7 @@ vars (EMul a b) = vars a ++ vars b
 vars (EAdd a b) = vars a ++ vars b
 vars (ESub a b) = vars a ++ vars b
 vars (ENeg a) = vars a
+vars (ESgn a) = vars a
 vars (EAbs a) = vars a
 vars (ESqr a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
@@ -183,6 +193,7 @@ interpret t (EAdd a b) = t ++ "add(" ++ interpret t a ++ "," ++ interpret t b ++
 interpret t (ESub a b) = t ++ "sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (ENeg (EInt v)) = interpret t (EInt (negate v))
 interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
+interpret t (ESgn a) = t ++ "sgn(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
@@ -225,7 +236,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["sqr", "abs", "diffabs"]
+              , reservedNames = ["sqr", "sgn", "abs", "diffabs"]
               }
   where ops = "=+-*^"
 
@@ -248,6 +259,7 @@ term = m_parens exprparser
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
        <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
 
