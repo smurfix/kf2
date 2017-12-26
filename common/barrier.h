@@ -16,12 +16,17 @@ private:
   volatile LONG counter;
   LONG padding2[63];
   LONG num_thread;
+  bool yielding;
 
 public:
 
   inline barrier(LONG n)
   : release(0), counter(n), num_thread(n)
-  { };
+  {
+    SYSTEM_INFO sysinfo;
+    GetSystemInfo(&sysinfo);
+    yielding = LONG(sysinfo.dwNumberOfProcessors) < num_thread;
+  };
 
   inline BOOL wait(volatile BOOL *stop)
   {
@@ -37,9 +42,8 @@ public:
       {
         if (*stop)
           return 1;
-#if 0
-        SwitchToThread();
-#endif
+        if (yielding)
+          SwitchToThread();
       }
     return 0;
   };
