@@ -208,14 +208,13 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double test1 = 0;
 	double test2 = 0;
 
-	floatexp dcr = 0;
-	floatexp dci = 0;
+	floatexp dr = 1, di = 0;
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2){
-		// FIXME derivatives
+	if (m_nFractalType == 0 && m_nPower == 2) // FIXME derivative
+	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -286,8 +285,8 @@ void CFraktalSFT::CalculateReferenceEXP()
 		mpfr_clear(co.cr);
 		mpfr_clear(co.ci);
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10)
-	{ // FIXME derivatives
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME derivative
+	{
 		bool stored = false;
 		double old_absval = 0;
 		double abs_val = 0;
@@ -342,12 +341,17 @@ void CFraktalSFT::CalculateReferenceEXP()
 	else
 	{
 
-    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dcr, dci);
+    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
     assert(ok && "reference_floatexp");
 
 	}
 
+	floatexp pixel_spacing = m_fPixelSpacing;
+	dr = dr * pixel_spacing;
+	di = di * pixel_spacing;
+	double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
+
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);
 
 }

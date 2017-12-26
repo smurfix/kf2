@@ -34,7 +34,7 @@ public:
 };
 
 // magic value stored in m_nTrans[][] when a glitch is detected
-#define TRANS_GLITCH 2
+#define TRANS_GLITCH (-1)
 
 #define SMOOTH_BAILOUT 10000
 struct MC
@@ -143,6 +143,13 @@ public:
 };
 #endif
 
+enum SmoothMethod
+{
+	SmoothMethod_Log = 0,
+	SmoothMethod_Sqrt = 1,
+	SmoothMethod_DE =2
+};
+
 enum ColorMethod
 {
 	ColorMethod_Standard = 0,
@@ -175,6 +182,9 @@ class CFraktalSFT
 	HANDLE m_hMutex;
 	CPixels m_P;
 	CFixedFloat m_rstart, m_istart, m_rstop, m_istop, m_rref, m_iref;
+	double m_dPixelSpacing;
+	long double m_lPixelSpacing;
+	floatexp m_fPixelSpacing;
 	CFixedFloat m_storedr, m_storedi;
 	POINT m_pOldGlitch[OLD_GLITCH];
 	int m_nSizeImage;
@@ -209,7 +219,7 @@ class CFraktalSFT
 
 	double m_nBailout;
 	double m_nBailout2;
-	int m_nSmoothMethod;
+	SmoothMethod m_nSmoothMethod;
 	ColorMethod m_nColorMethod;
 	Differences m_nDifferences;
 	int m_nColorOffset;
@@ -370,7 +380,7 @@ public:
 	void SaveMap(const std::string &szFile);
 	void SaveMapB(const std::string &szFile);
 
-	int GetSmoothMethod();
+	SmoothMethod GetSmoothMethod();
 	void SetSmoothMethod(int nSmoothMethod);
 	int GetPower();
 	void SetPower(int nPower);
@@ -417,7 +427,7 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2);
+	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2, double de);
 	void OutputPixelData(int x, int y, int w, int h, int bGlitch);
 	bool GuessPixel(int x, int y, int w, int h);
 

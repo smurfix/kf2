@@ -202,14 +202,13 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	double test1 = 0;
 	double test2 = 0;
 
-	long double dcr = 0;
-	long double dci = 0;
+	long double dr = 1, di = 0;
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower == 2){
+	if (m_nFractalType == 0 && m_nPower == 2){ // FIXME derivatives
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -339,11 +338,16 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dcr, dci);
+		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
     assert(ok && "reference_long_double");
 
 	}
 
+  long double pixel_spacing = m_lPixelSpacing;
+	dr *= pixel_spacing;
+	di *= pixel_spacing;
+	double de = sqrt(test1) * log(test1) / sqrt(dr * dr + di * di);
+
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);
 }

@@ -3,10 +3,9 @@
 #include "complex.h"
 #include "../formula/formula.h"
 
-static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dcr, long double &dci)
-{ // FIXME implement derivative
-(void) dcr;
-(void) dci;
+static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di)
+{ // FIXME derivative
+(void) dr, di;
   long double yr, yi;
   bGlitch=FALSE;
   if(antal<m_nMaxIter && test1 <= m_nBailout2){
@@ -55,10 +54,8 @@ void CFraktalSFT::MandelCalcLDBL()
 		}
 		if (GuessPixel(x, y, w, h))
 			continue;
-		// Series approximation - Start
-		floatexp D0r;
-		floatexp D0i;
 
+		// series approximation
 		long double lD0r, mmr, lD0i, mmi, c, s, t1, t2;
 		c = m_C;
 		s = m_S;
@@ -75,20 +72,26 @@ void CFraktalSFT::MandelCalcLDBL()
 		lD0i = m_lDY[m_nY / 2] - t1;
 		lD0i = lD0i + t2;
 
-		D0r = lD0r;
-		D0i = lD0i;
+		floatexp D0r = lD0r;
+		// D0r *= m_nScaling;
+		floatexp D0i = lD0i;
+		// D0i *= m_nScaling;
 		floatexp TDnr;
 		floatexp TDni;
+		floatexp TDDnr;
+		floatexp TDDni;
 		if (m_nMaxApproximation){
 			antal = m_nMaxApproximation - 1;
 			TDnr = m_APr[0] * D0r - m_APi[0] * D0i;
 			TDni = m_APr[0] * D0i + m_APi[0] * D0r;
-			floatexp D_r = D0r*D0r - D0i*D0i;
-			floatexp D_i = (D0r*D0i).mul2();
-			TDnr += m_APr[1] * D_r - m_APi[1] * D_i;
-			TDni += m_APr[1] * D_i + m_APi[1] * D_r;
-			int k;
-			for (k = 2; k<m_nTerms; k++){
+			TDDnr = m_APr[0];
+			TDDni = m_APi[0];
+			floatexp D_r = D0r;
+			floatexp D_i = D0i;
+			for (int k = 1; k < m_nTerms; k++)
+			{
+				TDDnr += (m_APr[k] * D_r - m_APi[k] * D_i) * floatexp(k + 1.0);
+				TDDni += (m_APr[k] * D_i + m_APi[k] * D_r) * floatexp(k + 1.0);
 				floatexp  t = D_r*D0r - D_i*D0i;
 				D_i = D_r*D0i + D_i*D0r;
 				D_r = t;
@@ -100,10 +103,16 @@ void CFraktalSFT::MandelCalcLDBL()
 			antal = 0;
 			TDnr = D0r;
 			TDni = D0i;
+			TDDnr = 1.0;
+			TDDni = 0.0;
 		}
-		long double Dr, Di, dcr, dci;
+
+
+		long double Dr, Di, dr, di;
 		Dr = TDnr.toLongDouble();
 		Di = TDni.toLongDouble();
+		dr = TDDnr.toLongDouble();
+		di = TDDni.toLongDouble();
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
@@ -112,18 +121,20 @@ void CFraktalSFT::MandelCalcLDBL()
 		{
 
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dcr, dci);
+			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di);
 
 		}
 		else
 		{
-			int antal2 = antal;
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dcr, dci);
+			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di);
 			assert(ok && "perturbation_long_double");
-			antal = antal2;
 		}
 
-		OutputIterationData(x, y, bGlitch, antal, test1, test2);
+		long double pixel_spacing = m_lPixelSpacing;
+		dr *= pixel_spacing;
+		di *= pixel_spacing;
+		double de = sqrt(test1) * log(test1) / sqrt(dr * dr + di * di);
+		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);

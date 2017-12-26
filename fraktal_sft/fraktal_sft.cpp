@@ -164,7 +164,7 @@ CFraktalSFT::CFraktalSFT()
 
 	m_nBailout = SMOOTH_BAILOUT;
 	m_nBailout2 = m_nBailout*m_nBailout;
-	m_nSmoothMethod = 0;
+	m_nSmoothMethod = SmoothMethod_DE;
 	m_nColorMethod = ColorMethod_Standard;
 	m_nDifferences = Differences_Traditional;
 
@@ -543,7 +543,18 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		return;
 	if (nIter == m_nMaxIter)
 	{
-		// nothing
+		s.r = s.g = s.b = 1;
+	}
+	else if (m_nSmoothMethod == SmoothMethod_DE)
+	{
+		if (offs == TRANS_GLITCH)
+		{
+			s.b = 1;
+		}
+		else
+		{
+			s.r = s.g = s.b = tanh(fmax(0, 0.5 * offs));
+		}
 	}
 	else{
 		double iter = (double)nIter + (double)1 - offs;
@@ -2379,19 +2390,19 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	CloseHandle(hFile);
 }
 
-int CFraktalSFT::GetSmoothMethod()
+SmoothMethod CFraktalSFT::GetSmoothMethod()
 {
 	return m_nSmoothMethod;
 }
 void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
 {
-	if (nSmoothMethod == 0){
-		m_nSmoothMethod = 0;
+	if (nSmoothMethod == 0 || nSmoothMethod == 2){
+		m_nSmoothMethod = SmoothMethod(nSmoothMethod);
 		m_nBailout = SMOOTH_BAILOUT;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
 	else if (nSmoothMethod == 1){
-		m_nSmoothMethod = 1;
+		m_nSmoothMethod = SmoothMethod(nSmoothMethod);
 		m_nBailout = 2;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
@@ -2764,7 +2775,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2)
+void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2, double de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -2778,7 +2789,13 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 		}
 		else{
 			m_nPixels[x][y] = antal;
-			if (!bGlitch && m_nSmoothMethod == 1){
+
+			if (!bGlitch && m_nSmoothMethod == SmoothMethod_DE)
+			{
+				m_nTrans[x][y] = de;
+			}
+
+			else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt){
 				double div = sqrt(test1) - sqrt(test2);
 				if (div != 0)
 					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
@@ -2786,7 +2803,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 					m_nTrans[x][y] = 0;
 			}
 
-			else if (!bGlitch && m_nSmoothMethod == 0){
+			else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Log){
 				double t = log(log(sqrt(test1))) / log((double)m_nPower);
 				if (!ISFLOATOK(t))
 					t = 0;

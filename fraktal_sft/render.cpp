@@ -169,6 +169,11 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	ReleaseDC(NULL, hDC);
 	ReleaseMutex(m_hMutex);
 
+	CFixedFloat pixel_spacing = (m_istop - m_istart) / m_nY;
+	m_fPixelSpacing = pixel_spacing;
+	m_dPixelSpacing = m_fPixelSpacing.todouble();
+	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
+
 	if (bNoThread){
 		SetTimer(m_hWnd, 0, 100, NULL);
 		ThRenderFractal(this);

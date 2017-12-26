@@ -287,10 +287,25 @@ public:
 			ret.align();
 			nScaling-=3;
 		}
-		while(nScaling){
+		while(nScaling>0){
 			ret.val*=1e1;
 			ret.align();
 			nScaling--;
+		}
+		while(nScaling<-9){
+			ret.val/=1e10;
+			ret.align();
+			nScaling+=10;
+		}
+		while(nScaling<-2){
+			ret.val/=1e3;
+			ret.align();
+			nScaling+=3;
+		}
+		while(nScaling<0){
+			ret.val/=1e1;
+			ret.align();
+			nScaling++;
 		}
 		if(ret.exp<-MAX_PREC || ret.exp>MAX_PREC)
 			return 0;

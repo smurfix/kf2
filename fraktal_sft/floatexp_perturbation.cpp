@@ -37,7 +37,7 @@ floatexp lb_abs_exp(const floatexp &c, const floatexp &d)
 void CFraktalSFT::MandelCalcEXP()
 {
 	m_bIterChanged = TRUE;
-	floatexp Dnr, Dni, yr, yi, dcr, dci;
+	floatexp Dnr, Dni, yr, yi;
 	int antal, x, y, w, h;
 	floatexp real(g_real), imag(g_imag), _abs_val;
 
@@ -60,39 +60,46 @@ void CFraktalSFT::MandelCalcEXP()
 
 		floatexp D0r = dbD0r;//(cr-rref);
 		floatexp D0i = dbD0i;
-		floatexp Dr = D0r;
-		floatexp Di = D0i;
+		floatexp TDnr;
+		floatexp TDni;
+		floatexp TDDnr;
+		floatexp TDDni;
 		if (m_nMaxApproximation){
 			antal = m_nMaxApproximation - 1;
-			Dnr = m_APr[0] * D0r - m_APi[0] * D0i;
-			Dni = m_APr[0] * D0i + m_APi[0] * D0r;
-			floatexp D_r = D0r*D0r - D0i*D0i;
-			floatexp D_i = (D0r*D0i).mul2();
-			Dnr += m_APr[1] * D_r - m_APi[1] * D_i;
-			Dni += m_APr[1] * D_i + m_APi[1] * D_r;
-			int k;
-			for (k = 2; k<m_nTerms; k++){
-				floatexp  t = D_r*D0r - D_i*D0i;
+			TDnr = m_APr[0] * D0r - m_APi[0] * D0i;
+			TDni = m_APr[0] * D0i + m_APi[0] * D0r;
+			TDDnr = m_APr[0];
+			TDDni = m_APi[0];
+			floatexp D_r = D0r;
+			floatexp D_i = D0i;
+			for (int k = 1; k < m_nTerms; k++)
+			{
+				TDDnr += (m_APr[k] * D_r - m_APi[k] * D_i) * floatexp(k + 1.0);
+				TDDni += (m_APr[k] * D_i + m_APi[k] * D_r) * floatexp(k + 1.0);
+				floatexp t = D_r*D0r - D_i*D0i;
 				D_i = D_r*D0i + D_i*D0r;
 				D_r = t;
-				Dnr += m_APr[k] * D_r - m_APi[k] * D_i;
-				Dni += m_APr[k] * D_i + m_APi[k] * D_r;
+				TDnr += m_APr[k] * D_r - m_APi[k] * D_i;
+				TDni += m_APr[k] * D_i + m_APi[k] * D_r;
 			}
-			Dr = Dnr;
-			Di = Dni;
 		}
 		else{
 			antal = 0;
-			Dr = D0r;
-			Di = D0i;
+			TDnr = D0r;
+			TDni = D0i;
+			TDDnr = 1.0;
+			TDDni = 0.0;
 		}
-
+		floatexp Dr = TDnr;
+		floatexp Di = TDni;
+		floatexp dr = TDDnr;
+		floatexp di = TDDni;
 
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-    if (m_nFractalType == 0 && m_nPower > 10)
+    if (m_nFractalType == 0 && m_nPower > 10) // FIXME derivative
 		{
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
@@ -127,12 +134,17 @@ void CFraktalSFT::MandelCalcEXP()
     else
     {
 
-			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dcr, dci);
+			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di);
 			assert(ok && "perturbation_floatexp()");
 
 		}
 
-		OutputIterationData(x, y, bGlitch, antal, test1, test2);
+		floatexp pixel_spacing = m_fPixelSpacing;
+		dr = dr * pixel_spacing;
+		di = di * pixel_spacing;
+		double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
+
+		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
     OutputPixelData(x, y, w, h, bGlitch);

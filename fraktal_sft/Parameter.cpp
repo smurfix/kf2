@@ -90,11 +90,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		m_bTrans = atoi(stParams[nT][1]);
 	nID = stParams.FindString(0, "SmoothMethod");
 	if (nID != -1){
-		m_nSmoothMethod = atoi(stParams[nID][1]);
-		if (m_nSmoothMethod<0 || m_nSmoothMethod>1)
-			m_nSmoothMethod = 0;
+		int m = atoi(stParams[nID][1]);
+		if (m<0 || m>2)
+			m = 0;
+		m_nSmoothMethod = SmoothMethod(m);
 	}
-	m_nBailout = m_nSmoothMethod == 1 ? 2 : SMOOTH_BAILOUT;
+	m_nBailout = m_nSmoothMethod == SmoothMethod_Sqrt ? 2 : SMOOTH_BAILOUT;
 	m_nBailout2 = m_nBailout*m_nBailout;
 
 	nID = stParams.FindString(0, "ColorMethod");
