@@ -87,7 +87,10 @@ Differences From Upstream 2.11.1
   should be modified to use Distance (Logarithm) in the latest version.
 
 - multiple finite difference methods for distance colouring
-  (only the default `Traditional` is available in `2.11.1`)
+  (only the default `Traditional` is available in `2.11.1`).
+
+- analytic DE colouring with derivatives aka new smoothing method #2 (not
+  available in `2.11.1`).
 
 ### Other Changes
 
@@ -129,6 +132,8 @@ Change Log
 - **kf.2.13.1** (????-??-??)
 
     - added derivative calculations
+    - analytic DE colouring mode
+    - interior is white instead of black
 
 - **kf-2.12.9** (????-??-??)
 
@@ -405,7 +410,6 @@ TODO
 - calculations: optimize series approximation and probe point stuff
 - calculations: work on OpenCL some more (try to get it working)
 - calculations: calculate series approximation in parallel with reference
-- calculations: calculate derivatives for "true" distance estimates
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
 - calculations: Horner's rule for polynomial evaluation (if not used already)
