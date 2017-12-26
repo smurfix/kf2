@@ -294,7 +294,7 @@ void CFraktalSFT::CalculateReference()
 		bool ok = reference_double_0_3_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
 		assert(ok && "reference_double_0_3_ld");
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME derivative
+	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 
 		double threashold = 0.0001;
@@ -307,10 +307,13 @@ void CFraktalSFT::CalculateReference()
 			threashold = .5;
 		complex<CFixedFloat> r(m_rref, m_iref);
 		complex<CFixedFloat> X(g_SeedR, g_SeedI);
+		complex<double> d(1.0, 0.0);
 		bool stored = false;
 		double old_absval = 0;
 		double abs_val = 0;
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
+			complex<double> x(X.m_r.ToDouble(), X.m_i.ToDouble());
+			d = m_nPower * d * (x^(m_nPower - 1)) + 1;
 			X = (X^m_nPower) + r;
 			m_db_dxr[i] = X.m_r.ToDouble();
 			m_db_dxi[i] = X.m_i.ToDouble();
@@ -344,6 +347,8 @@ void CFraktalSFT::CalculateReference()
 			}
 			m_nRDone++;
 		}
+		dr = d.m_r;
+		di = d.m_i;
 
 	}
 	else

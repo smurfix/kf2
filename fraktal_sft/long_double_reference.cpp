@@ -283,7 +283,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
-	{ // FIXME derivatives
+	{
 		bool stored = false;
 		double old_absval = 0;
 		double abs_val = 0;
@@ -296,9 +296,14 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 		if (threashold>.5)
 			threashold = .5;
+		complex<long double> d(1.0, 0.0);
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
+			floatexp xrf; xrf = xr;
+			floatexp xif; xif = xi;
+			complex<long double> x(xrf.toLongDouble(), xif.toLongDouble());
+			d = m_nPower * d * (x ^ (m_nPower - 1)) + 1;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
 			m_ldxr[i] = mpfr_get_ld(xr.m_f.backend().data(), MPFR_RNDN);
@@ -333,6 +338,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			}
 			m_nRDone++;
 		}
+		dr = d.m_r;
+		di = d.m_i;
 
 	}
 	else

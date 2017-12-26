@@ -285,7 +285,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 		mpfr_clear(co.cr);
 		mpfr_clear(co.ci);
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME derivative
+	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 		bool stored = false;
 		double old_absval = 0;
@@ -299,9 +299,14 @@ void CFraktalSFT::CalculateReferenceEXP()
 		}
 		if (threashold>.5)
 			threashold = .5;
+		complex<floatexp> d(1.0, 0.0);
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
+			floatexp xrf; xrf = xr;
+			floatexp xif; xif = xi;
+			complex<floatexp> x(xrf, xif);
+			d = m_nPower * d * (x ^ (m_nPower - 1)) + 1;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
 			m_dxr[i] = xr;
@@ -336,6 +341,8 @@ void CFraktalSFT::CalculateReferenceEXP()
 			}
 			m_nRDone++;
 		}
+		dr = d.m_r;
+		di = d.m_i;
 
 	}
 	else
