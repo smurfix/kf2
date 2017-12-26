@@ -653,7 +653,7 @@
     </formula>
   </group>
 
-  <group type="26" name="4th Celtic False Quasi HEart">
+  <group type="26" name="4th Celtic False Quasi Heart">
     <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2) +Cr;
