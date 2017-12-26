@@ -10,7 +10,12 @@ public:
 		m_r = 0;
 		m_i = 0;
 	}
-	inline complex(tt r, tt i)
+	inline complex(const tt &r)
+	{
+		m_r = r;
+		m_i = 0;
+	}
+	inline complex(const tt &r, const tt &i)
 	{
 		m_r = r;
 		m_i = i;
@@ -26,6 +31,13 @@ public:
 		complex<tt> r;
 		r.m_r = m_r*a.m_r - m_i*a.m_i;
 		r.m_i = m_r*a.m_i + m_i*a.m_r;
+		return r;
+	}
+	inline complex operator +(const int &a) const
+	{
+		complex<tt> r;
+		r.m_r = m_r + a;
+		r.m_i = m_i;
 		return r;
 	}
 	inline complex operator +(const complex &a) const
@@ -118,6 +130,12 @@ template <class tt>
 inline complex<tt> operator*(int a, const complex<tt> &b)
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator-(int a, const complex<tt> &b)
+{
+	return complex<tt>(tt(a) - b.m_r, -b.m_i);
 }
 
 template <class tt>
