@@ -181,6 +181,9 @@
         xrn = 4*Xr*Xr*Xr*xr + 6*Xr*Xr*xr*xr + 4*Xr*xr*xr*xr + xr*xr*xr*xr + 4*Xi*Xi*Xi*xi + 6*Xi*Xi*xi*xi + 4*Xi*xi*xi*xi + xi*xi*xi*xi - 12*Xr*Xr*Xi*xi-6*Xr*Xr*xi*xi-12*Xr*xr*Xi*Xi-24*Xr*xr*Xi*xi-12*Xr*xr*xi*xi-6*xr*xr*Xi*Xi-12*xr*xr*Xi*xi-6*xr*xr*xi*xi + cr;
         xin = 4*(Xr*Xr-Xi*Xi)*diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + 4 * abs(Xr*Xi + Xr*xi + xr*Xi + xr*xi)*(2*xr*Xr+xr*xr-2*xi*Xi-xi*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
 
     <formula power="5" glitch="0.0001">
@@ -192,6 +195,9 @@
         xrn = diffabs(Xr, xr) * (Xr*Xr*Xr*Xr - 10*Xr*Xr*Xi*Xi + 5*Xi*Xi*Xi*Xi) + abs(Xr+xr) * (4*Xr*Xr*Xr*xr+6*Xr*Xr*xr*xr+4*Xr*xr*xr*xr+xr*xr*xr*xr -20*Xr*Xr*Xi*xi-10*Xr*Xr*xi*xi-20*Xr*xr*Xi*Xi-40*Xr*xr*Xi*xi-20*Xr*xr*xi*xi-10*xr*xr*Xi*Xi-20*xr*xr*Xi*xi-10*xr*xr*xi*xi + 20*Xi*Xi*Xi*xi+30*Xi*Xi*xi*xi+20*Xi*xi*xi*xi+5*xi*xi*xi*xi) + cr;
         xin = diffabs(Xi, xi) * (5*Xr*Xr*Xr*Xr - 10*Xr*Xr*Xi*Xi + Xi*Xi*Xi*Xi) + abs(Xi+xi) * (20*Xr*Xr*Xr*xr+30*Xr*Xr*xr*xr+20*Xr*xr*xr*xr+5*xr*xr*xr*xr - 20*Xr*Xr*Xi*xi-10*Xr*Xr*xi*xi-20*Xr*xr*Xi*Xi-40*Xr*xr*Xi*xi-20*Xr*xr*xi*xi-10*xr*xr*Xi*Xi-20*xr*xr*Xi*xi-10*xr*xr*xi*xi +4*Xi*Xi*Xi*xi+6*Xi*Xi*xi*xi+4*Xi*xi*xi*xi+xi*xi*xi*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
 
   </group>
@@ -236,6 +242,9 @@
         xrn = diffabs(Xr2*Xr2+Xi2*Xi2-6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2) + cr;
         xin = diffabs(4*Xr2*Xr*Xi-4*Xr*Xi2*Xi, -4*xr*Xi2*Xi-12*xi*Xr*Xi2-12*xr*xi*Xi2+12*xr*Xr2*Xi-12*xi2*Xr*Xi+12*xr2*Xr*Xi-12*xr*xi2*Xi+4*xr2*xr*Xi+4*xi*Xr2*Xr+12*xr*xi*Xr2-4*xi2*xi*Xr+12*xr2*xi*Xr-4*xr*xi2*xi+4*xr2*xr*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
 
     <formula power="5" glitch="0.0001">
@@ -247,6 +256,9 @@
         xrn = diffabs(5*Xr*Xi2*Xi2-10*Xr2*Xr*Xi2+Xr2*Xr2*Xr, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = diffabs(Xi2*Xi2*Xi-10*Xi2*Xi*Xr2+5*Xi*Xr2*Xr2, 5*Xi2*Xi2*xi-20*Xi2*Xi*xr*Xr+10*Xi2*Xi*xi2-10*Xi2*Xi*xr2-30*Xi2*xi*Xr2-60*Xi2*xr*xi*Xr+10*Xi2*xi2*xi-30*Xi2*xr2*xi+20*Xi*xr*Xr2*Xr-30*Xi*xi2*Xr2+30*Xi*xr2*Xr2-60*Xi*xr*xi2*Xr+20*Xi*xr2*xr*Xr+5*Xi*xi2*xi2-30*Xi*xr2*xi2+5*Xi*xr2*xr2+5*xi*Xr2*Xr2+20*xi*xr*Xr2*Xr-10*xi2*xi*Xr2+30*xi*xr2*Xr2-20*xi2*xi*xr*Xr+20*xi*xr2*xr*Xr+xi2*xi2*xi-10*xi2*xi*xr2+5*xi*xr2*xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
 
   </group>
@@ -291,6 +303,9 @@
         xrn = diffabs(Xr2*Xr2+Xi2*Xi2-6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 -12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = 12*Xr2*Xi*xr+12*Xr*Xi*xr2-12*Xr*Xi2*xi-12*Xr*Xi*xi2+4*Xr2*Xr*xi+12*Xr2*xi*xr+12*Xr*xi*xr2-4*Xr*xi2*xi+4*xr2*xr*Xi-4*xr*Xi2*Xi-12*xr*Xi2*xi-12*xr*Xi*xi2+4*xr2*xr*xi-4*xr*xi2*xi + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
 
     <formula power="5" glitch="0.0001">
@@ -302,6 +317,9 @@
         xrn = diffabs(Xr2*Xr2*Xr - 10*Xr2*Xr*Xi2 + 5*Xr*Xi2*Xi2, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = 20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
 
   </group>
@@ -346,6 +364,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (-12)*Xr2*Xi*xr-12*Xr*Xi*xr2+12*Xr*Xi2*xi+12*Xr*Xi*xi2-4*Xr2*Xr*xi-12*Xr2*xi*xr-12*Xr*xi*xr2+4*Xr*xi2*xi-4*xr2*xr*Xi+4*xr*Xi2*Xi+12*xr*Xi2*xi+12*xr*Xi*xi2-4*xr2*xr*xi+4*xr*xi2*xi + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
 
     <formula power="5" glitch="0.0001">
@@ -357,6 +378,9 @@
         xrn = 5*Xr2*Xr2*xr+10*Xr2*Xr*xr2+10*Xr2*xr2*xr+5*Xr*xr2*xr2-20*Xr2*Xr*Xi*xi-10*Xr2*Xr*xi2-30*Xr2*xr*Xi2-60*Xr2*xr*Xi*xi-30*Xr2*xr*xi2-30*Xr*xr2*Xi2-60*Xr*xr2*Xi*xi-30*Xr*xr2*xi2+20*Xr*Xi2*Xi*xi+30*Xr*Xi2*xi2+20*Xr*Xi*xi2*xi+5*Xr*xi2*xi2+xr2*xr2*xr-10*xr2*xr*Xi2-20*xr2*xr*Xi*xi-10*xr2*xr*xi2+5*xr*Xi2*Xi2+20*xr*Xi2*Xi*xi+30*xr*Xi2*xi2+20*xr*Xi*xi2*xi+5*xr*xi2*xi2 + cr;
         xin = (-20)*Xi*Xr2*Xr*xr-30*Xi*Xr2*xr2-20*Xi*Xr*xr2*xr-5*Xi*xr2*xr2+30*Xi2*Xr2*xi+30*Xi*Xr2*xi2+20*Xi2*Xi*Xr*xr+60*Xi2*Xr*xr*xi+60*Xi*Xr*xr*xi2+10*Xi2*Xi*xr2+30*Xi2*xr2*xi+30*Xi*xr2*xi2-5*Xi2*Xi2*xi-10*Xi2*Xi*xi2-10*Xi2*xi2*xi-5*Xi*xi2*xi2-5*xi*Xr2*Xr2-20*xi*Xr2*Xr*xr-30*xi*Xr2*xr2-20*xi*Xr*xr2*xr-5*xi*xr2*xr2+10*xi2*xi*Xr2+20*xi2*xi*Xr*xr+10*xi2*xi*xr2-xi2*xi2*xi + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
 
   </group>
@@ -540,6 +564,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xi+xi)*(12*Xr2*xr+12*Xr*xr2+4*xr2*xr - 4*xr*Xi2-8*xi*Xr*Xi-8*xr*xi*Xi-4*xi2*Xr-4*xr*xi2) + diffabs(Xi, xi)*(4*Xr2*Xr - 4*Xr*Xi2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -553,6 +580,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xr+xr)*(4*Xr2*xi+8*Xr*xr*Xi+8*Xr*xr*xi+4*xr2*Xi+4*xr2*xi - 12*xi*Xi2-12*xi2*Xi-4*xi2*xi) + diffabs(Xr, xr)*(4*Xr2*Xi - 4*Xi2*Xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -566,6 +596,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xr+xr)*(12*Xi2*xi+12*Xi*xi2+4*xi2*xi - 8*xr*Xr*Xi-4*xr2*Xi-4*xi*Xr2-8*xr*xi*Xr-4*xr2*xi) + diffabs(Xr, xr)*(4*Xi2*Xi - 4*Xr2*Xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -579,6 +612,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xi+xi)*(12*Xr2*xr+12*Xr*xr2+4*xr2*xr - 4*xr*Xi2-8*xi*Xr*Xi-8*xr*xi*Xi-4*xi2*Xr-4*xr*xi2) + diffabs(Xi, xi)*(4*Xr2*Xr - 4*Xr*Xi2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -592,6 +628,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xr+xr)*(4*Xr2*xi+8*Xr*xr*Xi+8*Xr*xr*xi+4*xr2*Xi+4*xr2*xi - 12*xi*Xi2-12*xi2*Xi-4*xi2*xi) + diffabs(Xr, xr)*(4*Xr2*Xi - 4*Xi2*Xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -605,6 +644,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xr+xr)*(12*Xi2*xi+12*Xi*xi2+4*xi2*xi - 8*xr*Xr*Xi-4*xr2*Xi-4*xi*Xr2-8*xr*xi*Xr-4*xr2*xi) + diffabs(Xr, xr)*(4*Xi2*Xi - 4*Xr2*Xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -618,6 +660,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = diffabs(4*Xr2*Xr*Xi-4*Xr*Xi2*Xi, -4*xr*Xi2*Xi-12*xi*Xr*Xi2-12*xr*xi*Xi2+12*xr*Xr2*Xi-12*xi2*Xr*Xi+12*xr2*Xr*Xi-12*xr*xi2*Xi+4*xr2*xr*Xi+4*xi*Xr2*Xr+12*xr*xi*Xr2-4*xi2*xi*Xr+12*xr2*xi*Xr-4*xr*xi2*xi+4*xr2*xr*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -631,6 +676,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = ci - (12*Xr2*Xi*xr+12*Xr*Xi*xr2-12*Xr*Xi2*xi-12*Xr*Xi*xi2+4*Xr2*Xr*xi+12*Xr2*xi*xr+12*Xr*xi*xr2-4*Xr*xi2*xi+4*xr2*xr*Xi-4*xr*Xi2*Xi-12*xr*Xi2*xi-12*xr*Xi*xi2+4*xr2*xr*xi-4*xr*xi2*xi);
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -644,6 +692,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (-(4*Xr*Xi))*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) - (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -657,6 +708,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (4*Xr*Xi)*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) + (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -670,6 +724,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = (-(4*Xr*Xi))*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) - (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -683,6 +740,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = (4*Xr*Xi)*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) + (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -696,6 +756,9 @@
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = 20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -709,6 +772,9 @@
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = ci - (20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi);
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -722,6 +788,9 @@
         xrn = diffabs(5*Xr*Xi2*Xi2-10*Xr2*Xr*Xi2+Xr2*Xr2*Xr, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = ci - (20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi);
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -735,6 +804,9 @@
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = ci - diffabs(Xi2*Xi2*Xi-10*Xi2*Xi*Xr2+5*Xi*Xr2*Xr2, 5*Xi2*Xi2*xi-20*Xi2*Xi*xr*Xr+10*Xi2*Xi*xi2-10*Xi2*Xi*xr2-30*Xi2*xi*Xr2-60*Xi2*xr*xi*Xr+10*Xi2*xi2*xi-30*Xi2*xr2*xi+20*Xi*xr*Xr2*Xr-30*Xi*xi2*Xr2+30*Xi*xr2*Xr2-60*Xi*xr*xi2*Xr+20*Xi*xr2*xr*Xr+5*Xi*xi2*xi2-30*Xi*xr2*xi2+5*Xi*xr2*xr2+5*xi*Xr2*Xr2+20*xi*xr*Xr2*Xr-10*xi2*xi*Xr2+30*xi*xr2*Xr2-20*xi2*xi*xr*Xr+20*xi*xr2*xr*Xr+xi2*xi2*xi-10*xi2*xi*xr2+5*xi*xr2*xr2);
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -748,6 +820,9 @@
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = (-Xi) * diffabs(5*Xr2*Xr2 - 10*Xr2*Xi2 + Xi2*Xi2, 4*xi*Xi2*Xi-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) - xi * abs(Xi2*Xi2+4*xi*Xi2*Xi-10*Xr2*Xi2-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+5*Xr2*Xr2+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -761,6 +836,9 @@
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = Xi * diffabs(5*Xr2*Xr2 - 10*Xr2*Xi2 + Xi2*Xi2, 4*xi*Xi2*Xi-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + xi * abs(Xi2*Xi2+4*xi*Xi2*Xi-10*Xr2*Xi2-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+5*Xr2*Xr2+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -787,6 +865,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = 4 * (xr) * abs(- Xi2*Xi-3*xi*Xi2+Xr2*Xi+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + 4 * Xr * diffabs(- Xi2*Xi+Xr2*Xi,-3*xi*Xi2+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -800,6 +881,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = (-4)*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) - 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -813,6 +897,9 @@
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = 4*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -826,6 +913,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = 4 * xr * abs(- Xi2*Xi-3*xi*Xi2+Xr2*Xi+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + 4 * Xr * diffabs(- Xi2*Xi+Xr2*Xi,-3*xi*Xi2+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -839,6 +929,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = (-4)*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) - 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
@@ -852,6 +945,9 @@
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = 4*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + 1;
+      </derivative>
     </formula>
   </group>
 
