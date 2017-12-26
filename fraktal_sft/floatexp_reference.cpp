@@ -27,6 +27,7 @@ struct mcthread_common
 	double *test1;
 	double *test2;
 	volatile BOOL *stop;
+	floatexp dr, di;
 };
 
 struct mcthread
@@ -47,6 +48,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	const floatexp real(g_real);
 	const floatexp imag(g_imag);
 	mcthread_common *p = p0->common;
+	floatexp dr = p->dr;
+	floatexp di = p->di;
 	double glitch_threshold = *p->glitch_threshold;
 	int i = 0;
 	switch (p0->nType)
@@ -88,6 +91,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				{
 					const floatexp lr = p->m_dxr[i-1];
 					const floatexp li = p->m_dxi[i-1];
+					floatexp drn = 2 * (lr * dr - li * di) + 1;
+					floatexp din = 2 * (lr * di + li * dr);
+					dr = drn;
+					di = din;
 					old_absval = abs_val;
 					abs_val = (real * lr * lr + imag * li * li).todouble();
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
@@ -138,6 +145,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		{
 			const floatexp lr = p->m_dxr[i-1];
 			const floatexp li = p->m_dxi[i-1];
+			floatexp drn = 2 * (lr * dr - li * di) + 1;
+			floatexp din = 2 * (lr * di + li * dr);
+			dr = drn;
+			di = din;
 			old_absval = abs_val;
 			abs_val = (real * lr * lr + imag * li * li).todouble();
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
@@ -179,6 +190,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		*p->antal = antal;
 		*p->test1 = test1;
 		*p->test2 = test2;
+		p->dr = dr;
+		p->di = di;
 	}
 	SetEvent(p0->hDone);
 	return 0;
@@ -213,7 +226,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2) // FIXME derivative
+	if (m_nFractalType == 0 && m_nPower == 2)
 	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {

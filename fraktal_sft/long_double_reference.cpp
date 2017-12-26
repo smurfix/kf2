@@ -27,6 +27,7 @@ struct mcthread_common
 	double *test1;
 	double *test2;
 	volatile BOOL *stop;
+	long double dr, di;
 };
 
 struct mcthread
@@ -46,6 +47,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	double abs_val = 0;
 
 	mcthread_common *p = p0->common;
+	long double dr = p->dr;
+	long double di = p->di;
 	const double glitch_threshold = *p->glitch_threshold;
 	int i = 0;
 	switch (p0->nType)
@@ -87,6 +90,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				{
 					const long double lr = p->m_ldxr[i-1];
 					const long double li = p->m_ldxi[i-1];
+					long double drn = 2 * (lr * dr - li * di) + 1;
+					long double din = 2 * (lr * di + li * dr);
+					dr = drn;
+					di = din;
 					old_absval = abs_val;
 					abs_val = g_real * lr * lr + g_imag * li * li;
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
@@ -137,6 +144,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		{
 			const long double lr = p->m_ldxr[i-1];
 			const long double li = p->m_ldxi[i-1];
+			long double drn = 2 * (lr * dr - li * di) + 1;
+			long double din = 2 * (lr * di + li * dr);
+			dr = drn;
+			di = din;
 			old_absval = abs_val;
 			abs_val = g_real * lr * lr + g_imag * li * li;
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
@@ -168,6 +179,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			}
 			(*p->m_nRDone)++;
 		}
+		p->dr = dr;
+		p->di = di;
 		const long double xr = mpfr_get_ld(p->xr, MPFR_RNDN);
 		const long double xi = mpfr_get_ld(p->xi, MPFR_RNDN);
 		for (; i < *p->nMaxIter && !*p->stop; i++)
@@ -208,7 +221,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower == 2){ // FIXME derivatives
+	if (m_nFractalType == 0 && m_nPower == 2){
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -253,6 +266,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		co.antal = &antal;
 		co.test1 = &test1;
 		co.test2 = &test2;
+		co.dr = dr;
+		co.di = di;
 		// spawn threads
 		for (i = 0; i < 3; i++)
 		{
@@ -280,6 +295,8 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		mpfr_clear(co.si);
 		mpfr_clear(co.cr);
 		mpfr_clear(co.ci);
+		dr = co.dr;
+		di = co.di;
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10)
