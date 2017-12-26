@@ -13,6 +13,17 @@
         - fraktal_sft/long_double_reference.cpp
         - fraktal_sft/floatexp_reference.cpp
 
+      Mandelbrot power 2 and 3 have separate implementations for perturbation
+      calculations with "scaled double", which need to be updated by hand too.
+      You can find those implementations in this file:
+        - fraktal_sft/double_perturbation.cpp
+
+      Mandelbrot power 2 and 3 have separate implementations for reference
+      calculations with "scaled double" (that use long double for derivative
+      to avoid overflow), which need to be updated by hand too. You can find
+      those implementations in this file:
+        - fraktal_sft/double_reference.cpp
+
     -->
     <formula power="2" glitch="0.0000001">
       <reference t="R">
@@ -24,8 +35,8 @@
         xin = 2 * (Xxr * xi + Xi * xr) + ci;
       </perturbation>
       <derivative t="R">
-        drn = 2 * (dr * Xxr - di * Xxi) + 1;
-        din = 2 * (di * Xxr + dr * Xxi);
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
       </derivative>
     </formula>
 
@@ -38,6 +49,10 @@
         xrn = 3 * Xr * Xr * xr - 6 * Xr * Xi * xi - 3 * Xi * Xi * xr + 3 * Xr * xr * xr - 3 * Xr * xi * xi - 3 * Xi * 2 * xr * xi + xr * xr * xr - 3 * xr * xi * xi + cr;
         xin = 3 * Xr * Xr * xi + 6 * Xr * Xi * xr - 3 * Xi * Xi * xi + 3 * Xr * 2 * xr * xi + 3 * Xi * xr * xr - 3 * Xi * xi * xi + 3 * xr * xr * xi - xi * xi * xi + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
 
     <formula power="4" glitch="0.00001">
@@ -116,6 +131,10 @@
         xrn = 2 * xr * Xr + xr * xr - 2 * Xi * xi - xi * xi + cr;
         xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
 
     <formula power="3" glitch="0.0000001">
@@ -127,9 +146,13 @@
         xrn = (Xr * Xr - 3 * Xi * Xi) * diffabs(Xr, xr) + (2 * Xr * xr + xr * xr - 6 * Xi * xi - 3 * xi * xi) * abs(Xr + xr) + cr;
         xin = (3 * Xr * Xr - Xi * Xi) * diffabs(Xi, xi) + (6 * Xr * xr + 3 * xr * xr - 2 * Xi * xi - xi * xi) * abs(Xi + xi) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
-#
-   <formula power="4" glitch="0.00001">
+
+    <formula power="4" glitch="0.00001">
       <reference t="R">
         Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2 + Cr;
         Xin = 4 * abs(Xr * Xi) * (Xr2 - Xi2) + Ci;
@@ -163,6 +186,10 @@
         xrn = diffabs(Xr * Xr - Xi * Xi, 2 * Xr * xr + xr * xr - 2 * Xi * xi - xi * xi) + cr;
         xin = ci - 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi);
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
 
     <formula power="3" glitch="0.0000001">
@@ -174,6 +201,10 @@
         xrn = diffabs(Xr * (Xr * Xr - 3 * Xi * Xi), xr * (3 * Xr * Xr + xr * xr) + 3 * Xr * (xr  * xr - 2 * Xi * xi - xi * xi) - 3 * xr * (Xi * Xi + 2 * Xi * xi + xi * xi)) + cr;
         xin = diffabs(Xi * (3 * Xr * Xr - Xi * Xi), 3 * Xi * (2 * Xr * xr + xr * xr - xi * xi) + 3 * xi * (Xr * Xr + 2 * Xr * xr + xr * xr) - xi * (3 * Xi * Xi + xi * xi)) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
 
     <formula power="4" glitch="0.00001">
@@ -210,6 +241,10 @@
         xrn = diffabs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi) + cr;
         xin = 2 * Xr * xi + 2 * xr * (Xi + xi) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
 
     <formula power="3" glitch="0.0000001">
@@ -221,6 +256,10 @@
         xrn = diffabs(Xr*(Xr2 - 3 * Xi2), xr*(3 * Xr2 + xr2) + 3 * Xr*(xr2 - 2 * Xi*xi - xi2) - 3 * xr*(Xi2 + 2 * Xi*xi + xi2)) + cr;
         xin = 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(xi2 + 3 * Xi2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
 
     <formula power="4" glitch="0.00001">
@@ -257,6 +296,10 @@
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = ci - 2 * (Xr*xi + xr*Xi + xr*xi);
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
 
     <formula power="3" glitch="0.0000001">
@@ -268,6 +311,10 @@
         xrn = cr - xr*(3 * Xr2 + xr2) + 3 * Xr*(xi2 + 2 * Xi*xi - xr2) + 3 * xr*(Xi2 + 2 * Xi*xi + xi2);
         xin = 6 * Xr*Xi*xr + 3 * Xi*xr2 - 3 * Xi2*xi - 3 * Xi*xi2 + 3 * Xr2*xi + 6 * Xr*xr*xi + 3 * xr2*xi - xi2*xi + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
 
     <formula power="4" glitch="0.00001">
@@ -303,6 +350,10 @@
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = (Xr*xi + xr*Xi + xr*xi)*(-2) + ci;
       </perturbation>
+        <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
   </group>
 
@@ -316,6 +367,10 @@
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = abs(Xr + xr)*xi*(-2) + diffabs(Xr, xr)*Xi*(-2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
   </group>
 
@@ -329,6 +384,10 @@
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = diffabs(Xi, xi)*Xr*(-2) + xr*abs((Xi + xi))*(-2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
   </group>
 
@@ -342,6 +401,10 @@
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = abs(Xr + xr)  * xi * (-2) + diffabs(Xr, xr) * Xi * (-2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
   </group>
 
@@ -355,6 +418,10 @@
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = diffabs(Xi, xi)*Xr*(-2) + xr*abs((Xi + xi))*(-2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + 1;
+        din = 2 * (Xxr * di + Xxi * dr);
+      </derivative>
     </formula>
   </group>
 
@@ -368,6 +435,10 @@
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr + xr) + cr;
         xin = ci - diffabs(Xi*(3 * Xr2 - Xi2), 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(3 * Xi2 + xi2));
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
   </group>
 
@@ -381,6 +452,10 @@
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr + xr) + cr;
         xin = 6 * Xr*(Xi*xr + xr*xi) + 3 * Xi*(xr2 - xi2) + 3 * xi*(Xr2 - Xi2) + xi*(3 * xr2 - xi2) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
   </group>
 
@@ -394,6 +469,10 @@
         xrn = 3 * Xr2*xr + 3 * Xr*xr2 - 6 * Xr*Xi*xi - 3 * Xr*xi2 + xr*xr2 - 3 * Xi2*xr - 6 * Xi*xr*xi - 3 * xr*xi2 + cr;
         xin = (3 * Xr2 - Xi2) * diffabs(Xi, xi) + (6 * xr * Xr + 3 * xr2 - 2 * Xi * xi - xi2) * abs(Xi + xi) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
   </group>
 
@@ -407,6 +486,10 @@
         xrn = 3 * Xr2*xr + 3 * Xr*xr2 - 6 * Xr*Xi*xi - 3 * Xr*xi2 + xr*xr2 - 3 * Xi2*xr - 6 * Xi*xr*xi - 3 * xr*xi2 + cr;
         xin = diffabs(Xi*(3 * Xr2 - Xi2), 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(3 * Xi2 + xi2)) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
   </group>
 
@@ -420,6 +503,10 @@
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr+xr) + cr;
         xin = ci - diffabs(3 * Xr2 - Xi2, 6 * Xr*xr + 3 * xr2 - 2 * Xi*xi - xi2)*Xi - abs(3 * Xr2 + 6 * Xr*xr + 3 * xr2 - Xi2 - 2 * Xi*xi - xi2)*xi;
       </perturbation>
+      <derivative t="R">
+        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
+        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      </derivative>
     </formula>
   </group>
 
@@ -771,6 +858,10 @@
         xrn = xr*(2*Xr+xr)-xi*(xi+2*Xi) - diffabs(Xr,xr) + cr;
         xin = diffabs(Xr*Xi,Xr*xi+xr*Xi+xr*xi) * 2 - diffabs(Xi,xi) + ci;
       </perturbation>
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) - dr + 1;
+        din = 2 * (Xxr * di + Xxi * dr) - di;
+      </derivative>
     </formula>
   </group>
 
