@@ -193,6 +193,7 @@ class CFraktalSFT
 	double m_dPixelSpacing;
 	long double m_lPixelSpacing;
 	floatexp m_fPixelSpacing;
+	double m_epsilon;
 	CFixedFloat m_storedr, m_storedi;
 	POINT m_pOldGlitch[OLD_GLITCH];
 	int m_nSizeImage;

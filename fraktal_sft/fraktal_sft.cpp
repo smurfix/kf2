@@ -168,6 +168,8 @@ CFraktalSFT::CFraktalSFT()
 	m_nColorMethod = ColorMethod_Standard;
 	m_nDifferences = Differences_Traditional;
 
+	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
+
 	m_db_dxr = NULL;
 	m_db_dxi = NULL;
 
