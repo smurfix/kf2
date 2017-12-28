@@ -616,3 +616,32 @@ static inline T diffabs(const T &c, const T &d)
     }
   }
 }
+
+static inline long double ConvertFromFixedFloat(const CFixedFloat &f)
+{
+  using std::ldexp;
+  signed long int e = 0;
+  long double l = mpfr_get_ld_2exp(&e, f.m_f.backend().data(), MPFR_RNDN);
+  l = ldexp(l, e);
+  return l;
+}
+
+static inline double mpfr_get(const mpfr_t x, const double &t, mpfr_rnd_t rnd)
+{
+  (void) t;
+  return mpfr_get_d(x, rnd);
+}
+
+static inline long double mpfr_get(const mpfr_t x, const long double &t, mpfr_rnd_t rnd)
+{
+  (void) t;
+  return mpfr_get_ld(x, rnd);
+}
+
+static inline floatexp mpfr_get(const mpfr_t x, const floatexp &t, mpfr_rnd_t rnd)
+{
+  (void) t;
+  signed long int e = 0;
+  double d = mpfr_get_d_2exp(&e, x, rnd);
+  return floatexp(d, e);
+}
