@@ -151,9 +151,11 @@
         xrn = 2 * xr * Xr + xr * xr - 2 * Xi * xi - xi * xi + cr;
         xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t="M">
+        dxan = 2 * (Xxr * dxa - Xxi * dya) + 1;
+        dxbn = 2 * (Xxr * dxb - Xxi * dyb);
+        dyan = 2 * sgn(Xxr) * sgn(Xxi) * (Xxr * dya + Xxi * dxa);
+        dybn = 2 * sgn(Xxr) * sgn(Xxi) * (Xxr * dyb + Xxi * dxb) + 1;
       </derivative>
     </formula>
 
