@@ -581,3 +581,38 @@ static inline fecomplex fec_pow(const fecomplex a, const int b)
   }
   return r;
 }
+
+static inline bool gezero(const double &x) { return x >= 0.0; }
+static inline bool gtzero(const double &x) { return x >  0.0; }
+static inline bool gezero(const long double &x) { return x >= 0.0; }
+static inline bool gtzero(const long double &x) { return x >  0.0; }
+static inline bool gezero(const floatexp &x) { return x.val >= 0.0; }
+static inline bool gtzero(const floatexp &x) { return x.val >  0.0; }
+
+template <typename T>
+static inline T diffabs(const T &c, const T &d)
+{
+  T cd = c + d;
+  if (gezero(c))
+  {
+    if (gezero(cd))
+    {
+      return d;
+    }
+    else
+    {
+      return -d - 2.0 * c;
+    }
+  }
+  else
+  {
+    if (gtzero(cd))
+    {
+      return d + 2.0 * c;
+    }
+    else
+    {
+      return -d;
+    }
+  }
+}
