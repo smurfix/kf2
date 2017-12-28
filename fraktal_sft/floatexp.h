@@ -272,6 +272,10 @@ public:
 			return 0;
 		return setExp(val,exp);
 	}
+	inline explicit operator double () const
+	{
+		return todouble();
+	}
 	inline double todouble(int nScaling) const
 	{
 		if(!nScaling)
@@ -359,6 +363,21 @@ public:
 inline floatexp operator*(double a, floatexp b)
 {
 	return floatexp(a) * b;
+}
+
+inline floatexp operator*(floatexp b, double a)
+{
+	return floatexp(a) * b;
+}
+
+inline floatexp operator+(double a, floatexp b)
+{
+	return floatexp(a) + b;
+}
+
+inline floatexp operator+(floatexp b, double a)
+{
+	return floatexp(a) + b;
 }
 
 inline floatexp operator*(int a, floatexp b)
