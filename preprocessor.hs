@@ -183,59 +183,39 @@ vars (EAssign a b) = vars a ++ vars b
 
 interpret _ (EInt n) = show n
 interpret _ (EVar v) = v
-interpret t (EPow a b) = t ++ "pow(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EMul a@(ENeg (EInt _)) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EMul a b@(ENeg (EInt _))) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EMul a@(EInt _) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EMul a b@(EInt _)) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EMul a b) = t ++ "mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EAdd a b@(ENeg (EInt _))) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EAdd a b@(EInt _)) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EAdd a@(ENeg (EInt _)) b) = t ++ "iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EAdd a@(EInt _) b) = t ++ "iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (EAdd a b) = t ++ "add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (ESub a b@(ENeg (EInt _))) = t ++ "subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (ESub a b@(EInt _)) = t ++ "subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (ESub a@(ENeg (EInt _)) b) = t ++ "isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (ESub a@(EInt _) b) = t ++ "isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
-interpret t (ESub a b) = t ++ "sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EPow a b) = "(" ++ interpret t a ++ "^" ++ interpret t b ++ ")"
+interpret t (EMul a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t (EMul a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t (EMul a@(EInt _) b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t (EMul a b@(EInt _)) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t (EMul a b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t (EAdd a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
+interpret t (EAdd a b@(EInt _)) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
+interpret t (EAdd a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
+interpret t (EAdd a@(EInt _) b) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
+interpret t (EAdd a b) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
+interpret t (ESub a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
+interpret t (ESub a b@(EInt _)) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
+interpret t (ESub a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
+interpret t (ESub a@(EInt _) b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
+interpret t (ESub a b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
 interpret t (ENeg (EInt v)) = interpret t (EInt (negate v))
-interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
-interpret t (ESgn a) = t ++ "sgn(" ++ interpret t a ++ ")"
-interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
-interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
-interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (ENeg a) = "-(" ++ interpret t a ++ ")"
+interpret t (ESgn a) = "sgn(" ++ interpret t a ++ ")"
+interpret t (EAbs a) = "abs(" ++ interpret t a ++ ")"
+interpret t (ESqr a) = "sqr(" ++ interpret t a ++ ")"
+interpret t (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 
 prepare "d" vs = unlines . concat $
-  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
-  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
-  , [ "const double xr2 = xr * xr;" | "xr2" `elem` vs ]
-  , [ "const double xi2 = xi * xi;" | "xi2" `elem` vs ]
-  ]
-prepare "ld" vs = unlines . concat $
-  [ [ "const long double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
-  , [ "const long double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
-  , [ "const long double xr2 = xr * xr;" | "xr2" `elem` vs ]
-  , [ "const long double xi2 = xi * xi;" | "xi2" `elem` vs ]
-  ]
-prepare "fe" vs = unlines . concat $
-  [ [ "const floatexp Xr2 = fe_mul(Xr, Xr);" | "Xr2" `elem` vs ]
-  , [ "const floatexp Xi2 = fe_mul(Xi, Xi);" | "Xi2" `elem` vs ]
-  , [ "const floatexp xr2 = fe_mul(xr, xr);" | "xr2" `elem` vs ]
-  , [ "const floatexp xi2 = fe_mul(xi, xi);" | "xi2" `elem` vs ]
+  [ [ "const T Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const T Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const T xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const T xi2 = xi * xi;" | "xi2" `elem` vs ]
   ]
 prepare "dc" vs = unlines . concat $
-  [ [ "const dcomplex X2 = dc_mul(X, X);" | "X2" `elem` vs ]
-  , [ "const dcomplex x2 = dc_mul(x, x);" | "x2" `elem` vs ]
-  ]
-prepare "ldc" vs = unlines . concat $
-  [ [ "const ldcomplex X2 = ldc_mul(X, X);" | "X2" `elem` vs ]
-  , [ "const ldcomplex x2 = ldc_mul(x, x);" | "x2" `elem` vs ]
-  ]
-prepare "fec" vs = unlines . concat $
-  [ [ "const fecomplex X2 = fec_mul(X, X);" | "X2" `elem` vs ]
-  , [ "const fecomplex x2 = fec_mul(x, x);" | "x2" `elem` vs ]
+  [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<T> x2 = x * x;" | "x2" `elem` vs ]
   ]
 
 def :: GenLanguageDef String () Identity
