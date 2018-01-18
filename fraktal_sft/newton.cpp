@@ -456,7 +456,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
   return 0;
 }
 
-static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period,flyttyp &epsilon2,HWND hWnd,int newtonStep) {
+static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, const int period,const flyttyp &epsilon2,HWND hWnd,int newtonStep, const flyttyp &radius2) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
@@ -529,11 +529,14 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_clear(m.dcizi);
 
   SetDlgItemText(hWnd,IDC_EDIT4,"");
-  flyttyp ad = 1/cabs2(dc);
+  flyttyp ad;
+#if 0
+  = 1/cabs2(dc);
   if (ad < epsilon2) {
     *c_out = c_guess;
     return 0;
   }
+#endif
   if(dc.m_r==0 && dc.m_i==0)
 	  return -1;
   complex<flyttyp> c_new = c_guess - z / dc;
@@ -567,7 +570,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
     *c_out = c_new;
     return 0;
   }
-  if (cisfinite(d)) {
+  if (cisfinite(d) && cabs2(c_new) < 16 && ad < radius2) {
     *c_out = c_new;
     return 1;
   } else {
@@ -576,13 +579,14 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   }
 }
 
-static int m_d_nucleus(complex<flyttyp> *c_out, complex<flyttyp> c_guess, int period, int maxsteps,int &steps,flyttyp radius,HWND hWnd) {
+static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period, int maxsteps,int &steps,const flyttyp &radius,HWND hWnd) {
   int result = -1, i;
   complex<flyttyp> c = c_guess;
 
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
+  flyttyp radius2 = radius * radius;
   for (i = 0; i < maxsteps && !g_bNewtonStop && !g_bNewtonExit; ++i) {
-    if (1 != (result = m_d_nucleus_step(&c, c, period,epsilon2,hWnd,i)))
+    if (1 != (result = m_d_nucleus_step(&c, c, period,epsilon2,hWnd,i,radius2)))
       break;
   }
   steps = i;
