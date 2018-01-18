@@ -443,8 +443,8 @@ The latest source code is available from my git repository:
     cd kalles-fraktaler-2
     git checkout master       # for Karl's original upstream
     git checkout claude       # for MINGW build system and bug fixes
-    git checkout claude-gmp   # for the GMP fork
-    git checkout formulas     # for current development
+    git checkout kf-2.12      # for current stable development
+    git checkout kf-2.13      # for current experimental development
     git tag -l                # list available release tags
 
 
@@ -456,7 +456,8 @@ disk space and good internet download speed (or patience). About 600MB of
 downloads including the chroot debootstrap step. To build the PDF manual needs
 some more packages, adding another 600MB of downloads and 1GB of space, so I
 left that optional.  If you have recent Debian you can skip the chroot step and
-install natively.
+install natively.  See also the `prepare.sh` script which does much of the work,
+saving you from excessive copy/paste from this document.
 
 0. Setup Debian Stretch chroot:
 
@@ -518,7 +519,7 @@ install natively.
         wget ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
-        git checkout formulas
+        git checkout kf-2.12
         cd ..
         cp -avit ~/win32/src *z mpfr-3.1.6.patch kalles-fraktaler-2/
 
