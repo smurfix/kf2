@@ -130,8 +130,18 @@ Change Log
 
     - fixed "the maxiterations suddenly resets to some very low value"
       (reported by gerrit)
+    - fixed "Newton iterates 100 times before failing", now fails fast if
+      the C goes outside the target (reported by gerrit and Dinkydau, fix
+      suggested by knighty)
+    - fixed "Newton zooms to blank image", reported by gerrit, fix was to
+      remove a check on the derivative being huge that was falsely reporting
+      success
+    - fixed "manual ApproxTerms gets reset to AutoApproxTerms value"
+      (reported by gerrit)
     - barrier implementation yields if there are fewer CPUs than threads
-      (fixes very slow Newton-Raphson zooming on dual-core laptop)
+      (fixes very slow Newton-Raphson zooming and reference calculations
+      on dual-core laptop) (this is the behaviour of 2.12.5 and earlier, but
+      conditional on number of cores)
     - upgrade to libpng 1.6.34
     - added shell script containing some of the build instructions from
       the documentation
@@ -409,6 +419,8 @@ TODO
 - newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - newton: properly debug huge zoom values from size estimate
+- newton: save desired source zoom depth and zoom to an average of this and the
+  minibrot size, should give more accurate morphings (suggested by Dinkydau)
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: common subexpression elimination (share results, might be
   especially useful for large powers of complex numbers)
