@@ -129,8 +129,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bLowTolerance = TRUE;
 	m_nMaxOldGlitches = OLD_GLITCH;
 
-	m_bAutoTerms = TRUE;
-	m_nTerms = 10;
+	int m_nTerms = GetApproxTerms();
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
 
@@ -2562,7 +2561,7 @@ int CFraktalSFT::GetExponent()
 void CFraktalSFT::SetApproxTerms(int nTerms)
 {
 	m_Settings.SetApproxTerms(nTerms);
-	m_nTerms = GetApproxTerms();
+	int m_nTerms = GetApproxTerms();
 	delete[] m_APr;
 	delete[] m_APi;
 	m_APr = new floatexp[m_nTerms];

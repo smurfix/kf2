@@ -87,7 +87,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		mindiff = 0;
 	m_APr[0] = 1;
 	m_APi[0] = 0;
-	if (m_bAutoTerms){
+	if (GetAutoApproxTerms()){
 		int nT = sqrt((double)m_nTotal)*0.021;
 		if (nT<5)
 			nT = 5;
@@ -95,6 +95,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			nT = 60;
 		SetApproxTerms(nT);
 	}
+	int m_nTerms = GetApproxTerms();
 	for (i = 1; i<m_nTerms; i++){
 		m_APr[i] = 0;
 		m_APi[i] = 0;

@@ -218,8 +218,6 @@ class CFraktalSFT
 
 	double m_xrd, m_xid;
 
-	int m_nTerms;
-	BOOL m_bAutoTerms;
 	floatexp *m_dxr, *m_dxi;
 	floatexp *m_APr;
 	floatexp *m_APi;

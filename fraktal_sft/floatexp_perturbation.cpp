@@ -71,6 +71,7 @@ void CFraktalSFT::MandelCalcEXP()
 			Dnr += m_APr[1] * D_r - m_APi[1] * D_i;
 			Dni += m_APr[1] * D_i + m_APi[1] * D_r;
 			int k;
+			int m_nTerms = GetApproxTerms();
 			for (k = 2; k<m_nTerms; k++){
 				floatexp  t = D_r*D0r - D_i*D0i;
 				D_i = D_r*D0i + D_i*D0r;
