@@ -140,6 +140,8 @@ Change Log
 
 - **kf-2.12.9** (????-??-??)
 
+    - improved Newton-Raphson zooming dialog, now zooms to a factor between
+      current zoom and minibrot size (suggested by Dinkydau)
     - fixed "the maxiterations suddenly resets to some very low value"
       (reported by gerrit)
     - fixed "Newton iterates 100 times before failing", now fails fast if
