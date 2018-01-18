@@ -530,7 +530,7 @@ saving you from excessive copy/paste from this document.
         wget ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
-        git checkout kf-2.12
+        git checkout kf-2.13
         cd ..
         cp -avit ~/win32/src *z mpfr-3.1.6.patch kalles-fraktaler-2/
 
