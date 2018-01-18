@@ -4373,7 +4373,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			wsprintf(szMsg,
 				"version %s\n"
 				"©2013-2017 Karl Runmo\n"
-				"©2017 Claude Heiland-Allen\n\n"
+				"©2017-2018 Claude Heiland-Allen\n\n"
 				"Processors: %d\n"
 				"Compiled for %s\n"
 				"Precision: %d bits (%d decimal digits)\n"
