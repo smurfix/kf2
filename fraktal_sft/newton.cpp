@@ -13,6 +13,7 @@
 #include <iostream>
 
 extern CFraktalSFT g_SFT;
+extern HICON g_hIcon;
 
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
@@ -23,6 +24,8 @@ static std::string g_szIm;
 static std::string g_szZoom;
 static char g_szProgress[128];
 static int g_nMinibrotPos=0;
+static double g_nMinibrotFactor=1.0;
+static std::string g_sMinibrotSourceZoom;
 
 #define flyttyp CDecNumber
 
@@ -682,68 +685,118 @@ static int WINAPI ThNewton(HWND hWnd)
 			flyttyp msize = 0;
 			mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
 
-			std::ostringstream oss;
-			oss << std::scientific << msize.m_dec;
-			std::string sszSize = oss.str();
-			char *szSize0 = strdup(sszSize.c_str());
-			char *szSize = szSize0;
-			char szTmpSize[200];
-			double zooms;
-
-			if(!strstr(szSize,"e") && !strstr(szSize,"E")){
-				char *szP = strstr(szSize, ".");
-				if (szP)
-					*szP = 0;
-				int exp = strlen(szSize) - 1;
-				if (exp>2){
-					int end = 12;
-					if (end>exp)
-						end = exp;
-					szSize[end + 1] = 0;
-					while (end>1){
-						szSize[end] = szSize[end - 1];
-						end--;
-					}
-					szSize[end] = '.';
-					strcpy(szTmpSize,szSize);
-					char szNum[20];
-					sprintf(szNum, "E%d", exp);
-					strcat(szTmpSize, szNum);
-					szSize = szTmpSize;
-				}
-			}
-			if(strstr(szSize,"e") || strstr(szSize,"E")){
-				int i;
-				for(i=0;i<24 && szSize[i] && szSize[i]!='e' && szSize[i]!='E' && szSize[i]!='+' && szSize[i]!='-';i++)
-					szVal[i]=szSize[i];
-				szVal[i]=0;
-				e = strstr(szSize,"E");
-				if(!e)
-					e = strstr(szSize,"e");
+			double zooms1;
+			{
+			  std::ostringstream oss;
+			  oss << std::scientific << msize.m_dec;
+			  std::string sszSize = oss.str();
+			  char *szSize0 = strdup(sszSize.c_str());
+			  char *szSize = szSize0;
+			  char szTmpSize[200];
+			  if(!strstr(szSize,"e") && !strstr(szSize,"E")){
+				  char *szP = strstr(szSize, ".");
+				  if (szP)
+					  *szP = 0;
+				  int exp = strlen(szSize) - 1;
+				  if (exp>2){
+					  int end = 12;
+					  if (end>exp)
+						  end = exp;
+					  szSize[end + 1] = 0;
+					  while (end>1){
+						  szSize[end] = szSize[end - 1];
+						  end--;
+					  }
+					  szSize[end] = '.';
+					  strcpy(szTmpSize,szSize);
+					  char szNum[20];
+					  sprintf(szNum, "E%d", exp);
+					  strcat(szTmpSize, szNum);
+					  szSize = szTmpSize;
+				  }
+			  }
+			  if(strstr(szSize,"e") || strstr(szSize,"E")){
+				  int i;
+				  for(i=0;i<24 && szSize[i] && szSize[i]!='e' && szSize[i]!='E' && szSize[i]!='+' && szSize[i]!='-';i++)
+					  szVal[i]=szSize[i];
+				  szVal[i]=0;
+				  e = strstr(szSize,"E");
+				  if(!e)
+					  e = strstr(szSize,"e");
 #define LOG_10_2 0.30102999566398114
-				zooms = (e?atof(e+1)/LOG_10_2:0) + log10(atof(szVal));
-			}
-			else
-				zooms = log10(atof(szSize))/LOG_10_2;
+				  zooms1 = (e?atof(e+1)/LOG_10_2:0) + log10(atof(szVal));
+			  }
+			  else
+				  zooms1 = log10(atof(szSize))/LOG_10_2;
 #undef LOG_10_2
-			std::string sradius;
+			  g_szZoom = szSize;
+			  free(szSize0);
+			}
+
+			double zooms0;
+			{
+			  char *szSize0 = strdup(g_sMinibrotSourceZoom.c_str());
+			  char *szSize = szSize0;
+			  char szTmpSize[200];
+			  if(!strstr(szSize,"e") && !strstr(szSize,"E")){
+				  char *szP = strstr(szSize, ".");
+				  if (szP)
+					  *szP = 0;
+				  int exp = strlen(szSize) - 1;
+				  if (exp>2){
+					  int end = 12;
+					  if (end>exp)
+						  end = exp;
+					  szSize[end + 1] = 0;
+					  while (end>1){
+						  szSize[end] = szSize[end - 1];
+						  end--;
+					  }
+					  szSize[end] = '.';
+					  strcpy(szTmpSize,szSize);
+					  char szNum[20];
+					  sprintf(szNum, "E%d", exp);
+					  strcat(szTmpSize, szNum);
+					  szSize = szTmpSize;
+				  }
+			  }
+			  if(strstr(szSize,"e") || strstr(szSize,"E")){
+				  int i;
+				  for(i=0;i<24 && szSize[i] && szSize[i]!='e' && szSize[i]!='E' && szSize[i]!='+' && szSize[i]!='-';i++)
+					  szVal[i]=szSize[i];
+				  szVal[i]=0;
+				  e = strstr(szSize,"E");
+				  if(!e)
+					  e = strstr(szSize,"e");
+#define LOG_10_2 0.30102999566398114
+				  zooms0 = (e?atof(e+1)/LOG_10_2:0) + log10(atof(szVal));
+			  }
+			  else
+				  zooms0 = log10(atof(szSize))/LOG_10_2;
+#undef LOG_10_2
+			  free(szSize0);
+			}
+
+			double zooms = zooms1;
 			if(g_nMinibrotPos){
 				if(g_nMinibrotPos==1)
-					zooms = 3*zooms/4;
+					zooms = zooms0 * 0.5 + 0.5 * zooms1;
 				else if(g_nMinibrotPos==2)
-					zooms = 7*zooms/8;
+					zooms = zooms0 * 0.25 + 0.75 * zooms1;
 				else if(g_nMinibrotPos==3)
-					zooms = 15*zooms/16;
-				radius = flyttyp(2)^zooms;
-				sradius = radius.ToText();
-				szSize = strdup(sradius.c_str());
+					zooms = zooms0 * 0.125 + 0.875 * zooms1;
+				else if(g_nMinibrotPos==4)
+				{
+					double f = 1 - (1 - g_nMinibrotFactor) * 2;
+					zooms = zooms0 * (1 - f) + f * zooms1;
+				}
 			}
-			g_szZoom = szSize;
-			free(szSize0);
-			if(g_nMinibrotPos)
-			  free(szSize);
 			if(4 * g_period > zooms && zooms>startZooms)
+			{
+				radius = flyttyp(2)^zooms;
+				g_szZoom = radius.ToText();
 				bOK=TRUE;
+			}
 		}
 	}
 	g_bNewtonRunning=FALSE;
@@ -755,14 +808,21 @@ static SYSTEMTIME st1, st2;
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+//		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
 		if(g_nMinibrotPos==1)
 			SendDlgItemMessage(hWnd,IDC_RADIO2,BM_SETCHECK,1,0);
 		else if(g_nMinibrotPos==2)
 			SendDlgItemMessage(hWnd,IDC_RADIO3,BM_SETCHECK,1,0);
 		else if(g_nMinibrotPos==3)
 			SendDlgItemMessage(hWnd,IDC_RADIO4,BM_SETCHECK,1,0);
+		else if(g_nMinibrotPos==4)
+			SendDlgItemMessage(hWnd,IDC_RADIO5,BM_SETCHECK,1,0);
 		else
 			SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
+		std::string z = g_SFT.GetZoom();
+		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 		return 1;
 	}
 	if(uMsg==WM_COMMAND && wParam==IDCANCEL){
@@ -792,7 +852,11 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			MessageBeep((UINT)-1);
 	}
-	else if(uMsg==WM_USER+1){
+	if(uMsg==WM_COMMAND && wParam==IDC_BUTTON2){
+		std::string z = g_SFT.GetZoom();
+		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
+	}
+	if(uMsg==WM_USER+1){
 		if(!g_bNewtonRunning){
 			RECT r = *(RECT*)lParam;
 			g_szRe = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
@@ -805,9 +869,16 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nMinibrotPos=2;
 			else if(SendDlgItemMessage(hWnd,IDC_RADIO4,BM_GETCHECK,0,0))
 				g_nMinibrotPos=3;
+			else if(SendDlgItemMessage(hWnd,IDC_RADIO5,BM_GETCHECK,0,0))
+				g_nMinibrotPos=4;
 			DWORD dw;
 			g_bNewtonStop=FALSE;
 			g_bNewtonExit=FALSE;
+			char szText[256];
+			GetDlgItemText(hWnd,IDC_EDIT2,szText,sizeof(szText));
+			g_nMinibrotFactor = atof(szText);
+			GetDlgItemText(hWnd,IDC_EDIT4,szText,sizeof(szText));
+			g_sMinibrotSourceZoom = std::string(szText);
 			*g_szProgress=0;
 			GetLocalTime(&st1);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
@@ -816,7 +887,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SetDlgItemText(hWnd,IDCANCEL,"Stop");
 		}
 	}
-	else if(uMsg==WM_USER+2){
+	if(uMsg==WM_USER+2){
 		SetDlgItemText(hWnd,IDCANCEL,"Close");
 		g_bNewtonRunning=FALSE;
 		if(lParam){

@@ -39,24 +39,30 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,60,59,50,14
 END
 
-IDD_DIALOG12 DIALOGEX 65386, 100, 175, 138
+IDD_DIALOG12 DIALOGEX 65386, 100, 175, 200
 STYLE DS_SETFONT | DS_MODALFRAME | DS_FIXEDSYS | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Newton-Raphson Zooming"
 FONT 8, "MS Shell Dlg", 400, 0, 0x1
 BEGIN
+    LTEXT           "Click on the fractal to specify the point of interest\nThe zoom size is applied on the area that is searched for minibrot.\nChoose the behaviour when clicking:",IDC_STATIC,7,7,160,33
     CONTROL         "Minibrot",IDC_RADIO1,"Button",BS_AUTORADIOBUTTON,7,42,41,10
     CONTROL         "3/4 (current pattern doubled)",IDC_RADIO2,"Button",BS_AUTORADIOBUTTON,7,52,111,10
     CONTROL         "7/8 (current pattern 4-folded)",IDC_RADIO3,"Button",BS_AUTORADIOBUTTON,7,62,112,10
     CONTROL         "15/16 (current pattern 8-folded)",IDC_RADIO4,"Button",BS_AUTORADIOBUTTON,7,72,120,10
-    EDITTEXT        IDC_EDIT3,31,119,67,12,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
-    CONTROL         "Specify",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,82,121,39,10
-    PUSHBUTTON      "Close",IDCANCEL,118,117,50,14
-    LTEXT           "Click on the fractal to specify the point of interest\nThe zoom size is applied on the area that is searched for minibrot.\nChoose the behaviour when clicking:",IDC_STATIC,7,7,160,33
-    EDITTEXT        IDC_EDIT1,7,94,161,19,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
-    LTEXT           "Period:",IDC_STATIC,7,120,23,10
-    LTEXT           "Status",IDC_STATIC,7,84,23,10
+    CONTROL         "Custom factor",IDC_RADIO5,"Button",BS_AUTORADIOBUTTON,7,82,120,10
+    LTEXT           "Factor (less than 1.0)",IDC_STATIC,7,94,120,10
+    EDITTEXT        IDC_EDIT2,7,106,120,10,ES_AUTOHSCROLL
+    LTEXT           "Current pattern zoom",IDC_STATIC,7,118,120,10
+    EDITTEXT        IDC_EDIT4,7,130,120,10,ES_AUTOHSCROLL
+    PUSHBUTTON      "Capture",IDC_BUTTON2,125,130,40,10
     PUSHBUTTON      "Stop",IDCANCEL2,139,61,29,14,NOT WS_VISIBLE
-    CONTROL         "Display result",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,84,59,10
+    CONTROL         "Display result",IDC_CHECK9,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,109,142,59,10
+    LTEXT           "Status",IDC_STATIC,7,142,23,10
+    EDITTEXT        IDC_EDIT1,7,152,161,19,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    PUSHBUTTON      "Close",IDCANCEL,118,172,50,14
+    EDITTEXT        IDC_EDIT3,31,172,67,12,ES_MULTILINE | ES_AUTOHSCROLL | ES_READONLY
+    LTEXT           "Period:",IDC_STATIC,7,172,23,10
+    CONTROL         "Specify",IDC_CHECK1,"Button",BS_AUTOCHECKBOX | NOT WS_VISIBLE | WS_TABSTOP,82,172,39,10
 END
 
 
