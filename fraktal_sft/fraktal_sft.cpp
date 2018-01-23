@@ -39,7 +39,7 @@ double g_FactorAI=0;
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
 int g_nLDBL = 600;
-int g_nEXP = 4900;
+int g_nEXP = 9800;
 int g_nRefZero = 3;
 #define APPROX_GRID 19
 #define TERM4

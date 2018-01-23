@@ -130,6 +130,8 @@ Change Log
 
     - improved Newton-Raphson zooming dialog, now zooms to a factor between
       current zoom and minibrot size (suggested by Dinkydau)
+    - implemented "scaled long double" iterations for Mandelbrot power 2 and 3,
+      which might speed up some zooms between e4900 and e9800
     - fixed "the maxiterations suddenly resets to some very low value"
       (reported by gerrit)
     - fixed "Newton iterates 100 times before failing", now fails fast if
@@ -407,7 +409,6 @@ TODO
 - user interface: online help within program (suggested by TwinDragon)
 - user interface: drag-and-drop parameters or images on to main window to load
 - user interface: save image now function (without waiting for calculations)
-- calculations: implement scaled long double for e4900 to e9800
 - calculations: increase ref count limit without restarting from scratch
 - calculations: increase maxiters limit without restarting from scratch
 - calculations: optimize series approximation and probe point stuff
