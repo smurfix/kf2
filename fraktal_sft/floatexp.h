@@ -5,10 +5,25 @@
 #include <stdint.h>
 #include "CFixedFloat.h"
 
+#include "scaled_double.h"
+#include "scaled_long_double.h"
+
 #define MAX_PREC 1020
 // this has two fewer 0 than you might expect, this is to give headroom for
 // avoiding overflow in + and other functions. it is the exponent for 0.0
 #define EXP_MIN (-0x80000000000000LL)
+
+inline double set_exponent(double newval,int64_t newexp)
+{
+//		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
+//		memcpy(&newval,&tmpval,sizeof(double));
+//		return newval;
+	union { double d; int64_t i; } u;
+	u.d = newval;
+	u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | ((newexp + 1023) << 52);
+	newval = u.d;
+	return newval;
+}
 
 class floatexp
 {
@@ -37,45 +52,33 @@ public:
 			val=-val;
 		return *this;
 	}
-	inline void initFromDouble(double a)
-	{
-		val=a;
-		exp=0;
-		align();
-	}
-	inline void initFromLongDouble(long double a)
-	{
-		using std::frexp;
-		int e = 0;
-		a = frexp(a, &e);
-		val=a;
-		exp=e;
-		align();
-	}
-	inline double setExp(double newval,int64_t newexp) const
-	{
-//		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
-//		memcpy(&newval,&tmpval,sizeof(double));
-//		return newval;
-		union { double d; int64_t i; } u;
-		u.d = newval;
-		u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | ((newexp + 1023) << 52);
-		newval = u.d;
-		return newval;
-	}
+
 	inline floatexp()
 	{
 		val = 0;
 		exp = EXP_MIN;
 	}
-	inline floatexp(int a)
+	inline floatexp(const double &a)
 	{
-		initFromDouble(a);
+		val=a;
+		exp=0;
+		align();
 	}
-	inline floatexp(double a)
+	inline floatexp(const int &a)
 	{
-		initFromDouble(a);
+		val=a;
+		exp=0;
+		align();
 	}
+	inline floatexp(const long double &a)
+	{
+		using std::frexp;
+		int e = 0;
+		val = frexp(a, &e);
+		exp=e;
+		align();
+	}
+
 	inline floatexp(double a, int64_t e)
 	{
 		val = a;
@@ -88,31 +91,29 @@ public:
 		val = a;
 		exp = e;
 	}
-	inline floatexp(long double a)
-	{
-		initFromLongDouble(a);
-	}
+
 	inline floatexp &operator =(const floatexp &a)
 	{
 		val=a.val;
 		exp=a.exp;
 		return *this;
 	}
-	inline floatexp &operator =(int a)
+	inline floatexp &operator =(const int &a)
 	{	
-		initFromDouble((double)a);
-		return *this;
+		floatexp b(a);
+		return *this = b;
 	}
-	inline floatexp &operator =(double a)
+	inline floatexp &operator =(const double &a)
 	{
-		initFromDouble(a);
-		return *this;
+		floatexp b(a);
+		return *this = b;
 	}
-	inline floatexp &operator =(long double a)
+	inline floatexp &operator =(const long double &a)
 	{
-		initFromLongDouble(a);
-		return *this;
+		floatexp b(a);
+		return *this = b;
 	}
+
 	inline floatexp operator *(const floatexp &a) const
 	{
 		floatexp r;
@@ -149,7 +150,7 @@ public:
 			if(diff>MAX_PREC)
 				r.val=val;
 			else{
-				double aval = setExp(a.val,-diff);
+				double aval = set_exponent(a.val,-diff);
 				r.val = val+aval;
 			}
 		}
@@ -159,7 +160,7 @@ public:
 			if(diff>MAX_PREC)
 				r.val=a.val;
 			else{
-				double aval = setExp(val,-diff);
+				double aval = set_exponent(val,-diff);
 				r.val = a.val+aval;
 			}
 		}
@@ -187,7 +188,7 @@ public:
 			if(diff>MAX_PREC)
 				r.val = val;
 			else{
-				double aval = setExp(a.val,-diff);
+				double aval = set_exponent(a.val,-diff);
 				r.val = val-aval;
 			}
 		}
@@ -197,7 +198,7 @@ public:
 			if(diff>MAX_PREC)
 				r.val=-a.val;
 			else{
-				double aval = setExp(val,-diff);
+				double aval = set_exponent(val,-diff);
 				r.val = aval-a.val;
 			}
 		}
@@ -264,57 +265,32 @@ public:
 	}
 	inline bool iszero() const
 	{
-		return (val==0 && exp==0);
+		return (val==0 && exp==EXP_MIN);
 	}
-	inline double todouble() const
+
+	inline explicit operator double () const
 	{
 		if(exp<-MAX_PREC || exp>MAX_PREC)
 			return 0;
-		return setExp(val,exp);
+		return set_exponent(val,exp);
 	}
-	inline explicit operator double () const
+	inline explicit operator long double () const
 	{
-		return todouble();
+		return std::ldexp((long double) val, exp);
 	}
-	inline double todouble(int nScaling) const
+	inline explicit operator sdouble () const
 	{
-		if(!nScaling)
-			return todouble();
-		floatexp ret = *this;
-		while(nScaling>9){
-			ret.val*=1e10;
-			ret.align();
-			nScaling-=10;
-		}
-		while(nScaling>2){
-			ret.val*=1e3;
-			ret.align();
-			nScaling-=3;
-		}
-		while(nScaling>0){
-			ret.val*=1e1;
-			ret.align();
-			nScaling--;
-		}
-		while(nScaling<-9){
-			ret.val/=1e10;
-			ret.align();
-			nScaling+=10;
-		}
-		while(nScaling<-2){
-			ret.val/=1e3;
-			ret.align();
-			nScaling+=3;
-		}
-		while(nScaling<0){
-			ret.val/=1e1;
-			ret.align();
-			nScaling++;
-		}
-		if(ret.exp<-MAX_PREC || ret.exp>MAX_PREC)
-			return 0;
-		return setExp(ret.val,ret.exp);
+		sdouble r;
+		r.x = double(*this / SDOUBLE_SCALE);
+		return r;
 	}
+	inline explicit operator sldouble () const
+	{
+		sldouble r;
+		r.x = (long double)(*this / SLDOUBLE_SCALE);
+		return r;
+	}
+
 	inline floatexp &operator /=(double a)
 	{
 		val/=a;
@@ -325,6 +301,12 @@ public:
 	{
 		val*=a;
 		align();
+		return *this;
+	}
+
+	inline floatexp &operator *=(const floatexp &a)
+	{
+		*this = *this * a;
 		return *this;
 	}
 
@@ -343,19 +325,6 @@ public:
 			mpfr_mul_2ui(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
 		else
 			mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
-	}
-
-	inline floatexp setLongDouble(long double a)
-	{
-		int e = 0;
-		val = std::frexp(a, &e);
-		exp = e;
-		align();
-		return *this;
-	}
-	inline long double toLongDouble() const
-	{
-		return std::ldexp((long double) val, exp);
 	}
 
 };
@@ -383,6 +352,11 @@ inline floatexp operator+(floatexp b, double a)
 inline floatexp operator*(int a, floatexp b)
 {
 	return double(a) * b;
+}
+
+inline floatexp operator*(long double a, floatexp b)
+{
+	return floatexp(a) * b;
 }
 
 inline floatexp abs(floatexp a)

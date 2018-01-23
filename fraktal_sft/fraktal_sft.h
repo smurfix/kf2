@@ -36,13 +36,11 @@ public:
 // magic value stored in m_nTrans[][] when a glitch is detected
 #define TRANS_GLITCH (-1)
 
-// thresholds for switching to long double iterations
-#define LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT 590
-#define LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT 390
-#define LONG_DOUBLE_THRESHOLD_DEFAULT 290
-// threshold for switching to scaled double iterations
-// this is lower than the theoretical maximum to avoid derivative overflow
-#define SCALED_DOUBLE_THRESHOLD 290
+// thresholds for switching between types
+#define THRESHOLD_DOUBLE 290
+#define THRESHOLD_SCALED_DOUBLE 580
+#define THRESHOLD_LONG_DOUBLE 4800
+#define THRESHOLD_SCALED_LONG_DOUBLE 9600
 
 #define SMOOTH_BAILOUT 10000
 struct MC
@@ -151,11 +149,20 @@ public:
 };
 #endif
 
+enum CalcType
+{
+	CalcType_Double = 0,
+	CalcType_ScaledDouble = 1,
+	CalcType_LongDouble = 2,
+	CalcType_ScaledLongDouble = 3,
+	CalcType_FloatExp = 4
+};
+
 enum SmoothMethod
 {
 	SmoothMethod_Log = 0,
 	SmoothMethod_Sqrt = 1,
-	SmoothMethod_DE =2
+	SmoothMethod_DE = 2
 };
 
 enum ColorMethod
@@ -193,6 +200,7 @@ class CFraktalSFT
 	double m_dPixelSpacing;
 	long double m_lPixelSpacing;
 	floatexp m_fPixelSpacing;
+	CalcType m_CalcType;
 	double m_epsilon;
 	CFixedFloat m_storedr, m_storedi;
 	POINT m_pOldGlitch[OLD_GLITCH];
@@ -274,8 +282,6 @@ class CFraktalSFT
 	HWND m_hWnd;
 	char *m_szPosition;
 	BOOL m_bReuseRef;
-	double m_nScaling;
-	int m_nScalingOffset;
 	int m_nStatus;
 	int m_nFrameDone;
 	BOOL m_bAddReference;
@@ -293,15 +299,20 @@ class CFraktalSFT
 	int m_nInflections;
 	complex<CFixedFloat> *m_pInflections;
 
-	void CalculateApproximation(int nType);
+	void CalculateApproximation(CalcType nType);
 	void DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
 	void CalculateReference();
-	void CalculateReferenceEXP();
+	void CalculateReferenceSDouble();
 	void CalculateReferenceLDBL();
+	void CalculateReferenceSLDouble();
+	void CalculateReferenceEXP();
 	void CreateLists();
 	std::string ToZoom(const CDecNumber &z, int &zoom);
-	void RenderFractalEXP();
+	void RenderFractalDouble();
+	void RenderFractalSDouble();
 	void RenderFractalLDBL();
+	void RenderFractalSLDouble();
+	void RenderFractalEXP();
 #ifdef KF_OPENCL
 	void RenderFractalOpenCL();
 	void RenderFractalOpenCLEXP();
@@ -320,9 +331,11 @@ class CFraktalSFT
 public:
 	BOOL m_bRunning;
 	int nPos;
-	void MandelCalc();
-	void MandelCalcEXP();
-	void MandelCalcLDBL();
+	void MandelCalc();          // db_dx
+	void MandelCalcSDouble();   // ldx -- power 2 mandelbrot only
+	void MandelCalcLDBL();      // ldx
+	void MandelCalcSLDouble();  // DX  -- power 2 mandelbrot only
+	void MandelCalcEXP();       // DX
 
 	CFraktalSFT();
 	~CFraktalSFT();
@@ -504,8 +517,6 @@ extern double g_SeedI;
 extern double g_FactorAR;
 extern double g_FactorAI;
 
-extern int g_nLDBL;
-extern int g_nEXP;
 extern int g_nRefZero;
 
 extern double g_Degree;

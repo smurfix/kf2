@@ -78,7 +78,7 @@ void CFraktalSFT::MandelCalcEXP()
 					yr = m_dxr[antal] + Dr;
 					yi = m_dxi[antal] + Di;
 					test2 = test1;
-					test1 = (real*yr*yr + imag*yi*yi).todouble();
+					test1 = double(real*yr*yr + imag*yi*yi);
 					if (test1<m_db_z[antal]){
 						if (!m_bNoGlitchDetection)
 							test1 = m_nBailout2 * 2;
@@ -123,7 +123,7 @@ void CFraktalSFT::MandelCalcEXP()
 		floatexp pixel_spacing = m_fPixelSpacing;
 		dr = dr * pixel_spacing;
 		di = di * pixel_spacing;
-		double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
+		double de = sqrt(test1) * log(test1) / double(sqrt(dr * dr + di * di));
 
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 

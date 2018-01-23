@@ -32,7 +32,11 @@ fraktal_sft/newton.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/render.cpp \
-fraktal_sft/Settings.cpp
+fraktal_sft/Settings.cpp \
+fraktal_sft/scaled_double_perturbation.cpp \
+fraktal_sft/scaled_double_reference.cpp \
+fraktal_sft/scaled_long_double_perturbation.cpp \
+fraktal_sft/scaled_long_double_reference.cpp
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
@@ -52,7 +56,9 @@ fraktal_sft/main_position.h \
 fraktal_sft/newton.h \
 fraktal_sft/png.h \
 fraktal_sft/resource.h \
-fraktal_sft/Settings.h
+fraktal_sft/Settings.h \
+fraktal_sft/scaled_double.h \
+fraktal_sft/scaled_long_double.h
 
 COMMON_SOURCES_CPP = \
 common/FolderBrowser.cpp \

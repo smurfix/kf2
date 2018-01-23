@@ -75,8 +75,6 @@ HBITMAP g_bmMarilyn=NULL;
 double g_nMinDiff=0;
 
 extern BOOL g_LDBL;
-extern int g_nLDBL;
-extern int g_nEXP;
 #ifdef _WIN64
 #define GCL_WNDPROC -24
 #define GWL_WNDPROC -4
@@ -3723,40 +3721,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_GUESSING,MF_BYCOMMAND|(g_SFT.GetGuessing()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
-		if(g_nLDBL>100)
-			g_nLDBL=0;
-		else{
-			if(g_SFT.GetPower()==2)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-			if(g_SFT.GetPower()==3)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
-			else
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-		}
-		g_nEXP=4900;
-		g_SFT.SetLongDoubleAlways(g_nLDBL < 100);
-		g_SFT.SetFloatExpAlways(g_nEXP == 3);
+		g_SFT.SetLongDoubleAlways(! g_SFT.GetLongDoubleAlways());
+		g_SFT.SetFloatExpAlways(false);
 		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
-		if(g_nEXP==4900){
-			g_nLDBL=2;
-			g_nEXP=3;
-		}
-		else{
-			if(g_SFT.GetPower()==2)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-			else if(g_SFT.GetPower()==3)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
-			else
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-			g_nEXP=4900;
-		}
+		g_SFT.SetFloatExpAlways(! g_SFT.GetFloatExpAlways());
 		g_SFT.SetLongDoubleAlways(false);
-		g_SFT.SetFloatExpAlways(g_nEXP == 3);
-		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
+		UpdateLongDoubleAlways(hWnd);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

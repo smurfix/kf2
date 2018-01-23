@@ -38,8 +38,6 @@ double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
-int g_nLDBL = 600;
-int g_nEXP = 4900;
 int g_nRefZero = 3;
 #define APPROX_GRID 19
 #define TERM4
@@ -2419,16 +2417,6 @@ void CFraktalSFT::SetPower(int nPower)
 		m_nPower = 2;
 	if (m_nPower>70)
 		m_nPower = 70;
-//	if (m_nFractalType>4 && m_nPower>3)
-//		m_nPower = 3;
-	if (g_nLDBL>100){
-		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
-		else
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-	}
 }
 
 void CFraktalSFT::SetDifferences(int nDifferences)
@@ -2552,14 +2540,6 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 	if (m_nFractalType>2 && m_nPower>2)
 		m_nPower = 2;
 
-	if (g_nLDBL>100){
-		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
-		else
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-	}
 }
 int CFraktalSFT::GetFractalType()
 {

@@ -27,7 +27,7 @@ struct mcthread_common
 	double *test1;
 	double *test2;
 	volatile BOOL *stop;
-	long double dr, di;
+	floatexp dr, di;
 };
 
 struct mcthread
@@ -47,8 +47,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	double abs_val = 0;
 
 	mcthread_common *p = p0->common;
-	long double dr = p->dr;
-	long double di = p->di;
+	floatexp dr = p->dr;
+	floatexp di = p->di;
 	const double glitch_threshold = *p->glitch_threshold;
 	int i = 0;
 	switch (p0->nType)
@@ -88,14 +88,14 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			{
 				if (i > 0)
 				{
-					const long double lr = p->m_ldxr[i-1];
-					const long double li = p->m_ldxi[i-1];
-					long double drn = 2 * (lr * dr - li * di) + 1;
-					long double din = 2 * (lr * di + li * dr);
+					const floatexp lr = p->m_ldxr[i-1];
+					const floatexp li = p->m_ldxi[i-1];
+					floatexp drn = 2 * (lr * dr - li * di) + 1;
+					floatexp din = 2 * (lr * di + li * dr);
 					dr = drn;
 					di = din;
 					old_absval = abs_val;
-					abs_val = g_real * lr * lr + g_imag * li * li;
+					abs_val = double(g_real * lr * lr + g_imag * li * li);
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
 					if (abs_val >= 4)
 					{
@@ -142,14 +142,14 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	{
 		if (i > 0)
 		{
-			const long double lr = p->m_ldxr[i-1];
-			const long double li = p->m_ldxi[i-1];
-			long double drn = 2 * (lr * dr - li * di) + 1;
-			long double din = 2 * (lr * di + li * dr);
+			const floatexp lr = p->m_ldxr[i-1];
+			const floatexp li = p->m_ldxi[i-1];
+			floatexp drn = 2 * (lr * dr - li * di) + 1;
+			floatexp din = 2 * (lr * di + li * dr);
 			dr = drn;
 			di = din;
 			old_absval = abs_val;
-			abs_val = g_real * lr * lr + g_imag * li * li;
+			abs_val = double(g_real * lr * lr + g_imag * li * li);
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
 			if (abs_val >= 4)
 			{
@@ -196,7 +196,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	return 0;
 }
 
-void CFraktalSFT::CalculateReferenceLDBL()
+void CFraktalSFT::CalculateReferenceSLDouble()
 {
 	Precision prec(m_rref.m_f.precision());
 
@@ -215,13 +215,14 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	double test1 = 0;
 	double test2 = 0;
 
-	long double dr = 1, di = 0;
+	floatexp dr = 1, di = 0;
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower == 2){
+	if (m_nFractalType == 0 && m_nPower == 2)
+	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -299,78 +300,15 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		di = co.di;
 
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10)
-	{
-		bool stored = false;
-		double old_absval = 0;
-		double abs_val = 0;
-		CFixedFloat xr = g_SeedR, xi = g_SeedI;
-		double threashold = 0.0001;
-		for (i = 7; i <= m_nPower; i += 2)
-			threashold *= 10;
-    if (GetGlitchLowTolerance()) {
-			threashold = sqrt(threashold);
-		}
-		if (threashold>.5)
-			threashold = .5;
-		complex<long double> d(1.0, 0.0);
-		for (i = 0; i<nMaxIter && !m_bStop; i++){
-			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
-			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			floatexp xrf; xrf = xr;
-			floatexp xif; xif = xi;
-			complex<long double> x((long double)(xrf), (long double)(xif));
-			d = m_nPower * d * (x ^ (m_nPower - 1)) + 1;
-			xr = Xn.m_r;
-			xi = Xn.m_i;
-			m_ldxr[i] = mpfr_get_ld(xr.m_f.backend().data(), MPFR_RNDN);
-			m_ldxi[i] = mpfr_get_ld(xi.m_f.backend().data(), MPFR_RNDN);
-			old_absval = abs_val;
-			abs_val = g_real * m_ldxr[i] * m_ldxr[i] + g_imag * m_ldxi[i] * m_ldxi[i];
-			m_db_z[i] = abs_val*threashold;
-			if (abs_val >= 4)
-			{
-				if (terminate == 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-			}
-			if (abs_val >= terminate){
-				if (terminate > 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
-					if (nMaxIter>m_nMaxIter)
-						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
-				}
-			}
-			m_nRDone++;
-		}
-		dr = d.m_r;
-		di = d.m_i;
-
-	}
 	else
 	{
-
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
-    assert(ok && "reference_long_double");
-
+		assert(! "sldoubleref type/power != 0/2");
 	}
 
-  long double pixel_spacing = m_lPixelSpacing;
+  floatexp pixel_spacing = m_fPixelSpacing;
 	dr *= pixel_spacing;
 	di *= pixel_spacing;
-	double de = sqrt(test1) * log(test1) / sqrt(dr * dr + di * di);
+	double de = sqrt(test1) * log(test1) / double(sqrt(dr * dr + di * di));
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);
