@@ -63,8 +63,12 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	else if (nType == 1){
 		for (j = 0; j<nProbe; j++){
 			dbTr0[j] = m_lDX[p[j].x];
-			dbTr[j] = dbTr0[j];
 			dbTi0[j] = m_lDX[p[j].y];
+			if (m_nScalingOffsetL){
+				dbTr0[j] *= m_nScalingL;
+				dbTi0[j] *= m_nScalingL;
+			}
+			dbTr[j] = dbTr0[j];
 			dbTi[j] = dbTi0[j];
 		}
 	}

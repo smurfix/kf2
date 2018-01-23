@@ -85,6 +85,16 @@ public:
 		f = m_f;
 		return double(FixedFloat(f * pow(FixedFloat(10), nScaling)));
 	};
+	inline long double ToLongDouble(int nScaling = 0)
+	{
+		using std::pow;
+		unsigned p = LOW_PRECISION;
+		Precision q(p);
+		FixedFloat f;
+		f.precision(p);
+		f = m_f;
+		return (long double)(FixedFloat(f * pow(FixedFloat(10), nScaling)));
+	};
 
 	inline CFixedFloat Add(const CFixedFloat &A) const
 	{

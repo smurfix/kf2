@@ -3724,37 +3724,55 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
 		if(g_nLDBL>100)
+		{
 			g_nLDBL=0;
+		}
 		else{
 			if(g_SFT.GetPower()==2)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
+			{
+				g_nLDBL=600;
+				g_nEXP=9800;
+			}
 			if(g_SFT.GetPower()==3)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+			{
+				g_nLDBL=400;
+				g_nEXP=6533;
+			}
 			else
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+			{
+				g_nLDBL=300;
+				g_nEXP=4900;
+			}
 		}
-		g_nEXP=4900;
+		g_SFT.SetFloatExpAlways(false);
 		g_SFT.SetLongDoubleAlways(g_nLDBL < 100);
-		g_SFT.SetFloatExpAlways(g_nEXP == 3);
 		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
-		if(g_nEXP==4900){
+		if(g_nEXP>100){
 			g_nLDBL=2;
-			g_nEXP=3;
+			g_nEXP=2;
 		}
 		else{
 			if(g_SFT.GetPower()==2)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
+			{
+				g_nLDBL=600;
+				g_nEXP=9800;
+			}
 			else if(g_SFT.GetPower()==3)
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+			{
+				g_nLDBL=400;
+				g_nEXP=6533;
+			}
 			else
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-			g_nEXP=4900;
+			{
+				g_nLDBL=300;
+				g_nEXP=4900;
+			}
 		}
 		g_SFT.SetLongDoubleAlways(false);
-		g_SFT.SetFloatExpAlways(g_nEXP == 3);
+		g_SFT.SetFloatExpAlways(g_nEXP < 3);
 		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
 	}

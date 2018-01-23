@@ -443,6 +443,7 @@ void CFraktalSFT::RenderFractal()
 void CFraktalSFT::RenderFractalLDBL()
 {
 	m_P.Init(m_nX, m_nY);
+	int i;
 	if (!GetReuseReference() || !m_ldxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
@@ -458,26 +459,26 @@ void CFraktalSFT::RenderFractalLDBL()
 				g_nAddRefY = -1;
 			}
 		}
+		m_nScalingOffsetL = 0;
+		m_nScalingL = 1;
+		for (i = 4900; i<m_nZoom; i++){
+			m_nScalingOffsetL++;
+			m_nScalingL = m_nScalingL*.1L;
+		}
 		CalculateReferenceLDBL();
 	}
-	int i;
 	int x, y;
 	if (!m_lDX || !m_lDY){
 		CFixedFloat c = m_rstart;
 		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 		m_lDX = new long double[m_nX];
-		CFixedFloat tmp;
-		for (x = 0; x<m_nX; x++, c += step){
-			tmp = c - m_rref;
-			m_lDX[x] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
-		}
+		for (x = 0; x<m_nX; x++, c += step)
+			m_lDX[x] = (c - m_rref).ToLongDouble(m_nScalingOffsetL);
 		c = m_istart;
 		step = (m_istop - m_istart)*(1 / (double)m_nY);
 		m_lDY = new long double[m_nY];
-		for (y = 0; y<m_nY; y++, c += step){
-			tmp = c - m_iref;
-			m_lDY[y] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
-		}
+		for (y = 0; y<m_nY; y++, c += step)
+			m_lDY[y] = (c - m_iref).ToLongDouble(m_nScalingOffsetL);
 	}
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;

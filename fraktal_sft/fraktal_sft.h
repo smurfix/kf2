@@ -276,6 +276,8 @@ class CFraktalSFT
 	BOOL m_bReuseRef;
 	double m_nScaling;
 	int m_nScalingOffset;
+	long double m_nScalingL;
+	int m_nScalingOffsetL;
 	int m_nStatus;
 	int m_nFrameDone;
 	BOOL m_bAddReference;

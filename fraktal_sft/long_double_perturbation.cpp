@@ -60,51 +60,82 @@ void CFraktalSFT::MandelCalcLDBL()
 			continue;
 
 		// series approximation
-		long double lD0r, mmr, lD0i, mmi, c, s, t1, t2;
-		c = m_C;
-		s = m_S;
-		mmr = m_lDX[x] - m_lDX[m_nX / 2];
-		mmi = m_lDY[y] - m_lDY[m_nY / 2];
-
-		t1 = c * mmr;
-		t2 = s * mmi;
-		lD0r = m_lDX[m_nX / 2] + t1;
-		lD0r = lD0r + t2;
-
-		t1 = s * mmr;
-		t2 = c * mmi;
-		lD0i = m_lDY[m_nY / 2] - t1;
-		lD0i = lD0i + t2;
-
+		long double lD0r = m_lDX[m_nX / 2] + m_C*(m_lDX[x] - m_lDX[m_nX / 2]) + m_S*(m_lDY[y] - m_lDY[m_nY / 2]);
+		long double lD0i = m_lDY[m_nY / 2] - m_S*(m_lDX[x] - m_lDX[m_nX / 2]) + m_C*(m_lDY[y] - m_lDY[m_nY / 2]);
 		floatexp D0r = lD0r;
-		// D0r *= m_nScaling;
+		D0r *= m_nScalingL;
 		floatexp D0i = lD0i;
-		// D0i *= m_nScaling;
+		D0i *= m_nScalingL;
 		floatexp TDnr;
 		floatexp TDni;
 		floatexp TDDnr;
 		floatexp TDDni;
 		DoApproximation(antal, D0r, D0i, TDnr, TDni, TDDnr, TDDni);
 
-		long double Dr, Di, dr, di;
-		Dr = TDnr.toLongDouble();
-		Di = TDni.toLongDouble();
-		dr = TDDnr.toLongDouble();
-		di = TDDni.toLongDouble();
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-		if (m_nFractalType == 0 && m_nPower > 10)
+		if (m_nScalingOffsetL){
+			long double Dr = TDnr.toLongDouble(m_nScalingOffsetL);
+			long double Di = TDni.toLongDouble(m_nScalingOffsetL);
+			if (m_nPower == 2){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						double yr = m_ldxr[antal] + Dr*m_nScalingL;
+						double yi = m_ldxi[antal] + Di*m_nScalingL;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						long double Dnr = (2 * m_ldxr[antal] + Dr*m_nScalingL)*Dr - (2 * m_ldxi[antal] + Di*m_nScalingL)*Di + lD0r;
+						long double Dni = 2 * ((m_ldxr[antal] + Dr*m_nScalingL)*Di + m_ldxi[antal] * Dr) + lD0i;
+						// FIXME derivative
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+			if (m_nPower == 3){
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						double yr = m_ldxr[antal] + Dr*m_nScalingL;
+						double yi = m_ldxi[antal] + Di*m_nScalingL;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							if (!m_bNoGlitchDetection)
+								test1 = m_nBailout2 * 2;
+							bGlitch = TRUE;
+						}
+						//Dnr=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Dr+m_ldxr[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)-Di*(2*m_ldxi[antal]*(m_ldxr[antal]+Dr*m_nScalingL)+Dr*m_nScalingL*Di*m_nScalingL))+Dr*m_nScalingL*Dr*m_nScalingL*Dr+dbD0r;
+						//Dni=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Di+m_ldxi[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)+Dr*(2*m_ldxr[antal]*(m_ldxi[antal]+Di)+Dr*m_nScalingL*Di*m_nScalingL))-Di*Di*m_nScalingL*Di*m_nScalingL+dbD0i;
+						long double Dnr = 3 * m_ldxr[antal] * m_ldxr[antal] * Dr - 6 * m_ldxr[antal] * m_ldxi[antal] * Di - 3 * m_ldxi[antal] * m_ldxi[antal] * Dr + 3 * m_ldxr[antal] * Dr*Dr*m_nScalingL - 3 * m_ldxr[antal] * Di*Di*m_nScalingL - 3 * m_ldxi[antal] * 2 * Dr*Di*m_nScalingL + Dr*Dr*Dr*m_nScalingL*m_nScalingL - 3 * Dr*Di*Di*m_nScalingL*m_nScalingL + lD0r;
+						long double Dni = 3 * m_ldxr[antal] * m_ldxr[antal] * Di + 6 * m_ldxr[antal] * m_ldxi[antal] * Dr - 3 * m_ldxi[antal] * m_ldxi[antal] * Di + 3 * m_ldxr[antal] * 2 * Dr*Di*m_nScalingL + 3 * m_ldxi[antal] * Dr*Dr*m_nScalingL - 3 * m_ldxi[antal] * Di*Di*m_nScalingL + 3 * Dr*Dr*Di*m_nScalingL*m_nScalingL - Di*Di*Di*m_nScalingL*m_nScalingL + lD0i;
+						// FIXME derivative
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
+		}
+		else if (m_nFractalType == 0 && m_nPower > 10)
 		{
-
+			long double Dr = TDnr.toLongDouble();
+			long double Di = TDni.toLongDouble();
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di);
-
+			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts);
 		}
 		else
 		{
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing);
+			long double Dr = TDnr.toLongDouble();
+			long double Di = TDni.toLongDouble();
+			int antal2 = antal;
+			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i);
+			antal = antal2;
 			assert(ok && "perturbation_long_double");
 		}
 

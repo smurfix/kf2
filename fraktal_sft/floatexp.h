@@ -327,6 +327,14 @@ public:
 		align();
 		return *this;
 	}
+	inline floatexp &operator *=(floatexp a)
+	{
+		return *this = *this * a;
+	}
+	inline floatexp &operator *=(long double a)
+	{
+		return *this *= floatexp(a);
+	}
 
 	inline floatexp &operator =(const CFixedFloat &a)
 	{
@@ -357,7 +365,39 @@ public:
 	{
 		return std::ldexp((long double) val, exp);
 	}
-
+	inline long double toLongDouble(int nScaling) const
+	{
+		if(!nScaling)
+			return toLongDouble();
+		floatexp ret = *this;
+		// FIXME risky to go higher than this? 1e300 might be ok?
+		while(nScaling>99){
+			ret.val*=1e100;
+			ret.align();
+			nScaling-=100;
+		}
+		while(nScaling>29){
+			ret.val*=1e30;
+			ret.align();
+			nScaling-=30;
+		}
+		while(nScaling>9){
+			ret.val*=1e10;
+			ret.align();
+			nScaling-=10;
+		}
+		while(nScaling>2){
+			ret.val*=1e3;
+			ret.align();
+			nScaling-=3;
+		}
+		while(nScaling){
+			ret.val*=1e1;
+			ret.align();
+			nScaling--;
+		}
+		return ret.toLongDouble();
+	}
 };
 
 inline floatexp operator*(double a, floatexp b)

@@ -200,13 +200,30 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 		g_FactorAI = 0;
 
-	if (g_nLDBL>100){
-		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
-		else
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+	bool ld = GetLongDoubleAlways();
+	bool fe = GetFloatExpAlways();
+	if (m_nPower == 2 && !m_nFractalType)
+	{
+		g_nLDBL = 600;
+		g_nEXP = 9800;
+	}
+	else if (m_nPower == 3 && !m_nFractalType)
+	{
+		g_nLDBL = 400;
+		g_nEXP = 6533;
+	}
+	else
+	{
+		g_nLDBL = 300;
+		g_nEXP = 4900;
+	}
+	if (ld)
+	{
+		g_nLDBL = 3;
+	}
+	if (fe)
+	{
+		g_nEXP = 2;
 	}
 
 	if (!bNoLocation)
