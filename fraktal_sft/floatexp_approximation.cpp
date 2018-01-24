@@ -1,7 +1,7 @@
 #include "fraktal_sft.h"
 #include "complex.h"
 
-void CFraktalSFT::CalculateApproximation(CalcType nType)
+void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
 #if 0
@@ -48,15 +48,19 @@ void CFraktalSFT::CalculateApproximation(CalcType nType)
 	}
 	assert(k == nProbe);
 
-	if (nType == CalcType_Double){
+	if (nType == 0){
 		for (j = 0; j<nProbe; j++){
 			dbTr0[j] = m_pDX[p[j].x];
 			dbTi0[j] = m_pDY[p[j].y];
+			if (m_nScalingOffset){
+				dbTr0[j] *= m_nScaling;
+				dbTi0[j] *= m_nScaling;
+			}
 			dbTr[j] = dbTr0[j];
 			dbTi[j] = dbTi0[j];
 		}
 	}
-	else if (nType == CalcType_ScaledDouble || nType == CalcType_LongDouble){
+	else if (nType == 1){
 		for (j = 0; j<nProbe; j++){
 			dbTr0[j] = m_lDX[p[j].x];
 			dbTr[j] = dbTr0[j];
@@ -116,11 +120,11 @@ void CFraktalSFT::CalculateApproximation(CalcType nType)
 		int n = i - 1;
 		if (i == 0)
 			xr = xi = 0;
-		else if (nType == CalcType_Double || nType == CalcType_ScaledDouble){
+		else if (nType == 0){
 			xr = m_db_dxr[n];
 			xi = m_db_dxi[n];
 		}
-		else if (nType == CalcType_LongDouble || nType == CalcType_ScaledLongDouble){
+		else if (nType == 1){
 			xr = m_ldxr[n];
 			xi = m_ldxi[n];
 		}
@@ -190,11 +194,11 @@ void CFraktalSFT::CalculateApproximation(CalcType nType)
 		*/
 		if (i<m_nMaxApproximation){
 			floatexp dxr, dxi;
-			if (nType == CalcType_Double || nType == CalcType_ScaledDouble){
+			if (nType == 0){
 				dxr = m_db_dxr[i];
 				dxi = m_db_dxi[i];
 			}
-			else if (nType == CalcType_LongDouble || nType == CalcType_ScaledLongDouble){
+			else if (nType == 1){
 				dxr = m_ldxr[i];
 				dxi = m_ldxi[i];
 			}
@@ -227,8 +231,8 @@ void CFraktalSFT::CalculateApproximation(CalcType nType)
 					m_nMaxApproximation = i;
 					break;
 				}
-				double yr(dxr + Dnr);
-				double yi(dxi + Dni);
+				double yr = (dxr + Dnr).todouble();
+				double yi = (dxi + Dni).todouble();
 				if (g_real*yr*yr + g_imag*yi*yi>m_nBailout2){
 					m_nMaxApproximation = i;
 					break;
@@ -351,7 +355,7 @@ void CFraktalSFT::DoApproximation(int &antal, const floatexp &D0r, const floatex
 	{
 		antal = m_nMaxApproximation - 1;
 		TDnr = 0; TDni = 0; TDDnr = 0; TDDni = 0;
-		for (int k = GetApproxTerms() - 1; k >= 0; --k)
+		for (int k = m_nTerms - 1; k >= 0; --k)
 		{
 			floatexp tr = TDnr * D0r - TDni * D0i + m_APr[k];
 			floatexp ti = TDnr * D0i + TDni * D0r + m_APi[k];

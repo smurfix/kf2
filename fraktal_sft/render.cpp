@@ -47,18 +47,6 @@ static int ThMandelCalcLDBL(TH_PARAMS *pMan)
 	return 0;
 }
 
-static int ThMandelCalcSDouble(TH_PARAMS *pMan)
-{
-	pMan->p->MandelCalcSDouble();
-	return 0;
-}
-
-static int ThMandelCalcSLDouble(TH_PARAMS *pMan)
-{
-	pMan->p->MandelCalcSLDouble();
-	return 0;
-}
-
 void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = TRUE;
@@ -183,8 +171,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 
 	CFixedFloat pixel_spacing = (m_istop - m_istart) / m_nY;
 	m_fPixelSpacing = pixel_spacing;
-	m_dPixelSpacing = double(m_fPixelSpacing);
-	m_lPixelSpacing = (long double)(m_fPixelSpacing);
+	m_dPixelSpacing = m_fPixelSpacing.todouble();
+	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
 
 	if (bNoThread){
 		SetTimer(m_hWnd, 0, 100, NULL);
@@ -237,17 +225,66 @@ void CFraktalSFT::RenderFractal()
 	}
 	else
 		m_nTotal = m_nX*m_nY;
-
-	if (m_db_dxr){
-		delete[] m_db_dxr;
-		m_db_dxr = NULL;
+	if (m_nZoom>=g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
+		if (m_db_dxr){
+			delete[] m_db_dxr;
+			m_db_dxr = NULL;
+		}
+		if (m_db_dxi){
+			delete[] m_db_dxi;
+			m_db_dxi = NULL;
+		}
+		if (m_dxr){
+			delete[] m_dxr;
+			m_dxr = NULL;
+		}
+		if (m_dxi){
+			delete[] m_dxi;
+			m_dxi = NULL;
+		}
+#ifdef KF_OPENCL
+		if (cl)
+		{
+			RenderFractalOpenCLEXP();
+		}
+		else
+#endif
+		{
+			RenderFractalLDBL();
+		}
+		return;
 	}
-	if (m_db_dxi){
-		delete[] m_db_dxi;
-		m_db_dxi = NULL;
+	else if (m_nZoom>=g_nLDBL){
+		if (m_db_dxr){
+			delete[] m_db_dxr;
+			m_db_dxr = NULL;
+		}
+		if (m_db_dxi){
+			delete[] m_db_dxi;
+			m_db_dxi = NULL;
+		}
+		if (m_ldxr){
+			delete[] m_ldxr;
+			m_ldxr = NULL;
+		}
+		if (m_ldxi){
+			delete[] m_ldxi;
+			m_ldxi = NULL;
+		}
+#ifdef KF_OPENCL
+		if (cl)
+		{
+			RenderFractalOpenCLEXP();
+		}
+		else
+#endif
+		{
+			RenderFractalEXP();
+		}
+		return;
 	}
 	if (m_ldxr){
-			delete[] m_ldxr;
+		delete[] m_ldxr;
 		m_ldxr = NULL;
 	}
 	if (m_ldxi){
@@ -262,31 +299,6 @@ void CFraktalSFT::RenderFractal()
 		delete[] m_dxi;
 		m_dxi = NULL;
 	}
-
-	if (m_nZoom < THRESHOLD_DOUBLE)
-		m_CalcType = CalcType_Double;
-	else if (m_nZoom < THRESHOLD_SCALED_DOUBLE && m_nFractalType == 0 && m_nPower == 2)
-		m_CalcType = CalcType_ScaledDouble;
-	else if (m_nZoom < THRESHOLD_LONG_DOUBLE)
-		m_CalcType = CalcType_LongDouble;
-	else if (m_nZoom < THRESHOLD_SCALED_LONG_DOUBLE && m_nFractalType == 0 && m_nPower == 2)
-		m_CalcType = CalcType_ScaledLongDouble;
-	else
-		m_CalcType = CalcType_FloatExp;
-	if (GetLongDoubleAlways()) m_CalcType = CalcType_LongDouble;
-	if (GetFloatExpAlways()) m_CalcType = CalcType_FloatExp;
-	switch (m_CalcType)
-	{
-		case CalcType_Double: RenderFractalDouble(); break;
-		case CalcType_ScaledDouble: RenderFractalSDouble(); break;
-		case CalcType_LongDouble: RenderFractalLDBL(); break;
-		case CalcType_ScaledLongDouble: RenderFractalSLDouble(); break;
-		case CalcType_FloatExp: RenderFractalEXP(); break;
-  }
-}
-
-void CFraktalSFT::RenderFractalDouble()
-{
 	m_P.Init(m_nX, m_nY);
 	int i;
 	if (!GetReuseReference() || !m_db_dxr || m_nZoom<g_nRefZero){
@@ -304,6 +316,12 @@ void CFraktalSFT::RenderFractalDouble()
 				g_nAddRefY = -1;
 			}
 		}
+		m_nScalingOffset = 0;
+		m_nScaling = 1;
+		for (i = SCALED_DOUBLE_THRESHOLD; i<m_nZoom; i++){
+			m_nScalingOffset++;
+			m_nScaling = m_nScaling*.1;
+		}
 		CalculateReference();
 	}
 	int x, y;
@@ -312,25 +330,61 @@ void CFraktalSFT::RenderFractalDouble()
 		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 		m_pDX = new double[m_nX];
 		for (x = 0; x<m_nX; x++, c += step)
-			m_pDX[x] = (c - m_rref).ToDouble();
+			m_pDX[x] = (c - m_rref).ToDouble(m_nScalingOffset);
 		c = m_istart;
 		step = (m_istop - m_istart)*(1 / (double)m_nY);
 		m_pDY = new double[m_nY];
 		for (y = 0; y<m_nY; y++, c += step)
-			m_pDY[y] = (c - m_iref).ToDouble();
+			m_pDY[y] = (c - m_iref).ToDouble(m_nScalingOffset);
 	}
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	CalculateApproximation(CalcType_Double);
+/*
+	if(m_bAddReference){
+		m_rApprox.left = m_nX/2;
+		m_rApprox.top = m_nY/2;
+		m_rApprox.right = m_nX/2;
+		m_rApprox.bottom = m_nY/2;
+		for (y = 0; y<m_nY; y++){
+			for (x = 0; x<m_nX; x++){
+				if(m_nPixels[x][y]==-1){
+					if(m_rApprox.left>x)
+						m_rApprox.left=x;
+					if(m_rApprox.top>y)
+						m_rApprox.top=y;
+					if(m_rApprox.right<x)
+						m_rApprox.right=x;
+					if(m_rApprox.bottom<y)
+						m_rApprox.bottom=y;
+				}
+			}
+		}
+	}
+	else{
+		m_rApprox.left = 0;
+		m_rApprox.top = 0;
+		m_rApprox.right = m_nX;
+		m_rApprox.bottom = m_nY;
+	}
+*/
+	CalculateApproximation(0);
 
        if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
                m_bNoGlitchDetection = FALSE;
        else
                m_bNoGlitchDetection = TRUE;
 
+#ifdef KF_OPENCL
+	if (cl)
+	{
+		RenderFractalOpenCL();
+	}
+	else
+#endif
+	{
 		// CalcStart
 		if (!m_bAddReference){
 			for (x = 0; x<m_nX; x++){
@@ -378,114 +432,8 @@ void CFraktalSFT::RenderFractalDouble()
 		P.Execute();
 		P.Reset();
 		delete[] pMan;
-
+	}
 	m_bAddReference = FALSE;
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-	m_bRunning = FALSE;
-}
-
-void CFraktalSFT::RenderFractalSDouble()
-{
-	m_P.Init(m_nX, m_nY);
-	if (!GetReuseReference() || !m_ldxr){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-		}
-		CalculateReferenceSDouble();
-	}
-	int i;
-	int x, y;
-	if (!m_lDX || !m_lDY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_lDX = new long double[m_nX];
-		CFixedFloat tmp;
-		for (x = 0; x<m_nX; x++, c += step){
-			tmp = c - m_rref;
-			m_lDX[x] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
-		}
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_lDY = new long double[m_nY];
-		for (y = 0; y<m_nY; y++, c += step){
-			tmp = c - m_iref;
-			m_lDY[y] = mpfr_get_ld(tmp.m_f.backend().data(), MPFR_RNDN);
-		}
-	}
-	m_rApprox.left = 0;
-	m_rApprox.top = 0;
-	m_rApprox.right = m_nX;
-	m_rApprox.bottom = m_nY;
-	CalculateApproximation(CalcType_ScaledDouble);
-
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = -1;
-				m_nTrans[x][y] = 0;
-			}
-		}
-	}
-
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
-
-	CParallell P(
-#ifdef _DEBUG
-		1
-#else
-		nParallel
-#endif
-		);
-	TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-	int nStep = m_nX / nParallel;
-	if (nStep<2)
-		nStep = 2;
-	else
-		nStep++;
-	int nXStart = 0;
-	for (i = 0; i<nParallel; i++){
-		pMan[i].p = this;
-		pMan[i].nXStart = nXStart;
-		nXStart += nStep;
-		if (nXStart>m_nX)
-			nXStart = m_nX;
-		if (i == nParallel - 1)
-			pMan[i].nXStop = m_nX;
-		else
-			pMan[i].nXStop = nXStart;
-		P.AddFunction((LPEXECUTE)ThMandelCalcSDouble, &pMan[i]);
-		if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-			pMan[i].nXStop--;
-			nXStart = pMan[i].nXStop;
-		}
-		if (pMan[i].nXStop == m_nX){
-			break;
-		}
-	}
-	P.Execute();
-	P.Reset();
-	delete[] pMan;
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
@@ -535,7 +483,7 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	CalculateApproximation(CalcType_LongDouble);
+	CalculateApproximation(1);
 
 	// CalcStart
 	if (!m_bAddReference){
@@ -598,107 +546,6 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_bRunning = FALSE;
 }
 
-void CFraktalSFT::RenderFractalSLDouble()
-{
-	m_P.Init(m_nX, m_nY);
-	if (!GetReuseReference() || !m_dxr){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-		}
-		CalculateReferenceSLDouble();
-	}
-	int i;
-	int x, y;
-	if (!m_DX || !m_DY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_DX = new floatexp[m_nX];
-		for (x = 0; x<m_nX; x++, c += step)
-			m_DX[x] = (c - m_rref);
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_DY = new floatexp[m_nY];
-		for (y = 0; y<m_nY; y++, c += step)
-			m_DY[y] = (c - m_iref);
-	}
-	m_rApprox.left = 0;
-	m_rApprox.top = 0;
-	m_rApprox.right = m_nX;
-	m_rApprox.bottom = m_nY;
-	CalculateApproximation(CalcType_ScaledLongDouble);
-
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = -1;
-				m_nTrans[x][y] = 0;
-			}
-		}
-	}
-
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
-
-	CParallell P(
-#ifdef _DEBUG
-		1
-#else
-		nParallel
-#endif
-		);
-	TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-	int nStep = m_nX / nParallel;
-	if (nStep<2)
-		nStep = 2;
-	else
-		nStep++;
-	int nXStart = 0;
-	for (i = 0; i<nParallel; i++){
-		pMan[i].p = this;
-		pMan[i].nXStart = nXStart;
-		nXStart += nStep;
-		if (nXStart>m_nX)
-			nXStart = m_nX;
-		if (i == nParallel - 1)
-			pMan[i].nXStop = m_nX;
-		else
-			pMan[i].nXStop = nXStart;
-		P.AddFunction((LPEXECUTE)ThMandelCalcSLDouble, &pMan[i]);
-		if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-			pMan[i].nXStop--;
-			nXStart = pMan[i].nXStop;
-		}
-		if (pMan[i].nXStop == m_nX){
-			break;
-		}
-	}
-	P.Execute();
-	P.Reset();
-	delete[] pMan;
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-	m_bRunning = FALSE;
-}
-
 void CFraktalSFT::RenderFractalEXP()
 {
 	m_P.Init(m_nX, m_nY);
@@ -737,7 +584,7 @@ void CFraktalSFT::RenderFractalEXP()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	CalculateApproximation(CalcType_FloatExp);
+	CalculateApproximation(2);
 
 	// CalcStart
 	if (!m_bAddReference){

@@ -86,10 +86,11 @@ void CFraktalSFT::MandelCalcLDBL()
 		floatexp TDDni;
 		DoApproximation(antal, D0r, D0i, TDnr, TDni, TDDnr, TDDni);
 
-		long double Dr(TDnr);
-		long double Di(TDni);
-		long double dr(TDDnr);
-		long double di(TDDni);
+		long double Dr, Di, dr, di;
+		Dr = TDnr.toLongDouble();
+		Di = TDni.toLongDouble();
+		dr = TDDnr.toLongDouble();
+		di = TDDni.toLongDouble();
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);

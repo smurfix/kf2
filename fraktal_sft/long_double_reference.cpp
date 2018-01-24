@@ -319,7 +319,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
 			floatexp xrf; xrf = xr;
 			floatexp xif; xif = xi;
-			complex<long double> x((long double)(xrf), (long double)(xif));
+			complex<long double> x(xrf.toLongDouble(), xif.toLongDouble());
 			d = m_nPower * d * (x ^ (m_nPower - 1)) + 1;
 			xr = Xn.m_r;
 			xi = Xn.m_i;

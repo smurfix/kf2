@@ -200,6 +200,15 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 		g_FactorAI = 0;
 
+	if (g_nLDBL>100){
+		if (m_nPower == 2 && !m_nFractalType)
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
+		else if (m_nPower == 3 && !m_nFractalType)
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+		else
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+	}
+
 	if (!bNoLocation)
 		SetPosition(stParams[nR][1], stParams[nI][1], stParams[nZ][1]);
 	CStringTable stColors(stParams[nC][1], "", ",");

@@ -96,7 +96,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 					dr = drn;
 					di = din;
 					old_absval = abs_val;
-					abs_val = double(real * lr * lr + imag * li * li);
+					abs_val = (real * lr * lr + imag * li * li).todouble();
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
 					if (abs_val >= 4)
 					{
@@ -150,7 +150,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			dr = drn;
 			di = din;
 			old_absval = abs_val;
-			abs_val = double(real * lr * lr + imag * li * li);
+			abs_val = (real * lr * lr + imag * li * li).todouble();
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
 			if (abs_val >= 4)
 			{
@@ -325,7 +325,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 			m_dxr[i] = xr;
 			m_dxi[i] = xi;
 			old_absval = abs_val;
-			abs_val = double(real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]);
+			abs_val = (real * m_dxr[i] * m_dxr[i] + imag * m_dxi[i] * m_dxi[i]).todouble();
 			m_db_z[i] = abs_val*threashold;
 			if (abs_val >= 4)
 			{
@@ -369,7 +369,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	floatexp pixel_spacing = m_fPixelSpacing;
 	dr = dr * pixel_spacing;
 	di = di * pixel_spacing;
-	double de = sqrt(test1) * log(test1) / double(sqrt(dr * dr + di * di));
+	double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);
