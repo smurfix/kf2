@@ -143,7 +143,7 @@ Change Log
       (minor optimisation)
     - default settings are best-quality by default
 
-- **kf-2.12.9** (????-??-??)
+- **kf-2.12.9** (2018-01-24)
 
     - improved Newton-Raphson zooming dialog, now zooms to a factor between
       current zoom and minibrot size (suggested by Dinkydau)
