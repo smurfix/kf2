@@ -126,7 +126,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.9.1 (????-??-??)
+- **kf-2.12.9.1** (2018-01-24)
 
     - fixed broken "approx low tolerance" checkbox (thanks to Dinkydau)
     - fixed NR-zoom dialog to remember custom zoom factor between reopenings
