@@ -58,8 +58,6 @@ Known Bugs
 - there is still a race conditions in guessing (doesn't wait for previous
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
-- newton-raphson zoom dialog doesn't save/restore custom factor when re-opening
-  (reported by gerrit)
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
@@ -131,6 +129,8 @@ Change Log
 - **kf-2.12.9.1 (????-??-??)
 
     - fixed broken "approx low tolerance" checkbox (thanks to Dinkydau)
+    - fixed NR-zoom dialog to remember custom zoom factor between reopenings
+      (reported by gerrit)
 
 - **kf-2.12.9** (2018-01-24)
 
