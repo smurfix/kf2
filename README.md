@@ -515,6 +515,7 @@ saving you from excessive copy/paste from this document.
         # enter and confirm password
         su - build
         export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
+        export NCPUS=8
         mkdir -p ~/win64/src
         mkdir -p ~/win32/src
 
@@ -545,7 +546,7 @@ saving you from excessive copy/paste from this document.
             tar xf gmp-6.1.2.tar.lz
             cd gmp-6.1.2
             ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-            make -j 8
+            make -j $NCPUS
             make install
             make check
 
@@ -553,7 +554,7 @@ saving you from excessive copy/paste from this document.
             tar xf gmp-6.1.2.tar.lz
             cd gmp-6.1.2
             ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
-            make -j 8
+            make -j $NCPUS
             make install
             make check
 
@@ -565,7 +566,7 @@ saving you from excessive copy/paste from this document.
             patch -N -Z -p1 < ../mpfr-3.1.6.patch
             ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 \
               --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
-            make -j 8
+            make -j $NCPUS
             make install
             make check
 
@@ -575,7 +576,7 @@ saving you from excessive copy/paste from this document.
             patch -N -Z -p1 < ../mpfr-3.1.6.patch
             ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 \
               --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
-            make -j 8
+            make -j $NCPUS
             make install
             make check
 
@@ -585,14 +586,14 @@ saving you from excessive copy/paste from this document.
             tar xf zlib-1.2.11.tar.xz
             cd zlib-1.2.11
             CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
-            CC=x86_64-w64-mingw32-gcc make -j 8
+            CC=x86_64-w64-mingw32-gcc make -j $NCPUS
             CC=x86_64-w64-mingw32-gcc make install
 
             cd ~/win32/src
             tar xf zlib-1.2.11.tar.xz
             cd zlib-1.2.11
             CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
-            CC=i686-w64-mingw32-gcc make -j 8
+            CC=i686-w64-mingw32-gcc make -j $NCPUS
             CC=i686-w64-mingw32-gcc make install
 
     4. Build PNG (64bit and 32bit):
@@ -603,7 +604,7 @@ saving you from excessive copy/paste from this document.
             ./configure --disable-shared --host=x86_64-w64-mingw32 \
               CPPFLAGS=-I$HOME/win64/include LDFLAGS=-L$HOME/win64/lib \
               --prefix=$HOME/win64
-            make -j 8
+            make -j $NCPUS
             make install
 
             cd ~/win32/src
@@ -612,7 +613,7 @@ saving you from excessive copy/paste from this document.
             ./configure --disable-shared --host=i686-w64-mingw32 \
               CPPFLAGS=-I$HOME/win32/include LDFLAGS=-L$HOME/win32/lib \
               --prefix=$HOME/win32
-            make -j 8
+            make -j $NCPUS
             make install
 
     5. Build JPEG (64bit and 32bit):
@@ -622,7 +623,7 @@ saving you from excessive copy/paste from this document.
             cd jpeg-6b
             ./configure --disable-shared CC=x86_64-w64-mingw32-gcc \
               --prefix=$HOME/win64
-            make -j 8
+            make -j $NCPUS
             cp -av libjpeg.a ~/win64/lib
             cp -av jpeglib.h jconfig.h jmorecfg.h jpegint.h jerror.h ~/win64/include
 
@@ -631,7 +632,7 @@ saving you from excessive copy/paste from this document.
             cd jpeg-6b
             ./configure --disable-shared CC=i686-w64-mingw32-gcc \
               --prefix=$HOME/win32
-            make -j 8
+            make -j $NCPUS
             cp -av libjpeg.a ~/win32/lib
             cp -av jpeglib.h jconfig.h jmorecfg.h jpegint.h jerror.h ~/win32/include
 
@@ -649,12 +650,12 @@ saving you from excessive copy/paste from this document.
 
         cd ~/win64/src
         cd kalles-fraktaler-2
-        make -j 8 SYSTEM=64
+        make -j $NCPUS SYSTEM=64
         make README.pdf   # optional, for PDF manual
 
         cd ~/win32/src
         cd kalles-fraktaler-2
-        make -j 8 SYSTEM=32
+        make -j $NCPUS SYSTEM=32
 
 7. To cut a release bundle, use the script
 
