@@ -823,6 +823,9 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
+		std::ostringstream s;
+		s << g_nMinibrotFactor;
+		SetDlgItemText(hWnd, IDC_EDIT2, s.str().c_str());
 		return 1;
 	}
 	if(uMsg==WM_COMMAND && wParam==IDCANCEL){
