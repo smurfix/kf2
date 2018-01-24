@@ -439,6 +439,8 @@ TODO
 - calculations: refine minibrot using interior distance estimates
 - calculations: refine minibrot using boundary shrinking (calculate edges only)
 - calculations: derivatives for Simonbrot formulas 33, 40, 51
+- newton: add zoom depth offset in addition to zoom depth factor to (eg) zoom
+  closer to minibrot or embedded Julia
 - newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - newton: properly debug huge zoom values from size estimate
