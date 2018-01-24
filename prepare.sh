@@ -6,14 +6,13 @@ mkdir -p ~/win64/src
 mkdir -p ~/win32/src
 
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
+wget -c https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
-wget -c http://www.mpfr.org/mpfr-current/mpfr-3.1.6.tar.xz
-wget -c http://www.mpfr.org/mpfr-current/allpatches -O mpfr-3.1.6.patch
+wget -c https://ftp.gnu.org/gnu/mpfr/mpfr-3.1.6.tar.xz
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://www.ijg.org/files/jpegsrc.v6b.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
-cp -avft ~/win32/src *z mpfr-3.1.6.patch
+cp -avft ~/win32/src *z
 
 cd ~/win64/src
 tar xf gmp-6.1.2.tar.lz
@@ -44,7 +43,6 @@ make check
 cd ~/win32/src
 tar xf mpfr-3.1.6.tar.xz
 cd mpfr-3.1.6
-patch -N -Z -p1 < ../mpfr-3.1.6.patch
 ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 \
   --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
