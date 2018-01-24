@@ -211,7 +211,6 @@ class CFraktalSFT
 	float **m_nTrans;
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
-	BOOL m_bLowTolerance;
 	int m_nPrevPower;
 	int *m_pnExpConsts;
 	int m_nMaxOldGlitches;

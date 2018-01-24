@@ -81,7 +81,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	m_nMaxApproximation = m_nMaxIter;
 	//floatexp mindiff = (m_nBailout==2?0.000001:0.001);
 	floatexp mindiff;
-	if (m_bLowTolerance)
+	if (GetApproxLowTolerance())
 		mindiff = 0.00001;
 	else
 		mindiff = 0.001;
