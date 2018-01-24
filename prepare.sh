@@ -53,14 +53,14 @@ cd ~/win64/src
 tar xf zlib-1.2.11.tar.xz
 cd zlib-1.2.11
 CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
-CC=x86_64-w64-mingw32-gcc make -j 8
+CC=x86_64-w64-mingw32-gcc make -j $NCPUS
 CC=x86_64-w64-mingw32-gcc make install
 
 cd ~/win32/src
 tar xf zlib-1.2.11.tar.xz
 cd zlib-1.2.11
 CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
-CC=i686-w64-mingw32-gcc make -j 8
+CC=i686-w64-mingw32-gcc make -j $NCPUS
 CC=i686-w64-mingw32-gcc make install
 
 cd ~/win64/src
