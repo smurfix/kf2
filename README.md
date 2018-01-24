@@ -763,7 +763,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
 Legal
 -----
 
-- Copyright (c) 2013-2017 Karl Runmo, (c) 2017 Claude Heiland-Allen
+- Copyright (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen
 - this software is based in part on the work of the Independent JPEG Group
 - the PNG library is used under the libpng license
 - the ZLIB library is used under the zlib license
