@@ -442,6 +442,7 @@ TODO
 - colouring: load/save palette to/from image
 - colouring: rework entirely (now: 1024 colours with mandatory interpolation)
 - colouring: implement Pauldelbrot's multiwave colouring
+- colouring: colour cycling (suggested by blob)
 
 
 Getting The Code
