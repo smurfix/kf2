@@ -431,6 +431,8 @@ TODO
 - newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - newton: properly debug huge zoom values from size estimate
+- libraries: upgrade to libmpfr-4.0.0 <http://www.mpfr.org/mpfr-current/mpfr.html>
+- libraries: upgrade to libjpeg6b2 <http://jpegclub.org/support/>
 - preprocessor: flatten complex numbers to separate real and imaginary parts
 - preprocessor: common subexpression elimination (share results, might be
   especially useful for large powers of complex numbers)
