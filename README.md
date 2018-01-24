@@ -126,7 +126,7 @@ Differences From Upstream 2.11.1
 Change Log
 ----------
 
-- **kf-2.12.9** (????-??-??)
+- **kf-2.12.9** (2018-12-24)
 
     - improved Newton-Raphson zooming dialog, now zooms to a factor between
       current zoom and minibrot size (suggested by Dinkydau)
