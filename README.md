@@ -132,6 +132,7 @@ Change Log
     - fixed NR-zoom dialog to remember custom zoom factor between reopenings
       (reported by gerrit)
     - fixed initialization of some menu item state on load
+    - upgrade to Boost 1.66.0
 
 - **kf-2.12.9** (2018-01-24)
 
@@ -520,18 +521,17 @@ saving you from excessive copy/paste from this document.
     Download current versions of the needed libraries, and clone kf git sources:
 
         cd ~/win64/src
-        wget https://dl.bintray.com/boostorg/release/1.65.1/source/boost_1_65_1.7z
-        wget https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
-        wget http://www.mpfr.org/mpfr-current/mpfr-3.1.6.tar.xz
-        wget http://www.mpfr.org/mpfr-current/allpatches -O mpfr-3.1.6.patch
-        wget https://zlib.net/zlib-1.2.11.tar.xz
-        wget http://www.ijg.org/files/jpegsrc.v6b.tar.gz
-        wget ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
+        wget -c https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.7z
+        wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+        wget -c https://ftp.gnu.org/gnu/mpfr/mpfr-3.1.6.tar.xz
+        wget -c https://zlib.net/zlib-1.2.11.tar.xz
+        wget -c http://www.ijg.org/files/jpegsrc.v6b.tar.gz
+        wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.12
         cd ..
-        cp -avit ~/win32/src *z mpfr-3.1.6.patch kalles-fraktaler-2/
+        cp -avit ~/win32/src *z kalles-fraktaler-2/
 
     Internet access is no longer required after this step.
 
