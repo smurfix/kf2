@@ -359,7 +359,7 @@ void CFraktalSFT::DoApproximation(int &antal, const floatexp &D0r, const floatex
 	{
 		antal = m_nMaxApproximation - 1;
 		TDnr = 0; TDni = 0; TDDnr = 0; TDDni = 0;
-		for (int k = m_nTerms - 1; k >= 0; --k)
+		for (int k = GetApproxTerms() - 1; k >= 0; --k)
 		{
 			floatexp tr = TDnr * D0r - TDni * D0i + m_APr[k];
 			floatexp ti = TDnr * D0i + TDni * D0r + m_APi[k];
