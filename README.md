@@ -781,12 +781,19 @@ Legal
 
 - Copyright (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen
 - this software is based in part on the work of the Independent JPEG Group
+  <http://jpegclub.org/reference/libjpeg-license/>
 - the PNG library is used under the libpng license
+  <http://libpng.org/pub/png/src/libpng-LICENSE.txt>
 - the ZLIB library is used under the zlib license
+  <http://zlib.net/zlib_license.html>
 - the GMP library is used under the conditions of the GNU Lesser General Public
   License version 3 and the GNU General Public License version 2
+  <https://www.gnu.org/licenses/lgpl-3.0.en.html>
+  <https://www.gnu.org/licenses/gpl-2.0.html>
 - the Boost library is used under the Boost Software License Version 1.0
+  <http://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
+  <http://www.boost.org/LICENSE_1_0.txt>
 
 **NOTE**: the binaries are statically linked with GMP, which is under dual
 LGPLv3 / GPLv2 license. If you redistribute the binaries you must also be
