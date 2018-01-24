@@ -60,6 +60,9 @@ Known Bugs
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - newton-raphson zoom dialog doesn't save/restore custom factor when re-opening
   (reported by gerrit)
+- scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
+  to be too small and de overflows to infinity -> blank screen: workaround is to
+  force long double or floatexp as appropriate
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
