@@ -2503,9 +2503,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int nYOffs = 360-cr.bottom;
 		wr.bottom+=nYOffs+sr.bottom;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|MF_CHECKED);
-		UpdateThreadsPerCore(hWnd);
 		g_SFT.SetShowGlitches(GetPrivateProfileInt("SETTINGS","ShowGlitches",0,"fraktal_sft.ini"));
-		UpdateShowGlitches(hWnd);
 
 		RECT r;
 		GetClientRect(GetDesktopWindow(),&r);
@@ -2532,15 +2530,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.GenerateColors(g_SFT.GetNumOfColors(),1);
 		g_SFT.ApplyColors();
-		UpdateAutoSolveGlitches(hWnd);
-		UpdateAutoIterations(hWnd);
-
 		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
-		UpdateAnimateZoom(hWnd);
-
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
-		UpdateArbitrarySize(hWnd);
-		UpdateGuessing(hWnd);
+		UpdateMenusFromSettings(hWnd);
 
 		if (g_args->bLoadSettings)
 		{

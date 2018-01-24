@@ -131,6 +131,7 @@ Change Log
     - fixed broken "approx low tolerance" checkbox (thanks to Dinkydau)
     - fixed NR-zoom dialog to remember custom zoom factor between reopenings
       (reported by gerrit)
+    - fixed initialization of some menu item state on load
 
 - **kf-2.12.9** (2018-01-24)
 
