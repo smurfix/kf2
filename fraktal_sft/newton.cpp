@@ -166,6 +166,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
     }
   }
   SetEvent(b->hDone);
+  mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
 
@@ -307,6 +308,7 @@ static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
     if (*haveperiod) break;
   }
   SetEvent(b->hDone);
+  mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
 
@@ -456,6 +458,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       break;
   }
   SetEvent(t0->hDone);
+  mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
 
@@ -801,6 +804,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	}
 	g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 static __int64 t1, t2;

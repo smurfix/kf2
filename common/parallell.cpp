@@ -13,6 +13,7 @@
 // THIS DISCLAIMER.
 #include <windows.h>
 #include "parallell.h"
+#include <mpfr.h>
 
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
 {
@@ -26,6 +27,7 @@ try{
 }
 #endif
 	SetEvent(pE->hDone);
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 

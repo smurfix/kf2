@@ -860,6 +860,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 		MessageBox(pAnim->hWnd,szPos,"Krash",MB_OK);
 	}
 //#endif
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 
