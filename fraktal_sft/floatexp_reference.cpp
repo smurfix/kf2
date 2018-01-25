@@ -194,6 +194,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		p->di = di;
 	}
 	SetEvent(p0->hDone);
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 

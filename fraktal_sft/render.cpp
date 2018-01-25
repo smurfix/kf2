@@ -16,6 +16,7 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 //MessageBox(GetActiveWindow(),"Krash - 2","Krash",MB_OK);
 	}
 #endif
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 
@@ -32,18 +33,21 @@ static int ThMandelCalc(TH_PARAMS *pMan)
 MessageBox(GetActiveWindow(),"Krash - 1","Krash",MB_OK);
 	}
 #endif
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 
 static int ThMandelCalcEXP(TH_PARAMS *pMan)
 {
 	pMan->p->MandelCalcEXP();
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 
 static int ThMandelCalcLDBL(TH_PARAMS *pMan)
 {
 	pMan->p->MandelCalcLDBL();
+	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
 
