@@ -1,5 +1,4 @@
-Kalles Fraktaler 2 + GMP
-========================
+# Kalles Fraktaler 2 + GMP
 
 As the orginal upstream author Karl Runmo says:
 
@@ -27,8 +26,7 @@ Feedback:
 - <mailto:claude@mathr.co.uk?subject=Kalles%20Fraktaler%202> personal mail
 
 
-Known Bugs
-----------
+## Known Bugs
 
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
@@ -68,8 +66,7 @@ Known Bugs
   (out of date instructions for Windows)
 
 
-Differences From Upstream 2.11.1
---------------------------------
+## Differences From Upstream 2.11.1
 
 ### Incompatible Changes
 
@@ -129,8 +126,7 @@ Differences From Upstream 2.11.1
 - see change log below for more...
 
 
-Change Log
-----------
+## Change Log
 
 - **kf.2.13.1** (????-??-??)
 
@@ -140,6 +136,12 @@ Change Log
     - series approximation uses Horner's rule to evaluate polynomials
       (minor optimisation)
     - default settings are best-quality by default
+
+- **kf-2.12.10** (????-??-??)
+
+    - upgrade to MPFR 4.0.0
+    - removed some build instructions from README (see the prepare.sh script)
+      (it was too annoying to have to keep updating everything in two places)
 
 - **kf-2.12.9.1** (2018-01-24)
 
@@ -417,47 +419,65 @@ Change Log
     - kf-2.9.3 + gmp
 
 
-TODO
-----
+## TODO
 
-- user interface: crosshair cursor with more contrast (suggested by CFJH)
-- user interface: show box-region for nr-zoom before clicking (suggested by
+### User Interface
+
+- crosshair cursor with more contrast (suggested by CFJH)
+- show box-region for nr-zoom before clicking (suggested by
   Foxxie)
-- user-interface: adjust the size of the box via slider or like shift_scroll
+- adjust the size of the box via slider or like shift_scroll
   wheel or something like that? (suggested by Foxxie for nr-zoom, could also
   be useful for ctrl-left-click zoom)
-- user interface: undo history for location data (suggested by TwinDragon)
-- user interface: undo history for calculation data (suggested by TwinDragon)
-- user interface: online help within program (suggested by TwinDragon)
-- user interface: drag-and-drop parameters or images on to main window to load
-- user interface: save image now function (without waiting for calculations)
-- calculations: increase ref count limit without restarting from scratch
-- calculations: increase maxiters limit without restarting from scratch
-- calculations: optimize series approximation and probe point stuff
-- calculations: work on OpenCL some more (try to get it working)
-- calculations: calculate series approximation in parallel with reference
-- calculations: refine minibrot using interior distance estimates
-- calculations: refine minibrot using boundary shrinking (calculate edges only)
-- calculations: derivatives for Simonbrot formulas 33, 40, 51
-- newton: add zoom depth offset in addition to zoom depth factor to (eg) zoom
+- undo history for location data (suggested by TwinDragon)
+- undo history for calculation data (suggested by TwinDragon)
+- online help within program (suggested by TwinDragon)
+- drag-and-drop parameters or images on to main window to load
+- save image now function (without waiting for calculations)
+
+### Calculations
+
+- increase ref count limit without restarting from scratch
+- increase maxiters limit without restarting from scratch
+- optimize series approximation and probe point stuff
+- work on OpenCL some more (try to get it working)
+- calculate series approximation in parallel with reference
+- calculate derivatives for "true" distance estimates
+- refine minibrot using interior distance estimates
+- refine minibrot using boundary shrinking (calculate edges only)
+- Horner's rule for polynomial evaluation (if not used already)
+
+### Newton-Raphson Zooming
+
+- add zoom depth offset in addition to zoom depth factor to (eg) zoom
   closer to minibrot or embedded Julia
-- newton: zoom to Misiurewicz points (custom zoom factor, manual preperiod
+- zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
-- newton: properly debug huge zoom values from size estimate
-- preprocessor: flatten complex numbers to separate real and imaginary parts
-- preprocessor: common subexpression elimination (share results, might be
+- properly debug huge zoom values from size estimate
+
+### Libraries
+
+- upgrade to libmpfr-4.0.0 <http://www.mpfr.org/mpfr-current/mpfr.html>
+- upgrade to libjpeg6b2 <http://jpegclub.org/support/>
+
+### Preprocessor
+
+- flatten complex numbers to separate real and imaginary parts
+- common subexpression elimination (share results, might be
   especially useful for large powers of complex numbers)
-- preprocessor: automatically parallelize reference iterations
-- colouring: high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
-- colouring: assume sRGB display and gamma-correct downscaling
-- colouring: load/save palette to/from image
-- colouring: rework entirely (now: 1024 colours with mandatory interpolation)
-- colouring: implement Pauldelbrot's multiwave colouring
-- colouring: colour cycling (suggested by blob)
+- automatically parallelize reference iterations
+
+### Colouring
+
+- high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
+- assume sRGB display and gamma-correct downscaling
+- load/save palette to/from image
+- rework entirely (now: 1024 colours with mandatory interpolation)
+- implement Pauldelbrot's multiwave colouring
+- colour cycling (suggested by blob)
 
 
-Getting The Code
-----------------
+## Getting The Code
 
 I distribute EXEs bundled together with the corresponding source code.
 
@@ -472,16 +492,14 @@ The latest source code is available from my git repository:
     git tag -l                # list available release tags
 
 
-Building On Linux
------------------
+## Building On Linux
 
 Build instructions for cross-compiling from GNU/Linux require about 4.2GB of
 disk space and good internet download speed (or patience). About 600MB of
 downloads including the chroot debootstrap step. To build the PDF manual needs
 some more packages, adding another 600MB of downloads and 1GB of space, so I
 left that optional.  If you have recent Debian you can skip the chroot step and
-install natively.  See also the `prepare.sh` script which does much of the work,
-saving you from excessive copy/paste from this document.
+install natively.
 
 0. Setup Debian Stretch chroot:
 
@@ -592,8 +610,7 @@ The working Debian Stretch has:
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-Building on Windows
--------------------
+## Building on Windows
 
 (note: these instructions are out of date)
 
@@ -662,8 +679,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
     executable.
 
 
-Legal
------
+## Legal
 
 - Copyright (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen
 - this software is based in part on the work of the Independent JPEG Group
@@ -690,8 +706,7 @@ sources). And of course insert here the usual legal disclaimers about
 **NO WARRANTY OF ANY KIND**.
 
 
-Acknowledgements
-----------------
+## Acknowledgements
 
 Thanks to:
 
@@ -709,8 +724,7 @@ Thanks to:
 Claude also thanks Karl for releasing the source code.
 
 
-User Manual
-===========
+# User Manual
 
 Shortcut only:
 
@@ -720,8 +734,7 @@ Shortcut only:
 
 Menu items:
 
-File
-----
+## File
 
   - **Open**
 
@@ -772,8 +785,7 @@ File
 
     Exit this program
 
-Action
-------
+## Action
 
   - **Zoom size**
 
@@ -861,8 +873,7 @@ Action
 
     Turns animation on or off when zooming
 
-Special
--------
+## Special
 
   - **Add reference (Color)**
 
@@ -984,8 +995,7 @@ Special
     the pattern center
 
 
-About
------
+## About
 
 At the very top right:
 
@@ -997,8 +1007,7 @@ At the very top right:
     while a long render is taking place.
 
 
-Number of colors dialog
------------------------
+## Number of colors dialog
 
   - **Number of key colors**
 
@@ -1106,8 +1115,7 @@ Number of colors dialog
     value to be applied on all iterations.
 
 
-Command Line Usage
-------------------
+## Command Line Usage
 
     kf.exe [options]
         -l, --load-location [FILE.kfr]  load location file
