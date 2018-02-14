@@ -13,12 +13,10 @@ static int Perturbation_Var(int antal,const long double *dxr,const long double *
       yi=dxi[antal]+Di;
       test2=test1;
       test1 = g_real*yr*yr + g_imag*yi*yi;
-        if(test1<m_db_z[antal]){
-                test1 = m_nBailout2*2;
-            bGlitch=TRUE;
-        }
-      if(test1 > m_nBailout2)
+      if(test1<m_db_z[antal]){
+        bGlitch=TRUE;
         break;
+      }
       complex<long double> X(dxr[antal],dxi[antal]);
       complex<long double> D(Dr,Di);
       complex<long double> D0(D0r,D0i);
@@ -100,9 +98,9 @@ void CFraktalSFT::MandelCalcLDBL()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
+							if (!m_bNoGlitchDetection)
+								break;
 						}
 						long double Dnr = (2 * m_ldxr[antal] + Dr*m_nScalingL)*Dr - (2 * m_ldxi[antal] + Di*m_nScalingL)*Di + lD0r;
 						long double Dni = 2 * ((m_ldxr[antal] + Dr*m_nScalingL)*Di + m_ldxi[antal] * Dr) + lD0i;
@@ -119,9 +117,9 @@ void CFraktalSFT::MandelCalcLDBL()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
+							if (!m_bNoGlitchDetection)
+								break;
 						}
 						//Dnr=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Dr+m_ldxr[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)-Di*(2*m_ldxi[antal]*(m_ldxr[antal]+Dr*m_nScalingL)+Dr*m_nScalingL*Di*m_nScalingL))+Dr*m_nScalingL*Dr*m_nScalingL*Dr+dbD0r;
 						//Dni=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Di+m_ldxi[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)+Dr*(2*m_ldxr[antal]*(m_ldxi[antal]+Di)+Dr*m_nScalingL*Di*m_nScalingL))-Di*Di*m_nScalingL*Di*m_nScalingL+dbD0i;

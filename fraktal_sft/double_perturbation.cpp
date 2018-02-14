@@ -75,9 +75,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
+							if (!m_bNoGlitchDetection)
+								break;
 						}
 						Dnr = (2 * m_db_dxr[antal] + Dr*m_nScaling)*Dr - (2 * m_db_dxi[antal] + Di*m_nScaling)*Di + dbD0r;
 						Dni = 2 * ((m_db_dxr[antal] + Dr*m_nScaling)*Di + m_db_dxi[antal] * Dr) + dbD0i;
@@ -94,9 +94,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
+							if (!m_bNoGlitchDetection)
+								break;
 						}
 						//Dnr=3*((m_db_dxr[antal]*m_db_dxr[antal]-m_db_dxi[antal]*m_db_dxi[antal])*Dr+m_db_dxr[antal]*(Dr*Dr*m_nScaling-Di*Di*m_nScaling)-Di*(2*m_db_dxi[antal]*(m_db_dxr[antal]+Dr*m_nScaling)+Dr*m_nScaling*Di*m_nScaling))+Dr*m_nScaling*Dr*m_nScaling*Dr+dbD0r;
 						//Dni=3*((m_db_dxr[antal]*m_db_dxr[antal]-m_db_dxi[antal]*m_db_dxi[antal])*Di+m_db_dxi[antal]*(Dr*Dr*m_nScaling-Di*Di*m_nScaling)+Dr*(2*m_db_dxr[antal]*(m_db_dxi[antal]+Di)+Dr*m_nScaling*Di*m_nScaling))-Di*Di*m_nScaling*Di*m_nScaling+dbD0i;
@@ -124,9 +124,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
+							if (!m_bNoGlitchDetection)
+								break;
 						}
 						complex<double> X(m_db_dxr[antal], m_db_dxi[antal]);
 						complex<double> D(Dr, Di);

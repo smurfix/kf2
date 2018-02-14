@@ -397,9 +397,9 @@ bool FORMULA(perturbation_double,<xsl:value-of select="../@type" />,<xsl:value-o
       test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
       if (test1 &lt; Xz)
       {
-        if (! m_bNoGlitchDetection)
-          test1 = m_nBailout2 * 2;
         bGlitch = true;
+        if (! m_bNoGlitchDetection)
+          break;
       }
       double xrn, xin;
 
@@ -460,9 +460,9 @@ bool FORMULA(perturbation_long_double,<xsl:value-of select="../@type" />,<xsl:va
       }
       if (test1 &lt; Xz)
       {
-        if (! m_bNoGlitchDetection)
-          test1 = m_nBailout2 * 2;
         bGlitch = true;
+        if (! m_bNoGlitchDetection)
+          break;
       }
       long double xrn, xin;
 
@@ -510,9 +510,9 @@ bool FORMULA(perturbation_floatexp,<xsl:value-of select="../@type" />,<xsl:value
       test2 = test1;
       test1 = (real*Xxr*Xxr + imag*Xxi*Xxi).todouble();
       if (test1 &lt; m_db_z[antal]){
-        if (!m_bNoGlitchDetection)
-          test1 = m_nBailout2 * 2;
         bGlitch = true;
+        if (!m_bNoGlitchDetection)
+          break;
       }
       floatexp xrn, xin;
 
