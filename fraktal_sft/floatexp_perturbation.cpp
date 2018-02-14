@@ -80,10 +80,9 @@ void CFraktalSFT::MandelCalcEXP()
 					test2 = test1;
 					test1 = (real*yr*yr + imag*yi*yi).todouble();
 					if (test1<m_db_z[antal]){
-						if (!m_bNoGlitchDetection)
-							test1 = m_nBailout2 * 2;
 						bGlitch = TRUE;
-						break;
+						if (! m_bNoGlitchDetection)
+							break;
 					}
 					if (test1 > m_nBailout2)
 					{

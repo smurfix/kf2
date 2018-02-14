@@ -226,10 +226,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         {
 </xsl:when>
 </xsl:choose>
-        if (! m_bNoGlitchDetection)
-          test1 = m_nBailout2 * 2;
         bGlitch = true;
-        break;
+        if (! m_bNoGlitchDetection)
+          break;
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
         }

@@ -58,10 +58,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
-							break;
+							if (! m_bNoGlitchDetection)
+								break;
 						}
 						if (test1 > m_nBailout2)
 						{
@@ -86,10 +85,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
-							break;
+							if (! m_bNoGlitchDetection)
+								break;
 						}
 						if (test1 > m_nBailout2)
 						{
@@ -130,10 +128,9 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							if (!m_bNoGlitchDetection)
-								test1 = m_nBailout2 * 2;
 							bGlitch = TRUE;
-							break;
+							if (! m_bNoGlitchDetection)
+								break;
 						}
 						if (test1 > m_nBailout2)
 						{
