@@ -683,6 +683,9 @@ Build instructions for compiling on Windows (thanks to knighty!):
   License version 3 and the GNU General Public License version 2
   <https://www.gnu.org/licenses/lgpl-3.0.en.html>
   <https://www.gnu.org/licenses/gpl-2.0.html>
+- the MPFR library is used under the conditions of the GNU Lesser General Public
+  License version 3
+  <https://www.gnu.org/licenses/lgpl-3.0.en.html>
 - the Boost library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
