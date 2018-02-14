@@ -464,6 +464,8 @@ Feedback:
 - rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
 - colour cycling (suggested by blob)
+- toggle to control auto-apply of colouring controls (discussed with gerrit)
+- toggle to disable all automatic re-colouring (discussed with gerrit)
 
 
 ## Getting The Code
