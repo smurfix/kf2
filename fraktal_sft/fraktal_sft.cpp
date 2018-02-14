@@ -537,7 +537,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	s.r = 0;
 	s.g = 0;
 	s.b = 0;
-	if (nIter<0 || (!GetShowGlitches() && offs==TRANS_GLITCH))
+	if (nIter<0 || (!GetShowGlitches() && GET_TRANS_GLITCH(offs)))
 		return;
 	if (nIter == m_nMaxIter)
 	{
@@ -1214,7 +1214,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					else
 					{
 						Org[x][y] = -1;
-						OrgT[x][y] = TRANS_GLITCH;
+						OrgT[x][y] = SET_TRANS_GLITCH(0);
 					}
 				}
 			}
@@ -1230,7 +1230,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				else
 				{
 					m_nPixels[x][y] = -1;
-					m_nTrans[x][y] = TRANS_GLITCH;
+					m_nTrans[x][y] = SET_TRANS_GLITCH(0);
 				}
 			}
 		}
@@ -1930,7 +1930,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 			for (y = 0; y<m_nY; y++){
 #ifdef KF_RERENDER_ONLY_ALL_GLITCHES
 				// re-render all and only glitched pixels
-				if (m_nTrans[x][y] == TRANS_GLITCH)
+				if (GET_TRANS_GLITCH(m_nTrans[x][y]))
 				{
 					m_nPixels[x][y] = -1;
 					nCount++;
@@ -1973,51 +1973,51 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 		y = pQ[nQ-1].y;
 		nQ--;
 		nValidate--;
-		if(IsEqual(Node[x][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && nQ<nQSize && m_nTrans[x][y] == TRANS_GLITCH){
+		if(IsEqual(Node[x][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && nQ<nQSize && GET_TRANS_GLITCH(m_nTrans[x][y])){
 			nAreaC++;
 			Node[x][y]=nDone;
-			if(Pixels && m_nTrans[x][y] == TRANS_GLITCH)
+			if(Pixels && GET_TRANS_GLITCH(m_nTrans[x][y]))
 				Pixels[x][y]=-1;
 			int w=x, e=x;
-			while(nValidate && w && IsEqual(Node[w-1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[w-1][y] == TRANS_GLITCH){
+			while(nValidate && w && IsEqual(Node[w-1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && GET_TRANS_GLITCH(m_nTrans[w-1][y])){
 				nAreaC++;
 				nValidate--;
 				w--;
 				Node[w][y]=nDone;
-				if(Pixels && m_nTrans[w][y] == TRANS_GLITCH)
+				if(Pixels && GET_TRANS_GLITCH(m_nTrans[w][y]))
 					Pixels[w][y]=-1;
 				if(y &&
 					IsEqual(Node[w][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[w][y-1] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[w][y-1])){
 					nQ++;
 					pQ[nQ-1].x = w;
 					pQ[nQ-1].y = y-1;
 				}
 				if(y<m_nY-1 &&
 					IsEqual(Node[w][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[w][y+1] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[w][y+1])){
 					nQ++;
 					pQ[nQ-1].x = w;
 					pQ[nQ-1].y = y+1;
 				}
 			}
-			while(nValidate && e<m_nX-1 && IsEqual(Node[e+1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[e+1][y] == TRANS_GLITCH){
+			while(nValidate && e<m_nX-1 && IsEqual(Node[e+1][y],nTarget,nEqSpan,Pixels?TRUE:FALSE) && GET_TRANS_GLITCH(m_nTrans[e+1][y])){
 				nAreaC++;
 				nValidate--;
 				e++;
 				Node[e][y]=nDone;
-				if(Pixels && m_nTrans[e][y] == TRANS_GLITCH)
+				if(Pixels && GET_TRANS_GLITCH(m_nTrans[e][y]))
 					Pixels[e][y]=-1;
 				if(y &&
 					IsEqual(Node[e][y-1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[e][y-1] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[e][y-1])){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y-1;
 				}
 				if(y<m_nY-1 &&
 					IsEqual(Node[e][y+1],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[e][y+1] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[e][y+1])){
 					nQ++;
 					pQ[nQ-1].x = e;
 					pQ[nQ-1].y = y+1;
@@ -2025,45 +2025,45 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 			}
 			w=y;
 			e=y;
-			while(nValidate && w && IsEqual(Node[x][w-1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[x][w-1] == TRANS_GLITCH){
+			while(nValidate && w && IsEqual(Node[x][w-1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && GET_TRANS_GLITCH(m_nTrans[x][w-1])){
 				nAreaC++;
 				nValidate--;
 				w--;
 				Node[x][w]=nDone;
-				if(Pixels && m_nTrans[x][w] == TRANS_GLITCH)
+				if(Pixels && GET_TRANS_GLITCH(m_nTrans[x][w]))
 					Pixels[x][w]=-1;
 				if(x &&
 					IsEqual(Node[x-1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[x-1][w] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[x-1][w])){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = w;
 				}
 				if(x<m_nX-1 &&
 					IsEqual(Node[x+1][w],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[x+1][w] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[x+1][w])){
 					nQ++;
 					pQ[nQ-1].x = x+1;
 					pQ[nQ-1].y = w;
 				}
 			}
-			while(nValidate && e<m_nY-1 && IsEqual(Node[x][e+1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && m_nTrans[x][e+1] == TRANS_GLITCH){
+			while(nValidate && e<m_nY-1 && IsEqual(Node[x][e+1],nTarget,nEqSpan,Pixels?TRUE:FALSE) && GET_TRANS_GLITCH(m_nTrans[x][e+1])){
 				nAreaC++;
 				nValidate--;
 				e++;
 				Node[x][e]=nDone;
-				if(Pixels && m_nTrans[x][e] == TRANS_GLITCH)
+				if(Pixels && GET_TRANS_GLITCH(m_nTrans[x][e]))
 					Pixels[x][e]=-1;
 				if(x &&
 					IsEqual(Node[x-1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[x-1][e] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[x-1][e])){
 					nQ++;
 					pQ[nQ-1].x = x-1;
 					pQ[nQ-1].y = e;
 				}
 				if(x<m_nX-1 &&
 					IsEqual(Node[x+1][e],nTarget,nEqSpan,Pixels?TRUE:FALSE)
-					&& nQ<nQSize-1 && m_nTrans[x+1][e] == TRANS_GLITCH){
+					&& nQ<nQSize-1 && GET_TRANS_GLITCH(m_nTrans[x+1][e])){
 					nQ++;
 					pQ[nQ-1].x = x+1;
 					pQ[nQ-1].y = e;
@@ -2095,7 +2095,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	for(x=0;x<m_nX;x++){
 		for(y=0;y<nHeight;y++){
 			int nDone = - (x*m_nY+y);
-			if(Node[x][y]>0 && m_nTrans[x][y]==TRANS_GLITCH && Pixels[x][y]!=m_nMaxIter){
+			if(Node[x][y]>0 && GET_TRANS_GLITCH(m_nTrans[x][y]) && Pixels[x][y]!=m_nMaxIter){
 				if (GetIsolatedGlitchNeighbourhood())
 				{
 					const double inf = 1.0 / 0.0;
@@ -2108,7 +2108,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 							int y2 = y + dy;
 							if (x2 < 0 || m_nX <= x2) x2 = x - dx;
 							if (y2 < 0 || m_nY <= y2) y2 = y - dy;
-							p[dx+1][dy+1] = m_nTrans[x2][y2] == TRANS_GLITCH;
+							p[dx+1][dy+1] = GET_TRANS_GLITCH(m_nTrans[x2][y2]);
 						}
 					}
 					int nMatch = 0;
@@ -2794,7 +2794,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 			}
 
 			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = TRANS_GLITCH;
+				m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
 			}
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 		}
@@ -2838,7 +2838,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 	{
 		if (w == 1 && h <= 2)
 		{
-			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y] && (m_nTrans[x - 1][y] == TRANS_GLITCH) == (m_nTrans[x + 1][y] == TRANS_GLITCH)){
+			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 1][y] && GET_TRANS_GLITCH(m_nTrans[x - 1][y]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y])){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
 				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
@@ -2855,7 +2855,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 		}
 		if (w == 1 && h == 1)
 		{
-			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1] && (m_nTrans[x][y - 1] == TRANS_GLITCH) == (m_nTrans[x][y + 1] == TRANS_GLITCH)){
+			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != -1 && m_nPixels[x][y - 1] == m_nPixels[x][y + 1] && GET_TRANS_GLITCH(m_nTrans[x][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x][y + 1])){
 				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
 				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
 				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
@@ -2869,7 +2869,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 					Mirror(x, y);
 				return true;
 			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1] && (m_nTrans[x - 1][y - 1] == TRANS_GLITCH) == (m_nTrans[x + 1][y + 1] == TRANS_GLITCH)){
+			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != -1 && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y + 1])){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
 				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
@@ -2883,7 +2883,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 					Mirror(x, y);
 				return true;
 			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != -1 && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1] && (m_nTrans[x - 1][y + 1] == TRANS_GLITCH) == (m_nTrans[x + 1][y - 1] == TRANS_GLITCH)){
+			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != -1 && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y + 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y - 1])){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
 				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
@@ -2898,7 +2898,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 				return true;
 			}
 #ifdef HARD_GUESS_EXP
-FIXME TODO need to add TRANS_GLITCH check to these when enabling the define...
+FIXME TODO need to add GET_TRANS_GLITCH check to these when enabling the define...
 			if (x && x<m_nX - 2 && m_nPixels[x - 1][y] != -1 && m_nPixels[x - 1][y] == m_nPixels[x + 2][y]){
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 2][y])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
