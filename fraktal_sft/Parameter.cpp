@@ -76,8 +76,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 		m_scRatio.cy = atof(stParams[nID][1]);
 	SIZE size;
-	size.cx = m_nX;
-	size.cy = m_nY;
+	size.cx = GetImageWidth();
+	size.cy = GetImageHeight();
 	double xRatio = 640.0/size.cx;
 	size.cx = 640;
 	size.cy = size.cy*xRatio;
