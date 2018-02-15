@@ -1805,7 +1805,7 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveImage(szFile, m_bmBmp, nQuality, comment);
+		return ::SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
 	else{
 		HDC hDC = GetDC(NULL);
 		HDC dcBmp = CreateCompatibleDC(hDC);
