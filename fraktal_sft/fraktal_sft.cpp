@@ -1960,7 +1960,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 	}
 
 	m_bAddReference = TRUE;
-	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, FALSE, FALSE);
+	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, m_hWnd == nullptr, FALSE);
 	return TRUE;
 }
 #undef KF_RERENDER_ONLY_ALL_GLITCHES

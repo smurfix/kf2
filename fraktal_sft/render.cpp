@@ -179,7 +179,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
 
 	if (bNoThread){
-		SetTimer(m_hWnd, 0, 100, NULL);
+		if (m_hWnd)
+			SetTimer(m_hWnd, 0, 100, NULL);
 		ThRenderFractal(this);
 	}
 	else{
@@ -439,7 +440,8 @@ void CFraktalSFT::RenderFractal()
 	}
 	m_bAddReference = FALSE;
 	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+		if (m_hWnd)
+			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 }
