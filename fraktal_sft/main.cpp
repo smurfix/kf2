@@ -193,6 +193,23 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 	ReleaseDC(NULL,hDC);
 	return nRet;
 }
+// this version doesn't go via a bitmap structure, avoiding dreaded blank images...
+extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
+{
+	assert(lpBits);
+	int biBitCount = 24;
+	int row = ((((biWidth*(DWORD)biBitCount)+31)&~31) >> 3);
+	int biSizeImage=row*biHeight;
+	BYTE *lpJeg = new BYTE[biSizeImage];
+	bmp2rgb(lpJeg, lpBits, biHeight, biWidth, row, biSizeImage);
+	int nRet;
+	if (nQuality < 0)
+		nRet = SavePNG(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
+	else
+		nRet = SaveJPG(szFileName,(char*)lpJeg,biHeight,biWidth,3,nQuality,comment);
+	delete [] lpJeg;
+	return nRet;
+}
 POINT g_pSelect, g_pStart;
 int g_bSelect=0;
 HWND g_hwStatus=NULL;
