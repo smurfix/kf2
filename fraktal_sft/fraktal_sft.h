@@ -34,8 +34,8 @@ public:
 };
 
 // magic value stored in m_nTrans[][] when a glitch is detected
-#define SET_TRANS_GLITCH(x) 2.0f
-#define GET_TRANS_GLITCH(x) ((x) == 2.0f)
+#define SET_TRANS_GLITCH(x) (fmin(log2((x) + 2.2250738585072014e-308) - 1024.0, -1.0))
+#define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 #define SMOOTH_BAILOUT 10000
 struct MC
