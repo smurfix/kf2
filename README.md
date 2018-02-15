@@ -127,7 +127,7 @@ Feedback:
 
 - **kf-2.12.10** (????-??-??)
 
-    - upgrade to MPFR 4.0.0
+    - upgrade to MPFR 4.0.1
     - removed some build instructions from README (see the prepare.sh script)
       (it was too annoying to have to keep updating everything in two places)
 
@@ -446,7 +446,6 @@ Feedback:
 
 ### Libraries
 
-- upgrade to libmpfr-4.0.0 <http://www.mpfr.org/mpfr-current/mpfr.html>
 - upgrade to libjpeg6b2 <http://jpegclub.org/support/>
 
 ### Preprocessor
