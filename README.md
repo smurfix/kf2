@@ -1108,6 +1108,16 @@ At the very top right:
     A negative value on Hue, Saturation or Brightness makes a flat percentage
     value to be applied on all iterations.
 
+## How to Color a KFB Map
+
+Workaround (until single KFB map loading is implemented) instructions by gerrit:
+
+- Rename kfb to `00001_1.kfb`
+- Copy to `00002_1.kfb`
+- Put 2 files and kfr in a directory
+- File->Examine zoom sequence, select kfr file
+- Close "examine" dialog
+- Now you can edit colors
 
 ## Command Line Usage
 
