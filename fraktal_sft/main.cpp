@@ -4514,6 +4514,24 @@ static int Test1()
 }
 #endif
 
+// detailed progress reporting thread for command line rendering
+static volatile bool ThReportProgress_running = true;
+DWORD ThReportProgress(LPVOID arg)
+{
+(void) arg;
+	while (ThReportProgress_running)
+	{
+		Sleep(1000);
+		int nG, nR, nA;
+		int nP = g_SFT.GetProgress(&nG,&nR,&nA);
+		std::ostringstream status;
+		status << " P " << std::setw(3) << nP << "%  G " << std::setw(3) << nG << "%  R " << std::setw(3) << nR << "%  A " << std::setw(3) << nA << "%";
+		std::cerr << status.str() << '\r';
+	}
+	return 0;
+}
+
+
 extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 {
 //	return Test();
@@ -4605,6 +4623,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		std::cout << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
 		// render the image (add reference calls render fractal...)
+		HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
+		CloseHandle(hProgress);
 		std::cout << "reference " << 1 << std::endl;
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
@@ -4616,9 +4636,11 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				std::cout << "no more glitches" << std::endl;
 				break;
 			}
-			std::cout << "reference " << r << " at (" << x << "," << y << ") size " << n << std::endl;
+			std::cout << "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " " << std::endl;
 			g_SFT.AddReference(x, y);
 		}
+		ThReportProgress_running = false;
+		std::cout << "colouring final image" << std::endl;
 		g_SFT.ApplyColors();
     //  save the result
     bool ok = true;
