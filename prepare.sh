@@ -8,7 +8,7 @@ mkdir -p ~/win32/src
 cd ~/win64/src
 wget -c https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
-wget -c hhttp://www.mpfr.org/mpfr-current/mpfr-4.0.0.tar.xz
+wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://www.ijg.org/files/jpegsrc.v6b.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
