@@ -2088,78 +2088,10 @@ int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **P
 	return nAreaC;
 }
 
-
-// tried it, but it doesn't work - 70refs 70s vs 9refs 14s in one simple test
+// old method works better, so don't use the gradient descent for now...
 #undef KF_CENTER_VIA_TRANS
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
-#ifdef KF_CENTER_VIA_TRANS
-  // find most-glictched pixel
-	int mx = -1;
-	int my = -1;
-	double m = -1.0 / 0.0;
-	for(int x=0;x<m_nX;x++){
-		for(int y=0;y<m_nY;y++){
-			if (GET_TRANS_GLITCH(m_nTrans[x][y]) && m_nPixels[x][y]!=m_nMaxIter && m_nPixels[x][y] > 0){
-				if (GetIsolatedGlitchNeighbourhood())
-				{
-					const double inf = 1.0 / 0.0;
-					double p[3][3] = { { inf, inf, inf }, { inf, inf, inf }, { inf, inf, inf } };
-					for (int dx = -1; dx <= 1; ++dx)
-					{
-						for (int dy = -1; dy <= 1; ++dy)
-						{
-							int x2 = x + dx;
-							int y2 = y + dy;
-							if (x2 < 0 || m_nX <= x2) x2 = x - dx;
-							if (y2 < 0 || m_nY <= y2) y2 = y - dy;
-							p[dx+1][dy+1] = GET_TRANS_GLITCH(m_nTrans[x2][y2]);
-						}
-					}
-					int nMatch = 0;
-					for (int dx = -1; dx <= 1; ++dx)
-					{
-						for (int dy = -1; dy <= 1; ++dy)
-						{
-							if (GetIsolatedGlitchNeighbourhood() == 4 && dx && dy)
-							{
-								continue;
-							}
-							nMatch += p[dx+1][dy+1] == p[1][1];
-						}
-					}
-					// this seems to try to "fix" single pixel glitches by copying neighbour
-					// this doesn't seem to be desirable for high quality rendering
-					// but some like it fast
-					if(nMatch==1){
-						int x2 = x ? x - 1 : x + 1;
-						m_nTrans[x][y]=m_nTrans[x2][y];
-						m_nPixels[x][y]=m_nPixels[x2][y];
-						if(m_bMirrored)
-							Mirror(x,y);
-						continue;
-					}
-				}
-			}
-			// pixel is glitched
-			mx = m_nTrans[x][y] > m ? x : mx;
-			my = m_nTrans[x][y] > m ? y : my;
-			m = m_nTrans[x][y] > m ? m_nTrans[x][y] : m;
-		}
-	}
-	// mx, my is most-glitched pixel (with smallest test1)
-	if (0 < mx && 0 < my)
-	{
-		ret_x = mx;
-		ret_y = my;
-		return 1; // should return glitch size?
-	}
-	else
-	{
-		return 0; // no glitch
-	}
-
-#else
 	int x, y, i=0, io;
 	int rx = -1, ry = -1;
 
@@ -2230,7 +2162,6 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	}
 	// now (rx,ry) is a point in the largest glitch of size (nDistance)
 	// or (nDistance == -1) for no glitches
-
 
 	if(nDistance!=-1){
 		for(io=0;io<m_nMaxOldGlitches;io++){
@@ -2347,6 +2278,46 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		}
 	}
 
+#ifdef KF_CENTER_VIA_TRANS
+	// find center of glitch via gradient descent
+	if (nDistance != -1)
+	{
+	  // arbitrary loop count limit to help termination guarantee
+		for (int k = 0; k < nDistance; ++k)
+		{
+			// find minimum of neighbourhood (with reflection at image edges)
+			double m = 1.0 / 0.0;
+			int mx = rx;
+			int my = ry;
+			for (int dx = -1; dx <= 1; ++dx)
+			{
+				int px = rx + dx;
+				if (px < 0 || px >= m_nX) px = rx - dx;
+				for (int dy = -1; dy <= 1; ++dy)
+				{
+					int py = ry + dy;
+					if (py < 0 || py >= m_nY) py = ry - dy;
+					if (m_nTrans[px][py] < m) // strict inequality for cycle prevention
+					{
+						m = m_nTrans[px][py];
+						mx = px;
+						my = py;
+					}
+				}
+			}
+			if (mx == rx && my == ry)
+			{
+				// found local minimum
+				break;
+			}
+			rx = mx;
+			ry = my;
+		}
+		ret_x = rx;
+		ret_y = ry;
+	}
+#endif
+
 	if(nDistance!=-1){
 		for(io=0;io<m_nMaxOldGlitches;io++)
 			if(m_pOldGlitch[io].x==-1 || (m_pOldGlitch[io].x==ret_x && m_pOldGlitch[io].y==ret_y))
@@ -2379,7 +2350,6 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		delete [] Node[i];
 	delete[] Node;
 	return nDistance + 1; // -1 becomes 0
-#endif
 }
 #undef KF_CENTER_VIA_TRANS
 
