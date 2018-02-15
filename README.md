@@ -145,6 +145,7 @@ Feedback:
     - upgrade to MPFR 4.0.1
     - removed some build instructions from README (see the prepare.sh script)
       (it was too annoying to have to keep updating everything in two places)
+    - command line non-interactive mode works without opening a window
 
 - **kf-2.12.9.1** (2018-01-24)
 
