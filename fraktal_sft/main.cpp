@@ -4541,34 +4541,113 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	cldevices = initialize_opencl();
 #endif
 
-	GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
-	strcpy(strrchr(g_szRecovery,'.'),".rec");
 
-	WNDCLASS wc={0};
-	wc.hInstance = hInstance;
-	wc.lpszClassName = "FRAKTAL_SFT";
-	wc.lpfnWndProc = (WNDPROC)MainProc;
-	wc.hCursor = LoadCursor(NULL,IDC_CROSS);
-	wc.hIcon = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON1));
-	g_hIcon = wc.hIcon;
-	RegisterClass(&wc);
-	HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,200,200,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
-	g_SFT.SetWindow(hWnd);
-	ShowWindow(hWnd,SW_SHOW);
+	bool interactive = !(g_args->bSaveJPG || g_args->bSavePNG || g_args->bSaveMap);
+	if (interactive)
+	{
+		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
+		strcpy(strrchr(g_szRecovery,'.'),".rec");
 
-	MSG msg;
-	while(GetMessage(&msg,NULL,0,0)){
-		if(GetDlgCtrlID(msg.hwnd)==IDC_LIST1 && msg.message==WM_RBUTTONDOWN)
-			SendMessage(GetParent(msg.hwnd),WM_USER+88,GetDlgCtrlID(msg.hwnd),0);
-		if(g_hwColors && IsDialogMessage(g_hwColors,&msg))
-			continue;
-		if(g_hwExamine && IsDialogMessage(g_hwExamine,&msg))
-			continue;
-		if(g_hwNewton && IsDialogMessage(g_hwNewton,&msg))
-			continue;
-		TranslateMessage(&msg);
-		DispatchMessage(&msg);
+		WNDCLASS wc={0};
+		wc.hInstance = hInstance;
+		wc.lpszClassName = "FRAKTAL_SFT";
+		wc.lpfnWndProc = (WNDPROC)MainProc;
+		wc.hCursor = LoadCursor(NULL,IDC_CROSS);
+		wc.hIcon = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON1));
+		g_hIcon = wc.hIcon;
+		RegisterClass(&wc);
+		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,200,200,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
+		g_SFT.SetWindow(hWnd);
+		ShowWindow(hWnd,SW_SHOW);
+
+		MSG msg;
+		while(GetMessage(&msg,NULL,0,0)){
+			if(GetDlgCtrlID(msg.hwnd)==IDC_LIST1 && msg.message==WM_RBUTTONDOWN)
+				SendMessage(GetParent(msg.hwnd),WM_USER+88,GetDlgCtrlID(msg.hwnd),0);
+			if(g_hwColors && IsDialogMessage(g_hwColors,&msg))
+				continue;
+			if(g_hwExamine && IsDialogMessage(g_hwExamine,&msg))
+				continue;
+			if(g_hwNewton && IsDialogMessage(g_hwNewton,&msg))
+				continue;
+			TranslateMessage(&msg);
+			DispatchMessage(&msg);
+		}
+		DeleteFile(g_szRecovery);
 	}
-	DeleteFile(g_szRecovery);
+	else
+	{
+		// prepare
+		std::cout << "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen" << std::endl;
+		if (g_args->bLoadSettings)
+		{
+			bool ret;
+			g_szFile = g_args->sLoadSettings;
+			std::cout << "loading settings " << g_szFile << std::endl;
+			OpenSettings(nullptr, ret);
+			if (ret)
+			{
+				std::cout << "loading settings " << g_szFile << " FAILED" << std::endl;
+				return 1;
+			}
+		}
+		if (g_args->bLoadLocation)
+		{
+			bool ret;
+			g_szFile = g_args->sLoadLocation;
+			std::cout << "loading location " << g_szFile << std::endl;
+			OpenFile(nullptr, ret);
+			if (ret)
+			{
+				std::cout << "loading location " << g_szFile << " FAILED" << std::endl;
+				return 1;
+			}
+		}
+		std::cout << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
+		// render the image (add reference calls render fractal...)
+		std::cout << "reference " << 1 << std::endl;
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+		{
+			int x = -1, y = -1;
+			int n = g_SFT.FindCenterOfGlitch(x, y);
+			if (! n)
+			{
+				std::cout << "no more glitches" << std::endl;
+				break;
+			}
+			std::cout << "reference " << r << " at (" << x << "," << y << ") size " << n << std::endl;
+			g_SFT.AddReference(x, y);
+		}
+		g_SFT.ApplyColors();
+    //  save the result
+    bool ok = true;
+		if (g_args->bSavePNG)
+		{
+			std::cout << "saving PNG " << g_args->sSavePNG << std::endl;
+			if (! g_SFT.SaveJpg(g_args->sSavePNG, -1))
+			{
+				ok = false;
+				std::cout << "saving JPG " << g_args->sSavePNG << " FAILED" << std::endl;
+			}
+		}
+		if (g_args->bSaveJPG)
+		{
+			std::cout << "saving JPG " << g_args->sSaveJPG << std::endl;
+			if (! g_SFT.SaveJpg(g_args->sSaveJPG, 100))
+			{
+				ok = false;
+				std::cout << "saving JPG " << g_args->sSaveJPG << " FAILED" << std::endl;
+			}
+		}
+		if (g_args->bSaveMap)
+		{
+			std::cout << "saving KFB " << g_args->sSaveMap << std::endl;
+			g_SFT.SaveMapB(g_args->sSaveMap);
+		}
+		std::cout << "all done, exiting" << std::endl;
+		return ok ? 0 : 1;
+	}
+
 	return 0;
 }
