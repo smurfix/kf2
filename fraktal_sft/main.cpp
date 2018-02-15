@@ -2421,7 +2421,10 @@ static long OpenFile(HWND hWnd, bool &ret)
 				if(!g_SFT.OpenFile(g_szFile))
 				{
 					ret = true;
-					return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
+					if (hWnd)
+						return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
+					else
+						return 0;
 				}
 				else{
 					std::string extension = get_filename_extension(g_szFile);
@@ -2434,11 +2437,14 @@ static long OpenFile(HWND hWnd, bool &ret)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
 					char szTitle[1024];
 					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
-					SetWindowText(hWnd,szTitle);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					if (hWnd)
+					{
+						SetWindowText(hWnd,szTitle);
+						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					}
+					ret = false;
+					return 0;
 				}
-				ret = false;
-				return 0;
 }
 
 static long OpenSettings(HWND hWnd, bool &ret)
@@ -2448,16 +2454,22 @@ static long OpenSettings(HWND hWnd, bool &ret)
 				if(!g_SFT.OpenSettings(g_szFile))
 				{
 					ret = true;
-					return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
+					if (hWnd)
+						return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
+					else
+						return 0;
 				}
 				else{
-					UpdateMenusFromSettings(hWnd);
-					UpdateWindowSize(hWnd);
+					if (hWnd)
+						UpdateMenusFromSettings(hWnd);
+					if (hWnd)
+						UpdateWindowSize(hWnd);
 					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					if (hWnd)
+						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					ret = false;
+					return 0;
 				}
-				ret = false;
-				return 0;
 }
 
 static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
