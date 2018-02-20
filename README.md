@@ -87,7 +87,7 @@ Feedback:
   should be modified to use Distance (Logarithm) in the latest version.
 
 - multiple finite difference methods for distance colouring
-  (only the default `Traditional` is available in `2.11.1`)
+  (only the default `Traditional` is available in `2.11.1`).
 
 ### Other Changes
 
