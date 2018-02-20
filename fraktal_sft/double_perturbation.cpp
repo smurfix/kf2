@@ -19,23 +19,10 @@ void CFraktalSFT::MandelCalc()
       continue;
 
 		// Series approximation
-		double dbD0r = m_pDX[m_nX / 2] + m_C*(m_pDX[x] - m_pDX[m_nX / 2]) + m_S*(m_pDY[y] - m_pDY[m_nY / 2]);
-		double dbD0i = m_pDY[m_nY / 2] - m_S*(m_pDX[x] - m_pDX[m_nX / 2]) + m_C*(m_pDY[y] - m_pDY[m_nY / 2]);
-		if (m_nInflections)
-		{
-			int inf;
-			complex<CFixedFloat> c(dbD0r,dbD0i);
-			for(inf=m_nInflections-1;inf>=0;inf--){
-				complex<CFixedFloat> d = c-m_pInflections[inf];
-				c=m_pInflections[inf]+d*d;
-			}
-			dbD0r=c.m_r.ToDouble();
-			dbD0i=c.m_i.ToDouble();
-		}
-		floatexp D0r0 = dbD0r;
-		floatexp D0r = D0r0 * m_nScaling;
-		floatexp D0i0 = dbD0i;
-		floatexp D0i = D0i0 * m_nScaling;
+		floatexp D0r = 0;
+		floatexp D0i = 0;
+		GetPixelCoordinates(x, y, D0r, D0i);
+
 		floatexp TDnr;
 		floatexp TDni;
 		floatexp TDDnr;
@@ -46,6 +33,8 @@ void CFraktalSFT::MandelCalc()
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 		if (m_nScalingOffset){
+			double dbD0r = D0r.todouble(m_nScalingOffset);
+			double dbD0i = D0i.todouble(m_nScalingOffset);
 			double Dr = TDnr.todouble(m_nScalingOffset);
 			double Di = TDni.todouble(m_nScalingOffset);
 			long double ldcr = TDDnr.toLongDouble();
@@ -112,6 +101,8 @@ void CFraktalSFT::MandelCalc()
 		else
 		{
 
+			double dbD0r = D0r.todouble();
+			double dbD0i = D0i.todouble();
 			double Dr = TDnr.todouble();
 			double Di = TDni.todouble();
 			dr = TDDnr.todouble();

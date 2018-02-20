@@ -152,12 +152,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nXPrev = m_nYPrev = -1;
 	m_nSizeImage = -1;
 	m_nTotal = -1;
-	m_pDX = NULL;
-	m_pDY = NULL;
-	m_DX = NULL;
-	m_DY = NULL;
-	m_lDX = NULL;
-	m_lDY = NULL;
 	m_pnExpConsts = NULL;
 
 	m_nBailout = SMOOTH_BAILOUT;

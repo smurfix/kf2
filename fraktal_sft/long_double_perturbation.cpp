@@ -59,14 +59,11 @@ void CFraktalSFT::MandelCalcLDBL()
 		}
 		if (GuessPixel(x, y, w, h))
 			continue;
+		// Series approximation - Start
+		floatexp D0r = 0;
+		floatexp D0i = 0;
+		GetPixelCoordinates(x, y, D0r, D0i);
 
-		// series approximation
-		long double lD0r = m_lDX[m_nX / 2] + m_C*(m_lDX[x] - m_lDX[m_nX / 2]) + m_S*(m_lDY[y] - m_lDY[m_nY / 2]);
-		long double lD0i = m_lDY[m_nY / 2] - m_S*(m_lDX[x] - m_lDX[m_nX / 2]) + m_C*(m_lDY[y] - m_lDY[m_nY / 2]);
-		floatexp D0r = lD0r;
-		D0r *= m_nScalingL;
-		floatexp D0i = lD0i;
-		D0i *= m_nScalingL;
 		floatexp TDnr;
 		floatexp TDni;
 		floatexp TDDnr;
@@ -80,6 +77,8 @@ void CFraktalSFT::MandelCalcLDBL()
 		if (m_nScalingOffsetL){
 			ldcr = TDDnr;
 			ldci = TDDni;
+			long double lD0r = D0r.toLongDouble(m_nScalingOffsetL);
+			long double lD0i = D0i.toLongDouble(m_nScalingOffsetL);
 			long double Dr = TDnr.toLongDouble(m_nScalingOffsetL);
 			long double Di = TDni.toLongDouble(m_nScalingOffsetL);
 			if (m_nPower == 2){
@@ -143,6 +142,8 @@ void CFraktalSFT::MandelCalcLDBL()
 		{
 			dr = TDDnr.toLongDouble();
 			di = TDDni.toLongDouble();
+			long double lD0r = D0r.toLongDouble();
+			long double lD0i = D0i.toLongDouble();
 			long double Dr = TDnr.toLongDouble();
 			long double Di = TDni.toLongDouble();
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
@@ -152,6 +153,8 @@ void CFraktalSFT::MandelCalcLDBL()
 		{
 			dr = TDDnr.toLongDouble();
 			di = TDDni.toLongDouble();
+			long double lD0r = D0r.toLongDouble();
+			long double lD0i = D0i.toLongDouble();
 			long double Dr = TDnr.toLongDouble();
 			long double Di = TDni.toLongDouble();
 			int antal2 = antal;
