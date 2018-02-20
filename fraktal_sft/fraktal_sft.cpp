@@ -174,6 +174,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nInflections=0;
 	m_pInflections=NULL;
 
+	m_bInhibitColouring = FALSE;
 	GenerateColors(128, 1);
 	ApplyColors();
 }
@@ -529,6 +530,7 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
+	if (m_bInhibitColouring) return;
 	srgb s;
 	s.r = 0;
 	s.g = 0;
@@ -849,7 +851,7 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].g = (unsigned char)(temp*m_cKeys[pn].g + (1 - temp)*m_cKeys[p].g);
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
-	if (m_nPixels && m_lpBits){
+	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
 		int x, y;
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
@@ -2862,7 +2864,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 
 void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, int bGlitch)
 {
-		if (!bGlitch || GetShowGlitches())
+		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring)
     {
       int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
       for (int ty = 0; ty < h; ++ty)

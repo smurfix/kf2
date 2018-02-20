@@ -348,6 +348,7 @@ class CFraktalSFT
 
 public:
 	BOOL m_bRunning;
+	BOOL m_bInhibitColouring;
 	int nPos;
 	void MandelCalc();
 	void MandelCalcEXP();
