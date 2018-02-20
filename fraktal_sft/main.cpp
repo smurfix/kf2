@@ -4626,6 +4626,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
 		CloseHandle(hProgress);
 		std::cout << "reference " << 1 << std::endl;
+		g_SFT.m_bInhibitColouring = TRUE;
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
 		{
@@ -4641,6 +4642,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		ThReportProgress_running = false;
 		std::cout << "colouring final image" << std::endl;
+		g_SFT.m_bInhibitColouring = FALSE;
 		g_SFT.ApplyColors();
     //  save the result
     bool ok = true;
