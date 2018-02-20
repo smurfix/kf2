@@ -53,10 +53,9 @@ void CFraktalSFT::MandelCalcEXP()
     if (GuessPixel(x, y, w, h))
       continue;
 		// Series approximation
-		floatexp c = m_C;
-		floatexp s = m_S;
-		floatexp dbD0r = m_DX[m_nX / 2] + c*(m_DX[x] - m_DX[m_nX / 2]) + s*(m_DY[y] - m_DY[m_nY / 2]);
-		floatexp dbD0i = m_DY[m_nY / 2] - s*(m_DX[x] - m_DX[m_nX / 2]) + c*(m_DY[y] - m_DY[m_nY / 2]);
+		floatexp dbD0r = 0;
+		floatexp dbD0i = 0;
+		GetPixelCoordinates(x, y, dbD0r, dbD0i);
 
 		floatexp D0r = dbD0r;//(cr-rref);
 		floatexp D0i = dbD0i;

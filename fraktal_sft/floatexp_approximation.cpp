@@ -48,35 +48,10 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	}
 	assert(k == nProbe);
 
-	if (nType == 0){
-		for (j = 0; j<nProbe; j++){
-			dbTr0[j] = m_pDX[p[j].x];
-			dbTi0[j] = m_pDY[p[j].y];
-			if (m_nScalingOffset){
-				dbTr0[j] *= m_nScaling;
-				dbTi0[j] *= m_nScaling;
-			}
-			dbTr[j] = dbTr0[j];
-			dbTi[j] = dbTi0[j];
-		}
-	}
-	else if (nType == 1){
-		for (j = 0; j<nProbe; j++){
-			dbTr0[j] = m_lDX[p[j].x];
-			dbTi0[j] = m_lDX[p[j].y];
-			if (m_nScalingOffsetL){
-				dbTr0[j] *= m_nScalingL;
-				dbTi0[j] *= m_nScalingL;
-			}
-			dbTr[j] = dbTr0[j];
-			dbTi[j] = dbTi0[j];
-		}
-	}
-	else{
-		for (j = 0; j<nProbe; j++){
-			dbTr[j] = dbTr0[j] = m_DX[p[j].x];
-			dbTi[j] = dbTi0[j] = m_DY[p[j].y];
-		}
+	for (j = 0; j<nProbe; j++){
+		GetPixelCoordinates(p[j].x, p[j].y, dbTr0[j], dbTi0[j]);
+		dbTr[j] = dbTr0[j];
+		dbTi[j] = dbTi0[j];
 	}
 	m_nMaxApproximation = m_nMaxIter;
 	//floatexp mindiff = (m_nBailout==2?0.000001:0.001);

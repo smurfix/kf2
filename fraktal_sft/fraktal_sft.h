@@ -221,15 +221,11 @@ class CFraktalSFT
 	floatexp *m_dxr, *m_dxi;
 	floatexp *m_APr;
 	floatexp *m_APi;
-	floatexp *m_DX;
-	floatexp *m_DY;
 
 	BOOL m_bMirrored;
 	int m_nFractalType;
 
 	long double *m_ldxr, *m_ldxi;
-	long double *m_lDX;
-	long double *m_lDY;
 
 	double m_nIterDiv;
 	int m_nMaxApproximation;
@@ -239,8 +235,9 @@ class CFraktalSFT
 	double *m_db_dxr;
 	double *m_db_dxi;
 	double *m_db_z;
-	double *m_pDX;
-	double *m_pDY;
+
+	floatexp m_pixel_step_x, m_pixel_step_y;
+	floatexp m_pixel_center_x, m_pixel_center_y;
 
 	BYTE *m_lpBits;
 	int m_row;
@@ -467,6 +464,13 @@ public:
 #undef INT
 #undef BOOL
 
+	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const
+	{
+		floatexp u = (i - m_nX/2) * m_pixel_step_x;
+		floatexp v = (j - m_nY/2) * m_pixel_step_y;
+		x = m_pixel_center_x + m_C * u + m_S * v;
+		y = m_pixel_center_y - m_S * u + m_C * v;
+	};
 };
 
 struct TH_PARAMS

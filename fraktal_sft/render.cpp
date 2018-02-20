@@ -73,30 +73,6 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	SetImageHeight(nY);
 	m_nMaxIter = nMaxIter;
 	m_nRDone = m_nDone = m_nGuessed = 0;
-	if (m_pDX){
-		delete[] m_pDX;
-		m_pDX = NULL;
-	}
-	if (m_pDY){
-		delete[] m_pDY;
-		m_pDY = NULL;
-	}
-	if (m_DX){
-		delete[] m_DX;
-		m_DX = NULL;
-	}
-	if (m_DY){
-		delete[] m_DY;
-		m_DY = NULL;
-	}
-	if (m_lDX){
-		delete[] m_lDX;
-		m_lDX = NULL;
-	}
-	if (m_lDY){
-		delete[] m_lDY;
-		m_lDY = NULL;
-	}
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 	if (m_nPower>10 && m_nPrevPower != m_nPower){
@@ -325,18 +301,13 @@ void CFraktalSFT::RenderFractal()
 		CalculateReference();
 	}
 	int x, y;
-	if (!m_pDX || !m_pDY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_pDX = new double[m_nX];
-		for (x = 0; x<m_nX; x++, c += step)
-			m_pDX[x] = (c - m_rref).ToDouble(m_nScalingOffset);
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_pDY = new double[m_nY];
-		for (y = 0; y<m_nY; y++, c += step)
-			m_pDY[y] = (c - m_iref).ToDouble(m_nScalingOffset);
-	}
+
+	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
+	m_pixel_step_x = step;
+	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
+	step = (m_istop - m_istart)*(1 / (double)m_nY);
+	m_pixel_step_y = step;
+	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
@@ -469,18 +440,14 @@ void CFraktalSFT::RenderFractalLDBL()
 		CalculateReferenceLDBL();
 	}
 	int x, y;
-	if (!m_lDX || !m_lDY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_lDX = new long double[m_nX];
-		for (x = 0; x<m_nX; x++, c += step)
-			m_lDX[x] = (c - m_rref).ToLongDouble(m_nScalingOffsetL);
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_lDY = new long double[m_nY];
-		for (y = 0; y<m_nY; y++, c += step)
-			m_lDY[y] = (c - m_iref).ToLongDouble(m_nScalingOffsetL);
-	}
+
+	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
+	m_pixel_step_x = step;
+	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
+	step = (m_istop - m_istart)*(1 / (double)m_nY);
+	m_pixel_step_y = step;
+	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
@@ -570,18 +537,14 @@ void CFraktalSFT::RenderFractalEXP()
 	}
 	int i;
 	int x, y;
-	if (!m_DX || !m_DY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_DX = new floatexp[m_nX];
-		for (x = 0; x<m_nX; x++, c += step)
-			m_DX[x] = (c - m_rref);
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_DY = new floatexp[m_nY];
-		for (y = 0; y<m_nY; y++, c += step)
-			m_DY[y] = (c - m_iref);
-	}
+
+	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
+	m_pixel_step_x = step;
+	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
+	step = (m_istop - m_istart)*(1 / (double)m_nY);
+	m_pixel_step_y = step;
+	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
