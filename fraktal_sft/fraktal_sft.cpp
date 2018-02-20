@@ -541,7 +541,7 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	}
 	else if (m_nSmoothMethod == SmoothMethod_DE)
 	{
-		if (offs == TRANS_GLITCH)
+		if (GET_TRANS_GLITCH(offs))
 		{
 			s.b = 1;
 		}
