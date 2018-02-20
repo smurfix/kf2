@@ -117,12 +117,12 @@
 #define IDC_DIFFERENCES                 1083
 #define IDC_EDITMAXREFS                 1084
 #define IDC_GLITCHLOWTOLERANCE          1085
-
 #define IDC_STOREZOOM_KFB               1086
 #define IDC_STOREZOOM_JPG               1087
 #define IDC_STOREZOOM_PNG               1088
 #define IDC_STOREZOOM_COUNT             1089
 #define IDC_STOREZOOM_COUNTAUTO         1090
+#define IDC_JITTERSEED                  1091
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -213,7 +213,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
 #define _APS_NEXT_COMMAND_VALUE         40089
-#define _APS_NEXT_CONTROL_VALUE         1091
+#define _APS_NEXT_CONTROL_VALUE         1092
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

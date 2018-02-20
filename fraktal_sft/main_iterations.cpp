@@ -176,6 +176,20 @@ static void UpdateCalculations(HWND hWnd, int nCalc, int nType)
   SetDlgItemText(hWnd,IDC_EDIT8,szCalc);
 }
 
+static void UpdateJitterSeed(HWND hWnd)
+{
+	int i = g_SFT.GetJitterSeed();
+	SetDlgItemInt(hWnd,IDC_JITTERSEED,i,FALSE);
+}
+
+static void RefreshJitterSeed(HWND hWnd)
+{
+	char sz[256];
+	GetDlgItemText(hWnd,IDC_JITTERSEED,sz,sizeof(sz));
+	int i = atoi(sz);
+	g_SFT.SetJitterSeed(i);
+}
+
 static void UpdateReal(HWND hWnd)
 {
 	bool b = g_real != 0;
@@ -303,6 +317,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			EnableWindow(GetDlgItem(hWnd,IDC_CHECK2),nType==0 && g_SFT.GetPower()==2);
 			EnableWindow(GetDlgItem(hWnd,IDC_COMBO6),nType==0 && g_SFT.GetPower()==2);
 
+			UpdateJitterSeed(hWnd);
 			UpdateReal(hWnd);
 			UpdateImag(hWnd);
 			UpdateSeedR(hWnd);
@@ -328,6 +343,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND){
 		if(wParam==IDOK){
 			g_bExamineDirty=TRUE;
+			RefreshJitterSeed(hWnd);
 			RefreshReal(hWnd);
 			RefreshImag(hWnd);
 			RefreshSeedR(hWnd);
@@ -407,6 +423,8 @@ extern const char *IterationToolTip(int nID)
     return "Include real part when checking bailout.\nUncheck for variation";
   case IDC_CHECK5:
     return "Include imaginary part when checking bailout.\nUncheck for variation";
+  case IDC_JITTERSEED:
+    return "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter";
   case 1002:
     return "Real seed value (0 is standard)";
   case 1003:
