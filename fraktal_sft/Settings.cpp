@@ -44,6 +44,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(ShowGlitches)
   BOOL(NoReuseCenter)
   INT(IsolatedGlitchNeighbourhood)
+  INT(JitterSeed)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -86,6 +87,7 @@ std::string Settings::ToText() const
   BOOL(ShowGlitches)
   BOOL(NoReuseCenter)
   INT(IsolatedGlitchNeighbourhood)
+  INT(JitterSeed)
 #undef DOUBLE
 #undef INT
 #undef BOOL
