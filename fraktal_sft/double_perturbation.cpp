@@ -140,7 +140,7 @@ void CFraktalSFT::MandelCalc()
 						d = m_nPower * d * (yri ^ (m_nPower - 1)) + 1;
 						complex<double> X(m_db_dxr[antal], m_db_dxi[antal]);
 						complex<double> D(Dr, Di);
-						complex<double> D0(dbD0r, m_pDY[y]);
+						complex<double> D0(dbD0r, dbD0i);
 						complex<double> c(m_pnExpConsts[0], 0);
 						int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
 						complex<double> Dn = c*(X^(m_nPower - 1))*D;
