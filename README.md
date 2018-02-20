@@ -146,6 +146,10 @@ Feedback:
     - removed some build instructions from README (see the prepare.sh script)
       (it was too annoying to have to keep updating everything in two places)
     - command line non-interactive mode works without opening a window
+    - pixel jitter (dithering of position): set non-zero seed in iterations
+      dialog to enable it, different seeds give slightly different images which
+      can be stacked later for anti-aliasing as an alternative to rendering
+      large and downscaling later
 
 - **kf-2.12.9.1** (2018-01-24)
 
