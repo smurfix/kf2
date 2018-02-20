@@ -180,6 +180,22 @@ enum Differences
 	Differences_Diagonal2x2 = 3
 };
 
+// http://www.burtleburtle.net/bob/hash/integer.html
+static uint32_t wang_hash(uint32_t a)
+{
+    a = (a ^ 61) ^ (a >> 16);
+    a = a + (a << 3);
+    a = a ^ (a >> 4);
+    a = a * 0x27d4eb2d;
+    a = a ^ (a >> 15);
+    return a;
+}
+
+static double dither(uint32_t x, uint32_t y, uint32_t c)
+{
+  return wang_hash(c + wang_hash(y + wang_hash(x))) / (double) (0x100000000LL) - 0.5;
+}
+
 class CFraktalSFT
 {
 	Settings m_Settings;
@@ -480,14 +496,32 @@ public:
   BOOL(ShowGlitches)
   BOOL(NoReuseCenter)
   INT(IsolatedGlitchNeighbourhood)
+  INT(JitterSeed)
 #undef DOUBLE
 #undef INT
 #undef BOOL
 
+	void GetPixelOffset(const int i, const int j, double &x, double &y) const
+	{
+		int c = GetJitterSeed();
+		if (c)
+		{
+			x = dither(i, j, 2 * c + 0);
+			y = dither(i, j, 2 * c + 1);
+		}
+		else
+		{
+			x = 0.0;
+			y = 0.0;
+		}
+	}
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const
 	{
-		floatexp u = (i - m_nX/2) * m_pixel_step_x;
-		floatexp v = (j - m_nY/2) * m_pixel_step_y;
+		double di = 0;
+		double dj = 0;
+		GetPixelOffset(i, j, di, dj);
+		floatexp u = (i - m_nX/2 + di) * m_pixel_step_x;
+		floatexp v = (j - m_nY/2 + dj) * m_pixel_step_y;
 		x = m_pixel_center_x + m_C * u + m_S * v;
 		y = m_pixel_center_y - m_S * u + m_C * v;
 	};

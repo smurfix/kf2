@@ -40,6 +40,7 @@ private:
   bool m_ShowGlitches;
   bool m_NoReuseCenter;
   int m_IsolatedGlitchNeighbourhood;
+  int m_JitterSeed;
 
 public:
 
@@ -73,6 +74,7 @@ public:
   , m_ShowGlitches(true)
   , m_NoReuseCenter(false)
   , m_IsolatedGlitchNeighbourhood(0)
+  , m_JitterSeed(0)
   { };
 
   bool FromText(const std::string &text);
@@ -175,6 +177,9 @@ public:
 
   inline int    GetIsolatedGlitchNeighbourhood() const { return m_IsolatedGlitchNeighbourhood; };
   inline void   SetIsolatedGlitchNeighbourhood(int n) { m_IsolatedGlitchNeighbourhood = n; };
+
+  inline int    GetJitterSeed() const { return m_JitterSeed; };
+  inline void   SetJitterSeed(int n) { m_JitterSeed = n; };
 
 };
 
