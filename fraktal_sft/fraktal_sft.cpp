@@ -146,6 +146,8 @@ CFraktalSFT::CFraktalSFT()
 	m_nZoom = 0;
 	m_nPixels = NULL;
 	m_nTrans = NULL;
+	m_nJitterX = NULL;
+	m_nJitterY = NULL;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
@@ -925,14 +927,8 @@ void CFraktalSFT::Mirror(int x, int y)
 //#define HARD_GUESS_EXP
 //60 2.5
 
-void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
+void CFraktalSFT::DeleteArrays()
 {
-	m_rstart = rstart;
-	m_rstop = rstop;
-	m_istart = istart;
-	m_istop = istop;
-	CFixedFloat re = (rstop + rstart)*.5;
-	if (m_nX != nX || m_nY != nY){
 		int i;
 		for (i = 0; i<m_nXPrev; i++)
 			delete[] m_nPixels[i];
@@ -943,6 +939,27 @@ void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rsto
 			delete[] m_nTrans[i];
 		delete[] m_nTrans;
 		m_nTrans = NULL;
+
+		for (i = 0; i<m_nXPrev; i++)
+			delete[] m_nJitterX[i];
+		delete[] m_nJitterX;
+		m_nJitterX = NULL;
+
+		for (i = 0; i<m_nXPrev; i++)
+			delete[] m_nJitterY[i];
+		delete[] m_nJitterY;
+		m_nJitterY = NULL;
+}
+
+void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
+{
+	m_rstart = rstart;
+	m_rstop = rstop;
+	m_istart = istart;
+	m_istop = istop;
+	CFixedFloat re = (rstop + rstart)*.5;
+	if (m_nX != nX || m_nY != nY){
+		DeleteArrays();
 	}
 	m_nX = nX;
 	m_nY = nY;
@@ -1166,15 +1183,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	else
 		m_bNoGlitchDetection = TRUE;
 	if (m_nX != nWidth || m_nY != nHeight){
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nPixels[i];
-		delete[] m_nPixels;
-		m_nPixels = NULL;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nTrans[i];
-		delete[] m_nTrans;
-		m_nTrans = NULL;
+		DeleteArrays();
 	}
 	else if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
 		m_bAddReference = 2;
@@ -1574,16 +1583,7 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 {
 	m_bResized = m_nXPrev != nx || m_nYPrev != ny;
 	if (m_bResized && m_nPixels){
-		int i;
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nPixels[i];
-		delete[] m_nPixels;
-		m_nPixels = 0;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nTrans[i];
-		delete[] m_nTrans;
-		m_nTrans = 0;
+		DeleteArrays();
 	}
 	m_nX = nx;
 	m_nY = ny;
@@ -1593,14 +1593,20 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	{
 		m_nPixels = new int*[m_nX];
 		m_nTrans = new float*[m_nX];
+		m_nJitterX = new float*[m_nX];
+		m_nJitterY = new float*[m_nX];
 		for (int x = 0; x<m_nX; x++){
 			m_nPixels[x] = new int[m_nY];
 			m_nTrans[x] = new float[m_nY];
+			m_nJitterX[x] = new float[m_nY];
+			m_nJitterY[x] = new float[m_nY];
 		}
 	}
 	for (int x = 0; x<m_nX; x++){
 		memset(m_nPixels[x], 0, sizeof(int) * m_nY);
 		memset(m_nTrans[x], 0, sizeof(float) * m_nY);
+		memset(m_nJitterX[x], 0, sizeof(float) * m_nY);
+		memset(m_nJitterY[x], 0, sizeof(float) * m_nY);
 	}
 	SetImageWidth(nx);
 	SetImageHeight(ny);

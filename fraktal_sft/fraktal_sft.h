@@ -221,6 +221,8 @@ class CFraktalSFT
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
+	float **m_nJitterX;
+	float **m_nJitterY;
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
 	int m_nPrevPower;
@@ -320,6 +322,7 @@ class CFraktalSFT
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone=TRUE);
 	void SetTexture(int nIndex, int x, int y);
 	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1);
+	void DeleteArrays();
 
 #ifdef KF_OPENCL
 	int clid;
@@ -496,7 +499,7 @@ public:
 #undef INT
 #undef BOOL
 
-	void GetPixelOffset(const int i, const int j, double &x, double &y) const
+	void CalcPixelOffset(const int i, const int j, double &x, double &y) const
 	{
 		int c = GetJitterSeed();
 		if (c)
@@ -508,12 +511,22 @@ public:
 			double t = 2 * 3.141592653589793 * v;
 			x = r * cos(t);
 			y = r * sin(t);
-
 		}
 		else
 		{
 			x = 0.0;
 			y = 0.0;
+		}
+	}
+	void GetPixelOffset(const int i, const int j, double &x, double &y) const
+	{
+		x = m_nJitterX[i][j];
+		y = m_nJitterY[i][j];
+		if (x == 0 && y == 0)
+		{
+			CalcPixelOffset(i, j, x, y);
+			m_nJitterX[i][j] = x;
+			m_nJitterY[i][j] = y;
 		}
 	}
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const
