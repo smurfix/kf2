@@ -95,6 +95,7 @@ Feedback:
 - analytic DE colouring with derivatives aka new smoothing method #2 (not
   available in `2.11.1`).
 
+
 ### Other Changes
 
 - Makefile build system using MINGW to cross-compile to Windows from Linux
