@@ -445,6 +445,8 @@ Feedback:
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
 - Horner's rule for polynomial evaluation (if not used already)
+- control for dither width (suggested by gerrit)
+- control for dither uniform vs Gaussian (suggested by gerrit)
 
 ### Newton-Raphson Zooming
 
