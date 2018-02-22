@@ -54,6 +54,8 @@ Feedback:
 - "a single dot appears in the middle of a mini" (reported by gerrit)
 - "iteration count resets to 1000" (reported by CFJH and gerrit)
 - colouring large images is very slow (reported by gerrit)
+- "color method and infinite waves are immediately applied" even when colouring
+  is disabled (reported by gerrit)
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous
