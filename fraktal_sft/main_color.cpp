@@ -17,6 +17,8 @@ static COLOR14 g_colCopy={0};
 static BOOL g_bCaptureMouse=FALSE;
 static BOOL g_bInitColorDialog=FALSE;
 static CListBoxEdit *g_pWaves=NULL;
+static BOOL g_AutoColour = TRUE;
+static BOOL g_AutoUpdate = FALSE;
 
 extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -31,6 +33,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,0);
+		SendDlgItemMessage(hWnd, IDC_AUTOCOLOUR, BM_SETCHECK, g_AutoColour, 0);
 	}
 	if(uMsg==WM_INITDIALOG || uMsg==WM_USER+99 || (uMsg==WM_SHOWWINDOW && wParam) || (uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7))){
 		std::string szTexture;
@@ -51,7 +54,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7)){
 			g_SFT.SetMW(SendDlgItemMessage(hWnd,IDC_CHECK6,BM_GETCHECK,0,0),SendDlgItemMessage(hWnd,IDC_CHECK7,BM_GETCHECK,0,0));
+			g_AutoUpdate++;
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
 		}
 		else{
 			BOOL bBlend=FALSE;
@@ -242,7 +247,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT22),SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
 		if((g_bInitColorDialog && (HIWORD(wParam)==EN_UPDATE && (LOWORD(wParam)==IDC_EDIT1 || LOWORD(wParam)==IDC_EDIT3 || LOWORD(wParam)==IDC_EDIT12 || LOWORD(wParam)==IDC_EDIT20 || LOWORD(wParam)==IDC_EDIT21 || LOWORD(wParam)==IDC_EDIT22))) || (HIWORD(wParam)==CBN_SELCHANGE && (LOWORD(wParam)==IDC_COMBO1 || LOWORD(wParam)==IDC_DIFFERENCES))){
 			g_bInitColorDialog=FALSE;
+			g_AutoUpdate++;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
 			return 0;
 		}
 		if(wParam==IDCANCEL){
@@ -258,8 +265,15 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::string szFile = buffer;
 			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0\0",szFile)){
 				SetDlgItemText(hWnd,IDC_EDIT29,szFile.c_str());
+				g_AutoUpdate++;
 				SendMessage(hWnd,WM_COMMAND,IDOK,0);
+				g_AutoUpdate--;
 			}
+		}
+		else if (wParam == IDC_AUTOCOLOUR)
+		{
+			g_AutoColour = SendDlgItemMessage(hWnd, IDC_AUTOCOLOUR, BM_GETCHECK, 0, 0);
+			if (g_AutoColour) SendMessage(hWnd, WM_COMMAND, IDOK, 0);
 		}
 		else if(wParam==IDOK){
 			char szTexture[1024];
@@ -325,14 +339,18 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			g_SFT.SetSlopes(SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0),GetDlgItemInt(hWnd,IDC_EDIT20,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT21,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT22,NULL,TRUE));
 
-			g_SFT.ApplyColors();
+			if (g_AutoColour || ! g_AutoUpdate) g_SFT.ApplyColors();
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			UpdateWindow(GetParent(hWnd));
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
 		}
 		else if(wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
+		{
+			g_AutoUpdate++;
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
+		}
 		else if(wParam==IDC_BUTTON1){
 			std::string szFile;
 			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile))
@@ -384,7 +402,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				HSVToRGB(nH, nS, nB, cPos);
 				g_SFT.SetKeyColor(cPos,c);
 			}
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			InvalidateRect(hWnd,NULL,FALSE);
@@ -414,11 +432,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 //			g_SFT.ChangeNumOfColors(nParts-1);
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON7){
 			int i;
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 			COLOR14 c[1024];
 			for(i=0;i<1024;i++)
 				c[i] = g_SFT.GetColor(i);
@@ -426,7 +444,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			for(i=0;i<1024;i++)
 				g_SFT.SetKeyColor(c[i],i);
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON17){
 			int i, nParts = g_SFT.GetNumOfColors();
@@ -451,7 +469,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(n,i);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
+			g_AutoUpdate++;
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON18){
 			int i, nParts = g_SFT.GetNumOfColors();
@@ -476,7 +496,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(n,i);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
+			g_AutoUpdate++;
 			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON22){
 			std::string szFile;
@@ -587,8 +609,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_SETCURSEL,nID,0);
 				}
 				SendMessage(hWnd,WM_USER+99,0,0);
-				g_SFT.ApplyColors();
+				if (g_AutoColour) g_SFT.ApplyColors();
+				g_AutoUpdate++;
 				PostMessage(hWnd,WM_COMMAND,IDOK,0);
+				g_AutoUpdate--;
 			}
 		}
 		else if(wParam==IDC_BUTTON2){
@@ -599,7 +623,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			int nSeed = GetDlgItemInt(hWnd,IDC_EDIT2,NULL,0);
 			g_SFT.GenerateColors(nColors,nSeed);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -648,7 +672,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			nStart = GetDlgItemInt(hWnd,IDC_EDIT19,NULL,FALSE);
 			g_SFT.AddWave(3,nPeriod,nStart);
 
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			InvalidateRect(hWnd,NULL,FALSE);
@@ -730,7 +754,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON9){
 			COLOR14 c;
@@ -755,7 +779,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON11){
 			COLOR14 c;
@@ -780,7 +804,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON10){
 			int nParts = g_SFT.GetNumOfColors();
@@ -795,7 +819,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(c,i);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 		}
 		else if(wParam==IDC_BUTTON13){
 			srand(GetTickCount());
@@ -807,7 +831,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			int nSeed = rand();
 			SetDlgItemInt(hWnd,IDC_EDIT2,nSeed,0);
 			g_SFT.GenerateColors(nColors,nSeed);
-			g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyColors();
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -992,7 +1016,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	if(g_pWaves)
 		g_pWaves->ProcessMessage(hWnd,uMsg,wParam,lParam);
 	if(uMsg==WM_COMMAND && (wParam==IDC_BUTTON26 || wParam==IDC_BUTTON27 || wParam==IDC_BUTTON28))
+	{
+		g_AutoUpdate++;
 		PostMessage(hWnd,WM_COMMAND,IDOK,0);
+		g_AutoUpdate--;
+	}
 	return 0;
 }
 
@@ -1113,6 +1141,8 @@ extern const char *ColorToolTip(int nID)
 		return "Apply more contrast on the palette";
 	case IDC_BUTTON18:
 		return "Apply less contrast on the palette";
+	case IDC_AUTOCOLOUR:
+		return "Automatically apply palette on change";
 	case IDOK:
 		return "Apply current palette";
 	case IDCLOSE:
