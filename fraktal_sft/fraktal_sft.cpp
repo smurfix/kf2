@@ -530,6 +530,9 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 	m_lpBits[nIndex+2] = m_lpTextureBits[nIndexBkg+2]*m_nImgMerge + m_lpBits[nIndex+2]*(1-m_nImgMerge);
 }
 
+static inline double sqr(double x) { return x * x; }
+static inline double hypot2(double x, double y) { return x * x + y * y; }
+
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
 	if (m_bInhibitColouring) return;
@@ -595,72 +598,78 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			int Y = m_nY - 1;
 			static const double ninf = 1.0 / 0.0;
 			double p[3][3] = { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
-			if (0 < x && 0 < y) p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];
-			if (0 < x         ) p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];
-			if (0 < x && y < Y) p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];
-			if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];}
-			                    p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];
-			if (         y < Y) p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];
-			if (x < X && 0 < y) p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];
-			if (x < X         ) p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];
-			if (x < X && y < Y) p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];
+			double px[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+			double py[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+			if (0 < x && 0 < y){p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];GetPixelOffset(x - 1, y - 1, px[0][0], py[0][0]); px[0][0] -= 1; py[0][0] -= 1;}
+			if (0 < x         ){p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];GetPixelOffset(x - 1, y    , px[0][1], py[0][1]); px[0][1] -= 1;               }
+			if (0 < x && y < Y){p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];GetPixelOffset(x - 1, y + 1, px[0][2], py[0][2]); px[0][2] -= 1; py[0][2] += 1;}
+			if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];GetPixelOffset(x    , y - 1, px[1][0], py[1][0]);                py[1][0] -= 1;}
+			                   {p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];GetPixelOffset(x    , y    , px[1][1], py[1][1]);                              }
+			if (         y < Y){p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];GetPixelOffset(x    , y + 1, px[1][2], py[1][2]);                py[1][2] += 1;}
+			if (x < X && 0 < y){p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];GetPixelOffset(x + 1, y - 1, px[2][0], py[2][0]); px[2][0] += 1; py[2][0] -= 1;}
+			if (x < X         ){p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];GetPixelOffset(x + 1, y    , px[2][1], py[2][1]); px[2][1] += 1;               }
+			if (x < X && y < Y){p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];GetPixelOffset(x + 1, y + 1, px[2][2], py[2][2]); px[2][2] += 1; py[2][2] += 1;}
 			// reflect at boundaries if necessary
 			// this will break (result is infinite or NaN) for image size of 1 pixel
 			p[1][1] *= 2.0;
-			if (ninf == p[0][0]) p[0][0] = p[1][1] - p[2][2];
-			if (ninf == p[0][1]) p[0][1] = p[1][1] - p[2][1];
-			if (ninf == p[0][2]) p[0][2] = p[1][1] - p[2][0];
-			if (ninf == p[1][0]) p[1][0] = p[1][1] - p[1][2];
-			if (ninf == p[1][2]) p[1][2] = p[1][1] - p[1][0];
-			if (ninf == p[2][0]) p[2][0] = p[1][1] - p[0][2];
-			if (ninf == p[2][1]) p[2][1] = p[1][1] - p[0][1];
-			if (ninf == p[2][2]) p[2][2] = p[1][1] - p[0][0];
+			px[1][1] *= 2.0;
+			py[1][1] *= 2.0;
+			if (ninf == p[0][0]) {p[0][0] = p[1][1] - p[2][2];px[0][0] = px[1][1] - px[2][2];py[0][0] = py[1][1] - py[2][2];}
+			if (ninf == p[0][1]) {p[0][1] = p[1][1] - p[2][1];px[0][1] = px[1][1] - px[2][1];py[0][1] = py[1][1] - py[2][1];}
+			if (ninf == p[0][2]) {p[0][2] = p[1][1] - p[2][0];px[0][2] = px[1][1] - px[2][0];py[0][2] = py[1][1] - py[2][0];}
+			if (ninf == p[1][0]) {p[1][0] = p[1][1] - p[1][2];px[1][0] = px[1][1] - px[1][2];py[1][0] = py[1][1] - py[1][2];}
+			if (ninf == p[1][2]) {p[1][2] = p[1][1] - p[1][0];px[1][2] = px[1][1] - px[1][0];py[1][2] = py[1][1] - py[1][0];}
+			if (ninf == p[2][0]) {p[2][0] = p[1][1] - p[0][2];px[2][0] = px[1][1] - px[0][2];py[2][0] = py[1][1] - py[0][2];}
+			if (ninf == p[2][1]) {p[2][1] = p[1][1] - p[0][1];px[2][1] = px[1][1] - px[0][1];py[2][1] = py[1][1] - py[0][1];}
+			if (ninf == p[2][2]) {p[2][2] = p[1][1] - p[0][0];px[2][2] = px[1][1] - px[0][0];py[2][2] = py[1][1] - py[0][0];}
 			p[1][1] *= 0.5;
+			px[1][1] *= 0.5;
+			py[1][1] *= 0.5;
 			// do the differencing
 			switch (m_nDifferences)
 			{
 			case Differences_Central3x3:
 				{
 					// gerrit's central difference formula
-					double gx = (p[2][1] - p[0][1]) * 0.5;
-					double gy = (p[1][2] - p[1][0]) * 0.5;
-					double g1 = (p[2][2] - p[0][0]) * 0.35355339059327373; // 1/(2 sqrt(2))
-					double g2 = (p[0][2] - p[2][0]) * 0.35355339059327373;
-					double g = sqrt(0.5 * (gx*gx + gy*gy + g1*g1 + g2*g2));
+					double gx = sqr(p[2][1] - p[0][1]) / hypot2(px[2][1] - px[0][1], py[2][1] - py[0][1]);
+					double gy = sqr(p[1][2] - p[1][0]) / hypot2(px[1][2] - px[1][0], py[1][2] - py[1][0]);
+					double g1 = sqr(p[2][2] - p[0][0]) / hypot2(px[2][2] - px[0][0], py[2][2] - py[0][0]);
+					double g2 = sqr(p[0][2] - p[2][0]) / hypot2(px[0][2] - px[2][0], py[0][2] - py[2][0]);
+					double g = sqrt(0.5 * (gx + gy + g1 + g2));
 					iter = g * 2.8284271247461903;
 				}
 				break;
 			case Differences_Forward3x3:
 				{
 					// forward differencing in 8 directions from the target point
-					double gx0 = (p[0][1] - p[1][1]);
-					double gx2 = (p[2][1] - p[1][1]);
-					double gy0 = (p[1][0] - p[1][1]);
-					double gy2 = (p[1][2] - p[1][1]);
-					double gu0 = (p[0][0] - p[1][1]) * 0.7071067811865475; // 1/sqrt(2)
-					double gu2 = (p[2][2] - p[1][1]) * 0.7071067811865475;
-					double gv0 = (p[2][0] - p[1][1]) * 0.7071067811865475;
-					double gv2 = (p[0][2] - p[1][1]) * 0.7071067811865475;
-					double g = sqrt(0.25 * (gx0*gx0 + gx2*gx2 + gy0*gy0 + gy2*gy2 + gu0*gu0 + gu2*gu2 + gv0*gv0 + gv2*gv2));
+					double gx0 = sqr(p[0][1] - p[1][1]) / hypot2(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+					double gx2 = sqr(p[2][1] - p[1][1]) / hypot2(px[2][1] - px[1][1], py[2][1] - py[1][1]);
+					double gy0 = sqr(p[1][0] - p[1][1]) / hypot2(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+					double gy2 = sqr(p[1][2] - p[1][1]) / hypot2(px[1][2] - px[1][1], py[1][2] - py[1][1]);
+					double gu0 = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+					double gu2 = sqr(p[2][2] - p[1][1]) / hypot2(px[2][2] - px[1][1], py[2][2] - py[1][1]);
+					double gv0 = sqr(p[2][0] - p[1][1]) / hypot2(px[2][0] - px[1][1], py[2][0] - py[1][1]);
+					double gv2 = sqr(p[0][2] - p[1][1]) / hypot2(px[0][2] - px[1][1], py[0][2] - py[1][1]);
+					double g = sqrt(0.25 * (gx0 + gx2 + gy0 + gy2 + gu0 + gu2 + gv0 + gv2));
 					iter = g * 2.8284271247461903;
 				}
 				break;
 			case Differences_Diagonal2x2:
 				{
 					// forward differencing in 2 diagonals of a 2x2 substencil
-					double gu = (p[0][0] - p[1][1]) * 0.7071067811865475; // 1/sqrt(2)
-					double gv = (p[0][1] - p[1][0]) * 0.7071067811865475;
-					double g = sqrt(gu * gu + gv * gv);
+					double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+					double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
+					double g = sqrt(gu + gv);
 					iter = g * 2.8284271247461903;
 				}
 				break;
 			case Differences_Traditional:
 				{
 					// traditional method reverse engineered from original code
-					double gx = (p[0][1] - p[1][1]) * 1.414;
-					double gy = (p[1][0] - p[1][1]) * 1.414;
-					double gu = (p[0][0] - p[1][1]);
-					double gv = (p[0][2] - p[1][1]);
+					double gx = (p[0][1] - p[1][1]) * 1.414 / hypot(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+					double gy = (p[1][0] - p[1][1]) * 1.414 / hypot(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+					double gu = (p[0][0] - p[1][1]) * 1.414 / hypot(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+					double gv = (p[0][2] - p[1][1]) * 1.414 / hypot(px[0][2] - px[1][1], py[0][2] - py[1][1]);
 					double g = fabs(gx) + fabs(gy) + fabs(gu) + fabs(gv);
 					iter = g;
 				}
