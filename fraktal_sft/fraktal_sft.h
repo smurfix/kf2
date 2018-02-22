@@ -247,6 +247,7 @@ class CFraktalSFT
 	bool m_bResized;
 	int m_nX, m_nXPrev;
 	int m_nY, m_nYPrev;
+	int m_JitterSeedPrev;
 	int m_nDone;
 	int m_nGuessed;
 	int m_nRDone;
