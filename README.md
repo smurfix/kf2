@@ -131,10 +131,15 @@ Feedback:
     - removed some build instructions from README (see the prepare.sh script)
       (it was too annoying to have to keep updating everything in two places)
     - command line non-interactive mode works without opening a window
+      (suggested by gerrit)
     - pixel jitter (dithering of position): set non-zero seed in iterations
       dialog to enable it, different seeds give slightly different images which
       can be stacked later for anti-aliasing as an alternative to rendering
-      large and downscaling later
+      large and downscaling later; helps reduce Moiré grid artifacts at the
+      cost of noise
+    - "Enable" toggle in colouring dialog: colouring takes long for large
+      images, disable the toggle if you want to make many changes at once, then
+      click "Apply" or re-enable to see the results (discussed with gerrit)
 
 - **kf-2.12.9.1** (2018-01-24)
 
