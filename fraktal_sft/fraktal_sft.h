@@ -180,36 +180,6 @@ enum Differences
 	Differences_Diagonal2x2 = 3
 };
 
-// http://www.burtleburtle.net/bob/hash/integer.html
-#if 0
-static uint32_t wang_hash(uint32_t a)
-{
-    a = (a ^ 61) ^ (a >> 16);
-    a = a + (a << 3);
-    a = a ^ (a >> 4);
-    a = a * 0x27d4eb2d;
-    a = a ^ (a >> 15);
-    return a;
-}
-#else
-static uint32_t burtle_hash(uint32_t a)
-{
-    a = (a+0x7ed55d16) + (a<<12);
-    a = (a^0xc761c23c) ^ (a>>19);
-    a = (a+0x165667b1) + (a<<5);
-    a = (a+0xd3a2646c) ^ (a<<9);
-    a = (a+0xfd7046c5) + (a<<3);
-    a = (a^0xb55a4f09) ^ (a>>16);
-    return a;
-}
-#endif
-
-// uniform in [0,1)
-static double dither(uint32_t x, uint32_t y, uint32_t c)
-{
-  return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
-}
-
 class CFraktalSFT
 {
 	Settings m_Settings;
@@ -519,47 +489,9 @@ public:
 #undef INT
 #undef BOOL
 
-	void CalcPixelOffset(const int i, const int j, double &x, double &y) const
-	{
-		int c = GetJitterSeed();
-		if (c)
-		{
-			// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-			double u = dither(i, j, 2 * c + 0);
-			double v = dither(i, j, 2 * c + 1);
-			double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
-			double t = 2 * 3.141592653589793 * v;
-			double s = 0.5;
-			x = s * r * cos(t);
-			y = s * r * sin(t);
-		}
-		else
-		{
-			x = 0.0;
-			y = 0.0;
-		}
-	}
-	void GetPixelOffset(const int i, const int j, double &x, double &y) const
-	{
-		x = m_nJitterX[i][j];
-		y = m_nJitterY[i][j];
-		if (x == 0 && y == 0)
-		{
-			CalcPixelOffset(i, j, x, y);
-			m_nJitterX[i][j] = x;
-			m_nJitterY[i][j] = y;
-		}
-	}
-	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const
-	{
-		double di = 0;
-		double dj = 0;
-		GetPixelOffset(i, j, di, dj);
-		floatexp u = (i - m_nX/2 + di) * m_pixel_step_x;
-		floatexp v = (j - m_nY/2 + dj) * m_pixel_step_y;
-		x = m_pixel_center_x + m_C * u + m_S * v;
-		y = m_pixel_center_y - m_S * u + m_C * v;
-	};
+	void CalcPixelOffset(const int i, const int j, double &x, double &y) const;
+	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
+	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;
 };
 
 struct TH_PARAMS
