@@ -141,7 +141,7 @@ Feedback:
       (minor optimisation)
     - default settings are best-quality by default
 
-- **kf-2.12.10** (????-??-??)
+- **kf-2.12.10** (2018-02-22)
 
     - upgrade to MPFR 4.0.1
     - removed some build instructions from README (see the prepare.sh script)
