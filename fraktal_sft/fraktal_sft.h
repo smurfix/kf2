@@ -507,10 +507,11 @@ public:
 			// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
 			double u = dither(i, j, 2 * c + 0);
 			double v = dither(i, j, 2 * c + 1);
-			double r = u ? sqrt(-2 * log(u)) : 0;
+			double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
 			double t = 2 * 3.141592653589793 * v;
-			x = r * cos(t);
-			y = r * sin(t);
+			double s = 0.5;
+			x = s * r * cos(t);
+			y = s * r * sin(t);
 		}
 		else
 		{
