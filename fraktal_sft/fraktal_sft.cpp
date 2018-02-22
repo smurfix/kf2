@@ -148,6 +148,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nTrans = NULL;
 	m_nJitterX = NULL;
 	m_nJitterY = NULL;
+	m_JitterSeedPrev = 0;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
