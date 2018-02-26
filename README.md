@@ -65,6 +65,8 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - status bar reference count doesn't reset when zooming before it is "Done"
+- "Save Settings" browser has .kfr extension instead of .kfs
+  (reported by gerrit)
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
@@ -450,6 +452,8 @@ Feedback:
 - online help within program (suggested by TwinDragon)
 - drag-and-drop parameters or images on to main window to load
 - save image now function (without waiting for calculations)
+- command line: print total runtime (suggested by gerrit)
+- command line: print total remaining pixels (suggested by gerrit)
 
 ### Calculations
 
