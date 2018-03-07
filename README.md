@@ -439,6 +439,7 @@ Feedback:
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - command line: print total remaining pixels (suggested by gerrit)
+- command line: verbosity flag (discussed with gerrit)
 
 ### Calculations
 
