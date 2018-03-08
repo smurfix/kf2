@@ -191,8 +191,6 @@ class CFraktalSFT
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
-	float **m_nJitterX;
-	float **m_nJitterY;
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
 	int m_nPrevPower;
@@ -247,7 +245,6 @@ class CFraktalSFT
 	bool m_bResized;
 	int m_nX, m_nXPrev;
 	int m_nY, m_nYPrev;
-	int m_JitterSeedPrev;
 	int m_nDone;
 	int m_nGuessed;
 	int m_nRDone;
@@ -466,11 +463,12 @@ public:
   BOOL(NoReuseCenter)
   INT(IsolatedGlitchNeighbourhood)
   INT(JitterSeed)
+  INT(JitterShape)
+  DOUBLE(JitterScale)
 #undef DOUBLE
 #undef INT
 #undef BOOL
 
-	void CalcPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;
 };

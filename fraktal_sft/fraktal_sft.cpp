@@ -146,9 +146,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nZoom = 0;
 	m_nPixels = NULL;
 	m_nTrans = NULL;
-	m_nJitterX = NULL;
-	m_nJitterY = NULL;
-	m_JitterSeedPrev = 0;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
@@ -949,16 +946,6 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nTrans[i];
 		delete[] m_nTrans;
 		m_nTrans = NULL;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nJitterX[i];
-		delete[] m_nJitterX;
-		m_nJitterX = NULL;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nJitterY[i];
-		delete[] m_nJitterY;
-		m_nJitterY = NULL;
 }
 
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
@@ -1603,20 +1590,14 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	{
 		m_nPixels = new int*[m_nX];
 		m_nTrans = new float*[m_nX];
-		m_nJitterX = new float*[m_nX];
-		m_nJitterY = new float*[m_nX];
 		for (int x = 0; x<m_nX; x++){
 			m_nPixels[x] = new int[m_nY];
 			m_nTrans[x] = new float[m_nY];
-			m_nJitterX[x] = new float[m_nY];
-			m_nJitterY[x] = new float[m_nY];
 		}
 	}
 	for (int x = 0; x<m_nX; x++){
 		memset(m_nPixels[x], 0, sizeof(int) * m_nY);
 		memset(m_nTrans[x], 0, sizeof(float) * m_nY);
-		memset(m_nJitterX[x], 0, sizeof(float) * m_nY);
-		memset(m_nJitterY[x], 0, sizeof(float) * m_nY);
 	}
 	SetImageWidth(nx);
 	SetImageHeight(ny);
@@ -3062,36 +3043,40 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
 
-void CFraktalSFT::CalcPixelOffset(const int i, const int j, double &x, double &y) const
+void CFraktalSFT::GetPixelOffset(const int i, const int j, double &x, double &y) const
 {
 	int c = GetJitterSeed();
 	if (c)
 	{
-		// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+		double s = GetJitterScale();
 		double u = dither(i, j, 2 * c + 0);
 		double v = dither(i, j, 2 * c + 1);
-		double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
-		double t = 2 * 3.141592653589793 * v;
-		double s = 0.5;
-		x = s * r * cos(t);
-		y = s * r * sin(t);
+		switch (GetJitterShape())
+		{
+			default:
+			case 0: // uniform
+				{
+					x = s * (u - 0.5);
+					y = s * (v - 0.5);
+				}
+				break;
+			case 1: // Gaussian
+				{
+					// FIXME cache slow trig functions for every pixel for every image?
+					// https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+					double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
+					double t = 2 * 3.141592653589793 * v;
+					s *= 0.5;
+					x = s * r * cos(t);
+					y = s * r * sin(t);
+				}
+				break;
+		}
 	}
 	else
 	{
 		x = 0.0;
 		y = 0.0;
-	}
-}
-
-void CFraktalSFT::GetPixelOffset(const int i, const int j, double &x, double &y) const
-{
-	x = m_nJitterX[i][j];
-	y = m_nJitterY[i][j];
-	if (x == 0 && y == 0)
-	{
-		CalcPixelOffset(i, j, x, y);
-		m_nJitterX[i][j] = x;
-		m_nJitterY[i][j] = y;
 	}
 }
 

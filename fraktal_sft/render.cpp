@@ -108,10 +108,9 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 	}
 
 	WaitForSingleObject(m_hMutex, INFINITE);
-	bool resize = m_nXPrev != m_nX || m_nYPrev != m_nY || m_JitterSeedPrev != GetJitterSeed();
+	bool resize = m_nXPrev != m_nX || m_nYPrev != m_nY;
 	if (resize){
 		SetImageSize(m_nX, m_nY);
-		m_JitterSeedPrev = GetJitterSeed();
 	}
 	if (m_bResized || resize)
 	{
