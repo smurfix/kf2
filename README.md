@@ -134,6 +134,7 @@ Feedback:
     - uniform jitter by default (suggested by gerrit)
     - Gaussian jitter available as an option
     - jitter scale factor setting (suggested by gerrit)
+    - log verbosity flag for command line rendering
 
 - **kf-2.12.10** (2018-02-22)
 
@@ -445,7 +446,6 @@ Feedback:
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - command line: print total remaining pixels (suggested by gerrit)
-- command line: verbosity flag (discussed with gerrit)
 
 ### Calculations
 
@@ -1149,6 +1149,8 @@ Workaround (until single KFB map loading is implemented) instructions by gerrit:
         -p, --save-png      [FILE.png]  save PNG
         -j, --save-jpg      [FILE.jpg]  save JPEG
         -m, --save-map      [FILE.kfb]  save KFB
+        --log (debug|status|info|warn|error)
+                                        logging verbosity
         -v, -V, --version               show version
         -h, -H, -?, --help              show this help
 
@@ -1178,3 +1180,6 @@ quotes.  Easiest to avoid spaces and keep your files in the current working
 directory...  Example:
 
     kf.exe -s settings.kfs -l location.kfr -p out.png -j out.jpg -m out.kfb
+
+Use `--log info` to disable the status updates, use `--log warn` to output only
+important messages.  The default is `--log status`.
