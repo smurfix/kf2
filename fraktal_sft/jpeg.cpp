@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <string>
-#define HAVE_PROTOTYPES
 extern "C"
 {
 #include <jpeglib.h>

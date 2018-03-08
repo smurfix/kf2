@@ -33,7 +33,6 @@ Feedback:
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
-- minimizing window during command line rendering corrupts image
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
 - translating location while reuse reference is active leads to bad images
@@ -44,7 +43,7 @@ Feedback:
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
-- lines in the rendering (reported by CFJH)
+- lines in the rendering (reported by CFJH and gerrit)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - "resume zoom sequence" assumes "zoom size" is an integer
@@ -135,6 +134,7 @@ Feedback:
     - Gaussian jitter available as an option
     - jitter scale factor setting (suggested by gerrit)
     - log verbosity flag for command line rendering
+    - upgrade to libjpeg6b2 <http://jpegclub.org/support/>
 
 - **kf-2.12.10** (2018-02-22)
 
@@ -466,10 +466,6 @@ Feedback:
 - zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - properly debug huge zoom values from size estimate
-
-### Libraries
-
-- upgrade to libjpeg6b2 <http://jpegclub.org/support/>
 
 ### Preprocessor
 
