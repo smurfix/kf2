@@ -41,6 +41,8 @@ private:
   bool m_NoReuseCenter;
   int m_IsolatedGlitchNeighbourhood;
   int m_JitterSeed;
+  int m_JitterShape;
+  double m_JitterScale;
 
 public:
 
@@ -75,6 +77,8 @@ public:
   , m_NoReuseCenter(false)
   , m_IsolatedGlitchNeighbourhood(0)
   , m_JitterSeed(0)
+  , m_JitterShape(0)
+  , m_JitterScale(1)
   { };
 
   bool FromText(const std::string &text);
@@ -181,6 +185,11 @@ public:
   inline int    GetJitterSeed() const { return m_JitterSeed; };
   inline void   SetJitterSeed(int n) { m_JitterSeed = n; };
 
+  inline int    GetJitterShape() const { return m_JitterShape; };
+  inline void   SetJitterShape(int n) { m_JitterShape = 0 <= n && n <= 1 ? n : 0; };
+
+  inline double GetJitterScale() const { return m_JitterScale; };
+  inline void   SetJitterScale(double n) { m_JitterScale = n; };
 };
 
 #endif

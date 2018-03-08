@@ -190,6 +190,33 @@ static void RefreshJitterSeed(HWND hWnd)
 	g_SFT.SetJitterSeed(i);
 }
 
+static void UpdateJitterScale(HWND hWnd)
+{
+	double f = g_SFT.GetJitterScale();
+	char szTmp[40];
+	snprintf(szTmp,40,"%g",f);
+	SetDlgItemText(hWnd,IDC_JITTERSCALE,szTmp);
+}
+
+static void RefreshJitterScale(HWND hWnd)
+{
+	char szTmp[40];
+	GetDlgItemText(hWnd,IDC_JITTERSCALE,szTmp,sizeof(szTmp));
+	double f = atof(szTmp);
+	g_SFT.SetJitterScale(f > 0 ? f : 1);
+}
+
+static void UpdateJitterShape(HWND hWnd)
+{
+	int i = g_SFT.GetJitterShape();
+	SendDlgItemMessage(hWnd,IDC_JITTERSHAPE,BM_SETCHECK,i != 0,0);
+}
+
+static void RefreshJitterShape(HWND hWnd)
+{
+	g_SFT.SetJitterShape(SendDlgItemMessage(hWnd,IDC_JITTERSHAPE,BM_GETCHECK,0,0) ? 1 : 0);
+}
+
 static void UpdateReal(HWND hWnd)
 {
 	bool b = g_real != 0;
@@ -318,13 +345,15 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			EnableWindow(GetDlgItem(hWnd,IDC_CHECK2),nType==0 && g_SFT.GetPower()==2);
 			EnableWindow(GetDlgItem(hWnd,IDC_COMBO6),nType==0 && g_SFT.GetPower()==2);
 
-			UpdateJitterSeed(hWnd);
 			UpdateReal(hWnd);
 			UpdateImag(hWnd);
 			UpdateSeedR(hWnd);
 			UpdateSeedI(hWnd);
 			UpdateFactorAR(hWnd);
 			UpdateFactorAI(hWnd);
+			UpdateJitterSeed(hWnd);
+			UpdateJitterScale(hWnd);
+			UpdateJitterShape(hWnd);
 		}
 		int nMin, nMax, nCalc=0,nType=0;
 
@@ -345,6 +374,8 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(wParam==IDOK){
 			g_bExamineDirty=TRUE;
 			RefreshJitterSeed(hWnd);
+			RefreshJitterShape(hWnd);
+			RefreshJitterScale(hWnd);
 			RefreshReal(hWnd);
 			RefreshImag(hWnd);
 			RefreshSeedR(hWnd);
@@ -426,6 +457,10 @@ extern const char *IterationToolTip(int nID)
     return "Include imaginary part when checking bailout.\nUncheck for variation";
   case IDC_JITTERSEED:
     return "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter";
+  case IDC_JITTERSCALE:
+    return "Pixel jitter amount\nDefault 1.0";
+  case IDC_JITTERSHAPE:
+    return "Select checkbox to use Gaussian jitter\nUncheck for uniform";
   case 1002:
     return "Real seed value (0 is standard)";
   case 1003:
