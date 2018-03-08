@@ -4596,16 +4596,16 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	else
 	{
 		// prepare
-		std::cout << "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen" << std::endl;
+		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen");
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
 			g_szFile = g_args->sLoadSettings;
-			std::cout << "loading settings " << g_szFile << std::endl;
+			output_log_message(Info, "loading settings " << g_szFile);
 			OpenSettings(nullptr, ret);
 			if (ret)
 			{
-				std::cout << "loading settings " << g_szFile << " FAILED" << std::endl;
+				output_log_message(Error, "loading settings " << g_szFile << " FAILED");
 				return 1;
 			}
 		}
@@ -4613,19 +4613,22 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			bool ret;
 			g_szFile = g_args->sLoadLocation;
-			std::cout << "loading location " << g_szFile << std::endl;
+			output_log_message(Info, "loading location " << g_szFile);
 			OpenFile(nullptr, ret);
 			if (ret)
 			{
-				std::cout << "loading location " << g_szFile << " FAILED" << std::endl;
+				output_log_message(Error, "loading location " << g_szFile << " FAILED");
 				return 1;
 			}
 		}
-		std::cout << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
+		output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
 		// render the image (add reference calls render fractal...)
-		HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-		CloseHandle(hProgress);
-		std::cout << "reference " << 1 << std::endl;
+		if (LogLevel_Status >= g_log_level)
+		{
+			HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
+			CloseHandle(hProgress);
+		}
+		output_log_message(Info, "reference " << 1);
 		g_SFT.m_bInhibitColouring = TRUE;
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
@@ -4634,42 +4637,42 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			int n = g_SFT.FindCenterOfGlitch(x, y);
 			if (! n)
 			{
-				std::cout << "no more glitches" << std::endl;
+				output_log_message(Info, "no more glitches");
 				break;
 			}
-			std::cout << "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " " << std::endl;
+			output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
 			g_SFT.AddReference(x, y);
 		}
 		ThReportProgress_running = false;
-		std::cout << "colouring final image" << std::endl;
+		output_log_message(Info, "colouring final image");
 		g_SFT.m_bInhibitColouring = FALSE;
 		g_SFT.ApplyColors();
     //  save the result
     bool ok = true;
 		if (g_args->bSavePNG)
 		{
-			std::cout << "saving PNG " << g_args->sSavePNG << std::endl;
+			output_log_message(Info, "saving PNG " << g_args->sSavePNG);
 			if (! g_SFT.SaveJpg(g_args->sSavePNG, -1))
 			{
 				ok = false;
-				std::cout << "saving JPG " << g_args->sSavePNG << " FAILED" << std::endl;
+				output_log_message(Error, "saving PNG " << g_args->sSavePNG << " FAILED");
 			}
 		}
 		if (g_args->bSaveJPG)
 		{
-			std::cout << "saving JPG " << g_args->sSaveJPG << std::endl;
+			output_log_message(Info, "saving JPG " << g_args->sSaveJPG);
 			if (! g_SFT.SaveJpg(g_args->sSaveJPG, 100))
 			{
 				ok = false;
-				std::cout << "saving JPG " << g_args->sSaveJPG << " FAILED" << std::endl;
+				output_log_message(Error, "saving JPG " << g_args->sSaveJPG << " FAILED");
 			}
 		}
 		if (g_args->bSaveMap)
 		{
-			std::cout << "saving KFB " << g_args->sSaveMap << std::endl;
+			output_log_message(Info, "saving KFB " << g_args->sSaveMap);
 			g_SFT.SaveMapB(g_args->sSaveMap);
 		}
-		std::cout << "all done, exiting" << std::endl;
+		output_log_message(Info, "all done, exiting");
 		return ok ? 0 : 1;
 	}
 

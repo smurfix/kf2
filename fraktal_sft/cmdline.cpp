@@ -2,6 +2,8 @@
 #include <vector>
 #include <cctype>
 
+LogLevel g_log_level = LogLevel_Status;
+
 static std::vector<std::string> SplitCommandLine(const std::string&commandline)
 {
 	std::vector<std::string> args;
@@ -131,6 +133,23 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 				bError = true;
 			}
 		}
+		else if ("--log" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				if ("debug" == args[i]) g_log_level = LogLevel_Debug;
+				else if ("status" == args[i]) g_log_level = LogLevel_Status;
+				else if ("info" == args[i]) g_log_level = LogLevel_Info;
+				else if ("warn" == args[i]) g_log_level = LogLevel_Warn;
+				else if ("error" == args[i]) g_log_level = LogLevel_Error;
+				else bError = true;
+			}
+			else
+			{
+				bError = true;
+			}
+		}
 		else if ("-v" == args[i] || "-V" == args[i] || "--version" == args[i])
 		{
 			bVersion = true;
@@ -153,6 +172,8 @@ const std::string usage =
 "    -p, --save-png      [FILE.png]  save PNG\n"
 "    -j, --save-jpg      [FILE.jpg]  save JPEG\n"
 "    -m, --save-map      [FILE.kfb]  save KFB\n"
+"    --log (debug|status|info|warn|error)\n"
+"                                    logging verbosity\n"
 "    -v, -V, --version               show version\n"
 "    -h, -H, -?, --help              show this help\n"
 ;
