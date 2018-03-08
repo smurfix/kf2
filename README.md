@@ -21,8 +21,8 @@ This version:
 
 Feedback:
 
-- <https://fractalforums.org/kalles-fraktaler/15> new forum (still in beta)
-- <http://www.fractalforums.com/kalles-fraktaler/> legacy forum
+- <https://fractalforums.org/kalles-fraktaler/15> current forum
+- <http://www.fractalforums.com/kalles-fraktaler/> legacy forum (read only)
 - <mailto:claude@mathr.co.uk?subject=Kalles%20Fraktaler%202> personal mail
 
 
