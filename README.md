@@ -140,6 +140,7 @@ Feedback:
     - jitter scale factor setting (suggested by gerrit)
     - log verbosity flag for command line rendering
     - upgrade to libjpeg6b2 <http://jpegclub.org/support/>
+    - fix bug where Ctrl-S would overwrite the wrong file (reported by gerrit)
 
 - **kf-2.12.10** (2018-02-22)
 

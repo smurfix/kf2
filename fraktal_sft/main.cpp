@@ -218,6 +218,7 @@ BOOL g_bRunning=FALSE;
 HWND g_hwHair;
 HWND g_hwColors=NULL;
 std::string g_szFile;
+std::string g_szSettingsFile;
 
 extern double GetDlgItemFloat(HWND hWnd,int nID)
 {
@@ -981,9 +982,9 @@ static int ResumeZoomSequence(HWND hWnd)
 	if(!g_SFT.OpenFile(g_szFile))
 		return MessageBox(hWnd,"Could not open file","Error",MB_OK|MB_ICONSTOP);
 	g_SFT.StoreLocation();
-	g_szFile = replace_path_filename(g_szFile, "*_*.jpg");
+	std::string File = replace_path_filename(g_szFile, "*_*.jpg");
 	WIN32_FIND_DATA fd;
-	HANDLE hFind = FindFirstFile(g_szFile.c_str(),&fd);
+	HANDLE hFind = FindFirstFile(File.c_str(),&fd);
 	int countJpg = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomJpg=1;
@@ -994,8 +995,8 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomJpg=0;
-	g_szFile = replace_path_filename(g_szFile, "*_*.png");
-	hFind = FindFirstFile(g_szFile.c_str(),&fd);
+	File = replace_path_filename(g_szFile, "*_*.png");
+	hFind = FindFirstFile(File.c_str(),&fd);
 	int countPng = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomPng=1;
@@ -1006,8 +1007,8 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomPng=0;
-	g_szFile = replace_path_filename(g_szFile, "*_*.kfb");
-	hFind = FindFirstFile(g_szFile.c_str(),&fd);
+	File = replace_path_filename(g_szFile, "*_*.kfb");
+	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomMap=1;
 	}
@@ -1019,8 +1020,8 @@ static int ResumeZoomSequence(HWND hWnd)
 	if(hFind!=INVALID_HANDLE_VALUE){
 		do{
 			countMap++;
-			g_szFile = replace_path_filename(g_szFile, fd.cFileName);
-			stExamine.push_back(g_szFile);
+			File = replace_path_filename(g_szFile, fd.cFileName);
+			stExamine.push_back(File);
 		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
 	}
@@ -1028,19 +1029,19 @@ static int ResumeZoomSequence(HWND hWnd)
 	std::reverse(stExamine.begin(), stExamine.end());
 	BOOL bRecoveryFile=FALSE;
 
-	g_szFile = replace_path_filename(g_szFile, "recovery.kfb");
-	hFind = FindFirstFile(g_szFile.c_str(),&fd);
+	File = replace_path_filename(g_szFile, "recovery.kfb");
+	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		FindClose(hFind);
-		g_SFT.OpenMapB(g_szFile);
+		g_SFT.OpenMapB(File);
 		bRecoveryFile=TRUE;
 	}
 	else{
-		g_szFile = replace_path_filename(g_szFile, "last.kfb");
-		hFind = FindFirstFile(g_szFile.c_str(),&fd);
+		File = replace_path_filename(g_szFile, "last.kfb");
+		hFind = FindFirstFile(File.c_str(),&fd);
 		if(hFind!=INVALID_HANDLE_VALUE){
 			FindClose(hFind);
-			g_SFT.OpenMapB(g_szFile);
+			g_SFT.OpenMapB(File);
 			bRecoveryFile=FALSE;
 		}
 		else{
@@ -1435,14 +1436,14 @@ static void SaveZoomImg(const std::string &szFile, const std::string &comment)
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
-		g_szFile = replace_path_filename(g_szFile, "recovery.kfb");
+		std::string File = replace_path_filename(g_szFile, "recovery.kfb");
 		if(uMsg==WM_USER+199)
-			DeleteFile(g_szFile.c_str());
+			DeleteFile(File.c_str());
 		else{
 			g_nHandleDone++;
 			if(g_nHandleDone>60){
 				g_nHandleDone=0;
-				g_SFT.SaveMapB(g_szFile);
+				g_SFT.SaveMapB(File);
 			}
 		}
 	}
@@ -1531,26 +1532,26 @@ nPos=12;
 nPos=13;
 			std::string szZ = g_SFT.ToZoom();
 			if(g_bStoreZoomJpg){
-				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
+				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
 				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(g_szFile, "KF2");
+					SaveZoomImg(File, "KF2");
 				else
-					g_SFT.SaveJpg(g_szFile,100);
+					g_SFT.SaveJpg(File,100);
 			}
 			if(g_bStoreZoomPng){
-				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
+				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
 				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(g_szFile, "KF2");
+					SaveZoomImg(File, "KF2");
 				else
-					g_SFT.SaveJpg(g_szFile,-1);
+					g_SFT.SaveJpg(File,-1);
 			}
-				g_szFile = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
+			std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
-				g_SFT.SaveMapB(g_szFile);
+				g_SFT.SaveMapB(File);
 
-			g_szFile = replace_path_filename(g_szFile, "last.kfb");
+			File = replace_path_filename(g_szFile, "last.kfb");
 			if(!g_bAnimateEachFrame && !g_bStoreZoomMap)
-				g_SFT.SaveMapB(g_szFile);
+				g_SFT.SaveMapB(File);
 nPos=14;
 			g_bStoreZoom++;
 			g_nStoreZoomCount++;
@@ -2451,7 +2452,7 @@ static long OpenSettings(HWND hWnd, bool &ret)
 {
 				g_SFT.Stop();
 				g_bAnim=false;
-				if(!g_SFT.OpenSettings(g_szFile))
+				if(!g_SFT.OpenSettings(g_szSettingsFile))
 				{
 					ret = true;
 					if (hWnd)
@@ -2567,8 +2568,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadSettings;
-			std::cerr << "loading settings: " << g_szFile << std::endl;
+			g_szSettingsFile = g_args->sLoadSettings;
+			std::cerr << "loading settings: " << g_szSettingsFile << std::endl;
 			OpenSettings(hWnd, ret);
 		}
 		if (g_args->bLoadLocation)
@@ -3539,8 +3540,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
-		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0\0",g_szFile))
-			g_SFT.SaveMapB(g_szFile);
+		std::string file = "";
+		if(BrowseFile(hWnd,FALSE,"Save Map","Kalle's fraktaler\0*.kfb\0\0",file))
+			g_SFT.SaveMapB(file);
 	}
 	else if(uMsg==WM_COMMAND && (wParam==ID_FILE_STOREZOOMOUTIMAGES)){
 		if(g_SFT.GetZoomSize()!=2 && MessageBox(hWnd,"The Zoom size is not 2, do you want to proceed?\n\nTo preserve quality the lowest Zoom size is recommended.","Kalle's Fraktaler",MB_OKCANCEL)==IDCANCEL)
@@ -3564,14 +3566,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_STOREZOOM),hWnd,(DLGPROC)StoreZoomProc,0))
 			return 0;
-		g_szFile = get_filename_path(g_szFile);
-		if(!Browse(hWnd,g_szFile))
+		std::string path = get_filename_path(g_szFile);
+		if(!Browse(hWnd,path))
 			return 0;
-		if (g_szFile[g_szFile.length() - 1] != '\\')
-			g_szFile += "\\";
+		if (path[path.length() - 1] != '\\')
+			path += "\\";
 		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
-		std::string szFile = g_szFile;
+		std::string szFile = path;
 		szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		while(FileExists(szFile)){
 			g_bStoreZoom++;
@@ -4217,15 +4219,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
-			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile)){
+			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szSettingsFile)){
 				bool ret;
 				long r = OpenSettings(hWnd, ret);
 				if (ret) return r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVESETTINGS){
-			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szFile)){
-				if(!g_SFT.SaveSettings(g_szFile))
+			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szSettingsFile)){
+				if(!g_SFT.SaveSettings(g_szSettingsFile))
 					return MessageBox(hWnd,"Could not save settings","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
@@ -4600,12 +4602,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadSettings;
-			output_log_message(Info, "loading settings " << g_szFile);
+			g_szSettingsFile = g_args->sLoadSettings;
+			output_log_message(Info, "loading settings " << g_szSettingsFile);
 			OpenSettings(nullptr, ret);
 			if (ret)
 			{
-				output_log_message(Error, "loading settings " << g_szFile << " FAILED");
+				output_log_message(Error, "loading settings " << g_szSettingsFile << " FAILED");
 				return 1;
 			}
 		}
