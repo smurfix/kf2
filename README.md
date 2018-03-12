@@ -43,7 +43,6 @@ Feedback:
   the skinniest part very quickly"
 - non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
   depend on zoom level) (reported by Foxxie)
-- lines in the rendering (reported by CFJH and gerrit)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - "resume zoom sequence" assumes "zoom size" is an integer
@@ -157,6 +156,9 @@ Feedback:
     - log verbosity flag for command line rendering
     - upgrade to libjpeg6b2 <http://jpegclub.org/support/>
     - fix bug where Ctrl-S would overwrite the wrong file (reported by gerrit)
+    - fix bug where lines would appear aligned with references (reported by
+      gerrit and CFJH)
+
 
 - **kf-2.12.10** (2018-02-22)
 
