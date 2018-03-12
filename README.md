@@ -28,6 +28,8 @@ Feedback:
 
 ## Known Bugs
 
+- Windows Defender sometimes reports that KF contains malware
+  (false positive, I hope - I check with virustotal.com and all seems fine)
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
