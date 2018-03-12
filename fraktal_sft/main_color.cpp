@@ -55,7 +55,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7)){
 			g_SFT.SetMW(SendDlgItemMessage(hWnd,IDC_CHECK6,BM_GETCHECK,0,0),SendDlgItemMessage(hWnd,IDC_CHECK7,BM_GETCHECK,0,0));
 			g_AutoUpdate++;
-			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
 		else{
@@ -356,7 +356,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 		{
 			g_AutoUpdate++;
-			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON1){
@@ -478,7 +478,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
 			g_AutoUpdate++;
-			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON18){
@@ -505,7 +505,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
 			g_AutoUpdate++;
-			PostMessage(hWnd,WM_COMMAND,IDOK,0);
+			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON22){
@@ -619,7 +619,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SendMessage(hWnd,WM_USER+99,0,0);
 				if (g_AutoColour) g_SFT.ApplyColors();
 				g_AutoUpdate++;
-				PostMessage(hWnd,WM_COMMAND,IDOK,0);
+				SendMessage(hWnd,WM_COMMAND,IDOK,0);
 				g_AutoUpdate--;
 			}
 		}
@@ -1026,7 +1026,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	if(uMsg==WM_COMMAND && (wParam==IDC_BUTTON26 || wParam==IDC_BUTTON27 || wParam==IDC_BUTTON28))
 	{
 		g_AutoUpdate++;
-		PostMessage(hWnd,WM_COMMAND,IDOK,0);
+		SendMessage(hWnd,WM_COMMAND,IDOK,0);
 		g_AutoUpdate--;
 	}
 	return 0;
