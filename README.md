@@ -149,7 +149,7 @@ Feedback:
       (minor optimisation)
     - default settings are best-quality by default
 
-- **kf-2.12.11** (????-??-??)
+- **kf-2.12.11** (2018-03-12)
 
     - uniform jitter by default (suggested by gerrit)
     - Gaussian jitter available as an option
