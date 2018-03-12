@@ -344,6 +344,12 @@ public:
 	}
 	inline long double toLongDouble() const
 	{
+		if (val == 0.0L)
+			return 0.0L;
+		if (exp >= INT_MAX)
+			return (val / 0.0L); // infinity
+		if (exp <= INT_MIN)
+			return (val * 0.0L); // zero
 		return std::ldexp((long double) val, exp);
 	}
 	inline long double toLongDouble(int nScaling) const
@@ -429,6 +435,12 @@ inline long double mpfr_get_ld(const mpfr_t value)
 	using std::ldexp;
 	signed long int e = 0;
 	long double l = mpfr_get_ld_2exp(&e, value, MPFR_RNDN);
+	if (l == 0.0L)
+		return 0.0L;
+	if (e >= INT_MAX)
+		return l / 0.0L;
+	if (e <= INT_MIN)
+		return l * 0.0L;
 	l = ldexp(l, e);
 	return l;
 }
