@@ -75,7 +75,8 @@ Feedback:
 - **In version `kf-2.12.10` only** the jitter is "Gaussian" with no way of
   changing the shape.  In `2.12.11` and above, the shape can be changed, and
   the default is now "uniform".  Earlier versions (including upstream `2.11.1`
-  do not support jitter at all.
+  do not support jitter at all.  To get the same results as `2.12.10` you must
+  enable the Gaussian jitter checkbox and set the jitter scale box to 1.
 
 - **In version `kf-2.12.1` and above**, DE colouring method #5 is once again
   backwards compatible with upstream `2.11.1`.  Parameter files made with
