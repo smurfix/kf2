@@ -18,7 +18,7 @@ static BOOL g_bCaptureMouse=FALSE;
 static BOOL g_bInitColorDialog=FALSE;
 static CListBoxEdit *g_pWaves=NULL;
 static BOOL g_AutoColour = TRUE;
-static BOOL g_AutoUpdate = FALSE;
+static int g_AutoUpdate = 0;
 
 extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -273,7 +273,12 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if (wParam == IDC_AUTOCOLOUR)
 		{
 			g_AutoColour = SendDlgItemMessage(hWnd, IDC_AUTOCOLOUR, BM_GETCHECK, 0, 0);
-			if (g_AutoColour) SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+			if (g_AutoColour)
+			{
+				g_AutoUpdate++;
+				SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+				g_AutoUpdate--;
+			}
 		}
 		else if(wParam==IDOK){
 			char szTexture[1024];
@@ -339,9 +344,12 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			g_SFT.SetSlopes(SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0),GetDlgItemInt(hWnd,IDC_EDIT20,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT21,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT22,NULL,TRUE));
 
-			if (g_AutoColour || ! g_AutoUpdate) g_SFT.ApplyColors();
-			InvalidateRect(GetParent(hWnd),NULL,FALSE);
-			UpdateWindow(GetParent(hWnd));
+			if (g_AutoColour || ((! g_AutoColour) && g_AutoUpdate == 0))
+			{
+				g_SFT.ApplyColors();
+				InvalidateRect(GetParent(hWnd),NULL,FALSE);
+				UpdateWindow(GetParent(hWnd));
+			}
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
 		}
