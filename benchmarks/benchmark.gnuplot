@@ -54,45 +54,61 @@ plot [0.5:5e7] \
   0 t "5×10^{113}\t24086\t20060"   lc 7 dt 20 lw 10 w l, \
   0 t "1×10^{14}\t1070\t\t297"     lc 6 dt 20 lw 10 w l, \
   0 t "software\t\t\tthreshold" lc rgb "white" dt 30 lw 10 w l, \
-  0 t "mandelbrot-perturbator\t1×10^{-3}"  w lp lc 0 dt 1 lw 1 pt 9, \
-  0 t "mandelbrot-perturbator\t1×10^{-6}"  w lp lc 0 dt 1 lw 1 pt 10 ps 4.25, \
+  0 t "Kalles Fraktaler 2.12.11\tbest"  w lp lc 0 dt 1 lw 1 pt 9, \
+  0 t "Kalles Fraktaler 2.12.11\tfast"  w lp lc 0 dt 1 lw 1 pt 10 ps 4.25, \
   0 t "Kalles Fraktaler 2.12.5\t3×10^{-4}" w lp lc 0 dt 2 lw 2 pt 13, \
   0 t "Kalles Fraktaler 2.12.5\t1×10^{-7}" w lp lc 0 dt 2 lw 2 pt 4, \
   0 t "MDZ 0.1.3\t\t\tn/a"                      w lp lc 0 dt 3 lw 1.5 pt 3, \
   "grid.log" t "" lt 0 lw 1 lc 0 w l, \
-  "1e1086_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 9 dt 1 w lp, \
-  "1e1086_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/1e1086_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)  t "" lc 1 pt 9  dt 1 w lp, \
+  "kf-2.12.11/1e1086_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)  t "" lc 1 pt 10 ps 4.25 dt 1 w lp, \
   "1e1086_kf1.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 13 dt 2 lw 2 w lp, \
   "1e1086_kf0.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 4 dt 2 lw 2 w lp, \
   "1e1086_mdz.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 3 dt 3 lw 1.5 w lp, \
   "1e1086_mdz_extrapolate.log" u ($1**2):($2) t "" lc 1 dt 10 lw 0.5 w l, \
-  "5e227_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 9 dt 1 w lp, \
-  "5e227_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/5e227_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)  t "" lc 2 pt 9  dt 1 w lp, \
+  "kf-2.12.11/5e227_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)  t "" lc 2 pt 10 ps 4.25 dt 1 w lp, \
   "5e227_kf1.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 13 dt 2 lw 2 w lp, \
   "5e227_kf0.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 4 dt 2 lw 2 w lp, \
   "5e227_mdz.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 3 dt 3 lw 1.5 w lp, \
   "5e227_mdz_extrapolate.log" u ($1**2):($2) t "" lc 2 dt 10 lw 0.5 w l, \
-  "4e533_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 9 dt 1 w lp, \
-  "4e533_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/4e533_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 3 pt 9  dt 1 w lp, \
+  "kf-2.12.11/4e533_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 3 pt 10 ps 4.25 dt 1 w lp, \
   "4e533_kf1.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 13 dt 2 lw 2 w lp, \
   "4e533_kf0.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 4 dt 2 lw 2 w lp, \
   "4e533_mdz.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 3 dt 3 lw 1.5 w lp, \
   "4e533_mdz_extrapolate.log" u ($1**2):($2) t "" lc 3 dt 10 lw 0.5 w l, \
-  "1e50_mp3.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 9 dt 1 w lp, \
-  "1e50_mp6.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/1e50_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 4 pt 9  dt 1 w lp, \
+  "kf-2.12.11/1e50_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 4 pt 10 ps 4.25 dt 1 w lp, \
   "1e50_kf1.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 13 dt 2 lw 2 w lp, \
   "1e50_kf0.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 4 dt 2 lw 2 w lp, \
   "1e50_mdz.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 3 dt 3 lw 1.5 w lp, \
   "1e50_mdz_extrapolate.log" u ($1**2):($2)  t "" lc 4 dt 10 lw 0.5 w l, \
-  "5e113_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 9 dt 1 w lp, \
-  "5e113_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/5e113_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 7 pt 9  dt 1 w lp, \
+  "kf-2.12.11/5e113_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 7 pt 10 ps 4.25 dt 1 w lp, \
   "5e113_kf1.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 13 dt 2 lw 2 w lp, \
   "5e113_kf0.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 4 dt 2 lw 2 w lp, \
   "5e113_mdz.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 3 dt 3 lw 1.5 w lp, \
   "5e113_mdz_extrapolate.log" u ($1**2):($2) t "" lc 7 dt 10 lw 0.5 w l, \
-  "1e14_mp3.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 9 dt 1 w lp, \
-  "1e14_mp6.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 10 ps 4.25 dt 1 w lp, \
+  "kf-2.12.11/1e14_best.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 6 pt 9  dt 1 w lp, \
+  "kf-2.12.11/1e14_fast.log" u ($1**2):(($4+$5)/$1**2 * 3.0/2.3)   t "" lc 6 pt 10 ps 4.25 dt 1 w lp, \
   "1e14_kf1.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 13 dt 2 lw 2 w lp, \
   "1e14_kf0.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 4 dt 2 lw 2 w lp, \
   "1e14_mdz.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 3 dt 3 lw 1.5 w lp, \
   "1e14_mdz_extrapolate.log" u ($1**2):($2)  t "" lc 6 dt 10 lw 0.5 w l \
+
+#  0 t "mandelbrot-perturbator\t1×10^{-3}"  w lp lc 0 dt 1 lw 1 pt 9, \
+#  0 t "mandelbrot-perturbator\t1×10^{-6}"  w lp lc 0 dt 1 lw 1 pt 10 ps 4.25, \
+#  "1e1086_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 9 dt 1 w lp, \
+#  "1e1086_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 1 pt 10 ps 4.25 dt 1 w lp, \
+#  "5e227_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 9 dt 1 w lp, \
+#  "5e227_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 2 pt 10 ps 4.25 dt 1 w lp, \
+#  "4e533_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 9 dt 1 w lp, \
+#  "4e533_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 3 pt 10 ps 4.25 dt 1 w lp, \
+#  "1e50_mp3.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 9 dt 1 w lp, \
+#  "1e50_mp6.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 4 pt 10 ps 4.25 dt 1 w lp, \
+#  "5e113_mp3.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 9 dt 1 w lp, \
+#  "5e113_mp6.log" u ($1**2):(($4+$5)/$1**2)  t "" lc 7 pt 10 ps 4.25 dt 1 w lp, \
+#  "1e14_mp3.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 9 dt 1 w lp, \
+#  "1e14_mp6.log" u ($1**2):(($4+$5)/$1**2)   t "" lc 6 pt 10 ps 4.25 dt 1 w lp, \
+
