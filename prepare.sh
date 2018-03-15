@@ -12,6 +12,7 @@ wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
+wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.4.tar.gz
 cp -avft ~/win32/src *z
 # gmp 64
 cd ~/win64/src
@@ -87,6 +88,22 @@ cd jpeg-6b2
 ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
+# gsl 64
+cd ~/win64/src
+tar xf gsl-*.tar.gz
+cd gsl-*/
+./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+make -j $NCPUS
+make install
+# make check # tmpfile() fails, https://bugs.winehq.org/show_bug.cgi?id=16948
+# gsl 32
+cd ~/win32/src
+tar xf gsl-*.tar.gz
+cd gsl-*/
+./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+# make check # tmpfile() fails, https://bugs.winehq.org/show_bug.cgi?id=16948
 # boost
 cd ~/win64/src
 7zr x boost*.7z

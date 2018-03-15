@@ -28,6 +28,7 @@
 #include "jpeg.h"
 #include "png.h"
 #include "main.h"
+#include "gradient.h"
 
 double g_real=1;
 double g_imag=1;
@@ -528,6 +529,7 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 
 static inline double sqr(double x) { return x * x; }
 static inline double hypot2(double x, double y) { return x * x + y * y; }
+static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
@@ -613,6 +615,15 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			// do the differencing
 			switch (m_nDifferences)
 			{
+			case Differences_Isotropic3x3:
+				{
+					double gx = 0;
+					double gy = 0;
+					compute_gradient(p, px, py, gx, gy);
+					double g = hypot1(gx, gy);
+					iter = g * 2.8284271247461903;
+				}
+				break;
 			case Differences_Central3x3:
 				{
 					// gerrit's central difference formula
@@ -2458,7 +2469,7 @@ void CFraktalSFT::SetPower(int nPower)
 void CFraktalSFT::SetDifferences(int nDifferences)
 {
 	if (nDifferences < 0) nDifferences = 0;
-	if (nDifferences > 3) nDifferences = 0;
+	if (nDifferences > 4) nDifferences = 0;
 	m_nDifferences = Differences(nDifferences);
 }
 Differences CFraktalSFT::GetDifferences()

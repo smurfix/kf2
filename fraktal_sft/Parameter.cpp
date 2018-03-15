@@ -110,7 +110,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	if (nID != -1)
 	{
 		int m = atoi(stParams[nID][1]);
-		if (m < 0 || m > 3)
+		if (m < 0 || m > 4)
 			m = 0;
 		m_nDifferences = Differences(m);
 	}
