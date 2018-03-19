@@ -52,6 +52,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/bitmap.h"
 #include <png.h>
 #include <zlib.h>
+#include <gsl/gsl_version.h>
 #include "jpeg.h"
 #include "png.h"
 #include "main.h"
@@ -4428,22 +4429,24 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bFindMinibrot=TRUE;
 		}
 		else if(wParam==ID_MENUITEM40025){
-			char szMsg[1024]; // this is the size limit for wsprintf, longer is truncated
+			char szMsg[4096];
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo( &sysinfo );  //©
-			wsprintf(szMsg,
+			snprintf(szMsg, 4000,
 				"version %s\n"
 				"©2013-2017 Karl Runmo\n"
-				"©2017-2018 Claude Heiland-Allen\n\n"
+				"©2017-2018 Claude Heiland-Allen\n"
+				"License: GNU AGPL v3+\n\n"
 				"Processors: %d\n"
 				"Compiled for %s\n"
 				"Precision: %d bits (%d decimal digits)\n"
 				"\nLibraries:\n"
-				"- JPEG 6b <http://ijg.org>\n"
+				"- JPEG 6b2 <http://jpegclub.org/support>\n"
 				"- PNG %s <http://libpng.org>\n"
 				"- ZLIB %s <http://zlib.net>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- MPFR %s <http://mpfr.org>\n"
+				"- GSL %s <http://www.gnu.org/software/gsl>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
@@ -4457,12 +4460,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				" - claude for Newton-Raphson method\n"
 				" - gerrit for differencing variations\n"
 				" - Dinkydau, Fractal universe, CFJH, Foxxie and others for bug reports\n"
-				" - Chillheimer for hosting my program\n\n"
-				"http://www.chillheimer.de/kallesfraktaler/\n\n"
-				"Claude also thanks Karl for releasing the source code.\n\n"
-				"https://mathr.co.uk/kf/kf.html",
+				" - Chillheimer for hosting <http://www.chillheimer.de/kallesfraktaler>\n"
+				" - Karl for releasing the source code under a Free Software license\n\n"
+				"Homepage: <https://mathr.co.uk/kf/kf.html>",
 				version.c_str(),
-				sysinfo.dwNumberOfProcessors,
+				int(sysinfo.dwNumberOfProcessors),
 				sizeof(void*)==4?"32-bit":"64-bit",
 				int(MPFR_PREC_MAX),
 				int(MPFR_PREC_MAX * log10(2.0)),
@@ -4470,9 +4472,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				zlib_version,
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
 				MPFR_VERSION_STRING,
+				GSL_VERSION,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 				);
-			szMsg[1024-1] = 0;
+			szMsg[4096-1] = 0;
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
 		}
 	}
