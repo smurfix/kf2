@@ -108,7 +108,7 @@ OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
 DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 
-all: kf.exe
+all: kf.exe kf-tile.exe
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
@@ -117,6 +117,9 @@ clean:
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
+
+kf-tile.exe: utils/kf-tile.o
+	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -ffast-math -lmpfr -lgmp
 
 res.o: fraktal_sft/fraktal_sft.rc
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
