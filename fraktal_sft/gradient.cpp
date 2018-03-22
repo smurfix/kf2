@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <gsl/gsl_linalg.h>
 
+#if 0
+
 // neighbourhood size
 #define S 8
 
@@ -176,6 +178,8 @@ extern void compute_gradient_3x3(const double p[3][3], const double px[3][3], co
   dy_out = y[1];
 }
 
+#endif
+
 extern void compute_gradient_2x2(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out)
 {
   // find weighted average of function values
@@ -211,6 +215,38 @@ extern void compute_gradient_2x2(const double p[3][3], const double px[3][3], co
   gsl_vector tau_v = { 2, 1, &tau[0], nullptr, 0 };
   gsl_vector x_v   = { 2, 1, &x[0], nullptr, 0 };
   gsl_vector e_v   = { 4, 1, &e[0], nullptr, 0 };
+  gsl_linalg_QR_decomp(&A_m, &tau_v);
+  gsl_linalg_QR_lssolve(&A_m, &tau_v, &b_v, &x_v, &e_v);
+  // output
+  dx_out = x[0];
+  dy_out = x[1];
+}
+
+extern void compute_gradient_3x3(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out)
+{
+  double p0 = p[1][1];
+  // initialize system A x = b for solving x = [ dF/dx ; dF/dy ]
+  double A[8][2];
+  double b[8];
+  int k = 0;
+  for (int i = 0; i < 3; ++i)
+    for (int j = 0; j < 3; ++j)
+    {
+      if (i == 1 && j == 1) continue;
+      A[k][0] = px[i][j] - px[1][1];
+      A[k][1] = py[i][j] - py[1][1];
+      b[k] = p[i][j] - p0;
+      ++k;
+    }
+  // least-squares solve overdetermined A x = b via QR decomposition
+  double tau[2] = { 0, 0 };
+  double x[2] = { 0, 0 };
+  double e[8] = { 0, 0, 0, 0, 0, 0, 0, 0 };
+  gsl_matrix A_m   = { 8, 2, 2, &A[0][0], nullptr, 0 };
+  gsl_vector b_v   = { 8, 1, &b[0], nullptr, 0 };
+  gsl_vector tau_v = { 2, 1, &tau[0], nullptr, 0 };
+  gsl_vector x_v   = { 2, 1, &x[0], nullptr, 0 };
+  gsl_vector e_v   = { 8, 1, &e[0], nullptr, 0 };
   gsl_linalg_QR_decomp(&A_m, &tau_v);
   gsl_linalg_QR_lssolve(&A_m, &tau_v, &b_v, &x_v, &e_v);
   // output
