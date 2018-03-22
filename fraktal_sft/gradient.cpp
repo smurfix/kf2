@@ -64,7 +64,7 @@ static void pinv(double out[S][S], const double in[S][S])
 }
 
 // https://stackoverflow.com/questions/40338386/calculating-a-3d-gradient-with-unevenly-spaced-points/40520133#40520133
-extern void compute_gradient(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out)
+extern void compute_gradient_3x3(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out)
 {
   // inputs
   double C[2] = { px[1][1], py[1][1] };
@@ -174,4 +174,46 @@ extern void compute_gradient(const double p[3][3], const double px[3][3], const 
   // output
   dx_out = y[0];
   dy_out = y[1];
+}
+
+extern void compute_gradient_2x2(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out)
+{
+  // find weighted average of function values
+  double num = 0, den = 0;
+  for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j)
+    {
+      double qx = px[i][j] + 0.5;
+      double qy = py[i][j] + 0.5;
+      double w = 1 / (qx * qx + qy * qy + 1e-100);
+      num += w * p[i][j];
+      den += w;
+    }
+  double p0 = num / den;
+  // initialize system A x = b for solving x = [ dF/dx ; dF/dy ]
+  double A[4][2];
+  double b[4];
+  int k = 0;
+  for (int i = 0; i < 2; ++i)
+    for (int j = 0; j < 2; ++j)
+    {
+      A[k][0] = px[i][j] + 0.5;
+      A[k][1] = py[i][j] + 0.5;
+      b[k] = p[i][j] - p0;
+      ++k;
+    }
+  // least-squares solve overdetermined A x = b via QR decomposition
+  double tau[2] = { 0, 0 };
+  double x[2] = { 0, 0 };
+  double e[4] = { 0, 0, 0, 0 };
+  gsl_matrix A_m   = { 4, 2, 2, &A[0][0], nullptr, 0 };
+  gsl_vector b_v   = { 4, 1, &b[0], nullptr, 0 };
+  gsl_vector tau_v = { 2, 1, &tau[0], nullptr, 0 };
+  gsl_vector x_v   = { 2, 1, &x[0], nullptr, 0 };
+  gsl_vector e_v   = { 4, 1, &e[0], nullptr, 0 };
+  gsl_linalg_QR_decomp(&A_m, &tau_v);
+  gsl_linalg_QR_lssolve(&A_m, &tau_v, &b_v, &x_v, &e_v);
+  // output
+  dx_out = x[0];
+  dy_out = x[1];
 }

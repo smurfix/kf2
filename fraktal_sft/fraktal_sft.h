@@ -182,7 +182,8 @@ enum Differences
 	Differences_Forward3x3 = 1,
 	Differences_Central3x3 = 2,
 	Differences_Diagonal2x2 = 3,
-	Differences_Isotropic3x3 = 4,
+	Differences_LeastSquares2x2 = 4,
+	Differences_LeastSquares3x3 = 5
 };
 
 class CFraktalSFT
