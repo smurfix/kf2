@@ -149,6 +149,10 @@ extern int main(int argc, char **argv)
   mpfr::default_precision(precision);
   mpfr re(lookup(kvv, "Re"));
   mpfr im(lookup(kvv, "Im"));
+  int colormethod = std::atoi(lookup(kvv, "ColorMethod").c_str());
+  double coloroffset = std::atof(lookup(kvv, "ColorOffset").c_str());
+  double iterdiv = std::atof(lookup(kvv, "IterDiv").c_str());
+  if (iterdiv == 0.0) iterdiv = 1.0;
   double rotate = std::atof(lookup(kvv, "Rotate").c_str());
   double co = cos(rotate);
   double si = sin(rotate);
@@ -167,6 +171,13 @@ extern int main(int argc, char **argv)
   else
     stem = filename.substr(0, ix);
   mpfr53 tzoom(zoom * factor);
+  update(kvv, "Zoom", scientific(tzoom));
+  if (colormethod == 7)
+  {
+    std::ostringstream tcoloroffset;
+    tcoloroffset << (coloroffset + log(factor) / iterdiv);
+    update(kvv, "ColorOffset", tcoloroffset.str());
+  }
   for (int j = 0; j < factor; ++j)
     for (int i = 0; i < factor; ++i)
     {
@@ -176,7 +187,7 @@ extern int main(int argc, char **argv)
       mpfr tim(im + mpfr(mpfr53(- si * x + co * y) / zoom));
       std::ostringstream o;
       o << stem << "-" << std::setfill('0') << std::setw(4) << j << "-" << std::setfill('0') << std::setw(4) << i << ".kfr";
-      write(o.str(), update(update(update(kvv, "Re", fixed(tre)), "Im", fixed(tim)), "Zoom", scientific(tzoom)));
+      write(o.str(), update(update(kvv, "Re", fixed(tre)), "Im", fixed(tim)));
     }
   return 0;
 }
