@@ -1,3 +1,22 @@
+/*
+Kalles Fraktaler 2
+Copyright (C) 2013-2017 Karl Runmo
+Copyright (C) 2017-2018 Claude Heiland-Allen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #include "main.h"
 #include "main_color.h"
 #include "fraktal_sft.h"
@@ -182,6 +201,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Forward 3x3");
 				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Central 3x3");
 				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Diagonal 2x2");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Least Squares 2x2");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Least Squares 3x3");
+				SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_ADDSTRING,0,(LPARAM)"Laplacian 3x3");
 			}
 
 			if(uMsg==WM_INITDIALOG){

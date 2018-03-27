@@ -1,4 +1,20 @@
 #!/bin/sh
+# Kalles Fraktaler 2
+# Copyright (C) 2013-2017 Karl Runmo
+# Copyright (C) 2017-2018 Claude Heiland-Allen
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
 NCPUS=8
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
@@ -12,6 +28,7 @@ wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
+wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.4.tar.gz
 cp -avft ~/win32/src *z
 # gmp 64
 cd ~/win64/src
@@ -87,6 +104,22 @@ cd jpeg-6b2
 ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
+# gsl 64
+cd ~/win64/src
+tar xf gsl-*.tar.gz
+cd gsl-*/
+./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+make -j $NCPUS
+make install
+# make check # tmpfile() fails, https://bugs.winehq.org/show_bug.cgi?id=16948
+# gsl 32
+cd ~/win32/src
+tar xf gsl-*.tar.gz
+cd gsl-*/
+./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+# make check # tmpfile() fails, https://bugs.winehq.org/show_bug.cgi?id=16948
 # boost
 cd ~/win64/src
 7zr x boost*.7z

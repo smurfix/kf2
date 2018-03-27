@@ -1,3 +1,22 @@
+/*
+Kalles Fraktaler 2
+Copyright (C) 2013-2017 Karl Runmo
+Copyright (C) 2017-2018 Claude Heiland-Allen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 // Kalles Fraktaler 2
 //
 // © 2014-2015 Karl Runmo ,runmo@hotmail.com
@@ -28,6 +47,7 @@
 #include "jpeg.h"
 #include "png.h"
 #include "main.h"
+#include "gradient.h"
 
 double g_real=1;
 double g_imag=1;
@@ -530,6 +550,7 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 
 static inline double sqr(double x) { return x * x; }
 static inline double hypot2(double x, double y) { return x * x + y * y; }
+static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 {
@@ -626,6 +647,44 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			// do the differencing
 			switch (m_nDifferences)
 			{
+			case Differences_Laplacian3x3:
+				{
+					// gerrit: Laplacian is proportional to g^2: https://fractalforums.org/kalles-fraktaler/15/gaussian-jitter-for-moire-reduction/891/msg5563#msg5563
+					double L = 0;
+					L +=  1 * p[0][0];
+					L +=  4 * p[0][1];
+					L +=  1 * p[0][2];
+					L +=  4 * p[1][0];
+					L -= 20 * p[1][1];
+					L +=  4 * p[1][2];
+					L +=  1 * p[2][0];
+					L +=  4 * p[2][1];
+					L +=  1 * p[2][2];
+					L /=  6;
+#define INV_LOG_2 1.4426950408889634
+					double g = sqrt(fabs(L * INV_LOG_2));
+#undef INV_LOG_2
+					iter = g * 2.8284271247461903;
+				}
+				break;
+			case Differences_LeastSquares3x3:
+				{
+					double gx = 0;
+					double gy = 0;
+					compute_gradient_3x3(p, px, py, gx, gy);
+					double g = hypot1(gx, gy);
+					iter = g * 2.8284271247461903;
+				}
+				break;
+			case Differences_LeastSquares2x2:
+				{
+					double gx = 0;
+					double gy = 0;
+					compute_gradient_2x2(p, px, py, gx, gy);
+					double g = hypot1(gx, gy);
+					iter = g * 2.8284271247461903;
+				}
+				break;
 			case Differences_Central3x3:
 				{
 					// gerrit's central difference formula
@@ -652,13 +711,36 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 					iter = g * 2.8284271247461903;
 				}
 				break;
-			case Differences_Diagonal2x2:
+			case Differences_Diagonal2x2: // aka Roberts Cross
 				{
 					// forward differencing in 2 diagonals of a 2x2 substencil
-					double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-					double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
-					double g = sqrt(gu + gv);
-					iter = g * 2.8284271247461903;
+					if (GetJitterSeed() == 0)
+					{
+						double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+						double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
+						double g = sqrt(gu + gv);
+						iter = g * 2.8284271247461903;
+					}
+					else
+					{
+						// with displacement correction by gerrit
+						double nux = px[0][0] - px[1][1];
+						double nuy = py[0][0] - py[1][1];
+						double nvx = px[1][0] - px[0][1];
+						double nvy = py[1][0] - py[0][1];
+						double nu = hypot1(nux, nuy);
+						double nv = hypot1(nvx, nvy);
+						nux /= nu;
+						nuy /= nu;
+						nvx /= nv;
+						nvy /= nv;
+						double u = (p[0][0] - p[1][1]) / nu;
+						double v = (p[1][0] - p[0][1]) / nv;
+						double dotnunv = nux * nvx + nuy * nvy;
+						double crossnunv = nux * nvy - nuy * nvx;
+						double g = sqrt((u * u + v * v - 2 * u * v * dotnunv) / sqr(crossnunv));
+						iter = g * 2.8284271247461903;
+					}
 				}
 				break;
 			case Differences_Traditional:
@@ -2471,7 +2553,7 @@ void CFraktalSFT::SetPower(int nPower)
 void CFraktalSFT::SetDifferences(int nDifferences)
 {
 	if (nDifferences < 0) nDifferences = 0;
-	if (nDifferences > 3) nDifferences = 0;
+	if (nDifferences > 6) nDifferences = 0;
 	m_nDifferences = Differences(nDifferences);
 }
 Differences CFraktalSFT::GetDifferences()

@@ -1,3 +1,20 @@
+# Kalles Fraktaler 2
+# Copyright (C) 2013-2017 Karl Runmo
+# Copyright (C) 2017-2018 Claude Heiland-Allen
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU Affero General Public License as
+# published by the Free Software Foundation, either version 3 of the
+# License, or (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU Affero General Public License for more details.
+#
+# You should have received a copy of the GNU Affero General Public License
+# along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 # make SYSTEM=64 for 64bit
 # make SYSTEM=32 for 32bit (experimental)
 SYSTEM ?= 64
@@ -7,7 +24,7 @@ FLAGS := -Wall -Wextra -Wno-missing-field-initializers -pipe -MMD -g -O3 -ffast-
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -19,6 +36,7 @@ fraktal_sft/floatexp_approximation.cpp \
 fraktal_sft/floatexp_perturbation.cpp \
 fraktal_sft/floatexp_reference.cpp \
 fraktal_sft/fraktal_sft.cpp \
+fraktal_sft/gradient.cpp \
 fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/long_double_perturbation.cpp \
@@ -42,6 +60,7 @@ fraktal_sft/colour.h \
 fraktal_sft/complex.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
+fraktal_sft/gradient.h \
 fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
 fraktal_sft/main.h \
@@ -89,7 +108,7 @@ OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
 DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 
-all: kf.exe
+all: kf.exe kf-tile.exe
 
 clean:
 	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
@@ -98,6 +117,9 @@ clean:
 
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
+
+kf-tile.exe: utils/kf-tile.o
+	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -ffast-math -lmpfr -lgmp
 
 res.o: fraktal_sft/fraktal_sft.rc
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o

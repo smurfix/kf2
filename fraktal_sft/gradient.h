@@ -17,12 +17,10 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef KF_MAIN_COLOR_H
-#define KF_MAIN_COLOR_H 1
+#ifndef KF_GRADIENT_H
+#define KF_GRADIENT_H 1
 
-#include <windows.h>
-
-extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-extern const char *ColorToolTip(int nID);
+extern void compute_gradient_3x3(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out);
+extern void compute_gradient_2x2(const double p[3][3], const double px[3][3], const double py[3][3], double &dx_out, double &dy_out);
 
 #endif

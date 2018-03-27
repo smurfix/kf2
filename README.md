@@ -715,7 +715,23 @@ Build instructions for compiling on Windows (thanks to knighty!):
 
 ## Legal
 
-- Copyright (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen
+Kalles Fraktaler 2
+Copyright (C) 2013-2017 Karl Runmo
+Copyright (C) 2017-2018 Claude Heiland-Allen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
 - this software is based in part on the work of the Independent JPEG Group
   <http://jpegclub.org/reference/libjpeg-license/>
 - the PNG library is used under the libpng license
@@ -739,9 +755,7 @@ LGPLv3 / GPLv2 license. If you redistribute the binaries you must also be
 prepared to distribute the source corresponding to those binaries to anyone you
 distribute the binary to. To make this easier for you, the more recent zips
 include the source too (though you'll also need to get the library
-sources). And of course insert here the usual legal disclaimers about
-**NO WARRANTY OF ANY KIND**.
-
+sources).
 
 ## Acknowledgements
 
@@ -758,7 +772,8 @@ Thanks to:
 - Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
-Claude also thanks Karl for releasing the source code.
+Claude also thanks Karl for releasing the source code and assigning a Free
+Software license.
 
 
 # User Manual
