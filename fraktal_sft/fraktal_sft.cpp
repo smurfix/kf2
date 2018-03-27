@@ -634,6 +634,26 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 			// do the differencing
 			switch (m_nDifferences)
 			{
+			case Differences_Laplacian3x3:
+				{
+					// gerrit: Laplacian is proportional to g^2: https://fractalforums.org/kalles-fraktaler/15/gaussian-jitter-for-moire-reduction/891/msg5563#msg5563
+					double L = 0;
+					L +=  1 * p[0][0];
+					L +=  4 * p[0][1];
+					L +=  1 * p[0][2];
+					L +=  4 * p[1][0];
+					L -= 20 * p[1][1];
+					L +=  4 * p[1][2];
+					L +=  1 * p[2][0];
+					L +=  4 * p[2][1];
+					L +=  1 * p[2][2];
+					L /=  6;
+#define INV_LOG_2 1.4426950408889634
+					double g = sqrt(fabs(L * INV_LOG_2));
+#undef INV_LOG_2
+					iter = g * 2.8284271247461903;
+				}
+				break;
 			case Differences_LeastSquares3x3:
 				{
 					double gx = 0;
@@ -2520,7 +2540,7 @@ void CFraktalSFT::SetPower(int nPower)
 void CFraktalSFT::SetDifferences(int nDifferences)
 {
 	if (nDifferences < 0) nDifferences = 0;
-	if (nDifferences > 5) nDifferences = 0;
+	if (nDifferences > 6) nDifferences = 0;
 	m_nDifferences = Differences(nDifferences);
 }
 Differences CFraktalSFT::GetDifferences()
