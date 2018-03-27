@@ -166,6 +166,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nZoom = 0;
 	m_nPixels = NULL;
 	m_nTrans = NULL;
+	m_nDE = NULL;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
@@ -176,9 +177,9 @@ CFraktalSFT::CFraktalSFT()
 
 	m_nBailout = SMOOTH_BAILOUT;
 	m_nBailout2 = m_nBailout*m_nBailout;
-	m_nSmoothMethod = SmoothMethod_DE;
-	m_nColorMethod = ColorMethod_Standard;
-	m_nDifferences = Differences_Traditional;
+	m_nSmoothMethod = SmoothMethod_Log;
+	m_nColorMethod = ColorMethod_DistanceLog;
+	m_nDifferences = Differences_Analytic;
 
 	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
 
@@ -188,7 +189,7 @@ CFraktalSFT::CFraktalSFT()
 	m_lpBits = NULL;
 	m_row = 0;
 	m_nMaxIter = 200;
-	m_nIterDiv = 1;
+	m_nIterDiv = 0.1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
 	m_nInflections=0;
@@ -565,17 +566,6 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	{
 		s.r = s.g = s.b = 1;
 	}
-	else if (m_nSmoothMethod == SmoothMethod_DE)
-	{
-		if (GET_TRANS_GLITCH(offs))
-		{
-			s.b = 1;
-		}
-		else
-		{
-			s.r = s.g = s.b = tanh(fmax(0, 0.5 * offs));
-		}
-	}
 	else{
 		double iter = (double)nIter + (double)1 - offs;
 		/*		if(1){//DE
@@ -612,148 +602,160 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		         m_nColorMethod == ColorMethod_DistanceLog ||
 		         m_nColorMethod == ColorMethod_DistanceSqrt){
 			iter=0;
-			// load 3x3 stencil around the pixel
-			int X = m_nX - 1;
-			int Y = m_nY - 1;
-			static const double ninf = 1.0 / 0.0;
-			double p[3][3] = { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
-			double px[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-			double py[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-			if (0 < x && 0 < y){p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];GetPixelOffset(x - 1, y - 1, px[0][0], py[0][0]); px[0][0] -= 1; py[0][0] -= 1;}
-			if (0 < x         ){p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];GetPixelOffset(x - 1, y    , px[0][1], py[0][1]); px[0][1] -= 1;               }
-			if (0 < x && y < Y){p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];GetPixelOffset(x - 1, y + 1, px[0][2], py[0][2]); px[0][2] -= 1; py[0][2] += 1;}
-			if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];GetPixelOffset(x    , y - 1, px[1][0], py[1][0]);                py[1][0] -= 1;}
-			                   {p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];GetPixelOffset(x    , y    , px[1][1], py[1][1]);                              }
-			if (         y < Y){p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];GetPixelOffset(x    , y + 1, px[1][2], py[1][2]);                py[1][2] += 1;}
-			if (x < X && 0 < y){p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];GetPixelOffset(x + 1, y - 1, px[2][0], py[2][0]); px[2][0] += 1; py[2][0] -= 1;}
-			if (x < X         ){p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];GetPixelOffset(x + 1, y    , px[2][1], py[2][1]); px[2][1] += 1;               }
-			if (x < X && y < Y){p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];GetPixelOffset(x + 1, y + 1, px[2][2], py[2][2]); px[2][2] += 1; py[2][2] += 1;}
-			// reflect at boundaries if necessary
-			// this will break (result is infinite or NaN) for image size of 1 pixel
-			p[1][1] *= 2.0;
-			px[1][1] *= 2.0;
-			py[1][1] *= 2.0;
-			if (ninf == p[0][0]) {p[0][0] = p[1][1] - p[2][2];px[0][0] = px[1][1] - px[2][2];py[0][0] = py[1][1] - py[2][2];}
-			if (ninf == p[0][1]) {p[0][1] = p[1][1] - p[2][1];px[0][1] = px[1][1] - px[2][1];py[0][1] = py[1][1] - py[2][1];}
-			if (ninf == p[0][2]) {p[0][2] = p[1][1] - p[2][0];px[0][2] = px[1][1] - px[2][0];py[0][2] = py[1][1] - py[2][0];}
-			if (ninf == p[1][0]) {p[1][0] = p[1][1] - p[1][2];px[1][0] = px[1][1] - px[1][2];py[1][0] = py[1][1] - py[1][2];}
-			if (ninf == p[1][2]) {p[1][2] = p[1][1] - p[1][0];px[1][2] = px[1][1] - px[1][0];py[1][2] = py[1][1] - py[1][0];}
-			if (ninf == p[2][0]) {p[2][0] = p[1][1] - p[0][2];px[2][0] = px[1][1] - px[0][2];py[2][0] = py[1][1] - py[0][2];}
-			if (ninf == p[2][1]) {p[2][1] = p[1][1] - p[0][1];px[2][1] = px[1][1] - px[0][1];py[2][1] = py[1][1] - py[0][1];}
-			if (ninf == p[2][2]) {p[2][2] = p[1][1] - p[0][0];px[2][2] = px[1][1] - px[0][0];py[2][2] = py[1][1] - py[0][0];}
-			p[1][1] *= 0.5;
-			px[1][1] *= 0.5;
-			py[1][1] *= 0.5;
-			// do the differencing
-			switch (m_nDifferences)
+			if (m_nDifferences == Differences_Analytic)
 			{
-			case Differences_Laplacian3x3:
+				iter = 0;
+				if (m_nDE)
+					iter = 1 / m_nDE[x][y];
+			}
+			else
+			{
+				// load 3x3 stencil around the pixel
+				int X = m_nX - 1;
+				int Y = m_nY - 1;
+				static const double ninf = 1.0 / 0.0;
+				double p[3][3] = { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
+				double px[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+				double py[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
+				if (0 < x && 0 < y){p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];GetPixelOffset(x - 1, y - 1, px[0][0], py[0][0]); px[0][0] -= 1; py[0][0] -= 1;}
+				if (0 < x         ){p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];GetPixelOffset(x - 1, y    , px[0][1], py[0][1]); px[0][1] -= 1;               }
+				if (0 < x && y < Y){p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];GetPixelOffset(x - 1, y + 1, px[0][2], py[0][2]); px[0][2] -= 1; py[0][2] += 1;}
+				if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];GetPixelOffset(x    , y - 1, px[1][0], py[1][0]);                py[1][0] -= 1;}
+				                   {p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];GetPixelOffset(x    , y    , px[1][1], py[1][1]);                              }
+				if (         y < Y){p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];GetPixelOffset(x    , y + 1, px[1][2], py[1][2]);                py[1][2] += 1;}
+				if (x < X && 0 < y){p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];GetPixelOffset(x + 1, y - 1, px[2][0], py[2][0]); px[2][0] += 1; py[2][0] -= 1;}
+				if (x < X         ){p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];GetPixelOffset(x + 1, y    , px[2][1], py[2][1]); px[2][1] += 1;               }
+				if (x < X && y < Y){p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];GetPixelOffset(x + 1, y + 1, px[2][2], py[2][2]); px[2][2] += 1; py[2][2] += 1;}
+				// reflect at boundaries if necessary
+				// this will break (result is infinite or NaN) for image size of 1 pixel
+				p[1][1] *= 2.0;
+				px[1][1] *= 2.0;
+				py[1][1] *= 2.0;
+				if (ninf == p[0][0]) {p[0][0] = p[1][1] - p[2][2];px[0][0] = px[1][1] - px[2][2];py[0][0] = py[1][1] - py[2][2];}
+				if (ninf == p[0][1]) {p[0][1] = p[1][1] - p[2][1];px[0][1] = px[1][1] - px[2][1];py[0][1] = py[1][1] - py[2][1];}
+				if (ninf == p[0][2]) {p[0][2] = p[1][1] - p[2][0];px[0][2] = px[1][1] - px[2][0];py[0][2] = py[1][1] - py[2][0];}
+				if (ninf == p[1][0]) {p[1][0] = p[1][1] - p[1][2];px[1][0] = px[1][1] - px[1][2];py[1][0] = py[1][1] - py[1][2];}
+				if (ninf == p[1][2]) {p[1][2] = p[1][1] - p[1][0];px[1][2] = px[1][1] - px[1][0];py[1][2] = py[1][1] - py[1][0];}
+				if (ninf == p[2][0]) {p[2][0] = p[1][1] - p[0][2];px[2][0] = px[1][1] - px[0][2];py[2][0] = py[1][1] - py[0][2];}
+				if (ninf == p[2][1]) {p[2][1] = p[1][1] - p[0][1];px[2][1] = px[1][1] - px[0][1];py[2][1] = py[1][1] - py[0][1];}
+				if (ninf == p[2][2]) {p[2][2] = p[1][1] - p[0][0];px[2][2] = px[1][1] - px[0][0];py[2][2] = py[1][1] - py[0][0];}
+				p[1][1] *= 0.5;
+				px[1][1] *= 0.5;
+				py[1][1] *= 0.5;
+				// do the differencing
+				switch (m_nDifferences)
 				{
-					// gerrit: Laplacian is proportional to g^2: https://fractalforums.org/kalles-fraktaler/15/gaussian-jitter-for-moire-reduction/891/msg5563#msg5563
-					double L = 0;
-					L +=  1 * p[0][0];
-					L +=  4 * p[0][1];
-					L +=  1 * p[0][2];
-					L +=  4 * p[1][0];
-					L -= 20 * p[1][1];
-					L +=  4 * p[1][2];
-					L +=  1 * p[2][0];
-					L +=  4 * p[2][1];
-					L +=  1 * p[2][2];
-					L /=  6;
-#define INV_LOG_2 1.4426950408889634
-					double g = sqrt(fabs(L * INV_LOG_2));
-#undef INV_LOG_2
-					iter = g * 2.8284271247461903;
-				}
-				break;
-			case Differences_LeastSquares3x3:
-				{
-					double gx = 0;
-					double gy = 0;
-					compute_gradient_3x3(p, px, py, gx, gy);
-					double g = hypot1(gx, gy);
-					iter = g * 2.8284271247461903;
-				}
-				break;
-			case Differences_LeastSquares2x2:
-				{
-					double gx = 0;
-					double gy = 0;
-					compute_gradient_2x2(p, px, py, gx, gy);
-					double g = hypot1(gx, gy);
-					iter = g * 2.8284271247461903;
-				}
-				break;
-			case Differences_Central3x3:
-				{
-					// gerrit's central difference formula
-					double gx = sqr(p[2][1] - p[0][1]) / hypot2(px[2][1] - px[0][1], py[2][1] - py[0][1]);
-					double gy = sqr(p[1][2] - p[1][0]) / hypot2(px[1][2] - px[1][0], py[1][2] - py[1][0]);
-					double g1 = sqr(p[2][2] - p[0][0]) / hypot2(px[2][2] - px[0][0], py[2][2] - py[0][0]);
-					double g2 = sqr(p[0][2] - p[2][0]) / hypot2(px[0][2] - px[2][0], py[0][2] - py[2][0]);
-					double g = sqrt(0.5 * (gx + gy + g1 + g2));
-					iter = g * 2.8284271247461903;
-				}
-				break;
-			case Differences_Forward3x3:
-				{
-					// forward differencing in 8 directions from the target point
-					double gx0 = sqr(p[0][1] - p[1][1]) / hypot2(px[0][1] - px[1][1], py[0][1] - py[1][1]);
-					double gx2 = sqr(p[2][1] - p[1][1]) / hypot2(px[2][1] - px[1][1], py[2][1] - py[1][1]);
-					double gy0 = sqr(p[1][0] - p[1][1]) / hypot2(px[1][0] - px[1][1], py[1][0] - py[1][1]);
-					double gy2 = sqr(p[1][2] - p[1][1]) / hypot2(px[1][2] - px[1][1], py[1][2] - py[1][1]);
-					double gu0 = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-					double gu2 = sqr(p[2][2] - p[1][1]) / hypot2(px[2][2] - px[1][1], py[2][2] - py[1][1]);
-					double gv0 = sqr(p[2][0] - p[1][1]) / hypot2(px[2][0] - px[1][1], py[2][0] - py[1][1]);
-					double gv2 = sqr(p[0][2] - p[1][1]) / hypot2(px[0][2] - px[1][1], py[0][2] - py[1][1]);
-					double g = sqrt(0.25 * (gx0 + gx2 + gy0 + gy2 + gu0 + gu2 + gv0 + gv2));
-					iter = g * 2.8284271247461903;
-				}
-				break;
-			case Differences_Diagonal2x2: // aka Roberts Cross
-				{
-					// forward differencing in 2 diagonals of a 2x2 substencil
-					if (GetJitterSeed() == 0)
+				case Differences_Analytic:
+					assert(!"analytic case reached, should be unreachable");
+					break;
+				case Differences_Laplacian3x3:
 					{
-						double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-						double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
-						double g = sqrt(gu + gv);
+						// gerrit: Laplacian is proportional to g^2: https://fractalforums.org/kalles-fraktaler/15/gaussian-jitter-for-moire-reduction/891/msg5563#msg5563
+						double L = 0;
+						L +=  1 * p[0][0];
+						L +=  4 * p[0][1];
+						L +=  1 * p[0][2];
+						L +=  4 * p[1][0];
+						L -= 20 * p[1][1];
+						L +=  4 * p[1][2];
+						L +=  1 * p[2][0];
+						L +=  4 * p[2][1];
+						L +=  1 * p[2][2];
+						L /=  6;
+	#define INV_LOG_2 1.4426950408889634
+						double g = sqrt(fabs(L * INV_LOG_2));
+	#undef INV_LOG_2
 						iter = g * 2.8284271247461903;
 					}
-					else
+					break;
+				case Differences_LeastSquares3x3:
 					{
-						// with displacement correction by gerrit
-						double nux = px[0][0] - px[1][1];
-						double nuy = py[0][0] - py[1][1];
-						double nvx = px[1][0] - px[0][1];
-						double nvy = py[1][0] - py[0][1];
-						double nu = hypot1(nux, nuy);
-						double nv = hypot1(nvx, nvy);
-						nux /= nu;
-						nuy /= nu;
-						nvx /= nv;
-						nvy /= nv;
-						double u = (p[0][0] - p[1][1]) / nu;
-						double v = (p[1][0] - p[0][1]) / nv;
-						double dotnunv = nux * nvx + nuy * nvy;
-						double crossnunv = nux * nvy - nuy * nvx;
-						double g = sqrt((u * u + v * v - 2 * u * v * dotnunv) / sqr(crossnunv));
+						double gx = 0;
+						double gy = 0;
+						compute_gradient_3x3(p, px, py, gx, gy);
+						double g = hypot1(gx, gy);
 						iter = g * 2.8284271247461903;
 					}
+					break;
+				case Differences_LeastSquares2x2:
+					{
+						double gx = 0;
+						double gy = 0;
+						compute_gradient_2x2(p, px, py, gx, gy);
+						double g = hypot1(gx, gy);
+						iter = g * 2.8284271247461903;
+					}
+					break;
+				case Differences_Central3x3:
+					{
+						// gerrit's central difference formula
+						double gx = sqr(p[2][1] - p[0][1]) / hypot2(px[2][1] - px[0][1], py[2][1] - py[0][1]);
+						double gy = sqr(p[1][2] - p[1][0]) / hypot2(px[1][2] - px[1][0], py[1][2] - py[1][0]);
+						double g1 = sqr(p[2][2] - p[0][0]) / hypot2(px[2][2] - px[0][0], py[2][2] - py[0][0]);
+						double g2 = sqr(p[0][2] - p[2][0]) / hypot2(px[0][2] - px[2][0], py[0][2] - py[2][0]);
+						double g = sqrt(0.5 * (gx + gy + g1 + g2));
+						iter = g * 2.8284271247461903;
+					}
+					break;
+				case Differences_Forward3x3:
+					{
+						// forward differencing in 8 directions from the target point
+						double gx0 = sqr(p[0][1] - p[1][1]) / hypot2(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+						double gx2 = sqr(p[2][1] - p[1][1]) / hypot2(px[2][1] - px[1][1], py[2][1] - py[1][1]);
+						double gy0 = sqr(p[1][0] - p[1][1]) / hypot2(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+						double gy2 = sqr(p[1][2] - p[1][1]) / hypot2(px[1][2] - px[1][1], py[1][2] - py[1][1]);
+						double gu0 = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+						double gu2 = sqr(p[2][2] - p[1][1]) / hypot2(px[2][2] - px[1][1], py[2][2] - py[1][1]);
+						double gv0 = sqr(p[2][0] - p[1][1]) / hypot2(px[2][0] - px[1][1], py[2][0] - py[1][1]);
+						double gv2 = sqr(p[0][2] - p[1][1]) / hypot2(px[0][2] - px[1][1], py[0][2] - py[1][1]);
+						double g = sqrt(0.25 * (gx0 + gx2 + gy0 + gy2 + gu0 + gu2 + gv0 + gv2));
+						iter = g * 2.8284271247461903;
+					}
+					break;
+				case Differences_Diagonal2x2: // aka Roberts Cross
+					{
+						// forward differencing in 2 diagonals of a 2x2 substencil
+						if (GetJitterSeed() == 0)
+						{
+							double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+							double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
+							double g = sqrt(gu + gv);
+							iter = g * 2.8284271247461903;
+						}
+						else
+						{
+							// with displacement correction by gerrit
+							double nux = px[0][0] - px[1][1];
+							double nuy = py[0][0] - py[1][1];
+							double nvx = px[1][0] - px[0][1];
+							double nvy = py[1][0] - py[0][1];
+							double nu = hypot1(nux, nuy);
+							double nv = hypot1(nvx, nvy);
+							nux /= nu;
+							nuy /= nu;
+							nvx /= nv;
+							nvy /= nv;
+							double u = (p[0][0] - p[1][1]) / nu;
+							double v = (p[1][0] - p[0][1]) / nv;
+							double dotnunv = nux * nvx + nuy * nvy;
+							double crossnunv = nux * nvy - nuy * nvx;
+							double g = sqrt((u * u + v * v - 2 * u * v * dotnunv) / sqr(crossnunv));
+							iter = g * 2.8284271247461903;
+						}
+					}
+					break;
+				case Differences_Traditional:
+					{
+						// traditional method reverse engineered from original code
+						double gx = (p[0][1] - p[1][1]) * 1.414 / hypot(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+						double gy = (p[1][0] - p[1][1]) * 1.414 / hypot(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+						double gu = (p[0][0] - p[1][1]) * 1.414 / hypot(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+						double gv = (p[0][2] - p[1][1]) * 1.414 / hypot(px[0][2] - px[1][1], py[0][2] - py[1][1]);
+						double g = fabs(gx) + fabs(gy) + fabs(gu) + fabs(gv);
+						iter = g;
+					}
+					break;
 				}
-				break;
-			case Differences_Traditional:
-				{
-					// traditional method reverse engineered from original code
-					double gx = (p[0][1] - p[1][1]) * 1.414 / hypot(px[0][1] - px[1][1], py[0][1] - py[1][1]);
-					double gy = (p[1][0] - p[1][1]) * 1.414 / hypot(px[1][0] - px[1][1], py[1][0] - py[1][1]);
-					double gu = (p[0][0] - p[1][1]) * 1.414 / hypot(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-					double gv = (p[0][2] - p[1][1]) * 1.414 / hypot(px[0][2] - px[1][1], py[0][2] - py[1][1]);
-					double g = fabs(gx) + fabs(gy) + fabs(gu) + fabs(gv);
-					iter = g;
-				}
-				break;
 			}
 			// post differencing transfer functions
 //			iter/=4;
@@ -1020,8 +1022,9 @@ void CFraktalSFT::Mirror(int x, int y)
 
 	m_nPixels[tx][ty] = m_nPixels[x][y];
 	m_nTrans[tx][ty] = m_nTrans[x][y];
+	m_nDE[tx][ty] = m_nDE[x][y];
 	int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-	SetColor(nIndex1, m_nPixels[x][ty], m_nTrans[x][ty], x, ty);
+	SetColor(nIndex1, m_nPixels[tx][ty], m_nTrans[tx][ty], tx, ty);
 }
 
 #define GET_EXP(val) ((*((__int64*)&val) & 0x7FF0000000000000)>>52)
@@ -1041,6 +1044,11 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nTrans[i];
 		delete[] m_nTrans;
 		m_nTrans = NULL;
+
+		for (i = 0; i<m_nXPrev; i++)
+			delete[] m_nDE[i];
+		delete[] m_nDE;
+		m_nDE = NULL;
 }
 
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
@@ -1249,6 +1257,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	Stop(TRUE);
 	int **Org;
 	float **OrgT;
+	float **OrgDE;
 	int nOX, nOY;
 	int i;
 	m_C = cos(g_Degree);
@@ -1287,6 +1296,9 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
+		OrgDE = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgDE[i] = new float[nOY];
 		int x, y, a, b;
 		int nX2 = m_nX/2;
 		int nY2 = m_nY/2;
@@ -1305,6 +1317,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					if (a >= 0 && a<m_nX && b >= 0 && b<m_nY){
 						Org[x][y] = m_nPixels[a][b];
 						OrgT[x][y] = m_nTrans[a][b];
+						OrgDE[x][y] = m_nDE[a][b];
 						if (Org[x][y]>m_nMaxIter)
 							Org[x][y] = m_nMaxIter;
 					}
@@ -1312,6 +1325,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					{
 						Org[x][y] = -1;
 						OrgT[x][y] = SET_TRANS_GLITCH(0);
+						OrgDE[x][y] = -1;
 					}
 				}
 			}
@@ -1323,20 +1337,24 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
+					m_nDE[x][y] = OrgDE[x - a][y - b];
 				}
 				else
 				{
 					m_nPixels[x][y] = -1;
 					m_nTrans[x][y] = SET_TRANS_GLITCH(0);
+					m_nDE[x][y] = -1;
 				}
 			}
 		}
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
+			delete[] OrgDE[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
+		delete[] OrgDE;
 	}
 	m_nX = nWidth;
 	m_nY = nHeight;
@@ -1685,14 +1703,17 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	{
 		m_nPixels = new int*[m_nX];
 		m_nTrans = new float*[m_nX];
+		m_nDE = new float*[m_nX];
 		for (int x = 0; x<m_nX; x++){
 			m_nPixels[x] = new int[m_nY];
 			m_nTrans[x] = new float[m_nY];
+			m_nDE[x] = new float[m_nY];
 		}
 	}
 	for (int x = 0; x<m_nX; x++){
 		memset(m_nPixels[x], 0, sizeof(int) * m_nY);
 		memset(m_nTrans[x], 0, sizeof(float) * m_nY);
+		memset(m_nDE[x], 0, sizeof(float) * m_nY);
 	}
 	SetImageWidth(nx);
 	SetImageHeight(ny);
@@ -1702,6 +1723,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 {
 	int **Org = 0;
 	float **OrgT = 0;
+	float **OrgDE = 0;
 	int nOX = 0, nOY = 0;
 	int i;
 	int x, y, a = 0, b = 0;
@@ -1715,14 +1737,19 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
+		OrgDE = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgDE[i] = new float[nOY];
 		for (x = 0; x<nOX; x++){
 			for (y = 0; y<nOY; y++){
 				a = x / nZoomSize;
 				b = y / nZoomSize;
 				if (a >= 0 && a<m_nX && b >= 0 && b<m_nY)
+				{
 					Org[x][y] = m_nPixels[a][b];
-				if (a >= 0 && a<m_nX && b >= 0 && b<m_nY)
 					OrgT[x][y] = m_nTrans[a][b];
+					OrgDE[x][y] = m_nDE[a][b];
+				}
 			}
 		}
 		a = (m_nX - nOX) / 2;
@@ -1818,15 +1845,18 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
+					m_nDE[x][y] = OrgDE[x - a][y - b];
 				}
 			}
 		}
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
+			delete[] OrgDE[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
+		delete[] OrgDE;
 	}
 	if (m_bmBmp)
 		DeleteObject(m_bmBmp);
@@ -2507,6 +2537,11 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	WriteFile(hFile, &m_nMaxIter, sizeof(int), &dw, NULL);
 	for (x = 0; x<m_nX; x++)
 		WriteFile(hFile, m_nTrans[x], m_nY*sizeof(float), &dw, NULL);
+	if (m_nDE)
+	{
+		for (x = 0; x<m_nX; x++)
+			WriteFile(hFile, m_nDE[x], m_nY*sizeof(float), &dw, NULL);
+	}
 	CloseHandle(hFile);
 }
 
@@ -2516,13 +2551,13 @@ SmoothMethod CFraktalSFT::GetSmoothMethod()
 }
 void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
 {
-	if (nSmoothMethod == 0 || nSmoothMethod == 2){
+	if (nSmoothMethod == 0){
 		m_nSmoothMethod = SmoothMethod(nSmoothMethod);
 		m_nBailout = SMOOTH_BAILOUT;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
-	else if (nSmoothMethod == 1){
-		m_nSmoothMethod = SmoothMethod(nSmoothMethod);
+	else{
+		m_nSmoothMethod = SmoothMethod_Sqrt;
 		m_nBailout = 2;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
@@ -2553,7 +2588,7 @@ void CFraktalSFT::SetPower(int nPower)
 void CFraktalSFT::SetDifferences(int nDifferences)
 {
 	if (nDifferences < 0) nDifferences = 0;
-	if (nDifferences > 6) nDifferences = 0;
+	if (nDifferences > 7) nDifferences = 0;
 	m_nDifferences = Differences(nDifferences);
 }
 Differences CFraktalSFT::GetDifferences()
@@ -2588,9 +2623,11 @@ void CFraktalSFT::ErasePixel(int x, int y)
 	if (x >= 0 && y >= 0 && x<m_nX && y<m_nY){
 		m_nPixels[x][y] = 1;
 		m_nTrans[x][y] = 0;
+		m_nDE[x][y] = 1e30;
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 		m_nPixels[x][y] = -1;
+		m_nDE[x][y] = -1;
 	}
 }
 void CFraktalSFT::StoreLocation()
@@ -2903,19 +2940,19 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 		if (antal == m_nMaxIter){
 			m_nPixels[x][y] = antal;
 			m_nTrans[x][y] = 0;
+			m_nDE[x][y] = 0;
 			m_lpBits[nIndex] = 0;
 			m_lpBits[nIndex + 1] = 0;
 			m_lpBits[nIndex + 2] = 0;
 		}
 		else{
 			m_nPixels[x][y] = antal;
-
-			if (!bGlitch && m_nSmoothMethod == SmoothMethod_DE)
+			if (m_nDE)
 			{
-				m_nTrans[x][y] = de;
+				m_nDE[x][y] = de;
 			}
 
-			else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt){
+			if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt){
 				double div = sqrt(test1) - sqrt(test2);
 				if (div != 0)
 					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
@@ -2970,7 +3007,7 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, int bGlitch)
 		}
 }
 
-bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
+bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 {
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
 	if (GetGuessing())

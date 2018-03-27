@@ -174,8 +174,7 @@ public:
 enum SmoothMethod
 {
 	SmoothMethod_Log = 0,
-	SmoothMethod_Sqrt = 1,
-	SmoothMethod_DE =2
+	SmoothMethod_Sqrt = 1
 };
 
 enum ColorMethod
@@ -199,7 +198,8 @@ enum Differences
 	Differences_Diagonal2x2 = 3,
 	Differences_LeastSquares2x2 = 4,
 	Differences_LeastSquares3x3 = 5,
-	Differences_Laplacian3x3 = 6
+	Differences_Laplacian3x3 = 6,
+	Differences_Analytic = 7
 };
 
 class CFraktalSFT
@@ -232,6 +232,7 @@ class CFraktalSFT
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
+	float **m_nDE;
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
 	int m_nPrevPower;

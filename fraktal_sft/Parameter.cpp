@@ -110,7 +110,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	nID = stParams.FindString(0, "SmoothMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
-		if (m<0 || m>2)
+		if (m<0 || m>1)
 			m = 0;
 		m_nSmoothMethod = SmoothMethod(m);
 	}
@@ -130,7 +130,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	if (nID != -1)
 	{
 		int m = atoi(stParams[nID][1]);
-		if (m < 0 || m > 6)
+		if (m < 0 || m > 7)
 			m = 0;
 		m_nDifferences = Differences(m);
 	}
