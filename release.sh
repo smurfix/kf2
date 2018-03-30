@@ -29,21 +29,23 @@ make clean
 SRC="kf-${VERSION}-src"
 mkdir "${SRC}"
 make formula/formula.cpp
-cp -avit "${SRC}/" fraktal_sft formula cl common preprocessor.hs Makefile 32.mk 64.mk README.md prepare.sh "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk README.md prepare.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="kf-${VERSION}"
 mkdir "${BIN}"
-cp -avit "${BIN}/" "${SRC}.zip"
+cp -avit "${BIN}/" "${SRC}.zip" utils/kf-stratify.m
 
 make -j 8 SYSTEM=32
 strip kf.exe
 cp -avi kf.exe "${BIN}/kf.32.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.32.exe"
 
 make clean
 
 make -j 8 SYSTEM=64
 strip kf.exe
 cp -avi kf.exe "${BIN}/kf.64.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.64.exe"
 
 make README.pdf
 
