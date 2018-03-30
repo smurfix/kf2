@@ -37,6 +37,7 @@ cp -avit "${BIN}/" "${SRC}.zip" utils/kf-stratify.m
 
 make -j 8 SYSTEM=32
 strip kf.exe
+strip kf-tile.exe
 cp -avi kf.exe "${BIN}/kf.32.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.32.exe"
 
@@ -44,6 +45,7 @@ make clean
 
 make -j 8 SYSTEM=64
 strip kf.exe
+strip kf-tile.exe
 cp -avi kf.exe "${BIN}/kf.64.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.64.exe"
 
