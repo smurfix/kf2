@@ -140,11 +140,15 @@ Feedback:
 
 ## Change Log
 
-- **kf.2.13.1~beta1** (2018-03-30)
+- **kf.2.13.1** (2018-03-30)
 
     - added derivative calculations
+    - known bug: calculated even if not needed for colouring
+    - known bug: some derivatives are C approximations instead of R^2 matrix
     - analytic DE colouring mode
+    - known bug: DE data not saved to KFB map files
     - interior is white instead of black
+    - known bug: interior colour should be customizable
     - series approximation uses Horner's rule to evaluate polynomials
       (minor optimisation)
     - default settings are best-quality by default
