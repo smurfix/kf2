@@ -147,7 +147,7 @@ cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
 
-README.pdf: README.md
-	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < README.md -o README.pdf
+%.pdf: %.md
+	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < $< -o $@
 
 -include $(DEPENDS)

@@ -29,7 +29,7 @@ make clean
 SRC="kf-${VERSION}-src"
 mkdir "${SRC}"
 make formula/formula.cpp
-cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk README.md prepare.sh "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk README.md LICENSE.md prepare.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="kf-${VERSION}"
 mkdir "${BIN}"
@@ -48,9 +48,12 @@ cp -avi kf.exe "${BIN}/kf.64.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.64.exe"
 
 make README.pdf
+make LICENSE.pdf
 
 cp -avi README.md "${BIN}/kf.txt"
 cp -avi README.pdf "${BIN}/kf.pdf"
+cp -avi LICENSE.md "${BIN}/LICENSE.txt"
+cp -avi LICENSE.pdf "${BIN}/LICENSE.pdf"
 zip -9 -r "${BIN}.zip" "${BIN}/"
 gpg -b "${BIN}.zip"
 
