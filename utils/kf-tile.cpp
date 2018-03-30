@@ -132,13 +132,10 @@ extern int main(int argc, char **argv)
   }
   // parse settings
   KVV kfs = read(kfsname);
-  const int width = std::atoi(lookup(kfs, "ImageHeight").c_str());
-  const int height = std::atoi(lookup(kfs, "ImageWidth").c_str());
+  const int width = std::atoi(lookup(kfs, "ImageWidth").c_str());
+  const int height = std::atoi(lookup(kfs, "ImageHeight").c_str());
   const int seed = std::atoi(lookup(kfs, "JitterSeed").c_str());
   const double jscale = std::atof(lookup(kfs, "JitterScale").c_str());
-  std::ostringstream sjscale;
-  sjscale << (jscale / factor);
-  update(kfs, "JitterScale", sjscale.str());
   // parse parameter
   KVV kfr = read(kfrname);
   mpfr53 zoom(lookup(kfr, "Zoom"));
@@ -149,7 +146,10 @@ extern int main(int argc, char **argv)
   mpfr im(lookup(kfr, "Im"));
   int colormethod = std::atoi(lookup(kfr, "ColorMethod").c_str());
   int differences = std::atoi(lookup(kfr, "Differences").c_str());
+  int slopes = std::atoi(lookup(kfr, "Slopes").c_str());
+#if 0
   double coloroffset = std::atof(lookup(kfr, "ColorOffset").c_str());
+#endif
   double iterdiv = std::atof(lookup(kfr, "IterDiv").c_str());
   if (iterdiv == 0.0) iterdiv = 1.0;
   double rotate = std::atof(lookup(kfr, "Rotate").c_str());
@@ -169,17 +169,22 @@ extern int main(int argc, char **argv)
     stem = kfrname;
   else
     stem = kfrname.substr(0, ix);
-  bool stratify = colormethod == 7 && differences == 7;
+  bool stratify = (colormethod < 5 || differences == 7) && slopes == 0;
   if (stratify)
   {
-    mpfr53 tpx(8 / (zoom * height));
+    std::cerr << "using stratified tiling (best quality)" << std::endl
+              << "after rendering, assemble with Octave/Matlab:" << std::endl
+              << "octave kf-stratify.m " << stem << " " << factor << std::endl;
+    std::ostringstream sjscale;
+    sjscale << (jscale / factor);
+    update(kfs, "JitterScale", sjscale.str());
     for (int j = 0; j < factor; ++j)
       for (int i = 0; i < factor; ++i)
       {
-        double x = ((i + 0.5) / factor - 0.5);
-        double y = ((j + 0.5) / factor - 0.5);
-        mpfr tre(re + mpfr(mpfr53(  co * x + si * y) * tpx));
-        mpfr tim(im + mpfr(mpfr53(- si * x + co * y) * tpx));
+        double x = ((i + 0.5) / factor - 0.5) * 4 / height;
+        double y = ((j + 0.5) / factor - 0.5) * 4 / height;
+        mpfr tre(re + mpfr(mpfr53(  co * x + si * y) / zoom));
+        mpfr tim(im + mpfr(mpfr53(- si * x + co * y) / zoom));
         // output
         std::ostringstream sjseed;
         sjseed << (seed ? seed * factor * factor + j * factor + i : 0);
@@ -193,12 +198,21 @@ extern int main(int argc, char **argv)
   }
   else
   {
+    std::cerr << "using adjacent tiling (seams may be visible)" << std::endl
+              << (slopes ? "because of: slopes\n" : "")
+              << (colormethod >= 5 && differences != 7 ? "because of: numerical differencing (try analytic instead)\n" : "")
+              << "after rendering, assemble with ImageMagick:" << std::endl
+              << "montage " << stem << "-*-*.png -mode Concatenate -tile " << factor << "x" << factor << " " << stem << ".png" << std::endl;
+#if 0
+    // makes tiled image colours more similar to one-shot huge image colours
+    // not necessarily desireable...
     if (colormethod == 7)
     {
       std::ostringstream tcoloroffset;
       tcoloroffset << (coloroffset + log(factor) / iterdiv);
       update(kfr, "ColorOffset", tcoloroffset.str());
     }
+#endif
     mpfr53 tzoom(zoom * factor);
     update(kfr, "Zoom", scientific(tzoom));
     for (int j = 0; j < factor; ++j)
