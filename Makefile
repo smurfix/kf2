@@ -113,7 +113,7 @@ DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 all: kf.exe kf-tile.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
+	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP) $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
 	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
