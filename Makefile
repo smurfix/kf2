@@ -98,7 +98,7 @@ OPENCL_SOURCES_C =
 #OPENCL_SOURCES_CPP = cl/opencl.cpp
 #OPENCL_SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(UTILS_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
 SOURCES_C = $(OPENCL_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
@@ -113,7 +113,7 @@ DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 all: kf.exe kf-tile.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP)
+	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP) $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
 	rm -f cl/kf_opencl_source.c cl/kf_opencl_source.d cl/kf_opencl_source.o cl/kf.cl cl/opencl.d cl/opencl.inc cl/opencl.o
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
