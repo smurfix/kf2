@@ -91,12 +91,14 @@ common/bitmap.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
+UTILS_SOURCES_CPP = utils/kf-tile.cpp
+
 OPENCL_SOURCES_CPP =
 OPENCL_SOURCES_C =
 #OPENCL_SOURCES_CPP = cl/opencl.cpp
 #OPENCL_SOURCES_C = cl/kf_opencl_source.c $(CLEWPREFIX)/src/clew.c
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(FORMULA_SOURCES_CPP) $(UTILS_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
 SOURCES_C = $(OPENCL_SOURCES_C)
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
@@ -147,7 +149,7 @@ cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h cl/opencl.inc
 
-README.pdf: README.md
-	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < README.md -o README.pdf
+%.pdf: %.md
+	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < $< -o $@
 
 -include $(DEPENDS)

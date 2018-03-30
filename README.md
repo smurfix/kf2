@@ -140,7 +140,7 @@ Feedback:
 
 ## Change Log
 
-- **kf.2.13.1** (????-??-??)
+- **kf.2.13.1~beta1** (2018-03-30)
 
     - added derivative calculations
     - analytic DE colouring mode
@@ -148,6 +148,14 @@ Feedback:
     - series approximation uses Horner's rule to evaluate polynomials
       (minor optimisation)
     - default settings are best-quality by default
+
+- **kf-2.12.12** (2018-03-30)
+
+    - Free Software under GNU Affero General Public License, version 3 or greater
+    - least squares numerical differences (experimental; subject to change)
+    - Laplacian numerical differences (suggested by gerrit)
+    - (possibly stratified) tiled settings/parameters generator program
+    - stratified tiling reassembler GNU Octave script
 
 - **kf-2.12.11** (2018-03-12)
 
