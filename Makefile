@@ -106,7 +106,7 @@ SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
-OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
+OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
 DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 
