@@ -43,8 +43,6 @@ Feedback:
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
   the skinniest part very quickly"
-- non-responsive GUI when entering "simple" locations (eg -2.0 0.0, doesn't
-  depend on zoom level) (reported by Foxxie)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - "resume zoom sequence" assumes "zoom size" is an integer
@@ -52,7 +50,6 @@ Feedback:
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
 - "a single dot appears in the middle of a mini" (reported by gerrit)
-- "iteration count resets to 1000" (reported by CFJH and gerrit)
 - colouring large images is very slow (reported by gerrit)
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
@@ -60,8 +57,6 @@ Feedback:
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - status bar reference count doesn't reset when zooming before it is "Done"
-- "Save Settings" browser has .kfr extension instead of .kfs
-  (reported by gerrit)
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source natively at the moment
