@@ -43,6 +43,7 @@ Feedback:
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
   the skinniest part very quickly"
+- enabling "Guessing" leads to massive image corruption when using analytic DE
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - "resume zoom sequence" assumes "zoom size" is an integer
