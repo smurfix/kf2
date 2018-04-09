@@ -567,6 +567,9 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		s.r = s.g = s.b = 1;
 	}
 	else{
+		ColorMethod method = m_nColorMethod;
+		Differences diffs = m_nDifferences;
+
 		double iter = (double)nIter + (double)1 - offs;
 		/*		if(1){//DE
 		double p1, p2;
@@ -583,26 +586,26 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		iter = (p1>p2?p1-p2:p2-p1);
 		}
 		*/
-		if (m_nColorMethod == ColorMethod_SquareRoot){
+		if (method == ColorMethod_SquareRoot){
 			iter = sqrt(iter);
 		}
-		else if (m_nColorMethod == ColorMethod_CubicRoot){
+		else if (method == ColorMethod_CubicRoot){
 			iter = pow(iter, (double)1 / (double)3);
 		}
-		else if (m_nColorMethod == ColorMethod_Logarithm){
+		else if (method == ColorMethod_Logarithm){
 			iter = log(iter);
 		}
-		else if (m_nColorMethod == ColorMethod_Stretched){
+		else if (method == ColorMethod_Stretched){
 			int nMin, nMax;
 			GetIterations(nMin, nMax,NULL,NULL,TRUE);
 			iter = (double)1024 * ((double)iter - (double)nMin) / ((double)nMax - (double)nMin);
 		}
-		else if (m_nColorMethod == ColorMethod_DistanceLinear ||
-		         m_nColorMethod == ColorMethod_DEPlusStandard ||
-		         m_nColorMethod == ColorMethod_DistanceLog ||
-		         m_nColorMethod == ColorMethod_DistanceSqrt){
+		else if (method == ColorMethod_DistanceLinear ||
+		         method == ColorMethod_DEPlusStandard ||
+		         method == ColorMethod_DistanceLog ||
+		         method == ColorMethod_DistanceSqrt){
 			iter=0;
-			if (m_nDifferences == Differences_Analytic)
+			if (diffs == Differences_Analytic)
 			{
 				iter = 0;
 				if (m_nDE)
@@ -643,10 +646,10 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				px[1][1] *= 0.5;
 				py[1][1] *= 0.5;
 				// do the differencing
-				switch (m_nDifferences)
+				switch (diffs)
 				{
 				case Differences_Analytic:
-					assert(!"analytic case reached, should be unreachable");
+					//assert(!"analytic case reached, should be unreachable");
 					break;
 				case Differences_Laplacian3x3:
 					{
@@ -761,16 +764,16 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 //			iter/=4;
 //			iter*=iter;
 			iter*=(double)m_nX / (double)640;
-			if (m_nColorMethod == ColorMethod_DistanceSqrt || m_nColorMethod == ColorMethod_DEPlusStandard)
+			if (method == ColorMethod_DistanceSqrt || method == ColorMethod_DEPlusStandard)
 				iter=sqrt(iter);
-			else if (m_nColorMethod == ColorMethod_DistanceLog)
+			else if (method == ColorMethod_DistanceLog)
 				iter=log(iter+1);
 			/*iter=log(iter);
 			if(iter<0)
 				iter=0;*/
 			if(iter>1024)
 				iter=1024;
-			if(m_nColorMethod == ColorMethod_DEPlusStandard && iter>m_nIterDiv)
+			if(method == ColorMethod_DEPlusStandard && iter>m_nIterDiv)
 				iter = (double)nIter + (double)1 - offs;
 		}
 		if (m_nIterDiv != 1){
