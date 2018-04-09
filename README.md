@@ -136,7 +136,12 @@ Feedback:
 
 ## Change Log
 
-- **kf.2.13.1** (2018-03-30)
+- **kf-2.13.2** (????-??-??)
+
+    - fix assertion failed popup (race condition between parameter changes and
+      colouring during rendering) (reported by gerrit)
+
+- **kf-2.13.1** (2018-03-30)
 
     - added derivative calculations
     - known bug: calculated even if not needed for colouring
