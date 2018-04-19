@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 bool reference_double_0_2_ld(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr0, long double &di0)
 {
-  if (m_nFractalType == 0 && m_nPower == 2)
+  if (m_nFractalType == 0 && m_nPower == 2) // FIMXE matrix derivatives
   {
     bool stored = false;
     double old_absval = 0;
@@ -143,7 +143,7 @@ mpfr_clear(t1);
 
 bool reference_double_0_3_ld(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr0, long double &di0)
 {
-  if (m_nFractalType == 0 && m_nPower == 3)
+  if (m_nFractalType == 0 && m_nPower == 3) // FIMXE matrix derivatives
   {
     bool stored = false;
     double old_absval = 0;
@@ -313,7 +313,7 @@ void CFraktalSFT::CalculateReference()
 		bool ok = reference_double_0_3_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
 		assert(ok && "reference_double_0_3_ld");
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10)
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIMXE matrix derivatives
 	{
 
 		double threashold = 0.0001;
@@ -373,7 +373,13 @@ void CFraktalSFT::CalculateReference()
 	else
 	{
 
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
+		floatexp _x, _y, daa, dab, dba, dbb;
+		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+		double ddaa = daa.todouble();
+		double ddab = dab.todouble();
+		double ddba = dba.todouble();
+		double ddbb = dbb.todouble();
+		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb);
 		assert(ok && "reference_double");
 
 	}
@@ -384,7 +390,7 @@ void CFraktalSFT::CalculateReference()
 		ldr = ldr * pixel_spacing;
 		ldi = ldi * pixel_spacing;
 	}
-	else
+	else if (m_nPower > 10)
 	{
 		ldr = dr * pixel_spacing;
 		ldi = di * pixel_spacing;

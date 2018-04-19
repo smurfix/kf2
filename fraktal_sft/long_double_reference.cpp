@@ -241,7 +241,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower == 2){
+	if (m_nFractalType == 0 && m_nPower == 2){ // FIXME matrix derivatives
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -317,9 +317,12 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		mpfr_clear(co.ci);
 		dr = co.dr;
 		di = co.di;
+		long double pixel_spacing = m_lPixelSpacing;
+		dr *= pixel_spacing;
+		di *= pixel_spacing;
 
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10)
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 	{
 		bool stored = false;
 		double old_absval = 0;
@@ -377,19 +380,24 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 		dr = d.m_r;
 		di = d.m_i;
-
+		long double pixel_spacing = m_lPixelSpacing;
+		dr *= pixel_spacing;
+		di *= pixel_spacing;
 	}
 	else
 	{
 
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
+		floatexp _x, _y, daa, dab, dba, dbb;
+		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+		long double ldaa = daa.toLongDouble();
+		long double ldab = dab.toLongDouble();
+		long double ldba = dba.toLongDouble();
+		long double ldbb = dbb.toLongDouble();
+		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ldaa, ldab, ldba, ldbb);
     assert(ok && "reference_long_double");
 
 	}
 
-  long double pixel_spacing = m_lPixelSpacing;
-	dr *= pixel_spacing;
-	di *= pixel_spacing;
 	double de = sqrt(test1) * log(test1) / sqrt(dr * dr + di * di);
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)

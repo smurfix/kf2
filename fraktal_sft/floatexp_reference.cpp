@@ -246,7 +246,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2)
+	if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives
 	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
@@ -291,6 +291,8 @@ void CFraktalSFT::CalculateReferenceEXP()
 		co.test1 = &test1;
 		co.test2 = &test2;
 		co.stop = &m_bStop;
+		co.dr = dr;
+		co.di = di;
 		// spawn threads
 		for (i = 0; i < 3; i++)
 		{
@@ -317,8 +319,13 @@ void CFraktalSFT::CalculateReferenceEXP()
 		mpfr_clear(co.si);
 		mpfr_clear(co.cr);
 		mpfr_clear(co.ci);
+    dr = co.dr;
+    di = co.di;
+		floatexp pixel_spacing = m_fPixelSpacing;
+		dr = dr * pixel_spacing;
+		di = di * pixel_spacing;
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10)
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 	{
 		bool stored = false;
 		double old_absval = 0;
@@ -376,19 +383,21 @@ void CFraktalSFT::CalculateReferenceEXP()
 		}
 		dr = d.m_r;
 		di = d.m_i;
+		floatexp pixel_spacing = m_fPixelSpacing;
+		dr = dr * pixel_spacing;
+		di = di * pixel_spacing;
 
 	}
 	else
 	{
 
-    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di);
+		floatexp _x, _y, daa, dab, dba, dbb;
+		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, daa, dab, dba, dbb);
     assert(ok && "reference_floatexp");
 
 	}
 
-	floatexp pixel_spacing = m_fPixelSpacing;
-	dr = dr * pixel_spacing;
-	di = di * pixel_spacing;
 	double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)

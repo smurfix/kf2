@@ -3231,3 +3231,18 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	x = m_pixel_center_x + m_C * u + m_S * v;
 	y = m_pixel_center_y - m_S * u + m_C * v;
 }
+
+void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y, floatexp &daa, floatexp &dab, floatexp &dba, floatexp &dbb) const
+{
+	double di = 0;
+	double dj = 0;
+	GetPixelOffset(i, j, di, dj);
+	floatexp u = (i - m_nX/2 + di) * m_pixel_step_x;
+	floatexp v = (j - m_nY/2 + dj) * m_pixel_step_y;
+	x = m_pixel_center_x + m_C * u + m_S * v;
+	y = m_pixel_center_y - m_S * u + m_C * v;
+	daa =  m_C * m_pixel_step_x;
+	dab =  m_S * m_pixel_step_y;
+	dba = -m_S * m_pixel_step_x;
+	dbb =  m_C * m_pixel_step_y;
+}

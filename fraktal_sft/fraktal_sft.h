@@ -514,6 +514,7 @@ public:
 
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;
+	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y, floatexp &daa, floatexp &dab, floatexp &dba, floatexp &dbb) const;
 };
 
 struct TH_PARAMS

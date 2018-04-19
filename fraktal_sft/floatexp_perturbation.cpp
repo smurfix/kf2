@@ -73,12 +73,14 @@ void CFraktalSFT::MandelCalcEXP()
       continue;
 
 		// Series approximation
-		floatexp dbD0r = 0;
-		floatexp dbD0i = 0;
-		GetPixelCoordinates(x, y, dbD0r, dbD0i);
+		floatexp D0r = 0;
+		floatexp D0i = 0;
+		floatexp daa = 1;
+		floatexp dab = 0;
+		floatexp dba = 0;
+		floatexp dbb = 1;
+		GetPixelCoordinates(x, y, D0r, D0i, daa, dab, dba, dbb);
 
-		floatexp D0r = dbD0r;//(cr-rref);
-		floatexp D0i = dbD0i;
 		floatexp Dr;
 		floatexp Di;
 		floatexp dr;
@@ -89,7 +91,7 @@ void CFraktalSFT::MandelCalcEXP()
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-    if (m_nFractalType == 0 && m_nPower > 10)
+    if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
 			complex<floatexp> d(dr, di);
 			if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -128,19 +130,18 @@ void CFraktalSFT::MandelCalcEXP()
 			}
 			dr = d.m_r;
 			di = d.m_i;
-
+			floatexp pixel_spacing = m_fPixelSpacing;
+			dr = dr * pixel_spacing;
+			di = di * pixel_spacing;
 		}
     else
     {
 
-			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing);
+			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing, daa, dab, dba, dbb);
 			assert(ok && "perturbation_floatexp()");
 
 		}
 
-		floatexp pixel_spacing = m_fPixelSpacing;
-		dr = dr * pixel_spacing;
-		di = di * pixel_spacing;
 		double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
 
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);

@@ -81,7 +81,11 @@ void CFraktalSFT::MandelCalcLDBL()
 		// Series approximation - Start
 		floatexp D0r = 0;
 		floatexp D0i = 0;
-		GetPixelCoordinates(x, y, D0r, D0i);
+		floatexp daa = 1;
+		floatexp dab = 0;
+		floatexp dba = 0;
+		floatexp dbb = 1;
+		GetPixelCoordinates(x, y, D0r, D0i, daa, dab, dba, dbb);
 
 		floatexp TDnr;
 		floatexp TDni;
@@ -93,7 +97,7 @@ void CFraktalSFT::MandelCalcLDBL()
 		BOOL bGlitch = FALSE;
 		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-		if (m_nScalingOffsetL){
+		if (m_nScalingOffsetL){ // FIXME matrix derivatives
 			ldcr = TDDnr;
 			ldci = TDDni;
 			long double lD0r = D0r.toLongDouble(m_nScalingOffsetL);
@@ -156,8 +160,10 @@ void CFraktalSFT::MandelCalcLDBL()
 					}
 				}
 			}
+			dr = (ldcr * m_fPixelSpacing).toLongDouble();
+			di = (ldci * m_fPixelSpacing).toLongDouble();
 		}
-		else if (m_nFractalType == 0 && m_nPower > 10)
+		else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
 			dr = TDDnr.toLongDouble();
 			di = TDDni.toLongDouble();
@@ -167,6 +173,9 @@ void CFraktalSFT::MandelCalcLDBL()
 			long double Di = TDni.toLongDouble();
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
 			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection);
+			long double pixel_spacing = m_lPixelSpacing;
+			dr *= pixel_spacing;
+			di *= pixel_spacing;
 		}
 		else
 		{
@@ -176,23 +185,16 @@ void CFraktalSFT::MandelCalcLDBL()
 			long double lD0i = D0i.toLongDouble();
 			long double Dr = TDnr.toLongDouble();
 			long double Di = TDni.toLongDouble();
+			long double ldaa = daa.toLongDouble();
+			long double ldab = dab.toLongDouble();
+			long double ldba = dba.toLongDouble();
+			long double ldbb = dbb.toLongDouble();
 			int antal2 = antal;
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing);
+			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing, ldaa, ldab, ldba, ldbb);
 			antal = antal2;
 			assert(ok && "perturbation_long_double");
 		}
 
-		if (m_nScalingOffsetL)
-		{
-			dr = (ldcr * m_fPixelSpacing).toLongDouble();
-			di = (ldci * m_fPixelSpacing).toLongDouble();
-		}
-		else
-		{
-			long double pixel_spacing = m_lPixelSpacing;
-			dr *= pixel_spacing;
-			di *= pixel_spacing;
-		}
 		double de = sqrt(test1) * log(test1) / hypotl(dr, di);
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 

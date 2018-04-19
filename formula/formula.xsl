@@ -33,10 +33,26 @@ using std::abs;
 <xsl:for-each select="formulas/group/formula">
 
 template &lt;typename T&gt;
-bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(const int m_nFractalType, const int m_nPower, T *m_db_dxr, T *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, T &amp;dr0, T &amp;di0)
+bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( const int m_nFractalType, const int m_nPower
+  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
+  , int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter
+  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
+  , const double g_SeedR, const double g_SeedI
+  , const double g_FactorAR, const double g_FactorAI
+  , const double terminate, const double g_real, const double g_imag
+  , const bool m_bGlitchLowTolerance
+  , int &amp;antal, double &amp;test1, double &amp;test2
+  , T &amp;dr0, T &amp;di0
+  , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
+  )
 {
   (void) dr0; // -Wunused-parameter
   (void) di0; // -Wunused-parameter
+  (void) daa; // -Wunused-parameter
+  (void) dab; // -Wunused-parameter
+  (void) dba; // -Wunused-parameter
+  (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool stored = false;
@@ -68,7 +84,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
     T drn = 0, din = 0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    T dxa = 1, dxb = 0, dya = 0, dyb = 1;
+    T dxa = daa, dxb = dab, dya = dba, dyb = dbb;
     T dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
 </xsl:when>
 </xsl:choose>
@@ -198,12 +214,28 @@ LOOP  }
 }
 
 template &lt;typename T&gt;
-bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(     int m_nFractalType, int m_nPower, const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z, int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch, double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI,      T &amp;xr0,      T &amp;xi0, const      T &amp;cr, const      T &amp;ci,      T &amp;dr0,      T &amp;di0, const T &amp;e, const T &amp;h)
+bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , int &amp;antal0, double &amp;test10, double &amp;test20, int &amp;bGlitch
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , T &amp;xr0, T &amp;xi0
+  , const T &amp;cr, const T &amp;ci
+  , T &amp;dr0, T &amp;di0
+  , const T &amp;e, const T &amp;h
+  , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
+  )
 {
   (void) dr0; // -Wunused-parameter
   (void) di0; // -Wunused-parameter
   (void) h; // -Wunused-parameter
   (void) e; // -Wunused-parameter
+  (void) daa; // -Wunused-parameter
+  (void) dab; // -Wunused-parameter
+  (void) dba; // -Wunused-parameter
+  (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     const complex&lt;T&gt; A = { g_FactorAR, g_FactorAI };
@@ -222,7 +254,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     T dr = dr0, di = di0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    T dxa = 1, dxb = 0, dya = 0, dyb = 1;
+    T dxa = daa, dxb = dab, dya = dba, dyb = dbb;
 </xsl:when>
 </xsl:choose>
     T Xxr = 0;
@@ -240,7 +272,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr, di, e, h))
+        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, daa, dbb, e, h)) // FIXME matrix derivatives
         {
 </xsl:when>
 </xsl:choose>
@@ -334,7 +366,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 
 </xsl:for-each>
 
-bool reference_double(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, double &amp;dr, double &amp;di)
+bool reference_double(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, double &amp;dr, double &amp;di, const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -345,7 +377,7 @@ bool reference_double(const int m_nFractalType, const int m_nPower, double *m_db
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;double&gt;(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di);
+          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;double&gt;(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
@@ -354,7 +386,7 @@ bool reference_double(const int m_nFractalType, const int m_nPower, double *m_db
   return false;
 }
 
-bool reference_long_double(const int m_nFractalType, const int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, long double &amp;dr, long double &amp;di)
+bool reference_long_double(const int m_nFractalType, const int m_nPower, long double *m_ldxr, long double *m_ldxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, long double &amp;dr, long double &amp;di, const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -365,7 +397,7 @@ bool reference_long_double(const int m_nFractalType, const int m_nPower, long do
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;long double&gt;(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di);
+          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;long double&gt;(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
@@ -374,7 +406,7 @@ bool reference_long_double(const int m_nFractalType, const int m_nPower, long do
   return false;
 }
 
-bool reference_floatexp(const int m_nFractalType, const int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, floatexp &amp;dr, floatexp &amp;di)
+bool reference_floatexp(const int m_nFractalType, const int m_nPower, floatexp *m_dxr, floatexp *m_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2, floatexp &amp;dr, floatexp &amp;di, const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -385,7 +417,7 @@ bool reference_floatexp(const int m_nFractalType, const int m_nPower, floatexp *
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;floatexp&gt;(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di);
+          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;floatexp&gt;(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, Cr, Ci, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, m_bGlitchLowTolerance, antal, test1, test2, dr, di, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
@@ -394,7 +426,7 @@ bool reference_floatexp(const int m_nFractalType, const int m_nPower, floatexp *
   return false;
 }
 
-bool perturbation_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double &amp;xr, double &amp;xi, const double cr, const double ci, double &amp;dr, double &amp;di, const double &amp;e, const double &amp;h)
+bool perturbation_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double &amp;xr, double &amp;xi, const double cr, const double ci, double &amp;dr, double &amp;di, const double &amp;e, const double &amp;h, const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -405,7 +437,7 @@ bool perturbation_double(const int m_nFractalType, const int m_nPower, const dou
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;double&gt;(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h);
+          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;double&gt;(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
@@ -414,7 +446,7 @@ bool perturbation_double(const int m_nFractalType, const int m_nPower, const dou
   return false;
 }
 
-bool perturbation_long_double(const int m_nFractalType, const int m_nPower, const long double *dxr, const long double *dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, long double &amp;xr, long double &amp;xi, const long double cr, const long double ci, long double &amp;dr, long double &amp;di, const long double &amp;e, const long double &amp;h)
+bool perturbation_long_double(const int m_nFractalType, const int m_nPower, const long double *dxr, const long double *dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, long double &amp;xr, long double &amp;xi, const long double cr, const long double ci, long double &amp;dr, long double &amp;di, const long double &amp;e, const long double &amp;h, const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -425,7 +457,7 @@ bool perturbation_long_double(const int m_nFractalType, const int m_nPower, cons
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;long double&gt;(m_nFractalType, m_nPower, dxr, dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h);
+          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;long double&gt;(m_nFractalType, m_nPower, dxr, dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
@@ -434,7 +466,7 @@ bool perturbation_long_double(const int m_nFractalType, const int m_nPower, cons
   return false;
 }
 
-bool perturbation_floatexp(const int m_nFractalType, const int m_nPower, const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, floatexp &amp;xr, floatexp &amp;xi, const floatexp cr, const floatexp ci, floatexp &amp;dr, floatexp &amp;di, const floatexp &amp;e, const floatexp &amp;h)
+bool perturbation_floatexp(const int m_nFractalType, const int m_nPower, const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z, int &amp;antal, double &amp;test1, double &amp;test2, int &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, floatexp &amp;xr, floatexp &amp;xi, const floatexp cr, const floatexp ci, floatexp &amp;dr, floatexp &amp;di, const floatexp &amp;e, const floatexp &amp;h, const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb)
 {
   switch (m_nFractalType)
   {
@@ -445,7 +477,7 @@ bool perturbation_floatexp(const int m_nFractalType, const int m_nPower, const f
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;floatexp&gt;(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h);
+          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)&lt;floatexp&gt;(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, dr, di, e, h, daa, dab, dba, dbb);
       </xsl:for-each>
       }
       break;
