@@ -58,9 +58,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
         xin = 2 * (Xxr * xi + Xi * xr) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t="M">
+        dxan = ((2*(Xxr*dxa))+((-2*(Xxi*dya))+daa));
+        dxbn = ((2*(Xxr*dxb))+((-2*(Xxi*dyb))+dab));
+        dyan = ((2*(Xxi*dxa))+((2*(Xxr*dya))+dba));
+        dybn = ((2*(Xxi*dxb))+((2*(Xxr*dyb))+dbb));
       </derivative>
     </formula>
 
@@ -73,9 +75,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 3 * Xr * Xr * xr - 6 * Xr * Xi * xi - 3 * Xi * Xi * xr + 3 * Xr * xr * xr - 3 * Xr * xi * xi - 3 * Xi * 2 * xr * xi + xr * xr * xr - 3 * xr * xi * xi + cr;
         xin = 3 * Xr * Xr * xi + 6 * Xr * Xi * xr - 3 * Xi * Xi * xi + 3 * Xr * 2 * xr * xi + 3 * Xi * xr * xr - 3 * Xi * xi * xi + 3 * xr * xr * xi - xi * xi * xi + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(Xxr*(Xxr*dxa)))+((-3*(Xxi*(Xxi*dxa)))+((-6*(Xxi*(Xxr*dya)))+daa)));
+        dxbn = ((3*(Xxr*(Xxr*dxb)))+((-3*(Xxi*(Xxi*dxb)))+((-6*(Xxi*(Xxr*dyb)))+dab)));
+        dyan = ((3*(Xxr*(Xxr*dya)))+((-3*(Xxi*(Xxi*dya)))+((6*(Xxi*(Xxr*dxa)))+dba)));
+        dybn = ((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)));
       </derivative>
     </formula>
 
@@ -86,8 +90,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = 4 * (X ^ 3) * x + 6 * (X ^ 2) * (x ^ 2) + 4 * X * (x ^ 3) + (x ^ 4) + c;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))));
+        dyan = ((4*(Xxr*(Xxr*(Xxr*dya))))+((-4*(Xxi*(Xxi*(Xxi*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dya))))+((12*(Xxi*(Xxr*(Xxr*dxa))))+dba))));
+        dybn = ((4*(Xxr*(Xxr*(Xxr*dyb))))+((-4*(Xxi*(Xxi*(Xxi*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dyb))))+((12*(Xxi*(Xxr*(Xxr*dxb))))+dbb))));
       </derivative>
     </formula>
 
@@ -98,8 +105,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = 5 * (X ^ 4) * x + 10 * (X ^ 3) * (x ^ 2) + 10 * (X ^ 2) * (x ^ 3) + 5 * X * (x ^ 4) + (x ^ 5) + c;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dxa)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dxa)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dya)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dya)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dxa)))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dxb)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dxb)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dyb)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dyb)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dxb)))))+dab)))));
+        dyan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dya)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxa)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxa)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dya)))))+dba)))));
+        dybn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dyb)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxb)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxb)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dyb)))))+dbb)))));
       </derivative>
     </formula>
 
@@ -175,11 +185,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 2 * xr * Xr + xr * xr - 2 * Xi * xi - xi * xi + cr;
         xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
       </perturbation>
-      <derivative t="M">
-        dxan = 2 * (Xxr * dxa - Xxi * dya) + 1;
-        dxbn = 2 * (Xxr * dxb - Xxi * dyb);
-        dyan = 2 * sgn(Xxr) * sgn(Xxi) * (Xxr * dya + Xxi * dxa);
-        dybn = 2 * sgn(Xxr) * sgn(Xxi) * (Xxr * dyb + Xxi * dxb) + 1;
+      <derivative t='M'>
+        dxan = ((2*(Xxr*dxa))+((-2*(Xxi*dya))+daa));
+        dxbn = ((2*(Xxr*dxb))+((-2*(Xxi*dyb))+dab));
+        dyan = ((2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+dba));
+        dybn = ((2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+dbb));
       </derivative>
     </formula>
 
@@ -192,9 +202,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xr * Xr - 3 * Xi * Xi) * diffabs(Xr, xr) + (2 * Xr * xr + xr * xr - 6 * Xi * xi - 3 * xi * xi) * abs(Xr + xr) + cr;
         xin = (3 * Xr * Xr - Xi * Xi) * diffabs(Xi, xi) + (6 * Xr * xr + 3 * xr * xr - 2 * Xi * xi - xi * xi) * abs(Xi + xi) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(dya*sgn(Xxr)))))))+daa)));
+        dxbn = ((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))+dab)));
+        dyan = ((3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dya*sgn(Xxi)))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+dba)));
+        dybn = ((3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+dbb)));
       </derivative>
     </formula>
 
@@ -207,8 +219,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr*Xr*Xr*xr + 6*Xr*Xr*xr*xr + 4*Xr*xr*xr*xr + xr*xr*xr*xr + 4*Xi*Xi*Xi*xi + 6*Xi*Xi*xi*xi + 4*Xi*xi*xi*xi + xi*xi*xi*xi - 12*Xr*Xr*Xi*xi-6*Xr*Xr*xi*xi-12*Xr*xr*Xi*Xi-24*Xr*xr*Xi*xi-12*Xr*xr*xi*xi-6*xr*xr*Xi*Xi-12*xr*xr*Xi*xi-6*xr*xr*xi*xi + cr;
         xin = 4*(Xr*Xr-Xi*Xi)*diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + 4 * abs(Xr*Xi + Xr*xi + xr*Xi + xr*xi)*(2*xr*Xr+xr*xr-2*xi*Xi-xi*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))+daa))));
+        dxbn = ((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))+dab))));
+        dyan = ((4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))+((-4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+dba))));
+        dybn = ((4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))+((-4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dbb))));
       </derivative>
     </formula>
 
@@ -221,8 +236,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr*Xr*Xr*Xr - 10*Xr*Xr*Xi*Xi + 5*Xi*Xi*Xi*Xi) + abs(Xr+xr) * (4*Xr*Xr*Xr*xr+6*Xr*Xr*xr*xr+4*Xr*xr*xr*xr+xr*xr*xr*xr -20*Xr*Xr*Xi*xi-10*Xr*Xr*xi*xi-20*Xr*xr*Xi*Xi-40*Xr*xr*Xi*xi-20*Xr*xr*xi*xi-10*xr*xr*Xi*Xi-20*xr*xr*Xi*xi-10*xr*xr*xi*xi + 20*Xi*Xi*Xi*xi+30*Xi*Xi*xi*xi+20*Xi*xi*xi*xi+5*xi*xi*xi*xi) + cr;
         xin = diffabs(Xi, xi) * (5*Xr*Xr*Xr*Xr - 10*Xr*Xr*Xi*Xi + Xi*Xi*Xi*Xi) + abs(Xi+xi) * (20*Xr*Xr*Xr*xr+30*Xr*Xr*xr*xr+20*Xr*xr*xr*xr+5*xr*xr*xr*xr - 20*Xr*Xr*Xi*xi-10*Xr*Xr*xi*xi-20*Xr*xr*Xi*Xi-40*Xr*xr*Xi*xi-20*Xr*xr*xi*xi-10*xr*xr*Xi*Xi-20*xr*xr*Xi*xi-10*xr*xr*xi*xi +4*Xi*Xi*Xi*xi+6*Xi*Xi*xi*xi+4*Xi*xi*xi*xi+xi*xi*xi*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+daa)))));
+        dxbn = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+dab)))));
+        dyan = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))))))+((5*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+dba)))));
+        dybn = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))))))+((5*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+dbb)))));
       </derivative>
     </formula>
 
@@ -238,9 +256,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr * Xr - Xi * Xi, 2 * Xr * xr + xr * xr - 2 * Xi * xi - xi * xi) + cr;
         xin = ci - 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi);
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+daa));
+        dxbn = ((2*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+dab));
+        dyan = ((2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+dba));
+        dybn = ((2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+dbb));
       </derivative>
     </formula>
 
@@ -253,9 +273,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr * (Xr * Xr - 3 * Xi * Xi), xr * (3 * Xr * Xr + xr * xr) + 3 * Xr * (xr  * xr - 2 * Xi * xi - xi * xi) - 3 * xr * (Xi * Xi + 2 * Xi * xi + xi * xi)) + cr;
         xin = diffabs(Xi * (3 * Xr * Xr - Xi * Xi), 3 * Xi * (2 * Xr * xr + xr * xr - xi * xi) + 3 * xi * (Xr * Xr + 2 * Xr * xr + xr * xr) - xi * (3 * Xi * Xi + xi * xi)) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(Xxr*(Xxr*(dxa*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-3*(Xxi*(Xxi*(dxa*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dya*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+daa)));
+        dxbn = ((3*(Xxr*(Xxr*(dxb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-3*(Xxi*(Xxi*(dxb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dyb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+dab)));
+        dyan = ((3*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-3*(Xxi*(Xxi*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((6*(Xxi*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dba)));
+        dybn = ((3*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-3*(Xxi*(Xxi*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((6*(Xxi*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dbb)));
       </derivative>
     </formula>
 
@@ -268,8 +290,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2+Xi2*Xi2-6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2) + cr;
         xin = diffabs(4*Xr2*Xr*Xi-4*Xr*Xi2*Xi, -4*xr*Xi2*Xi-12*xi*Xr*Xi2-12*xr*xi*Xi2+12*xr*Xr2*Xi-12*xi2*Xr*Xi+12*xr2*Xr*Xi-12*xr*xi2*Xi+4*xr2*xr*Xi+4*xi*Xr2*Xr+12*xr*xi*Xr2-4*xi2*xi*Xr+12*xr2*xi*Xr-4*xr*xi2*xi+4*xr2*xr*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = ((4*(Xxr*(Xxr*(Xxr*(dya*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dya*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+dba))));
+        dybn = ((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+dbb))));
       </derivative>
     </formula>
 
@@ -282,8 +307,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(5*Xr*Xi2*Xi2-10*Xr2*Xr*Xi2+Xr2*Xr2*Xr, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = diffabs(Xi2*Xi2*Xi-10*Xi2*Xi*Xr2+5*Xi*Xr2*Xr2, 5*Xi2*Xi2*xi-20*Xi2*Xi*xr*Xr+10*Xi2*Xi*xi2-10*Xi2*Xi*xr2-30*Xi2*xi*Xr2-60*Xi2*xr*xi*Xr+10*Xi2*xi2*xi-30*Xi2*xr2*xi+20*Xi*xr*Xr2*Xr-30*Xi*xi2*Xr2+30*Xi*xr2*Xr2-60*Xi*xr*xi2*Xr+20*Xi*xr2*xr*Xr+5*Xi*xi2*xi2-30*Xi*xr2*xi2+5*Xi*xr2*xr2+5*xi*Xr2*Xr2+20*xi*xr*Xr2*Xr-10*xi2*xi*Xr2+30*xi*xr2*Xr2-20*xi2*xi*xr*Xr+20*xi*xr2*xr*Xr+xi2*xi2*xi-10*xi2*xi*xr2+5*xi*xr2*xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+dab)))));
+        dyan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+dba)))));
+        dybn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(Xxi*(Xxi*(Xxi*(Xxr*Xxr)))))+(5*(Xxi*(Xxr*(Xxr*(Xxr*Xxr))))))))))))))+dbb)))));
       </derivative>
     </formula>
 
@@ -299,9 +327,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi) + cr;
         xin = 2 * Xr * xi + 2 * xr * (Xi + xi) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+daa));
+        dxbn = ((2*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+dab));
+        dyan = ((2*(Xxi*dxa))+((2*(Xxr*dya))+dba));
+        dybn = ((2*(Xxi*dxb))+((2*(Xxr*dyb))+dbb));
       </derivative>
     </formula>
 
@@ -314,9 +344,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr*(Xr2 - 3 * Xi2), xr*(3 * Xr2 + xr2) + 3 * Xr*(xr2 - 2 * Xi*xi - xi2) - 3 * xr*(Xi2 + 2 * Xi*xi + xi2)) + cr;
         xin = 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(xi2 + 3 * Xi2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(Xxr*(Xxr*(dxa*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-3*(Xxi*(Xxi*(dxa*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dya*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+daa)));
+        dxbn = ((3*(Xxr*(Xxr*(dxb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-3*(Xxi*(Xxi*(dxb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dyb*sgn(((-3*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))))))+dab)));
+        dyan = ((3*(Xxr*(Xxr*dya)))+((-3*(Xxi*(Xxi*dya)))+((6*(Xxi*(Xxr*dxa)))+dba)));
+        dybn = ((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)));
       </derivative>
     </formula>
 
@@ -329,8 +361,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2+Xi2*Xi2-6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 -12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = 12*Xr2*Xi*xr+12*Xr*Xi*xr2-12*Xr*Xi2*xi-12*Xr*Xi*xi2+4*Xr2*Xr*xi+12*Xr2*xi*xr+12*Xr*xi*xr2-4*Xr*xi2*xi+4*xr2*xr*Xi-4*xr*Xi2*Xi-12*xr*Xi2*xi-12*xr*Xi*xi2+4*xr2*xr*xi-4*xr*xi2*xi + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = ((4*(Xxr*(Xxr*(Xxr*dya))))+((-4*(Xxi*(Xxi*(Xxi*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dya))))+((12*(Xxi*(Xxr*(Xxr*dxa))))+dba))));
+        dybn = ((4*(Xxr*(Xxr*(Xxr*dyb))))+((-4*(Xxi*(Xxi*(Xxi*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dyb))))+((12*(Xxi*(Xxr*(Xxr*dxb))))+dbb))));
       </derivative>
     </formula>
 
@@ -343,8 +378,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2*Xr - 10*Xr2*Xr*Xi2 + 5*Xr*Xi2*Xi2, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = 20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+dab)))));
+        dyan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dya)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxa)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxa)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dya)))))+dba)))));
+        dybn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dyb)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxb)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxb)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dyb)))))+dbb)))));
       </derivative>
     </formula>
 
@@ -360,9 +398,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = ci - 2 * (Xr*xi + xr*Xi + xr*xi);
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*dxa))+((-2*(Xxi*dya))+daa));
+        dxbn = ((2*(Xxr*dxb))+((-2*(Xxi*dyb))+dab));
+        dyan = ((-2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((-2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+dba));
+        dybn = ((-2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((-2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+dbb));
       </derivative>
     </formula>
 
@@ -375,9 +415,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = cr - xr*(3 * Xr2 + xr2) + 3 * Xr*(xi2 + 2 * Xi*xi - xr2) + 3 * xr*(Xi2 + 2 * Xi*xi + xi2);
         xin = 6 * Xr*Xi*xr + 3 * Xi*xr2 - 3 * Xi2*xi - 3 * Xi*xi2 + 3 * Xr2*xi + 6 * Xr*xr*xi + 3 * xr2*xi - xi2*xi + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(dya*sgn(Xxr)))))))+daa)));
+        dxbn = ((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))+dab)));
+        dyan = ((-3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+((3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dya*sgn(Xxi)))))))+((-6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+dba)));
+        dybn = ((-3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+((3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))+((-6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+dbb)));
       </derivative>
     </formula>
 
@@ -390,8 +432,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (-12)*Xr2*Xi*xr-12*Xr*Xi*xr2+12*Xr*Xi2*xi+12*Xr*Xi*xi2-4*Xr2*Xr*xi-12*Xr2*xi*xr-12*Xr*xi*xr2+4*Xr*xi2*xi-4*xr2*xr*Xi+4*xr*Xi2*Xi+12*xr*Xi2*xi+12*xr*Xi*xi2-4*xr2*xr*xi+4*xr*xi2*xi + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))+daa))));
+        dxbn = ((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))+dab))));
+        dyan = ((-4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+dba))));
+        dybn = ((-4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dbb))));
       </derivative>
     </formula>
 
@@ -404,8 +449,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 5*Xr2*Xr2*xr+10*Xr2*Xr*xr2+10*Xr2*xr2*xr+5*Xr*xr2*xr2-20*Xr2*Xr*Xi*xi-10*Xr2*Xr*xi2-30*Xr2*xr*Xi2-60*Xr2*xr*Xi*xi-30*Xr2*xr*xi2-30*Xr*xr2*Xi2-60*Xr*xr2*Xi*xi-30*Xr*xr2*xi2+20*Xr*Xi2*Xi*xi+30*Xr*Xi2*xi2+20*Xr*Xi*xi2*xi+5*Xr*xi2*xi2+xr2*xr2*xr-10*xr2*xr*Xi2-20*xr2*xr*Xi*xi-10*xr2*xr*xi2+5*xr*Xi2*Xi2+20*xr*Xi2*Xi*xi+30*xr*Xi2*xi2+20*xr*Xi*xi2*xi+5*xr*xi2*xi2 + cr;
         xin = (-20)*Xi*Xr2*Xr*xr-30*Xi*Xr2*xr2-20*Xi*Xr*xr2*xr-5*Xi*xr2*xr2+30*Xi2*Xr2*xi+30*Xi*Xr2*xi2+20*Xi2*Xi*Xr*xr+60*Xi2*Xr*xr*xi+60*Xi*Xr*xr*xi2+10*Xi2*Xi*xr2+30*Xi2*xr2*xi+30*Xi*xr2*xi2-5*Xi2*Xi2*xi-10*Xi2*Xi*xi2-10*Xi2*xi2*xi-5*Xi*xi2*xi2-5*xi*Xr2*Xr2-20*xi*Xr2*Xr*xr-30*xi*Xr2*xr2-20*xi*Xr*xr2*xr-5*xi*xr2*xr2+10*xi2*xi*Xr2+20*xi2*xi*Xr*xr+10*xi2*xi*xr2-xi2*xi2*xi + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+daa)))));
+        dxbn = ((5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))))))+((-30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+dab)))));
+        dyan = ((-5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))))))+((-5*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))))))+((30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))))+dba)))));
+        dybn = ((-5*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))))))+((-5*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+((-20*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((20*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))))))+((30*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))))+dbb)))));
       </derivative>
     </formula>
 
@@ -420,9 +468,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = (Xr*xi + xr*Xi + xr*xi)*(-2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+daa));
+        dxbn = ((2*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+dab));
+        dyan = ((-2*(Xxi*dxa))+((-2*(Xxr*dya))+dba));
+        dybn = ((-2*(Xxi*dxb))+((-2*(Xxr*dyb))+dbb));
       </derivative>
     </formula>
   </group>
@@ -437,9 +487,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = abs(Xr + xr)*xi*(-2) + diffabs(Xr, xr)*Xi*(-2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*dxa))+((-2*(Xxi*dya))+daa));
+        dxbn = ((2*(Xxr*dxb))+((-2*(Xxi*dyb))+dab));
+        dyan = (dba+((-2*(Xxi*(dxa*sgn(Xxr))))+(-2*(abs(Xxr)*dya))));
+        dybn = (dbb+((-2*(Xxi*(dxb*sgn(Xxr))))+(-2*(abs(Xxr)*dyb))));
       </derivative>
     </formula>
   </group>
@@ -454,9 +506,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 2 * Xr*xr + xr2 - xi2 - 2 * xi*Xi + cr;
         xin = diffabs(Xi, xi)*Xr*(-2) + xr*abs((Xi + xi))*(-2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*dxa))+((-2*(Xxi*dya))+daa));
+        dxbn = ((2*(Xxr*dxb))+((-2*(Xxi*dyb))+dab));
+        dyan = (dba+((-2*(Xxr*(dya*sgn(Xxi))))+(-2*(abs(Xxi)*dxa))));
+        dybn = (dbb+((-2*(Xxr*(dyb*sgn(Xxi))))+(-2*(abs(Xxi)*dxb))));
       </derivative>
     </formula>
   </group>
@@ -471,9 +525,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = abs(Xr + xr)  * xi * (-2) + diffabs(Xr, xr) * Xi * (-2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+daa));
+        dxbn = ((2*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+dab));
+        dyan = (dba+((-2*(Xxi*(dxa*sgn(Xxr))))+(-2*(abs(Xxr)*dya))));
+        dybn = (dbb+((-2*(Xxi*(dxb*sgn(Xxr))))+(-2*(abs(Xxr)*dyb))));
       </derivative>
     </formula>
   </group>
@@ -488,9 +544,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr*Xr - Xi*Xi, 2 * Xr*xr + xr2 - 2 * Xi*xi - xi2) + cr;
         xin = diffabs(Xi, xi)*Xr*(-2) + xr*abs((Xi + xi))*(-2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) + 1;
-        din = 2 * (Xxr * di + Xxi * dr);
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+daa));
+        dxbn = ((2*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+((-2*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))+dab));
+        dyan = (dba+((-2*(Xxr*(dya*sgn(Xxi))))+(-2*(abs(Xxi)*dxa))));
+        dybn = (dbb+((-2*(Xxr*(dyb*sgn(Xxi))))+(-2*(abs(Xxi)*dxb))));
       </derivative>
     </formula>
   </group>
@@ -505,9 +563,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr + xr) + cr;
         xin = ci - diffabs(Xi*(3 * Xr2 - Xi2), 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(3 * Xi2 + xi2));
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((Xxr*(Xxr*(dxa*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxa)))+((-3*(Xxi*(Xxi*(dxa*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dya)))+daa))));
+        dxbn = ((Xxr*(Xxr*(dxb*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxb)))+((-3*(Xxi*(Xxi*(dxb*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dyb)))+dab))));
+        dyan = ((-3*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((3*(Xxi*(Xxi*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-6*(Xxi*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dba)));
+        dybn = ((-3*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((3*(Xxi*(Xxi*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-6*(Xxi*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dbb)));
       </derivative>
     </formula>
   </group>
@@ -522,9 +582,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr + xr) + cr;
         xin = 6 * Xr*(Xi*xr + xr*xi) + 3 * Xi*(xr2 - xi2) + 3 * xi*(Xr2 - Xi2) + xi*(3 * xr2 - xi2) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((Xxr*(Xxr*(dxa*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxa)))+((-3*(Xxi*(Xxi*(dxa*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dya)))+daa))));
+        dxbn = ((Xxr*(Xxr*(dxb*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxb)))+((-3*(Xxi*(Xxi*(dxb*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dyb)))+dab))));
+        dyan = ((3*(Xxr*(Xxr*dya)))+((-3*(Xxi*(Xxi*dya)))+((6*(Xxi*(Xxr*dxa)))+dba)));
+        dybn = ((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)));
       </derivative>
     </formula>
   </group>
@@ -539,9 +601,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 3 * Xr2*xr + 3 * Xr*xr2 - 6 * Xr*Xi*xi - 3 * Xr*xi2 + xr*xr2 - 3 * Xi2*xr - 6 * Xi*xr*xi - 3 * xr*xi2 + cr;
         xin = (3 * Xr2 - Xi2) * diffabs(Xi, xi) + (6 * xr * Xr + 3 * xr2 - 2 * Xi * xi - xi2) * abs(Xi + xi) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(Xxr*(Xxr*dxa)))+((-3*(Xxi*(Xxi*dxa)))+((-6*(Xxi*(Xxr*dya)))+daa)));
+        dxbn = ((3*(Xxr*(Xxr*dxb)))+((-3*(Xxi*(Xxi*dxb)))+((-6*(Xxi*(Xxr*dyb)))+dab)));
+        dyan = ((-1*(Xxi*(Xxi*(dya*sgn(Xxi)))))+((-2*(abs(Xxi)*(Xxi*dya)))+((3*(Xxr*(Xxr*(dya*sgn(Xxi)))))+((6*(abs(Xxi)*(Xxr*dxa)))+dba))));
+        dybn = ((-1*(Xxi*(Xxi*(dyb*sgn(Xxi)))))+((-2*(abs(Xxi)*(Xxi*dyb)))+((3*(Xxr*(Xxr*(dyb*sgn(Xxi)))))+((6*(abs(Xxi)*(Xxr*dxb)))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -556,9 +620,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 3 * Xr2*xr + 3 * Xr*xr2 - 6 * Xr*Xi*xi - 3 * Xr*xi2 + xr*xr2 - 3 * Xi2*xr - 6 * Xi*xr*xi - 3 * xr*xi2 + cr;
         xin = diffabs(Xi*(3 * Xr2 - Xi2), 3 * Xi*(2 * Xr*xr + xr2 - xi2) + 3 * xi*(Xr2 + 2 * Xr*xr + xr2) - xi*(3 * Xi2 + xi2)) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((3*(Xxr*(Xxr*dxa)))+((-3*(Xxi*(Xxi*dxa)))+((-6*(Xxi*(Xxr*dya)))+daa)));
+        dxbn = ((3*(Xxr*(Xxr*dxb)))+((-3*(Xxi*(Xxi*dxb)))+((-6*(Xxi*(Xxr*dyb)))+dab)));
+        dyan = ((3*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-3*(Xxi*(Xxi*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((6*(Xxi*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dba)));
+        dybn = ((3*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((-3*(Xxi*(Xxi*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+((6*(Xxi*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(3*(Xxi*(Xxr*Xxr)))))))))+dbb)));
       </derivative>
     </formula>
   </group>
@@ -573,9 +639,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2)*abs(Xr+xr) + cr;
         xin = ci - diffabs(3 * Xr2 - Xi2, 6 * Xr*xr + 3 * xr2 - 2 * Xi*xi - xi2)*Xi - abs(3 * Xr2 + 6 * Xr*xr + 3 * xr2 - Xi2 - 2 * Xi*xi - xi2)*xi;
       </perturbation>
-      <derivative t="R">
-        drn = 3 * (dr * (Xxr * Xxr - Xxi * Xxi) - di * (2 * Xxr * Xxi)) + 1;
-        din = 3 * (di * (Xxr * Xxr - Xxi * Xxi) + dr * (2 * Xxr * Xxi));
+      <derivative t='M'>
+        dxan = ((Xxr*(Xxr*(dxa*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxa)))+((-3*(Xxi*(Xxi*(dxa*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dya)))+daa))));
+        dxbn = ((Xxr*(Xxr*(dxb*sgn(Xxr))))+((2*(abs(Xxr)*(Xxr*dxb)))+((-3*(Xxi*(Xxi*(dxb*sgn(Xxr)))))+((-6*(abs(Xxr)*(Xxi*dyb)))+dab))));
+        dyan = (dba+((2*(Xxi*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))))))+(-1*(abs(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))*dya)))));
+        dybn = (dbb+((2*(Xxi*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))))))+((-6*(Xxi*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))))))+(-1*(abs(((-1*(Xxi*Xxi))+(3*(Xxr*Xxr))))*dyb)))));
       </derivative>
     </formula>
   </group>
@@ -590,8 +658,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xi+xi)*(12*Xr2*xr+12*Xr*xr2+4*xr2*xr - 4*xr*Xi2-8*xi*Xr*Xi-8*xr*xi*Xi-4*xi2*Xr-4*xr*xi2) + diffabs(Xi, xi)*(4*Xr2*Xr - 4*Xr*Xi2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxr*(Xxr*(Xxr*dxa))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))))+((-12*(abs((Xxi*Xxi))*(Xxr*dxa)))+((-12*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxi)))))))+daa))));
+        dxbn = ((4*(Xxr*(Xxr*(Xxr*dxb))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))))+((-12*(abs((Xxi*Xxi))*(Xxr*dxb)))+((-12*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxi)))))))+dab))));
+        dyan = (dba+((4*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxi))))))+((12*(abs(Xxi)*(Xxr*(Xxr*dxa))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxi))))))))+(-4*(abs((Xxi*(Xxi*Xxi)))*dxa))))));
+        dybn = (dbb+((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxi))))))+((12*(abs(Xxi)*(Xxr*(Xxr*dxb))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxi))))))))+(-4*(abs((Xxi*(Xxi*Xxi)))*dxb))))));
       </derivative>
     </formula>
   </group>
@@ -606,8 +677,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xr+xr)*(4*Xr2*xi+8*Xr*xr*Xi+8*Xr*xr*xi+4*xr2*Xi+4*xr2*xi - 12*xi*Xi2-12*xi2*Xi-4*xi2*xi) + diffabs(Xr, xr)*(4*Xr2*Xi - 4*Xi2*Xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(abs((Xxr*Xxr))*(Xxi*dya)))+((-12*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(abs((Xxr*Xxr))*(Xxi*dyb)))+((-12*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+dab))));
+        dyan = (dba+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr))))))+((-12*(abs(Xxr)*(Xxi*(Xxi*dya))))+((12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))+(4*(abs((Xxr*(Xxr*Xxr)))*dya))))));
+        dybn = (dbb+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr))))))+((-12*(abs(Xxr)*(Xxi*(Xxi*dyb))))+((12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))+(4*(abs((Xxr*(Xxr*Xxr)))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -622,8 +696,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = abs(Xr+xr)*(12*Xi2*xi+12*Xi*xi2+4*xi2*xi - 8*xr*Xr*Xi-4*xr2*Xi-4*xi*Xr2-8*xr*xi*Xr-4*xr2*xi) + diffabs(Xr, xr)*(4*Xi2*Xi - 4*Xr2*Xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+((-12*(abs((Xxr*Xxr))*(Xxi*dya)))+((-12*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+((-12*(abs((Xxr*Xxr))*(Xxi*dyb)))+((-12*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+dab))));
+        dyan = (dba+((4*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr))))))+((12*(abs(Xxr)*(Xxi*(Xxi*dya))))+((-12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))+(-4*(abs((Xxr*(Xxr*Xxr)))*dya))))));
+        dybn = (dbb+((4*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr))))))+((12*(abs(Xxr)*(Xxi*(Xxi*dyb))))+((-12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))+(-4*(abs((Xxr*(Xxr*Xxr)))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -638,8 +715,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xi+xi)*(12*Xr2*xr+12*Xr*xr2+4*xr2*xr - 4*xr*Xi2-8*xi*Xr*Xi-8*xr*xi*Xi-4*xi2*Xr-4*xr*xi2) + diffabs(Xi, xi)*(4*Xr2*Xr - 4*Xr*Xi2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi))))))))))))+((4*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi))))))))))+((-12*(abs((Xxi*Xxi))*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(Xxr*dxa))))+((-12*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxi))))))))+daa))));
+        dxbn = ((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi))))))))))))+((4*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi))))))))))+((-12*(abs((Xxi*Xxi))*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(Xxr*dxb))))+((-12*(sgn(((Xxr*(Xxr*(Xxr*Xxr)))+((-6*(abs((Xxi*Xxi))*(Xxr*Xxr)))+abs((Xxi*(Xxi*(Xxi*Xxi)))))))*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxi))))))))+dab))));
+        dyan = (dba+((4*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxi))))))+((12*(abs(Xxi)*(Xxr*(Xxr*dxa))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxi))))))))+(-4*(abs((Xxi*(Xxi*Xxi)))*dxa))))));
+        dybn = (dbb+((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxi))))))+((12*(abs(Xxi)*(Xxr*(Xxr*dxb))))+((-12*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxi))))))))+(-4*(abs((Xxi*(Xxi*Xxi)))*dxb))))));
       </derivative>
     </formula>
   </group>
@@ -654,8 +734,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xr+xr)*(4*Xr2*xi+8*Xr*xr*Xi+8*Xr*xr*xi+4*xr2*Xi+4*xr2*xi - 12*xi*Xi2-12*xi2*Xi-4*xi2*xi) + diffabs(Xr, xr)*(4*Xr2*Xi - 4*Xi2*Xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr))))))))))))+((4*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-12*(abs((Xxr*Xxr))*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(Xxi*dya))))+((-12*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr))))))))))))+((4*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-12*(abs((Xxr*Xxr))*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(Xxi*dyb))))+((-12*(sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(abs((Xxr*Xxr))*(Xxi*Xxi)))+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))+dab))));
+        dyan = (dba+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr))))))+((-12*(abs(Xxr)*(Xxi*(Xxi*dya))))+((12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))+(4*(abs((Xxr*(Xxr*Xxr)))*dya))))));
+        dybn = (dbb+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr))))))+((-12*(abs(Xxr)*(Xxi*(Xxi*dyb))))+((12*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))+(4*(abs((Xxr*(Xxr*Xxr)))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -670,8 +753,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = abs(Xr+xr)*(12*Xi2*xi+12*Xi*xi2+4*xi2*xi - 8*xr*Xr*Xi-4*xr2*Xi-4*xi*Xr2-8*xr*xi*Xr-4*xr2*xi) + diffabs(Xr, xr)*(4*Xi2*Xi - 4*Xr2*Xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi))))))))))+((4*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-12*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))))+((-12*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+daa))));
+        dxbn = ((4*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi))))))))))+((4*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-12*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))))+((-12*(sgn((abs((Xxi*(Xxi*(Xxi*Xxi))))+((abs((Xxi*(Xxi*(Xxr*Xxr))))*-6)+abs((Xxr*(Xxr*(Xxr*Xxr)))))))*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+dab))));
+        dyan = ((-4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+dba))));
+        dybn = ((-4*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))))+((4*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))))+((12*(sgn(Xxi)*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))))+((-12*(sgn(Xxi)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -686,8 +772,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = diffabs(4*Xr2*Xr*Xi-4*Xr*Xi2*Xi, -4*xr*Xi2*Xi-12*xi*Xr*Xi2-12*xr*xi*Xi2+12*xr*Xr2*Xi-12*xi2*Xr*Xi+12*xr2*Xr*Xi-12*xr*xi2*Xi+4*xr2*xr*Xi+4*xi*Xr2*Xr+12*xr*xi*Xr2-4*xi2*xi*Xr+12*xr2*xi*Xr-4*xr*xi2*xi+4*xr2*xr*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))));
+        dyan = ((4*(Xxr*(Xxr*(Xxr*(dya*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dya*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+dba))));
+        dybn = ((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+((12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-4*(Xxi*(Xxi*(Xxi*Xxr))))+(4*(Xxi*(Xxr*(Xxr*Xxr)))))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -702,8 +791,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = ci - (12*Xr2*Xi*xr+12*Xr*Xi*xr2-12*Xr*Xi2*xi-12*Xr*Xi*xi2+4*Xr2*Xr*xi+12*Xr2*xi*xr+12*Xr*xi*xr2-4*Xr*xi2*xi+4*xr2*xr*Xi-4*xr*Xi2*Xi-12*xr*Xi2*xi-12*xr*Xi*xi2+4*xr2*xr*xi-4*xr*xi2*xi);
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = ((-4*(Xxr*(Xxr*(Xxr*dya))))+((4*(Xxi*(Xxi*(Xxi*dxa))))+((12*(Xxi*(Xxi*(Xxr*dya))))+((-12*(Xxi*(Xxr*(Xxr*dxa))))+dba))));
+        dybn = ((-4*(Xxr*(Xxr*(Xxr*dyb))))+((4*(Xxi*(Xxi*(Xxi*dxb))))+((12*(Xxi*(Xxi*(Xxr*dyb))))+((-12*(Xxi*(Xxr*(Xxr*dxb))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -718,8 +810,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (-(4*Xr*Xi))*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) - (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxr*(Xxr*dya)))+((-24*(Xxi*(Xxr*dxa)))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxr*(Xxr*dyb)))+((-24*(Xxi*(Xxr*dxb)))+dab))));
+        dyan = ((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxa)))+((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dya)))+((-8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dba))));
+        dybn = ((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxb)))+((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dyb)))+((-8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -734,8 +829,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 + cr;
         xin = (4*Xr*Xi)*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) + (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxr*(Xxr*dya)))+((-24*(Xxi*(Xxr*dxa)))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxr*(Xxr*dyb)))+((-24*(Xxi*(Xxr*dxb)))+dab))));
+        dyan = ((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxa)))+((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dya)))+((8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dba))));
+        dybn = ((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxb)))+((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dyb)))+((8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -750,8 +848,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = (-(4*Xr*Xi))*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) - (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+((-24*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+((-24*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+dab))));
+        dyan = ((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxa)))+((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dya)))+((-8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dba))));
+        dybn = ((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxb)))+((-4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dyb)))+((-8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -766,8 +867,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2, 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 + 4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2 - 12*xr*Xr*Xi2-6*xr2*Xi2-12*xi*Xr2*Xi-24*xr*xi*Xr*Xi-12*xr2*xi*Xi-6*xi2*Xr2-12*xr*xi2*Xr-6*xr2*xi2) + cr;
         xin = (4*Xr*Xi)*diffabs(Xr2-Xi2, -2*xi*Xi+2*xr*Xr-xi2+xr2) + (4*Xr*xi + 4*xr*Xi + 4*xr*xi)*abs(-Xi2-2*xi*Xi+Xr2+2*xr*Xr-xi2+xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+((-24*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+((-24*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-12*(Xxi*(Xxr*Xxr)))+(Xxr*(Xxr*(Xxr*Xxr))))))))))+dab))));
+        dyan = ((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxa)))+((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dya)))+((8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dba))));
+        dybn = ((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxb)))+((4*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dyb)))+((8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dbb))));
       </derivative>
     </formula>
   </group>
@@ -782,8 +886,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = 20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dya)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dya)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dyb)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dyb)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dab)))));
+        dyan = (dba+((5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((-20*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))+((20*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-30*(abs((Xxr*Xxr))*(Xxi*(Xxi*dya))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*dya)))))));
+        dybn = (dbb+((5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((-20*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))+((20*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-30*(abs((Xxr*Xxr))*(Xxi*(Xxi*dyb))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*dyb)))))));
       </derivative>
     </formula>
   </group>
@@ -798,8 +905,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = ci - (20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi);
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dya)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dya)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dyb)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dyb)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dab)))));
+        dyan = (dba+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((20*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))+((-20*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((30*(abs((Xxr*Xxr))*(Xxi*(Xxi*dya))))+(-5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*dya)))))));
+        dybn = (dbb+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((20*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))+((-20*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((30*(abs((Xxr*Xxr))*(Xxi*(Xxi*dyb))))+(-5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*dyb)))))));
       </derivative>
     </formula>
   </group>
@@ -814,8 +924,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(5*Xr*Xi2*Xi2-10*Xr2*Xr*Xi2+Xr2*Xr2*Xr, 20*Xr*xi*Xi2*Xi-30*Xr2*xr*Xi2+30*Xr*xi2*Xi2-30*Xr*xr2*Xi2-20*Xr2*Xr*xi*Xi-60*Xr2*xr*xi*Xi+20*Xr*xi2*xi*Xi-60*Xr*xr2*xi*Xi+5*Xr2*Xr2*xr-10*Xr2*Xr*xi2+10*Xr2*Xr*xr2-30*Xr2*xr*xi2+10*Xr2*xr2*xr+5*Xr*xi2*xi2-30*Xr*xr2*xi2+5*Xr*xr2*xr2+5*xr*Xi2*Xi2+20*xr*xi*Xi2*Xi+30*xr*xi2*Xi2-10*xr2*xr*Xi2+20*xr*xi2*xi*Xi-20*xr2*xr*xi*Xi+5*xr*xi2*xi2-10*xr2*xr*xi2+xr2*xr2*xr) + cr;
         xin = ci - (20*Xi*Xr2*Xr*xr+30*Xi*Xr2*xr2+20*Xi*Xr*xr2*xr+5*Xi*xr2*xr2-30*Xi2*Xr2*xi-30*Xi*Xr2*xi2-20*Xi2*Xi*Xr*xr-60*Xi2*Xr*xr*xi-60*Xi*Xr*xr*xi2-10*Xi2*Xi*xr2-30*Xi2*xr2*xi-30*Xi*xr2*xi2+5*Xi2*Xi2*xi+10*Xi2*Xi*xi2+10*Xi2*xi2*xi+5*Xi*xi2*xi2+5*xi*Xr2*Xr2+20*xi*Xr2*Xr*xr+30*xi*Xr2*xr2+20*xi*Xr*xr2*xr+5*xi*xr2*xr2-10*xi2*xi*Xr2-20*xi2*xi*Xr*xr-10*xi2*xi*xr2+xi2*xi2*xi);
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(((5*(Xxi*(Xxi*(Xxi*(Xxi*Xxr)))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*Xxr)))))+(Xxr*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+dab)))));
+        dyan = ((-5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dya)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dxa)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dxa)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dya)))))+dba)))));
+        dybn = ((-5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dyb)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dxb)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dxb)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dyb)))))+dbb)))));
       </derivative>
     </formula>
   </group>
@@ -830,8 +943,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = ci - diffabs(Xi2*Xi2*Xi-10*Xi2*Xi*Xr2+5*Xi*Xr2*Xr2, 5*Xi2*Xi2*xi-20*Xi2*Xi*xr*Xr+10*Xi2*Xi*xi2-10*Xi2*Xi*xr2-30*Xi2*xi*Xr2-60*Xi2*xr*xi*Xr+10*Xi2*xi2*xi-30*Xi2*xr2*xi+20*Xi*xr*Xr2*Xr-30*Xi*xi2*Xr2+30*Xi*xr2*Xr2-60*Xi*xr*xi2*Xr+20*Xi*xr2*xr*Xr+5*Xi*xi2*xi2-30*Xi*xr2*xi2+5*Xi*xr2*xr2+5*xi*Xr2*Xr2+20*xi*xr*Xr2*Xr-10*xi2*xi*Xr2+30*xi*xr2*Xr2-20*xi2*xi*xr*Xr+20*xi*xr2*xr*Xr+xi2*xi2*xi-10*xi2*xi*xr2+5*xi*xr2*xr2);
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dya)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dya)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))+daa)))));
+        dxbn = ((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((5*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dyb)))))+((-20*(abs((Xxr*(Xxr*Xxr)))*(Xxi*dyb)))+((-30*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))+dab)))));
+        dyan = (dba+((-5*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))))))))+((20*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))))+((-20*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))))))+((30*(abs((Xxr*Xxr))*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(Xxi*(Xxi*dya)))))+(-5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*dya))))))));
+        dybn = (dbb+((-5*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))))))))+((20*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))))+((-20*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(sgn(Xxr)*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))))))+((30*(abs((Xxr*Xxr))*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*(Xxi*(Xxi*dyb)))))+(-5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*(sgn(((Xxi*(Xxi*(Xxi*(Xxi*Xxi))))+((-10*(abs((Xxr*Xxr))*(Xxi*(Xxi*Xxi))))+(5*(abs((Xxr*(Xxr*(Xxr*Xxr))))*Xxi)))))*dyb))))))));
       </derivative>
     </formula>
   </group>
@@ -846,8 +962,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = (-Xi) * diffabs(5*Xr2*Xr2 - 10*Xr2*Xi2 + Xi2*Xi2, 4*xi*Xi2*Xi-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) - xi * abs(Xi2*Xi2+4*xi*Xi2*Xi-10*Xr2*Xi2-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+5*Xr2*Xr2+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))+((4*(abs(Xxr)*(Xxr*(Xxr*(Xxr*dxa)))))+((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-20*(abs(Xxr)*(Xxi*(Xxi*(Xxr*dxa)))))+((-20*(abs(Xxr)*(Xxi*(Xxr*(Xxr*dya)))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dya)))))+daa)))))));
+        dxbn = ((Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))+((4*(abs(Xxr)*(Xxr*(Xxr*(Xxr*dxb)))))+((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-20*(abs(Xxr)*(Xxi*(Xxi*(Xxr*dxb)))))+((-20*(abs(Xxr)*(Xxi*(Xxr*(Xxr*dyb)))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dyb)))))+dab)))))));
+        dyan = (dba+((-4*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+(-1*(abs(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))*dya)))))));
+        dybn = (dbb+((-4*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+(-1*(abs(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))*dyb)))))));
       </derivative>
     </formula>
   </group>
@@ -862,8 +981,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr, xr) * (Xr2*Xr2- 10*Xr2*Xi2 + 5*Xi2*Xi2) + abs(Xr+xr) * (4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2 -20*Xr2*Xi*xi-10*Xr2*xi2-20*Xr*xr*Xi2-40*Xr*xr*Xi*xi-20*Xr*xr*xi2-10*xr2*Xi2-20*xr2*Xi*xi-10*xr2*xi2 + 20*Xi2*Xi*xi+30*Xi2*xi2+20*Xi*xi2*xi+5*xi2*xi2) + cr;
         xin = Xi * diffabs(5*Xr2*Xr2 - 10*Xr2*Xi2 + Xi2*Xi2, 4*xi*Xi2*Xi-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + xi * abs(Xi2*Xi2+4*xi*Xi2*Xi-10*Xr2*Xi2-20*xr*Xr*Xi2+6*xi2*Xi2-10*xr2*Xi2-20*xi*Xr2*Xi-40*xr*xi*Xr*Xi+4*xi2*xi*Xi-20*xr2*xi*Xi+5*Xr2*Xr2+20*xr*Xr2*Xr-10*xi2*Xr2+30*xr2*Xr2-20*xr*xi2*Xr+20*xr2*xr*Xr+xi2*xi2-10*xr2*xi2+5*xr2*xr2) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 5 * d * (Xx ^ 4) + 1;
+      <derivative t='M'>
+        dxan = ((Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))+((4*(abs(Xxr)*(Xxr*(Xxr*(Xxr*dxa)))))+((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-20*(abs(Xxr)*(Xxi*(Xxi*(Xxr*dxa)))))+((-20*(abs(Xxr)*(Xxi*(Xxr*(Xxr*dya)))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dya)))))+daa)))))));
+        dxbn = ((Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))+((4*(abs(Xxr)*(Xxr*(Xxr*(Xxr*dxb)))))+((5*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-10*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-20*(abs(Xxr)*(Xxi*(Xxi*(Xxr*dxb)))))+((-20*(abs(Xxr)*(Xxi*(Xxr*(Xxr*dyb)))))+((20*(abs(Xxr)*(Xxi*(Xxi*(Xxi*dyb)))))+dab)))))));
+        dyan = (dba+((4*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+(abs(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))*dya))))));
+        dybn = (dbb+((4*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))))))))+(abs(((Xxi*(Xxi*(Xxi*Xxi)))+((-10*(Xxi*(Xxi*(Xxr*Xxr))))+(5*(Xxr*(Xxr*(Xxr*Xxr)))))))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -878,6 +1000,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xi2)*diffabs(Xi2,2*xi*Xi+xi2)-4*Xi*Xr*diffabs(Xr*Xi,Xr*xi+xr*Xi+xr*xi)-Xr2*diffabs(Xi2,2*xi*Xi+xi2)-Xi2*diffabs(Xr2,2*Xr*xr+xr2)+Xr2*diffabs(Xr2,2*Xr*xr+xr2) + (2*xi*Xi+xi2)*abs(Xi2+2*xi*Xi+xi2)-4*(Xi*xr+xi*Xr+xi*xr)*abs(Xr*Xi+Xr*xi+xr*Xi+xr*xi)-(2*Xr*xr+xr2)*abs(Xi2+2*xi*Xi+xi2)-(2*xi*Xi+xi2)*abs(Xr2+2*Xr*xr+xr2)+(2*Xr*xr+xr2)*abs(Xr2+2*Xr*xr+xr2) + cr;
         xin = 2*Xr2*diffabs(Xr*Xi,Xr*xi+xr*Xi+xr*xi)+2*Xr*Xi*diffabs(Xr2,2*Xr*xr+xr2)-2*Xr*Xi*diffabs(Xi2,2*xi*Xi+xi2)-2*Xi2*diffabs(Xr*Xi,Xr*xi+xr*Xi+xr*xi) + 2*(2*Xr*xr+xr2)*abs(Xr*Xi+Xr*xi+xr*Xi+xr*xi) +2*(Xr*xi+xr*Xi+xr*xi)*abs(Xr2+2*Xr*xr+xr2)-2*(Xr*xi+xr*Xi+xr*xi)*abs(Xi2+2*xi*Xi+xi2)-2*(2*xi*Xi+xi2)*abs(Xr*Xi+Xr*xi+xr*Xi+xr*xi)  + ci;
       </perturbation>
+      <derivative t='M'>
+        dxan = ((2*(abs((Xxr*Xxr))*(Xxr*dxa)))+((-2*(abs((Xxi*Xxi))*(Xxr*dxa)))+((2*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-2*(abs((Xxr*Xxr))*(Xxi*dya)))+((2*(abs((Xxi*Xxi))*(Xxi*dya)))+((-2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxi)))))))+((-2*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi)))))))+((-4*(abs((Xxi*Xxr))*(Xxi*dxa)))+((-4*(abs((Xxi*Xxr))*(Xxr*dya)))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+daa))))))))))));
+        dxbn = ((2*(abs((Xxr*Xxr))*(Xxr*dxb)))+((-2*(abs((Xxi*Xxi))*(Xxr*dxb)))+((2*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-2*(abs((Xxr*Xxr))*(Xxi*dyb)))+((2*(abs((Xxi*Xxi))*(Xxi*dyb)))+((-2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxi)))))))+((-2*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi)))))))+((-4*(abs((Xxi*Xxr))*(Xxi*dxb)))+((-4*(abs((Xxi*Xxr))*(Xxr*dyb)))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+dab))))))))))));
+        dyan = ((2*(abs((Xxr*Xxr))*(Xxr*dya)))+((-2*(abs((Xxi*Xxi))*(Xxr*dya)))+((2*(abs((Xxr*Xxr))*(Xxi*dxa)))+((2*(sgn(Xxi)*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+((-2*(abs((Xxi*Xxi))*(Xxi*dxa)))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((4*(abs((Xxi*Xxr))*(Xxr*dxa)))+((-4*(abs((Xxi*Xxr))*(Xxi*dya)))+((4*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxi)))))))+dba))))))))))));
+        dybn = ((2*(abs((Xxr*Xxr))*(Xxr*dyb)))+((-2*(abs((Xxi*Xxi))*(Xxr*dyb)))+((2*(abs((Xxr*Xxr))*(Xxi*dxb)))+((2*(sgn(Xxi)*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+((-2*(abs((Xxi*Xxi))*(Xxi*dxb)))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((4*(abs((Xxi*Xxr))*(Xxr*dxb)))+((-4*(abs((Xxi*Xxr))*(Xxi*dyb)))+((4*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxi)))))))+dbb))))))))))));
+      </derivative>
     </formula>
   </group>
 
@@ -891,8 +1019,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = 4 * (xr) * abs(- Xi2*Xi-3*xi*Xi2+Xr2*Xi+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + 4 * Xr * diffabs(- Xi2*Xi+Xr2*Xi,-3*xi*Xi2+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))));
+        dyan = (dba+((4*(Xxr*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr))))*dxa))))));
+        dybn = (dbb+((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr))))*dxb))))));
       </derivative>
     </formula>
   </group>
@@ -907,8 +1038,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = (-4)*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) - 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))));
+        dyan = (dba+((4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(-4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dya))))));
+        dybn = (dbb+((4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(-4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -923,8 +1057,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 4*Xr2*Xr*xr+6*Xr2*xr2+4*Xr*xr2*xr+xr2*xr2+4*Xi2*Xi*xi+6*Xi2*xi2+4*Xi*xi2*xi+xi2*xi2-12*Xr2*Xi*xi-6*Xr2*xi2-12*Xr*xr*Xi2-24*Xr*xr*Xi*xi-12*Xr*xr*xi2-6*xr2*Xi2-12*xr2*Xi*xi-6*xr2*xi2 +cr;
         xin = 4*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))));
+        dyan = (dba+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dya))))));
+        dybn = (dbb+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -939,8 +1076,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = 4 * xr * abs(- Xi2*Xi-3*xi*Xi2+Xr2*Xi+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + 4 * Xr * diffabs(- Xi2*Xi+Xr2*Xi,-3*xi*Xi2+2*xr*Xr*Xi-3*xi2*Xi+xr2*Xi+xi*Xr2+2*xr*xi*Xr-xi2*xi+xr2*xi) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = (dba+((4*(Xxr*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr))))*dxa))))));
+        dybn = (dbb+((4*(Xxr*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxi)))+(Xxi*(Xxr*Xxr))))*dxb))))));
       </derivative>
     </formula>
   </group>
@@ -955,8 +1095,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = (-4)*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) - 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = (dba+((4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(-4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dya))))));
+        dybn = (dbb+((4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(-4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -971,8 +1114,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = diffabs(Xr2*Xr2 + Xi2*Xi2 - 6*Xr2*Xi2,4*Xi2*Xi*xi-12*Xi2*xr*Xr+6*Xi2*xi2-6*Xi2*xr2-12*Xr2*Xi*xi-24*Xr*Xi*xr*xi+4*xi2*xi*Xi-12*xi*Xi*xr2+4*Xr2*Xr*xr-6*Xr2*xi2+6*Xr2*xr2-12*xi2*Xr*xr+4*xr2*xr*Xr+xi2*xi2-6*xi2*xr2+xr2*xr2) +cr;
         xin = 4*Xi*diffabs(Xr2*Xr-Xr*Xi2,-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + 4*xi*abs(- Xr*Xi2-xr*Xi2-2*xi*Xr*Xi-2*xr*xi*Xi+Xr2*Xr+3*xr*Xr2-xi2*Xr+3*xr2*Xr-xr*xi2+xr2*xr) + ci;
       </perturbation>
-      <derivative t="C">
-        dn = 4 * d * (Xx ^ 3) + 1;
+      <derivative t='M'>
+        dxan = ((4*(Xxi*(Xxi*(Xxi*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxa*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dya*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+daa))));
+        dxbn = ((4*(Xxi*(Xxi*(Xxi*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((4*(Xxr*(Xxr*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxi*(Xxr*(dxb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+((-12*(Xxi*(Xxr*(Xxr*(dyb*sgn(((Xxi*(Xxi*(Xxi*Xxi)))+((-6*(Xxi*(Xxi*(Xxr*Xxr))))+(Xxr*(Xxr*(Xxr*Xxr)))))))))))+dab))));
+        dyan = (dba+((-4*(Xxi*(Xxi*(Xxi*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-8*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((12*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dya))))));
+        dybn = (dbb+((-4*(Xxi*(Xxi*(Xxi*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((-8*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+((12*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr)))))))))+(4*(abs(((-1*(Xxi*(Xxi*Xxr)))+(Xxr*(Xxr*Xxr))))*dyb))))));
       </derivative>
     </formula>
   </group>
@@ -987,6 +1133,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn= 3*diffabs(Xr2*Xi,Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(Xi2*Xi) - diffabs(Xi2*Xi,3*Xi2*xi+3*Xi*xi2+xi2*xi)*(Xi2*Xi) + 9*diffabs(Xr*Xi2,2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(Xr*Xi2) - 3*diffabs(Xr2*Xr,3*Xr2*xr+3*Xr*xr2+xr2*xr)*(Xr*Xi2) + 3*diffabs(Xi2*Xi,3*Xi2*xi+3*Xi*xi2+xi2*xi)*(Xr2*Xi) - 9*diffabs(Xr2*Xi,Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(Xr2*Xi) - 3*diffabs(Xr*Xi2,2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(Xr2*Xr) + diffabs(Xr2*Xr,3*Xr2*xr+3*Xr*xr2+xr2*xr)*(Xr2*Xr)          + 3*abs(Xr2*Xi+Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(3*Xi2*xi+3*Xi*xi2+xi2*xi) - abs(Xi2*Xi+3*Xi2*xi+3*Xi*xi2+xi2*xi)*(3*Xi2*xi+3*Xi*xi2+xi2*xi) + 9*abs(Xr*Xi2+2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2) - 3*abs(Xr2*Xr+3*Xr2*xr+3*Xr*xr2+xr2*xr)*(2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2) + 3*abs(Xi2*Xi+3*Xi2*xi+3*Xi*xi2+xi2*xi)*(Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi) - 9*abs(Xr2*Xi+Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi) - 3*abs(Xr*Xi2+2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(3*Xr2*xr+3*Xr*xr2+xr2*xr) + abs(Xr2*Xr+3*Xr2*xr+3*Xr*xr2+xr2*xr)*(3*Xr2*xr+3*Xr*xr2+xr2*xr)         + cr;
         xin= 3*diffabs(Xr*Xi2,2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(Xi2*Xi) - diffabs(Xr2*Xr,3*Xr2*xr+3*Xr*xr2+xr2*xr)*(Xi2*Xi) - 9*diffabs(Xr2*Xi,Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(Xr*Xi2) - 9*diffabs(Xr*Xi2,2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(Xr2*Xi) + 3*diffabs(Xr2*Xr,3*Xr2*xr+3*Xr*xr2+xr2*xr)*(Xr2*Xi) + 3*diffabs(Xi2*Xi,3*Xi2*xi+3*Xi*xi2+xi2*xi)*(Xr*Xi2) - diffabs(Xi2*Xi,3*Xi2*xi+3*Xi*xi2+xi2*xi)*(Xr2*Xr) + 3*diffabs(Xr2*Xi,Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(Xr2*Xr)          + 3*abs(Xr*Xi2+2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(3*Xi2*xi+3*Xi*xi2+xi2*xi) - abs(Xr2*Xr+3*Xr2*xr+3*Xr*xr2+xr2*xr)*(3*Xi2*xi+3*Xi*xi2+xi2*xi) - 9*abs(Xr2*Xi+Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2) - 9*abs(Xr*Xi2+2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2)*(Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi) + 3*abs(Xr2*Xr+3*Xr2*xr+3*Xr*xr2+xr2*xr)*(Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi) + 3*abs(Xi2*Xi+3*Xi2*xi+3*Xi*xi2+xi2*xi)*(2*Xr*Xi*xi+Xr*xi2+xr*Xi2+2*xr*Xi*xi+xr*xi2) - abs(Xi2*Xi+3*Xi2*xi+3*Xi*xi2+xi2*xi)*(3*Xr2*xr+3*Xr*xr2+xr2*xr) + 3*abs(Xr2*Xi+Xr2*xi+2*Xr*xr*Xi+2*Xr*xr*xi+xr2*Xi+xr2*xi)*(3*Xr2*xr+3*Xr*xr2+xr2*xr)         + ci;
       </perturbation>
+      <derivative t='M'>
+        dxan = ((3*(abs((Xxi*(Xxi*Xxi)))*(Xxr*(Xxr*dya))))+((3*(abs((Xxr*(Xxr*Xxr)))*(Xxr*(Xxr*dxa))))+((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-3*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxi*dya))))+((-3*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxi*dxa))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((3*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*(dya*sgn(Xxi))))))))))+((-6*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxr*dya))))+((6*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxr*dxa))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxi*Xxr)))*(Xxr*(Xxr*dxa))))+((-9*(abs((Xxi*(Xxr*Xxr)))*(Xxr*(Xxr*dya))))+((-9*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((9*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxi*dxa))))+((9*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxi*dya))))+((-9*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxi))))))))))+((18*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxr*dya))))+((-18*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxr*dxa))))+((-18*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((18*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+daa))))))))))))))))))))))));
+        dxbn = ((3*(abs((Xxi*(Xxi*Xxi)))*(Xxr*(Xxr*dyb))))+((3*(abs((Xxr*(Xxr*Xxr)))*(Xxr*(Xxr*dxb))))+((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-3*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxi*dyb))))+((-3*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxi*dxb))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((3*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*(dyb*sgn(Xxi))))))))))+((-6*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxr*dyb))))+((6*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxr*dxb))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxi*Xxr)))*(Xxr*(Xxr*dxb))))+((-9*(abs((Xxi*(Xxr*Xxr)))*(Xxr*(Xxr*dyb))))+((-9*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((9*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxi*dxb))))+((9*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxi*dyb))))+((-9*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxi))))))))))+((18*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxr*dyb))))+((-18*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxr*dxb))))+((-18*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((18*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+dab))))))))))))))))))))))));
+        dyan = ((3*(abs((Xxr*(Xxr*Xxr)))*(Xxr*(Xxr*dya))))+((-3*(abs((Xxi*(Xxi*Xxi)))*(Xxr*(Xxr*dxa))))+((3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((-3*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxi*dya))))+((3*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxi*dxa))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxi))))))))))+((-3*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr))))))))))+((6*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxr*dya))))+((6*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxr*dxa))))+((6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr))))))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxi*Xxr)))*(Xxr*(Xxr*dya))))+((9*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxi*dya))))+((9*(abs((Xxi*(Xxr*Xxr)))*(Xxr*(Xxr*dxa))))+((9*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxi*dxa))))+((-9*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxi))))))))))+((-9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+((-18*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxr*dxa))))+((-18*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxr*dya))))+((-18*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr))))))))))+((-18*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr))))))))))+dba))))))))))))))))))))))));
+        dybn = ((3*(abs((Xxr*(Xxr*Xxr)))*(Xxr*(Xxr*dyb))))+((-3*(abs((Xxi*(Xxi*Xxi)))*(Xxr*(Xxr*dxb))))+((3*(sgn(Xxi)*(sgn(Xxr)*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((-3*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxi*dyb))))+((3*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxi*dxb))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxi))))))))))+((-3*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr))))))))))+((6*(abs((Xxi*(Xxi*Xxi)))*(Xxi*(Xxr*dyb))))+((6*(abs((Xxr*(Xxr*Xxr)))*(Xxi*(Xxr*dxb))))+((6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr))))))))))+((6*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxi*Xxr)))*(Xxr*(Xxr*dyb))))+((9*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxi*dyb))))+((9*(abs((Xxi*(Xxr*Xxr)))*(Xxr*(Xxr*dxb))))+((9*(sgn(Xxr)*(sgn(Xxr)*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-9*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxi*dxb))))+((-9*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxi))))))))))+((-9*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+((-18*(abs((Xxi*(Xxi*Xxr)))*(Xxi*(Xxr*dxb))))+((-18*(abs((Xxi*(Xxr*Xxr)))*(Xxi*(Xxr*dyb))))+((-18*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr))))))))))+((-18*(sgn(Xxi)*(sgn(Xxr)*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr))))))))))+dbb))))))))))))))))))))))));
+      </derivative>
     </formula>
   </group>
 
@@ -1000,9 +1152,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = xr*(2*Xr+xr)-xi*(xi+2*Xi) - diffabs(Xr,xr) + cr;
         xin = diffabs(Xr*Xi,Xr*xi+xr*Xi+xr*xi) * 2 - diffabs(Xi,xi) + ci;
       </perturbation>
-      <derivative t="R">
-        drn = 2 * (Xxr * dr - Xxi * di) - dr + 1;
-        din = 2 * (Xxr * di + Xxi * dr) - di;
+      <derivative t='M'>
+        dxan = (daa+((2*(Xxr*dxa))+((-2*(Xxi*dya))+(-1*(dxa*sgn(Xxr))))));
+        dxbn = (dab+((2*(Xxr*dxb))+((-2*(Xxi*dyb))+(-1*(dxb*sgn(Xxr))))));
+        dyan = (dba+((2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+(-1*(dya*sgn(Xxi))))));
+        dybn = (dbb+((2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+(-1*(dyb*sgn(Xxi))))));
       </derivative>
     </formula>
   </group>
@@ -1015,8 +1169,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 3*X2*x + 3*X*x2 + x2*x + c;
       </perturbation>
-      <derivative t="C">
-        dn = (2 * A + 3 * Xx) * Xx * d + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((3*(Xxr*(Xxr*dxa)))+((-3*(Xxi*(Xxi*dxa)))+((-6*(Xxi*(Xxr*dya)))+daa)))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((3*(Xxr*(Xxr*dxb)))+((-3*(Xxi*(Xxi*dxb)))+((-6*(Xxi*(Xxr*dyb)))+dab)))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((3*(Xxr*(Xxr*dya)))+((-3*(Xxi*(Xxi*dya)))+((6*(Xxi*(Xxr*dxa)))+dba)))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)))))));
       </derivative>
     </formula>
   </group>
@@ -1029,8 +1186,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 3*X2*x - 3*X*x2 - x2*x + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A - 3 * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((-3*(Xxr*(Xxr*dxa)))+((3*(Xxi*(Xxi*dxa)))+((6*(Xxi*(Xxr*dya)))+daa)))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((-3*(Xxr*(Xxr*dxb)))+((3*(Xxi*(Xxi*dxb)))+((6*(Xxi*(Xxr*dyb)))+dab)))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((-3*(Xxr*(Xxr*dya)))+((3*(Xxi*(Xxi*dya)))+((-6*(Xxi*(Xxr*dxa)))+dba)))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((-3*(Xxr*(Xxr*dyb)))+((3*(Xxi*(Xxi*dyb)))+((-6*(Xxi*(Xxr*dxb)))+dbb)))))));
       </derivative>
     </formula>
   </group>
@@ -1043,8 +1203,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = 2*(2*X*x + x2) - 3*X2*x - 3*X*x2 - x2*x + c;
       </perturbation>
-      <derivative t="C">
-        dn = d * Xx * (4 - 3 * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-3*(Xxr*(Xxr*dxa)))+((3*(Xxi*(Xxi*dxa)))+((4*(Xxr*dxa))+((-4*(Xxi*dya))+((6*(Xxi*(Xxr*dya)))+daa)))));
+        dxbn = ((-3*(Xxr*(Xxr*dxb)))+((3*(Xxi*(Xxi*dxb)))+((4*(Xxr*dxb))+((-4*(Xxi*dyb))+((6*(Xxi*(Xxr*dyb)))+dab)))));
+        dyan = ((-3*(Xxr*(Xxr*dya)))+((3*(Xxi*(Xxi*dya)))+((4*(Xxi*dxa))+((4*(Xxr*dya))+((-6*(Xxi*(Xxr*dxa)))+dba)))));
+        dybn = ((-3*(Xxr*(Xxr*dyb)))+((3*(Xxi*(Xxi*dyb)))+((4*(Xxi*dxb))+((4*(Xxr*dyb))+((-6*(Xxi*(Xxr*dxb)))+dbb)))));
       </derivative>
     </formula>
   </group>
@@ -1057,8 +1220,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 4*(X^3)*x + 6*(X^2)*x2 + 4*X*x2*x + (x2^2) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A + 4 * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((4*(Xxi*(Xxi*(Xxi*dya))))+((4*(Xxr*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dya))))+daa))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((4*(Xxi*(Xxi*(Xxi*dyb))))+((4*(Xxr*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dyb))))+dab))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((4*(Xxr*(Xxr*(Xxr*dya))))+((-4*(Xxi*(Xxi*(Xxi*dxa))))+((12*(Xxi*(Xxr*(Xxr*dxa))))+((-12*(Xxi*(Xxi*(Xxr*dya))))+dba))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((4*(Xxr*(Xxr*(Xxr*dyb))))+((-4*(Xxi*(Xxi*(Xxi*dxb))))+((12*(Xxi*(Xxr*(Xxr*dxb))))+((-12*(Xxi*(Xxi*(Xxr*dyb))))+dbb))))))));
       </derivative>
     </formula>
   </group>
@@ -1071,8 +1237,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 4*(X^3)*x - 6*(X^2)*x2 - 4*X*x2*x - (x2^2) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A - 4 * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((-4*(Xxi*(Xxi*(Xxi*dya))))+((-4*(Xxr*(Xxr*(Xxr*dxa))))+((12*(Xxi*(Xxi*(Xxr*dxa))))+((12*(Xxi*(Xxr*(Xxr*dya))))+daa))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((-4*(Xxi*(Xxi*(Xxi*dyb))))+((-4*(Xxr*(Xxr*(Xxr*dxb))))+((12*(Xxi*(Xxi*(Xxr*dxb))))+((12*(Xxi*(Xxr*(Xxr*dyb))))+dab))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((-4*(Xxr*(Xxr*(Xxr*dya))))+((4*(Xxi*(Xxi*(Xxi*dxa))))+((-12*(Xxi*(Xxr*(Xxr*dxa))))+((12*(Xxi*(Xxi*(Xxr*dya))))+dba))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((-4*(Xxr*(Xxr*(Xxr*dyb))))+((4*(Xxi*(Xxi*(Xxi*dxb))))+((-12*(Xxi*(Xxr*(Xxr*dxb))))+((12*(Xxi*(Xxi*(Xxr*dyb))))+dbb))))))));
       </derivative>
     </formula>
   </group>
@@ -1085,8 +1254,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 5*(X^4)*x + 10*(X^3)*x2 + 10*(X^2)*x2*x + 5*X*(x2^2) + (x2*x2*x) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A + 5 * Xx * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((5*(Xxi*(Xxi*(Xxi*(Xxi*dxa)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dxa)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dya)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dya)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dxa)))))+daa)))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((5*(Xxi*(Xxi*(Xxi*(Xxi*dxb)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dxb)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dyb)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dyb)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dxb)))))+dab)))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dya)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxa)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxa)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dya)))))+dba)))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((5*(Xxr*(Xxr*(Xxr*(Xxr*dyb)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dxb)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dxb)))))+((-30*(Xxi*(Xxi*(Xxr*(Xxr*dyb)))))+dbb)))))))));
       </derivative>
     </formula>
   </group>
@@ -1099,8 +1271,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) - 5*(X^4)*x - 10*(X^3)*x2 - 10*(X^2)*x2*x - 5*X*(x2^2) - (x2*x2*x) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A - 5 * Xx * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dxa)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dxa)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dya)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dya)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dxa)))))+daa)))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dxb)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dxb)))))+((20*(Xxi*(Xxr*(Xxr*(Xxr*dyb)))))+((-20*(Xxi*(Xxi*(Xxi*(Xxr*dyb)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dxb)))))+dab)))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dya)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dya)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dxa)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dxa)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dya)))))+dba)))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((-5*(Xxi*(Xxi*(Xxi*(Xxi*dyb)))))+((-5*(Xxr*(Xxr*(Xxr*(Xxr*dyb)))))+((-20*(Xxi*(Xxr*(Xxr*(Xxr*dxb)))))+((20*(Xxi*(Xxi*(Xxi*(Xxr*dxb)))))+((30*(Xxi*(Xxi*(Xxr*(Xxr*dyb)))))+dbb)))))))));
       </derivative>
     </formula>
   </group>
@@ -1113,8 +1288,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + x2) + 6*(X^5)*x + 15*(X^4)*x2 + 20*(X^3)*(x2*x) + 15*(X^2)*(x2^2) + 6*X*(x2*x2*x) + (x2^3) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A + 6 * Xx * Xx * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dxa))))))+((-6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dya))))))+((-30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dya))))))+((30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dxa))))))+((60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dya))))))+((-60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dxa))))))+daa))))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dxb))))))+((-6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dyb))))))+((-30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dyb))))))+((30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dxb))))))+((60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dyb))))))+((-60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dxb))))))+dab))))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dxa))))))+((6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dya))))))+((30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dya))))))+((30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dxa))))))+((-60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dxa))))))+((-60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dya))))))+dba))))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dxb))))))+((6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dyb))))))+((30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dyb))))))+((30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dxb))))))+((-60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dxb))))))+((-60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dyb))))))+dbb))))))))));
       </derivative>
     </formula>
   </group>
@@ -1127,8 +1305,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = A*(2*X*x + (x^2)) - 6*(X^5)*x - 15*(X^4)*(x^2) - 20*(X^3)*(x^3) - 15*(X^2)*(x^4) - 6*X*(x^5) - (x^6) + c;
       </perturbation>
-      <derivative t="C">
-        dn = Xx * d * (2 * A - 6 * Xx * Xx * Xx * Xx) + 1;
+      <derivative t='M'>
+        dxan = ((-2*(Xxr*(dya*g_FactorAI)))+((2*(Xxr*(dxa*g_FactorAR)))+((-2*(Xxi*(dxa*g_FactorAI)))+((-2*(Xxi*(dya*g_FactorAR)))+((-6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dxa))))))+((6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dya))))))+((30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dya))))))+((-30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dxa))))))+((-60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dya))))))+((60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dxa))))))+daa))))))))));
+        dxbn = ((-2*(Xxr*(dyb*g_FactorAI)))+((2*(Xxr*(dxb*g_FactorAR)))+((-2*(Xxi*(dxb*g_FactorAI)))+((-2*(Xxi*(dyb*g_FactorAR)))+((-6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dxb))))))+((6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dyb))))))+((30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dyb))))))+((-30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dxb))))))+((-60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dyb))))))+((60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dxb))))))+dab))))))))));
+        dyan = ((2*(Xxr*(dxa*g_FactorAI)))+((2*(Xxr*(dya*g_FactorAR)))+((-2*(Xxi*(dya*g_FactorAI)))+((2*(Xxi*(dxa*g_FactorAR)))+((-6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dxa))))))+((-6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dya))))))+((-30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dya))))))+((-30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dxa))))))+((60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dxa))))))+((60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dya))))))+dba))))))))));
+        dybn = ((2*(Xxr*(dxb*g_FactorAI)))+((2*(Xxr*(dyb*g_FactorAR)))+((-2*(Xxi*(dyb*g_FactorAI)))+((2*(Xxi*(dxb*g_FactorAR)))+((-6*(Xxi*(Xxi*(Xxi*(Xxi*(Xxi*dxb))))))+((-6*(Xxr*(Xxr*(Xxr*(Xxr*(Xxr*dyb))))))+((-30*(Xxi*(Xxi*(Xxi*(Xxi*(Xxr*dyb))))))+((-30*(Xxi*(Xxr*(Xxr*(Xxr*(Xxr*dxb))))))+((60*(Xxi*(Xxi*(Xxi*(Xxr*(Xxr*dxb))))))+((60*(Xxi*(Xxi*(Xxr*(Xxr*(Xxr*dyb))))))+dbb))))))))));
       </derivative>
     </formula>
   </group>
@@ -1143,6 +1324,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (Xr2-Xi2)*diffabs(Xr2-Xi2,2*Xr*xr+xr2-2*Xi*xi-xi2) + (2*Xr*xr+xr2-2*Xi*xi-xi2)*abs(Xr2+2*Xr*xr+xr2-Xi2-2*Xi*xi-xi2)   - (2*Xr*Xi)*diffabs(2*Xr*Xi,2*Xr*xi+2*xr*Xi+2*xr*xi) - (2*Xr*xi+2*xr*Xi+2*xr*xi)*abs(2*Xr*Xi+2*Xr*xi+2*xr*Xi+2*xr*xi)   + cr;
         xin = (Xr2-Xi2)*diffabs(2*Xr*Xi,2*Xr*xi+2*xr*Xi+2*xr*xi) + (2*Xr*xr+xr2-2*Xi*xi-xi2)*abs(2*Xr*Xi+2*Xr*xi+2*xr*Xi+2*xr*xi)   + (2*Xr*Xi)*diffabs(Xr2-Xi2,2*Xr*xr+xr2-2*Xi*xi-xi2) + (2*Xr*xi+2*xr*Xi+2*xr*xi)*abs(Xr2-Xi2+2*Xr*xr+xr2-2*Xi*xi-xi2)   + ci;
       </perturbation>
+      <derivative t='M'>
+        dxan = ((2*(Xxr*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dxa)))+((-2*(Xxi*(Xxi*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-2*(Xxi*(Xxr*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dya)))+((2*(Xxi*(Xxi*(Xxi*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-4*(abs((Xxi*Xxr))*(Xxi*dxa)))+((-4*(abs((Xxi*Xxr))*(Xxr*dya)))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dxa*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+daa))))))))));
+        dxbn = ((2*(Xxr*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dxb)))+((-2*(Xxi*(Xxi*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-2*(Xxi*(Xxr*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dyb)))+((2*(Xxi*(Xxi*(Xxi*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-4*(abs((Xxi*Xxr))*(Xxi*dxb)))+((-4*(abs((Xxi*Xxr))*(Xxr*dyb)))+((-4*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dxb*sgn(Xxr)))))))+((-4*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+dab))))))))));
+        dyan = ((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxa)))+((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dya)))+((2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxr*(Xxr*(Xxr*(dya*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dya*sgn(Xxr)))))))+((4*(abs((Xxi*Xxr))*(Xxr*dxa)))+((-4*(abs((Xxi*Xxr))*(Xxi*dya)))+((4*(Xxi*(Xxr*(Xxr*(dxa*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-4*(Xxi*(Xxi*(Xxr*(dya*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dba))))))))));
+        dybn = ((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxi*dxb)))+((2*(abs(((-1*(Xxi*Xxi))+(Xxr*Xxr)))*(Xxr*dyb)))+((2*(sgn(Xxi)*(Xxi*(Xxr*(Xxr*(dxb*sgn(Xxr)))))))+((2*(sgn(Xxi)*(Xxr*(Xxr*(Xxr*(dyb*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxi*(dxb*sgn(Xxr)))))))+((-2*(sgn(Xxi)*(Xxi*(Xxi*(Xxr*(dyb*sgn(Xxr)))))))+((4*(abs((Xxi*Xxr))*(Xxr*dxb)))+((-4*(abs((Xxi*Xxr))*(Xxi*dyb)))+((4*(Xxi*(Xxr*(Xxr*(dxb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+((-4*(Xxi*(Xxi*(Xxr*(dyb*sgn(((-1*(Xxi*Xxi))+(Xxr*Xxr))))))))+dbb))))))))));
+      </derivative>
     </formula>
   </group>
 
