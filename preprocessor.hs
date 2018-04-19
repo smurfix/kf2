@@ -238,7 +238,7 @@ prepare "dc" vs = unlines . concat $
 
 def :: GenLanguageDef String () Identity
 def = emptyDef{ identStart = letter
-              , identLetter = alphaNum
+              , identLetter = alphaNum <|> char '_'
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
