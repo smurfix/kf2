@@ -148,10 +148,18 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
 @rd   {
         const T Xxr = Xrd; (void) Xxr;
         const T Xxi = Xid; (void) Xxi;
-        const complex&lt;T&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        const complex&lt;T&gt; Xx(Xxr, Xxi), A(g_FactorAR, g_FactorAI);
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+        const complex&lt;T&gt; d(dr, di);
         complex&lt;T&gt; dn(0.0, 0.0);
         <xsl:value-of select="derivative" />
         drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+        <xsl:value-of select="derivative" />
+</xsl:when>
+</xsl:choose>
       }
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
@@ -302,14 +310,28 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
-      complex&lt;T&gt; xn, dn;
-      (void) X; (void) x; (void) Xx; (void) d;
+      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
+      complex&lt;T&gt; xn;
+      (void) X; (void) x; (void) Xx;
+<xsl:choose>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+@d    {
+        <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+      const complex&lt;T&gt; d = {dr, di};
+      complex&lt;T&gt; dn;
 @dc   {
         <xsl:value-of select="derivative" />
+      }
+      drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+</xsl:choose>
+@dc   {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.m_r; xin = xn.m_i; drn = dn.m_r; din = dn.m_i;
+      xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 <xsl:choose>
