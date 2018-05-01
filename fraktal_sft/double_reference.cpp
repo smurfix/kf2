@@ -379,6 +379,8 @@ void CFraktalSFT::CalculateReference()
 		double ddab = dab.todouble();
 		double ddba = dba.todouble();
 		double ddbb = dbb.todouble();
+		dr *= m_dPixelSpacing;
+		di *= m_dPixelSpacing;
 		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb);
 		assert(ok && "reference_double");
 

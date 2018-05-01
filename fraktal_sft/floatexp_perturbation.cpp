@@ -137,6 +137,8 @@ void CFraktalSFT::MandelCalcEXP()
     else
     {
 
+			dr *= m_fPixelSpacing;
+			di *= m_fPixelSpacing;
 			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing, daa, dab, dba, dbb);
 			assert(ok && "perturbation_floatexp()");
 

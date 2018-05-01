@@ -112,6 +112,17 @@ void CFraktalSFT::MandelCalcLDBL()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
+							floatexp Xr(m_ldxr[antal]);
+							floatexp Xi(m_ldxi[antal]);
+							floatexp xr = (floatexp(Dr)) * m_nScalingL;
+							floatexp xi = (floatexp(Di)) * m_nScalingL;
+							floatexp cr = (floatexp(lD0r)) * m_nScalingL;
+							floatexp ci = (floatexp(lD0i)) * m_nScalingL;
+							if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, ldcr, ldci, floatexp(m_epsilon), m_fPixelSpacing)){
+								bGlitch = TRUE;
+								if (! m_bNoGlitchDetection)
+									break;
+							}
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
 								break;
@@ -190,6 +201,8 @@ void CFraktalSFT::MandelCalcLDBL()
 			long double ldba = dba.toLongDouble();
 			long double ldbb = dbb.toLongDouble();
 			int antal2 = antal;
+			dr *= m_lPixelSpacing;
+			di *= m_lPixelSpacing;
 			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing, ldaa, ldab, ldba, ldbb);
 			antal = antal2;
 			assert(ok && "perturbation_long_double");

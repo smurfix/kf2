@@ -393,6 +393,8 @@ void CFraktalSFT::CalculateReferenceEXP()
 
 		floatexp _x, _y, daa, dab, dba, dbb;
 		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+		dr *= m_fPixelSpacing;
+		di *= m_fPixelSpacing;
     bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, daa, dab, dba, dbb);
     assert(ok && "reference_floatexp");
 

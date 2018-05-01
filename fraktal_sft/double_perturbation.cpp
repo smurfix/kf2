@@ -70,9 +70,17 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							bGlitch = TRUE;
-							if (! m_bNoGlitchDetection)
-								break;
+							long double Xr = m_db_dxr[antal];
+							long double Xi = m_db_dxi[antal];
+							long double xr = ((long double)(Dr)) * m_nScaling;
+							long double xi = ((long double)(Di)) * m_nScaling;
+							long double cr = ((long double)(dbD0r)) * m_nScaling;
+							long double ci = ((long double)(dbD0i)) * m_nScaling;
+							if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, ldcr, ldci, (long double) (m_epsilon), m_lPixelSpacing)){
+								bGlitch = TRUE;
+								if (! m_bNoGlitchDetection)
+									break;
+							}
 						}
 						if (test1 > m_nBailout2)
 						{
@@ -173,12 +181,14 @@ void CFraktalSFT::MandelCalc()
 				di = d.m_i;
 
 			}
-			else
+			else // FIXME matrix derivatives
 			{
 				double daa = daa0.todouble();
 				double dab = dab0.todouble();
 				double dba = dba0.todouble();
 				double dbb = dbb0.todouble();
+				dr *= m_dPixelSpacing;
+				di *= m_dPixelSpacing;
 				bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, m_epsilon, m_dPixelSpacing, daa, dab, dba, dbb);
 				assert(ok && "perturbation_double");
 
