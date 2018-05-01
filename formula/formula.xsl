@@ -262,7 +262,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     T dr = dr0, di = di0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    T dxa = daa, dxb = dab, dya = dba, dyb = dbb;
+    T dxa = dr0, dxb = -di0, dya = di0, dyb = dr0;
 </xsl:when>
 </xsl:choose>
     T Xxr = 0;
@@ -280,7 +280,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, daa, dbb, e, h)) // FIXME matrix derivatives
+        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
         {
 </xsl:when>
 </xsl:choose>
