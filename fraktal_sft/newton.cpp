@@ -30,10 +30,27 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/barrier.h"
 #include "newton.h"
 #include <iostream>
+#include <string>
+
+#define KF_MAIN 1
+#include "../formula/generated/formula.h"
+#undef abs
+#undef sgn
+
+static const struct formula *get_formula(int type, int power)
+{
+  std::string name = "formula_" + std::to_string(type) + "_" + std::to_string(power);
+  const struct formula *f = (const struct formula *) GetProcAddress(GetModuleHandle(nullptr), name.c_str());
+  if (f) return f;
+  name = "formula_" + std::to_string(type);
+  f = (const struct formula *) GetProcAddress(GetModuleHandle(nullptr), name.c_str());
+  return f;
+}
 
 extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 
+static volatile int running = 0;
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
 static BOOL g_bNewtonExit=FALSE;
@@ -656,6 +673,10 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
 static int g_period;
 static int WINAPI ThNewton(HWND hWnd)
 {
+  const int type = g_SFT.GetFractalType();
+  const int power = g_SFT.GetPower();
+  const struct formula *f = get_formula(type, power);
+
 	char szStatus[300];
 
 	flyttyp radius = g_szZoom;
@@ -684,9 +705,26 @@ static int WINAPI ThNewton(HWND hWnd)
 		uprec *= 3;
 	}
 	else{
+	  if (type == 0 && power == 2)
+	  {
 		g_period= ball_period_do(center,radius,100000000,steps,hWnd);
-		uprec *= 2;
+	  }
+	  else
+	  {
+		if (f)
+		{
+		  flyttyp r = flyttyp(4) / radius;
+		  g_period = f->period(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
+		  if (g_period < 0) g_period = 0;
+		}
+		else
+		{
+		  g_period = 0;
+		}
+	  }
+	  uprec *= 2;
 	}
+	// std::cerr << "period " << g_period << std::endl;
 	Precision prec2(uprec);
 
 	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
@@ -695,17 +733,43 @@ static int WINAPI ThNewton(HWND hWnd)
 		sprintf(szStatus,"period=%d (steps:%d)\n",g_period,steps);
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		complex<flyttyp> c;
-		int test = m_d_nucleus(&c,center,g_period,100,steps,radius,hWnd);
+		int test = 1;
+		if (type == 0 && power == 2)
+		{
+		  test = m_d_nucleus(&c,center,g_period,100,steps,radius,hWnd);
+		}
+		else
+		{
+		  if (f)
+		  {
+		    c = center;
+		    test = f->newton(100, g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), &running) ? 0 : 1;
+		    steps = 1;
+		  }
+		}
+		// std::cerr << "newton " << test << " " << steps << std::endl;
 
 		if(test==0 && steps){
 			g_szRe = c.m_r.ToText();
 			g_szIm = c.m_i.ToText();
 
 			Precision prec3(exp + 6);
-			complex<floatexp>size = m_d_size(c,g_period,hWnd);
-			floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
 			flyttyp msize = 0;
-			mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
+			if (type == 0 && power == 2)
+			{
+			  complex<floatexp> size = m_d_size(c,g_period,hWnd);
+			  floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
+			  mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
+			}
+			else
+			{
+			  if (f)
+			  {
+			    f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &running);
+			    msize = flyttyp(.25) / msize;
+			  }
+			}
+			// std::cerr << "size " << msize.m_dec << std::endl;
 
 			double zooms1;
 			{
@@ -853,6 +917,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	if(uMsg==WM_COMMAND && wParam==IDCANCEL){
 		if(g_bNewtonRunning){
+			running = 0;
 			g_bNewtonStop=TRUE;
 			while(g_bNewtonRunning){
 				MSG msg;
@@ -907,6 +972,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_sMinibrotSourceZoom = std::string(szText);
 			*g_szProgress=0;
 			GetLocalTime(&st1);
+			running = 1;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
