@@ -121,7 +121,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xn = 6 * (X ^ 5) * x + 15 * (X ^ 4) * (x ^ 2) + 20 * (X ^ 3) * (x ^ 3) + 15 * (X ^ 2) * (x ^ 4) + 6 * X * (x ^ 5) + (x ^ 6) + c;
       </perturbation>
       <derivative t="C">
-        dn = 6 * d * (Xx ^ 5) + 1;
+        dn = 6 * d * (Xx ^ 5) + d0;
       </derivative>
     </formula>
 
@@ -133,7 +133,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xn = 7 * (X ^ 6) * x + 21 * (X ^ 5) * (x ^ 2) + 35 * (X ^ 4) * (x ^ 3) + 35 * (X ^ 3) * (x ^ 4) + 21 * (X ^ 2) * (x ^ 5) + 7 * X * (x ^ 6) + (x ^ 7) + c;
       </perturbation>
       <derivative t="C">
-        dn = 7 * d * (Xx ^ 6) + 1;
+        dn = 7 * d * (Xx ^ 6) + d0;
       </derivative>
     </formula>
 
@@ -145,7 +145,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xn = 8 * (X ^ 7) * x + 28 * (X ^ 6) * (x ^ 2) + 56 * (X ^ 5) * (x ^ 3) + 70 * (X ^ 4) * (x ^ 4) + 56 * (X ^ 3) * (x ^ 5) + 28 * (X ^ 2) * (x ^ 6) + 8 * X * (x ^ 7) + (x ^ 8) + c;
       </perturbation>
       <derivative t="C">
-        dn = 8 * d * (Xx ^ 7) + 1;
+        dn = 8 * d * (Xx ^ 7) + d0;
       </derivative>
     </formula>
 
@@ -157,7 +157,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xn = 9 * (X ^ 8) * x + 36 * (X ^ 7) * (x ^ 2) + 84 * (X ^ 6) * (x ^ 3) + 126 * (X ^ 5) * (x ^ 4) + 126 * (X ^ 4) * (x ^ 5) + 84 * (X ^ 3) * (x ^ 6) + 36 * (X ^ 2) * (x ^ 7) + 9 * X * (x ^ 8) + (x ^ 9) + c;
       </perturbation>
       <derivative t="C">
-        dn = 9 * d * (Xx ^ 8) + 1;
+        dn = 9 * d * (Xx ^ 8) + d0;
       </derivative>
     </formula>
 
@@ -169,7 +169,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xn = 10 * (X ^ 9) * x + 45 * (X ^ 8) * (x ^ 2) + 120 * (X ^ 7) * (x ^ 3) + 210 * (X ^ 6) * (x ^ 4) + 252 * (X ^ 5) * (x ^ 5) + 210 * (X ^ 4) * (x ^ 6) + 120 * (X ^ 3) * (x ^ 7) + 45 * (X ^ 2) * (x ^ 8) + 10 * X * (x ^ 9) + (x ^ 10) + c;
       </perturbation>
       <derivative t="C">
-        dn = 10 * d * (Xx ^ 9) + 1;
+        dn = 10 * d * (Xx ^ 9) + d0;
       </derivative>
     </formula>
 

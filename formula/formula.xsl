@@ -151,7 +151,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
         const complex&lt;T&gt; Xx(Xxr, Xxi), A(g_FactorAR, g_FactorAI);
 <xsl:choose>
 <xsl:when test="derivative/@t='C'">
-        const complex&lt;T&gt; d(dr, di);
+        const complex&lt;T&gt; d(dr, di), d0(daa, dba); <!-- FIXME matrix derivatives -->
         complex&lt;T&gt; dn(0.0, 0.0);
         <xsl:value-of select="derivative" />
         drn = dn.m_r; din = dn.m_i;
@@ -181,6 +181,7 @@ LOOP  }
 <xsl:choose>
 <xsl:when test="derivative/@t='C'">
         const complex&lt;T&gt; Xx(Xxr, Xxi), d(dr, di), A(g_FactorAR, g_FactorAI);
+        const complex&lt;T&gt; d0(daa, dba); <!-- FIXME matrix derivatives -->
         complex&lt;T&gt; dn(0.0, 0.0);
         <xsl:value-of select="derivative" />
         drn = dn.m_r; din = dn.m_i;
@@ -320,7 +321,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       }
 </xsl:when>
 <xsl:when test="derivative/@t='C'">
-      const complex&lt;T&gt; d = {dr, di};
+      const complex&lt;T&gt; d = {dr, di}, d0 = {daa, dba}; <!-- FIXME matrix derivatives -->
       complex&lt;T&gt; dn;
 @dc   {
         <xsl:value-of select="derivative" />
@@ -336,7 +337,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 <xsl:when test="perturbation/@t='R'">
 <xsl:choose>
 <xsl:when test="derivative/@t='C'">
-      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di};
+      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, d = {dr, di}, d0 = {daa, dba}; <!-- FIXME matrix derivatives -->
       complex&lt;T&gt; dn;
       (void) X; (void) x; (void) Xx; (void) d;
 @dc   {
