@@ -57,6 +57,7 @@ Feedback:
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - newton-raphson zoom preset depths are bad for formulas with power other than 2
+- bad combinations of skew, distance estimation, and series approximation
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
@@ -134,6 +135,17 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.13.3** (2018-05-08)
+
+    - Newton-Raphson zooming precision loss bug fix (reported by gerrit)
+    - Newton-Raphson zooming for Mandelbrot powers 6 7 8 9 10
+      (reported by gerrit)
+    - Newton-Raphson zooming size estimate fixed for more formulas (now
+      correctly uses smallest power instead of largest, for renormalization
+      behaviour near zero)
+    - Mandelbrot power 6 7 8 9 10 analytic distance estimation bug fixes
+      (reported by gerrit)
 
 - **kf-2.13.2** (2018-05-01)
 
