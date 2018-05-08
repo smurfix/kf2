@@ -742,8 +742,13 @@ static int WINAPI ThNewton(HWND hWnd)
 		{
 		  if (f)
 		  {
-		    c = center;
+		    // c = center; // seems to copy precision too, so do it low-level...
+		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
+		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    test = f->newton(100, g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), &running) ? 0 : 1;
+		    flyttyp r = flyttyp(4) / radius;
+		    if (! (cabs2(c - center) < r * r))
+		      test = 1;
 		    steps = 1;
 		  }
 		}
