@@ -136,6 +136,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.12.13** (2018-05-15)
+
+    - fix crasher bug relating to series approximation memory allocation
+      (reported by gerrit)
+
 - **kf-2.13.3** (2018-05-08)
 
     - Newton-Raphson zooming precision loss bug fix (reported by gerrit)

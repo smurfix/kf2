@@ -2486,6 +2486,7 @@ static long OpenSettings(HWND hWnd, bool &ret)
 					if (hWnd)
 						UpdateWindowSize(hWnd);
 					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
+					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
 					if (hWnd)
 						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 					ret = false;
