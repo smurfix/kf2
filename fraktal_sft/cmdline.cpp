@@ -197,4 +197,4 @@ const std::string usage =
 "    -h, -H, -?, --help              show this help\n"
 ;
 
-const std::string version = "2.12.12";
+const std::string version = "2.12.13";
