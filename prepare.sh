@@ -22,7 +22,7 @@ mkdir -p ~/win64/src
 mkdir -p ~/win32/src
 # download
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.7z
+wget -c https://dl.bintray.com/boostorg/release/1.67.0/source/boost_1_67_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
