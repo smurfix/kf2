@@ -25,11 +25,12 @@ cd ~/win64/src
 wget -c https://dl.bintray.com/boostorg/release/1.66.0/source/boost_1_66_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
+wget -c http://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.4.tar.gz
-cp -avft ~/win32/src *z
+cp -avft ~/win32/src *z allpatches
 # gmp 64
 cd ~/win64/src
 tar xf gmp-*.tar.lz
@@ -50,6 +51,7 @@ make check
 cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
+patch -N -Z -p1 < ../allpatches
 ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
@@ -58,6 +60,7 @@ make check
 cd ~/win32/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
+patch -N -Z -p1 < ../allpatches
 ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
