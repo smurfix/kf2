@@ -15,7 +15,7 @@
 #
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
-out="kf-$(../kf.exe --version | tr -d '\r')"
+out="${HOSTNAME}-$(../kf.exe --version | tr -d '\r')"
 mkdir -p "${out}"
 for low in fast best
 do
