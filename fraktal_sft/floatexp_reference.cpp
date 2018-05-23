@@ -147,7 +147,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				}
 				if (p->barrier->wait(p->stop)) break;
 				mpfr_add(p->xrxid1, p->xrn, p->xin, MPFR_RNDN);
-				mpfr_mul(p->xrxid, p->xrxid1, p->xrxid1, MPFR_RNDN);
+				mpfr_sqr(p->xrxid, p->xrxid1, MPFR_RNDN);
 				if (p->barrier->wait(p->stop)) break;
 			}
 		}
