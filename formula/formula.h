@@ -16,7 +16,6 @@ static inline R mag(const R &x, const R &y)
 template <typename R>
 static inline bool type_0_power_2_pixel_has_glitched(R cr, R ci, R zr, R zi, R Zr, R Zi, R dr, R di, R e, R h)
 {
-  using std::abs;
   R Zzr = Zr + zr;
   R Zzi = Zi + zi;
   R a = mag(2 * (dr * Zzr - di * Zzi) + 1, 2 * (dr * Zzi + di * Zzr));
