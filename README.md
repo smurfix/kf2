@@ -128,6 +128,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.12.13.1** (2018-06-01)
+
+    - fix severe performance bug introduced in previous version
+    - upgrade to Boost 1.67.0
+    - upgrade to MPFR 4.0.1-p6
+
 - **kf-2.12.13** (2018-05-15)
 
     - fix crasher bug relating to series approximation memory allocation
