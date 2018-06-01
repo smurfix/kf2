@@ -35,15 +35,16 @@ BIN="kf-${VERSION}"
 mkdir "${BIN}"
 cp -avit "${BIN}/" "${SRC}.zip" utils/kf-stratify.m
 
-make -j 8 SYSTEM=32
+make -j 32 SYSTEM=32
 strip kf.exe
 strip kf-tile.exe
 cp -avi kf.exe "${BIN}/kf.32.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.32.exe"
 
 make clean
+make formula/formula.cpp
 
-make -j 8 SYSTEM=64
+make -j 32 SYSTEM=64
 strip kf.exe
 strip kf-tile.exe
 cp -avi kf.exe "${BIN}/kf.64.exe"
