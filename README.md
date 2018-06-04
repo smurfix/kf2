@@ -128,7 +128,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.12.13.1** (2018-06-01)
+- **kf-2.12.13.1** (2018-06-04)
 
     - fix severe performance bug introduced in previous version
     - upgrade to Boost 1.67.0
