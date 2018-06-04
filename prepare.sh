@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
-NCPUS=8
+NCPUS=32
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
 mkdir -p ~/win64/src
 mkdir -p ~/win32/src
