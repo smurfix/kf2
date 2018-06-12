@@ -93,6 +93,8 @@ void CFraktalSFT::MandelCalcEXP()
 
     if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
+			if (GetDerivatives())
+			{
 			complex<floatexp> d(dr, di);
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter; antal++){
@@ -128,23 +130,59 @@ void CFraktalSFT::MandelCalcEXP()
 					Dr = Dn.m_r;
 				}
 			}
-			dr = d.m_r;
-			di = d.m_i;
-			floatexp pixel_spacing = m_fPixelSpacing;
-			dr = dr * pixel_spacing;
-			di = di * pixel_spacing;
+			} else {
+			if (antal<nMaxIter && test1 <= m_nBailout2){
+				for (; antal<nMaxIter; antal++){
+					yr = m_dxr[antal] + Dr;
+					yi = m_dxi[antal] + Di;
+					test2 = test1;
+					test1 = (real*yr*yr + imag*yi*yi).todouble();
+					if (test1<m_db_z[antal]){
+						bGlitch = TRUE;
+						if (! m_bNoGlitchDetection)
+							break;
+					}
+					if (test1 > m_nBailout2)
+					{
+						break;
+					}
+					complex<floatexp> y(yr, yi);
+					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
+					complex<floatexp> D(Dr, Di);
+					complex<floatexp> D0(D0r, D0i);
+					complex<floatexp> c(m_pnExpConsts[0], 0);
+					int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
+					complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
+					while (nXExp){
+						c.m_r = m_pnExpConsts[ci++];
+						Dn += c*(X^nXExp)*(D^nDExp);
+						nXExp--;
+						nDExp++;
+					}
+					Dn += (D^m_nPower) + D0;
+					Di = Dn.m_i;
+					Dr = Dn.m_r;
+				}
+			}
+			}
 		}
     else
     {
 
 			dr *= m_fPixelSpacing;
 			di *= m_fPixelSpacing;
-			bool ok = perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing, daa, dab, dba, dbb);
+			bool ok = GetDerivatives()
+			  ? perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
+			  : perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
+			  ;
 			assert(ok && "perturbation_floatexp()");
 
 		}
 
-		double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
+		double de = GetDerivatives()
+		  ? double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble())
+		  : 0
+		  ;
 
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 

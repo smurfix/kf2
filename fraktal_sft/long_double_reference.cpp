@@ -241,7 +241,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower == 2){ // FIXME matrix derivatives
+	if (m_nFractalType == 0 && m_nPower == 2){ // FIXME matrix derivatives, option to disable derivatives
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
 			glitch_threshold = sqrt(glitch_threshold);
@@ -322,7 +322,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		di *= pixel_spacing;
 
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
 		bool stored = false;
 		double old_absval = 0;
@@ -395,12 +395,18 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		long double ldbb = dbb.toLongDouble();
 		dr *= m_lPixelSpacing;
 		di *= m_lPixelSpacing;
-		bool ok = reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ldaa, ldab, ldba, ldbb);
+		bool ok = GetDerivatives()
+		  ? reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ldaa, ldab, ldba, ldbb)
+		  : reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ;
     assert(ok && "reference_long_double");
 
 	}
 
-	double de = sqrt(test1) * log(test1) / sqrt(dr * dr + di * di);
+	double de = GetDerivatives()
+	  ? sqrt(test1) * log(test1) / sqrt(dr * dr + di * di)
+	  : 0
+	  ;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);

@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 bool reference_double_0_2_ld(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr0, long double &di0)
 {
-  if (m_nFractalType == 0 && m_nPower == 2) // FIMXE matrix derivatives
+  if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives
   {
     bool stored = false;
     double old_absval = 0;
@@ -143,7 +143,7 @@ mpfr_clear(t1);
 
 bool reference_double_0_3_ld(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr0, long double &di0)
 {
-  if (m_nFractalType == 0 && m_nPower == 3) // FIMXE matrix derivatives
+  if (m_nFractalType == 0 && m_nPower == 3) // FIXME matrix derivatives
   {
     bool stored = false;
     double old_absval = 0;
@@ -304,16 +304,16 @@ void CFraktalSFT::CalculateReference()
   long double ldr = 1, ldi = 0;
 
   if (m_nScalingOffset && m_nFractalType == 0 && m_nPower == 2)
-  {
+  { // FIXME option to disable derivatives
 		bool ok = reference_double_0_2_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
 		assert(ok && "reference_double_0_2_ld");
 	}
   else if (m_nScalingOffset && m_nFractalType == 0 && m_nPower == 3)
-  {
+  { // FIXME option to disable derivatives
 		bool ok = reference_double_0_3_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
 		assert(ok && "reference_double_0_3_ld");
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIMXE matrix derivatives
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
 
 		double threashold = 0.0001;
@@ -381,7 +381,10 @@ void CFraktalSFT::CalculateReference()
 		double ddbb = dbb.todouble();
 		dr *= m_dPixelSpacing;
 		di *= m_dPixelSpacing;
-		bool ok = reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb);
+		bool ok = GetDerivatives()
+		  ? reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb)
+		  : reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ;
 		assert(ok && "reference_double");
 
 	}
@@ -397,7 +400,10 @@ void CFraktalSFT::CalculateReference()
 		ldr = dr * pixel_spacing;
 		ldi = di * pixel_spacing;
 	}
-	double de = sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi);
+	double de = GetDerivatives()
+	  ? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
+	  : 0
+	  ;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);

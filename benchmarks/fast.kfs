@@ -30,3 +30,4 @@ IsolatedGlitchNeighbourhood: 4
 JitterSeed: 0
 JitterShape: 0
 JitterScale: 1
+Derivatives: 0

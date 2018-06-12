@@ -236,6 +236,17 @@ static void RefreshJitterShape(HWND hWnd)
 	g_SFT.SetJitterShape(SendDlgItemMessage(hWnd,IDC_JITTERSHAPE,BM_GETCHECK,0,0) ? 1 : 0);
 }
 
+static void UpdateDerivatives(HWND hWnd)
+{
+	int i = g_SFT.GetDerivatives();
+	SendDlgItemMessage(hWnd,IDC_DERIVATIVES,BM_SETCHECK,i != 0,0);
+}
+
+static void RefreshDerivatives(HWND hWnd)
+{
+	g_SFT.SetDerivatives(SendDlgItemMessage(hWnd,IDC_DERIVATIVES,BM_GETCHECK,0,0) ? 1 : 0);
+}
+
 static void UpdateReal(HWND hWnd)
 {
 	bool b = g_real != 0;
@@ -372,6 +383,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			UpdateJitterSeed(hWnd);
 			UpdateJitterScale(hWnd);
 			UpdateJitterShape(hWnd);
+			UpdateDerivatives(hWnd);
 		}
 		int nMin, nMax, nCalc=0,nType=0;
 
@@ -391,6 +403,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND){
 		if(wParam==IDOK){
 			g_bExamineDirty=TRUE;
+			RefreshDerivatives(hWnd);
 			RefreshJitterSeed(hWnd);
 			RefreshJitterShape(hWnd);
 			RefreshJitterScale(hWnd);
@@ -479,6 +492,8 @@ extern const char *IterationToolTip(int nID)
     return "Pixel jitter amount\nDefault 1.0";
   case IDC_JITTERSHAPE:
     return "Select checkbox to use Gaussian jitter\nUncheck for uniform";
+  case IDC_DERIVATIVES:
+    return "Select checkbox to compute derivatives\nRequired for analytic DE";
   case 1002:
     return "Real seed value (0 is standard)";
   case 1003:

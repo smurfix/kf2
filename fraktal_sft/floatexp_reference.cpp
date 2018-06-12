@@ -246,7 +246,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives
+	if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives, option to disable derivatives
 	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
@@ -325,7 +325,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 		dr = dr * pixel_spacing;
 		di = di * pixel_spacing;
 	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
 		bool stored = false;
 		double old_absval = 0;
@@ -395,12 +395,18 @@ void CFraktalSFT::CalculateReferenceEXP()
 		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
 		dr *= m_fPixelSpacing;
 		di *= m_fPixelSpacing;
-    bool ok = reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, daa, dab, dba, dbb);
+    bool ok = GetDerivatives()
+      ? reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, daa, dab, dba, dbb)
+      : reference_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+      ;
     assert(ok && "reference_floatexp");
 
 	}
 
-	double de = double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble());
+	double de = GetDerivatives()
+	  ? double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble())
+	  : 0
+	  ;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal + 1, test1, test2, de);

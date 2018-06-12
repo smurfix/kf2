@@ -63,6 +63,8 @@ void CFraktalSFT::MandelCalc()
 			long double ldcr = TDDnr.toLongDouble();
 			long double ldci = TDDni.toLongDouble();
 			if (m_nPower == 2){
+				if (GetDerivatives())
+				{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
@@ -96,8 +98,39 @@ void CFraktalSFT::MandelCalc()
 						Dr = Dnr;
 					}
 				}
+				} else {
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter; antal++){
+						yr = m_db_dxr[antal] + Dr*m_nScaling;
+						yi = m_db_dxi[antal] + Di*m_nScaling;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							long double Xr = m_db_dxr[antal];
+							long double Xi = m_db_dxi[antal];
+							long double xr = ((long double)(Dr)) * m_nScaling;
+							long double xi = ((long double)(Di)) * m_nScaling;
+							long double cr = ((long double)(dbD0r)) * m_nScaling;
+							long double ci = ((long double)(dbD0i)) * m_nScaling;
+								bGlitch = TRUE;
+								if (! m_bNoGlitchDetection)
+									break;
+						}
+						if (test1 > m_nBailout2)
+						{
+							break;
+						}
+						Dnr = (2 * m_db_dxr[antal] + Dr*m_nScaling)*Dr - (2 * m_db_dxi[antal] + Di*m_nScaling)*Di + dbD0r;
+						Dni = 2 * ((m_db_dxr[antal] + Dr*m_nScaling)*Di + m_db_dxi[antal] * Dr) + dbD0i;
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			  }
 			}
 			if (m_nPower == 3){
+				if (GetDerivatives())
+				{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
@@ -125,6 +158,31 @@ void CFraktalSFT::MandelCalc()
 						Dr = Dnr;
 					}
 				}
+				} else {
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter; antal++){
+						yr = m_db_dxr[antal] + Dr*m_nScaling;
+						yi = m_db_dxi[antal] + Di*m_nScaling;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							bGlitch = TRUE;
+							if (! m_bNoGlitchDetection)
+								break;
+						}
+						if (test1 > m_nBailout2)
+						{
+							break;
+						}
+						//Dnr=3*((m_db_dxr[antal]*m_db_dxr[antal]-m_db_dxi[antal]*m_db_dxi[antal])*Dr+m_db_dxr[antal]*(Dr*Dr*m_nScaling-Di*Di*m_nScaling)-Di*(2*m_db_dxi[antal]*(m_db_dxr[antal]+Dr*m_nScaling)+Dr*m_nScaling*Di*m_nScaling))+Dr*m_nScaling*Dr*m_nScaling*Dr+dbD0r;
+						//Dni=3*((m_db_dxr[antal]*m_db_dxr[antal]-m_db_dxi[antal]*m_db_dxi[antal])*Di+m_db_dxi[antal]*(Dr*Dr*m_nScaling-Di*Di*m_nScaling)+Dr*(2*m_db_dxr[antal]*(m_db_dxi[antal]+Di)+Dr*m_nScaling*Di*m_nScaling))-Di*Di*m_nScaling*Di*m_nScaling+dbD0i;
+						Dnr = 3 * m_db_dxr[antal] * m_db_dxr[antal] * Dr - 6 * m_db_dxr[antal] * m_db_dxi[antal] * Di - 3 * m_db_dxi[antal] * m_db_dxi[antal] * Dr + 3 * m_db_dxr[antal] * Dr*Dr*m_nScaling - 3 * m_db_dxr[antal] * Di*Di*m_nScaling - 3 * m_db_dxi[antal] * 2 * Dr*Di*m_nScaling + Dr*Dr*Dr*m_nScaling*m_nScaling - 3 * Dr*Di*Di*m_nScaling*m_nScaling + dbD0r;
+						Dni = 3 * m_db_dxr[antal] * m_db_dxr[antal] * Di + 6 * m_db_dxr[antal] * m_db_dxi[antal] * Dr - 3 * m_db_dxi[antal] * m_db_dxi[antal] * Di + 3 * m_db_dxr[antal] * 2 * Dr*Di*m_nScaling + 3 * m_db_dxi[antal] * Dr*Dr*m_nScaling - 3 * m_db_dxi[antal] * Di*Di*m_nScaling + 3 * Dr*Dr*Di*m_nScaling*m_nScaling - Di*Di*Di*m_nScaling*m_nScaling + dbD0i;
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+				}
 			}
 			ldr = ldcr;
 			ldi = ldci;
@@ -141,44 +199,82 @@ void CFraktalSFT::MandelCalc()
 
 			if (m_nFractalType == 0 && m_nPower > 10)
 			{
-
-				complex<double> d(dr, di);
-				if (antal<nMaxIter && test1 <= m_nBailout2){
-					for (; antal<nMaxIter; antal++){
-						yr = m_db_dxr[antal] + Dr;
-						yi = m_db_dxi[antal] + Di;
-						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
-						if (test1<m_db_z[antal]){
-							bGlitch = TRUE;
-							if (! m_bNoGlitchDetection)
+				if (GetDerivatives())
+				{
+					complex<double> d(dr, di);
+					if (antal<nMaxIter && test1 <= m_nBailout2){
+						for (; antal<nMaxIter; antal++){
+							yr = m_db_dxr[antal] + Dr;
+							yi = m_db_dxi[antal] + Di;
+							test2 = test1;
+							test1 = g_real*yr*yr + g_imag*yi*yi;
+							if (test1<m_db_z[antal]){
+								bGlitch = TRUE;
+								if (! m_bNoGlitchDetection)
+									break;
+							}
+							if (test1 > m_nBailout2)
+							{
 								break;
+							}
+							complex<double> yri(yr, yi);
+							d = m_nPower * d * (yri ^ (m_nPower - 1)) + 1;
+							complex<double> X(m_db_dxr[antal], m_db_dxi[antal]);
+							complex<double> D(Dr, Di);
+							complex<double> D0(dbD0r, dbD0i);
+							complex<double> c(m_pnExpConsts[0], 0);
+							int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
+							complex<double> Dn = c*(X^(m_nPower - 1))*D;
+							while (nXExp){
+								c.m_r = m_pnExpConsts[ci++];
+								Dn += c*(X^nXExp)*(D^nDExp);
+								nXExp--;
+								nDExp++;
+							}
+							Dn += (D^m_nPower) + D0;
+							Di = Dn.m_i;
+							Dr = Dn.m_r;
 						}
-						if (test1 > m_nBailout2)
-						{
-							break;
+					}
+					dr = d.m_r;
+					di = d.m_i;
+				}
+				else
+				{
+					if (antal<nMaxIter && test1 <= m_nBailout2){
+						for (; antal<nMaxIter; antal++){
+							yr = m_db_dxr[antal] + Dr;
+							yi = m_db_dxi[antal] + Di;
+							test2 = test1;
+							test1 = g_real*yr*yr + g_imag*yi*yi;
+							if (test1<m_db_z[antal]){
+								bGlitch = TRUE;
+								if (! m_bNoGlitchDetection)
+									break;
+							}
+							if (test1 > m_nBailout2)
+							{
+								break;
+							}
+							complex<double> yri(yr, yi);
+							complex<double> X(m_db_dxr[antal], m_db_dxi[antal]);
+							complex<double> D(Dr, Di);
+							complex<double> D0(dbD0r, dbD0i);
+							complex<double> c(m_pnExpConsts[0], 0);
+							int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
+							complex<double> Dn = c*(X^(m_nPower - 1))*D;
+							while (nXExp){
+								c.m_r = m_pnExpConsts[ci++];
+								Dn += c*(X^nXExp)*(D^nDExp);
+								nXExp--;
+								nDExp++;
+							}
+							Dn += (D^m_nPower) + D0;
+							Di = Dn.m_i;
+							Dr = Dn.m_r;
 						}
-						complex<double> yri(yr, yi);
-						d = m_nPower * d * (yri ^ (m_nPower - 1)) + 1;
-						complex<double> X(m_db_dxr[antal], m_db_dxi[antal]);
-						complex<double> D(Dr, Di);
-						complex<double> D0(dbD0r, dbD0i);
-						complex<double> c(m_pnExpConsts[0], 0);
-						int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-						complex<double> Dn = c*(X^(m_nPower - 1))*D;
-						while (nXExp){
-							c.m_r = m_pnExpConsts[ci++];
-							Dn += c*(X^nXExp)*(D^nDExp);
-							nXExp--;
-							nDExp++;
-						}
-						Dn += (D^m_nPower) + D0;
-						Di = Dn.m_i;
-						Dr = Dn.m_r;
 					}
 				}
-				dr = d.m_r;
-				di = d.m_i;
 
 			}
 			else // FIXME matrix derivatives
@@ -189,7 +285,10 @@ void CFraktalSFT::MandelCalc()
 				double dbb = dbb0.todouble();
 				dr *= m_dPixelSpacing;
 				di *= m_dPixelSpacing;
-				bool ok = perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, m_epsilon, m_dPixelSpacing, daa, dab, dba, dbb);
+				bool ok = GetDerivatives()
+				  ? perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, m_epsilon, m_dPixelSpacing, daa, dab, dba, dbb)
+				  : perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+				  ;
 				assert(ok && "perturbation_double");
 
 			}
@@ -211,7 +310,10 @@ void CFraktalSFT::MandelCalc()
 			ldr = dr;
 			ldi = di;
 		}
-		double de = sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi);
+		double de = GetDerivatives()
+		  ? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
+		  : 0
+		  ;
 
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 		InterlockedIncrement((LPLONG)&m_nDone);
