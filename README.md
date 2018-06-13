@@ -136,6 +136,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.13.4** (????-??-??)
+
+    - derivative computations can be switched off in the iterations
+      dialog (increases rendering speed, breaks analytic DE colouring)
+
 - **kf-2.12.13.1** (2018-06-04)
 
     - fix severe performance bug introduced in previous version
