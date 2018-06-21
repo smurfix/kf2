@@ -16,7 +16,7 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
-NCPUS=8
+NCPUS=32
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
 mkdir -p ~/win64/src
 mkdir -p ~/win32/src
@@ -101,7 +101,7 @@ cd jpeg-6b2
 make -j $NCPUS
 make install
 # jpeg 32
-cd ~/win64/src
+cd ~/win32/src
 tar xf jpegsrc.v6b2.tar.gz
 cd jpeg-6b2
 ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32

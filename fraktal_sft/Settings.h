@@ -62,6 +62,7 @@ private:
   int m_JitterSeed;
   int m_JitterShape;
   double m_JitterScale;
+  bool m_Derivatives;
 
 public:
 
@@ -98,6 +99,7 @@ public:
   , m_JitterSeed(0)
   , m_JitterShape(0)
   , m_JitterScale(1)
+  , m_Derivatives(true)
   { };
 
   bool FromText(const std::string &text);
@@ -209,6 +211,9 @@ public:
 
   inline double GetJitterScale() const { return m_JitterScale; };
   inline void   SetJitterScale(double n) { m_JitterScale = n; };
+
+  inline bool   GetDerivatives() const { return m_Derivatives; };
+  inline void   SetDerivatives(bool b) { m_Derivatives = b; };
 };
 
 #endif

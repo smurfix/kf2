@@ -508,6 +508,7 @@ public:
   INT(JitterSeed)
   INT(JitterShape)
   DOUBLE(JitterScale)
+  BOOL(Derivatives)
 #undef DOUBLE
 #undef INT
 #undef BOOL

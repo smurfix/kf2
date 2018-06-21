@@ -1,4 +1,4 @@
-# Kalles Fraktaler 2 + GMP
+# Kalles Fraktaler 2 +
 
 As the orginal upstream author Karl Runmo says:
 
@@ -7,7 +7,7 @@ As the orginal upstream author Karl Runmo says:
 > Try Kalles Fraktaler!
 
 I (Claude Heiland-Allen) forked the code and swapped out the custom arbitrary
-precision floating point code for the highly optimized GMP library, making it
+precision floating point code for highly optimized libraries, making it
 even faster.  Cross-compiled to Windows from Linux MINGW64.  Now with many other
 enhancements (mostly speed optimisations and bugfixes).
 
@@ -135,6 +135,17 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.13.4** (2018-06-21)
+
+    - derivative computations can be switched off in the iterations
+      dialog (increases rendering speed, breaks analytic DE colouring)
+
+- **kf-2.12.13.1** (2018-06-04)
+
+    - fix severe performance bug introduced in previous version
+    - upgrade to Boost 1.67.0
+    - upgrade to MPFR 4.0.1-p6
 
 - **kf-2.12.13** (2018-05-15)
 

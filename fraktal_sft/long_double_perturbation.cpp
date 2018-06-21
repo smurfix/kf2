@@ -22,6 +22,41 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "../formula/formula.h"
 
+static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, const bool m_bNoGlitchDetection)
+{
+  long double yr, yi;
+  bGlitch=FALSE;
+  if(antal<m_nMaxIter && test1 <= m_nBailout2){
+    for(;antal<m_nMaxIter;antal++){
+      yr=dxr[antal]+Dr;
+      yi=dxi[antal]+Di;
+      test2=test1;
+      test1 = g_real*yr*yr + g_imag*yi*yi;
+      if(test1<m_db_z[antal]){
+        bGlitch=TRUE;
+        if (! m_bNoGlitchDetection)
+          break;
+      }
+      complex<long double> y(yr, yi);
+      complex<long double> X(dxr[antal],dxi[antal]);
+      complex<long double> D(Dr,Di);
+      complex<long double> D0(D0r,D0i);
+      complex<long double> c(m_pnExpConsts[0],0);
+      int nXExp=m_nPower-2, nDExp=2, ci=1;
+      complex<long double> Dn = c*(X^(m_nPower-1))*D;
+      while(nXExp){
+        c.m_r = m_pnExpConsts[ci++];
+        Dn += c*(X^nXExp)*(D^nDExp);
+        nXExp--;
+        nDExp++;
+      }
+      Di = Dn.m_i;
+      Dr = Dn.m_r;
+    }
+  }
+  return antal;
+}
+
 static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di, const bool m_bNoGlitchDetection)
 {
   complex<long double> d(dr, di);
@@ -105,6 +140,8 @@ void CFraktalSFT::MandelCalcLDBL()
 			long double Dr = TDnr.toLongDouble(m_nScalingOffsetL);
 			long double Di = TDni.toLongDouble(m_nScalingOffsetL);
 			if (m_nPower == 2){
+			if (GetDerivatives())
+			{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
@@ -141,8 +178,33 @@ void CFraktalSFT::MandelCalcLDBL()
 						Dr = Dnr;
 					}
 				}
+			} else {
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter; antal++){
+						double yr = m_ldxr[antal] + Dr*m_nScalingL;
+						double yi = m_ldxi[antal] + Di*m_nScalingL;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							bGlitch = TRUE;
+							if (! m_bNoGlitchDetection)
+								break;
+						}
+						if (test1 > m_nBailout2)
+						{
+							break;
+						}
+						long double Dnr = (2 * m_ldxr[antal] + Dr*m_nScalingL)*Dr - (2 * m_ldxi[antal] + Di*m_nScalingL)*Di + lD0r;
+						long double Dni = 2 * ((m_ldxr[antal] + Dr*m_nScalingL)*Di + m_ldxi[antal] * Dr) + lD0i;
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
 			}
+		  }
 			if (m_nPower == 3){
+			if (GetDerivatives())
+			{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
@@ -170,6 +232,31 @@ void CFraktalSFT::MandelCalcLDBL()
 						Dr = Dnr;
 					}
 				}
+			} else {
+				if (antal<nMaxIter && test1 <= m_nBailout2){
+					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
+						double yr = m_ldxr[antal] + Dr*m_nScalingL;
+						double yi = m_ldxi[antal] + Di*m_nScalingL;
+						test2 = test1;
+						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (test1<m_db_z[antal]){
+							bGlitch = TRUE;
+							if (! m_bNoGlitchDetection)
+								break;
+						}
+						if (test1 > m_nBailout2)
+						{
+							break;
+						}
+						//Dnr=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Dr+m_ldxr[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)-Di*(2*m_ldxi[antal]*(m_ldxr[antal]+Dr*m_nScalingL)+Dr*m_nScalingL*Di*m_nScalingL))+Dr*m_nScalingL*Dr*m_nScalingL*Dr+dbD0r;
+						//Dni=3*((m_ldxr[antal]*m_ldxr[antal]-m_ldxi[antal]*m_ldxi[antal])*Di+m_ldxi[antal]*(Dr*Dr*m_nScalingL-Di*Di*m_nScalingL)+Dr*(2*m_ldxr[antal]*(m_ldxi[antal]+Di)+Dr*m_nScalingL*Di*m_nScalingL))-Di*Di*m_nScalingL*Di*m_nScalingL+dbD0i;
+						long double Dnr = 3 * m_ldxr[antal] * m_ldxr[antal] * Dr - 6 * m_ldxr[antal] * m_ldxi[antal] * Di - 3 * m_ldxi[antal] * m_ldxi[antal] * Dr + 3 * m_ldxr[antal] * Dr*Dr*m_nScalingL - 3 * m_ldxr[antal] * Di*Di*m_nScalingL - 3 * m_ldxi[antal] * 2 * Dr*Di*m_nScalingL + Dr*Dr*Dr*m_nScalingL*m_nScalingL - 3 * Dr*Di*Di*m_nScalingL*m_nScalingL + lD0r;
+						long double Dni = 3 * m_ldxr[antal] * m_ldxr[antal] * Di + 6 * m_ldxr[antal] * m_ldxi[antal] * Dr - 3 * m_ldxi[antal] * m_ldxi[antal] * Di + 3 * m_ldxr[antal] * 2 * Dr*Di*m_nScalingL + 3 * m_ldxi[antal] * Dr*Dr*m_nScalingL - 3 * m_ldxi[antal] * Di*Di*m_nScalingL + 3 * Dr*Dr*Di*m_nScalingL*m_nScalingL - Di*Di*Di*m_nScalingL*m_nScalingL + lD0i;
+						Di = Dni;
+						Dr = Dnr;
+					}
+				}
+			}
 			}
 			dr = (ldcr * m_fPixelSpacing).toLongDouble();
 			di = (ldci * m_fPixelSpacing).toLongDouble();
@@ -183,7 +270,10 @@ void CFraktalSFT::MandelCalcLDBL()
 			long double Dr = TDnr.toLongDouble();
 			long double Di = TDni.toLongDouble();
 			// FIXME check this is still ok around long double vs scaled double zoom threshold e600
-			antal = Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection);
+			antal = GetDerivatives()
+			  ? Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection)
+			  : Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, lD0r, lD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, m_bNoGlitchDetection)
+			  ;
 			long double pixel_spacing = m_lPixelSpacing;
 			dr *= pixel_spacing;
 			di *= pixel_spacing;
@@ -203,12 +293,18 @@ void CFraktalSFT::MandelCalcLDBL()
 			int antal2 = antal;
 			dr *= m_lPixelSpacing;
 			di *= m_lPixelSpacing;
-			bool ok = perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing, ldaa, ldab, ldba, ldbb);
+			bool ok = GetDerivatives()
+			  ? perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i, dr, di, m_epsilon, m_lPixelSpacing, ldaa, ldab, ldba, ldbb)
+			  : perturbation_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal2, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, lD0r, lD0i)
+			  ;
 			antal = antal2;
 			assert(ok && "perturbation_long_double");
 		}
 
-		double de = sqrt(test1) * log(test1) / hypotl(dr, di);
+		double de = GetDerivatives()
+		  ? sqrt(test1) * log(test1) / hypotl(dr, di)
+		  : 0
+		  ;
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
