@@ -595,50 +595,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_BUTTON5){
 			std::string szFile;
 			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0\0",szFile)){
-				DWORD dw;
-				HANDLE hFile = CreateFile(szFile.c_str(),GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
-				if(hFile==INVALID_HANDLE_VALUE)
-					return FALSE;
-				int nData = GetFileSize(hFile,NULL);
-				char *szData = new char[nData+1];
-				ReadFile(hFile,szData,nData,&dw,NULL);
-				CloseHandle(hFile);
-				szData[nData]=0;
-				CStringTable stParams(szData,": ","\r\n");
-				delete [] szData;
-				int nC = stParams.FindString(0,"Colors");
-				if(nC==-1)
-					return MessageBox(hWnd,"Invalid file","Error",MB_OK|MB_ICONSTOP);
-				CStringTable stColors(stParams[nC][1],"",",");
-				int nParts = stColors.GetCount()/3;
-				g_SFT.ChangeNumOfColors(nParts);
-				int i;
-				COLOR14 c;
-				for(i=0;i<nParts;i++){
-					c.r = atoi(stColors[i*3][0]);
-					c.g = atoi(stColors[i*3+1][0]);
-					c.b = atoi(stColors[i*3+2][0]);
-					g_SFT.SetKeyColor(c,i);
-				}
-				int nID = stParams.FindString(0,"IterDiv");
-				double nDiv=1;
-				if(nID!=-1)
-					nDiv = atof(stParams[nID][1]);
-				if(nDiv==0)
-					nDiv=1;
-				g_SFT.SetIterDiv(nDiv);
-				nID = stParams.FindString(0,"ColorMethod");
-				if(nID!=-1){
-					nID = atoi(stParams[nID][1]);
-					g_SFT.SetColorMethod(nID);
-					SendDlgItemMessage(hWnd,IDC_COMBO1,CB_SETCURSEL,nID,0);
-				}
-				nID = stParams.FindString(0,"Differences");
-				if(nID!=-1){
-					nID = atoi(stParams[nID][1]);
-					g_SFT.SetDifferences(nID);
-					SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_SETCURSEL,nID,0);
-				}
+				g_SFT.OpenFile(szFile, TRUE);
 				SendMessage(hWnd,WM_USER+99,0,0);
 				if (g_AutoColour) g_SFT.ApplyColors();
 				g_AutoUpdate++;

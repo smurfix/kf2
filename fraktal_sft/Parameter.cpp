@@ -83,12 +83,17 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 		m_nIterDiv = atof(stParams[nID][1]);
 
+	if (! bNoLocation)
+	{
 	nID = stParams.FindString(0, "Rotate");
 	if (nID == -1)
 		g_Degree = 0;
 	else
 		g_Degree = atof(stParams[nID][1]);
+	}
 
+	if (! bNoLocation)
+	{
 	nID = stParams.FindString(0, "Ratio");
 	if (nID == -1)
 		m_scRatio.cy = 360;
@@ -102,11 +107,13 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	size.cy = size.cy*xRatio;
 	xRatio = (double)size.cy/(double)360;
 	m_scRatio.cy*=xRatio;
-
+	}
 
 	int nT = stParams.FindString(0, "Smooth");
 	if (nT != -1)
 		m_bTrans = atoi(stParams[nT][1]);
+	if (! bNoLocation)
+	{
 	nID = stParams.FindString(0, "SmoothMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
@@ -116,6 +123,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 	m_nBailout = m_nSmoothMethod == SmoothMethod_Sqrt ? 2 : SMOOTH_BAILOUT;
 	m_nBailout2 = m_nBailout*m_nBailout;
+	}
 
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
@@ -144,6 +152,9 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 	else
 		m_nColorOffset = 0;
+
+	if (! bNoLocation)
+	{
 	nID = stParams.FindString(0, "Power");
 	if (nID != -1){
 		m_nPower = atoi(stParams[nID][1]);
@@ -157,6 +168,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		m_nFractalType = atoi(stParams[nID][1]);
 	else
 		m_nFractalType = 0;
+	}
 
 	nID = stParams.FindString(0, "Slopes");
 	if (nID != -1)
@@ -187,6 +199,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	SetSlopes(m_bSlopes, m_nSlopePower, m_nSlopeRatio, m_nSlopeAngle);
 
+	if (! bNoLocation)
+	{
 	nID = stParams.FindString(0, "real");
 	if (nID != -1)
 		g_real = atoi(stParams[nID][1]);
@@ -218,7 +232,10 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		g_FactorAI = atof(stParams[nID][1]);
 	else
 		g_FactorAI = 0;
+	}
 
+	if (! bNoLocation)
+	{
 	bool ld = GetLongDoubleAlways();
 	bool fe = GetFloatExpAlways();
 	if (m_nPower == 2 && !m_nFractalType)
@@ -243,6 +260,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	if (fe)
 	{
 		g_nEXP = 2;
+	}
 	}
 
 	if (!bNoLocation)
@@ -276,9 +294,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	i = stParams.FindString(0, "BlendMC");
 	if (i != -1)
 		m_bBlend = atoi(stParams[i][1]);
+	if (! bNoLocation)
+	{
 	ApplyColors();
 	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
 	m_nMaxIter = atoi(stParams[nIterations][1]);
+	}
 	return TRUE;
 }
 
