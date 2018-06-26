@@ -142,12 +142,13 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.13.5** (????-??-??)
+- **kf-2.13.5** (2018-06-26)
 
     - colouring is parallelized for speedup when multiple cores are available
     - only sort pixel indices in interactive mode (speeds up batch mode)
     - palette loading fixed to load all colouring data
     - interior colour can be set now, defaults to black
+    - upgrade to GSL 2.5
 
 - **kf-2.13.4** (2018-06-21)
 
