@@ -326,7 +326,6 @@ void CFraktalSFT::RenderFractal()
 		}
 		CalculateReference();
 	}
-	int x, y;
 
 	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 	m_pixel_step_x = step;
@@ -457,7 +456,6 @@ void CFraktalSFT::RenderFractalLDBL()
 		}
 		CalculateReferenceLDBL();
 	}
-	int x, y;
 
 	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 	m_pixel_step_x = step;
@@ -546,7 +544,6 @@ void CFraktalSFT::RenderFractalEXP()
 		CalculateReferenceEXP();
 	}
 	int i;
-	int x, y;
 
 	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 	m_pixel_step_x = step;

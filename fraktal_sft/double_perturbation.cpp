@@ -106,12 +106,6 @@ void CFraktalSFT::MandelCalc()
 						test2 = test1;
 						test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
-							long double Xr = m_db_dxr[antal];
-							long double Xi = m_db_dxi[antal];
-							long double xr = ((long double)(Dr)) * m_nScaling;
-							long double xi = ((long double)(Di)) * m_nScaling;
-							long double cr = ((long double)(dbD0r)) * m_nScaling;
-							long double ci = ((long double)(dbD0i)) * m_nScaling;
 								bGlitch = TRUE;
 								if (! m_bNoGlitchDetection)
 									break;
