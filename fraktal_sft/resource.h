@@ -223,6 +223,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_ISOLATED_0           40086
 #define ID_ACTIONS_ISOLATED_4           40087
 #define ID_ACTIONS_ISOLATED_8           40088
+#define ID_FILE_OPENMAP                 40089
 
 // OpenCL
 #ifdef KF_OPENCL

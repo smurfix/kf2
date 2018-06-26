@@ -2468,6 +2468,33 @@ static long OpenFile(HWND hWnd, bool &ret)
 				}
 }
 
+static long OpenMap(HWND hWnd, bool &ret, const std::string &szFile)
+{
+	g_SFT.Stop();
+	g_bAnim = false;
+	if (! g_SFT.OpenMapB(szFile))
+	{
+		ret = true;
+		if (hWnd)
+			return MessageBox(hWnd,"Invalid map file","Error",MB_OK|MB_ICONSTOP);
+		else
+			return 0;
+	}
+	else
+	{
+		if(g_hwColors)
+			SendMessage(g_hwColors,WM_USER+99,0,0);
+		g_SFT.ApplyColors();
+		if (hWnd)
+		{
+			InvalidateRect(hWnd,NULL,FALSE);
+			UpdateWindow(hWnd);
+		}
+	}
+	ret = false;
+	return 0;
+}
+
 static long OpenSettings(HWND hWnd, bool &ret)
 {
 				g_SFT.Stop();
@@ -4256,6 +4283,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile)){
 				bool ret;
 				long r = OpenFile(hWnd, ret);
+				if (ret) return r;
+			}
+		}
+		else if(wParam==ID_FILE_OPENMAP){
+			std::string szfile;
+			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfb\0\0",szfile)){
+				bool ret;
+				long r = OpenMap(hWnd, ret, szfile);
 				if (ret) return r;
 			}
 		}

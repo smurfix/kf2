@@ -20,7 +20,7 @@
 SYSTEM ?= 64
 include $(SYSTEM).mk
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -pipe -MMD -g -O3 -ffast-math -I$(WINPREFIX)/include -D_FILE_OFFSET_BITS=64
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math

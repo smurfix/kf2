@@ -1822,8 +1822,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	//HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
 	FILE *hFile = fopen(szFile.c_str(), "rb");
 	//if(hFile==INVALID_HANDLE_VALUE)
-	if (hFile == NULL)
-		return FALSE;
+	if (hFile == NULL) return FALSE; // FIXME leaks Org arrays
 	DWORD dw;
 	char szId[3];
 	//ReadFile(hFile,szId,3,&dw,NULL);
@@ -1892,12 +1891,20 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	if (sizeof(int) == dw)
 		m_nMaxIter = nTest;
 
+	BOOL ok = TRUE;
 	if (!bNewFormat){
 		for (x = 0; x<m_nX; x++){
-			m_nTrans[x] = new float[m_nY];
-			memset(m_nTrans[x], 0, sizeof(float)*m_nY);
-			//ReadFile(hFile,m_nTrans[x],sizeof(float)*m_nY,&dw,NULL);
-			fread(m_nTrans[x], 1, sizeof(float)*m_nY, hFile);
+			ok &= (1 == fread(m_nTrans[x], sizeof(float)*m_nY, 1, hFile));
+		}
+		off_t pos1 = ftello(hFile);
+		fseek(hFile, 0, SEEK_END);
+		off_t pos2 = ftello(hFile);
+		if (pos1 != pos2)
+		{
+			fseeko(hFile, pos1, SEEK_SET);
+			for (x = 0; x<m_nX; x++){
+				ok &= (1 == fread(m_nDE[x], sizeof(float)*m_nY, 1, hFile));
+			}
 		}
 	}
 	//CloseHandle(hFile);
@@ -1951,7 +1958,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 			{ /*Beep(1000,10)*/ }
 	}
-	return TRUE;
+	return ok;
 }
 
 double CFraktalSFT::GetIterDiv()
