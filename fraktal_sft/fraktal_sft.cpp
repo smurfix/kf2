@@ -964,6 +964,12 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 	}
 }
 
+static int ThApplyColors(TH_PARAMS *pMan)
+{
+	pMan->p->ApplyColors(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight());
+	return 0;
+}
+
 void CFraktalSFT::ApplyColors()
 {
 	int i, p = 0;
@@ -978,7 +984,31 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-		ApplyColors(0, m_nX, 0, m_nY);
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		CParallell P(
+#ifdef _DEBUG
+			1
+#else
+			nParallel
+#endif
+			);
+		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+		int nXStart = 0;
+		int nXStep = (m_nX + nParallel - 1) / nParallel;
+		for (i = 0; i < nParallel; i++)
+		{
+			pMan[i].p = this;
+			pMan[i].nXStart = nXStart;
+			nXStart += nXStep;
+			if (nXStart > m_nX) nXStart = m_nX;
+			pMan[i].nXStop = nXStart;
+			P.AddFunction((LPEXECUTE)ThApplyColors, &pMan[i]);
+		}
+		P.Execute();
+		P.Reset();
+		delete[] pMan;
 	}
 }
 int CFraktalSFT::GetSeed()
