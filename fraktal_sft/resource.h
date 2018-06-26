@@ -146,6 +146,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_JITTERSHAPE                 1093
 #define IDC_AUTOCOLOUR                  1094
 #define IDC_DERIVATIVES                 1095
+#define IDC_INTERIORCOLOR               1096
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -236,7 +237,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
 #define _APS_NEXT_COMMAND_VALUE         40089
-#define _APS_NEXT_CONTROL_VALUE         1096
+#define _APS_NEXT_CONTROL_VALUE         1097
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

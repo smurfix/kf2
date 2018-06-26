@@ -930,6 +930,12 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		}
 	}
 	srgb8 s8 = dither(s, x, y);
+	if (nIter == m_nMaxIter)
+	{
+		s8.r = m_cInterior.r;
+		s8.g = m_cInterior.g;
+		s8.b = m_cInterior.b;
+	}
 	m_lpBits[nIndex    ] = s8.r;
 	m_lpBits[nIndex + 1] = s8.g;
 	m_lpBits[nIndex + 2] = s8.b;

@@ -294,6 +294,19 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	i = stParams.FindString(0, "BlendMC");
 	if (i != -1)
 		m_bBlend = atoi(stParams[i][1]);
+
+	i = stParams.FindString(0, "InteriorColor");
+	if (i != -1)
+	{
+		CStringTable stColor(stParams[i][1], "", ",");
+		if (stColor.GetCount() == 3)
+		{
+			m_cInterior.r = atoi(stColor[0][0]);
+			m_cInterior.g = atoi(stColor[1][0]);
+			m_cInterior.b = atoi(stColor[2][0]);
+		}
+	}
+
 	if (! bNoLocation)
 	{
 	ApplyColors();
@@ -370,6 +383,22 @@ std::string CFraktalSFT::ToText()
 	stSave.AddString(stSave.GetCount() - 1, "Colors");
 	stSave.AddString(stSave.GetCount() - 1, szColors);
 	stColors.DeleteToText(szColors);
+
+	{
+		CStringTable stColor;
+		stColor.AddRow();
+		stColor.AddInt(stColor.GetCount() - 1, m_cInterior.r);
+		stColor.AddRow();
+		stColor.AddInt(stColor.GetCount() - 1, m_cInterior.g);
+		stColor.AddRow();
+		stColor.AddInt(stColor.GetCount() - 1, m_cInterior.b);
+		char *szColor = stColor.ToText("", ",");
+		stSave.AddRow();
+		stSave.AddString(stSave.GetCount() - 1, "InteriorColor");
+		stSave.AddString(stSave.GetCount() - 1, szColor);
+		stColor.DeleteToText(szColor);
+	}
+
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Smooth");
 	stSave.AddInt(stSave.GetCount() - 1, m_bTrans);

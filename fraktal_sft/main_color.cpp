@@ -256,6 +256,17 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SelectObject(ps.hdc,pnOld);
 		DeleteObject(pn);
 
+		RECT r =
+		  { g_rShow.right + g_rShow.left - 96
+			, g_rShow.top - 32
+			, g_rShow.right + g_rShow.left
+			, g_rShow.top - 16
+			};
+    COLOR14 c = g_SFT.GetInteriorColor();
+    HBRUSH br = CreateSolidBrush(RGB(c.b, c.g, c.r));
+    FillRect(ps.hdc, &r, br);
+    DeleteObject(br);
+
 		EndPaint(hWnd,&ps);
 		return 0;
 	}
@@ -790,6 +801,22 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					n.b = (n.b+c.b)/2;
 					g_SFT.SetKeyColor(n,i);
 				}
+			}
+			SendMessage(hWnd,WM_USER+99,0,0);
+			if (g_AutoColour) g_SFT.ApplyColors();
+		}
+		else if(wParam==IDC_INTERIORCOLOR){
+			COLOR14 c;
+			CHOOSECOLOR col={sizeof(CHOOSECOLOR)};
+			col.hwndOwner = hWnd;
+			col.lpCustColors = colCust;
+			col.Flags = CC_RGBINIT;
+			if(ChooseColor(&col)){
+				char *cc = (char*)&col.rgbResult;
+				c.b = cc[0];
+				c.g = cc[1];
+				c.r = cc[2];
+				g_SFT.SetInteriorColor(c);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
 			if (g_AutoColour) g_SFT.ApplyColors();

@@ -225,7 +225,7 @@ class CFraktalSFT
 	int m_nGlitchIter;
 	int m_nTotal;
 	HBITMAP m_bmBmp;
-	COLOR14 m_cPos[1025], m_cKeys[1025];
+	COLOR14 m_cPos[1025], m_cKeys[1025], m_cInterior;
 	int m_nParts;
 	int m_nSeed;
 	int **m_nPixels;
@@ -393,6 +393,8 @@ public:
 	COLOR14 GetKeyColor(int i);
 	void SetKeyColor(COLOR14 col, int i);
 	COLOR14 GetColor(int i);
+	COLOR14 GetInteriorColor() { return m_cInterior; };
+	void SetInteriorColor(const COLOR14 &c) { m_cInterior = c; };
 	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
 	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
