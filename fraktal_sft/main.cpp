@@ -4655,6 +4655,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		output_log_message(Info, "reference " << 1);
 		g_SFT.m_bInhibitColouring = TRUE;
+		g_SFT.m_bInteractive = false;
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
 		{

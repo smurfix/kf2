@@ -1176,7 +1176,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
 {
-	m_P.Init(m_nX, m_nY);
+	m_P.Init(m_nX, m_nY, m_bInteractive);
 	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
@@ -2491,7 +2491,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			ret_y=ry;
 		}
 		if(io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1){
-			m_P.Init(m_nX, m_nY);
+			m_P.Init(m_nX, m_nY, m_bInteractive);
 			int w,h;
 			while(m_P.GetPixel(x,y,w,h)){
 				if(Node[x][y]==Node[ret_x][ret_y]){
@@ -2930,7 +2930,7 @@ struct CPixelComparator {
 	}
 };
 
-void CPixels::Init(int width, int height)
+void CPixels::Init(int width, int height, bool interactive)
 {
 	m_nNextPixel = -1;
 	if (m_nX == width && m_nY == height && m_pPixels)
@@ -2952,7 +2952,7 @@ void CPixels::Init(int width, int height)
 		for (int x = 0; x < width; x += step)
 			pixels[ix++] = CPixel(x, y, step, step);
 	int end = ix;
-	std::sort(&pixels[begin], &pixels[end], cmp);
+	if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
   for (; step > 1; step >>= 1)
   {
 		begin = ix;
@@ -2960,13 +2960,13 @@ void CPixels::Init(int width, int height)
 			for (int x = step >> 1; x < width; x += step)
 				pixels[ix++] = CPixel(x, y, step >> 1, step);
 		end = ix;
-		std::sort(&pixels[begin], &pixels[end], cmp);
+		if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
 		begin = ix;
 		for (int y = step >> 1; y < height; y += step)
 			for (int x = 0; x < width; x += step >> 1)
 				pixels[ix++] = CPixel(x, y, step >> 1, step >> 1);
 		end = ix;
-		std::sort(&pixels[begin], &pixels[end], cmp);
+		if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
   }
 	assert(ix == width * height);
 }

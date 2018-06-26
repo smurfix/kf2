@@ -45,7 +45,7 @@ class CPixels
 	HANDLE m_hMutex;
 public:
 	CPixels();
-	void Init(int nX, int nY);
+	void Init(int nX, int nY, bool interactive);
 	BOOL GetPixel(int &x, int &y, int &w, int &h, BOOL bMirrored = 0);
 #if 0
 	BOOL GetPixels(int *px, int *py, int &nCount);
@@ -344,6 +344,7 @@ class CFraktalSFT
 public:
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
+	bool m_bInteractive;
 	int nPos;
 	void MandelCalc();
 	void MandelCalcEXP();
