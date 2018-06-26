@@ -196,6 +196,7 @@ CFraktalSFT::CFraktalSFT()
 	m_pInflections=NULL;
 
 	m_bInhibitColouring = FALSE;
+	m_bInteractive = true;
 	GenerateColors(128, 1);
 	ApplyColors();
 }
