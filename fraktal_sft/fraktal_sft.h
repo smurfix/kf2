@@ -361,6 +361,7 @@ public:
 	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
+	void CalcStart(int x0, int x1, int y0, int y1);
 	HBITMAP GetBitmap();
 	void UpdateBitmap();
 	int GetWidth();
