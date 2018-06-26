@@ -934,6 +934,36 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 	m_lpBits[nIndex + 2] = s8.b;
 }
 
+// based on cache-oblivious matrix transpose by divide and conquer
+void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
+{
+	int w = x1 - x0;
+	int h = y1 - y0;
+	assert(w > 0);
+	assert(h > 0);
+	if (w <= 16 && h <= 16)
+	{
+		for (int x = x0; x < x1; ++x)
+		for (int y = y0; y < y1; ++y)
+		{
+			int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+		}
+	}
+	else if (w <= h)
+	{
+		int y = (y0 + y1) >> 1;
+		ApplyColors(x0, x1, y0, y);
+		ApplyColors(x0, x1, y, y1);
+	}
+	else
+	{
+		int x = (x0 + x1) >> 1;
+		ApplyColors(x0, x, y0, y1);
+		ApplyColors(x, x1, y0, y1);
+	}
+}
+
 void CFraktalSFT::ApplyColors()
 {
 	int i, p = 0;
@@ -948,13 +978,7 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-		int x, y;
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
-			}
-		}
+		ApplyColors(0, m_nX, 0, m_nY);
 	}
 }
 int CFraktalSFT::GetSeed()

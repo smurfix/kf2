@@ -382,6 +382,7 @@ public:
 	void AddWave(int nCol, int nPeriod = -1, int nStart = -1);
 	void ChangeNumOfColors(int nParts);
 	int GetNumOfColors();
+	void ApplyColors(int x0, int x1, int y0, int y1);
 	void ApplyColors();
 	void ApplyIterationColors();
 	void ApplySmoothColors();
