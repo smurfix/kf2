@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/bitmap.h"
 #include "../common/parallell.h"
 
+#include <cstring>
+
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 #ifndef _DEBUG
@@ -612,14 +614,48 @@ void CFraktalSFT::RenderFractalEXP()
 	m_bRunning = FALSE;
 }
 
+void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
+{
+	for (int x = x0; x < x1; x++)
+	{
+		memset(&m_nPixels[x][y0], -1, sizeof(m_nPixels[x][y0]) * (y1 - y0));
+		memset(&m_nTrans[x][y0], 0, sizeof(m_nTrans[x][y0]) * (y1 - y0));
+	}
+}
+
+static int ThCalcStart(TH_PARAMS *pMan)
+{
+	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight());
+	return 0;
+}
+
 void CFraktalSFT::CalcStart()
 {
-		if (!m_bAddReference){
-			for (int x = 0; x<m_nX; x++){
-				for (int y = 0; y<m_nY; y++){
-					m_nPixels[x][y] = -1;
-					m_nTrans[x][y] = 0;
-				}
-			}
+	if (!m_bAddReference){
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		CParallell P(
+#ifdef _DEBUG
+			1
+#else
+			nParallel
+#endif
+			);
+		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+		int nXStart = 0;
+		int nXStep = (m_nX + nParallel - 1) / nParallel;
+		for (int i = 0; i < nParallel; i++)
+		{
+			pMan[i].p = this;
+			pMan[i].nXStart = nXStart;
+			nXStart += nXStep;
+			if (nXStart > m_nX) nXStart = m_nX;
+			pMan[i].nXStop = nXStart;
+			P.AddFunction((LPEXECUTE)ThCalcStart, &pMan[i]);
 		}
+		P.Execute();
+		P.Reset();
+		delete[] pMan;
+	}
 }
