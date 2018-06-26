@@ -320,6 +320,7 @@ class CFraktalSFT
 	void CalculateReference();
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
+	void CalcStart();
 	void CreateLists();
 	std::string ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();

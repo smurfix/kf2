@@ -380,15 +380,7 @@ void CFraktalSFT::RenderFractal()
 	else
 #endif
 	{
-		// CalcStart
-		if (!m_bAddReference){
-			for (x = 0; x<m_nX; x++){
-				for (y = 0; y<m_nY; y++){
-					m_nPixels[x][y] = -1;
-					m_nTrans[x][y] = 0;
-				}
-			}
-		}
+		CalcStart();
 
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
@@ -478,15 +470,7 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_rApprox.bottom = m_nY;
 	CalculateApproximation(1);
 
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = -1;
-				m_nTrans[x][y] = 0;
-			}
-		}
-	}
+	CalcStart();
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
@@ -575,15 +559,7 @@ void CFraktalSFT::RenderFractalEXP()
 	m_rApprox.bottom = m_nY;
 	CalculateApproximation(2);
 
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = -1;
-				m_nTrans[x][y] = 0;
-			}
-		}
-	}
+	CalcStart();
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
@@ -634,4 +610,16 @@ void CFraktalSFT::RenderFractalEXP()
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
+}
+
+void CFraktalSFT::CalcStart()
+{
+		if (!m_bAddReference){
+			for (int x = 0; x<m_nX; x++){
+				for (int y = 0; y<m_nY; y++){
+					m_nPixels[x][y] = -1;
+					m_nTrans[x][y] = 0;
+				}
+			}
+		}
 }
