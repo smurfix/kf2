@@ -1609,47 +1609,9 @@ std::string CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
 }
 std::string CFraktalSFT::GetZoom()
 {
-	CDecNumber zoom = (CDecNumber)4 / ((CDecNumber)m_istop.ToText() - (CDecNumber)m_istart.ToText());
-	CStringTable stRet;
-	if (m_szPosition)
-		stRet.DeleteToText(m_szPosition);
-	m_szPosition = nullptr;
-	stRet.AddRow();
-	stRet.AddString(stRet.GetCount() - 1, zoom.ToText());
-	m_szPosition = stRet.ToText("", "");
-	char *e = strstr(m_szPosition, "e");
-	char szNum[20];
-	if (!e)
-		e = strstr(m_szPosition, "E");
-	if (!e){
-		char *szP = strstr(m_szPosition, ".");
-		if (szP)
-			*szP = 0;
-		int exp = strlen(m_szPosition) - 1;
-		if (exp>2){
-			int end = 12;
-			if (end>exp)
-				end = exp;
-			m_szPosition[end + 1] = 0;
-			while (end>1){
-				m_szPosition[end] = m_szPosition[end - 1];
-				end--;
-			}
-			m_szPosition[end] = '.';
-			stRet.SetString(0, 0, m_szPosition);
-			wsprintf(szNum, "E%d", exp);
-			stRet.AppendString(0, 0, szNum);
-			stRet.DeleteToText(m_szPosition);
-			m_szPosition = stRet.ToText("", "");
-		}
-
-	}
-	else{
-		m_szPosition[12] = 0;
-		stRet.SetString(0, 0, m_szPosition);
-		stRet.AppendString(0, 0, e);
-	}
-	return m_szPosition;
+	CDecNumber zoomDec = (CDecNumber)4 / ((CDecNumber)m_istop.ToText() - (CDecNumber)m_istart.ToText());
+	floatexp zoomFE; zoomFE = CFixedFloat(zoomDec.m_dec);
+	return zoomFE.toString();
 }
 BOOL CFraktalSFT::HighestIteration(int &rx, int &ry)
 {
