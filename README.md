@@ -807,17 +807,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - the MPFR library is used under the conditions of the GNU Lesser General Public
   License version 3
   <https://www.gnu.org/licenses/lgpl-3.0.en.html>
+- the GSL library is used under the conditions of the GNU General Public License
+  <https://www.gnu.org/licenses/gpl.html>
 - the Boost library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 
-**NOTE**: the binaries are statically linked with GMP, which is under dual
-LGPLv3 / GPLv2 license. If you redistribute the binaries you must also be
-prepared to distribute the source corresponding to those binaries to anyone you
-distribute the binary to. To make this easier for you, the more recent zips
-include the source too (though you'll also need to get the library
-sources).
+**NOTE**: the binaries are statically linked with code under (L)GPL licenses.
+If you redistribute the binaries you must also be prepared to distribute the
+source corresponding to those binaries to anyone you distribute the binary to.
+To make this easier for you, the more recent zips include the source too
+(though you'll also need to get the library sources).
+
 
 ## Acknowledgements
 
