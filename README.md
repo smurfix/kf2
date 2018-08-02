@@ -141,6 +141,16 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.13.6** (2018-08-02)
+
+    - fix for "a single dot appears in the middle of a mini"
+      (reported by gerrit)
+    - fix for "zooming out saves Zoom 0 in KFR parameter file"
+      (reported by CFJH)
+    - "open map" function (file menu)
+      workflow: open KFR, ESC to abort, open KFB, adjust colours, save image
+      (ignoring the warning about a KFB map existing with the same name)
+
 - **kf-2.13.5** (2018-06-26)
 
     - colouring is parallelized for speedup when multiple cores are available
