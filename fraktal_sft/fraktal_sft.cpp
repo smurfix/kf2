@@ -1626,7 +1626,7 @@ BOOL CFraktalSFT::HighestIteration(int &rx, int &ry)
 		rx = x;
 		ry = y;
 	}
-	return TRUE;
+	return nMax != -1;
 }
 BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 {
