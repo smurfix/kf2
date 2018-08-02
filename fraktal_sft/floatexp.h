@@ -22,6 +22,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <math.h>
 #include <stdint.h>
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <limits>
 #include "CFixedFloat.h"
 
 #define MAX_PREC 1020
@@ -422,6 +426,25 @@ public:
 			nScaling--;
 		}
 		return ret.toLongDouble();
+	}
+
+  inline std::string toString() const
+  {
+		/*
+		  f = val 2^exp
+		  log10 f = log10 val + exp log10 2
+		  e10 = floor(log10 f)
+		  d10 = 10^(log10 f - e10)
+		  d10 \in [1, 10)
+		*/
+		double lf = std::log10(val) + exp * std::log10(2.0);
+		int64_t e10 = std::floor(lf);
+		double d10 = std::pow(10, lf - e10);
+		std::ostringstream os; os
+		  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+		  << std::fixed
+		  << d10 << 'E' << e10;
+		return os.str();
 	}
 };
 
