@@ -55,6 +55,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <gsl/gsl_version.h>
 #include "jpeg.h"
 #include "png.h"
+#include "tiff.h"
 #include "main.h"
 #include "main_color.h"
 #include "main_examine.h"
@@ -131,6 +132,7 @@ BOOL g_bStoreZoom=FALSE;
 BOOL g_bStoreZoomMap=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
+BOOL g_bStoreZoomTif=FALSE;
 int g_nStoreZoomCount = 0;
 int g_nStoreZoomLimit = 0;
 
@@ -154,6 +156,7 @@ int g_nStatus=0;
 BOOL g_bFirstDone=TRUE;
 BOOL g_bSaveJpeg=FALSE;
 BOOL g_bSavePng=FALSE;
+BOOL g_bSaveTif=FALSE;
 BOOL g_bSaveMap=FALSE;
 BOOL g_bInteractive=TRUE;
 const CommandLineArguments *g_args = 0;
@@ -204,8 +207,10 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		Beep(1000,10);
 	bmp2rgb(lpJeg, lpBits, bmi.biHeight, bmi.biWidth, row, bmi.biSizeImage);
 	int nRet;
-	if (nQuality < 0)
+	if (nQuality == -1)
 		nRet = SavePNG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
+	else if (nQuality == -2)
+		nRet = SaveTIFF(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -223,8 +228,10 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 	BYTE *lpJeg = new BYTE[biSizeImage];
 	bmp2rgb(lpJeg, lpBits, biHeight, biWidth, row, biSizeImage);
 	int nRet;
-	if (nQuality < 0)
+	if (nQuality == -1)
 		nRet = SavePNG(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
+	else if (nQuality == -2)
+		nRet = SaveTIFF(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,biHeight,biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -300,6 +307,7 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 		switch (nID)
 		{
 			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
+			case IDC_STOREZOOM_TIF: return "Save TIF image files for each frame";
 			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
 			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
 			case IDC_STOREZOOM_COUNTAUTO: return "Render only a limited number of frames";
@@ -1015,6 +1023,18 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomJpg=0;
+	File = replace_path_filename(g_szFile, "*_*.tif");
+	hFind = FindFirstFile(File.c_str(),&fd);
+	int countTif = 0;
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomTif=1;
+		do{
+			countTif++;
+		}while(FindNextFile(hFind,&fd));
+		FindClose(hFind);
+	}
+	else
+		g_bStoreZoomTif=0;
 	File = replace_path_filename(g_szFile, "*_*.png");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	int countPng = 0;
@@ -1081,6 +1101,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	UpdateZoomSize(hWnd);
 	int zoomCount = countMap ? countMap
+	              : countTif ? countTif
 	              : countPng ? countPng
 	              : countJpg ? countJpg
 	              : stExamine.size();
@@ -1565,6 +1586,13 @@ nPos=13;
 				else
 					g_SFT.SaveJpg(File,-1);
 			}
+			if(g_bStoreZoomTif){
+				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "tif"));
+				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
+					SaveZoomImg(File, "KF2");
+				else
+					g_SFT.SaveJpg(File,-2);
+			}
 			std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(File);
@@ -1724,6 +1752,28 @@ nPos=24;
 				std::cerr << "saving PNG " << szFile << std::endl;
 				if(!g_SFT.SaveJpg(szFile,-1))
 					std::cerr << "ERROR in save png: " << szFile << std::endl;
+			}
+		}
+		if(g_bSaveTif){
+nPos=24;
+			if (g_bInteractive)
+			{
+				g_bSaveTif=FALSE;
+				std::string szFile;
+				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
+					if(!g_SFT.SaveJpg(szFile,-2))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
+			}
+			else if (uMsg==WM_USER+199 && wParam==0)
+			{
+				g_bSaveTif=FALSE;
+				char szFile[1024]={0};
+				strncpy(szFile, g_args->sSaveTIF.c_str(), sizeof(szFile));
+				std::cerr << "saving TIFF " << szFile << std::endl;
+				if(!g_SFT.SaveJpg(szFile,-2))
+					std::cerr << "ERROR in save TIFF: " << szFile << std::endl;
 			}
 		}
 		if(g_bSaveMap){
@@ -2538,6 +2588,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			if (wParam == IDOK)
 			{
 				g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
+				g_bStoreZoomTif = SendDlgItemMessage(hWnd, IDC_STOREZOOM_TIF, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
 				g_nStoreZoomCount = 0;
@@ -2547,7 +2598,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 					g_nStoreZoomLimit = 0;
 				}
 				ExitToolTip(hWnd);
-				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomPng || g_bStoreZoomJpg);
+				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomTif || g_bStoreZoomPng || g_bStoreZoomJpg);
 			}
 			else if(wParam == IDCANCEL)
 			{
@@ -2628,9 +2679,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			OpenFile(hWnd, ret);
 		}
 		g_bSaveJpeg = g_args->bSaveJPG;
+		g_bSaveTif = g_args->bSaveTIF;
 		g_bSavePng = g_args->bSavePNG;
 		g_bSaveMap = g_args->bSaveMap;
-		g_bInteractive = !(g_args->bSaveJPG || g_args->bSavePNG || g_args->bSaveMap);
+		g_bInteractive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveMap);
 		if (! g_bInteractive)
 		{
 			std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
@@ -4267,7 +4319,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
-			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szSettingsFile)){
+			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff\0\0",g_szSettingsFile)){
 				bool ret;
 				long r = OpenSettings(hWnd, ret);
 				if (ret) return r;
@@ -4280,7 +4332,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPEN_){
-			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg\0\0",g_szFile)){
+			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff\0\0",g_szFile)){
 				bool ret;
 				long r = OpenFile(hWnd, ret);
 				if (ret) return r;
@@ -4335,6 +4387,27 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-1,g_JpegParams.nWidth,g_JpegParams.nHeight))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					szFile = replace_path_extension(szFile, "kfb");
+					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
+						g_SFT.SaveMapB(szFile);
+				}
+			}
+		}
+		else if(wParam==ID_FILE_SAVEASTIF){
+			g_JpegParams.nWidth = g_SFT.GetWidth();
+			g_JpegParams.nHeight = g_SFT.GetHeight();
+			g_JpegParams.nQuality = 100;
+			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
+				std::string szFile;
+				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
+					g_bSaveTif=TRUE;
+					SetTimer(hWnd,0,500,NULL);
+					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					return 0;
+				}
+				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
+					if(!g_SFT.SaveJpg(szFile,-2,g_JpegParams.nWidth,g_JpegParams.nHeight))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
 					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
@@ -4478,6 +4551,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Precision: %d bits (%d decimal digits)\n"
 				"\nLibraries:\n"
 				"- JPEG 6b2 <http://jpegclub.org/support>\n"
+				"- TIFF 4.0.9 <http://www.simplesystems.org/libtiff/>\n"
 				"- PNG %s <http://libpng.org>\n"
 				"- ZLIB %s <http://zlib.net>\n"
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
@@ -4620,7 +4694,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 #endif
 
 
-	bool interactive = !(g_args->bSaveJPG || g_args->bSavePNG || g_args->bSaveMap);
+	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveMap);
 	if (interactive)
 	{
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
@@ -4710,6 +4784,15 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		g_SFT.ApplyColors();
     //  save the result
     bool ok = true;
+		if (g_args->bSaveTIF)
+		{
+			output_log_message(Info, "saving TIFF " << g_args->sSaveTIF);
+			if (! g_SFT.SaveJpg(g_args->sSaveTIF, -2))
+			{
+				ok = false;
+				output_log_message(Error, "saving TIFF " << g_args->sSaveTIF << " FAILED");
+			}
+		}
 		if (g_args->bSavePNG)
 		{
 			output_log_message(Info, "saving PNG " << g_args->sSavePNG);

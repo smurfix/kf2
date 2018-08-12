@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
+#include "tiff.h"
 #include "png.h"
 #include "jpeg.h"
 #include "main.h"
@@ -29,7 +30,13 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 {
 	std::string data;
   std::string extension = get_filename_extension(szFile);
-	if (extension == "png")
+	if (extension == "tif" || extension == "tiff")
+	{
+		data = ReadTIFFComment(szFile);
+		if (data == "")
+		  return FALSE;
+	}
+	else if (extension == "png")
 	{
 		data = ReadPNGComment(szFile);
 		if (data == "")

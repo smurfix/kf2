@@ -74,6 +74,8 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 , sLoadLocation("")
 , bLoadSettings(false)
 , sLoadSettings("")
+, bSaveTIF(false)
+, sSaveTIF("")
 , bSavePNG(false)
 , sSavePNG("")
 , bSaveJPG(false)
@@ -107,6 +109,19 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 			{
 				bLoadSettings = true;
 				sLoadSettings = args[i];
+			}
+			else
+			{
+				bError = true;
+			}
+		}
+		else if ("-t" == args[i] || "--save-tif" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				bSaveTIF = true;
+				sSaveTIF = args[i];
 			}
 			else
 			{
@@ -188,6 +203,7 @@ const std::string usage =
 "kf.exe [options]\n"
 "    -l, --load-location [FILE.kfr]  load location file\n"
 "    -s, --load-settings [FILE.kfs]  load settings file\n"
+"    -t, --save-tif      [FILE.tif]  save TIFF\n"
 "    -p, --save-png      [FILE.png]  save PNG\n"
 "    -j, --save-jpg      [FILE.jpg]  save JPEG\n"
 "    -m, --save-map      [FILE.kfb]  save KFB\n"

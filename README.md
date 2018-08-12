@@ -141,6 +141,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.13.7** (????-??-??)
+
+    - export to uncompressed TIFF images (faster than PNG, but larger)
+      (suggested by gerrit)
+
 - **kf-2.13.6** (2018-08-02)
 
     - fix for "a single dot appears in the middle of a mini"
@@ -538,6 +543,7 @@ Feedback:
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - command line: print total remaining pixels (suggested by gerrit)
+- uncompressed image save, eg BMP (PNG is slow) (suggested by gerrit)
 
 ### Calculations
 
@@ -806,6 +812,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 - this software is based in part on the work of the Independent JPEG Group
   <http://jpegclub.org/reference/libjpeg-license/>
+- the TIFF library is used under the libtiff license:
+  <https://gitlab.com/libtiff/libtiff/blob/master/COPYRIGHT>
 - the PNG library is used under the libpng license
   <http://libpng.org/pub/png/src/libpng-LICENSE.txt>
 - the ZLIB library is used under the zlib license

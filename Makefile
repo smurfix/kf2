@@ -24,7 +24,7 @@ FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wn
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg -ltiff $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -50,7 +50,8 @@ fraktal_sft/newton.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/render.cpp \
-fraktal_sft/Settings.cpp
+fraktal_sft/Settings.cpp \
+fraktal_sft/tiff.cpp
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
@@ -71,7 +72,8 @@ fraktal_sft/main_position.h \
 fraktal_sft/newton.h \
 fraktal_sft/png.h \
 fraktal_sft/resource.h \
-fraktal_sft/Settings.h
+fraktal_sft/Settings.h \
+fraktal_sft/tiff.h
 
 COMMON_SOURCES_CPP = \
 common/FolderBrowser.cpp \

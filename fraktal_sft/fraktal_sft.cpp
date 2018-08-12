@@ -46,6 +46,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "colour.h"
 #include "jpeg.h"
 #include "png.h"
+#include "tiff.h"
 #include "main.h"
 #include "gradient.h"
 

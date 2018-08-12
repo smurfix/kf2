@@ -47,6 +47,8 @@ public:
   std::string sLoadLocation;
   bool        bLoadSettings;
   std::string sLoadSettings;
+  bool        bSaveTIF;
+  std::string sSaveTIF;
   bool        bSavePNG;
   std::string sSavePNG;
   bool        bSaveJPG;
