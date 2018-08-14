@@ -145,6 +145,9 @@ Feedback:
 
     - export to uncompressed TIFF images (faster than PNG, but larger)
       (suggested by gerrit)
+    - nicer default palette
+    - upgrade to Boost 1.68.0
+    - upgrade to MPFR 4.0.1-p13
 
 - **kf-2.13.6** (2018-08-02)
 
