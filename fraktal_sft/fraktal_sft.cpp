@@ -207,7 +207,7 @@ CFraktalSFT::CFraktalSFT()
 "IterDiv: 0.010000\r\n"
 "SmoothMethod: 0\r\n"
 "ColorMethod: 7\r\n"
-"Differences: 7\r\n"
+"Differences: 3\r\n"
 "ColorOffset: 0\r\n"
 "Rotate: 0.000000\r\n"
 "Ratio: 360.000000\r\n"
