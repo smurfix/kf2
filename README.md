@@ -141,7 +141,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.13.7** (????-??-??)
+- **kf-2.13.7** (2018-08-14)
 
     - export to uncompressed TIFF images (faster than PNG, but larger)
       (suggested by gerrit)
