@@ -199,6 +199,37 @@ CFraktalSFT::CFraktalSFT()
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	GenerateColors(128, 1);
+	OpenString(
+"Re: 0\r\n"
+"Im: 0\r\n"
+"Zoom: 1\r\n"
+"Iterations: 200\r\n"
+"IterDiv: 0.010000\r\n"
+"SmoothMethod: 0\r\n"
+"ColorMethod: 7\r\n"
+"Differences: 7\r\n"
+"ColorOffset: 0\r\n"
+"Rotate: 0.000000\r\n"
+"Ratio: 360.000000\r\n"
+"Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,\r\n"
+"InteriorColor: 0,0,0,\r\n"
+"Smooth: 1\r\n"
+"MultiColor: 0\r\n"
+"BlendMC: 0\r\n"
+"MultiColors: \r\n"
+"Power: 2\r\n"
+"FractalType: 0\r\n"
+"Slopes: 1\r\n"
+"SlopePower: 50\r\n"
+"SlopeRatio: 20\r\n"
+"SlopeAngle: 45\r\n"
+"imag: 1\r\n"
+"real: 1\r\n"
+"SeedR: 0\r\n"
+"SeedI: 0\r\n"
+"FactorAR: 1\r\n"
+"FactorAI: 0\r\n"
+, FALSE);
 	ApplyColors();
 }
 void CFraktalSFT::GenerateColors(int nParts, int nSeed)

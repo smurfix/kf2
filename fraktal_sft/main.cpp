@@ -2658,8 +2658,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(g_hwHair,WM_USER+112,0,0);
 		ShowWindow(g_hwHair,SW_SHOWNA);
 
-		g_SFT.GenerateColors(g_SFT.GetNumOfColors(),1);
-		g_SFT.ApplyColors();
 		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateMenusFromSettings(hWnd);
