@@ -49,7 +49,11 @@ Feedback:
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
-- colouring large images is very slow (reported by gerrit)
+- loading metadata from TIFF manipulated by ImageMagick pops up two dialogs
+  which must be dismissed, even in "no GUI" batch mode.  works after clicking ok
+- loading metadata from PNG manipulated by ImageMagick doesn't work (maybe the
+  metadata is compressed, or maybe the metadata is not before the image data in
+  the file)
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous
@@ -61,10 +65,11 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - status bar reference count doesn't reset when zooming before it is "Done"
+- crosshair window is really annoying (reported by gerrit)
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
-- may be difficult to build the source natively at the moment
-  (out of date instructions for Windows)
+- may be difficult to build the source at the moment
+  (out of date instructions for Windows, dependency on 'et', ...)
 
 
 ## Differences From Upstream 2.11.1
@@ -140,6 +145,12 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.13.8** (????-??-??)
+
+    - documentation updates (thanks gerrit)
+    - enabled "no reuse center" by default (without it zoom out sequence
+      sometimes glitches)
 
 - **kf-2.13.7** (2018-08-14)
 
@@ -546,7 +557,6 @@ Feedback:
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - command line: print total remaining pixels (suggested by gerrit)
-- uncompressed image save, eg BMP (PNG is slow) (suggested by gerrit)
 
 ### Calculations
 
@@ -876,6 +886,7 @@ Menu items:
   - **Open**
 
     Opens the current location from a parameter file (*.kfr)
+    You can also load metadata from images saved by KF.
 
   - **Save**
 
@@ -889,21 +900,43 @@ Menu items:
 
     Saves the current location in a PNG file (*.png)
 
+    The location and settings are saved in the file metadata.
+
   - **Save as Jpeg**
 
     Saves the current location in a jpeg file (*.jpg)
 
+    The location and settings are saved in the file metadata.
+
+  - **Save as TIFF**
+
+    Saves the current location in a TIFF file (*.tif)
+
+    The location and settings are saved in the file metadata.
+
   - **Store zoom-out images**
 
-    Zoom out automatically with the selected Zoom size and store JPEG and/or PNG
+    Zoom out automatically with the selected Zoom size and store JPEG/PNG/TIFF
     images and map file (*.kfb) for each zoom out. The zoom out stops when the
     depth is lower than 1. The resulting files can be used by the KeyFramMovie
     program to create a zoom-in animation.
 
   - **Save map**
 
-    Saves the current location in a map file (*.kfb). This file can be used by
+    Saves the iteration data in a map file (*.kfb). This file can be used by
     the KeyFramMovie program.
+
+  - **Open map**
+
+    Load the iteration data from map file (*.kfb).
+
+    Note: you must set the aspect ratio of the window to match the KFB data
+    before opening the map file.  If you have also saved images, you can do
+    that by loading the image as a settings file.
+
+    Note: if you want to continue zooming from the location, you must load
+    the KFR file before opening the map file.  You can also load a saved image
+    as a location file.  Location information is *not* stored in KFB files.
 
   - **Examine Zoom sequence**
 
@@ -1251,22 +1284,12 @@ At the very top right:
     A negative value on Hue, Saturation or Brightness makes a flat percentage
     value to be applied on all iterations.
 
-## How to Color a KFB Map
-
-Workaround (until single KFB map loading is implemented) instructions by gerrit:
-
-- Rename kfb to `00001_1.kfb`
-- Copy to `00002_1.kfb`
-- Put 2 files and kfr in a directory
-- File->Examine zoom sequence, select kfr file
-- Close "examine" dialog
-- Now you can edit colors
-
 ## Command Line Usage
 
     kf.exe [options]
         -l, --load-location [FILE.kfr]  load location file
         -s, --load-settings [FILE.kfs]  load settings file
+        -t, --save-tif      [FILE.tif]  save TIFF
         -p, --save-png      [FILE.png]  save PNG
         -j, --save-jpg      [FILE.jpg]  save JPEG
         -m, --save-map      [FILE.kfb]  save KFB
@@ -1278,9 +1301,7 @@ Workaround (until single KFB map loading is implemented) instructions by gerrit:
 Locations and settings can also be image files with embedded comments.
 
 If any of the save options are give, KF switches to a non-interactive mode - it
-will render the image and save to all specified types before quitting.  The
-GUI is updated less frequently (only after each reference, instead of twice a
-second) which should improve rendering times, particularly for large images.
+will render the image and save to all specified types before quitting.  No GUI.
 
 A typical workflow would be to start KF without arguments, set up the window
 size (eg 640x360), image size (eg 3840x2160), glitch low tolerance flag, etc,
