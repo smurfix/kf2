@@ -94,7 +94,7 @@ public:
   , m_FloatExpAlways(false)
   , m_AutoIterations(true)
   , m_ShowGlitches(true)
-  , m_NoReuseCenter(false)
+  , m_NoReuseCenter(true)
   , m_IsolatedGlitchNeighbourhood(0)
   , m_JitterSeed(0)
   , m_JitterShape(0)
