@@ -938,6 +938,11 @@ Menu items:
     the KFR file before opening the map file.  You can also load a saved image
     as a location file.  Location information is *not* stored in KFB files.
 
+    Note: there is a historical accident whereby the iteration divider is saved
+    in the KFB as an integer, losing any fractional part and sometimes resetting
+    to 1 on load.  A workaround is to load the palette from a KFP file (which is
+    just a .kfr renamed to .kfp) after opening the map file.
+
   - **Examine Zoom sequence**
 
     Make sure you store the end location as a kfr file in the same directory
