@@ -3367,6 +3367,19 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 	}
 
+	else if(uMsg==WM_KEYDOWN && wParam==VK_PRIOR)
+	{
+		// page up = zoom in
+		g_SFT.Zoom(g_SFT.GetWidth()/2,g_SFT.GetHeight()/2, 1*g_SFT.GetZoomSize(), g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+	}
+	else if(uMsg==WM_KEYDOWN && wParam==VK_NEXT)
+	{
+		// page down = zoom out
+		g_SFT.Zoom(g_SFT.GetWidth()/2,g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+	}
+
 	else if(uMsg==WM_KEYDOWN && wParam==187){
 		lParam=9;
 		g_bAddReference=FALSE;
