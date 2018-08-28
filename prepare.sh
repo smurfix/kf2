@@ -31,7 +31,8 @@ wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
 wget -c https://download.osgeo.org/libtiff/tiff-4.0.9.tar.gz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz
-cp -avft ~/win32/src *z allpatches
+wget -c https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
+cp -avft ~/win32/src *z *.zip allpatches
 # gmp 64
 cd ~/win64/src
 tar xf gmp-*.tar.lz
@@ -147,3 +148,10 @@ cd ~/win64/include
 ln -s ../src/boost*/boost/
 cd ~/win32/include
 ln -s ../../win64/src/boost*/boost/
+# glm
+cd ~/win64/src
+unzip glm*.zip
+cd ~/win64/include
+ln -s ../src/glm*/glm/
+cd ~/win32/include
+ln -s ../../win64/src/glm*/glm/

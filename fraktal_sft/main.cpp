@@ -4555,6 +4555,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- MPFR %s <http://mpfr.org>\n"
 				"- GSL %s <http://www.gnu.org/software/gsl>\n"
+				"- GLM %d.%d.%d.%d <https://glm.g-truc.net>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
@@ -4581,6 +4582,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
 				MPFR_VERSION_STRING,
 				GSL_VERSION,
+				GLM_VERSION_MAJOR, GLM_VERSION_MINOR, GLM_VERSION_PATCH, GLM_VERSION_REVISION,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 				);
 			szMsg[4096-1] = 0;

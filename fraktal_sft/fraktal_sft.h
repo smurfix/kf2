@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 
 #include "floatexp.h"
+#include "../common/matrix.h"
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
@@ -201,6 +202,8 @@ enum Differences
 	Differences_Laplacian3x3 = 6,
 	Differences_Analytic = 7
 };
+
+extern double g_Degree;
 
 class CFraktalSFT
 {
@@ -472,6 +475,16 @@ public:
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
 	inline bool SaveSettings(const std::string &filename) const { return m_Settings.SaveFile(filename); }
 
+	inline void SetTransformPolar(const polar2 &P)
+	{
+		using std::sqrt;
+		g_Degree = -P.stretch_angle;
+		SetRatio(m_nX, m_nY / (P.stretch_factor * P.stretch_factor));
+		// FIXME need to scale image by P.scale * P.stretch_factor
+		// FIXME kf does not support rotation after skew...
+	}
+	inline void SetTransformMatrix(const mat2 &M) { SetTransformPolar(polar_decomposition(M)); }
+
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
 	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };
@@ -545,7 +558,6 @@ extern int g_nLDBL;
 extern int g_nEXP;
 extern int g_nRefZero;
 
-extern double g_Degree;
 extern BOOL g_LDBL;
 
 const double pi = 3.141592653589793;

@@ -670,12 +670,17 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
   return fec1 / (b * l * l);
 }
 
+static double g_skew[4];
 static int g_period;
 static int WINAPI ThNewton(HWND hWnd)
 {
   const int type = g_SFT.GetFractalType();
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
+  g_skew[0] = 1;
+  g_skew[1] = 0;
+  g_skew[2] = 0;
+  g_skew[3] = 1;
 
 	char szStatus[300];
 
@@ -770,7 +775,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			{
 			  if (f)
 			  {
-			    f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &running);
+			    f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &g_skew[0], &running);
 			    msize = flyttyp(.25) / msize;
 			  }
 			}
@@ -899,6 +904,7 @@ static __int64 t1, t2;
 static SYSTEMTIME st1, st2;
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	static int g_AutoSkew = 0;
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
@@ -913,6 +919,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_RADIO5,BM_SETCHECK,1,0);
 		else
 			SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
+		if (g_AutoSkew)
+			SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_SETCHECK,1,0);
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 		std::ostringstream s;
@@ -988,6 +996,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetDlgItemText(hWnd,IDCANCEL,"Close");
 		g_bNewtonRunning=FALSE;
 		if(lParam){
+			if((g_AutoSkew = SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_GETCHECK,0,0)))
+				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
 			g_SFT.SetIterations(3*g_SFT.GetIterations()/2);
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);

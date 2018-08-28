@@ -74,7 +74,7 @@ typedef int f_perturbation(int,int,double,double*,double,double,double,double,do
 typedef int f_perturbationl(int,int,long double,long double*,long double,long double,long double,long double,long double*,long double*,volatile int*);
 typedef int f_period(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
 typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,volatile int*);
-typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
+typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
 typedef int f_domain_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
 
 #ifndef KF_MAIN
@@ -95,7 +95,7 @@ static f_domain_size domain_size;
 
 #define MAGIC ((int)(0xC01dCaf3))
 #define SIZE ((int)(sizeof(struct formula)))
-#define VERSION 0
+#define VERSION 3
 
 struct formula
 {
