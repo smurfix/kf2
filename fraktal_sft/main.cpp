@@ -2669,6 +2669,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
 		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateMenusFromSettings(hWnd);
+		DragAcceptFiles(hWnd, TRUE);
 
 		if (g_args->bLoadSettings)
 		{
@@ -3365,6 +3366,37 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bmSaveZoomBuff=NULL;
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
+	}
+
+  else if(uMsg==WM_DROPFILES)
+  {
+		HDROP hDrop = (HDROP) wParam;
+		if (hDrop)
+		{
+			UINT len = DragQueryFile(hDrop, 0, 0, 0);
+			char *buffer = (char *) calloc(1, 2 * len + 1);
+			if (buffer)
+			{
+				UINT ok = DragQueryFile(hDrop, 0, buffer, 2 * len);
+				if (ok)
+				{
+					std::string file(buffer);
+					ok = g_SFT.OpenFile(file);
+					if (ok)
+					{
+						g_SFT.Stop();
+						g_bAnim=false;
+						g_bFindMinibrot=FALSE;
+						g_bStoreZoom=FALSE;
+						DeleteObject(g_bmSaveZoomBuff);
+						g_bmSaveZoomBuff=NULL;
+						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					}
+				}
+				free(buffer);
+			}
+			DragFinish(hDrop);
+		}
 	}
 
 	else if(uMsg==WM_KEYDOWN && wParam==VK_PRIOR)
