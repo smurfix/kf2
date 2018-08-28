@@ -4731,11 +4731,11 @@ DWORD ThReportProgress(LPVOID arg)
 	while (ThReportProgress_running)
 	{
 		Sleep(1000);
-		int nG, nR, nA;
-		int nP = g_SFT.GetProgress(&nG,&nR,&nA);
+		int nG, nR, nA, nT;
+		int nP = g_SFT.GetProgress(&nG,&nR,&nA,&nT);
 		std::ostringstream status;
-		status << " P " << std::setw(3) << nP << "%  G " << std::setw(3) << nG << "%  R " << std::setw(3) << nR << "%  A " << std::setw(3) << nA << "%";
-		std::cerr << status.str() << '\r';
+		status << " P " << std::setw(3) << nP << "%  G " << std::setw(3) << nG << "%  R " << std::setw(3) << nR << "%  A " << std::setw(3) << nA << "%  T " << std::setw(8) << nT << "\r";
+		std::cerr << status.str();
 	}
 	return 0;
 }
