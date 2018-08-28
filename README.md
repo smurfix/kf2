@@ -51,8 +51,7 @@ Feedback:
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
 - loading metadata from PNG manipulated by ImageMagick doesn't work (maybe the
-  metadata is compressed, or maybe the metadata is not before the image data in
-  the file)
+  metadata is not before the image data in the file)
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous

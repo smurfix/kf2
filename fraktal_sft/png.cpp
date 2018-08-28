@@ -121,8 +121,9 @@ extern std::string ReadPNGComment(const std::string &filename)
 		for (int t = 0; t < count; t++)
 			if (0 == strcmp("Comment", text[t].key))
 				comment = text[t].text; // copy
-	// FIXME pngmeta (eg) skips the image data chunks and does png_read_info again
-	// FIXME but we only write out comments before the image data, so we should be fine
+	// FIXME pngmeta (for libpng 1.0) skips the image data chunks and does png_read_info again
+	// FIXME but it uses internal structs which are not exposed in recent libpng
+	// FIXME maybe exiftool has some code to do this?  decoding the image is to be avoided...
 	png_destroy_read_struct(&png, &info, 0);
 	fclose(file);
   return comment;
