@@ -53,6 +53,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,0);
 		SendDlgItemMessage(hWnd, IDC_AUTOCOLOUR, BM_SETCHECK, g_AutoColour, 0);
+		DragAcceptFiles(hWnd, TRUE);
 	}
 	if(uMsg==WM_INITDIALOG || uMsg==WM_USER+99 || (uMsg==WM_SHOWWINDOW && wParam) || (uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7))){
 		std::string szTexture;
@@ -1028,6 +1029,35 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetKeyColor(c,i);
 		InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 	}
+  else if(uMsg==WM_DROPFILES)
+  {
+		HDROP hDrop = (HDROP) wParam;
+		if (hDrop)
+		{
+			UINT len = DragQueryFile(hDrop, 0, 0, 0);
+			if (len > 0)
+			{
+				char *buffer = (char *) calloc(1, 2 * len + 1);
+				if (buffer)
+				{
+					UINT ok = DragQueryFile(hDrop, 0, buffer, 2 * len);
+					if (ok)
+					{
+						std::string file(buffer);
+						g_SFT.OpenFile(file, TRUE);
+						SendMessage(hWnd,WM_USER+99,0,0);
+						if (g_AutoColour) g_SFT.ApplyColors();
+						g_AutoUpdate++;
+						SendMessage(hWnd,WM_COMMAND,IDOK,0);
+						g_AutoUpdate--;
+					}
+					free(buffer);
+				}
+			}
+			DragFinish(hDrop);
+		}
+	}
+
 	if(g_pWaves)
 		g_pWaves->ProcessMessage(hWnd,uMsg,wParam,lParam);
 	if(uMsg==WM_COMMAND && (wParam==IDC_BUTTON26 || wParam==IDC_BUTTON27 || wParam==IDC_BUTTON28))

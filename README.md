@@ -143,7 +143,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.13.8** (????-??-??)
+- **kf-2.13.8** (2018-08-28)
 
     - new feature: auto skew (via Newton-Raphson zooming dialog)
     - new feature: show/hide crosshair window (suggested by gerrit and others)
@@ -151,10 +151,14 @@ Feedback:
     - new feature: page up / page down keyboard shortcuts to zoom in / out
     - new feature: drag-and-drop parameter files from the file manager to
       the main window to open them
+    - new feature: drag-and-drop palette files from the file manager to
+      the color dialog window to open them
+    - new feature: CLI prints total remaining pixels (suggested by gerrit)
     - bugfix: suppress error dialogs when loading metadata from TIFF
-    - enabled "no reuse center" by default (without it zoom out sequence
-      sometimes glitches)
-    - documentation updates (thanks gerrit)
+    - bugfix: remove obsolete .ini stuff that was overriding default settings
+    - bugfix: enabled "no reuse center" by default
+      (without it zoom out sequence sometimes glitches)
+    - major documentation improvements
     - new dependency: GLM 0.9.9.0
 
 - **kf-2.13.7** (2018-08-14)
@@ -560,7 +564,6 @@ Feedback:
 - online help within program (suggested by TwinDragon)
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
-- command line: print total remaining pixels (suggested by gerrit)
 
 ### Calculations
 
