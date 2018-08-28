@@ -2641,7 +2641,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int nYOffs = 360-cr.bottom;
 		wr.bottom+=nYOffs+sr.bottom;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_4,MF_BYCOMMAND|MF_CHECKED);
-		g_SFT.SetShowGlitches(GetPrivateProfileInt("SETTINGS","ShowGlitches",0,"fraktal_sft.ini"));
 
 		RECT r;
 		GetClientRect(GetDesktopWindow(),&r);
@@ -2666,8 +2665,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(g_hwHair,WM_USER+112,0,0);
 		ShowWindow(g_hwHair,SW_SHOWNA);
 
-		g_SFT.SetAnimateZoom(GetPrivateProfileInt("SETTINGS","AnimateZoom",1,"fraktal_sft.ini"));
-		g_SFT.SetArbitrarySize(GetPrivateProfileInt("SETTINGS","ArbitrarySize",0,"fraktal_sft.ini"));
 		UpdateMenusFromSettings(hWnd);
 		DragAcceptFiles(hWnd, TRUE);
 
@@ -3555,7 +3552,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_ANIMATEZOOM){
 		g_SFT.SetAnimateZoom(! g_SFT.GetAnimateZoom());
 		UpdateAnimateZoom(hWnd);
-		WritePrivateProfileString("SETTINGS","AnimateZoom",g_SFT.GetAnimateZoom()?"1":"0","fraktal_sft.ini");
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_ARBITRARYSIZE){
 		if(g_SFT.GetArbitrarySize()){
@@ -3567,7 +3563,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.SetArbitrarySize(! g_SFT.GetArbitrarySize());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
-		WritePrivateProfileString("SETTINGS","ArbitrarySize",g_SFT.GetArbitrarySize()?"1":"0","fraktal_sft.ini");
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_NEWTON){
 		g_bNewton=!g_bNewton;
@@ -3654,7 +3649,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SHOWGLITCHES){
 		g_SFT.SetShowGlitches(!g_SFT.GetShowGlitches());
-		WritePrivateProfileString("SETTINGS","ShowGlitches",g_SFT.GetShowGlitches()?"1":"0","fraktal_sft.ini");
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(g_SFT.GetShowGlitches()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOREUSECENTER){
