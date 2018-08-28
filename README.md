@@ -148,6 +148,8 @@ Feedback:
 
 - **kf-2.13.8** (????-??-??)
 
+    - new feature: auto skew (via Newton-Raphson zooming dialog)
+    - new dependency: GLM 0.9.9.0
     - documentation updates (thanks gerrit)
     - enabled "no reuse center" by default (without it zoom out sequence
       sometimes glitches)
@@ -840,16 +842,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.gnu.org/licenses/lgpl-3.0.en.html>
 - the GSL library is used under the conditions of the GNU General Public License
   <https://www.gnu.org/licenses/gpl.html>
+- the GLM library is used under the conditions of the MIT License
+  <https://glm.g-truc.net/copying.txt>
 - the Boost library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 
-**NOTE**: the binaries are statically linked with code under (L)GPL licenses.
-If you redistribute the binaries you must also be prepared to distribute the
-source corresponding to those binaries to anyone you distribute the binary to.
-To make this easier for you, the more recent zips include the source too
-(though you'll also need to get the library sources).
+**NOTE**:
+If you redistribute the binaries or provide access to the binaries as a
+service, you must also be prepared to distribute the source corresponding
+to those binaries to anyone you distribute the binary to.  To make this
+easier for you, the more recent zips include the source too (though
+you'll also need to get the third party library sources).
 
 
 ## Acknowledgements
@@ -1168,6 +1173,9 @@ Menu items:
     zooming to the minibrot manually by selecting the center of the pattern
     in the view, or with the automatic search of minibrot that is also using
     the pattern center
+
+    When "auto skew" is enabled before activating, the view will be skewed
+    to make features near the minibrot approximately circular.
 
 
 ## About

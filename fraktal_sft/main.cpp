@@ -4555,7 +4555,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- MPFR %s <http://mpfr.org>\n"
 				"- GSL %s <http://www.gnu.org/software/gsl>\n"
-				"- GLM %d.%d.%d.%d <https://glm.g-truc.net>\n"
+				"- GLM %d.%d.%d.%d <http://glm.g-truc.net>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
