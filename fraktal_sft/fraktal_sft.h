@@ -528,6 +528,7 @@ public:
   INT(JitterShape)
   DOUBLE(JitterScale)
   BOOL(Derivatives)
+  BOOL(ShowCrossHair)
 #undef DOUBLE
 #undef INT
 #undef BOOL

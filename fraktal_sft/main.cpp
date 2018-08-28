@@ -438,6 +438,13 @@ static void UpdateIsolatedGlitchNeighbourhood(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateShowCrossHair(HWND hWnd)
+{
+	bool b = g_SFT.GetShowCrossHair();
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWCROSSHAIR,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+	ShowWindow(g_hwHair, b ? SW_SHOWNA : SW_HIDE);
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateZoomSize(hWnd);
@@ -456,6 +463,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateShowGlitches(hWnd);
 	UpdateNoReuseCenter(hWnd);
 	UpdateIsolatedGlitchNeighbourhood(hWnd);
+	UpdateShowCrossHair(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -3604,6 +3612,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOREUSECENTER){
 		g_SFT.SetNoReuseCenter(!g_SFT.GetNoReuseCenter());
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOREUSECENTER,MF_BYCOMMAND|(g_SFT.GetNoReuseCenter()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SHOWCROSSHAIR){
+		g_SFT.SetShowCrossHair(!g_SFT.GetShowCrossHair());
+		UpdateShowCrossHair(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_ROTATE){
 		g_bRotate=!g_bRotate;

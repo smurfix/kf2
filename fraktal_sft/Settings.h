@@ -63,6 +63,7 @@ private:
   int m_JitterShape;
   double m_JitterScale;
   bool m_Derivatives;
+  bool m_ShowCrossHair;
 
 public:
 
@@ -100,6 +101,7 @@ public:
   , m_JitterShape(0)
   , m_JitterScale(1)
   , m_Derivatives(true)
+  , m_ShowCrossHair(false)
   { };
 
   bool FromText(const std::string &text);
@@ -214,6 +216,9 @@ public:
 
   inline bool   GetDerivatives() const { return m_Derivatives; };
   inline void   SetDerivatives(bool b) { m_Derivatives = b; };
+
+  inline bool   GetShowCrossHair() const { return m_ShowCrossHair; };
+  inline void   SetShowCrossHair(bool b) { m_ShowCrossHair = b; };
 };
 
 #endif

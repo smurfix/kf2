@@ -68,6 +68,7 @@ bool Settings::FromText(const std::string &text)
   INT(JitterShape)
   DOUBLE(JitterScale)
   BOOL(Derivatives)
+  BOOL(ShowCrossHair)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -114,6 +115,7 @@ std::string Settings::ToText() const
   INT(JitterShape)
   DOUBLE(JitterScale)
   BOOL(Derivatives)
+  BOOL(ShowCrossHair)
 #undef DOUBLE
 #undef INT
 #undef BOOL

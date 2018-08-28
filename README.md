@@ -63,7 +63,6 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - status bar reference count doesn't reset when zooming before it is "Done"
-- crosshair window is really annoying (reported by gerrit)
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
 - may be difficult to build the source at the moment
@@ -147,11 +146,12 @@ Feedback:
 - **kf-2.13.8** (????-??-??)
 
     - new feature: auto skew (via Newton-Raphson zooming dialog)
-    - new dependency: GLM 0.9.9.0
+    - new feature: show/hide crosshair window (suggested by gerrit)
     - bugfix: suppress error dialogs when loading metadata from TIFF
-    - documentation updates (thanks gerrit)
     - enabled "no reuse center" by default (without it zoom out sequence
       sometimes glitches)
+    - documentation updates (thanks gerrit)
+    - new dependency: GLM 0.9.9.0
 
 - **kf-2.13.7** (2018-08-14)
 
