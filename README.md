@@ -37,6 +37,7 @@ Feedback:
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
+- resizing window by dragging frame corner in WINE on Linux sometimes crashes
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
 - crash when zooming too quickly near interior black regions (reported by
@@ -49,8 +50,6 @@ Feedback:
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
-- loading metadata from TIFF manipulated by ImageMagick pops up two dialogs
-  which must be dismissed, even in "no GUI" batch mode.  works after clicking ok
 - loading metadata from PNG manipulated by ImageMagick doesn't work (maybe the
   metadata is compressed, or maybe the metadata is not before the image data in
   the file)
@@ -84,7 +83,7 @@ Feedback:
 
 - **In version `kf-2.12.10` only** the jitter is "Gaussian" with no way of
   changing the shape.  In `2.12.11` and above, the shape can be changed, and
-  the default is now "uniform".  Earlier versions (including upstream `2.11.1`
+  the default is now "uniform".  Earlier versions (including upstream `2.11.1`)
   do not support jitter at all.  To get the same results as `2.12.10` you must
   enable the Gaussian jitter checkbox and set the jitter scale box to 1.
 
@@ -150,6 +149,7 @@ Feedback:
 
     - new feature: auto skew (via Newton-Raphson zooming dialog)
     - new dependency: GLM 0.9.9.0
+    - bugfix: suppress error dialogs when loading metadata from TIFF
     - documentation updates (thanks gerrit)
     - enabled "no reuse center" by default (without it zoom out sequence
       sometimes glitches)

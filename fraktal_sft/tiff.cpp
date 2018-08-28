@@ -49,17 +49,28 @@ extern int SaveTIFF(const std::string &szFileName, char *Data, int nHeight, int 
 
 extern std::string ReadTIFFComment(const std::string &filename)
 {
+	auto e = TIFFSetErrorHandler(0);
+	auto w = TIFFSetWarningHandler(0);
 	bool ok = true;
 	TIFF *tif = TIFFOpen(filename.c_str(), "r");
-	if (! tif) return "";
+	if (! tif)
+	{
+		TIFFSetErrorHandler(e);
+		TIFFSetWarningHandler(w);
+		return "";
+	}
 	void *data = nullptr;
 	ok &= 1 == TIFFGetField(tif, TIFFTAG_IMAGEDESCRIPTION, &data);
 	if (ok)
 	{
 		std::string comment((const char *) data);
 		TIFFClose(tif);
+		TIFFSetErrorHandler(e);
+		TIFFSetWarningHandler(w);
 		return comment;
 	}
 	TIFFClose(tif);
+	TIFFSetErrorHandler(e);
+	TIFFSetWarningHandler(w);
 	return "";
 }
