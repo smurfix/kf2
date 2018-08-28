@@ -50,8 +50,6 @@ Feedback:
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
-- loading metadata from PNG manipulated by ImageMagick doesn't work (maybe the
-  metadata is not before the image data in the file)
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous
@@ -142,6 +140,11 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.13.9** (????-??-??)
+
+    - bugfix: reading PNG metadata works even if it is moved after the image
+      data chunks and has a miscapitalized "Comment" keyword
 
 - **kf-2.13.8** (2018-08-28)
 

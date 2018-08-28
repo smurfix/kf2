@@ -40,6 +40,8 @@ static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 	fprintf(stderr, "PNG WARNING: %s\n", msg);
 }
 
+static bool skip_png_image(png_structp png, png_infop info);
+
 extern int SavePNG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, const std::string &comment)
 {
 	jmp_buf jmpbuf;
@@ -106,6 +108,13 @@ extern std::string ReadPNGComment(const std::string &filename)
 		fclose(file);
 		return "";
 	}
+	png_infop enfo = png_create_info_struct(png);
+	if (! enfo)
+	{
+		png_destroy_read_struct(&png, &info, 0);
+		fclose(file);
+		return "";
+	}
 	if (setjmp(jmpbuf))
 	{
 		png_destroy_read_struct(&png, &info, 0);
@@ -119,12 +128,53 @@ extern std::string ReadPNGComment(const std::string &filename)
 	std::string comment = "";
 	if (png_get_text(png, info, &text, &count) > 0)
 		for (int t = 0; t < count; t++)
-			if (0 == strcmp("Comment", text[t].key))
+			// we save as capitalized, but processing with ImageMagick downcases
+			if (0 == stricmp("Comment", text[t].key))
 				comment = text[t].text; // copy
-	// FIXME pngmeta (for libpng 1.0) skips the image data chunks and does png_read_info again
-	// FIXME but it uses internal structs which are not exposed in recent libpng
-	// FIXME maybe exiftool has some code to do this?  decoding the image is to be avoided...
-	png_destroy_read_struct(&png, &info, 0);
+	if (comment == "")
+	{
+		if (skip_png_image(png, info))
+		{
+			png_read_end(png, enfo);
+			png_textp etext;
+			int ecount = 0;
+			if (png_get_text(png, enfo, &etext, &ecount) > 0)
+				for (int t = 0; t < ecount; t++)
+					// we save as capitalized, but processing with ImageMagick downcases
+					if (0 == stricmp("Comment", etext[t].key))
+						comment = etext[t].text; // copy
+		}
+	}
+	png_destroy_read_struct(&png, &info, &enfo);
 	fclose(file);
-  return comment;
+	return comment;
+}
+
+static bool skip_png_image(png_structp png, png_infop info)
+{
+	// this doesn't really skip, it decodes the image
+	// hack: use one single row of memory for each row pointer
+	// reduces memory usage to O(W + H) from O(W * H)
+	bool ok = false;
+	png_uint_32 width, height = 0;
+	int bit_depth, color_type;
+	if (png_get_IHDR(png, info, &width, &height, &bit_depth, &color_type, 0, 0, 0))
+	{
+		png_read_update_info(png, info);
+		png_uint_32 bytes = png_get_rowbytes(png, info);
+		png_bytep row;
+		if ((row = (png_bytep) malloc(bytes)))
+		{
+			png_bytepp rows;
+			if ((rows = (png_bytepp) calloc(1, height * sizeof(png_bytep))))
+			{
+				for (png_uint_32 i = 0; i < height; ++i) rows[i] = row;
+				png_read_image(png, rows);
+				ok = true;
+				free(rows);
+			}
+			free(row);
+		}
+	}
+	return ok;
 }
