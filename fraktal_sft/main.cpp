@@ -3374,26 +3374,29 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (hDrop)
 		{
 			UINT len = DragQueryFile(hDrop, 0, 0, 0);
-			char *buffer = (char *) calloc(1, 2 * len + 1);
-			if (buffer)
+			if (len > 0)
 			{
-				UINT ok = DragQueryFile(hDrop, 0, buffer, 2 * len);
-				if (ok)
+				char *buffer = (char *) calloc(1, 2 * len + 1);
+				if (buffer)
 				{
-					std::string file(buffer);
-					ok = g_SFT.OpenFile(file);
+					UINT ok = DragQueryFile(hDrop, 0, buffer, 2 * len);
 					if (ok)
 					{
-						g_SFT.Stop();
-						g_bAnim=false;
-						g_bFindMinibrot=FALSE;
-						g_bStoreZoom=FALSE;
-						DeleteObject(g_bmSaveZoomBuff);
-						g_bmSaveZoomBuff=NULL;
-						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+						std::string file(buffer);
+						ok = g_SFT.OpenFile(file);
+						if (ok)
+						{
+							g_SFT.Stop();
+							g_bAnim=false;
+							g_bFindMinibrot=FALSE;
+							g_bStoreZoom=FALSE;
+							DeleteObject(g_bmSaveZoomBuff);
+							g_bmSaveZoomBuff=NULL;
+							PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+						}
 					}
+					free(buffer);
 				}
-				free(buffer);
 			}
 			DragFinish(hDrop);
 		}
