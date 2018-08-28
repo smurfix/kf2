@@ -620,6 +620,12 @@ BEGIN
     END
     POPUP "&Special",                       65535,MFT_STRING,MFS_ENABLED
     BEGIN
+        POPUP "Presets",65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "Fast",                           ID_SPECIAL_PRESET_FAST,MFT_STRING,MFS_ENABLED
+            MENUITEM "Best",                           ID_SPECIAL_PRESET_BEST,MFT_STRING,MFS_ENABLED
+        END
+        MENUITEM "Add Reference (Colors)\tCtrl+R", 40030,MFT_STRING,MFS_ENABLED
         MENUITEM "Add Reference (Colors)\tCtrl+R", 40030,MFT_STRING,MFS_ENABLED
         MENUITEM "Set main reference",          ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MFT_STRING,MFS_ENABLED
         MENUITEM "R&euse reference\tCtrl+E",    40015,MFT_STRING,MFS_ENABLED

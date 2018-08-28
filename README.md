@@ -147,6 +147,7 @@ Feedback:
 
     - new feature: auto skew (via Newton-Raphson zooming dialog)
     - new feature: show/hide crosshair window (suggested by gerrit)
+    - new feature: quality presets ("fast" but inaccurate, "best" but slow)
     - bugfix: suppress error dialogs when loading metadata from TIFF
     - enabled "no reuse center" by default (without it zoom out sequence
       sometimes glitches)

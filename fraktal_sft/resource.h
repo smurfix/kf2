@@ -228,6 +228,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_FILE_OPENMAP                 40089
 #define ID_FILE_SAVEASTIF               40090
 #define ID_SPECIAL_SHOWCROSSHAIR        40091
+#define ID_SPECIAL_PRESET_FAST          40092
+#define ID_SPECIAL_PRESET_BEST          40093
 
 // OpenCL
 #ifdef KF_OPENCL
@@ -241,7 +243,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40092
+#define _APS_NEXT_COMMAND_VALUE         40094
 #define _APS_NEXT_CONTROL_VALUE         1099
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

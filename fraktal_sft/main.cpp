@@ -4296,6 +4296,27 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			UpdateZoomSize(hWnd);
 		}
+		else if(wParam==ID_SPECIAL_PRESET_FAST){
+			g_SFT.SetIsolatedGlitchNeighbourhood(4);
+			UpdateIsolatedGlitchNeighbourhood(hWnd);
+			g_SFT.SetGuessing(true);
+			UpdateGuessing(hWnd);
+			g_SFT.SetGlitchLowTolerance(false);
+			g_SFT.SetApproxLowTolerance(false);
+			if (g_SFT.GetDifferences() != Differences_Analytic)
+			{
+				g_SFT.SetDerivatives(false);
+			}
+		}
+		else if(wParam==ID_SPECIAL_PRESET_BEST){
+			g_SFT.SetIsolatedGlitchNeighbourhood(0);
+			UpdateIsolatedGlitchNeighbourhood(hWnd);
+			g_SFT.SetGuessing(false);
+			UpdateGuessing(hWnd);
+			g_SFT.SetGlitchLowTolerance(true);
+			g_SFT.SetApproxLowTolerance(true);
+			g_SFT.SetJitterSeed(1);
+		}
 		else if(wParam==ID_ACTIONS_THREADS_1){
 			g_SFT.SetThreadsPerCore(1);
 			UpdateThreadsPerCore(hWnd);
