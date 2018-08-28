@@ -104,7 +104,7 @@ Feedback:
 - multiple finite difference methods for distance colouring
   (only the default `Traditional` is available in `2.11.1`).
 
-- analytic DE colouring with derivatives (not available in `2.11.1`).
+- analytic DE colouring with derivatives (not available in `2.12.x` or earlier).
 
 
 ### Other Changes
@@ -146,9 +146,11 @@ Feedback:
 - **kf-2.13.8** (????-??-??)
 
     - new feature: auto skew (via Newton-Raphson zooming dialog)
-    - new feature: show/hide crosshair window (suggested by gerrit)
+    - new feature: show/hide crosshair window (suggested by gerrit and others)
     - new feature: quality presets ("fast" but inaccurate, "best" but slow)
     - new feature: page up / page down keyboard shortcuts to zoom in / out
+    - new feature: drag-and-drop parameter files from the file manager to
+      the main window to open them
     - bugfix: suppress error dialogs when loading metadata from TIFF
     - enabled "no reuse center" by default (without it zoom out sequence
       sometimes glitches)
@@ -556,7 +558,6 @@ Feedback:
 - undo history for location data (suggested by TwinDragon)
 - undo history for calculation data (suggested by TwinDragon)
 - online help within program (suggested by TwinDragon)
-- drag-and-drop parameters or images on to main window to load
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - command line: print total remaining pixels (suggested by gerrit)
@@ -853,9 +854,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 **NOTE**:
 If you redistribute the binaries or provide access to the binaries as a
 service, you must also be prepared to distribute the source corresponding
-to those binaries to anyone you distribute the binary to.  To make this
-easier for you, the more recent zips include the source too (though
-you'll also need to get the third party library sources).
+to those binaries.  To make this easier for you, the more recent zips
+include the source too (though you'll also need to get the third party
+library sources).
 
 
 ## Acknowledgements
@@ -893,6 +894,8 @@ Menu items:
 
     Opens the current location from a parameter file (*.kfr)
     You can also load metadata from images saved by KF.
+    You can also drag-and-drop files from the file manager on to the
+    main window to open them as parameters.
 
   - **Save**
 
@@ -1017,6 +1020,8 @@ Menu items:
     Starts an automatic zoom-in in the image's pattern center, until a Minibrot
     is found or if it fails to find the center.
 
+    It's probably better to use Newton-Raphson zooming if possible.
+
   - **Set window size**
 
     Set the size of the display window.
@@ -1055,6 +1060,20 @@ Menu items:
     Turns animation on or off when zooming
 
 ## Special
+
+  - **Presets**
+
+    Set groups of settings to suggested preset values.
+
+    - **Fast** accuracy may be compromised but it's fast for browsing.  Sets
+      ignore isolated glitch neighbourhood to 4, enables guessing, disables
+      low tolerance for glitches and approximation, and disables derivatives
+      computation unless analytic DE colouring is currently in use.
+
+    - **Best** highest quality settings for important images, but slow.  Sets
+      ignore isolated glitch neighbourhood to 0 (disabled), disables guessing,
+      enables low tolerance for glitches and approximation, and enables jitter
+      with a default seed of 1.
 
   - **Add reference (Color)**
 
@@ -1109,6 +1128,8 @@ Menu items:
     Makes the Find Minibrot function fail every 20 zoom-in, in order to gain
     depth automatically without ending up in a Minibrot
 
+    Newton-Raphson zooming may be a more useful option.
+
   - **Special**
 
     - **Mirror**
@@ -1161,22 +1182,34 @@ Menu items:
 
     When activated, a dialog will be displayed, which allows you to select if
     the zoom should jump directly to the minibrot, or to 3/4 zooms to the
-    minibrot, where the current pattern is doubled.
+    minibrot, where the current pattern is doubled, etc.
+
+    The zoom level of the current pattern is set when opening the dialog, and
+    can be changed with the capture button (which gets the current zoom level
+    from the image view).
 
     Click on the fractal to specify the start point of the search of the
-    minibrot
+    minibrot. The current zoom size is used to set the boundaries of search
+    around the selected point
 
-    The current zoom size is used to set the boundaries of search around the
-    selected point
-
-    Notice that it can take an hour or more to calculate the position of
-    minibrots beyond e1000. However, that should be still much faster than
+    Notice that it can take a long time to calculate the position of
+    deep minibrots. However, that should be still much faster than
     zooming to the minibrot manually by selecting the center of the pattern
     in the view, or with the automatic search of minibrot that is also using
-    the pattern center
+    the pattern center.
 
     When "auto skew" is enabled before activating, the view will be skewed
     to make features near the minibrot approximately circular.
+
+  - **No reuse center**
+
+    Don't paste the previous image in the middle when zooming out.  Disabling
+    this (ie, do reuse center) can be faster but can also lead to bad images.
+
+  - **Show crosshair window**
+
+    Display a small window that magnifies the area around the mouse cursor.
+    Perfect for precisely picking particular pixels for zooming etc.
 
 
 ## About
@@ -1191,6 +1224,307 @@ At the very top right:
     while a long render is taking place.
 
 
+## Iterations dialog
+
+  - Number of iterations. Increase this if the interior is "blobby".
+
+  - Minimum iteration count achieved in the image (display only).
+
+  - Maximum iteration count achieved in the image (display only).
+
+  - Series approximation iteration count (display only).
+
+  - Smooth method
+
+      - High bailout: large escape radius gives a smoother appearance.
+
+      - Bailout=2: small escape radius can help finding features.
+
+  - Value of the power `p` in the fractal formula (not used in every
+    formula)
+
+  - Fractal type (formula name).  See below for details.
+
+  - Maximum number of secondary reference points for automatic glitch
+    correction.  There is a hard limit of 10000, which is also the
+    default.
+
+  - Glitch low tolerance.  When checked, glitches are more likely to be
+    detected.  Disabling it can lead to bad images, but is faster.
+
+  - Series approximation low tolerance.  When checked, series approximation
+    is stricter.  Disabling it can lead to bad images, but is faster.
+
+  - Automatic approximation terms based on number of pixels.
+
+  - Approximation terms: number of terms used for series approximation.
+
+  - Calculations per second (display only).
+
+  - Real and Imag checkboxes: use these parts of `z` when considering
+    bailout past the escape radius.
+
+  - Seed R and I number boxes: start iterating `z` from these coordinates
+    (default `0 + 0 i`, for best semantics it should be a critical point
+    of the iteration formula, where it's `d/dz` derivative is zero).
+
+  - Factor `a` R and I number boxes: set the complex number `a` (denoted
+    `f = d + e i` in the formula list below) for TheRedshiftRider formulas.
+
+  - Jitter seed: non-zero enables jitter with a pseudo-random-number generator
+    seed value.
+
+  - Jitter scale in units of a pixel (1 pixel is sensible in most cases).
+
+  - Gaussian jitter is probably best left disabled (uniform jitter looks
+    better).
+
+  - Derivatives calculation can be enabled (if needed for analytic DE
+    colouring) or disabled (speeds up rendering).
+
+
+### Formulas
+
+Notation:
+
+    i            -- imaginary unit (square root of -1)
+    p            -- integer power between 2 and 5 (10 for Mandelbrot)
+    c = a + i b  -- pixel coordinates (parameter plane)
+    z = x + i y  -- iteration variable
+    w = u + i v  -- temporary variable for two-stage formulas
+    f = d + i e  -- constant 'a' for TheRedshiftRider formulas
+    l m ...      -- juxtaposition is multiplication
+    ^            -- raise an expression to a positive integer power
+    |.|          -- surrounding a real-valued expression: absolute value
+
+Formulas:
+
+  -   Mandelbrot
+
+          z := z^p + c
+
+  -   Burning Ship
+
+          z := (|x| + i |y|)^p + c
+
+  -   Buffalo
+
+          w := z^p
+          z := (|u| + i |v|) + c
+
+  -   Celtic
+
+          w := z^p
+          z := (|u| + i v) + c
+
+  -   Mandelbar
+
+          z := (x - i y)^p + c
+
+  -   Mandelbar Celtic
+
+          w := (x - i y)^2
+          z := (|u| + i v) + c
+
+  -   Perpendicular Mandelbrot
+
+          z := (|x| - i y)^2 + c
+
+  -   Perpendicular Burning Ship
+
+          z := (x - i |y|)^2 + c
+
+  -   Perpendicular Celtic
+
+          w := (|x| - i y)^2
+          z := (|u| + i v) + c
+
+  -   Perpendicular Buffalo
+
+          w := (x - i |y|)^2
+          z := (|u| + i v) + c
+
+  -   Cubic Quasi Burning Ship
+
+          z := (|x| (x^2 - 3 y^2) - i |y (3 x^2 - y^2)|) + c
+
+  -   Cubic Partial BS Real
+
+          z := (|x| (x^2 - 3 y^2) + i y (3 x^2 - y^2)) + c
+
+  -   Cubic Partial BS Imag
+
+          z := (x (x^2 - 3 y^2) + i |y| (3 x^2 - y^2)) + c
+
+  -   Cubic Flying Squirrel (Buffalo Imag)
+
+          z := (x (x^2 - 3 y^2) + i |y (3 x^2 - y^2)|) + c
+
+  -   Cubic Quasi Perpendicular
+
+          z := (|x| (x^2 - 3 y^2) - i y |3 x^2 - y^2|) + c
+
+  -   4th Burning Ship Partial Imag
+
+          z := (x + i |y|)^4 + c
+
+  -   4th Burning Ship Partial Real
+
+          z := (|x| + i y)^4 + c
+
+  -   4th Burning Ship Partial Real Mbar
+
+          z := (|x| - i y)^4 + c
+
+  -   4th Celtic Burning Ship Partial Imag
+
+          w := (x + i |y|)^4
+          z := (|u| + i v) + c
+
+  -   4th Celtic Burning Ship Partial Real
+
+          w := (|x| + i y)^4
+          z := (|u| + i v) + c
+
+  -   4th Celtic Burning Ship Partial Real Mbar
+
+          w := (|x| - i |y|)^4
+          z := (|u| + i v) + c
+
+  -   4th Buffalo Partial Imag
+
+          w := z^4
+          z := (u + i |v|) + c
+
+  -   4th Celtic Mbar
+
+          w := (x - i y)^4
+          z := (|u| + i v) + c
+
+  -   4th False Quasi Perpendicular
+
+          z := ((x^4 + y^4 - 6 x^2 y2) - i 4 x y |x^2 - y^2|) + c
+
+  -   4th False Quasi Heart
+
+          z := ((x^4 + y^4 - 6 x^2 y2) + i 4 x y |x^2 - y^2|) + c
+
+  -   4th Celtic False Quasi Perpendicular
+
+          z := (|x^4 + y^4 - 6 x^2 y2| - i 4 x y |x^2 - y^2|) + c
+
+  -   4th Celtic False Quasi Heart
+
+          z := (|x^4 + y^4 - 6 x^2 y2| + i 4 x y |x^2 - y^2|) + c
+
+  -   5th Burning Ship Partial
+
+          z := (|x| + i y)^5 + c
+
+  -   5th Burning Ship Partial Mbar
+
+          z := (|x| - i y)^5 + c
+
+  -   5th Celtic Mbar
+
+          w := (x - i y)^5
+          z := (|u| + i v) + c
+
+  -   5th Quasi Burning Ship (BS/Buffalo Hybrid)
+
+          w := (|x| + i y)^5
+          z := (u - i |v|) + c
+
+  -   5th Quasi Perpendicular
+
+          z := (|x| (x^4 + 5 y^4 - 10 x^2 y^2) - i y (|5 x^4 + y^4 - 10 x^2 y^2|)) + c
+
+  -   5th Quasi Heart
+
+          z := (|x| (x^4 + 5 y^4 - 10 x^2 y^2) + i y (|5 x^4 + y^4 - 10 x^2 y^2|)) + c
+
+  -   SimonBrot 4th
+
+          z := z^2 (|x| + i |y|)^2 + c
+
+  -   4th Imag Quasi Perpendicular / Heart
+
+          z := ((x^4 + y^4 - 6 x^2 y^2) + i 4 x |y (x^2 - y^2)|) + c
+
+  -   4th Real Quasi Perpendicular
+
+          z := ((x^4 + y^4 - 6 x^2 y^2) - i 4 y |x (x^2 - y^2)|) + c
+
+  -   4th Real Quasi Heart
+
+          z := ((x^4 + y^4 - 6 x^2 y^2) + i 4 y |x (x^2 - y^2)|) + c
+
+  -   4th Celtic Imag Quasi Perpendicular / Heart
+
+          z := (|x^4 + y^4 - 6 x^2 y^2| + i 4 x |y (x^2 - y^2)|) + c
+
+  -   4th Celtic Real Quasi Perpendicular
+
+          z := (|x^4 + y^4 - 6 x^2 y^2| - i 4 y |x (x^2 - y^2)|) + c
+
+  -   4th Celtic Real Quasi Heart
+
+          z := (|x^4 + y^4 - 6 x^2 y^2| + i 4 y |x (x^2 - y^2)|) + c
+
+  -   SimonBrot 6th
+
+          z := z^3 (|x| + i |y|)^3 + c
+
+  -   HPDZ Buffalo
+
+          z := (((x^2 - y^2) - |x|) + i (|2xy| - |y|)) + c
+
+  -   TheRedshiftRider 1: `a*z^2+z^3+c`
+
+          z := (f z^2 + z^3) + c
+
+  -   TheRedshiftRider 2: `a*z^2-z^3+c`
+
+          z := (f z^2 - z^3) + c
+
+  -   TheRedshiftRider 3: `2*z^2-z^3+c`
+
+          z := (2 z^2 - z^3) + c
+
+  -   TheRedshiftRider 4: `a*z^2+z^4+c`
+
+          z := (f z^2 + z^4) + c
+
+  -   TheRedshiftRider 5: `a*z^2-z^4+c`
+
+          z := (f z^2 - z^4) + c
+
+  -   TheRedshiftRider 6: `a*z^2+z^5+c`
+
+          z := (f z^2 + z^5) + c
+
+  -   TheRedshiftRider 7: `a*z^2-z^5+c`
+
+          z := (f z^2 - z^5) + c
+
+  -   TheRedshiftRider 8: `a*z^2+z^6+c`
+
+          z := (f z^2 + z^6) + c
+
+  -   TheRedshiftRider 9: `a*z^2-z^6+c`
+
+          z := (f z^2 - z^6) + c
+
+  -   SimonBrot2 4th
+
+          w := z^2
+          z := w (|u| + i |v|) + c
+
+A machine-readable version of this formula list is found in the 'et' repository:
+<https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This is used by 'et' when
+generating formula code (for Newton-Raphson zooming, etc).
+
+
 ## Number of colors dialog
 
   - **Number of key colors**
@@ -1200,7 +1534,7 @@ At the very top right:
   - **Divide iteration**
 
     Divide each iteration number with this value, for dense images this value
-    can be greater than 1
+    can be greater than 1.  For DE, values less than 1 can be useful.
 
   - **Color offset**
 
@@ -1233,11 +1567,11 @@ At the very top right:
 
   - **Save palette**
 
-    Save the current palette in file
+    Save the current palette in KFP (*.kfp) file
 
   - **Open palette**
 
-    Load palette from file
+    Load palette from a KFP (*.kfp) file
 
   - **Expand double**
 
@@ -1297,6 +1631,7 @@ At the very top right:
 
     A negative value on Hue, Saturation or Brightness makes a flat percentage
     value to be applied on all iterations.
+
 
 ## Command Line Usage
 
