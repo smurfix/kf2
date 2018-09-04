@@ -30,6 +30,8 @@ Feedback:
 
 - Windows Defender sometimes reports that KF contains malware
   (false positive, I hope - I check with virustotal.com and all seems fine)
+  (possibly due to screenshots for crosshair window, some code also moves
+  the mouse cursor)
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
 - resizing window during examine zoom sequence auto solve glitches leads to
@@ -60,6 +62,9 @@ Feedback:
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
+- something is wrong with ADE in Mandelbar (reported by gerrit)
+- when you load kfr with drag 'n drop, the filename does not get updated
+  (as displayed on top bar and for Save) (reported by gerrit)
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
