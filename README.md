@@ -62,7 +62,6 @@ Feedback:
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
-- something is wrong with ADE in Mandelbar (reported by gerrit)
 - when you load kfr with drag 'n drop, the filename does not get updated
   (as displayed on top bar and for Save) (reported by gerrit)
 - status bar reference count doesn't reset when zooming before it is "Done"
@@ -150,6 +149,7 @@ Feedback:
 
     - bugfix: reading PNG metadata works even if it is moved after the image
       data chunks and has a miscapitalized "Comment" keyword
+    - bugfix: fix Mandelbar derivative calculations for ADE (reported by gerrit)
 
 - **kf-2.13.8** (2018-08-28)
 
