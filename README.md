@@ -145,7 +145,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.13.9** (????-??-??)
+- **kf-2.13.9** (2018-09-06)
 
     - new feature: auto skew without miniset: new button in Newton-Raphson
       zooming dialog, "Auto Skew (Escape)", that skews at the center pixels
