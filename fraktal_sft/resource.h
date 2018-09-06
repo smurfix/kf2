@@ -149,6 +149,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_INTERIORCOLOR               1096
 #define IDC_STOREZOOM_TIF               1097
 #define IDC_AUTOSKEW                    1098
+#define IDC_AUTOSKEW_BUTTON             1099
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -234,7 +235,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
-#define IDC_COMBO_OPENCL_DEVICE  1100
+#define IDC_COMBO_OPENCL_DEVICE  1101
 #define ID_SPECIAL_OPENCL       40100
 #endif
 
@@ -244,7 +245,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
 #define _APS_NEXT_COMMAND_VALUE         40094
-#define _APS_NEXT_CONTROL_VALUE         1099
+#define _APS_NEXT_CONTROL_VALUE         1100
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

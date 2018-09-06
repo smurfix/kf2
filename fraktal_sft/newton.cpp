@@ -666,12 +666,46 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
     complex<floatexp> zlo = fec(z);
     l = fec2 * zlo * l;
     b = b + fec1 / l;
-  }  
+  }
   return fec1 / (b * l * l);
 }
 
 static double g_skew[4];
 static int g_period;
+
+static int WINAPI ThSkew(HWND hWnd)
+{
+  const int type = g_SFT.GetFractalType();
+  const int power = g_SFT.GetPower();
+  const struct formula *f = get_formula(type, power);
+
+  const int iters = g_SFT.GetIterations();
+  flyttyp radius = g_szZoom;
+  radius*=g_SFT.GetZoomSize();
+  const char *e = strstr(g_szZoom.c_str(),"E");
+  if(!e) e = strstr(g_szZoom.c_str(),"e");
+  int exp = (e?atoi(e+1):0);
+  unsigned uprec = exp + 6;
+  Precision prec(uprec);
+  complex<flyttyp> center(g_szRe,g_szIm);
+
+  g_skew[0] = 1;
+  g_skew[1] = 0;
+  g_skew[2] = 0;
+  g_skew[3] = 1;
+  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), &g_skew[0], &running);
+  {
+    PostMessage(hWnd,WM_USER+2,0,2);
+  }
+  else
+  {
+    PostMessage(hWnd,WM_USER+2,0,-2);
+  }
+  mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
+  return 0;
+}
+
+
 static int WINAPI ThNewton(HWND hWnd)
 {
   const int type = g_SFT.GetFractalType();
@@ -733,7 +767,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	Precision prec2(uprec);
 
 	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
-	BOOL bOK=FALSE;
+	BOOL bOK=-1;
 	if(g_period){
 		sprintf(szStatus,"period=%d (steps:%d)\n",g_period,steps);
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
@@ -891,7 +925,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			{
 				radius = flyttyp(2)^zooms;
 				g_szZoom = radius.ToText();
-				bOK=TRUE;
+				bOK=1;
 			}
 		}
 	}
@@ -960,6 +994,19 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 	}
+	if(uMsg==WM_COMMAND && wParam==IDC_AUTOSKEW){
+		if(!g_bNewtonRunning){
+			DWORD dw;
+			g_bNewtonStop=FALSE;
+			g_bNewtonExit=FALSE;
+			*g_szProgress=0;
+			running = 1;
+			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
+			CloseHandle(hThread);
+			g_bNewtonRunning=TRUE;
+			SetDlgItemText(hWnd,IDCANCEL,"Stop");
+		}
+	}
 	if(uMsg==WM_USER+1){
 		if(!g_bNewtonRunning){
 			RECT r = *(RECT*)lParam;
@@ -995,7 +1042,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	if(uMsg==WM_USER+2){
 		SetDlgItemText(hWnd,IDCANCEL,"Close");
 		g_bNewtonRunning=FALSE;
-		if(lParam){
+		if(lParam == 1){
+			// newton success
 			if((g_AutoSkew = SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_GETCHECK,0,0)))
 				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
@@ -1012,9 +1060,18 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				MessageBox(hWnd,szResult,"Result",MB_OK);
 			}
 		}
+		if(lParam == 2){
+			// auto skew success
+			g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
+			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
+		}
 		PostMessage(GetParent(hWnd),WM_COMMAND,ID_SPECIAL_NEWTON,0);
-		if(!lParam && !g_bNewtonStop)
+		if(lParam == -1 && !g_bNewtonStop)
 			MessageBox(GetParent(hWnd),"Could not apply Newton-Raphson\nYou may zoom in a little and try again","Error",MB_OK|MB_ICONSTOP);
+		if(lParam == -2 && !g_bNewtonStop)
+			MessageBox(GetParent(hWnd),"Could not auto find skew\n","Error",MB_OK|MB_ICONSTOP);
+		if((lParam == 0 || lParam < -2 || lParam > 2))
+			MessageBox(GetParent(hWnd),"Unexpected stop message parameter (internal error)\n","Error",MB_OK|MB_ICONSTOP);
 	}
 	return 0;
 }
