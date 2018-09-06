@@ -1214,8 +1214,11 @@ Menu items:
     in the view, or with the automatic search of minibrot that is also using
     the pattern center.
 
-    When "auto skew" is enabled before activating, the view will be skewed
-    to make features near the minibrot approximately circular.
+    When "auto skew (newton)" is enabled before activating, the view will be
+    skewed to make features near the minibrot approximately circular.
+
+    When "auto skew (escape)" is activated, the view will be skewed to make
+    features in the current view approximately circular (without zooming).
 
   - **No reuse center**
 
