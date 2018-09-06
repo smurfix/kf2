@@ -693,7 +693,7 @@ static int WINAPI ThSkew(HWND hWnd)
   g_skew[1] = 0;
   g_skew[2] = 0;
   g_skew[3] = 1;
-  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), &g_skew[0], &running);
+  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), &g_skew[0], &running))
   {
     PostMessage(hWnd,WM_USER+2,0,2);
   }
