@@ -62,8 +62,8 @@ Feedback:
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
-- when you load kfr with drag 'n drop, the filename does not get updated
-  (as displayed on top bar and for Save) (reported by gerrit)
+- auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
+- kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
 - opencl support is very broken, proof of concept only
@@ -147,9 +147,14 @@ Feedback:
 
 - **kf-2.13.9** (????-??-??)
 
+    - new feature: auto skew without miniset: new button in Newton-Raphson
+      zooming dialog, "Auto Skew (Escape)", that skews at the center pixels
+      (algorithm suggested by gerrit)
+    - bugfix: set window title on parameter drag and drop (reported by gerrit)
     - bugfix: reading PNG metadata works even if it is moved after the image
       data chunks and has a miscapitalized "Comment" keyword
     - bugfix: fix Mandelbar derivative calculations for ADE (reported by gerrit)
+    - bugfix: fix 4th False Quasi formulas Newton-Raphson zooming
 
 - **kf-2.13.8** (2018-08-28)
 
@@ -1414,19 +1419,19 @@ Formulas:
 
   -   4th False Quasi Perpendicular
 
-          z := ((x^4 + y^4 - 6 x^2 y2) - i 4 x y |x^2 - y^2|) + c
+          z := ((x^4 + y^4 - 6 x^2 y^2) - i 4 x y |x^2 - y^2|) + c
 
   -   4th False Quasi Heart
 
-          z := ((x^4 + y^4 - 6 x^2 y2) + i 4 x y |x^2 - y^2|) + c
+          z := ((x^4 + y^4 - 6 x^2 y^2) + i 4 x y |x^2 - y^2|) + c
 
   -   4th Celtic False Quasi Perpendicular
 
-          z := (|x^4 + y^4 - 6 x^2 y2| - i 4 x y |x^2 - y^2|) + c
+          z := (|x^4 + y^4 - 6 x^2 y^2| - i 4 x y |x^2 - y^2|) + c
 
   -   4th Celtic False Quasi Heart
 
-          z := (|x^4 + y^4 - 6 x^2 y2| + i 4 x y |x^2 - y^2|) + c
+          z := (|x^4 + y^4 - 6 x^2 y^2| + i 4 x y |x^2 - y^2|) + c
 
   -   5th Burning Ship Partial
 

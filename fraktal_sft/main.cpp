@@ -3380,9 +3380,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					if (ok)
 					{
 						std::string file(buffer);
-						ok = g_SFT.OpenFile(file);
-						if (ok)
+						// call function OpenFile() (not the similarly named method)
+						// so that the window title is set correctly
+						g_szFile = file;
+						bool err = false;
+						OpenFile(hWnd, err);
+						if (! err)
 						{
+							// don't know if this code is necessary
+							// probably it would be better to stop *before* opening?
 							g_SFT.Stop();
 							g_bAnim=false;
 							g_bFindMinibrot=FALSE;
