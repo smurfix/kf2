@@ -680,6 +680,9 @@ static int WINAPI ThSkew(HWND hWnd)
   const struct formula *f = get_formula(type, power);
 
   const int iters = g_SFT.GetIterations();
+  g_szRe = g_SFT.GetRe();
+  g_szIm = g_SFT.GetIm();
+  g_szZoom = g_SFT.GetZoom();
   flyttyp radius = g_szZoom;
   radius*=g_SFT.GetZoomSize();
   const char *e = strstr(g_szZoom.c_str(),"E");
@@ -994,7 +997,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 	}
-	if(uMsg==WM_COMMAND && wParam==IDC_AUTOSKEW){
+	if(uMsg==WM_COMMAND && wParam==IDC_AUTOSKEW_BUTTON){
 		if(!g_bNewtonRunning){
 			DWORD dw;
 			g_bNewtonStop=FALSE;
