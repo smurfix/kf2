@@ -75,6 +75,7 @@ typedef int f_perturbationl(int,int,long double,long double*,long double,long do
 typedef int f_period(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
 typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,volatile int*);
 typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
+typedef int f_skew(int,double,double,mpfr_t,mpfr_t,double*,volatile int*);
 typedef int f_domain_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
 
 #ifndef KF_MAIN
@@ -90,12 +91,13 @@ static f_perturbationl perturbationl;
 static f_period period;
 static f_newton newton;
 static f_size size;
+static f_skew skew;
 static f_domain_size domain_size;
 #endif
 
 #define MAGIC ((int)(0xC01dCaf3))
 #define SIZE ((int)(sizeof(struct formula)))
-#define VERSION 3
+#define VERSION 4
 
 struct formula
 {
@@ -119,6 +121,7 @@ struct formula
   f_period *period;
   f_newton *newton;
   f_size *size;
+  f_skew *skew;
 #if 0
   f_domain_size *domain_size;
 #endif
@@ -128,7 +131,7 @@ struct formula
 #define FORMULA(name,source,degree) \
 extern "C" { __declspec(dllexport) struct formula et = \
 { MAGIC, SIZE, VERSION \
-, &period, &newton, &size \
+, &period, &newton, &size, &skew \
 }; }
 #else
 #define FORMULA(name,source,degree) \
@@ -138,7 +141,7 @@ struct formula et = \
 , &plainf, &plain, &plainl \
 , &referencef, &reference, &referencel \
 , &perturbationf, &perturbation, &perturbationl \
-, &period, &newton, &size, &domain_size \
+, &period, &newton, &size, &skew, &domain_size \
 };
 #endif
 
