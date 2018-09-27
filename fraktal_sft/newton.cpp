@@ -670,6 +670,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
   return fec1 / (b * l * l);
 }
 
+static int g_useDZ = 1;
 static double g_skew[4];
 static int g_period;
 
@@ -696,7 +697,7 @@ static int WINAPI ThSkew(HWND hWnd)
   g_skew[1] = 0;
   g_skew[2] = 0;
   g_skew[3] = 1;
-  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), &g_skew[0], &running))
+  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_useDZ, &g_skew[0], &running))
   {
     PostMessage(hWnd,WM_USER+2,0,2);
   }
@@ -1004,6 +1005,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bNewtonExit=FALSE;
 			*g_szProgress=0;
 			running = 1;
+			g_useDZ = SendDlgItemMessage(hWnd,IDC_AUTOSKEW_USEDZ,BM_GETCHECK,0,0);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
