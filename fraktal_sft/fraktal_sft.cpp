@@ -1027,6 +1027,7 @@ void CFraktalSFT::ApplyColors()
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
 		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		if (nParallel < 1) nParallel = 1;
 		CParallell P(
 #ifdef _DEBUG
 			1

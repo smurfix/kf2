@@ -349,6 +349,8 @@ static void UpdateZoomSize(HWND hWnd)
 static void UpdateThreadsPerCore(HWND hWnd)
 {
 	double z = g_SFT.GetThreadsPerCore();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_1_4,MF_BYCOMMAND|(z==1./4?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_1_2,MF_BYCOMMAND|(z==1./2?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
@@ -4366,6 +4368,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetGlitchLowTolerance(true);
 			g_SFT.SetApproxLowTolerance(true);
 			g_SFT.SetJitterSeed(1);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_1_4){
+			g_SFT.SetThreadsPerCore(1./4);
+			UpdateThreadsPerCore(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_1_2){
+			g_SFT.SetThreadsPerCore(1./2);
+			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1){
 			g_SFT.SetThreadsPerCore(1);

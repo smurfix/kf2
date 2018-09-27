@@ -533,7 +533,7 @@ public:
   INT(WindowRight)
   INT(ImageWidth)
   INT(ImageHeight)
-  INT(ThreadsPerCore)
+  DOUBLE(ThreadsPerCore)
   BOOL(AnimateZoom)
   BOOL(ArbitrarySize)
   BOOL(ReuseReference)
