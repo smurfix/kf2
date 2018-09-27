@@ -159,7 +159,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.1** (????-??-??)
+- **kf-2.14.1** (2018-09-27)
 
     - new feature: series approximation for Burning Ship power 2, using
       case analysis to know how it gets reflected at each iteration
