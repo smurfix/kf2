@@ -152,15 +152,21 @@ public:
 		r.align();
 		return r;
 	}
-	inline floatexp &mul2()
+	__attribute__ ((warn_unused_result))
+	inline floatexp mul2() const
 	{
-		exp++;
-		return *this;
+		floatexp r;
+		r.val = val;
+		r.exp = exp + 1;
+		return r;
 	}
-	inline floatexp &mul4()
+	__attribute__ ((warn_unused_result))
+	inline floatexp mul4() const
 	{
-		exp+=2;
-		return *this;
+		floatexp r;
+		r.val = val;
+		r.exp = exp + 2;
+		return r;
 	}
 	inline floatexp operator +(const floatexp &a) const
 	{

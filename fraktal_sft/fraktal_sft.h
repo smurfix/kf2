@@ -205,6 +205,19 @@ enum Differences
 
 extern double g_Degree;
 
+enum SeriesType
+{
+	SeriesType_None = 0,
+	SeriesType_Complex = 1,
+	SeriesType_Real = 2
+};
+
+struct SeriesR2
+{
+	floatexp s[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
+	floatexp t[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
+};
+
 class CFraktalSFT
 {
 	Settings m_Settings;
@@ -266,6 +279,7 @@ class CFraktalSFT
 	floatexp *m_dxr, *m_dxi;
 	floatexp *m_APr;
 	floatexp *m_APi;
+	SeriesR2 *m_APs;
 
 	BOOL m_bMirrored;
 	int m_nFractalType;
@@ -318,8 +332,18 @@ class CFraktalSFT
 	int m_nInflections;
 	complex<CFixedFloat> *m_pInflections;
 
+	SeriesType GetApproximationType()
+	{
+		if (m_nFractalType == 0)
+			return SeriesType_Complex;
+		if (m_nFractalType == 1 && m_nPower == 2)
+			return SeriesType_Real;
+		return SeriesType_None;
+	}
 	void CalculateApproximation(int nType);
 	void DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
+	void DoApproximation(int &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
+	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
 	void CalculateReference();
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();

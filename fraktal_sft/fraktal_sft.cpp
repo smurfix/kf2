@@ -152,6 +152,7 @@ CFraktalSFT::CFraktalSFT()
 	int m_nTerms = GetApproxTerms();
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
+	m_APs = new SeriesR2;
 
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 	m_bRunning = FALSE;

@@ -34,8 +34,8 @@ void CFraktalSFT::MandelCalc()
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			continue;
 		}
-    if (GuessPixel(x, y, w, h))
-      continue;
+		if (GuessPixel(x, y, w, h))
+			continue;
 
 		// Series approximation
 		floatexp D0r = 0;
@@ -48,9 +48,21 @@ void CFraktalSFT::MandelCalc()
 
 		floatexp TDnr;
 		floatexp TDni;
-		floatexp TDDnr;
-		floatexp TDDni;
-		DoApproximation(antal, D0r, D0i, TDnr, TDni, TDDnr, TDDni);
+		floatexp dxa1, dxb1, dya1, dyb1;
+		DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
+		// d0 = d1 * d0
+		{
+			floatexp daa2 = dxa1 * daa0 + dxb1 * dba0;
+			floatexp dab2 = dxa1 * dab0 + dxb1 * dbb0;
+			floatexp dba2 = dya1 * daa0 + dyb1 * dba0;
+			floatexp dbb2 = dya1 * dab0 + dyb1 * dbb0;
+			daa0 = daa2;
+			dab0 = dab2;
+			dba0 = dba2;
+			dbb0 = dbb2;
+		}
+		floatexp TDDnr = daa0;
+		floatexp TDDni = dba0;
 
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
@@ -311,6 +323,6 @@ void CFraktalSFT::MandelCalc()
 
 		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
 		InterlockedIncrement((LPLONG)&m_nDone);
-    OutputPixelData(x, y, w, h, bGlitch);
-  }
+		OutputPixelData(x, y, w, h, bGlitch);
+	}
 }
