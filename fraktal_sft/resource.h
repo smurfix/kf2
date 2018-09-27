@@ -169,7 +169,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_CREATEZOOMSEQUENCE   40022
 #define ID_ACTIONS_RESET                40023
 #define ID_ACTIONS_FINDMINIBROT         40024
-#define ID_MENUITEM40025                40025
+#define ID_MENU_ABOUT                   40025
 #define ID_ACTIONS_CENTERCURSOR         40026
 #define ID_FILE_SAVEASJPEG              40027
 #define ID_ACTIONS_ZOOMSIZE_128         40028
@@ -185,7 +185,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_FILE_STOREZOOMOUTIMAGES      40038
 #define ID_ACTIONS_SPECIAL_NOAPPROXIMATION 40039
 #define ID_ACTIONS_SETWINDOWSIZE        40040
-#define ID_SPECIAL_NON                  40041
+#define ID_SPECIAL_NONEXACTFINDMINIBROT 40041
 #define ID_FILE_SAVEMAP                 40042
 #define ID_ACTIONS_SETIMAGESIZE         40044
 #define ID_ACTIONS_SPECIAL_SHOWERRORS   40048
@@ -231,6 +231,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_SPECIAL_SHOWCROSSHAIR        40091
 #define ID_SPECIAL_PRESET_FAST          40092
 #define ID_SPECIAL_PRESET_BEST          40093
+#define ID_FILE_CHECKFORUPDATE          40094
+#define ID_ACTIONS_THREADS_1_4          40095
+#define ID_ACTIONS_THREADS_1_2          40096
 
 // OpenCL
 #ifdef KF_OPENCL
@@ -244,7 +247,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40094
+#define _APS_NEXT_COMMAND_VALUE         40097
 #define _APS_NEXT_CONTROL_VALUE         1100
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

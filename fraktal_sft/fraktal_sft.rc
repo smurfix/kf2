@@ -573,65 +573,79 @@ IDR_MENU1 MENUEX
 BEGIN
     POPUP "&File",                          65535,MFT_STRING,MFS_ENABLED
     BEGIN
-        MENUITEM "&Open\tCtrl+O",               40020,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Save\tCtrl+S",               40021,MFT_STRING,MFS_ENABLED
-        MENUITEM "Save &As\tCtrl+A",            40018,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Open\tCtrl+O",               ID_FILE_OPEN_,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Save\tCtrl+S",               ID_FILE_SAVE_,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save &As\tCtrl+A",            ID_FILE_SAVEAS_,MFT_STRING,MFS_ENABLED
         MENUITEM "Save as &PNG...\tCtrl+P",     ID_FILE_SAVEASPNG,MFT_STRING,MFS_ENABLED
-        MENUITEM "Save as &JPEG...\tCtrl+J",    40027,MFT_STRING,MFS_ENABLED
+        MENUITEM "Save as &JPEG...\tCtrl+J",    ID_FILE_SAVEASJPEG,MFT_STRING,MFS_ENABLED
         MENUITEM "Save as TIFF...",             ID_FILE_SAVEASTIF,MFT_STRING,MFS_ENABLED
-        MENUITEM "Store Zoom-out images...\tCtrl+Q", 40038,MFT_STRING,MFS_ENABLED
         MENUITEM "Save &map...",                ID_FILE_SAVEMAP,MFT_STRING,MFS_ENABLED
         MENUITEM "Open map...",                 ID_FILE_OPENMAP,MFT_STRING,MFS_ENABLED
+        MENUITEM "Store Zoom-out images...\tCtrl+Q", ID_FILE_STOREZOOMOUTIMAGES,MFT_STRING,MFS_ENABLED
         MENUITEM "Examine Zoom sequence",       ID_FILE_EXAMINEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
         MENUITEM "Resume Zoom sequence",        ID_FILE_RESUMEZOOMSEQUENCE,MFT_STRING,MFS_ENABLED
         MENUITEM "Open Settings...",            ID_FILE_OPENSETTINGS,MFT_STRING,MFS_ENABLED
         MENUITEM "Save Settings...",            ID_FILE_SAVESETTINGS,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Exit",                       40002,MFT_STRING,MFS_ENABLED
+        MENUITEM "Check for update...",         ID_FILE_CHECKFORUPDATE,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Exit",                       ID_ACTIONS_EXIT,MFT_STRING,MFS_ENABLED
     END
-    POPUP "&Actions",                       65535,MFT_STRING,MFS_ENABLED
-    BEGIN
-        POPUP "&Zoom size",                     65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "1",                           ID_ACTIONS_ZOOMSIZE_1,MFT_STRING,MFS_ENABLED
-            MENUITEM "&2\tCtrl+2",                  40007,MFT_STRING,MFS_ENABLED
-            MENUITEM "&4\tCtrl+4",                  40008,MFT_STRING,MFS_ENABLED
-            MENUITEM "&8\tCtrl+8",                  40009,MFT_STRING,MFS_ENABLED
-            MENUITEM "&16\tCtrl+1",                 40010,MFT_STRING,MFS_ENABLED
-            MENUITEM "&32\tCtrl+3",                 40011,MFT_STRING,MFS_ENABLED
-            MENUITEM "&64\tCtrl+6",                 40012,MFT_STRING,MFS_ENABLED
-            MENUITEM "128",                         40028,MFT_STRING,MFS_ENABLED
-            MENUITEM "Custom...",                   ID_ZOOMSIZE_CUSTOM,MFT_STRING,MFS_ENABLED
-        END
-        MENUITEM "&Location...\tCtrl+L",        40003,MFT_STRING,MFS_ENABLED
-        MENUITEM "&Iterations...\tCtrl+I",      40004,MFT_STRING,MFS_ENABLED
-        MENUITEM "Set &Colors...\tCtrl+C",      40005,MFT_STRING,MFS_ENABLED
-        MENUITEM "Rese&t\tCtrl+N",              40023,MFT_STRING,MFS_ENABLED
-        MENUITEM "Center c&ursor\tCtrl+U",      40026,MFT_STRING,MFS_ENABLED
-        MENUITEM "Find &Minibrot\tCtrl+M",      40024,MFT_STRING,MFS_ENABLED
-        MENUITEM "Set &window size\tCtrl+W",    40040,MFT_STRING,MFS_ENABLED
-        MENUITEM "Set image &size\tCtrl+Z",     ID_ACTIONS_SETIMAGESIZE,MFT_STRING,MFS_ENABLED
-        MENUITEM "Refresh\tF5",                 40036,MFT_STRING,MFS_ENABLED
-        MENUITEM "Cancel rendering\tESC",       40037,MFT_STRING,MFS_ENABLED
-        MENUITEM "Rotate\tCtrl+T",              ID_ACTIONS_ROTATE,MFT_STRING,MFS_ENABLED
-        MENUITEM "Reset Rotation",              ID_ACTIONS_RESETROTATION,MFT_STRING,MFS_ENABLED
-        MENUITEM "S&how Inflection\tCtrl+H",    ID_ACTIONS_SHOWINFLECTION,MFT_STRING,MFS_ENABLED
-        MENUITEM "S&kew\tCtrl+K",               ID_ACTIONS_SKEW,MFT_STRING,MFS_ENABLED
-        MENUITEM "Animate zoom",                ID_ACTIONS_ANIMATEZOOM,MFT_STRING,MFS_ENABLED
-        MENUITEM "Arbitrary size",              ID_SPECIAL_ARBITRARYSIZE,MFT_STRING,MFS_ENABLED
-    END
-    POPUP "&Special",                       65535,MFT_STRING,MFS_ENABLED
+    
+    POPUP "Fra&ktal",65535,MFT_STRING,MFS_ENABLED
     BEGIN
         POPUP "Presets",65535,MFT_STRING,MFS_ENABLED
         BEGIN
             MENUITEM "Fast",                           ID_SPECIAL_PRESET_FAST,MFT_STRING,MFS_ENABLED
             MENUITEM "Best",                           ID_SPECIAL_PRESET_BEST,MFT_STRING,MFS_ENABLED
         END
-        MENUITEM "Add Reference (Colors)\tCtrl+R", 40030,MFT_STRING,MFS_ENABLED
-        MENUITEM "Add Reference (Colors)\tCtrl+R", 40030,MFT_STRING,MFS_ENABLED
-        MENUITEM "Set main reference",          ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MFT_STRING,MFS_ENABLED
-        MENUITEM "R&euse reference\tCtrl+E",    40015,MFT_STRING,MFS_ENABLED
-        MENUITEM "Find center of glitch (Colors)\tCtrl+F", 40031,MFT_STRING,MFS_ENABLED
-        MENUITEM "Auto solve glitches",         40032,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Location...\tCtrl+L",        ID_ACTIONS_POSITION,MFT_STRING,MFS_ENABLED
+        MENUITEM "&Iterations...\tCtrl+I",      ID_ACTIONS_ITERATIONS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set &Colors...\tCtrl+C",      ID_ACTIONS_SETCOLORS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Refresh\tF5",                 ID_ACTIONS_REFRESH,MFT_STRING,MFS_ENABLED
+        MENUITEM "Cancel rendering\tESC",       ID_ACTIONS_CANCELRENDERING,MFT_STRING,MFS_ENABLED
+        MENUITEM "Rese&t\tCtrl+N",              ID_ACTIONS_RESET,MFT_STRING,MFS_ENABLED
+    END
+
+    POPUP "&View",65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        POPUP "&Zoom size",                     65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "1",                           ID_ACTIONS_ZOOMSIZE_1,MFT_STRING,MFS_ENABLED
+            MENUITEM "&2\tCtrl+2",                  ID_ACTIONS_ZOOMSIZE_2,MFT_STRING,MFS_ENABLED
+            MENUITEM "&4\tCtrl+4",                  ID_ACTIONS_ZOOMSIZE_4,MFT_STRING,MFS_ENABLED
+            MENUITEM "&8\tCtrl+8",                  ID_ACTIONS_ZOOMSIZE_8,MFT_STRING,MFS_ENABLED
+            MENUITEM "&16\tCtrl+1",                 ID_ACTIONS_ZOOMSIZE_16,MFT_STRING,MFS_ENABLED
+            MENUITEM "&32\tCtrl+3",                 ID_ACTIONS_ZOOMSIZE_32,MFT_STRING,MFS_ENABLED
+            MENUITEM "&64\tCtrl+6",                 ID_ACTIONS_ZOOMSIZE_64,MFT_STRING,MFS_ENABLED
+            MENUITEM "128",                         ID_ACTIONS_ZOOMSIZE_128,MFT_STRING,MFS_ENABLED
+            MENUITEM "Custom...",                   ID_ZOOMSIZE_CUSTOM,MFT_STRING,MFS_ENABLED
+        END
+        MENUITEM "Animate zoom",                ID_ACTIONS_ANIMATEZOOM,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set &window size\tCtrl+W",    ID_ACTIONS_SETWINDOWSIZE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set image &size\tCtrl+Z",     ID_ACTIONS_SETIMAGESIZE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Arbitrary size",              ID_SPECIAL_ARBITRARYSIZE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Rotate\tCtrl+T",              ID_ACTIONS_ROTATE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Reset Rotation",              ID_ACTIONS_RESETROTATION,MFT_STRING,MFS_ENABLED
+        MENUITEM "S&kew\tCtrl+K",               ID_ACTIONS_SKEW,MFT_STRING,MFS_ENABLED
+        MENUITEM "Set ratio",                   ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO,MFT_STRING,MFS_ENABLED
+        MENUITEM "Reset ratio",                 ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,MFT_STRING,MFS_ENABLED
+        MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
+    END
+
+    POPUP "&Navigation",65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        MENUITEM "Newton-Raphson zooming\tCtrl+D", ID_SPECIAL_NEWTON,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find &Minibrot\tCtrl+M",      ID_ACTIONS_FINDMINIBROT,MFT_STRING,MFS_ENABLED
+        MENUITEM "Non-exact find Minibrot",     ID_SPECIAL_NONEXACTFINDMINIBROT,MFT_STRING,MFS_ENABLED
+        MENUITEM "Center c&ursor\tCtrl+U",      ID_ACTIONS_CENTERCURSOR,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find center of glitch (Colors)\tCtrl+F", ID_ACTIONS_FINDCENTEROFGLITCH,MFT_STRING,MFS_ENABLED
+        MENUITEM "Find highest iteration",      ID_ACTIONS_FINDHIGHESTITERATION,MFT_STRING,MFS_ENABLED
+        MENUITEM "S&how Inflection\tCtrl+H",    ID_ACTIONS_SHOWINFLECTION,MFT_STRING,MFS_ENABLED
+        MENUITEM "Show crosshair window",       ID_SPECIAL_SHOWCROSSHAIR,MFT_STRING,MFS_ENABLED
+    END
+
+    POPUP "&Advanced",                       65535,MFT_STRING,MFS_ENABLED
+    BEGIN
+        MENUITEM "Auto solve glitches",         ID_ACTIONS_AUTOSOLVEGLITCHES,MFT_STRING,MFS_ENABLED
         MENUITEM "Solve glitch with near pixels method", ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MFT_STRING,MFS_ENABLED
         POPUP "Ignore isolated small glitches", 65535,MFT_STRING,MFS_ENABLED
         BEGIN
@@ -639,37 +653,32 @@ BEGIN
             MENUITEM "When alone in 8-neighbourhood",   ID_ACTIONS_ISOLATED_8,MFT_STRING,MFS_ENABLED
             MENUITEM "When alone in 4-neighbourhood",   ID_ACTIONS_ISOLATED_4,MFT_STRING,MFS_ENABLED
         END
-        MENUITEM "Find highest iteration",      40029,MFT_STRING,MFS_ENABLED
-        MENUITEM "Show Iterations",             40034,MFT_STRING,MFS_ENABLED
-        MENUITEM "No approximation",            40039,MFT_STRING,MFS_ENABLED
-        MENUITEM "Non-exact find Minibrot",     40041,MFT_STRING,MFS_ENABLED
-        POPUP "Special",                        65535,MFT_STRING,MFS_ENABLED
-        BEGIN
-            MENUITEM "Mirror",                      ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MFT_STRING,MFS_ENABLED
-        END
+        MENUITEM "Set main reference",          ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "Add Reference (Colors)\tCtrl+R", ID_ACTIONS_ADDREFERENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "R&euse reference\tCtrl+E",    ID_ACTIONS_REUSEREFERENCE,MFT_STRING,MFS_ENABLED
+        MENUITEM "NO reuse center",             ID_ACTIONS_SPECIAL_NOREUSECENTER,MFT_STRING,MFS_ENABLED
+        MENUITEM "Show Iterations",             ID_ACTIONSSHOWITERATIONS,MFT_STRING,MFS_ENABLED
         MENUITEM "Show smooth transition colors", ID_ACTIONS_SPECIAL_SHOWSMOOTHTRANSITIONCOLORS,MFT_STRING,MFS_ENABLED
+        MENUITEM "Show glitches",               ID_SPECIAL_SHOWGLITCHES,MFT_STRING,MFS_ENABLED
+        MENUITEM "Mirror",                      ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MFT_STRING,MFS_ENABLED
+        MENUITEM "NO series approximation",     ID_ACTIONS_SPECIAL_NOAPPROXIMATION,MFT_STRING,MFS_ENABLED
         MENUITEM "Use long double always",      ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MFT_STRING,MFS_ENABLED
         MENUITEM "Use floatexp always",         ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MFT_STRING,MFS_ENABLED
         MENUITEM "Use auto iterations",         ID_ACTIONS_SPECIAL_AUTOITERATION,MFT_STRING,MFS_ENABLED
         MENUITEM "Use guessing",                ID_ACTIONS_SPECIAL_GUESSING,MFT_STRING,MFS_ENABLED
         POPUP "Threads per CPU",                65535,MFT_STRING,MFS_ENABLED
         BEGIN
-            MENUITEM "1",                           ID_ACTIONS_THREADS_1,MFT_STRING,MFS_ENABLED
-            MENUITEM "2",                           ID_ACTIONS_THREADS_2,MFT_STRING,MFS_ENABLED
-            MENUITEM "4",                           ID_ACTIONS_THREADS_4,MFT_STRING,MFS_ENABLED
+            MENUITEM "1/4", ID_ACTIONS_THREADS_1_4,MFT_STRING,MFS_ENABLED
+            MENUITEM "1/2", ID_ACTIONS_THREADS_1_2,MFT_STRING,MFS_ENABLED
+            MENUITEM "1",   ID_ACTIONS_THREADS_1,MFT_STRING,MFS_ENABLED
+            MENUITEM "2",   ID_ACTIONS_THREADS_2,MFT_STRING,MFS_ENABLED
+            MENUITEM "4",   ID_ACTIONS_THREADS_4,MFT_STRING,MFS_ENABLED
         END
-        MENUITEM "Set ratio",                   ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO,MFT_STRING,MFS_ENABLED
-        MENUITEM "Reset ratio",                 ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,MFT_STRING,MFS_ENABLED
-        MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
-        MENUITEM "Show glitches",               ID_SPECIAL_SHOWGLITCHES,MFT_STRING,MFS_ENABLED
-        MENUITEM "Newton-Raphson zooming\tCtrl+D", ID_SPECIAL_NEWTON,MFT_STRING,MFS_ENABLED
-        MENUITEM "No reuse center",             ID_ACTIONS_SPECIAL_NOREUSECENTER,MFT_STRING,MFS_ENABLED
-        MENUITEM "Show crosshair window",       ID_SPECIAL_SHOWCROSSHAIR,MFT_STRING,MFS_ENABLED
 #ifdef KF_OPENCL
         MENUITEM "OpenCL",                      ID_SPECIAL_OPENCL,MFT_STRING,MFS_ENABLED
 #endif
     END
-    MENUITEM "?",                           40025,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
+    MENUITEM "?", ID_MENU_ABOUT,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END
 
 

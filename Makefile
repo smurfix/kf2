@@ -24,11 +24,12 @@ FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wn
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -luuid -lmpfr -lgmp -ljpeg -ltiff $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
+fraktal_sft/check_for_update.cpp \
 fraktal_sft/cmdline.cpp \
 fraktal_sft/double_perturbation.cpp \
 fraktal_sft/double_reference.cpp \
@@ -56,6 +57,7 @@ fraktal_sft/tiff.cpp
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
 fraktal_sft/CFixedFloat.h \
+fraktal_sft/check_for_update.h \
 fraktal_sft/cmdline.h \
 fraktal_sft/colour.h \
 fraktal_sft/complex.h \

@@ -53,6 +53,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <png.h>
 #include <zlib.h>
 #include <gsl/gsl_version.h>
+#include "check_for_update.h"
 #include "jpeg.h"
 #include "png.h"
 #include "tiff.h"
@@ -63,6 +64,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_position.h"
 #include "cmdline.h"
 #include <iostream>
+#include <sstream>
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -4512,7 +4514,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetPosition("0","0","1");
 			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
-		else if(wParam==ID_SPECIAL_NON){
+		else if(wParam==ID_SPECIAL_NONEXACTFINDMINIBROT){
 			if(!g_bFindMinibrotCount){
 #if 0
 				char *e = g_SFT.GetZoom();
@@ -4526,7 +4528,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			else
 				g_bFindMinibrotCount=0;
-			CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_NON,MF_BYCOMMAND|(g_bFindMinibrotCount?MF_CHECKED:MF_UNCHECKED));
+			CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_NONEXACTFINDMINIBROT,MF_BYCOMMAND|(g_bFindMinibrotCount?MF_CHECKED:MF_UNCHECKED));
 		}
 		else if(wParam==ID_ACTIONS_FINDMINIBROT){
 			if(!lParam && HIWORD(GetKeyState(VK_CONTROL)))
@@ -4616,7 +4618,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_LBUTTONUP,0,MAKELONG(x,y));
 			g_bFindMinibrot=TRUE;
 		}
-		else if(wParam==ID_MENUITEM40025){
+		else if(wParam==ID_MENU_ABOUT){
 			char szMsg[4096];
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo( &sysinfo );  //©
@@ -4668,6 +4670,20 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				);
 			szMsg[4096-1] = 0;
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
+		}
+		else if (wParam == ID_FILE_CHECKFORUPDATE)
+		{
+			std::string latest = CheckForUpdate();
+			std::ostringstream os;
+			os << "Latest version: " << latest << "\n";
+			os << "Current version: " << version << "\n";
+			if (latest == "unknown")
+			  os << "Couldn't retrieve information!\n";
+			else if (latest == version)
+			  os << "You are up to date!\n";
+			else
+			  os << "There is a newer version!\n";
+	    return MessageBox(hWnd, os.str().c_str(), "KF2 Update Checker", MB_OK);
 		}
 	}
 	return DefWindowProc(hWnd,uMsg,wParam,lParam);
