@@ -362,8 +362,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    const complex&lt;T&gt; A = { g_FactorAR, g_FactorAI };
+    const T Ar = g_FactorAR;
+    const T Ai = g_FactorAI;
+    const complex&lt;T&gt; A = { Ar, Ai };
     const complex&lt;T&gt; c = { cr, ci };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
     int antal = antal0;
@@ -450,8 +454,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    const complex&lt;T&gt; A = { g_FactorAR, g_FactorAI };
+    const T Ar = g_FactorAR;
+    const T Ai = g_FactorAI;
+    const complex&lt;T&gt; A = { Ar, Ai };
     const complex&lt;T&gt; c = { cr, ci };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
     int antal = antal0;
