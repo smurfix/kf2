@@ -58,6 +58,11 @@ Feedback:
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - newton-raphson zoom preset depths are bad for formulas with power other than 2
+- burning ship series approximation stops at first fold (typically 1 period of
+  a central miniship), could potentially subdivide the region (and shift the
+  series, for the folded part) and carry on?
+- burning ship series approximation probe points might miss some folds near
+  the edges of the image (need to increase probe point density?)
 - bad combinations of skew, distance estimation, and series approximation
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
@@ -74,6 +79,15 @@ Feedback:
 ## Differences From Upstream 2.11.1
 
 ### Incompatible Changes
+
+- **In versions `2.14.1` and above**, there are two new formulas which are
+  not available in earlier versions.
+
+- **In versions `2.13.1` through `2.13.9`**, derivatives are calculated by
+  default.  In versions `2.14.1` and above, you need to enable the derivatives
+  calculations (in the Iterations dialog, or via a settings file) if you
+  want to use analytic distance estimation colouring.  Derivatives are not
+  available in earlier versions.
 
 - **In versions `2.13.1` through `2.13.4` inclusive** the interior is
   white.  In `2.13.5` and above it is user-settable, defaulting to black,
@@ -144,6 +158,21 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.1** (????-??-??)
+
+    - new feature: series approximation for Burning Ship power 2, using
+      case analysis to know how it gets reflected at each iteration
+    - two new formulas: General Quadratic Minus, General Quadratic Plus;
+      "RedShiftRider factor A" sets coefficients (suggested by gerrit)
+    - new feature: "Fast" preset activated by default
+    - new feature: GUI menus reorganized to make more sense and updated
+      the manual to reflect this
+    - new feature: "check for updates" option in the file menu (requires
+      internet access)
+    - new feature: 1/4 and 1/2 threads per CPU settings (minimum 1 thread)
+    - new feature: optional use of d/dZ in autoskew escape (suggested by
+      gerrit)
 
 - **kf-2.13.9** (2018-09-06)
 
@@ -623,8 +652,9 @@ The latest source code is available from my git repository:
     cd kalles-fraktaler-2
     git checkout master       # for Karl's original upstream
     git checkout claude       # for MINGW build system and bug fixes
-    git checkout kf-2.12      # for current stable development
-    git checkout kf-2.13      # for current experimental development
+    git checkout kf-2.12      # for old stable bugfixes
+    git checkout kf-2.13      # for current stable development
+    git checkout kf-2.14      # for current experimental development
     git tag -l                # list available release tags
 
 You also need `et` to generate the formula code for Newton-Raphson zooming:
@@ -696,7 +726,7 @@ install natively.
         cd ~/win64/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
-        git checkout kf-2.13
+        git checkout kf-2.14
         cd ..
         cp -avit ~/win32/src kalles-fraktaler-2/
 
@@ -896,14 +926,6 @@ Software license.
 
 # User Manual
 
-Shortcut only:
-
-- **Ctrl+B**
-
-    Toggle skew animation. Enter the number of frames in the popup dialog
-
-Menu items:
-
 ## File
 
   - **Open**
@@ -939,13 +961,6 @@ Menu items:
 
     The location and settings are saved in the file metadata.
 
-  - **Store zoom-out images**
-
-    Zoom out automatically with the selected Zoom size and store JPEG/PNG/TIFF
-    images and map file (*.kfb) for each zoom out. The zoom out stops when the
-    depth is lower than 1. The resulting files can be used by the KeyFramMovie
-    program to create a zoom-in animation.
-
   - **Save map**
 
     Saves the iteration data in a map file (*.kfb). This file can be used by
@@ -968,6 +983,13 @@ Menu items:
     to 1 on load.  A workaround is to load the palette from a KFP file (which is
     just a .kfr renamed to .kfp) after opening the map file.
 
+  - **Store zoom-out images**
+
+    Zoom out automatically with the selected Zoom size and store JPEG/PNG/TIFF
+    images and map file (*.kfb) for each zoom out. The zoom out stops when the
+    depth is lower than 1. The resulting files can be used by the KeyFramMovie
+    program to create a zoom-in animation.
+
   - **Examine Zoom sequence**
 
     Make sure you store the end location as a kfr file in the same directory
@@ -981,15 +1003,39 @@ Menu items:
     you store the zoom sequence frames. This function allows you to resume and
     continue the zoom out sequnce, if it got interrupted.
 
+  - **Open Settings**
+
+    Opens rendering settings from a settings file (*.kfs)
+    You can also load metadata from images saved by KF.
+
+  - **Save Settings**
+
+    Saves the current rendering settings to a settings file (*.kfs)
+
+  - **Check for update**
+
+    Retrieves information from KF's homepage on the internet, to let you
+    know if a newer version is available.
+
   - **Exit**
 
     Exit this program
 
-## Action
+## Fraktal
 
-  - **Zoom size**
+  - **Presets**
 
-    Set the level of zoom, left mouse click to zoom in, right to zoom out
+    Set groups of settings to suggested preset values.
+
+    - **Fast** accuracy may be compromised but it's fast for browsing.  Sets
+      ignore isolated glitch neighbourhood to 4, enables guessing, disables
+      low tolerance for glitches and approximation, and disables derivatives
+      computation unless analytic DE colouring is currently in use.
+
+    - **Best** highest quality settings for important images, but slow.  Sets
+      ignore isolated glitch neighbourhood to 0 (disabled), disables guessing,
+      enables low tolerance for glitches and approximation, and enables jitter
+      with a default seed of 1.
 
   - **Location...**
 
@@ -1023,20 +1069,27 @@ Menu items:
 
     Displays the Number of colors dialog where the colors can be edited.
 
+  - **Refresh**
+
+    Render the current location
+
+  - **Cancel rendering**
+
+    Cancel the current rendering
+
   - **Reset**
 
     Set the location to the start point
 
-  - **Center cursor**
+## View
 
-    Center the cursor to image's pattern center
+  - **Zoom size**
 
-  - **Find Minibrot**
+    Set the level of zoom, left mouse click to zoom in, right to zoom out
 
-    Starts an automatic zoom-in in the image's pattern center, until a Minibrot
-    is found or if it fails to find the center.
+  - **Animate soom**
 
-    It's probably better to use Newton-Raphson zooming if possible.
+    Turns animation on or off when zooming
 
   - **Set window size**
 
@@ -1047,13 +1100,9 @@ Menu items:
     Set the size of the internal image size. If this is larger than the window
     size, an anti-alias effect is achieved
 
-  - **Refresh**
+  - **Arbitrary size**
 
-    Render the current location
-
-  - **Cancel rendering**
-
-    Cancel the current rendering
+    (I don't know what this does?)
 
   - **Rotate**
 
@@ -1063,114 +1112,11 @@ Menu items:
 
     Clear any rotation
 
-  - **Show Inflection**
-
-    Activate or deactivate display of Inflection
-
   - **Skew**
 
-    Opens the Skew dialog which allows to "un-skew" locations that are skewed
+    Opens the Skew dialog which allows to "un-skew" locations that are skewed.
 
-  - **Zoom animation**
-
-    Turns animation on or off when zooming
-
-## Special
-
-  - **Presets**
-
-    Set groups of settings to suggested preset values.
-
-    - **Fast** accuracy may be compromised but it's fast for browsing.  Sets
-      ignore isolated glitch neighbourhood to 4, enables guessing, disables
-      low tolerance for glitches and approximation, and disables derivatives
-      computation unless analytic DE colouring is currently in use.
-
-    - **Best** highest quality settings for important images, but slow.  Sets
-      ignore isolated glitch neighbourhood to 0 (disabled), disables guessing,
-      enables low tolerance for glitches and approximation, and enables jitter
-      with a default seed of 1.
-
-  - **Add reference (Color)**
-
-    Add a reference and re-calculates the pixels with the same iteration count
-    as the reference. This is useful if the Auto solve glitches function fails
-    to find and solve glitches in the image
-
-  - **Set main reference**
-
-    Let you click the image and select the main reference for the whole image.
-    This can be useful when glitches appears on top of minibrots when the
-    reference is outside this minibrot. The glitch pattern disappears from the
-    minibrot if the main reference is selected inside the minibrot.
-
-  - **Reuse reference**
-
-    Do not re-calculate the reference for further zooming. This can be useful
-    when during automatic zoom-out and to test different reference points, but
-    must not be used together with the Auto solve glitches function active
-
-  - **Find center of glitch (Color)**
-
-    Centers the mouse pointer over the glitch blob found, if any
-
-  - **Auto solve glitches**
-
-    Turns the Auto solve glitches function on or off
-
-  - **Solve glitch with near pixel method**
-
-    Instead of re-render all pixels with the same iteration count value(color)
-    only the connected pixels are re-rendered. On some locations other areas in
-    the same view have the exact same iteration count values. These pixels may
-    be correctly rendered and may be incorrect if re-rendered with another
-    reference
-
-  - **Find highest iteration**
-
-    Centers the mouse pointer over the pixel with the highest iteration
-
-  - **Show iterations**
-
-    Displays the image black-and-white with the pixels with the highest
-    iteration as white and the pixels with the lowest iteration as black
-
-  - **No approximation**
-
-    Turns the Series approximation function on or off.
-
-  - **Non exact find Minibrot**
-
-    Makes the Find Minibrot function fail every 20 zoom-in, in order to gain
-    depth automatically without ending up in a Minibrot
-
-    Newton-Raphson zooming may be a more useful option.
-
-  - **Special**
-
-    - **Mirror**
-
-      mirrors the image around the x-axis. Can be used on the deeper half of a
-      zoom sequence to a minibrot - but not too close to the minibrot and too
-      close to the half...
-
-  - **Show smooth transition colors**
-
-    Displays the image black-and-white representing the smoothing coefficient
-
-  - **Use long double always**
-
-    Use always the 80-bit long double hardware data type. This can solve some
-    type of glitches
-
-  - **Use floatexp always**
-
-    Use always the double mantissa/integer exponent data type. This probably
-    only make the render slower
-
-  - **Use auto iterations**
-
-    Turns automatic iteration control on or off. This is on per default.
+    Automatic unskew is available via the Newton-Raphson zooming dialog.
 
   - **Set Ratio**
 
@@ -1190,9 +1136,7 @@ Menu items:
     rendered frame by frame, and can be combined with frame by frame rendering
     in KeyFrameMovieMaker or MMY3D
 
-  - **Show glitches**
-
-    When activated, glitches are displayed with a solid color
+## Navigation
 
   - **Newton-Raphson zooming**
 
@@ -1220,16 +1164,137 @@ Menu items:
     When "auto skew (escape)" is activated, the view will be skewed to make
     features in the current view approximately circular (without zooming).
 
-  - **No reuse center**
+  - **Find Minibrot**
 
-    Don't paste the previous image in the middle when zooming out.  Disabling
-    this (ie, do reuse center) can be faster but can also lead to bad images.
+    Starts an automatic zoom-in in the image's pattern center, until a Minibrot
+    is found or if it fails to find the center.
+
+    It's probably better to use Newton-Raphson zooming if possible.
+
+  - **Non exact find Minibrot**
+
+    Makes the Find Minibrot function fail every 20 zoom-in, in order to gain
+    depth automatically without ending up in a Minibrot
+
+    Newton-Raphson zooming may be a more useful option.
+
+  - **Center cursor**
+
+    Center the cursor to image's pattern center
+
+  - **Find center of glitch (Color)**
+
+    Centers the mouse pointer over the glitch blob found, if any
+
+  - **Find highest iteration**
+
+    Centers the mouse pointer over the pixel with the highest iteration
+
+  - **Show Inflection**
+
+    Activate or deactivate display of Inflection
 
   - **Show crosshair window**
 
     Display a small window that magnifies the area around the mouse cursor.
     Perfect for precisely picking particular pixels for zooming etc.
 
+## Advanced
+
+  - **Auto solve glitches**
+
+    Turns the Auto solve glitches function on or off
+
+  - **Solve glitch with near pixel method**
+
+    Instead of re-render all pixels with the same iteration count value(color)
+    only the connected pixels are re-rendered. On some locations other areas in
+    the same view have the exact same iteration count values. These pixels may
+    be correctly rendered and may be incorrect if re-rendered with another
+    reference
+    
+  - **Ignore isolated small glitches**
+  
+    When enabled, ignores single-pixel glitches by interpolating their value
+    from neighbouring pixels.  If the image size is very large, there may be
+    a very large number of these tiny glitches, whose incorrect rendering may
+    be invisible to the eye, and whose correct rendering may take forever.
+
+  - **Set main reference**
+
+    Let you click the image and select the main reference for the whole image.
+    This can be useful when glitches appears on top of minibrots when the
+    reference is outside this minibrot. The glitch pattern disappears from the
+    minibrot if the main reference is selected inside the minibrot.
+
+  - **Add reference (Color)**
+
+    Add a reference and re-calculates the pixels with the same iteration count
+    as the reference. This is useful if the Auto solve glitches function fails
+    to find and solve glitches in the image
+
+  - **Reuse reference**
+
+    Do not re-calculate the reference for further zooming. This can be useful
+    when during automatic zoom-out and to test different reference points, but
+    must not be used together with the Auto solve glitches function active.
+
+  - **No reuse center**
+
+    Don't paste the previous image in the middle when zooming out.  Disabling
+    this (ie, do reuse center) can be faster but can also lead to bad images.
+
+  - **Show iterations**
+
+    Displays the image black-and-white with the pixels with the highest
+    iteration as white and the pixels with the lowest iteration as black
+
+  - **Show smooth transition colors**
+
+    Displays the image black-and-white representing the smoothing coefficient
+
+  - **Show glitches**
+
+    When activated, glitches are displayed with a solid color
+
+  - **Mirror**
+
+    mirrors the image around the x-axis. Can be used on the deeper half of a
+    zoom sequence to a minibrot - but not too close to the minibrot and too
+    close to the half...
+
+  - **No series approximation**
+
+    Turns the Series approximation function on or off.
+
+  - **Use long double always**
+
+    Use always the 80-bit long double hardware data type. This can solve some
+    type of glitches
+
+  - **Use floatexp always**
+
+    Use always the double mantissa/integer exponent data type. This probably
+    only make the render slower
+
+  - **Use auto iterations**
+
+    Turns automatic iteration control on or off. This is on per default.
+
+  - **Use guessing**
+
+    Enable interpolation of neighbouring pixel data when the iteration count
+    is the same.  This speeds up rendering of interior regions, but some
+    colouring can lead to visible artifacts in the exterior.
+
+  - **Threads per CPU**
+
+    The default of 1 is sensible if KF is the only thing you're running.
+    Increase the count if you want KF to peg your system, decrease it if
+    you want to do other things at the same time.
+
+    Only affects perturbation rendering, not Newton-Raphson zooming or
+    reference calculations.
 
 ## About
 
@@ -1241,7 +1306,6 @@ At the very top right:
 
     This also functions as a lock mechanism, preventing accidental zooming
     while a long render is taking place.
-
 
 ## Iterations dialog
 
@@ -1300,7 +1364,6 @@ At the very top right:
 
   - Derivatives calculation can be enabled (if needed for analytic DE
     colouring) or disabled (speeds up rendering).
-
 
 ### Formulas
 
@@ -1538,6 +1601,15 @@ Formulas:
 
           w := z^2
           z := w (|u| + i |v|) + c
+
+  -   General Quadratic Minus
+
+          z := ((x^2 - y^2) + i (2 d x y + e x^2)) + c
+
+  -   General Quadratic Plus
+
+          z := ((x^2 + y^2) + i (2 d x y + e x^2)) + c
+
 
 A machine-readable version of this formula list is found in the 'et' repository:
 <https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This is used by 'et' when
