@@ -1009,6 +1009,9 @@ static void AutoIterations()
 			g_SFT.SetIterations(nMin+nMin+3000);
 		// decrease
 		nMax = g_SFT.GetMaxExceptCenter();
+		// sanity check, abort if no pixels have been calculated
+		if (nMax < 0)
+			return;
 		if(nMax<g_SFT.GetIterations()/3)
 			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
 	}
