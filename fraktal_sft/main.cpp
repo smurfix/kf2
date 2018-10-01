@@ -4696,7 +4696,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			  os << "You are up to date!\n";
 			else
 			  os << "There is a newer version!\n";
-	    return MessageBox(hWnd, os.str().c_str(), "KF2 Update Checker", MB_OK);
+	    return MessageBox(hWnd, os.str().c_str(), "Update Checker", MB_OK);
 		}
 	}
 	return DefWindowProc(hWnd,uMsg,wParam,lParam);
