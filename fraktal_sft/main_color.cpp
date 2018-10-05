@@ -316,6 +316,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==IDOK){
+			if (! g_AutoUpdate)
+				g_SFT.UndoStore();
 			char szTexture[1024];
 			double nPower;
 			int nRatio;

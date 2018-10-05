@@ -402,6 +402,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND){
 		if(wParam==IDOK){
+			g_SFT.UndoStore();
 			g_bExamineDirty=TRUE;
 			RefreshDerivatives(hWnd);
 			RefreshJitterSeed(hWnd);

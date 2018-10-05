@@ -235,6 +235,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_FILE_CHECKFORUPDATE          40094
 #define ID_ACTIONS_THREADS_1_4          40095
 #define ID_ACTIONS_THREADS_1_2          40096
+#define ID_ACTIONS_UNDO                 40097
+#define ID_ACTIONS_REDO                 40098
 
 // OpenCL
 #ifdef KF_OPENCL
@@ -248,7 +250,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        118
-#define _APS_NEXT_COMMAND_VALUE         40097
+#define _APS_NEXT_COMMAND_VALUE         40099
 #define _APS_NEXT_CONTROL_VALUE         1102
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

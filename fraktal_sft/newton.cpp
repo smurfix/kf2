@@ -1049,6 +1049,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bNewtonRunning=FALSE;
 		if(lParam == 1){
 			// newton success
+			g_SFT.UndoStore();
 			if((g_AutoSkew = SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_GETCHECK,0,0)))
 				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
@@ -1067,6 +1068,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(lParam == 2){
 			// auto skew success
+			g_SFT.UndoStore();
 			g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 		}

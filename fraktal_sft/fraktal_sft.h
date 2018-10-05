@@ -368,6 +368,9 @@ class CFraktalSFT
   OpenCL *cl;
 #endif
 
+	std::vector<std::string> m_undo;
+	std::vector<std::string> m_redo;
+
 public:
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
@@ -560,6 +563,11 @@ public:
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y, floatexp &daa, floatexp &dab, floatexp &dba, floatexp &dbb) const;
+
+  void UndoStore() { m_undo.push_back(ToText()); m_redo.clear(); };
+  void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
+  void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
+
 };
 
 struct TH_PARAMS

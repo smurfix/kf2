@@ -63,6 +63,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND){
 		if(wParam==IDOK){
+			g_SFT.UndoStore();
 			int n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT1));
 			char *szR = new char[n+1];
 			GetDlgItemText(hWnd,IDC_EDIT1,szR,n+1);
