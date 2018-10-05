@@ -63,6 +63,8 @@ Feedback:
   series, for the folded part) and carry on?
 - burning ship series approximation probe points might miss some folds near
   the edges of the image (need to increase probe point density?)
+- burning ship series approximation skips few iterations, so might as well keep
+  series order low for speed
 - bad combinations of skew, distance estimation, and series approximation
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
@@ -158,6 +160,15 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.2** (????-??-??)
+
+    - bugfix: initial window size was off by a few pixels
+    - new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by TwinDragon)
+    - new feature: added copy/paste to menu (Ctrl-X, Ctrl-V worked already)
+    - new feature: Ctrl-Shift-K shortcut to reset skew
+    - new feature: Ctrl-Shift-T shortcut to reset rotation
+    - bugfix: minor improvements to documentation
 
 - **kf-2.14.1** (2018-09-27)
 
@@ -601,7 +612,6 @@ Feedback:
 - adjust the size of the box via slider or like shift_scroll
   wheel or something like that? (suggested by Foxxie for nr-zoom, could also
   be useful for ctrl-left-click zoom)
-- undo history for location data (suggested by TwinDragon)
 - undo history for calculation data (suggested by TwinDragon)
 - online help within program (suggested by TwinDragon)
 - save image now function (without waiting for calculations)
@@ -624,6 +634,8 @@ Feedback:
 - zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - properly debug huge zoom values from size estimate
+- make it work better in hard-skewed locations (need to skew the box
+  period coordinates?)
 
 ### Preprocessor
 
@@ -1081,6 +1093,23 @@ Software license.
 
     Set the location to the start point
 
+  - **Undo**
+
+    Go back to previous location(s).
+
+  - **Redo**
+
+    Go forward in the undo history.
+
+  - **Copy**
+
+    Save the current location to the system clipboard.
+
+  - **Paste**
+
+    Set the current location from the system clipboard.
+
+
 ## View
 
   - **Zoom size**
@@ -1123,11 +1152,11 @@ Software license.
     Enables changing the ratio between height and width of the background image
     in order to enable stretching locations. Combinated with rotation, an
     almost infinite skewing ability is enabled, useful when exploring the
-    hidden treasures of the new Fractals!
+    hidden treasures of the new Fractals!  (This is another name for skew.)
 
   - **Reset Ratio**
 
-    Reset ratio to default
+    Reset skew ratio to default
 
   - **Skew animation**
 
@@ -1163,6 +1192,10 @@ Software license.
 
     When "auto skew (escape)" is activated, the view will be skewed to make
     features in the current view approximately circular (without zooming).
+
+    "Auto skew escape" has an option to take into account d/dz derivatives as
+    well as d/dc, some fractals work better with it enabled, some without.
+    Experiment and report back!
 
   - **Find Minibrot**
 

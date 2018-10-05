@@ -3331,7 +3331,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bmSaveZoomBuff=NULL;
 	}
 
-	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_COPY) || (uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))))
 	{
 				std::string str = g_SFT.ToText();
 				if (!OpenClipboard(hWnd))
@@ -3350,7 +3350,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CloseClipboard();
 	}
 
-	else if(uMsg==WM_KEYDOWN && wParam=='V' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_PASTE) || (uMsg==WM_KEYDOWN && wParam=='V' && HIWORD(GetKeyState(VK_CONTROL))))
 	{
 				if(!OpenClipboard(hWnd))
 					return 0;
@@ -4149,7 +4149,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_STOREZOOMOUTIMAGES,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='M' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDMINIBROT,0);
-	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SKEW,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SHOWINFLECTION,0);
@@ -4189,7 +4191,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEASPNG,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='R' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ADDREFERENCE,0);
-	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_RESETROTATION,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ROTATE,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDCENTEROFGLITCH,0);
