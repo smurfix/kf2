@@ -85,19 +85,8 @@ void CFraktalSFT::MandelCalcEXP()
 		floatexp Di;
 		floatexp dxa1, dxb1, dya1, dyb1;
 		DoApproximation(antal, D0r, D0i, Dr, Di, dxa1, dxb1, dya1, dyb1);
-		// d0 = d1 * d0
-		{
-			floatexp daa2 = dxa1 * daa + dxb1 * dba;
-			floatexp dab2 = dxa1 * dab + dxb1 * dbb;
-			floatexp dba2 = dya1 * daa + dyb1 * dba;
-			floatexp dbb2 = dya1 * dab + dyb1 * dbb;
-			daa = daa2;
-			dab = dab2;
-			dba = dba2;
-			dbb = dbb2;
-		}
-		floatexp dr = daa;
-		floatexp di = dba;
+		floatexp dr = dxa1;
+		floatexp di = dya1;
 
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
