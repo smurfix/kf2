@@ -25,8 +25,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // this sets the maximum number of references per image
 #define OLD_GLITCH 10000
 
-// this sets the maximum number of approximation terms
+// this sets the range of approximation terms
 // storage is O(terms^2) for R2 fractals, O(terms) for C fractals
+#define MIN_APPROX_TERMS 3
 #define MAX_APPROX_TERMS 63
 
 class Settings
@@ -135,7 +136,7 @@ public:
 
   inline int    GetApproxTerms() const { return m_ApproxTerms; };
   inline void   SetApproxTerms(int t) {
-    if (t < 5) t = 5;
+    if (t < MIN_APPROX_TERMS) t = MIN_APPROX_TERMS;
     if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
     m_ApproxTerms = t;
   };
