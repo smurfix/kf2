@@ -202,23 +202,17 @@ void CFraktalSFT::CalculateApproximation(int nType)
 					}
 				}
 			}
-			else{
-				complex<floatexp> X(xr, xi), A(APr[0], APi[0]), B(APr[1], APi[1]), C(APr[2], APi[2]), fa(m_nPower, 0), fa_2(m_nPower / 2, 0), fa_6(m_nPower / 6, 0), fa1(m_nPower - 1, 0), fa2(m_nPower - 2, 0), f1(1, 0), f2(2, 0), f3(3, 0), f6(6, 0);
-				//(4-6971)
-				// p*X^(p-1)*A+1
-				complex<floatexp> An = fa*(X ^ (m_nPower - 1))*A + f1;
+			else
+			{
+				int P = m_nPower;
+				complex<floatexp> X(xr, xi), A(APr[0], APi[0]), B(APr[1], APi[1]), C(APr[2], APi[2]);
+				complex<floatexp> An = P * A * (X^(P-1)) + 1;
+				complex<floatexp> Bn = P * B * (X^(P-1)) + ((P*(P-1))/2) * (A^2) * (X^(P-2));
+				complex<floatexp> Cn = P * C * (X^(P-1)) + (P*(P-1)) * A * B * (X^(P-2)) + ((P*(P-2)*(P-2))/6) * (A^3) * (X^(P-3));
 				m_APr[0] = An.m_r;
 				m_APi[0] = An.m_i;
-
-				//(4-999)
-				//                B=(p/2)* X^(p-2)         *((p-1)*A^2  + X*2*B)
-				complex<floatexp> Bn = fa_2*(X ^ (m_nPower - 2)) * (fa1*(A ^ 2) + X*f2*B);
 				m_APr[1] = Bn.m_r;
 				m_APi[1] = Bn.m_i;
-
-				//(4-999)
-				//                C=(p/6) *  X^(p-3) *       ((p-1)*A* ((p-2)*  A^2 +   6*X*B) + X^2 *   6 *  C)
-				complex<floatexp> Cn = fa_6 * (X ^ (m_nPower - 3))* (fa1* A * (fa2 * (A ^ 2) + f6*X*B) + (X ^ 2) * f6 * C);
 				m_APr[2] = Cn.m_r;
 				m_APi[2] = Cn.m_i;
 			}
@@ -300,24 +294,10 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				for (j = 0; j<nProbe; j++){
 
 					// do approximation
-					floatexp Dnr, Dni;
+					int antal_;
+					floatexp Dnr, Dni, DDnr_, DDni_;
 					if (isC)
-					{
-						Dnr = m_APr[0] * dbTr0[j] - m_APi[0] * dbTi0[j];
-						Dni = m_APr[0] * dbTi0[j] + m_APi[0] * dbTr0[j];
-						floatexp D_r = dbTr0[j] * dbTr0[j] - dbTi0[j] * dbTi0[j];
-						floatexp D_i = (dbTr0[j] * dbTi0[j]).mul2();
-						Dnr += m_APr[1] * D_r - m_APi[1] * D_i;
-						Dni += m_APr[1] * D_i + m_APi[1] * D_r;
-						int k;
-						for (k = 2; k<m_nTerms; k++){
-							floatexp  t = D_r*dbTr0[j] - D_i*dbTi0[j];
-							D_i = D_r*dbTi0[j] + D_i*dbTr0[j];
-							D_r = t;
-							Dnr += m_APr[k] * D_r - m_APi[k] * D_i;
-							Dni += m_APr[k] * D_i + m_APi[k] * D_r;
-						}
-					}
+						DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
 					if (isR)
 						DoApproximation(dbTr0[j], dbTi0[j], Dnr, Dni);
 
