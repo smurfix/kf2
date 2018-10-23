@@ -148,7 +148,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.13.10** (????-??-??)
+- **kf-2.13.10** (2018-10-23)
 
     - bugfix: corrupt image at transition between number types (eg near e600)
       (reported by CFJH)
