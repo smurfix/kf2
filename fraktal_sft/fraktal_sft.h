@@ -57,6 +57,10 @@ public:
 #define SET_TRANS_GLITCH(x) (fmin(log2((x) + 2.2250738585072014e-308) - 1024.0, -1.0))
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
+// thresholds for switching to floatexp iterations
+#define FLOATEXP_THRESHOLD_POWER_2_MANDELBROT 9800
+#define FLOATEXP_THRESHOLD_POWER_3_MANDELBROT 6533
+#define FLOATEXP_THRESHOLD_DEFAULT 4900
 // thresholds for switching to long double iterations
 #define LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT 590
 #define LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT 390

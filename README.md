@@ -46,8 +46,6 @@ Feedback:
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
-- without "reuse reference", corrupt image at transition between number types
-  (eg e600) (reported by CFJH)
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
@@ -172,6 +170,8 @@ Feedback:
 - **kf-2.14.2** (????-??-??)
 
     - bugfix: initial window size was off by a few pixels
+    - bugfix: corrupt image at transition between number types (eg near e600)
+      (reported by CFJH)
     - new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by TwinDragon)
     - new feature: added copy/paste to menu (Ctrl-X, Ctrl-V worked already)
     - new feature: Ctrl-Shift-K shortcut to reset skew

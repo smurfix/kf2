@@ -3967,20 +3967,21 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nLDBL=0;
 		}
 		else{
-			if(g_SFT.GetPower()==2)
+			if(g_SFT.GetFractalType() == 0 && g_SFT.GetPower()==2)
 			{
-				g_nLDBL=600;
-				g_nEXP=9800;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
+				g_nEXP = FLOATEXP_THRESHOLD_POWER_2_MANDELBROT;
 			}
-			if(g_SFT.GetPower()==3)
+			else
+			if(g_SFT.GetFractalType() == 0 && g_SFT.GetPower()==3)
 			{
-				g_nLDBL=400;
-				g_nEXP=6533;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+				g_nEXP = FLOATEXP_THRESHOLD_POWER_3_MANDELBROT;
 			}
 			else
 			{
-				g_nLDBL=300;
-				g_nEXP=4900;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+				g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 			}
 		}
 		g_SFT.SetFloatExpAlways(false);
@@ -3994,20 +3995,21 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nEXP=2;
 		}
 		else{
-			if(g_SFT.GetPower()==2)
+			if(g_SFT.GetFractalType() == 0 && g_SFT.GetPower()==2)
 			{
-				g_nLDBL=600;
-				g_nEXP=9800;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
+				g_nEXP = FLOATEXP_THRESHOLD_POWER_2_MANDELBROT;
 			}
-			else if(g_SFT.GetPower()==3)
+			else
+			if(g_SFT.GetFractalType() == 0 && g_SFT.GetPower()==3)
 			{
-				g_nLDBL=400;
-				g_nEXP=6533;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+				g_nEXP = FLOATEXP_THRESHOLD_POWER_3_MANDELBROT;
 			}
 			else
 			{
-				g_nLDBL=300;
-				g_nEXP=4900;
+				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+				g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 			}
 		}
 		g_SFT.SetLongDoubleAlways(false);
