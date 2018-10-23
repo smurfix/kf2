@@ -1358,8 +1358,8 @@ Software license.
     Only affects perturbation rendering, not Newton-Raphson zooming or
     reference calculations.
 
-    Note: changing this during rendering can lead to crashes, so better not
-    do that.
+    Note: changing this during rendering could lead to crashes, so the menu
+    is disabled during rendering to prevent that.
 
 ## About
 
