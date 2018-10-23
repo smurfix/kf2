@@ -149,6 +149,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.13.10** (????-??-??)
+
+    - bugfix: corrupt image at transition between number types (eg near e600)
+      (reported by CFJH)
+
 - **kf-2.13.9** (2018-09-06)
 
     - new feature: auto skew without miniset: new button in Newton-Raphson
