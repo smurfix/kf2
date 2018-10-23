@@ -169,15 +169,24 @@ Feedback:
 - **kf-2.14.2** (????-??-??)
 
     - bugfix: initial window size was off by a few pixels
-    - bugfix: corrupt image at transition between number types (eg near e600)
-      (reported by CFJH)
-    - bugfix: changing "threads per CPU" during rendering crashes
-      (reported by CFJH) (the menu is now disabled during rendering)
     - new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by TwinDragon)
     - new feature: added copy/paste to menu (Ctrl-X, Ctrl-V worked already)
     - new feature: Ctrl-Shift-K shortcut to reset skew
     - new feature: Ctrl-Shift-T shortcut to reset rotation
     - bugfix: minor improvements to documentation
+    - bugfix: fix series approximation derivative initialization
+    - internal: refactor series approximation for Mandelbrot power > 2
+    - merged changes from 2.13.10
+
+- **kf-2.13.10** (2018-10-23)
+
+    - bugfix: corrupt image at transition between number types (eg near e600)
+      (reported by CFJH)
+    - bugfix: changing "threads per CPU" during rendering crashes
+      (reported by CFJH) (the menu is now disabled during rendering)
+    - bugfix: set approx terms to 3 for other than power 2 Mandelbrot
+    - bugfix: fix floatexp toString for negative values and 0
+    - internal: update to et-kf API version 5
 
 - **kf-2.14.1** (2018-09-27)
 
