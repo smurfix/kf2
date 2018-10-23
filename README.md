@@ -42,12 +42,20 @@ Feedback:
 - resizing window by dragging frame corner in WINE on Linux sometimes crashes
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
+- changing "threads per CPU" during rendering crashes (reported by CFJH)
+- with "reuse reference", corrupt image at transition between number types
+  (eg e600) (reported by CFJH) - workaround is to render in segments or force
+  the number type higher ("use long double always", "use floatexp always")
+- without "reuse reference", corrupt image at transition between number types
+  (eg e600) (reported by CFJH)
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
   the skinniest part very quickly"
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
+- analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
+  (workaround is to disable series approximation)
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
@@ -636,6 +644,8 @@ Feedback:
 - properly debug huge zoom values from size estimate
 - make it work better in hard-skewed locations (need to skew the box
   period coordinates?)
+- add disk save/resume functionality for long-running calculations in
+  case of system snafu
 
 ### Preprocessor
 
@@ -1272,6 +1282,15 @@ Software license.
     when during automatic zoom-out and to test different reference points, but
     must not be used together with the Auto solve glitches function active.
 
+    Note: reuse reference cannot be used for zoom sequences in which the number
+    type used for calculations changes (which happens near 1e9864 1e4932 1e616
+    1e308 for power 2 formulas).  To avoid corrupt zoom out images when reuse
+    reference is enabled, also enable "Use floatexp always" (deeper than 1e4932)
+    or "Use long double always" (deeper than 1e308).  This may slow down
+    calculations.  Alternatively, render the zoom out sequence in several
+    segments, one for each number type (floatexp, scaled long double, long
+    double, scaled double, double).
+
   - **No reuse center**
 
     Don't paste the previous image in the middle when zooming out.  Disabling
@@ -1328,6 +1347,9 @@ Software license.
 
     Only affects perturbation rendering, not Newton-Raphson zooming or
     reference calculations.
+
+    Note: changing this during rendering can lead to crashes, so better not
+    do that.
 
 ## About
 
