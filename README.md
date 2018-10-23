@@ -42,6 +42,10 @@ Feedback:
 - resizing window by dragging frame corner in WINE on Linux sometimes crashes
 - translating location while reuse reference is active leads to bad images
   (reported by Dinkydau)
+- changing "threads per CPU" during rendering crashes (reported by CFJH)
+- with "reuse reference", corrupt image at transition between number types
+  (eg e600) (reported by CFJH) - workaround is to render in segments or force
+  the number type higher ("use long double always", "use floatexp always")
 - crash when zooming too quickly near interior black regions (reported by
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
