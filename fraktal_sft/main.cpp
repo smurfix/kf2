@@ -275,8 +275,6 @@ static void EnableUnsafeMenus(HWND hWnd, bool enable=true)
 {
 	HMENU hMenu = GetMenu(hWnd);
 #define M(x) EnableMenuItem(hMenu, x, MF_BYCOMMAND | (enable ? MF_ENABLED : MF_GRAYED))
-	M(ID_ACTIONS_THREADS_1_4);
-	M(ID_ACTIONS_THREADS_1_2);
 	M(ID_ACTIONS_THREADS_1);
 	M(ID_ACTIONS_THREADS_2);
 	M(ID_ACTIONS_THREADS_4);
