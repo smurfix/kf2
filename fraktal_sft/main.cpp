@@ -271,6 +271,24 @@ extern int FileExists(const std::string &szFind)
 	return 1;
 }
 
+static void EnableUnsafeMenus(HWND hWnd, bool enable=true)
+{
+	HMENU hMenu = GetMenu(hWnd);
+#define M(x) EnableMenuItem(hMenu, x, MF_BYCOMMAND | (enable ? MF_ENABLED : MF_GRAYED))
+	M(ID_ACTIONS_THREADS_1_4);
+	M(ID_ACTIONS_THREADS_1_2);
+	M(ID_ACTIONS_THREADS_1);
+	M(ID_ACTIONS_THREADS_2);
+	M(ID_ACTIONS_THREADS_4);
+#undef M
+	DrawMenuBar(hWnd);
+}
+
+static void DisableUnsafeMenus(HWND hWnd, bool disable=true)
+{
+	return EnableUnsafeMenus(hWnd, !disable);
+}
+
 const char *GetToolText_const(int nID,LPARAM lParam)
 {
 	if(lParam==0){
@@ -1669,6 +1687,7 @@ nPos=14;
 					if(g_nSkewFrames==0)
 						return 0;
 					g_SFT.SetRatio(640,g_dbSkewAnim);
+					DisableUnsafeMenus(hWnd);
 					g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 					SetTimer(hWnd,0,500,NULL);
 				}
@@ -1807,6 +1826,7 @@ nPos=24;
 		if(nMax<g_SFT.GetIterations())
 			g_SFT.SetIterations(nMax+nMax/3);
 */
+		EnableUnsafeMenus(hWnd);
 	}
 nPos=25;
 	return 0;
@@ -2691,6 +2711,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		{
 			std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
 		}
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
@@ -3072,6 +3093,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 		SetTimer(hWnd,0,500,NULL);
 //		std::cerr << "WM_LBUTTONUP && g_bRotate" << std::endl;
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(g_bTrackSelect==1 && (uMsg==WM_CAPTURECHANGED || uMsg==WM_RBUTTONUP || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE))){
@@ -3283,6 +3305,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(g_SFT.GetWidth()<r.right || g_SFT.GetHeight()<r.bottom)
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && small" << std::endl;
+			DisableUnsafeMenus(hWnd);
 			g_SFT.RenderFractal(r.right,r.bottom,g_SFT.GetIterations(),hWnd);
 		}
 		else
@@ -3292,11 +3315,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			sc.cy = g_SFT.GetHeight();
 			sc.cx = (double)r.right*((double)sc.cy/(double)r.bottom);
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
+			DisableUnsafeMenus(hWnd);
 			g_SFT.RenderFractal(sc.cx,sc.cy,g_SFT.GetIterations(),hWnd);
 		}
 		else
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && otherwise" << std::endl;
+			DisableUnsafeMenus(hWnd);
 			g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 		}
 	}
@@ -3637,6 +3662,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetLocalTime(&st);
 			SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 			g_SFT.UpdateBitmap();
+			DisableUnsafeMenus(hWnd);
 			g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 			SetTimer(hWnd,0,500,NULL);
 		}
@@ -3674,6 +3700,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAnim=false;
 		g_Degree=0;
 		SetTimer(hWnd,0,500,NULL);
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
@@ -3690,11 +3717,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		g_SFT.SetRatio(g_JpegParams.nWidth,g_JpegParams.nHeight);
 		SetTimer(hWnd,0,500,NULL);
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO){
 		g_SFT.SetRatio(640,360);
 		SetTimer(hWnd,0,500,NULL);
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
@@ -3738,6 +3767,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		}
 		g_SFT.StoreLocation();
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_CENTERCURSOR) || (uMsg==WM_KEYDOWN && wParam=='U' && HIWORD(GetKeyState(VK_CONTROL)))){
@@ -3783,6 +3813,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		SetTimer(hWnd,0,500,NULL);
+		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)))){
@@ -4442,6 +4473,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSaveJpeg=TRUE;
 					SetTimer(hWnd,0,500,NULL);
+					DisableUnsafeMenus(hWnd);
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
@@ -4463,6 +4495,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSavePng=TRUE;
 					SetTimer(hWnd,0,500,NULL);
+					DisableUnsafeMenus(hWnd);
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
@@ -4484,6 +4517,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
 					g_bSaveTif=TRUE;
 					SetTimer(hWnd,0,500,NULL);
+					DisableUnsafeMenus(hWnd);
 					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
