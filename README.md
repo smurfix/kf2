@@ -156,6 +156,7 @@ Feedback:
       (reported by CFJH) (the menu is now disabled during rendering)
     - bugfix: set approx terms to 3 for other than power 2 Mandelbrot
     - bugfix: fix floatexp toString for negative values and 0
+    - internal: update to et-kf API version 5
 
 - **kf-2.13.9** (2018-09-06)
 
