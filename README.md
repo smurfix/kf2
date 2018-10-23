@@ -166,7 +166,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.2** (????-??-??)
+- **kf-2.14.2** (2018-10-23)
 
     - bugfix: initial window size was off by a few pixels
     - new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by TwinDragon)
