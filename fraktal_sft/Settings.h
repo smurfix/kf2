@@ -73,7 +73,7 @@ private:
 public:
 
   Settings()
-  : m_ZoomSize(4.0)
+  : m_ZoomSize(2.0)
   , m_MaxReferences(10000)
   , m_GlitchLowTolerance(false)
   , m_ApproxLowTolerance(false)
