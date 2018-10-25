@@ -60,7 +60,7 @@ isTemporary ('t':_) = True
 isTemporary _ = False
 
 allocate = do
-  t:ts <- get
+  ~(t:ts) <- get
   put ts
   return t
 
@@ -82,96 +82,96 @@ instruction (IMul a b c) = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\
 instruction (ISqr a b) = tell (["mpfr_mul(", a, ",", b, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
-  Just u <- compile a
+  u <- compile a
   instruction (ISet v u)
   deallocate u
-  return Nothing
+  return v
 
 compile (EVar v) = do
-  return (Just v)
+  return v
 
 compile (EAbs a) = do
-  Just u <- compile a
+  u <- compile a
   v <- allocate
   instruction (IAbs v u)
   deallocate u
-  return (Just v)
+  return v
 
 compile (ENeg a) = do
-  Just u <- compile a
+  u <- compile a
   v <- allocate
   instruction (INeg v u)
   deallocate u
-  return (Just v)
+  return v
 
 compile (ESgn a) = do
-  Just u <- compile a
+  u <- compile a
   v <- allocate
   instruction (ISgn v u)
   deallocate u
-  return (Just v)
+  return v
 
 compile (ESub a b) = do
-  Just u <- compile a
-  Just v <- compile b
+  u <- compile a
+  v <- compile b
   w <- allocate
   instruction (ISub w u v)
   deallocate u
   deallocate v
-  return (Just w)
+  return w
 
 compile (EAdd a b) = do
-  Just u <- compile a
-  Just v <- compile b
+  u <- compile a
+  v <- compile b
   w <- allocate
   instruction (IAdd w u v)
   deallocate u
   deallocate v
-  return (Just w)
+  return w
 
 compile (EMul (EInt a) b) = do
-  Just v <- compile b
+  v <- compile b
   w <- allocate
   instruction (IMulI w v a)
   deallocate v
-  return (Just w)
+  return w
 
 compile (EMul a (EInt b)) = do
-  Just u <- compile a
+  u <- compile a
   w <- allocate
   instruction (IMulI w u b)
   deallocate u
-  return (Just w)
+  return w
 
 compile (EMul (ENeg (EInt a)) b) = do
-  Just v <- compile b
+  v <- compile b
   w <- allocate
   instruction (IMulI w v (negate a))
   deallocate v
-  return (Just w)
+  return w
 
 compile (EMul a (ENeg (EInt b))) = do
-  Just u <- compile a
+  u <- compile a
   w <- allocate
   instruction (IMulI w u (negate b))
   deallocate u
-  return (Just w)
+  return w
 
 compile (EMul a b) = do
-  Just u <- compile a
-  Just v <- compile b
+  u <- compile a
+  v <- compile b
   w <- allocate
   instruction (IMul w u v)
   deallocate u
   deallocate v
-  return (Just w)
+  return w
 
 compile (ESqr a) = do
-  Just u <- compile a
+  u <- compile a
   v <- allocate
   instruction (ISqr v u)
   deallocate u
-  return (Just v)
+  return v
 
 compile x = error (show x)
 
