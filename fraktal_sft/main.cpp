@@ -780,14 +780,20 @@ static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else
 			SetDlgItemInt(hWnd,IDC_EDIT4,g_JpegParams.nQuality,0);
-		if(lParam==2){
+		if(lParam==1){
+			SetWindowText(hWnd,"Image Size");
+		}
+		else if(lParam==2){
 			SetWindowText(hWnd,"Set Ratio");
 			SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETREADONLY,TRUE,0);
 			SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETREADONLY,FALSE,0);
 			SetFocus(GetDlgItem(hWnd,IDC_EDIT3));
 		}
-		else if(lParam==3 && g_SFT.GetArbitrarySize())
-			SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETREADONLY,FALSE,0);
+		else if(lParam==3){
+			SetWindowText(hWnd,"Window Size");
+			if (g_SFT.GetArbitrarySize())
+				SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETREADONLY,FALSE,0);
+		}
 		return 1;
 	}
 	else if(uMsg==WM_COMMAND){
@@ -3855,7 +3861,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETIMAGESIZE){
+	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETIMAGESIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)) && HIWORD(GetKeyState(VK_SHIFT)))){
 		g_JpegParams.nWidth = g_SFT.GetWidth();
 		g_JpegParams.nHeight = g_SFT.GetHeight();
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1))
@@ -3875,7 +3881,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 	}
-	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)))){
+	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)) && !HIWORD(GetKeyState(VK_SHIFT)))){
 		RECT wr, cr;
 		GetClientRect(hWnd,&cr);
 		g_scSize.cx = cr.right;
