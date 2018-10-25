@@ -63,7 +63,7 @@ void CFraktalSFT::MandelCalcEXP()
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		if (m_nPixels[x][y] != -1){
+		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
 			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
 			if (m_bMirrored)
 				Mirror(x, y);

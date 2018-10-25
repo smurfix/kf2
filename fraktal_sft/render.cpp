@@ -222,7 +222,7 @@ void CFraktalSFT::RenderFractal()
 		m_nTotal = 0;
 		for (x = 0; x<m_nX; x++)
 		for (y = 0; y<m_nY; y++)
-		if (m_nPixels[x][y] == -1)
+		if (m_nPixels[x][y] == PIXEL_UNEVALUATED)
 			m_nTotal++;
 	}
 	else
@@ -618,7 +618,8 @@ void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
 {
 	for (int x = x0; x < x1; x++)
 	{
-		memset(&m_nPixels[x][y0], -1, sizeof(m_nPixels[x][y0]) * (y1 - y0));
+		for (int y = y0; y < y1; ++y)
+			m_nPixels[x][y] = PIXEL_UNEVALUATED;
 		memset(&m_nTrans[x][y0], 0, sizeof(m_nTrans[x][y0]) * (y1 - y0));
 	}
 }

@@ -1021,7 +1021,7 @@ static void AutoIterations()
 		int nMin, nMax, nIter;
 		g_SFT.GetIterations(nMin,nMax);
 		// sanity check, abort if no pixels have been calculated
-		if (nMax < 0)
+		if (nMax == PIXEL_UNEVALUATED)
 			return;
 		// sanity increase
 		nIter = g_SFT.GetIterations();
@@ -1034,7 +1034,7 @@ static void AutoIterations()
 		// decrease
 		nMax = g_SFT.GetMaxExceptCenter();
 		// sanity check, abort if no pixels have been calculated
-		if (nMax < 0)
+		if (nMax == PIXEL_UNEVALUATED)
 			return;
 		if(nMax<g_SFT.GetIterations()/3)
 			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
@@ -3059,7 +3059,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int x = (short)LOWORD(lParam)*g_SFT.GetWidth()/rc.right;
 		int y = (short)HIWORD(lParam)*g_SFT.GetHeight()/rc.bottom;
 		int i = g_SFT.GetIterationOnPoint(x,y);
-		if(i>=0){
+		if(i != PIXEL_UNEVALUATED){
 			wsprintf(szI+strlen(szI),"%d",i);
 			wsprintf(szI+strlen(szI)," <%d,%d> S:%d",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
 			SendMessage(g_hwStatus,SB_SETTEXT,2,(LPARAM)szI);

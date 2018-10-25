@@ -53,8 +53,14 @@ public:
 #endif
 };
 
+// magic value stored in m_nPixels[][] when pixel needs (re)computation
+#define PIXEL_UNEVALUATED INT_MIN
 // magic value stored in m_nTrans[][] when a glitch is detected
+#if 0
 #define SET_TRANS_GLITCH(x) (fmin(log2((x) + 2.2250738585072014e-308) - 1024.0, -1.0))
+#else
+#define SET_TRANS_GLITCH(x) (-1.0)
+#endif
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 // thresholds for switching to floatexp iterations
