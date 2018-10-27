@@ -524,7 +524,7 @@ struct NanoMB2_Reference
   { };
 };
 
-NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0)
+NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop)
 {
   R_lo tmax = r0;
 
@@ -548,7 +548,7 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
   bool bNotFinished = true;
   bool stopRecSSAs = false;
   
-  for(N i = 0; i < maxperiod && bNotFinished; i++){
+  for(N i = 0; i < maxperiod && bNotFinished && !stop; i++){
 	ref.adde(zlo);
 	z = z*z + c;
 	zlo = c_lo(z);
@@ -587,8 +587,10 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
 		smallest_ref_rad_so_far = zmag;
 	}
   }
-  
-  return new NanoMB2_Reference(SSAs, ref);
+  if (stop)
+    return nullptr;
+  else
+    return new NanoMB2_Reference(SSAs, ref);
 }
 
 void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de)
