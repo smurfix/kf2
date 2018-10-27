@@ -428,6 +428,12 @@ static void UpdateFloatExpAlways(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateUseNanoMB2(HWND hWnd)
+{
+	bool b = g_SFT.GetUseNanoMB2();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USENANOMB2,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateAutoIterations(HWND hWnd)
 {
 	bool b = g_SFT.GetAutoIterations();
@@ -480,6 +486,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateMirror(hWnd);
 	UpdateLongDoubleAlways(hWnd);
 	UpdateFloatExpAlways(hWnd);
+	UpdateUseNanoMB2(hWnd);
 	UpdateAutoIterations(hWnd);
 	UpdateGuessing(hWnd);
 	UpdateShowGlitches(hWnd);
@@ -4105,6 +4112,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetFloatExpAlways(g_nEXP < 3);
 		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB2){
+		g_SFT.SetUseNanoMB2(! g_SFT.GetUseNanoMB2());
+		UpdateUseNanoMB2(hWnd);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

@@ -69,6 +69,7 @@ private:
   double m_JitterScale;
   bool m_Derivatives;
   bool m_ShowCrossHair;
+  bool m_UseNanoMB2;
 
 public:
 
@@ -107,6 +108,7 @@ public:
   , m_JitterScale(1)
   , m_Derivatives(false)
   , m_ShowCrossHair(false)
+  , m_UseNanoMB2(false)
   { };
 
   bool FromText(const std::string &text);
@@ -224,6 +226,9 @@ public:
 
   inline bool   GetShowCrossHair() const { return m_ShowCrossHair; };
   inline void   SetShowCrossHair(bool b) { m_ShowCrossHair = b; };
+
+  inline bool   GetUseNanoMB2() const { return m_UseNanoMB2; };
+  inline void   SetUseNanoMB2(bool b) { m_UseNanoMB2 = b; };
 };
 
 #endif
