@@ -52,6 +52,10 @@ public:
 		r.m_i = m_r*a.m_i + m_i*a.m_r;
 		return r;
 	}
+	inline complex &operator *=(const complex &a)
+	{
+		return *this = *this * a;
+	}
 	inline complex operator +(const int &a) const
 	{
 		complex<tt> r;
@@ -77,6 +81,12 @@ public:
 	{
 		m_r += a.m_r; 
 		m_i += a.m_i;
+		return *this;
+	}
+	inline complex &operator -=(const complex &a)
+	{
+		m_r -= a.m_r; 
+		m_i -= a.m_i;
 		return *this;
 	}
 	inline complex operator ^(int exp) const
@@ -147,6 +157,12 @@ public:
 
 template <class tt>
 inline complex<tt> operator*(int a, const complex<tt> &b)
+{
+	return complex<tt>(a * b.m_r, a * b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator*(const tt &a, const complex<tt> &b)
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
