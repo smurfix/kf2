@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 extern BOOL g_bNewtonRunning;
 extern BOOL g_bNewtonStop;
+extern int g_period;
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 

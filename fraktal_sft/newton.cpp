@@ -672,7 +672,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
 
 static int g_useDZ = 1;
 static double g_skew[4];
-static int g_period;
+int g_period = 0;
 
 static int WINAPI ThSkew(HWND hWnd)
 {

@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "nanomb2.h"
 #include "nanomb2.inc"
+extern int g_period;
 
 void CFraktalSFT::CalculateReferenceNANOMB2()
 {
@@ -30,7 +31,7 @@ void CFraktalSFT::CalculateReferenceNANOMB2()
 	complex<decNumber> c(m_rref.m_f, m_iref.m_f);
 	int m = 16;
 	int n = 16;
-	int maxperiod = m_nMaxIter;
+	int maxperiod = g_period ? g_period : m_nMaxIter;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
 
 	if (m_NanoMB2Ref)
