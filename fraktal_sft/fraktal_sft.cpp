@@ -3006,7 +3006,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
 			bGlitch = TRUE;
-		if (antal == m_nMaxIter){
+		if (antal >= m_nMaxIter){
 			m_nPixels[x][y] = antal;
 			m_nTrans[x][y] = 0;
 			m_nDE[x][y] = 0;

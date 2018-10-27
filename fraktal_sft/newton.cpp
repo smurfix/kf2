@@ -54,6 +54,7 @@ static volatile int running = 0;
 BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
 static BOOL g_bNewtonExit=FALSE;
+bool g_bJustDidNewton = false;
 
 static std::string g_szRe;
 static std::string g_szIm;
@@ -1054,6 +1055,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
 			g_SFT.SetIterations(3*g_SFT.GetIterations()/2);
+			g_bJustDidNewton = true;
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 			if(SendDlgItemMessage(hWnd,IDC_CHECK9,BM_GETCHECK,0,0)){
 				GetLocalTime(&st2);

@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
+#include "newton.h"
 #include "../common/StringVector.h"
 #include "../common/bitmap.h"
 #include "../common/parallell.h"
@@ -633,7 +634,11 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	m_iref = (m_istop + m_istart)*.5;
 	g_nAddRefX = -1;
 	g_nAddRefY = -1;
-	CalculateReferenceNANOMB2();
+	if (! GetReuseReference() || ! m_NanoMB2Ref || g_bJustDidNewton)
+	{
+		g_bJustDidNewton = false;
+		CalculateReferenceNANOMB2();
+	}
 	int i;
 	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
 	m_pixel_step_x = step;
