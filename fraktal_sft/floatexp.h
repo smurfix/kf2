@@ -280,9 +280,12 @@ public:
 			return val<a.val;
 		}
 	}
+	inline bool operator <=(const floatexp &a) const
+	{
+		return (*this<a || *this==a);
+	}
 	inline bool operator <=(const int a) const
 	{
-		floatexp aa(a);
 		return (*this<a || *this==a);
 	}
 	inline bool operator ==(const floatexp &a) const
@@ -491,6 +494,11 @@ inline floatexp sqrt(floatexp a)
     ( std::sqrt((a.exp & 1) ? 2.0 * a.val : a.val)
     , (a.exp & 1) ? (a.exp - 1) / 2 : a.exp / 2
     );
+}
+
+inline floatexp log(floatexp a)
+{
+	return floatexp(std::log(a.val) + std::log(2.0) * a.exp);
 }
 
 inline floatexp mpfr_get_fe(const mpfr_t value)
