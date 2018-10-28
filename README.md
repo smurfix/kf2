@@ -66,13 +66,15 @@ Feedback:
   series, for the folded part) and carry on?
 - burning ship series approximation probe points might miss some folds near
   the edges of the image (need to increase probe point density?)
-- burning ship series approximation skips few iterations, so might as well keep
-  series order low for speed
 - bad combinations of skew, distance estimation, and series approximation
 - scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
+- nanomb2 order m,n fixed to 16,16 with no way to change it
+- nanomb2 number type fixed to floatexp (long double or double may be faster)
+- nanomb2 number type is not rescaled (only matters for long double / double)
+- nanomb2 reference calculations are not multithreaded (single core only)
 - kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
@@ -171,6 +173,8 @@ Feedback:
 
     - new feature: nanomb2 algorithm for power 2 Mandelbrot (experimental)
       (originally by knighty)
+    - new feature: display Newton period (and set limit for nanomb2 algorithm)
+      in Location dialog
     - new feature: Ctrl-Shift-W shortcut to set image size (suggested by gerrit)
     - bugfix: distinguish dialog titles for set window size and set image size
     - bugfix: fix corrupt images when zooming out from the default view
@@ -1361,6 +1365,27 @@ Software license.
 
     Use always the double mantissa/integer exponent data type. This probably
     only make the render slower
+
+  - **Use NanoMB2 (experimental)**
+
+    For power 2 Mandelbrot only.
+
+    Use knighty's experimental NanoMB2 algorithm for bivariate super-
+    series-approximation.  Calculations are done with floatexp always,
+    glitch detection and correction is disabled (and may be unnecessary?).
+
+    It is recommended to set the period limit in the Location dialog before
+    enabling NanoMB2, otherwise it uses the maximum iteration count which
+    may take significantly longer.  Using Newton zoom sets the period limit
+    automatically.
+
+    It is recommended to enable Reuse Reference after recalculating with
+    NanoMB2.  A new reference is calculated automatically after each Newton
+    zooming, whatever the setting of Reuse Reference.
+
+    Whether NanoMB2 is faster or not depends heavily on the location: views
+    close to minis should be significantly faster than the regular 'fast'
+    preset.
 
   - **Use auto iterations**
 

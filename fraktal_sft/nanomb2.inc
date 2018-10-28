@@ -549,7 +549,7 @@ struct NanoMB2_Reference
   { };
 };
 
-NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop)
+NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop, int &m_nRDone)
 {
   R_lo tmax = r0;
 
@@ -611,6 +611,7 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
 		//
 		smallest_ref_rad_so_far = zmag;
 	}
+  m_nRDone++;
   }
   if (stop)
     return nullptr;

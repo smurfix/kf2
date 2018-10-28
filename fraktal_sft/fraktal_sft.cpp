@@ -49,6 +49,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tiff.h"
 #include "main.h"
 #include "gradient.h"
+#include "newton.h"
 
 double g_real=1;
 double g_imag=1;
@@ -1485,12 +1486,17 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 
 int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
 {
+	int iters = m_nMaxIter;
+	if (GetUseNanoMB2())
+		iters = g_period;
+	if (iters <= 0)
+		iters = 1;
 	if (pnGuessed)
 		*pnGuessed = m_nGuessed * 100.0 / (m_nDone ? m_nDone : 1);
 	if (pnRDone)
-		*pnRDone = m_nRDone * 100.0 / (m_nMaxIter ? m_nMaxIter : 1);
+		*pnRDone = m_nRDone * 100.0 / iters;
 	if (pnAP)
-		*pnAP = m_nApprox * 100.0 / (m_nMaxIter ? m_nMaxIter : 1);
+		*pnAP = m_nApprox * 100.0 / iters;
 	if (pnT)
 		*pnT = m_nTotal;
 	if (!m_bmi)
