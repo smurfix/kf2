@@ -40,8 +40,6 @@ Feedback:
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
 - resizing window by dragging frame corner in WINE on Linux sometimes crashes
-- translating location while reuse reference is active leads to bad images
-  (reported by Dinkydau)
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
@@ -147,6 +145,13 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.13.11** (????-??-??)
+
+    - bugfix: fix translation with reuse reference enabled
+      (reported by Dinkydau)
+    - bugfix: don't add additional references if autosolve is disabled
+    - bugfix: ghc-8.6 compatibility for preprocessor (MonadFail)
 
 - **kf-2.13.10** (2018-10-23)
 
