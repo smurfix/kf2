@@ -87,6 +87,9 @@ Feedback:
 
 ### Incompatible Changes
 
+- **In versions `2.14.3` and above**, colouring of zoomed out views is fixed,
+  and may be different from earlier versions.
+
 - **In versions `2.14.1` and above**, there are two new formulas which are
   not available in earlier versions.
 
@@ -165,6 +168,21 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.3** (????-??-??)
+
+    - new feature: nanomb2 algorithm for power 2 Mandelbrot (experimental)
+      (originally by knighty)
+    - new feature: Ctrl-Shift-W shortcut to set image size (suggested by gerrit)
+    - bugfix: distinguish dialog titles for set window size and set image size
+    - bugfix: fix corrupt images when zooming out from the default view
+    - new feature: dialogs to en/disable derivatives when opening file with/out
+      analytic DE; automatically enabling derivatives if needed in CLI mode
+      (reported by gerrit)
+    - default zoom size changed from 4 to 2 (press Ctrl-4 to reset to 4, or load
+      a settings file with your preference) (suggested by gerrit, to avoid the
+      dreaded "zoom size is not 2" warning when saving zoom out sequence).
+    - bugfix: make preprocessor compatible with ghc-8.6 (MonadFail)
 
 - **kf-2.14.2** (2018-10-23)
 
