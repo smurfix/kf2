@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "png.h"
 #include "jpeg.h"
 #include "main.h"
+#include "newton.h"
 #include "../common/StringVector.h"
 
 #include <iostream>
@@ -239,6 +240,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		g_FactorAI = atof(stParams[nID][1]);
 	else
 		g_FactorAI = 0;
+
+	nID = stParams.FindString(0, "Period");
+	if (nID != -1)
+		g_period = atoi(stParams[nID][1]);
+	else
+		g_period = 0;
 	}
 
 	if (! bNoLocation)
@@ -473,6 +480,9 @@ std::string CFraktalSFT::ToText()
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "FactorAI");
 	stSave.AddString(stSave.GetCount() - 1, szTmp);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Period");
+	stSave.AddInt(stSave.GetCount() - 1, g_period);
 	char *szData = stSave.ToText(": ", "\r\n");
 	std::string ret(szData);
 	stSave.DeleteToText(szData);
