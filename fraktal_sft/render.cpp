@@ -630,12 +630,12 @@ void CFraktalSFT::RenderFractalEXP()
 void CFraktalSFT::RenderFractalNANOMB2()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	m_rref = (m_rstop + m_rstart)*.5;
-	m_iref = (m_istop + m_istart)*.5;
-	g_nAddRefX = -1;
-	g_nAddRefY = -1;
 	if (! GetReuseReference() || ! m_NanoMB2Ref || g_bJustDidNewton)
 	{
+		m_rref = (m_rstop + m_rstart)*.5;
+		m_iref = (m_istop + m_istart)*.5;
+		g_nAddRefX = -1;
+		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		CalculateReferenceNANOMB2();
 	}
