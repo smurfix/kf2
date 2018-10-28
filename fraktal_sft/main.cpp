@@ -1563,7 +1563,7 @@ nPos=9;
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
 nPos=3;
-		if(g_bAutoGlitch && g_bAutoGlitch-1<g_SFT.GetMaxReferences()){
+		if(g_bAutoGlitch && g_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
 			g_bAutoGlitch++;
 nPos=4;
 			int x, y, d;

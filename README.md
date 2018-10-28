@@ -40,8 +40,6 @@ Feedback:
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
 - resizing window by dragging frame corner in WINE on Linux sometimes crashes
-- translating location while reuse reference is active leads to bad images
-  (reported by Dinkydau)
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
@@ -182,7 +180,14 @@ Feedback:
     - default zoom size changed from 4 to 2 (press Ctrl-4 to reset to 4, or load
       a settings file with your preference) (suggested by gerrit, to avoid the
       dreaded "zoom size is not 2" warning when saving zoom out sequence).
+    - merged changes from 2.13.11
+
+- **kf-2.13.11** (????-??-??)
+
     - bugfix: make preprocessor compatible with ghc-8.6 (MonadFail)
+    - bugfix: fix translation with reuse reference enabled
+      (reported by Dinkydau)
+    - bugfix: don't add additional references if autosolve is disabled
 
 - **kf-2.14.2** (2018-10-23)
 

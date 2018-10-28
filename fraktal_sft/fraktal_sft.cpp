@@ -1182,8 +1182,6 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 	m_istart.m_f.precision(digits10);
 	m_istop.m_f.precision(digits10);
 
-	m_rref = szR;
-	m_iref = szI;
 	CDecNumber re(szR);
 	CDecNumber im(szI);
 	CDecNumber istart(im - di);
@@ -2041,10 +2039,9 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 #define KF_RERENDER_ONLY_ALL_GLITCHES
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
 {
-g_nAddRefX=nXPos;g_nAddRefY=nYPos;
-
 	if (!m_nPixels || (m_nZoom<g_nRefZero && !bEraseAll))
 		return FALSE;
+g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
 	m_C = cos(g_Degree);
 	m_S = sin(g_Degree);
