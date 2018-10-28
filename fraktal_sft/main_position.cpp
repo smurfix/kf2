@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_position.h"
 #include "fraktal_sft.h"
 #include "resource.h"
+#include "newton.h"
 #include "../common/tooltip.h"
 
 static void FixNumber(char *sz)
@@ -59,6 +60,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.GetIterations(nMin,nMax);
 		SetDlgItemInt(hWnd,IDC_EDIT2,nMin,FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT5,nMax,FALSE);
+		SetDlgItemInt(hWnd,IDC_LOCATION_PERIOD,g_period,FALSE);
 		return 1;
 	}
 	else if(uMsg==WM_COMMAND){
@@ -76,10 +78,15 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			char *szZ = new char[n+1];
 			GetDlgItemText(hWnd,IDC_EDIT4,szZ,n+1);
 			FixNumber(szZ);
+			n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT4));
+			char *szP = new char[n+1];
+			GetDlgItemText(hWnd,IDC_LOCATION_PERIOD,szP,n+1);
+			g_period = atoi(szP);
 			g_SFT.SetPosition(szR,szI,szZ);
 			delete [] szR;
 			delete [] szI;
 			delete [] szZ;
+			delete [] szP;
 			ExitToolTip(hWnd);
 			EndDialog(hWnd,1);
 		}
@@ -104,6 +111,8 @@ extern const char *PositionToolTip(int nID)
     return "Display minimum iteration value of current location";
   case IDC_EDIT5:
     return "Display maximum iteration value of current location";
+  case IDC_LOCATION_PERIOD:
+    return "Display period of last Newton zoom, sets limit for NanoMB2";
   case IDOK:
     return "Apply and close";
   case IDCANCEL:
