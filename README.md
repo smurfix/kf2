@@ -71,8 +71,8 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
-- nanomb2 order m,n fixed to 16,16 with no way to change it
-- nanomb2 number type fixed to floatexp (long double or double may be faster)
+- nanomb2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
+- nanomb2 number type fixed to floatexp (long double or double would be faster)
 - nanomb2 number type is not rescaled (only matters for long double / double)
 - nanomb2 reference calculations are not multithreaded (single core only)
 - kf-tile.exe doesn't support skew yet
@@ -186,12 +186,13 @@ Feedback:
       dreaded "zoom size is not 2" warning when saving zoom out sequence).
     - merged changes from 2.13.11
 
-- **kf-2.13.11** (????-??-??)
+- **kf-2.13.11** (2018-10-29)
 
     - bugfix: make preprocessor compatible with ghc-8.6 (MonadFail)
     - bugfix: fix translation with reuse reference enabled
       (reported by Dinkydau)
     - bugfix: don't add additional references if autosolve is disabled
+    - upgrade to libpng 1.6.35
 
 - **kf-2.14.2** (2018-10-23)
 
