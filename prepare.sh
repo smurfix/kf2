@@ -28,7 +28,7 @@ wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c http://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
-wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.34.tar.xz
+wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.35.tar.xz
 wget -c https://download.osgeo.org/libtiff/tiff-4.0.9.tar.gz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
