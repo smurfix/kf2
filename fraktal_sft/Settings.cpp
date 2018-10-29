@@ -70,6 +70,8 @@ bool Settings::FromText(const std::string &text)
   BOOL(Derivatives)
   BOOL(ShowCrossHair)
   BOOL(UseNanoMB2)
+  INT(OrderM)
+  INT(OrderN)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -118,6 +120,8 @@ std::string Settings::ToText() const
   BOOL(Derivatives)
   BOOL(ShowCrossHair)
   BOOL(UseNanoMB2)
+  INT(OrderM)
+  INT(OrderN)
 #undef DOUBLE
 #undef INT
 #undef BOOL

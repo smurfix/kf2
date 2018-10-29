@@ -574,6 +574,8 @@ public:
   BOOL(Derivatives)
   BOOL(ShowCrossHair)
   BOOL(UseNanoMB2)
+  INT(OrderM)
+  INT(OrderN)
 #undef DOUBLE
 #undef INT
 #undef BOOL

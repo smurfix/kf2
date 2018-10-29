@@ -29,8 +29,8 @@ void CFraktalSFT::CalculateReferenceNANOMB2()
 
 	Precision prec(m_rref.m_f.precision());
 	complex<decNumber> c(m_rref.m_f, m_iref.m_f);
-	int m = 16;
-	int n = 16;
+	int m = GetOrderM();
+	int n = GetOrderN();
 	int maxperiod = g_period ? g_period : m_nMaxIter;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
 

@@ -70,6 +70,8 @@ private:
   bool m_Derivatives;
   bool m_ShowCrossHair;
   bool m_UseNanoMB2;
+  int m_OrderM;
+  int m_OrderN;
 
 public:
 
@@ -109,6 +111,8 @@ public:
   , m_Derivatives(false)
   , m_ShowCrossHair(false)
   , m_UseNanoMB2(false)
+  , m_OrderM(16)
+  , m_OrderN(16)
   { };
 
   bool FromText(const std::string &text);
@@ -229,6 +233,22 @@ public:
 
   inline bool   GetUseNanoMB2() const { return m_UseNanoMB2; };
   inline void   SetUseNanoMB2(bool b) { m_UseNanoMB2 = b; };
+
+  inline int    GetOrderM() const { return m_OrderM; };
+  inline void   SetOrderM(int t)
+  {
+    if (t < 1) t = 1;
+    if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
+    m_OrderM = t;
+  };
+
+  inline int    GetOrderN() const { return m_OrderN; };
+  inline void   SetOrderN(int t)
+  {
+    if (t < 1) t = 1;
+    if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
+    m_OrderN = t;
+  };
 };
 
 #endif
