@@ -1487,7 +1487,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
 {
 	int iters = m_nMaxIter;
-	if (GetUseNanoMB2())
+	if (GetUseNanoMB1() || GetUseNanoMB2())
 		iters = g_period;
 	if (iters <= 0)
 		iters = 1;

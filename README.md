@@ -71,10 +71,11 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
-- nanomb2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
-- nanomb2 number type fixed to floatexp (long double or double would be faster)
-- nanomb2 number type is not rescaled (only matters for long double / double)
-- nanomb2 reference calculations are not multithreaded (single core only)
+- nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
+- nanomb1/2 number type fixed to floatexp (long double or double would be faster)
+- nanomb1/2 number type is not rescaled (only matters for long double / double)
+- nanomb1/2 currently disables glitch detection and correction
+- nanomb1/2 reference calculations are not multithreaded (single core only)
 - kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
@@ -169,7 +170,13 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.3** (????-??-??)
+- **kf-2.14.4** (????-??-??)
+
+    - new feature: nanomb1 algorithm for power 2 Mandelbrot (experimental)
+      (originally by knighty) (not quite as experimental as nanomb2, suggested
+      by gerrit, requires exact period to be set by Newton or location dialog)
+
+- **kf-2.14.3** (2018-10-29)
 
     - new feature: nanomb2 algorithm for power 2 Mandelbrot (experimental)
       (originally by knighty)
@@ -1366,6 +1373,25 @@ Software license.
 
     Use always the double mantissa/integer exponent data type. This probably
     only make the render slower
+
+  - **Use NanoMB1 (experimental)**
+
+    For power 2 Mandelbrot only.
+
+    Use knighty's experimental NanoMB1 algorithm for bivariate super-
+    series-approximation.  Calculations are done with floatexp always,
+    glitch detection and correction is disabled (this will be fixed soon).
+
+    It is required to set the period in the Location dialog before
+    enabling NanoMB1. Using Newton zoom sets the period automatically.
+
+    It is recommended to enable Reuse Reference after recalculating with
+    NanoMB1.  A new reference is calculated automatically after each Newton
+    zooming, whatever the setting of Reuse Reference.
+
+    Whether NanoMB1 is faster or not depends heavily on the location: views
+    close to minis should be significantly faster than the regular 'fast'
+    preset.
 
   - **Use NanoMB2 (experimental)**
 

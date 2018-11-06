@@ -69,6 +69,7 @@ private:
   double m_JitterScale;
   bool m_Derivatives;
   bool m_ShowCrossHair;
+  bool m_UseNanoMB1;
   bool m_UseNanoMB2;
   int m_OrderM;
   int m_OrderN;
@@ -110,6 +111,7 @@ public:
   , m_JitterScale(1)
   , m_Derivatives(false)
   , m_ShowCrossHair(false)
+  , m_UseNanoMB1(false)
   , m_UseNanoMB2(false)
   , m_OrderM(16)
   , m_OrderN(16)
@@ -230,6 +232,9 @@ public:
 
   inline bool   GetShowCrossHair() const { return m_ShowCrossHair; };
   inline void   SetShowCrossHair(bool b) { m_ShowCrossHair = b; };
+
+  inline bool   GetUseNanoMB1() const { return m_UseNanoMB1; };
+  inline void   SetUseNanoMB1(bool b) { m_UseNanoMB1 = b; };
 
   inline bool   GetUseNanoMB2() const { return m_UseNanoMB2; };
   inline void   SetUseNanoMB2(bool b) { m_UseNanoMB2 = b; };

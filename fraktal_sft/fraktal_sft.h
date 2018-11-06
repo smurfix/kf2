@@ -34,6 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 extern std::vector<cldevice> cldevices;
 #endif
 
+struct NanoMB1_Reference;
 struct NanoMB2_Reference;
 
 struct CPixel;
@@ -344,6 +345,7 @@ class CFraktalSFT
 	int m_nInflections;
 	complex<CFixedFloat> *m_pInflections;
 
+	NanoMB1_Reference *m_NanoMB1Ref;
 	NanoMB2_Reference *m_NanoMB2Ref;
 
 	SeriesType GetApproximationType()
@@ -361,12 +363,14 @@ class CFraktalSFT
 	void CalculateReference();
 	void CalculateReferenceEXP();
 	void CalculateReferenceLDBL();
+	void CalculateReferenceNANOMB1();
 	void CalculateReferenceNANOMB2();
 	void CalcStart();
 	void CreateLists();
 	std::string ToZoom(const CDecNumber &z, int &zoom);
 	void RenderFractalEXP();
 	void RenderFractalLDBL();
+	void RenderFractalNANOMB1();
 	void RenderFractalNANOMB2();
 #ifdef KF_OPENCL
 	void RenderFractalOpenCL();
@@ -395,6 +399,7 @@ public:
 	void MandelCalc();
 	void MandelCalcEXP();
 	void MandelCalcLDBL();
+	void MandelCalcNANOMB1();
 	void MandelCalcNANOMB2();
 
 	CFraktalSFT();
@@ -573,6 +578,7 @@ public:
   DOUBLE(JitterScale)
   BOOL(Derivatives)
   BOOL(ShowCrossHair)
+  BOOL(UseNanoMB1)
   BOOL(UseNanoMB2)
   INT(OrderM)
   INT(OrderN)

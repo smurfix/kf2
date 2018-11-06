@@ -47,6 +47,8 @@ fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
 fraktal_sft/main_iterations.cpp \
 fraktal_sft/main_position.cpp \
+fraktal_sft/nanomb1_perturbation.cpp \
+fraktal_sft/nanomb1_reference.cpp \
 fraktal_sft/nanomb2_perturbation.cpp \
 fraktal_sft/nanomb2_reference.cpp \
 fraktal_sft/newton.cpp \
@@ -73,6 +75,8 @@ fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
 fraktal_sft/main_iterations.h \
 fraktal_sft/main_position.h \
+fraktal_sft/nanomb1.h \
+fraktal_sft/nanomb1.inc \
 fraktal_sft/nanomb2.h \
 fraktal_sft/nanomb2.inc \
 fraktal_sft/newton.h \

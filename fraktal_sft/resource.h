@@ -240,13 +240,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_REDO                 40098
 #define ID_ACTIONS_COPY                 40099
 #define ID_ACTIONS_PASTE                40100
-#define ID_ACTIONS_SPECIAL_USENANOMB2   40101
+#define ID_ACTIONS_SPECIAL_USENANOMB1   40101
+#define ID_ACTIONS_SPECIAL_USENANOMB2   40102
 
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
 #define IDC_COMBO_OPENCL_DEVICE  1102
-#define ID_SPECIAL_OPENCL       40102
+#define ID_SPECIAL_OPENCL       40103
 #endif
 
 // Next default values for new objects
@@ -254,7 +255,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        121
-#define _APS_NEXT_COMMAND_VALUE         40103
+#define _APS_NEXT_COMMAND_VALUE         40104
 #define _APS_NEXT_CONTROL_VALUE         1103
 #define _APS_NEXT_SYMED_VALUE           101
 #endif

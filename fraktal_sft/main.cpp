@@ -428,6 +428,12 @@ static void UpdateFloatExpAlways(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateUseNanoMB1(HWND hWnd)
+{
+	bool b = g_SFT.GetUseNanoMB1();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USENANOMB1,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateUseNanoMB2(HWND hWnd)
 {
 	bool b = g_SFT.GetUseNanoMB2();
@@ -486,6 +492,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateMirror(hWnd);
 	UpdateLongDoubleAlways(hWnd);
 	UpdateFloatExpAlways(hWnd);
+	UpdateUseNanoMB1(hWnd);
 	UpdateUseNanoMB2(hWnd);
 	UpdateAutoIterations(hWnd);
 	UpdateGuessing(hWnd);
@@ -4113,8 +4120,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		UpdateLongDoubleAlways(hWnd);
 		UpdateFloatExpAlways(hWnd);
 	}
+	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB1){
+		g_SFT.SetUseNanoMB1(! g_SFT.GetUseNanoMB1());
+		if (g_SFT.GetUseNanoMB1()) g_SFT.SetUseNanoMB2(false);
+		UpdateUseNanoMB1(hWnd);
+		UpdateUseNanoMB2(hWnd);
+	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB2){
 		g_SFT.SetUseNanoMB2(! g_SFT.GetUseNanoMB2());
+		if (g_SFT.GetUseNanoMB2()) g_SFT.SetUseNanoMB1(false);
+		UpdateUseNanoMB1(hWnd);
 		UpdateUseNanoMB2(hWnd);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
