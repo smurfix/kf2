@@ -320,10 +320,12 @@ public:
 	//based on polynomial roots properties: Rouché theorem.
 	//ToDo: Document the method by which we find the radius.
 	R_lo getRadius()const{
-		if(abs(tab[0][2])==0) return 1e30;
+		if(abs(tab[0][2]) < R_lo(1.0, -1100100100)) return 1e30;
+#if 0
 		return abs(tab[0][1])/abs(tab[0][2]);//Is actually accurate enough
-		/*R_lo r(0);
-		for(int i = 0; i < 10; i++){
+#else
+		R_lo r(0);
+		for(int i = 0; i < m_n * m_n; i++){
 			C_lo den(0);
 			R_lo rr(1);
 			for(int j = 2; j <=m_n; j++){
@@ -332,8 +334,11 @@ public:
 			}
 			r = abs(tab[0][1])/abs(den);
 		}
-		return r;*/
+std::cerr << "period " << m_period << " radius " << r.toString() << std::endl;
+		return r;
+#endif
 	}
+#if 0
 	//version that gives an estimate of the bail out radius in dynamic plane depending on v.
 	R_lo getRadius(C_lo v)const{
 		C_lo t2(0), t4(0), vi(1);
@@ -344,7 +349,7 @@ public:
 		}
 		return abs(t2)/abs(R_lo(2)*t4);//Is actually accurate enough... 
 	}
-	
+#endif
 	//Just give the part that depends on v only. It can be used as the classical series approximation.
 	polyClass getSAPoly()const{
 		polyClass SApol(m_n);
@@ -448,6 +453,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	for(; curSSA>=0 && SSAs[curSSA].getPeriod() >= 1; curSSA--){
              	C_lo d00 = d0 - SSAs[curSSA].getShift();//delta_c coordinates have de be wrt current SSA
 		while(si < maxsi && i<maxiter && norm(d)<SSAs[curSSA].getEscRadius()) {// norm(d)<SSAs[curSSA].getEscRadius() <=> abs(d)<sqrt(SSAs[curSSA].getEscRadius())
+#if 1
 			if (curSSA == firstSSA && norm(d) < d_norm)
 			{
 			  d_norm = norm(d);
@@ -491,6 +497,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 #endif
 			  }
 			}
+#endif
 			dd = dd * SSAs[curSSA].eval_dz(d,d00) + SSAs[curSSA].eval_dc(d,d00);
 			d  = SSAs[curSSA].eval(d,d00);
 			i += SSAs[curSSA].getPeriod();
