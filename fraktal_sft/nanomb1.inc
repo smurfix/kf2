@@ -67,25 +67,27 @@ C_lo c_lo(const C_hi &z)
 // view results:
 //  display out.ppm
 
-#if 0
-#include <complex>
-#define COMPLEX complex
-#else
-//A little problem with mpreal which includes <complex> so I had to change the name of the custom complex class to fcomplex
-#include "complex.h"
-#define COMPLEX fcomplex
-#endif
-
 #include <vector>
 
 //--------------------------------------------------------------------------------------------------------
-class refClass{
-	N m_n;
-	std::vector<C_lo> m_v;
+class refElem{
 public:
-	refClass(): m_n(0), m_v(0) {}
-	void adde(C_lo c){ m_v.push_back(c); m_n++;}
-	const C_lo & operator[](N i) const { return m_v[i % m_n];}
+	C_lo z;
+	R_lo g;
+        refElem(const C_lo &z, const R_lo &t)
+	: z(z)
+	, g(t * norm(z))
+        { };
+};
+class refClass{
+	R_lo m_tolerance;
+	N m_n;
+	std::vector<refElem> m_v;
+public:
+	refClass(R_lo tolerance): m_tolerance(tolerance), m_n(0) {}
+	R_lo getTolerance() { return m_tolerance; }
+	void adde(C_lo c){ m_v.push_back(refElem(c, m_tolerance)); m_n++;}
+	const refElem & operator[](N i) const { return m_v[i % m_n];}
 };
 
 class perturbationClassD{
@@ -95,29 +97,37 @@ class perturbationClassD{
 	N    m_n0;
 	R_lo m_col;
 	bool m_escaped;
+	bool m_glitched;
 	int m_iters;
 	R_lo m_test1;
 	R_lo m_test2;
 	R_lo m_de;
 public:
-	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N n0): m_d0(d0), m_d(d), m_dd(dd), m_n0(n0), m_col(0), m_escaped(false), m_iters(0), m_test1(0), m_test2(0), m_de(0) {}
-	void run(const refClass &ref, N maxiter, R_lo pixel_spacing){
+	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N n0): m_d0(d0), m_d(d), m_dd(dd), m_n0(n0), m_col(0), m_escaped(false), m_glitched(false), m_iters(0), m_test1(0), m_test2(0), m_de(0) {}
+	void run(const refClass &ref, N maxiter, R_lo er2, R_lo pixel_spacing){
 		for(N i = m_n0 ; i < maxiter; i++){
-			C_lo zn(ref[i]);
-			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
-			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
+			C_lo zn(ref[i].z);
 			R_lo r(norm(zn + m_d));
 			m_test2 = m_test1;
 			m_test1 = r;
-			if (r > R_lo(1e10)){
+			if (r > er2){
 				m_escaped = true;
 				m_iters = i;
 				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
 				return;
 			}
+			if (r < ref[i].g)
+			{
+				m_glitched = true;
+				m_iters = i;
+				return;
+			}
+			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
+			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
 		}
 	}
 	bool haveEscaped(){return m_escaped;}
+	bool haveGlitched(){return m_glitched;}
 	int getIters(){return m_iters;}
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
@@ -130,8 +140,8 @@ class biPolyClass {
 	friend class uniPolyClass;
 	friend class tmpPolyClass;
 	N m_m, m_n;
-	C_lo tab[128][128];
-	C_lo ttab[128][128];
+	C_lo tab[TABSIZ][TABSIZ];
+	C_lo ttab[TABSIZ][TABSIZ];
 	void mcopy(){
 		for(N l=0; l <= m_m; l++)
 			for(N c=0; c<= m_n; c++)
@@ -226,7 +236,7 @@ public:
 //temporary poly class for solving for nucleus relative position. It is initialized with the part of the SSA that depends only on c.
 class tmpPolyClass {
 	N m_m;
-	C_lo b[128];
+	C_lo b[TABSIZ];
 public:
 	tmpPolyClass(const biPolyClass &p): m_m(p.m_n) {
 		for(N i = 0; i <= m_m; i++)
@@ -275,8 +285,8 @@ public:
 // https://fractalforums.org/f/28/t/277/msg7952#msg7952
 class uniPolyClass {
 	N m_m;
-	C_lo b[128];
-	C_lo dbdc[128];
+	C_lo b[TABSIZ];
+	C_lo dbdc[TABSIZ];
 public:
 	uniPolyClass(const biPolyClass &p, C_lo c): m_m(p.m_m) {
 		for(N i = 0; i <= m_m; i += 2)
@@ -356,7 +366,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &pixel_spacing, N maxiter, int &bGlitch, int &antal, double &test1, double &test2, double &de)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, int &bGlitch, int &antal, double &test1, double &test2, double &de)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -394,6 +404,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 			  }
 			  if (converged && norm(dw) < R_lo(1))
 			  {
+			    bGlitch = 0;
 			    antal = maxiter;
 			    test1 = 0;
 			    test2 = 0;
@@ -415,6 +426,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	} //else dd = C_lo(1);//knighty: That was a mistake. We begin iterating at 0 so derivative doesn't have to be changed. 
 	if(i>=maxiter)
 	{
+	  bGlitch = 0;
           antal = maxiter;
           test1 = 0;
           test2 = 0;
@@ -422,18 +434,28 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
           return;
 	}
 	//d0 and d have to be transformed into ref frame.
-	C_lo d0_(d0 - nucleusPos);
+	C_lo d0_(d0 - nucleusPos); // FIXME unused?
 	//Use perturbation to finish the job.
 	//ToInvestigate: Usually when arriving here (same thing with SA) delta_c (d0 here) is too small wrt d.
 	//               One can use perturbation without adding delta_c. Some other optimizations may become possible. (from comment by Pauldelbrot @fractalforums.com)
-	d -= ref[i]; //put d in reference orbit's local frame
+	d -= ref[i].z; //put d in reference orbit's local frame
 	perturbationClassD p(d0,d,dd,i);//We use original d0 because the reference orbit was computed there.
-	p.run(ref, maxiter, pixel_spacing);
-	if(p.haveEscaped())
+	p.run(ref, maxiter, er2, pixel_spacing);
+	if (p.haveGlitched())
 	{
+	  bGlitch = 1;
 	  antal = p.getIters();
 	  test1 = p.getTest1().todouble();
-	  test2 = p.getTest1().todouble();
+	  test2 = p.getTest2().todouble();
+	  de = p.getDE().todouble();
+	  return;
+	}
+	else if(p.haveEscaped())
+	{
+	  bGlitch = 0;
+	  antal = p.getIters();
+	  test1 = p.getTest1().todouble();
+	  test2 = p.getTest2().todouble();
 	  de = p.getDE().todouble();
 	  return;
 	}
@@ -491,20 +513,25 @@ struct NanoMB1_Reference
   C_lo nucleusPos;
   N period;
   R_lo Bout;
-  NanoMB1_Reference(const biPolyClass &SSA, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout)
+  R_lo er2;
+  NanoMB1_Reference(const biPolyClass &SSA, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2)
   : SSA(SSA)
   , ref(ref)
   , nucleusPos(nucleusPos)
   , period(period)
   , Bout(Bout)
+  , er2(er2)
   { };
 };
 
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, volatile BOOL &stop, int &m_nRDone)
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, bool lowGlitchTol, volatile BOOL &stop, int &m_nRDone)
 {
+  double glitch_threshold = 0.0000001;
+  if (lowGlitchTol)
+    glitch_threshold = sqrt(glitch_threshold);
   //Compute bivariate polynomial approximating period iterations--------------------------
   biPolyClass fp(bm,bn);
-  refClass ref;
+  refClass ref(glitch_threshold);
   C_hi z(0);
   C_lo zlo(0);
   for(N i = 0; i < period; i++){
@@ -522,10 +549,10 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
   tmpPolyClass tp(fp);
   C_lo nucleusPos = tp.getRoot();
   //Rebase the reference orbit to the nucleus
-  refClass ref1;
+  refClass ref1(glitch_threshold);
   C_lo zlo1(0);
   for(N i = 0; i < period; i++){
-	zlo = ref[i];
+	zlo = ref[i].z;
 	ref1.adde(zlo+zlo1);
 	zlo1 = zlo1 * (zlo1 + R_lo(2) * zlo) + nucleusPos;
   }
@@ -537,11 +564,10 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
   if (stop)
     return nullptr;
   else
-    return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout);
+    return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout, er2);
 }
 
 void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de)
 {
-  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de);
-  bGlitch = false; // FIXME
+  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de);
 }

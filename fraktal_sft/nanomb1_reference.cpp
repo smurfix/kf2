@@ -32,6 +32,7 @@ void CFraktalSFT::CalculateReferenceNANOMB1()
 	int m = GetOrderM();
 	int n = GetOrderN() / 2;
 	int period = g_period ? g_period : 1;
+	double er2 = m_nBailout * m_nBailout;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
 
 	if (m_NanoMB1Ref)
@@ -39,5 +40,5 @@ void CFraktalSFT::CalculateReferenceNANOMB1()
 		delete m_NanoMB1Ref;
 		m_NanoMB1Ref = nullptr;
 	}
-	m_NanoMB1Ref = NanoMB1_Reference_Calculate(c, m, n, period, m_nMaxIter, r0, m_bStop, m_nRDone);
+	m_NanoMB1Ref = NanoMB1_Reference_Calculate(c, m, n, period, m_nMaxIter, r0, er2, GetGlitchLowTolerance(), m_bStop, m_nRDone);
 }
