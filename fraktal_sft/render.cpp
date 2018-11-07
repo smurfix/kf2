@@ -242,12 +242,12 @@ void CFraktalSFT::RenderFractal()
 	}
 	else
 		m_nTotal = m_nX*m_nY;
-	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2)
+	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
 		return;
 	}
-	else if (GetUseNanoMB2() && GetFractalType() == 0 && GetPower() == 2)
+	else if (GetUseNanoMB2() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB2();
 		return;
