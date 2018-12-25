@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #define abs(x) ((x)<0?-(x):(x))
 
-#define sgn(x) (((x)>0)-((x)<0))
+#define sgn(x) (((x)>=0)-((x)<0))
 
 static inline float diffabsf(float c, float d) {
   if (c >= 0.0f) {
@@ -72,7 +72,8 @@ typedef int f_referencel(int,long double,long double,long double,mpfr_t,mpfr_t,l
 typedef int f_perturbationf(int,int,float,float*,float,float,float,float,float*,float*,volatile int*);
 typedef int f_perturbation(int,int,double,double*,double,double,double,double,double*,double*,volatile int*);
 typedef int f_perturbationl(int,int,long double,long double*,long double,long double,long double,long double,long double*,long double*,volatile int*);
-typedef int f_period(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
+typedef int f_period_tri(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
+typedef int f_period_jsk(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
 typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,volatile int*);
 typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
 typedef int f_skew(int,double,double,mpfr_t,mpfr_t,int,double*,volatile int*);
@@ -88,16 +89,19 @@ static f_referencel referencel;
 static f_perturbationf perturbationf;
 static f_perturbation perturbation;
 static f_perturbationl perturbationl;
-static f_period period;
+static f_period_tri period_tri;
+static f_period_jsk period_jsk;
 static f_newton newton;
 static f_size size;
 static f_skew skew;
 static f_domain_size domain_size;
+//static const char name[];
+//static const char source[];
 #endif
 
 #define MAGIC ((int)(0xC01dCaf3))
 #define SIZE ((int)(sizeof(struct formula)))
-#define VERSION 5
+#define VERSION 6
 
 struct formula
 {
@@ -117,8 +121,8 @@ struct formula
   f_perturbationf *perturbationf;
   f_perturbation *perturbation;
   f_perturbationl *perturbationl;
-#endif
-  f_period *period;
+  f_period_tri *period_tri;
+  f_period_jsk *period_jsk;
   f_newton *newton;
   f_size *size;
   f_skew *skew;
@@ -141,7 +145,7 @@ struct formula et = \
 , &plainf, &plain, &plainl \
 , &referencef, &reference, &referencel \
 , &perturbationf, &perturbation, &perturbationl \
-, &period, &newton, &size, &skew, &domain_size \
+, &period_tri, &period_jsk, &newton, &size, &skew, &domain_size \
 };
 #endif
 
