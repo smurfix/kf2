@@ -121,6 +121,7 @@ struct formula
   f_perturbationf *perturbationf;
   f_perturbation *perturbation;
   f_perturbationl *perturbationl;
+#endif
   f_period_tri *period_tri;
   f_period_jsk *period_jsk;
   f_newton *newton;
@@ -135,7 +136,7 @@ struct formula
 #define FORMULA(name,source,degree) \
 extern "C" { __declspec(dllexport) struct formula et = \
 { MAGIC, SIZE, VERSION \
-, &period, &newton, &size, &skew \
+, &period_tri, &period_jsk, &newton, &size, &skew \
 }; }
 #else
 #define FORMULA(name,source,degree) \
