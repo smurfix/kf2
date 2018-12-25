@@ -588,7 +588,7 @@ static inline double sqr(double x) { return x * x; }
 static inline double hypot2(double x, double y) { return x * x + y * y; }
 static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
-void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
+void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y, int w, int h)
 {
 	if (m_bInhibitColouring) return;
 	srgb s;
@@ -655,15 +655,15 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 				double p[3][3] = { { ninf, ninf, ninf }, { ninf, ninf, ninf }, { ninf, ninf, ninf } };
 				double px[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
 				double py[3][3] = { { 0, 0, 0 }, { 0, 0, 0 }, { 0, 0, 0 } };
-				if (0 < x && 0 < y){p[0][0] = m_nPixels[x - 1][y - 1] + 1.0 - m_nTrans[x - 1][y - 1];GetPixelOffset(x - 1, y - 1, px[0][0], py[0][0]); px[0][0] -= 1; py[0][0] -= 1;}
-				if (0 < x         ){p[0][1] = m_nPixels[x - 1][y    ] + 1.0 - m_nTrans[x - 1][y    ];GetPixelOffset(x - 1, y    , px[0][1], py[0][1]); px[0][1] -= 1;               }
-				if (0 < x && y < Y){p[0][2] = m_nPixels[x - 1][y + 1] + 1.0 - m_nTrans[x - 1][y + 1];GetPixelOffset(x - 1, y + 1, px[0][2], py[0][2]); px[0][2] -= 1; py[0][2] += 1;}
-				if (         0 < y){p[1][0] = m_nPixels[x    ][y - 1] + 1.0 - m_nTrans[x    ][y - 1];GetPixelOffset(x    , y - 1, px[1][0], py[1][0]);                py[1][0] -= 1;}
-				                   {p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];GetPixelOffset(x    , y    , px[1][1], py[1][1]);                              }
-				if (         y < Y){p[1][2] = m_nPixels[x    ][y + 1] + 1.0 - m_nTrans[x    ][y + 1];GetPixelOffset(x    , y + 1, px[1][2], py[1][2]);                py[1][2] += 1;}
-				if (x < X && 0 < y){p[2][0] = m_nPixels[x + 1][y - 1] + 1.0 - m_nTrans[x + 1][y - 1];GetPixelOffset(x + 1, y - 1, px[2][0], py[2][0]); px[2][0] += 1; py[2][0] -= 1;}
-				if (x < X         ){p[2][1] = m_nPixels[x + 1][y    ] + 1.0 - m_nTrans[x + 1][y    ];GetPixelOffset(x + 1, y    , px[2][1], py[2][1]); px[2][1] += 1;               }
-				if (x < X && y < Y){p[2][2] = m_nPixels[x + 1][y + 1] + 1.0 - m_nTrans[x + 1][y + 1];GetPixelOffset(x + 1, y + 1, px[2][2], py[2][2]); px[2][2] += 1; py[2][2] += 1;}
+				if (w <= x && h <= y && m_nPixels[x - w][y - h] != PIXEL_UNEVALUATED){p[0][0] = m_nPixels[x - w][y - h] + 1.0 - m_nTrans[x - w][y - h];GetPixelOffset(x - w, y - h, px[0][0], py[0][0]); px[0][0] -= w; py[0][0] -= h;}
+				if (w <= x           && m_nPixels[x - w][y    ] != PIXEL_UNEVALUATED){p[0][1] = m_nPixels[x - w][y    ] + 1.0 - m_nTrans[x - w][y    ];GetPixelOffset(x - w, y    , px[0][1], py[0][1]); px[0][1] -= w;               }
+				if (w <= x && y+h<=Y && m_nPixels[x - w][y + h] != PIXEL_UNEVALUATED){p[0][2] = m_nPixels[x - w][y + h] + 1.0 - m_nTrans[x - w][y + h];GetPixelOffset(x - w, y + h, px[0][2], py[0][2]); px[0][2] -= w; py[0][2] += h;}
+				if (          h <= y && m_nPixels[x    ][y - h] != PIXEL_UNEVALUATED){p[1][0] = m_nPixels[x    ][y - h] + 1.0 - m_nTrans[x    ][y - h];GetPixelOffset(x    , y - h, px[1][0], py[1][0]);                py[1][0] -= h;}
+				if (                    m_nPixels[x    ][y    ] != PIXEL_UNEVALUATED){p[1][1] = m_nPixels[x    ][y    ] + 1.0 - m_nTrans[x    ][y    ];GetPixelOffset(x    , y    , px[1][1], py[1][1]);                              }
+				if (          y+h<=Y && m_nPixels[x    ][y + h] != PIXEL_UNEVALUATED){p[1][2] = m_nPixels[x    ][y + h] + 1.0 - m_nTrans[x    ][y + h];GetPixelOffset(x    , y + h, px[1][2], py[1][2]);                py[1][2] += h;}
+				if (x+w<=X && h <= y && m_nPixels[x + w][y - h] != PIXEL_UNEVALUATED){p[2][0] = m_nPixels[x + w][y - h] + 1.0 - m_nTrans[x + w][y - h];GetPixelOffset(x + w, y - h, px[2][0], py[2][0]); px[2][0] += w; py[2][0] -= h;}
+				if (x+w<=X           && m_nPixels[x + w][y    ] != PIXEL_UNEVALUATED){p[2][1] = m_nPixels[x + w][y    ] + 1.0 - m_nTrans[x + w][y    ];GetPixelOffset(x + w, y    , px[2][1], py[2][1]); px[2][1] += w;               }
+				if (x+w<=X && y+h<=Y && m_nPixels[x + w][y + h] != PIXEL_UNEVALUATED){p[2][2] = m_nPixels[x + w][y + h] + 1.0 - m_nTrans[x + w][y + h];GetPixelOffset(x + w, y + h, px[2][2], py[2][2]); px[2][2] += w; py[2][2] += h;}
 				// reflect at boundaries if necessary
 				// this will break (result is infinite or NaN) for image size of 1 pixel
 				p[1][1] *= 2.0;
@@ -921,28 +921,28 @@ void CFraktalSFT::SetColor(int nIndex, int nIter, double offs, int x, int y)
 		double diffCompare = p1/p2;
 		*/
 		double diffx, diffy;
-		if (x){
-			p1 = (double)m_nPixels[x - 1][y] + (double)1 - m_nTrans[x - 1][y];
+		if (w <= x && m_nPixels[x - w][y] != PIXEL_UNEVALUATED){
+			p1 = (double)m_nPixels[x - w][y] + (double)1 - m_nTrans[x - w][y];
 			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		}
-		else if (x<m_nX - 1){
+		else if (x+w<m_nX && m_nPixels[x + w][y] != PIXEL_UNEVALUATED){
 			p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			p2 = (double)m_nPixels[x + 1][y] + (double)1 - m_nTrans[x + 1][y];
+			p2 = (double)m_nPixels[x + w][y] + (double)1 - m_nTrans[x + w][y];
 		}
 		else
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		diffx = p1 - p2;
-		if (y){
-			p1 = (double)m_nPixels[x][y - 1] + (double)1 - m_nTrans[x][y - 1];
+		diffx = (p1 - p2) / w;
+		if (h <= y && m_nPixels[x][y - h] != PIXEL_UNEVALUATED){
+			p1 = (double)m_nPixels[x][y - h] + (double)1 - m_nTrans[x][y - h];
 			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		}
-		else if (y<m_nY - 1){
+		else if (y+h<m_nY && m_nPixels[x][y + h] != PIXEL_UNEVALUATED){
 			p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			p2 = (double)m_nPixels[x][y + 1] + (double)1 - m_nTrans[x][y + 1];
+			p2 = (double)m_nPixels[x][y + h] + (double)1 - m_nTrans[x][y + h];
 		}
 		else
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		diffy = p1 - p2;
+		diffy = (p1 - p2) / h;
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
 		p1 = fmax(1, (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y]);
 		diff = (p1 + diff) / p1;
@@ -988,7 +988,7 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 		for (int y = y0; y < y1; ++y)
 		{
 			int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, 1, 1);
 		}
 	}
 	else if (w <= h)
@@ -1123,7 +1123,7 @@ void CFraktalSFT::Mirror(int x, int y)
 	m_nTrans[tx][ty] = m_nTrans[x][y];
 	m_nDE[tx][ty] = m_nDE[x][y];
 	int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-	SetColor(nIndex1, m_nPixels[tx][ty], m_nTrans[tx][ty], tx, ty);
+	SetColor(nIndex1, m_nPixels[tx][ty], m_nTrans[tx][ty], tx, ty, 1, 1);
 }
 
 #define GET_EXP(val) ((*((__int64*)&val) & 0x7FF0000000000000)>>52)
@@ -2697,7 +2697,7 @@ void CFraktalSFT::ErasePixel(int x, int y)
 		m_nTrans[x][y] = 0;
 		m_nDE[x][y] = 1e30;
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, 1, 1);
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
 		m_nDE[x][y] = -1;
 	}
@@ -3004,7 +3004,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2, double de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, int antal, double test1, double test2, double de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3044,7 +3044,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int bGlitch, int antal, doub
 			if (bGlitch && !m_bNoGlitchDetection){
 				m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
 			}
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
 		}
 		if (m_bMirrored)
 			Mirror(x, y);

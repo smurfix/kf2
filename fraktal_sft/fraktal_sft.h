@@ -380,7 +380,7 @@ class CFraktalSFT
 
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone=TRUE);
 	void SetTexture(int nIndex, int x, int y);
-	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1);
+	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1, int w = 1, int h = 1);
 	void DeleteArrays();
 
 #ifdef KF_OPENCL
@@ -517,7 +517,7 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int bGlitch, int antal, double test1, double test2, double de);
+	void OutputIterationData(int x, int y, int w, int h, int bGlitch, int antal, double test1, double test2, double de);
 	void OutputPixelData(int x, int y, int w, int h, int bGlitch);
 	bool GuessPixel(int x, int y, int w, int h);
 

@@ -409,5 +409,5 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	  ;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);
 }

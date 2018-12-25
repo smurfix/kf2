@@ -31,7 +31,7 @@ void CFraktalSFT::MandelCalc()
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y);
+			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
 			continue;
 		}
 		if (GuessPixel(x, y, w, h))
@@ -310,7 +310,7 @@ void CFraktalSFT::MandelCalc()
 		  : 0
 		  ;
 
-		OutputIterationData(x, y, bGlitch, antal, test1, test2, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);
 	}
