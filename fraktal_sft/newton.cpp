@@ -758,7 +758,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		if (f)
 		{
 		  flyttyp r = flyttyp(4) / radius;
-		  g_period = f->period(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
+		  g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
 		  if (g_period < 0) g_period = 0;
 		}
 		else
