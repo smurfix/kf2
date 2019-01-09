@@ -669,6 +669,7 @@ Feedback:
 - online help within program (suggested by TwinDragon)
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
+- log window for diagnostics/debugging
 
 ### Calculations
 
@@ -692,6 +693,14 @@ Feedback:
 - add disk save/resume functionality for long-running calculations in
   case of system snafu
 
+### NanoMB
+
+- automatic number type selection
+- automatic number type promotion on overflow
+- re-scaled number types
+- SSA escape radius factor control (around 0.1 to 1.0)
+- automatic period detection
+
 ### Preprocessor
 
 - flatten complex numbers to separate real and imaginary parts
@@ -707,6 +716,8 @@ Feedback:
 - rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
 - colour cycling (suggested by blob)
+- show .kfp filename in colour dialog (suggested by gerrit)
+- more flexible colouring with lighting/layers/etc (suggested by Fraktalist)
 
 
 ## Getting The Code
