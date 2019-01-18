@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -26,6 +26,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 struct NanoMB1_Reference;
 NanoMB1_Reference *NanoMB1_Reference_Calculate(const complex<decNumber> &c, int bm, int bn, int period, int maxiters, floatexp r0, double er2, bool glitchLowTol, volatile BOOL &stop, int &m_nRDone);
-void NanoMB1_Pixel(const NanoMB1_Reference *ctx, complex<floatexp> dc, floatexp pixel_spacing, int maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de);
+void NanoMB1_Pixel(const NanoMB1_Reference *ctx, complex<floatexp> dc, floatexp pixel_spacing, int maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking);
 
 #endif

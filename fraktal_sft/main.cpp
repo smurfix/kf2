@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -440,6 +440,12 @@ static void UpdateUseNanoMB2(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USENANOMB2,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateInteriorChecking(HWND hWnd)
+{
+	bool b = g_SFT.GetInteriorChecking();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_INTERIORCHECKING,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateAutoIterations(HWND hWnd)
 {
 	bool b = g_SFT.GetAutoIterations();
@@ -494,6 +500,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateFloatExpAlways(hWnd);
 	UpdateUseNanoMB1(hWnd);
 	UpdateUseNanoMB2(hWnd);
+	UpdateInteriorChecking(hWnd);
 	UpdateAutoIterations(hWnd);
 	UpdateGuessing(hWnd);
 	UpdateShowGlitches(hWnd);
@@ -4123,14 +4130,24 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB1){
 		g_SFT.SetUseNanoMB1(! g_SFT.GetUseNanoMB1());
 		if (g_SFT.GetUseNanoMB1()) g_SFT.SetUseNanoMB2(false);
+		else g_SFT.SetInteriorChecking(false);
 		UpdateUseNanoMB1(hWnd);
 		UpdateUseNanoMB2(hWnd);
+		UpdateInteriorChecking(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB2){
 		g_SFT.SetUseNanoMB2(! g_SFT.GetUseNanoMB2());
 		if (g_SFT.GetUseNanoMB2()) g_SFT.SetUseNanoMB1(false);
+		else g_SFT.SetInteriorChecking(false);
 		UpdateUseNanoMB1(hWnd);
 		UpdateUseNanoMB2(hWnd);
+		UpdateInteriorChecking(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_INTERIORCHECKING){
+		g_SFT.SetInteriorChecking(! g_SFT.GetInteriorChecking());
+		if (! (g_SFT.GetUseNanoMB1() || g_SFT.GetUseNanoMB2()))
+			g_SFT.SetInteriorChecking(false);
+		UpdateInteriorChecking(hWnd);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -423,7 +423,7 @@ std::cerr << "period " << m_period << " radius " << r.toString() << std::endl;
 // d0 is relative to the center of the screen. The SSAs transparently transform the point into their own reference frame when called thanks to their m_shift member variable.
 //---------------------------------------------------------------------------------------------------
 
-static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int &antal, double &test1, double &test2, double &de){
+static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int &antal, double &test1, double &test2, double &de, bool interior_checking){
 	//try the SSAs from the latest (deepest) to the first. if not possible use perturbation until we get near to 0 again then repeat.
 	//ToDo: edit refClass to add another run(inside radius) function that verify if the iterated point returns near 0
 	//ToDo2: we need to test for escapes AFTER the iteration --> edit biPolyClass to compute the "other" bailout.
@@ -453,7 +453,8 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	for(; curSSA>=0 && SSAs[curSSA].getPeriod() >= 1; curSSA--){
              	C_lo d00 = d0 - SSAs[curSSA].getShift();//delta_c coordinates have de be wrt current SSA
 		while(si < maxsi && i<maxiter && norm(d)<SSAs[curSSA].getEscRadius()) {// norm(d)<SSAs[curSSA].getEscRadius() <=> abs(d)<sqrt(SSAs[curSSA].getEscRadius())
-#if 1
+		if (interior_checking)
+		{
 			if (curSSA == firstSSA && norm(d) < d_norm)
 			{
 			  d_norm = norm(d);
@@ -497,7 +498,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 #endif
 			  }
 			}
-#endif
+		}
 			dd = dd * SSAs[curSSA].eval_dz(d,d00) + SSAs[curSSA].eval_dc(d,d00);
 			d  = SSAs[curSSA].eval(d,d00);
 			i += SSAs[curSSA].getPeriod();
@@ -626,8 +627,8 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
     return new NanoMB2_Reference(SSAs, ref);
 }
 
-void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de)
+void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
-  iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, de);
+  iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, de, interior_checking);
   bGlitch = false;
 }

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -366,7 +366,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, int &bGlitch, int &antal, double &test1, double &test2, double &de)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -379,6 +379,8 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 			up.eval(d, dd);
 			i+=period;
 			si++;
+			if (interior_checking)
+			{
 			if (norm(d) < d_norm)
 			{
 			  d_norm = norm(d);
@@ -422,6 +424,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 #endif
 			  }
 			}
+		        }
 		}
 	} //else dd = C_lo(1);//knighty: That was a mistake. We begin iterating at 0 so derivative doesn't have to be changed. 
 	if(i>=maxiter)
@@ -567,7 +570,7 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
     return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout, er2);
 }
 
-void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de)
+void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
-  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de);
+  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de, interior_checking);
 }

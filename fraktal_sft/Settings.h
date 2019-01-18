@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -73,6 +73,7 @@ private:
   bool m_UseNanoMB2;
   int m_OrderM;
   int m_OrderN;
+  bool m_InteriorChecking;
 
 public:
 
@@ -115,6 +116,7 @@ public:
   , m_UseNanoMB2(false)
   , m_OrderM(16)
   , m_OrderN(16)
+  , m_InteriorChecking(false)
   { };
 
   bool FromText(const std::string &text);
@@ -254,6 +256,9 @@ public:
     if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
     m_OrderN = t;
   };
+
+  inline bool   GetInteriorChecking() const { return m_InteriorChecking; };
+  inline void   SetInteriorChecking(bool b) { m_InteriorChecking = b; };
 };
 
 #endif

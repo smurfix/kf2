@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -242,12 +242,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_PASTE                40100
 #define ID_ACTIONS_SPECIAL_USENANOMB1   40101
 #define ID_ACTIONS_SPECIAL_USENANOMB2   40102
+#define ID_ACTIONS_SPECIAL_INTERIORCHECKING         40103
 
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
 #define IDC_COMBO_OPENCL_DEVICE  1102
-#define ID_SPECIAL_OPENCL       40103
+#define ID_SPECIAL_OPENCL       40104
 #endif
 
 // Next default values for new objects
@@ -255,7 +256,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        121
-#define _APS_NEXT_COMMAND_VALUE         40104
+#define _APS_NEXT_COMMAND_VALUE         40105
 #define _APS_NEXT_CONTROL_VALUE         1103
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
