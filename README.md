@@ -9,7 +9,7 @@ As the orginal upstream author Karl Runmo says:
 I (Claude Heiland-Allen) forked the code and swapped out the custom arbitrary
 precision floating point code for highly optimized libraries, making it
 even faster.  Cross-compiled to Windows from Linux MINGW64.  Now with many other
-enhancements (mostly speed optimisations and bugfixes).
+enhancements.
 
 Original upstream version:
 
@@ -71,11 +71,14 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
+- NR zoom doesn't work well in skewed locations
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
+- nanomb2 RadiusScale can only be changed by hand-editing .kfs Settings files
 - nanomb1/2 number type fixed to floatexp (long double or double would be faster)
 - nanomb1/2 number type is not rescaled (only matters for long double / double)
-- nanomb1/2 currently disables glitch detection and correction
+- nanomb2 currently disables glitch detection and correction
 - nanomb1/2 reference calculations are not multithreaded (single core only)
+- nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
@@ -1314,9 +1317,9 @@ Software license.
     the same view have the exact same iteration count values. These pixels may
     be correctly rendered and may be incorrect if re-rendered with another
     reference
-    
+
   - **Ignore isolated small glitches**
-  
+
     When enabled, ignores single-pixel glitches by interpolating their value
     from neighbouring pixels.  If the image size is very large, there may be
     a very large number of these tiny glitches, whose incorrect rendering may
@@ -1393,8 +1396,9 @@ Software license.
     For power 2 Mandelbrot only.
 
     Use knighty's experimental NanoMB1 algorithm for bivariate super-
-    series-approximation.  Calculations are done with floatexp always,
-    glitch detection and correction is disabled (this will be fixed soon).
+    series-approximation.  Calculations are done with floatexp always.
+    A regular series approximation plus perturbation pass follows for
+    glitch correction.
 
     It is required to set the period in the Location dialog before
     enabling NanoMB1. Using Newton zoom sets the period automatically.
@@ -1427,6 +1431,21 @@ Software license.
     Whether NanoMB2 is faster or not depends heavily on the location: views
     close to minis should be significantly faster than the regular 'fast'
     preset.
+
+    The RadiusScale field in the .kfs settings file controls the scaling of
+    the escape radius calculated for each minibrot in the chain.  Increasing
+    it may be faster but lead to visible distortion, decreasing it may help
+    the distortion but slow things down.  No GUI for this control yet.
+
+  - **Interior checking (NanoMB only)**
+
+    For power 2 Mandelbrot rendered with NanoMB1 or NanoMB2 only.
+
+    Use an interior checking algorithm, which may or may not speed up
+    per-pixel calculations in locations with large interior regions
+    visible.
+
+    Experimental.  Correctness is to be evaluated.  Subject to change.
 
   - **Use auto iterations**
 
