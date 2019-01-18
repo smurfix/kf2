@@ -157,7 +157,7 @@ cl/kf.cl: cl/common.cl cl/formula.xsl formula/formula.xml preprocessor
 	( cat cl/common.cl ; $(XSLTPROC) cl/formula.xsl formula/formula.xml | ./preprocessor ) > $@
 
 preprocessor: preprocessor.hs
-	ghc -O preprocessor.hs
+	ghc -package parsec -package mtl -O preprocessor.hs
 
 cl/opencl.inc: cl/opencl.xsl formula/formula.xml
 	$(XSLTPROC) -o $@ cl/opencl.xsl formula/formula.xml
