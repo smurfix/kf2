@@ -74,6 +74,7 @@ private:
   int m_OrderM;
   int m_OrderN;
   bool m_InteriorChecking;
+  double m_RadiusScale;
 
 public:
 
@@ -117,6 +118,7 @@ public:
   , m_OrderM(16)
   , m_OrderN(16)
   , m_InteriorChecking(false)
+  , m_RadiusScale(0.1)
   { };
 
   bool FromText(const std::string &text);
@@ -259,6 +261,9 @@ public:
 
   inline bool   GetInteriorChecking() const { return m_InteriorChecking; };
   inline void   SetInteriorChecking(bool b) { m_InteriorChecking = b; };
+
+  inline double GetRadiusScale() const { return m_RadiusScale; };
+  inline void   SetRadiusScale(double b) { m_RadiusScale = b; };
 };
 
 #endif

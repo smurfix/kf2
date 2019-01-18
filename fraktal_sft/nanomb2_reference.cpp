@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -33,11 +33,12 @@ void CFraktalSFT::CalculateReferenceNANOMB2()
 	int n = GetOrderN();
 	int maxperiod = g_period ? g_period : m_nMaxIter;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
+	floatexp radius_scale(GetRadiusScale());
 
 	if (m_NanoMB2Ref)
 	{
 		delete m_NanoMB2Ref;
 		m_NanoMB2Ref = nullptr;
 	}
-	m_NanoMB2Ref = NanoMB2_Reference_Calculate(c, m, n, maxperiod, r0, m_bStop, m_nRDone);
+	m_NanoMB2Ref = NanoMB2_Reference_Calculate(c, m, n, maxperiod, r0, m_bStop, m_nRDone, radius_scale);
 }

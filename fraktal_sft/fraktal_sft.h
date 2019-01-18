@@ -583,6 +583,7 @@ public:
   INT(OrderM)
   INT(OrderN)
   BOOL(InteriorChecking)
+  DOUBLE(RadiusScale)
 #undef DOUBLE
 #undef INT
 #undef BOOL

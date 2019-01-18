@@ -557,7 +557,7 @@ struct NanoMB2_Reference
   { };
 };
 
-NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop, int &m_nRDone)
+NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop, int &m_nRDone, R_lo radius_scale)
 {
   R_lo tmax = r0;
 
@@ -603,7 +603,7 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
 		//get shifted SSA
 		biPolyClass SSA = fp.getShiftedBP(HCcentre);
 		SSA.setPeriod(i+1);
-		SSA.setEscRadius();
+		SSA.setEscRadius(radius_scale);
 		
 		if(SSA.getEscRadius() > R_lo(0.1) * tmax){
 			//Store the shifted SSA into SSAs

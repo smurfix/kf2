@@ -74,6 +74,7 @@ bool Settings::FromText(const std::string &text)
   INT(OrderM)
   INT(OrderN)
   BOOL(InteriorChecking)
+  DOUBLE(RadiusScale)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -126,6 +127,7 @@ std::string Settings::ToText() const
   INT(OrderM)
   INT(OrderN)
   BOOL(InteriorChecking)
+  DOUBLE(RadiusScale)
 #undef DOUBLE
 #undef INT
 #undef BOOL
