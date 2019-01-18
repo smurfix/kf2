@@ -1,7 +1,7 @@
 #!/bin/sh
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2018 Claude Heiland-Allen
+# Copyright (C) 2017-2019 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -22,14 +22,14 @@ mkdir -p ~/win64/src
 mkdir -p ~/win32/src
 # download
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.68.0/source/boost_1_68_0.7z
+wget -c https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c http://www.mpfr.org/mpfr-current/mpfr-4.0.1.tar.xz
 wget -c http://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
-wget -c ftp://ftp-osl.osuosl.org/pub/libpng/src/libpng16/libpng-1.6.35.tar.xz
-wget -c https://download.osgeo.org/libtiff/tiff-4.0.9.tar.gz
+wget -c https://download.sourceforge.net/libpng/libpng-1.6.36.tar.xz
+wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.0/glm-0.9.9.0.zip
 cp -avft ~/win32/src *z *.zip allpatches
@@ -145,13 +145,17 @@ make check
 cd ~/win64/src
 7zr x boost*.7z
 cd ~/win64/include
+rm boost
 ln -s ../src/boost*/boost/
 cd ~/win32/include
+rm boost
 ln -s ../../win64/src/boost*/boost/
 # glm
 cd ~/win64/src
 unzip glm*.zip
 cd ~/win64/include
+rm glm
 ln -s ../src/glm*/glm/
 cd ~/win32/include
+rm glm
 ln -s ../../win64/src/glm*/glm/
