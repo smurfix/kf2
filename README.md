@@ -176,11 +176,23 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.4** (????-??-??)
+- **kf-2.14.4** (2019-01-18)
 
     - new feature: nanomb1 algorithm for power 2 Mandelbrot (experimental)
       (originally by knighty) (not quite as experimental as nanomb2, suggested
       by gerrit, requires exact period to be set by Newton or location dialog)
+    - new feature: make interior checking for nanomb optional (new menu item)
+    - new feature: RadiusScale setting for nanomb2 (only settable in .kfs so
+      far, default value 0.1 may be safe but slow)
+    - new feature: Mothbrot family of formulas (suggested by simon.snake)
+      (not optimized yet, preliminary version for testing)
+    - bugfix: incremental drawing looks much better with slopes and/or nde
+      (there is a crosshair visible while rendering, which disappears when
+      the image is finished, not sure why this happens)
+    - upgrade to libpng 1.6.36
+    - upgrade to libtiff 4.0.10
+    - upgrade to libmpfr 4.0.1-p14
+    - upgrade to boost 1.69.0
 
 - **kf-2.14.3** (2018-10-29)
 
