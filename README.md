@@ -88,6 +88,9 @@ Feedback:
 
 ### Incompatible Changes
 
+- **In versions `2.14.4` and above**, the new "Mothbrot" formulas are not
+  available in earlier versions.
+
 - **In versions `2.14.3` and above**, colouring of zoomed out views is fixed,
   and may be different from earlier versions.
 
@@ -1761,6 +1764,65 @@ Formulas:
 
           z := ((x^2 + y^2) + i (2 d x y + e x^2)) + c
 
+  -   Mothbrot 2nd 1x1
+
+          z := z^1 (|x| + i |y|)^1 + c
+
+  -   Mothbrot 3rd 1x2
+
+          z := z^1 (|x| + i |y|)^2 + c
+
+  -   Mothbrot 3rd 2x1
+
+          z := z^2 (|x| + i |y|)^1 + c
+
+  -   Mothbrot 4th 1x3
+
+          z := z^1 (|x| + i |y|)^3 + c
+
+  -   Mothbrot 4th 2x2 (aka SimonBrot 4th)
+
+          z := z^2 (|x| + i |y|)^2 + c
+
+  -   Mothbrot 4th 3x1
+
+          z := z^3 (|x| + i |y|)^1 + c
+
+  -   Mothbrot 5th 1x4
+
+          z := z^1 (|x| + i |y|)^4 + c
+
+  -   Mothbrot 5th 2x3
+
+          z := z^2 (|x| + i |y|)^3 + c
+
+  -   Mothbrot 5th 3x2
+
+          z := z^3 (|x| + i |y|)^2 + c
+
+  -   Mothbrot 5th 4x1
+
+          z := z^4 (|x| + i |y|)^1 + c
+
+  -   Mothbrot 6th 1x5
+
+          z := z^1 (|x| + i |y|)^5 + c
+
+  -   Mothbrot 6th 2x4 (Simon's Mothbrot)
+
+          z := z^2 (|x| + i |y|)^4 + c
+
+  -   Mothbrot 6th 3x3 (aka SimonBrot 6th)
+
+          z := z^3 (|x| + i |y|)^3 + c
+
+  -   Mothbrot 6th 4x2
+
+          z := z^4 (|x| + i |y|)^2 + c
+
+  -   Mothbrot 6th 5x1
+
+          z := z^5 (|x| + i |y|)^1 + c
 
 A machine-readable version of this formula list is found in the 'et' repository:
 <https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This is used by 'et' when
