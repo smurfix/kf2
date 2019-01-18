@@ -109,6 +109,7 @@ extern int g_nEXP;
 extern double g_Degree;
 extern double g_real;
 extern double g_imag;
+extern int g_bAutoGlitch;
 
 BOOL ISFLOATOK(double a);
 

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -1484,10 +1484,11 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
 }
 
+extern int g_bAutoGlitch;
 int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
 {
 	int iters = m_nMaxIter;
-	if (GetUseNanoMB1() || GetUseNanoMB2())
+	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1)
 		iters = g_period;
 	if (iters <= 0)
 		iters = 1;
