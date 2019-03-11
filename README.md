@@ -51,6 +51,8 @@ Feedback:
   (reported by CFJH)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
+- crash when entering malformed values in location zoom dialog (eg `1E` or `E1`)
+  (reported by Foxxie)
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
