@@ -82,6 +82,8 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 , sSaveJPG("")
 , bSaveMap(false)
 , sSaveMap("")
+, bZoomOut(false)
+, nZoomOut(0)
 , bVersion(false)
 , bHelp(false)
 , bError(false)
@@ -167,6 +169,19 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 				bError = true;
 			}
 		}
+		else if ("-z" == args[i] || "--zoom-out" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				bZoomOut = true;
+				nZoomOut = atoi(args[i].c_str());
+			}
+			else
+			{
+				bError = true;
+			}
+		}
 		else if ("--log" == args[i])
 		{
 			++i;
@@ -207,6 +222,7 @@ const std::string usage =
 "    -p, --save-png      [FILE.png]  save PNG\n"
 "    -j, --save-jpg      [FILE.jpg]  save JPEG\n"
 "    -m, --save-map      [FILE.kfb]  save KFB\n"
+"    -z, --zoom-out      [NFRAMES]   zoom sequence\n"
 "    --log (debug|status|info|warn|error)\n"
 "                                    logging verbosity\n"
 "    -v, -V, --version               show version\n"

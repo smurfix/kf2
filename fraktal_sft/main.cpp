@@ -4978,6 +4978,86 @@ DWORD ThReportProgress(LPVOID arg)
 	return 0;
 }
 
+static bool render_frame(int frame)
+{
+	output_log_message(Info, "reference " << 1);
+	g_SFT.m_bInhibitColouring = TRUE;
+	g_SFT.m_bInteractive = false;
+	if (frame == 0)
+	{
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+	}
+	else
+	{
+		int j = g_SFT.GetJitterSeed();
+		if (j)
+		{
+			g_SFT.SetJitterSeed(j + 1);
+		}
+		AutoIterations();
+		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+	}
+	for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+	{
+		int x = -1, y = -1;
+		int n = g_SFT.FindCenterOfGlitch(x, y);
+		if (! n)
+		{
+			output_log_message(Info, "no more glitches");
+			break;
+		}
+		output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
+		g_SFT.AddReference(x, y);
+	}
+	ThReportProgress_running = false;
+	output_log_message(Info, "colouring final image");
+	g_SFT.m_bInhibitColouring = FALSE;
+	g_SFT.ApplyColors();
+	//  save the result
+	bool ok = true;
+	if (g_args->bSaveTIF)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSaveTIF.c_str(), frame);
+		output_log_message(Info, "saving TIFF " << fn);
+		if (! g_SFT.SaveJpg(fn, -2))
+		{
+			ok = false;
+			output_log_message(Error, "saving TIFF " << fn << " FAILED");
+		}
+	}
+	if (g_args->bSavePNG)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSavePNG.c_str(), frame);
+		output_log_message(Info, "saving PNG " << fn);
+		if (! g_SFT.SaveJpg(fn, -1))
+		{
+			ok = false;
+			output_log_message(Error, "saving PNG " << fn << " FAILED");
+		}
+	}
+	if (g_args->bSaveJPG)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSaveJPG.c_str(), frame);
+		output_log_message(Info, "saving JPG " << fn);
+		if (! g_SFT.SaveJpg(fn, 100))
+		{
+			ok = false;
+			output_log_message(Error, "saving JPG " << fn << " FAILED");
+		}
+	}
+	if (g_args->bSaveMap)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSaveMap.c_str(), frame);
+		output_log_message(Info, "saving KFB " << fn);
+		g_SFT.SaveMapB(fn);
+	}
+	return ok;
+}
 
 extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 {
@@ -5043,7 +5123,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	else
 	{
 		// prepare
-		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2018 Claude Heiland-Allen");
+		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2019 Claude Heiland-Allen");
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
@@ -5075,61 +5155,35 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
 			CloseHandle(hProgress);
 		}
-		output_log_message(Info, "reference " << 1);
-		g_SFT.m_bInhibitColouring = TRUE;
-		g_SFT.m_bInteractive = false;
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
-		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+		bool ok = true;
+		if (g_args->bZoomOut)
 		{
-			int x = -1, y = -1;
-			int n = g_SFT.FindCenterOfGlitch(x, y);
-			if (! n)
+			for (int frame = 0; g_args->nZoomOut < 0 || frame < g_args->nZoomOut; ++frame)
 			{
-				output_log_message(Info, "no more glitches");
-				break;
-			}
-			output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
-			g_SFT.AddReference(x, y);
-		}
-		ThReportProgress_running = false;
-		output_log_message(Info, "colouring final image");
-		g_SFT.m_bInhibitColouring = FALSE;
-		g_SFT.ApplyColors();
-    //  save the result
-    bool ok = true;
-		if (g_args->bSaveTIF)
-		{
-			output_log_message(Info, "saving TIFF " << g_args->sSaveTIF);
-			if (! g_SFT.SaveJpg(g_args->sSaveTIF, -2))
-			{
-				ok = false;
-				output_log_message(Error, "saving TIFF " << g_args->sSaveTIF << " FAILED");
+				output_log_message(Info, "frame " << frame << " of " << g_args->nZoomOut);
+				ok = render_frame(frame);
+				if (! ok)
+				{
+					break;
+				}
+				if (atof(g_SFT.ToZoom().c_str()) < 1e-3)
+				{
+					break;
+				}
 			}
 		}
-		if (g_args->bSavePNG)
+		else
 		{
-			output_log_message(Info, "saving PNG " << g_args->sSavePNG);
-			if (! g_SFT.SaveJpg(g_args->sSavePNG, -1))
-			{
-				ok = false;
-				output_log_message(Error, "saving PNG " << g_args->sSavePNG << " FAILED");
-			}
+			ok = render_frame(0);
 		}
-		if (g_args->bSaveJPG)
+		if (! ok)
 		{
-			output_log_message(Info, "saving JPG " << g_args->sSaveJPG);
-			if (! g_SFT.SaveJpg(g_args->sSaveJPG, 100))
-			{
-				ok = false;
-				output_log_message(Error, "saving JPG " << g_args->sSaveJPG << " FAILED");
-			}
+			output_log_message(Error, "FAILED");
 		}
-		if (g_args->bSaveMap)
+		else
 		{
-			output_log_message(Info, "saving KFB " << g_args->sSaveMap);
-			g_SFT.SaveMapB(g_args->sSaveMap);
+			output_log_message(Info, "all done, exiting");
 		}
-		output_log_message(Info, "all done, exiting");
 		return ok ? 0 : 1;
 	}
 

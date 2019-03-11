@@ -420,7 +420,7 @@ public:
 	int GetHeight();
 	void Stop(BOOL bNoPostWhenDone = FALSE);
 	int CountFrames(int nProcent);
-	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE);
+	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	int GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL, int *pnT = NULL);
 	std::string GetPosition();

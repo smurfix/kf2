@@ -55,6 +55,8 @@ public:
   std::string sSaveJPG;
   bool        bSaveMap;
   std::string sSaveMap;
+  bool        bZoomOut;
+  int         nZoomOut;
   bool        bVersion;
   bool        bHelp;
   bool        bError;

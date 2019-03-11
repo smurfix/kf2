@@ -1349,7 +1349,7 @@ void CFraktalSFT::Stop(BOOL bNoPostWhenDone)
 	m_bNoPostWhenDone=0;
 }
 
-void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter)
+void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender)
 {
 	Stop(TRUE);
 	int **Org;
@@ -1481,6 +1481,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 //	if (bReuseCenter && m_nZoom>g_nRefZero && !m_bReuseRef)
 //		AddReference(nXPos + m_nY/10 - 1, nYPos + m_nY/10 - 1);
 //	else
+	if (autorender)
 		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
 }
 
