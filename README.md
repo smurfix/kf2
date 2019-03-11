@@ -56,6 +56,8 @@ Feedback:
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
+- thin black line in exterior between iteration bands incorrectly calculated as
+  interior (reported by CFJH)
 - speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
