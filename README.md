@@ -181,6 +181,7 @@ Feedback:
 - **kf-2.14.5** (????-??-??)
 
     - new feature: command line zoom sequence rendering with `-z NFRAMES` flag
+    - bugfix: thin black line in exterior between iteration bands (reported by CFJH)
 
 - **kf-2.14.4** (2019-01-18)
 
