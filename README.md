@@ -56,8 +56,6 @@ Feedback:
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
-- thin black line in exterior between iteration bands incorrectly calculated as
-  interior (reported by CFJH)
 - speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
@@ -179,6 +177,10 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.5** (????-??-??)
+
+    - new feature: command line zoom sequence rendering with `-z NFRAMES` flag
 
 - **kf-2.14.4** (2019-01-18)
 
@@ -1981,6 +1983,7 @@ generating formula code (for Newton-Raphson zooming, etc).
         -p, --save-png      [FILE.png]  save PNG
         -j, --save-jpg      [FILE.jpg]  save JPEG
         -m, --save-map      [FILE.kfb]  save KFB
+        -z, --zoom-out      [NFRAMES]   zoom sequence
         --log (debug|status|info|warn|error)
                                         logging verbosity
         -v, -V, --version               show version
@@ -2013,3 +2016,9 @@ directory...  Example:
 
 Use `--log info` to disable the status updates, use `--log warn` to output only
 important messages.  The default is `--log status`.
+
+With `-z` you can specify how many frames to render, or `-1` to zoom all the
+way out.  In zoom out mode the PNG, JPEG, and KFB filenames should contain a
+printf flag for an integer, for example `image-%08d.png` will have 8 decimal
+digits padded with leading 0. This is filled by the frame number, which always
+starts from 0.  Zooming is by the zoom size in the settings file.
