@@ -705,6 +705,7 @@ Feedback:
 - calculate series approximation in parallel with reference
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
+- lowest-connected-bailout radius (suggested by Dinkydau)
 
 ### Newton-Raphson Zooming
 
