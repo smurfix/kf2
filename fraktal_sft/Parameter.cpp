@@ -117,22 +117,6 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	m_scRatio.cy*=xRatio;
 	}
 
-	int nT = stParams.FindString(0, "Smooth");
-	if (nT != -1)
-		m_bTrans = atoi(stParams[nT][1]);
-	if (! bNoLocation)
-	{
-	nID = stParams.FindString(0, "SmoothMethod");
-	if (nID != -1){
-		int m = atoi(stParams[nID][1]);
-		if (m<0 || m>1)
-			m = 0;
-		m_nSmoothMethod = SmoothMethod(m);
-	}
-	m_nBailout = m_nSmoothMethod == SmoothMethod_Sqrt ? 2 : SMOOTH_BAILOUT;
-	m_nBailout2 = m_nBailout*m_nBailout;
-	}
-
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
@@ -176,6 +160,23 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		m_nFractalType = atoi(stParams[nID][1]);
 	else
 		m_nFractalType = 0;
+	}
+
+	int nT = stParams.FindString(0, "Smooth");
+	if (nT != -1)
+		m_bTrans = atoi(stParams[nT][1]);
+	if (! bNoLocation)
+	{
+	nID = stParams.FindString(0, "SmoothMethod"); // must come after "Power"
+	if (nID != -1){
+		int m = atoi(stParams[nID][1]);
+		if (m<0 || m>2)
+			m = 0;
+		m_nSmoothMethod = SmoothMethod(m);
+	}
+	m_nBailout = m_nSmoothMethod == SmoothMethod_SqrtLow ? pow(2.0, 1.0 / (m_nPower - 1))
+	           : m_nSmoothMethod == SmoothMethod_Sqrt ? 2 : SMOOTH_BAILOUT;
+	m_nBailout2 = m_nBailout*m_nBailout;
 	}
 
 	nID = stParams.FindString(0, "Slopes");

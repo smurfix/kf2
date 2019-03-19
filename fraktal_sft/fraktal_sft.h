@@ -188,7 +188,8 @@ public:
 enum SmoothMethod
 {
 	SmoothMethod_Log = 0,
-	SmoothMethod_Sqrt = 1
+	SmoothMethod_Sqrt = 1,
+	SmoothMethod_SqrtLow = 2
 };
 
 enum ColorMethod

@@ -2631,11 +2631,17 @@ void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
 		m_nBailout = SMOOTH_BAILOUT;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
-	else{
+	else if (nSmoothMethod == 1){
 		m_nSmoothMethod = SmoothMethod_Sqrt;
 		m_nBailout = 2;
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
+	else{
+		m_nSmoothMethod = SmoothMethod_SqrtLow;
+		m_nBailout = pow(2.0, 1.0 / (m_nPower - 1));
+		m_nBailout2 = m_nBailout*m_nBailout;
+	}
+
 }
 int CFraktalSFT::GetPower()
 {
@@ -2658,6 +2664,7 @@ void CFraktalSFT::SetPower(int nPower)
 		else
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 	}
+	SetSmoothMethod(m_nSmoothMethod); // update bailout if necessary
 }
 
 void CFraktalSFT::SetDifferences(int nDifferences)
@@ -3028,7 +3035,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, i
 				m_nDE[x][y] = de;
 			}
 
-			if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt){
+			if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt || m_nSmoothMethod == SmoothMethod_SqrtLow){
 				double div = sqrt(test1) - sqrt(test2);
 				if (div != 0)
 					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
