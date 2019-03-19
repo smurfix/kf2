@@ -51,8 +51,6 @@ Feedback:
   (reported by CFJH)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
-- crash when entering malformed values in location zoom dialog (eg `1E` or `E1`)
-  (reported by Foxxie)
 - "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
@@ -92,6 +90,9 @@ Feedback:
 ## Differences From Upstream 2.11.1
 
 ### Incompatible Changes
+
+- **In versions `2.14.5` and above**, the new Low "bailout" (SmoothMethod: 2)
+  is not available in earlier versions.
 
 - **In versions `2.14.4` and above**, the new "Mothbrot" formulas are not
   available in earlier versions.
