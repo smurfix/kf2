@@ -1170,31 +1170,39 @@ void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rsto
 }
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
-	Precision pLo(20u);
-	CDecNumber z(szZ);
-	CDecNumber di(2 / z);
-	long e = 0;
-	mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
-	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
-	Precision pHi(digits10);
-	m_rref.m_f.precision(digits10);
-	m_iref.m_f.precision(digits10);
-	m_rstart.m_f.precision(digits10);
-	m_rstop.m_f.precision(digits10);
-	m_istart.m_f.precision(digits10);
-	m_istop.m_f.precision(digits10);
+	try
+	{
+		Precision pLo(20u);
+		CDecNumber z(szZ); // throws on bad string
+		CDecNumber di(2 / z);
+		long e = 0;
+		mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
+		unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
+		Precision pHi(digits10);
 
-	CDecNumber re(szR);
-	CDecNumber im(szI);
-	CDecNumber istart(im - di);
-	CDecNumber istop(im + di);
-	CDecNumber dr(((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5);
-	CDecNumber rstart(re - dr);
-	CDecNumber rstop(re + dr);
-	m_rstart = rstart.m_dec;
-	m_rstop = rstop.m_dec;
-	m_istart = istart.m_dec;
-	m_istop = istop.m_dec;
+		CDecNumber re(szR); // throws on bad string
+		CDecNumber im(szI); // throws on bad string
+		CDecNumber istart(im - di);
+		CDecNumber istop(im + di);
+		CDecNumber dr(((double)m_scRatio.cx / (double)(m_scRatio.cy))*(istop - istart)*.5);
+		CDecNumber rstart(re - dr);
+		CDecNumber rstop(re + dr);
+
+		m_rref.m_f.precision(digits10);
+		m_iref.m_f.precision(digits10);
+		m_rstart.m_f.precision(digits10);
+		m_rstop.m_f.precision(digits10);
+		m_istart.m_f.precision(digits10);
+		m_istop.m_f.precision(digits10);
+		m_rstart = rstart.m_dec;
+		m_rstop = rstop.m_dec;
+		m_istart = istart.m_dec;
+		m_istop = istop.m_dec;
+	}
+	catch (...)
+	{
+		std::cerr << "ERROR: SetPosition(): couldn't parse float (ignored)" << std::endl;
+	}
 }
 
 #ifdef KF_OPENCL
