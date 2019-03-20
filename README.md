@@ -182,7 +182,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.5** (????-??-??)
+- **kf-2.14.5** (2019-03-20)
 
     - new feature: command line zoom sequence rendering with `-z NFRAMES` flag
     - new feature: low bailout (SmoothMethod: 2) (suggested by Dinkydau)
