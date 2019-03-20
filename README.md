@@ -191,6 +191,8 @@ Feedback:
       <https://fractalforums.org/f/28/t/2653/msg13242#msg13242>
     - bugfix: thin black line in exterior between iteration bands (reported by CFJH)
     - bugfix: malformed location no longer crashes (reported by Foxxie)
+    - upgrade to mpfr 4.0.2
+    - upgrade to glm 0.9.9.4
 
 - **kf-2.14.4** (2019-01-18)
 
