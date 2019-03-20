@@ -94,6 +94,9 @@ Feedback:
 - **In versions `2.14.5` and above**, the new Low "bailout" (SmoothMethod: 2)
   is not available in earlier versions.
 
+- **In versions `2.14.5` and above**, the two new General Abs Quadratic formulas
+  are not available in earlier versions.
+
 - **In versions `2.14.4` and above**, the new "Mothbrot" formulas are not
   available in earlier versions.
 
@@ -184,6 +187,8 @@ Feedback:
     - new feature: command line zoom sequence rendering with `-z NFRAMES` flag
     - new feature: low bailout (SmoothMethod: 2) (suggested by Dinkydau)
       <https://fractalforums.org/f/28/t/2594/msg12801#msg12801>
+    - new feature: General Abs Quadratic formulas (inspired by Alef and gerrit)
+      <https://fractalforums.org/f/28/t/2653/msg13242#msg13242>
     - bugfix: thin black line in exterior between iteration bands (reported by CFJH)
     - bugfix: malformed location no longer crashes (reported by Foxxie)
 
@@ -1866,6 +1871,14 @@ Formulas:
   -   Mothbrot 6th 5x1
 
           z := z^5 (|x| + i |y|)^1 + c
+
+  -   General Abs Quadratic Minus
+
+          z := ((x^2 - y^2) + i (2 d |x y| + e x^2)) + c
+
+  -   General Abs Quadratic Plus
+
+          z := ((x^2 + y^2) + i (2 d |x y| + e x^2)) + c
 
 A machine-readable version of this formula list is found in the 'et' repository:
 <https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This is used by 'et' when
