@@ -4859,6 +4859,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 #endif
+#ifdef __GNUC__
+        "\nCompiler:\n"
+        "- MINGW/G++ %d.%d.%d <http://gcc.gnu.org/>\n"
+#endif
 				"\nThanks to:\n"
 				" - K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and sharing theory and source code!\n"
 				" - Pauldelbrot for reliable glitch detection method\n"
@@ -4883,6 +4887,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				GSL_VERSION,
 				GLM_VERSION_MAJOR, GLM_VERSION_MINOR, GLM_VERSION_PATCH, GLM_VERSION_REVISION,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
+#ifdef __GNUC__
+				, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__
+#endif
 				);
 			szMsg[4096-1] = 0;
 			return MessageBox(hWnd,szMsg,"Kalle's Fraktaler 2",MB_OK);
