@@ -3043,7 +3043,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, i
 				m_nDE[x][y] = de;
 			}
 
-			if (!bGlitch && m_nSmoothMethod == SmoothMethod_Sqrt || m_nSmoothMethod == SmoothMethod_SqrtLow){
+			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt || m_nSmoothMethod == SmoothMethod_SqrtLow)){
 				double div = sqrt(test1) - sqrt(test2);
 				if (div != 0)
 					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
