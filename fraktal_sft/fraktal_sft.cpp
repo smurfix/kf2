@@ -1495,7 +1495,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 }
 
 extern int g_bAutoGlitch;
-int CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
+double CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
 {
 	int iters = m_nMaxIter;
 	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1)
