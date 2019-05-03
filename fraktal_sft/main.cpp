@@ -1833,7 +1833,7 @@ nPos=24;
 			{
 				g_bSaveTif=FALSE;
 				char szFile[1024]={0};
-				strncpy(szFile, g_args->sSaveTIF.c_str(), sizeof(szFile));
+				strncpy(szFile, g_args->sSaveTIF.c_str(), sizeof(szFile)-1);
 				std::cerr << "saving TIFF " << szFile << std::endl;
 				if(!g_SFT.SaveJpg(szFile,-2))
 					std::cerr << "ERROR in save TIFF: " << szFile << std::endl;
