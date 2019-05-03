@@ -195,9 +195,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nIterDiv = 0.1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
-	m_nInflections=0;
-	m_pInflections=NULL;
-
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	GenerateColors(128, 1);
@@ -2899,15 +2896,15 @@ void CFraktalSFT::AddInflectionPont(int nXPos, int nYPos)
 	double dbD0r = mr + m_C*(xpos - mr) + m_S*(nYPos - mi);
 	double dbD0i = mi - m_S*(xpos - mr) + m_C*(nYPos - mi);
 	dbD0r = (dbD0r - mr) / ratio + mr;
-	int i = m_nInflections++;
-	m_pInflections = (complex<CFixedFloat> *)realloc(m_pInflections,sizeof(complex<CFixedFloat>)*m_nInflections);
-	m_pInflections[i].m_r = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
-	m_pInflections[i].m_i = (CFixedFloat)dbD0i*(m_istop - m_istart)*(CFixedFloat)((double)1 / m_nY) + m_istart;
+	complex<CFixedFloat> inflect;
+	inflect.m_r = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
+	inflect.m_i = (CFixedFloat)dbD0i*(m_istop - m_istart)*(CFixedFloat)((double)1 / m_nY) + m_istart;
+	m_Inflections.push_back(inflect);
 }
 void CFraktalSFT::RemoveInflectionPoint()
 {
-	if(m_nInflections)
-		m_nInflections--;
+	if (m_Inflections.size() > 0)
+		m_Inflections.pop_back();
 }
 
 #ifdef KF_OPENCL

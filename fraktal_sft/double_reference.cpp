@@ -281,13 +281,13 @@ void CFraktalSFT::CalculateReference()
 	CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 
-	if (m_nInflections)
+	if (m_Inflections.size() > 0)
 	{
 		int inf;
 		complex<CFixedFloat> c(m_rref,m_iref);
-		for(inf=m_nInflections-1;inf>=0;inf--){
-			complex<CFixedFloat> d = c-m_pInflections[inf];
-			c=m_pInflections[inf]+d*d;
+		for(inf=m_Inflections.size()-1;inf>=0;inf--){
+			complex<CFixedFloat> d = c-m_Inflections[inf];
+			c=m_Inflections[inf]+d*d;
 		}
 		m_rref=c.m_r;
 		m_iref=c.m_i;

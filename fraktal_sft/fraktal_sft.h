@@ -343,8 +343,7 @@ class CFraktalSFT
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
 
-	int m_nInflections;
-	complex<CFixedFloat> *m_pInflections;
+	std::vector< complex<CFixedFloat> > m_Inflections;
 
 	NanoMB1_Reference *m_NanoMB1Ref;
 	NanoMB2_Reference *m_NanoMB2Ref;
