@@ -1670,11 +1670,11 @@ nPos=14;
 			{
 				szZd = std::stod(szZ);
 			}
-			catch (std::out_of_range e)
+			catch (std::out_of_range &e)
 			{
 				szZd = 1;
 			}
-			catch (std::invalid_argument e)
+			catch (std::invalid_argument &e)
 			{
 				szZd = 0.0;
 			}
