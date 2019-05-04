@@ -152,6 +152,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_AUTOSKEW_BUTTON             1099
 #define IDC_AUTOSKEW_USEDZ              1100
 #define IDC_LOCATION_PERIOD             1101
+#define IDC_BALL_PERIOD                 1102
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -247,7 +248,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
-#define IDC_COMBO_OPENCL_DEVICE  1102
+#define IDC_COMBO_OPENCL_DEVICE  1103
 #define ID_SPECIAL_OPENCL       40104
 #endif
 
@@ -257,7 +258,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        121
 #define _APS_NEXT_COMMAND_VALUE         40105
-#define _APS_NEXT_CONTROL_VALUE         1103
+#define _APS_NEXT_CONTROL_VALUE         1104
 #define _APS_NEXT_SYMED_VALUE           101
 #endif
 #endif

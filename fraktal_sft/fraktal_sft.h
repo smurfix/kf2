@@ -533,6 +533,12 @@ public:
 		// FIXME kf does not support rotation after skew...
 	}
 	inline void SetTransformMatrix(const mat2 &M) { SetTransformPolar(polar_decomposition(M)); }
+	inline mat2 GetTransformMatrix() const
+	{
+		double ratio = (((double)m_nY/(double)m_nX)/(360.0/640.0)) * ((double)360 / (double)m_scRatio.cy);
+		double k = sqrt(std::abs(ratio));
+		return polar_composition(polar2(1.0, -g_Degree, k, g_Degree));
+	}
 
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \

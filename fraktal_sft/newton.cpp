@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -55,6 +55,7 @@ BOOL g_bNewtonRunning=FALSE;
 BOOL g_bNewtonStop=FALSE;
 static BOOL g_bNewtonExit=FALSE;
 bool g_bJustDidNewton = false;
+bool g_bUseBallPeriod = false;
 
 static std::string g_szRe;
 static std::string g_szIm;
@@ -758,7 +759,14 @@ static int WINAPI ThNewton(HWND hWnd)
 		if (f)
 		{
 		  flyttyp r = flyttyp(4) / radius;
-		  g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
+		  if (g_bUseBallPeriod)
+		  {
+		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_skew[0], &running);
+		  }
+		  else
+		  {
+		    g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
+		  }
 		  if (g_period < 0) g_period = 0;
 		}
 		else
@@ -1015,6 +1023,11 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	if(uMsg==WM_USER+1){
 		if(!g_bNewtonRunning){
+			mat2 m = g_SFT.GetTransformMatrix();
+			g_skew[0] = m[0][0];
+			g_skew[1] = m[0][1];
+			g_skew[2] = m[1][0];
+			g_skew[3] = m[1][1];
 			RECT r = *(RECT*)lParam;
 			g_szRe = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
 			g_szIm = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
@@ -1028,6 +1041,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nMinibrotPos=3;
 			else if(SendDlgItemMessage(hWnd,IDC_RADIO5,BM_GETCHECK,0,0))
 				g_nMinibrotPos=4;
+			g_bUseBallPeriod = SendDlgItemMessage(hWnd,IDC_BALL_PERIOD,BM_GETCHECK,0,0);
 			DWORD dw;
 			g_bNewtonStop=FALSE;
 			g_bNewtonExit=FALSE;
