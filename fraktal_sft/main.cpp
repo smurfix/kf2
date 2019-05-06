@@ -4564,6 +4564,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else if(wParam==ID_IMAGE_SHRINK_DEFAULT) g_SFT.SetShrink(1);
 			else if(wParam==ID_IMAGE_SHRINK_BEST)    g_SFT.SetShrink(2);
 			UpdateShrink(hWnd);
+			InvalidateRect(hWnd,NULL,FALSE);
 		}
 		else if(wParam==ID_SPECIAL_PRESET_FAST){
 			g_SFT.SetIsolatedGlitchNeighbourhood(4);
