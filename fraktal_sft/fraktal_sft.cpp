@@ -50,6 +50,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main.h"
 #include "gradient.h"
 #include "newton.h"
+#include "scale_bitmap.h"
 
 double g_real=1;
 double g_imag=1;
@@ -439,25 +440,36 @@ extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 	cPos.b = (byte) c.b;
 }
 
-HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone)
+HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode)
 {
 	HDC hDC = GetDC(NULL);
-	BITMAP bm;
-	GetObject(bmSrc,sizeof(BITMAP),&bm);
-	HDC dcSrc = CreateCompatibleDC(hDC);
-	HBITMAP bmOldSrc = (HBITMAP)SelectObject(dcSrc,bmSrc);
-	HDC dcDst = CreateCompatibleDC(hDC);
 	HBITMAP bmDst = create_bitmap(hDC,nNewWidth,nNewHeight);
-	HBITMAP bmOldDst = (HBITMAP)SelectObject(dcDst,bmDst);
-	if(bHalfTone)
-		SetStretchBltMode(dcDst,HALFTONE);
+  if (mode == 2) // best
+	{
+		BITMAP s, d;
+		GetObject(bmSrc, sizeof(BITMAP), &s);
+		GetObject(bmDst, sizeof(BITMAP), &d);
+		bool ok = scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight);
+		assert(ok && "scale_bitmap_rgb8");
+	}
 	else
-		SetStretchBltMode(dcDst,COLORONCOLOR);
-	StretchBlt(dcDst,0,0,nNewWidth,nNewHeight,dcSrc,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
-	SelectObject(dcDst,bmOldDst);
-	SelectObject(dcSrc,bmOldSrc);
-	DeleteDC(dcDst);
-	DeleteDC(dcSrc);
+	{
+		BITMAP bm;
+		GetObject(bmSrc,sizeof(BITMAP),&bm);
+		HDC dcSrc = CreateCompatibleDC(hDC);
+		HBITMAP bmOldSrc = (HBITMAP)SelectObject(dcSrc,bmSrc);
+		HDC dcDst = CreateCompatibleDC(hDC);
+		HBITMAP bmOldDst = (HBITMAP)SelectObject(dcDst,bmDst);
+		if(mode == 1)
+			SetStretchBltMode(dcDst,HALFTONE);
+		else // mode == 0
+			SetStretchBltMode(dcDst,COLORONCOLOR);
+		StretchBlt(dcDst,0,0,nNewWidth,nNewHeight,dcSrc,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
+		SelectObject(dcDst,bmOldDst);
+		SelectObject(dcSrc,bmOldSrc);
+		DeleteDC(dcDst);
+		DeleteDC(dcSrc);
+	}
 	ReleaseDC(NULL,hDC);
 	return bmDst;
 }
@@ -2646,7 +2658,6 @@ void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
 		m_nBailout = pow(2.0, 1.0 / (m_nPower - 1));
 		m_nBailout2 = m_nBailout*m_nBailout;
 	}
-
 }
 int CFraktalSFT::GetPower()
 {

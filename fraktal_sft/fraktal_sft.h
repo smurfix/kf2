@@ -378,7 +378,6 @@ class CFraktalSFT
 #endif
 	int GetArea(int **Node, int nXStart, int nXStop, int nEqSpan = 2, int **Pixels = NULL, int nDone = -1);
 
-	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,BOOL bHalfTone=TRUE);
 	void SetTexture(int nIndex, int x, int y);
 	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1, int w = 1, int h = 1);
 	void DeleteArrays();
@@ -415,6 +414,7 @@ public:
 	void RenderFractal();
 	void CalcStart(int x0, int x1, int y0, int y1);
 	HBITMAP GetBitmap();
+	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
 	void UpdateBitmap();
 	int GetWidth();
 	int GetHeight();
@@ -590,6 +590,7 @@ public:
   INT(OrderN)
   BOOL(InteriorChecking)
   DOUBLE(RadiusScale)
+  INT(Shrink)
 #undef DOUBLE
 #undef INT
 #undef BOOL

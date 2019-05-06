@@ -638,6 +638,12 @@ BEGIN
         MENUITEM "Set ratio",                   ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO,MFT_STRING,MFS_ENABLED
         MENUITEM "Reset ratio\tCtrl+Shift+K",   ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,MFT_STRING,MFS_ENABLED
         MENUITEM "Skew animation",              ID_SPECIAL_SKEWANIMATION,MFT_STRING,MFS_ENABLED
+        POPUP "Shrink quality",                 65535,MFT_STRING,MFS_ENABLED
+        BEGIN
+            MENUITEM "Fast",                        ID_IMAGE_SHRINK_FAST,MFT_STRING,MFS_ENABLED
+            MENUITEM "Default",                     ID_IMAGE_SHRINK_DEFAULT,MFT_STRING,MFS_ENABLED
+            MENUITEM "Best",                        ID_IMAGE_SHRINK_BEST,MFT_STRING,MFS_ENABLED
+        END
     END
 
     POPUP "&Navigation",65535,MFT_STRING,MFS_ENABLED

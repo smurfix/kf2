@@ -75,6 +75,7 @@ private:
   int m_OrderN;
   bool m_InteriorChecking;
   double m_RadiusScale;
+  int m_Shrink;
 
 public:
 
@@ -119,6 +120,7 @@ public:
   , m_OrderN(16)
   , m_InteriorChecking(false)
   , m_RadiusScale(0.1)
+  , m_Shrink(1)
   { };
 
   bool FromText(const std::string &text);
@@ -264,6 +266,10 @@ public:
 
   inline double GetRadiusScale() const { return m_RadiusScale; };
   inline void   SetRadiusScale(double b) { m_RadiusScale = b; };
+
+  inline int    GetShrink() const { return m_Shrink; };
+  inline void   SetShrink(int n) { m_Shrink = 0 <= n && n <= 2 ? n : 1; };
+
 };
 
 #endif

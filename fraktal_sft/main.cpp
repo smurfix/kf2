@@ -353,6 +353,14 @@ extern char *GetToolText(int nID, LPARAM lParam)
 
 // settings update
 
+static void UpdateShrink(HWND hWnd)
+{
+	int s = g_SFT.GetShrink();
+	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_FAST,    MF_BYCOMMAND | (s == 0 ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_DEFAULT, MF_BYCOMMAND | (s == 1 ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_BEST,    MF_BYCOMMAND | (s == 2 ? MF_CHECKED : MF_UNCHECKED));
+}
+
 static void UpdateZoomSize(HWND hWnd)
 {
 	double z = g_SFT.GetZoomSize();
@@ -488,6 +496,7 @@ static void UpdateShowCrossHair(HWND hWnd)
 
 static void UpdateMenusFromSettings(HWND hWnd)
 {
+	UpdateShrink(hWnd);
 	UpdateZoomSize(hWnd);
 	UpdateThreadsPerCore(hWnd);
 	UpdateAnimateZoom(hWnd);
@@ -2807,28 +2816,26 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
+		RECT rc;
+		GetClientRect(hWnd,&rc);
+		rc.bottom-=sr.bottom;
+		int width = rc.right;
+		int height = rc.bottom;
 		PAINTSTRUCT ps;
 		BeginPaint(hWnd,&ps);
 		SetStretchBltMode(ps.hdc,HALFTONE);
 		HDC dcBmp = CreateCompatibleDC(ps.hdc);
-		HBITMAP bmBmp = g_SFT.GetBitmap();
+		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetShrink());
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
-		RECT rc;
-		GetClientRect(hWnd,&rc);
-		rc.bottom-=sr.bottom;
 		if(g_bShowInflection){
 			POINT p;
 			int i;
 			for(i=0;i<g_nInflection;i++){
 				p = g_pInflections[i];
-				p.x = p.x*g_SFT.GetWidth()/rc.right;
-				p.y = p.y*g_SFT.GetHeight()/rc.bottom;
 				RotateImageAroundPoint(bmBmp,p);
 			}
 			GetCursorPos(&p);
 			ScreenToClient(hWnd,&p);
-			p.x = p.x*g_SFT.GetWidth()/rc.right;
-			p.y = p.y*g_SFT.GetHeight()/rc.bottom;
 			RotateImageAroundPoint(bmBmp,p);
 		}
 		else if(g_bShowSkew){
@@ -2836,8 +2843,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SkewImage(bmBmp);
 			bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		}
-		StretchBlt(ps.hdc,0,0,rc.right,rc.bottom,dcBmp,0,0,g_SFT.GetWidth(),g_SFT.GetHeight(),SRCCOPY);
+		StretchBlt(ps.hdc,0,0,rc.right,rc.bottom,dcBmp,0,0,width,height,SRCCOPY);
 		SelectObject(dcBmp,bmOld);
+		DeleteObject(bmBmp);
 		DeleteDC(dcBmp);
 		EndPaint(hWnd,&ps);
 		return 0;
@@ -4548,6 +4556,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			UpdateZoomSize(hWnd);
+		}
+		else if(wParam==ID_IMAGE_SHRINK_FAST ||
+			wParam==ID_IMAGE_SHRINK_DEFAULT ||
+			wParam==ID_IMAGE_SHRINK_BEST){
+			     if(wParam==ID_IMAGE_SHRINK_FAST)    g_SFT.SetShrink(0);
+			else if(wParam==ID_IMAGE_SHRINK_DEFAULT) g_SFT.SetShrink(1);
+			else if(wParam==ID_IMAGE_SHRINK_BEST)    g_SFT.SetShrink(2);
+			UpdateShrink(hWnd);
 		}
 		else if(wParam==ID_SPECIAL_PRESET_FAST){
 			g_SFT.SetIsolatedGlitchNeighbourhood(4);

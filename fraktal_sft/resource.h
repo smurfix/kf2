@@ -244,6 +244,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_SPECIAL_USENANOMB1   40101
 #define ID_ACTIONS_SPECIAL_USENANOMB2   40102
 #define ID_ACTIONS_SPECIAL_INTERIORCHECKING         40103
+#define ID_IMAGE_SHRINK_FAST            40104
+#define ID_IMAGE_SHRINK_DEFAULT         40105
+#define ID_IMAGE_SHRINK_BEST            40106
 
 // OpenCL
 #ifdef KF_OPENCL
