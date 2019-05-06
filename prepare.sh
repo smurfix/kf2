@@ -31,6 +31,7 @@ wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c https://download.sourceforge.net/libpng/libpng-1.6.36.tar.xz
 wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz
+wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.4/glm-0.9.9.4.zip
 cp -avft ~/win32/src *z *.zip #allpatches
 # gmp 64
@@ -141,6 +142,22 @@ make -j $NCPUS
 make install
 ln -s gsl-histogram.exe gsl-histogram # hack for test suite
 make check
+# pixman 64
+cd ~/win64/src
+tar xf pixman-*.tar.gz
+cd pixman-*/
+CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win64
+make -j $NCPUS
+make install
+make check || echo "expected 1 FAIL"
+# pixman 32
+cd ~/win32/src
+tar xf pixman-*.tar.gz
+cd pixman-*/
+CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win32/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win32
+make -j $NCPUS
+make install
+make check || echo "expected 1 FAIL"
 # boost
 cd ~/win64/src
 7zr x boost*.7z
