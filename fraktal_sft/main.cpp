@@ -53,6 +53,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <png.h>
 #include <zlib.h>
 #include <gsl/gsl_version.h>
+#include <pixman.h>
 #include "check_for_update.h"
 #include "jpeg.h"
 #include "png.h"
@@ -4872,6 +4873,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- GMP %d.%d.%d <http://gmplib.org>\n"
 				"- MPFR %s <http://mpfr.org>\n"
 				"- GSL %s <http://www.gnu.org/software/gsl>\n"
+				"- PIXMAN %s <http://pixman.org>\n"
 				"- GLM %d.%d.%d.%d <http://glm.g-truc.net>\n"
 				"- Boost %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
@@ -4903,6 +4905,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				__GNU_MP_VERSION, __GNU_MP_VERSION_MINOR, __GNU_MP_VERSION_PATCHLEVEL,
 				MPFR_VERSION_STRING,
 				GSL_VERSION,
+				PIXMAN_VERSION_STRING,
 				GLM_VERSION_MAJOR, GLM_VERSION_MINOR, GLM_VERSION_PATCH, GLM_VERSION_REVISION,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 #ifdef __GNUC__
