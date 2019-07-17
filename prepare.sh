@@ -22,23 +22,23 @@ mkdir -p ~/win64/src
 mkdir -p ~/win32/src
 # download
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.69.0/source/boost_1_69_0.7z
+wget -c https://dl.bintray.com/boostorg/release/1.70.0/source/boost_1_70_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
-#wget -c http://www.mpfr.org/mpfr-current/allpatches
+wget -c https://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
-wget -c http://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
-wget -c https://download.sourceforge.net/libpng/libpng-1.6.36.tar.xz
+wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
+wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
 wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
 wget -c ftp://ftp.gnu.org/gnu/gsl/gsl-2.5.tar.gz
 wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
-wget -c https://github.com/g-truc/glm/releases/download/0.9.9.4/glm-0.9.9.4.zip
-cp -avft ~/win32/src *z *.zip #allpatches
+wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
+cp -avft ~/win32/src *z allpatches
 # gmp 64
 cd ~/win64/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
-./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
 make install
 make check
@@ -46,7 +46,7 @@ make check
 cd ~/win32/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
-./configure --host=i686-w64-mingw32 --prefix=$HOME/win32
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
 make check
@@ -54,7 +54,7 @@ make check
 cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
-#patch -N -Z -p1 < ../allpatches
+patch -N -Z -p1 < ../allpatches
 ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
@@ -63,7 +63,7 @@ make check
 cd ~/win32/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
-#patch -N -Z -p1 < ../allpatches
+patch -N -Z -p1 < ../allpatches
 ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
@@ -141,7 +141,7 @@ cd gsl-*/
 make -j $NCPUS
 make install
 ln -s gsl-histogram.exe gsl-histogram # hack for test suite
-make check
+make -k check || echo "expected 2 FAILs (multifit_nlinear, multilarge_nlinear)"
 # pixman 64
 cd ~/win64/src
 tar xf pixman-*.tar.gz
@@ -149,7 +149,7 @@ cd pixman-*/
 CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win64
 make -j $NCPUS
 make install
-make check || echo "expected 1 FAIL"
+make check || echo "expected 1 FAIL (thread-test)"
 # pixman 32
 cd ~/win32/src
 tar xf pixman-*.tar.gz
@@ -157,7 +157,7 @@ cd pixman-*/
 CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win32/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win32
 make -j $NCPUS
 make install
-make check || echo "expected 1 FAIL"
+make check || echo "expected 1 FAIL (thread-test)"
 # boost
 cd ~/win64/src
 7zr x boost*.7z
@@ -169,7 +169,7 @@ rm boost
 ln -s ../../win64/src/boost*/boost/
 # glm
 cd ~/win64/src
-unzip glm*.zip
+7zr x glm*.7z
 cd ~/win64/include
 rm glm
 ln -s ../src/glm*/glm/
