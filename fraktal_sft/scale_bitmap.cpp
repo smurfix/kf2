@@ -80,12 +80,13 @@ extern bool scale_bitmap_rgb8
   double sx = hypot(ftransform.m[0][0], ftransform.m[0][1]) / ftransform.m[2][2];
   double sy = hypot(ftransform.m[1][0], ftransform.m[1][1]) / ftransform.m[2][2];
   int n_params = 0;
+  pixman_kernel_t k = PIXMAN_KERNEL_LANCZOS3;
   pixman_fixed_t *params = pixman_filter_create_separable_convolution
     ( &n_params
     , sx * 65536.0 + 0.5
     , sy * 65536.0 + 0.5
-    , PIXMAN_KERNEL_GAUSSIAN, PIXMAN_KERNEL_GAUSSIAN // reconstruct x,y
-    , PIXMAN_KERNEL_GAUSSIAN, PIXMAN_KERNEL_GAUSSIAN // sample x,y
+    , k, k // reconstruct x,y
+    , k, k // sample x,y
 	  , 4, 4 // subsample x,y
     );
   if (! params) goto cleanup;
@@ -93,7 +94,6 @@ extern bool scale_bitmap_rgb8
   if (! src) goto cleanup;
   pixman_image_set_filter(src, PIXMAN_FILTER_SEPARABLE_CONVOLUTION, params, n_params);
   pixman_image_set_repeat(src, PIXMAN_REPEAT_PAD);
-  params = nullptr;
 
   pixman_image_composite
     ( PIXMAN_OP_SRC
