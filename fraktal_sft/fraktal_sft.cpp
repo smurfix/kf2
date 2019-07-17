@@ -2005,21 +2005,9 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 	if (m_nX == nWidth && m_nY == nHeight)
 		return ::SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
 	else{
-		HDC hDC = GetDC(NULL);
-		HDC dcBmp = CreateCompatibleDC(hDC);
-		HBITMAP bmOldBmp = (HBITMAP)SelectObject(dcBmp, m_bmBmp);
-		HDC dcSave = CreateCompatibleDC(hDC);
-		HBITMAP bmSave = create_bitmap(hDC, nWidth, nHeight);
-		HBITMAP bmOldSave = (HBITMAP)SelectObject(dcSave, bmSave);
-		SetStretchBltMode(dcSave, HALFTONE);
-		StretchBlt(dcSave, 0, 0, nWidth, nHeight, dcBmp, 0, 0, m_nX, m_nY, SRCCOPY);
-		SelectObject(dcBmp, bmOldBmp);
-		SelectObject(dcSave, bmOldSave);
-		DeleteDC(dcBmp);
-		DeleteDC(dcSave);
+		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, GetShrink());
 		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
-		ReleaseDC(NULL, hDC);
 		return nRet;
 	}
 }
