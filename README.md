@@ -184,6 +184,8 @@ Feedback:
 
 - **kf-2.14.6** (????-??-??)
 
+    - new feature: high quality image downscaling with anti-aliasing using
+      the Pixman library
     - bugfix: image is refreshed from first calculated pixels, instead of 1%
       (reported by Fluoroantimonic_Acid)
 
@@ -1010,6 +1012,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.gnu.org/licenses/lgpl-3.0.en.html>
 - the GSL library is used under the conditions of the GNU General Public License
   <https://www.gnu.org/licenses/gpl.html>
+- the PIXMAN library is used under the conditions of the MIT License
+  <https://cgit.freedesktop.org/pixman/tree/COPYING>
 - the GLM library is used under the conditions of the MIT License
   <https://glm.g-truc.net/copying.txt>
 - the Boost library is used under the Boost Software License Version 1.0
@@ -1272,6 +1276,19 @@ Software license.
     specify end skew parameters and number of frames. The fractal will be
     rendered frame by frame, and can be combined with frame by frame rendering
     in KeyFrameMovieMaker or MMY3D
+
+  - **Shrink quality**
+
+    Set quality of image scaling.  "Fast" and "Default" are better suited
+    for exploring, but "Best" looks much better at the cost of slower colouring
+    (it does properly filtered anti-aliasing).
+
+    You shouldn't need to adjust this unless you set the image size larger than
+    the window size, or intend saving image files at smaller resolutions than the
+    image size.
+
+    Note: this feature is still a bit experimental and subject to change in
+    future versions.
 
 ## Navigation
 
