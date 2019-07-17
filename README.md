@@ -188,6 +188,11 @@ Feedback:
       the Pixman library
     - bugfix: image is refreshed from first calculated pixels, instead of 1%
       (reported by Fluoroantimonic_Acid)
+    - upgrade to boost 1.70.0
+    - upgrade to mpfr 4.0.2p1
+    - upgrade to png 1.6.37
+    - upgrade to glm 0.9.9.5
+    - upgrade to mingw64 g++ 8.3-win32 20190406 and rebuild everything
 
 - **kf-2.14.5** (2019-03-20)
 
