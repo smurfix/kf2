@@ -162,17 +162,17 @@ make check || echo "expected 1 FAIL (thread-test)"
 cd ~/win64/src
 7zr x boost*.7z
 cd ~/win64/include
-rm boost
+rm -f boost
 ln -s ../src/boost*/boost/
 cd ~/win32/include
-rm boost
+rm -f boost
 ln -s ../../win64/src/boost*/boost/
 # glm
 cd ~/win64/src
 7zr x glm*.7z
 cd ~/win64/include
-rm glm
+rm -f glm
 ln -s ../src/glm*/glm/
 cd ~/win32/include
-rm glm
+rm -f glm
 ln -s ../../win64/src/glm*/glm/
