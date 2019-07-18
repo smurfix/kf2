@@ -70,7 +70,11 @@ static std::vector<std::string> SplitCommandLine(const std::string&commandline)
 }
 
 CommandLineArguments::CommandLineArguments(const std::string &commandline)
-: bLoadLocation(false)
+: bLoadMap(false)
+, sLoadMap("")
+, bLoadPalette(false)
+, sLoadPalette("")
+, bLoadLocation(false)
 , sLoadLocation("")
 , bLoadSettings(false)
 , sLoadSettings("")
@@ -91,7 +95,33 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 	std::vector<std::string> args = SplitCommandLine(commandline);
   for (size_t i = 0; i < args.size(); ++i)
   {
-		if ("-l" == args[i] || "--load-location" == args[i])
+		if ("-o" == args[i] || "--load-map" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				bLoadMap = true;
+				sLoadMap = args[i];
+			}
+			else
+			{
+				bError = true;
+			}
+		}
+		else if ("-c" == args[i] || "--load-palette" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				bLoadPalette = true;
+				sLoadPalette = args[i];
+			}
+			else
+			{
+				bError = true;
+			}
+		}
+		else if ("-l" == args[i] || "--load-location" == args[i])
 		{
 			++i;
 			if (i < args.size())
@@ -216,6 +246,8 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 
 const std::string usage =
 "kf.exe [options]\n"
+"    -o, --load-map      [FILE.kfb]  load map file\n"
+"    -c, --load-palette  [FILE.kfp]  load palette file\n"
 "    -l, --load-location [FILE.kfr]  load location file\n"
 "    -s, --load-settings [FILE.kfs]  load settings file\n"
 "    -t, --save-tif      [FILE.tif]  save TIFF\n"
