@@ -730,6 +730,7 @@ Feedback:
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
 - lowest-connected-bailout radius (suggested by Dinkydau)
+- use minimum |z| pixels for new references (suggested by quaz0r)
 
 ### Newton-Raphson Zooming
 
@@ -762,12 +763,16 @@ Feedback:
 
 - high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
 - assume sRGB display and gamma-correct downscaling
+  (pixman currently supports 32bit sRGB+A, but no 24bit sRGB without alpha)
 - load/save palette to/from image
 - rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
 - colour cycling (suggested by blob)
 - show .kfp filename in colour dialog (suggested by gerrit)
 - more flexible colouring with lighting/layers/etc (suggested by Fraktalist)
+- import gradients from various formats (.ugr/.gradient, .map, .xml (flam3))
+  inspired by Mandel Meute + padleywood's gradient convert tool:
+  <https://fractalforums.org/f/11/t/2934>
 
 
 ## Getting The Code
@@ -804,10 +809,10 @@ some more packages, adding another 600MB of downloads and 1GB of space, so I
 left that optional.  If you have recent Debian you can skip the chroot step and
 install natively.
 
-0. Setup Debian Stretch chroot:
+0. Setup Debian Buster chroot:
 
         mkdir ./vm
-        sudo debootstrap stretch ./vm/
+        sudo debootstrap buster ./vm/
         sudo mount proc ./vm/proc -t proc
         sudo mount sysfs ./vm/sys -t sysfs
         sudo cp /etc/hosts ./vm/etc/hosts
@@ -909,6 +914,14 @@ The working Debian Stretch has:
     $ x86_64-w64-mingw32-g++ --version
     x86_64-w64-mingw32-g++ (GCC) 6.3.0 20170516
     Copyright (C) 2016 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+The working Debian Buster has:
+
+    $ x86_64-w64-mingw32-g++ --version
+    x86_64-w64-mingw32-g++ (GCC) 8.3-win32 20190406
+    Copyright (C) 2018 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
