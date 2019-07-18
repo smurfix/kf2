@@ -2619,7 +2619,7 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	WriteFile(hFile, &m_nMaxIter, sizeof(int), &dw, NULL);
 	for (x = 0; x<m_nX; x++)
 		WriteFile(hFile, m_nTrans[x], m_nY*sizeof(float), &dw, NULL);
-	if (m_nDE)
+	if (GetDerivatives() && m_nDE)
 	{
 		for (x = 0; x<m_nX; x++)
 			WriteFile(hFile, m_nDE[x], m_nY*sizeof(float), &dw, NULL);
