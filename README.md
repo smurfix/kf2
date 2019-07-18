@@ -186,6 +186,7 @@ Feedback:
 
     - new feature: high quality image downscaling with anti-aliasing using
       the Pixman library
+    - new feature: ball method for period detection
     - bugfix: image is refreshed from first calculated pixels, instead of 1%
       (reported by Fluoroantimonic_Acid)
     - upgrade to boost 1.70.0
