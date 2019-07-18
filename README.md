@@ -186,9 +186,13 @@ Feedback:
 
     - new feature: high quality image downscaling with anti-aliasing using
       the Pixman library
-    - new feature: ball method for period detection
+    - new feature: ball method for period detection in Newton-Raphson zoom
+    - new feature: command line KFB map colouring
     - bugfix: image is refreshed from first calculated pixels, instead of 1%
       (reported by Fluoroantimonic_Acid)
+    - bugfix: don't read Iteration Divisor from KFB map files (for historical
+      reasons this is an integer in the file format, instead of the floating
+      point value that it can take now in the rest of the program)
     - upgrade to boost 1.70.0
     - upgrade to mpfr 4.0.2p1
     - upgrade to png 1.6.37
@@ -731,6 +735,7 @@ Feedback:
 - refine minibrot using boundary shrinking (calculate edges only)
 - lowest-connected-bailout radius (suggested by Dinkydau)
 - use minimum |z| pixels for new references (suggested by quaz0r)
+- option to build with int64_t iteration counts (audit -Wconversion)
 
 ### Newton-Raphson Zooming
 
@@ -2039,6 +2044,8 @@ generating formula code (for Newton-Raphson zooming, etc).
 ## Command Line Usage
 
     kf.exe [options]
+        -o, --load-map      [FILE.kfb]  load map file
+        -c, --load-palette  [FILE.kfp]  load palette file
         -l, --load-location [FILE.kfr]  load location file
         -s, --load-settings [FILE.kfs]  load settings file
         -t, --save-tif      [FILE.tif]  save TIFF
@@ -2084,3 +2091,8 @@ way out.  In zoom out mode the PNG, JPEG, and KFB filenames should contain a
 printf flag for an integer, for example `image-%08d.png` will have 8 decimal
 digits padded with leading 0. This is filled by the frame number, which always
 starts from 0.  Zooming is by the zoom size in the settings file.
+
+New in 2.14.6 is standalone KFB map colouring support with the `-o`/`--load-map`
+flag:
+
+    kf.exe -o map.kfb -c palette.kfp -p out.png
