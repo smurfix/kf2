@@ -1900,9 +1900,11 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	//ReadFile(hFile,&m_nIterDiv,sizeof(int),&dw,NULL);
 	int div = 1;
 	fread(&div, 1, sizeof(int), hFile);
+#if 0 // don't read IterDiv, it is stored as int (not float) due to historical reasons
 	m_nIterDiv = div;
 	if (m_nIterDiv == 0)
 		m_nIterDiv = 1;
+#endif
 	//ReadFile(hFile,&m_nParts,sizeof(int),&dw,NULL);
 	fread(&m_nParts, 1, sizeof(int), hFile);
 	//ReadFile(hFile,m_cKeys,sizeof(COLOR14)*m_nParts,&dw,NULL);
