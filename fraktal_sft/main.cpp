@@ -5006,39 +5006,8 @@ DWORD ThReportProgress(LPVOID arg)
 	return 0;
 }
 
-static bool render_frame(int frame)
+static bool save_frame(int frame)
 {
-	output_log_message(Info, "reference " << 1);
-	g_SFT.m_bInhibitColouring = TRUE;
-	g_SFT.m_bInteractive = false;
-	if (frame == 0)
-	{
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
-	}
-	else
-	{
-		int j = g_SFT.GetJitterSeed();
-		if (j)
-		{
-			g_SFT.SetJitterSeed(j + 1);
-		}
-		AutoIterations();
-		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
-	}
-	for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
-	{
-		int x = -1, y = -1;
-		int n = g_SFT.FindCenterOfGlitch(x, y);
-		if (! n)
-		{
-			output_log_message(Info, "no more glitches");
-			break;
-		}
-		output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
-		g_SFT.AddReference(x, y);
-	}
-	ThReportProgress_running = false;
 	output_log_message(Info, "colouring final image");
 	g_SFT.m_bInhibitColouring = FALSE;
 	g_SFT.ApplyColors();
@@ -5085,6 +5054,42 @@ static bool render_frame(int frame)
 		g_SFT.SaveMapB(fn);
 	}
 	return ok;
+}
+
+static bool render_frame(int frame)
+{
+	output_log_message(Info, "reference " << 1);
+	g_SFT.m_bInhibitColouring = TRUE;
+	g_SFT.m_bInteractive = false;
+	if (frame == 0)
+	{
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+	}
+	else
+	{
+		int j = g_SFT.GetJitterSeed();
+		if (j)
+		{
+			g_SFT.SetJitterSeed(j + 1);
+		}
+		AutoIterations();
+		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
+		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+	}
+	for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+	{
+		int x = -1, y = -1;
+		int n = g_SFT.FindCenterOfGlitch(x, y);
+		if (! n)
+		{
+			output_log_message(Info, "no more glitches");
+			break;
+		}
+		output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
+		g_SFT.AddReference(x, y);
+	}
+	ThReportProgress_running = false;
+	return save_frame(frame);
 }
 
 extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
@@ -5176,43 +5181,71 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				return 1;
 			}
 		}
-		output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
-		// render the image (add reference calls render fractal...)
-		if (LogLevel_Status >= g_log_level)
+		if (g_args->bLoadPalette)
 		{
-			HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-			CloseHandle(hProgress);
-		}
-		bool ok = true;
-		if (g_args->bZoomOut)
-		{
-			for (int frame = 0; g_args->nZoomOut < 0 || frame < g_args->nZoomOut; ++frame)
+			bool ret;
+			g_szFile = g_args->sLoadPalette;
+			output_log_message(Info, "loading palette " << g_szFile);
+			ret = ! g_SFT.OpenFile(g_szFile, TRUE);
+			if (ret)
 			{
-				output_log_message(Info, "frame " << frame << " of " << g_args->nZoomOut);
-				ok = render_frame(frame);
-				if (! ok)
-				{
-					break;
-				}
-				if (atof(g_SFT.ToZoom().c_str()) < 1e-3)
-				{
-					break;
-				}
+				output_log_message(Error, "loading location " << g_szFile << " FAILED");
+				return 1;
 			}
 		}
+		if (g_args->bLoadMap)
+		{
+			bool ret;
+			g_szFile = g_args->sLoadMap;
+			output_log_message(Info, "loading map " << g_szFile);
+			ret = ! g_SFT.OpenMapB(g_szFile);
+			if (ret)
+			{
+				output_log_message(Error, "loading map " << g_szFile << " FAILED");
+				return 1;
+			}
+			save_frame(0);
+		}
 		else
-		{
-			ok = render_frame(0);
+	  {
+			output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
+			// render the image (add reference calls render fractal...)
+			if (LogLevel_Status >= g_log_level)
+			{
+				HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
+				CloseHandle(hProgress);
+			}
+			bool ok = true;
+			if (g_args->bZoomOut)
+			{
+				for (int frame = 0; g_args->nZoomOut < 0 || frame < g_args->nZoomOut; ++frame)
+				{
+					output_log_message(Info, "frame " << frame << " of " << g_args->nZoomOut);
+					ok = render_frame(frame);
+					if (! ok)
+					{
+						break;
+					}
+					if (atof(g_SFT.ToZoom().c_str()) < 1e-3)
+					{
+						break;
+					}
+				}
+			}
+			else
+			{
+				ok = render_frame(0);
+			}
+			if (! ok)
+			{
+				output_log_message(Error, "FAILED");
+			}
+			else
+			{
+				output_log_message(Info, "all done, exiting");
+			}
+			return ok ? 0 : 1;
 		}
-		if (! ok)
-		{
-			output_log_message(Error, "FAILED");
-		}
-		else
-		{
-			output_log_message(Info, "all done, exiting");
-		}
-		return ok ? 0 : 1;
 	}
 
 	return 0;
