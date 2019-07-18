@@ -182,7 +182,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.6** (????-??-??)
+- **kf-2.14.6** (2019-07-18)
 
     - new feature: high quality image downscaling with anti-aliasing using
       the Pixman library
