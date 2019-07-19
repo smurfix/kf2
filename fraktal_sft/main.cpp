@@ -5181,18 +5181,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				return 1;
 			}
 		}
-		if (g_args->bLoadPalette)
-		{
-			bool ret;
-			g_szFile = g_args->sLoadPalette;
-			output_log_message(Info, "loading palette " << g_szFile);
-			ret = ! g_SFT.OpenFile(g_szFile, TRUE);
-			if (ret)
-			{
-				output_log_message(Error, "loading location " << g_szFile << " FAILED");
-				return 1;
-			}
-		}
 		if (g_args->bLoadMap)
 		{
 			bool ret;
@@ -5203,7 +5191,22 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			{
 				output_log_message(Error, "loading map " << g_szFile << " FAILED");
 				return 1;
+		  }
+		}
+		if (g_args->bLoadPalette)
+		{
+			bool ret;
+			g_szFile = g_args->sLoadPalette;
+			output_log_message(Info, "loading palette " << g_szFile);
+			ret = ! g_SFT.OpenFile(g_szFile, TRUE);
+			if (ret)
+			{
+				output_log_message(Error, "loading palette " << g_szFile << " FAILED");
+				return 1;
 			}
+		}
+    if (g_args->bLoadMap)
+    {
 			save_frame(0);
 		}
 		else
