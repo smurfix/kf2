@@ -182,6 +182,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.6.1** (2019-07-19)
+
+    - bugfix: load palette after map in command line rendering so that the
+      colours from the palette are actually used (reported by blob)
+
 - **kf-2.14.6** (2019-07-18)
 
     - new feature: high quality image downscaling with anti-aliasing using
