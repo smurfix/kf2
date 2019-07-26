@@ -1037,7 +1037,7 @@ void CFraktalSFT::ApplyColors()
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 		if (nParallel < 1) nParallel = 1;
 		CParallell P(
 #ifdef _DEBUG

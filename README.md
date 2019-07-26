@@ -184,6 +184,7 @@ Feedback:
 
 - **kf-2.14.7** (????-??-??)
 
+    - feature: option to reduce thread count by 1 (suggested by saka)
     - bugfix: remove annoying warning dialogs from store zoom out sequence
       (reported by saka)
 
@@ -1550,8 +1551,13 @@ Software license.
     Increase the count if you want KF to peg your system, decrease it if
     you want to do other things at the same time.
 
-    Only affects perturbation rendering, not Newton-Raphson zooming or
-    reference calculations.
+    The last menu item reduces the calculated number of threads by 1,
+    which can help improve system responsiveness in some configurations.
+
+    There will always be at least one thread.
+
+    These options only affect perturbation rendering and image colouring,
+    not Newton-Raphson zooming or reference calculations.
 
     Note: changing this during rendering could lead to crashes, so the menu
     is disabled during rendering to prevent that.

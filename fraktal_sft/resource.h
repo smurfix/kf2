@@ -247,6 +247,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_IMAGE_SHRINK_FAST            40104
 #define ID_IMAGE_SHRINK_DEFAULT         40105
 #define ID_IMAGE_SHRINK_BEST            40106
+#define ID_ACTIONS_THREADS_RESERVE_CORE 40107
 
 // OpenCL
 #ifdef KF_OPENCL

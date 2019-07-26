@@ -284,6 +284,7 @@ static void EnableUnsafeMenus(HWND hWnd, bool enable=true)
 	M(ID_ACTIONS_THREADS_1);
 	M(ID_ACTIONS_THREADS_2);
 	M(ID_ACTIONS_THREADS_4);
+	M(ID_ACTIONS_THREADS_RESERVE_CORE);
 #undef M
 	DrawMenuBar(hWnd);
 }
@@ -382,6 +383,12 @@ static void UpdateThreadsPerCore(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+}
+
+static void UpdateThreadsReserveCore(HWND hWnd)
+{
+	int z = g_SFT.GetThreadsReserveCore();
+	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_THREADS_RESERVE_CORE,MF_BYCOMMAND|(z>0?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateAnimateZoom(HWND hWnd)
@@ -500,6 +507,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateShrink(hWnd);
 	UpdateZoomSize(hWnd);
 	UpdateThreadsPerCore(hWnd);
+	UpdateThreadsReserveCore(hWnd);
 	UpdateAnimateZoom(hWnd);
 	UpdateArbitrarySize(hWnd);
 	UpdateReuseReference(hWnd);
@@ -4594,6 +4602,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_ACTIONS_THREADS_4){
 			g_SFT.SetThreadsPerCore(4);
 			UpdateThreadsPerCore(hWnd);
+		}
+		else if(wParam==ID_ACTIONS_THREADS_RESERVE_CORE){
+			g_SFT.SetThreadsReserveCore(! g_SFT.GetThreadsReserveCore());
+			UpdateThreadsReserveCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_ISOLATED_0){
 			g_SFT.SetIsolatedGlitchNeighbourhood(0);

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -410,7 +410,7 @@ void CFraktalSFT::RenderFractal()
 
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 		if (nParallel < 1) nParallel = 1;
 		int nStep = m_nX / nParallel;
 		int nXStart = 0;
@@ -500,7 +500,7 @@ void CFraktalSFT::RenderFractalLDBL()
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	if (nParallel < 1) nParallel = 1;
 
 	CParallell P(
@@ -589,7 +589,7 @@ void CFraktalSFT::RenderFractalEXP()
 
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	if (nParallel < 1) nParallel = 1;
 
 	CParallell P(
@@ -666,7 +666,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	if (nParallel < 1) nParallel = 1;
 	CParallell P(
 #ifdef _DEBUG
@@ -742,7 +742,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	if (nParallel < 1) nParallel = 1;
 	CParallell P(
 #ifdef _DEBUG
@@ -812,7 +812,7 @@ void CFraktalSFT::CalcStart()
 	if (!m_bAddReference){
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 		if (nParallel < 1) nParallel = 1;
 		CParallell P(
 #ifdef _DEBUG

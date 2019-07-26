@@ -565,6 +565,7 @@ public:
   INT(ImageWidth)
   INT(ImageHeight)
   DOUBLE(ThreadsPerCore)
+  INT(ThreadsReserveCore)
   BOOL(AnimateZoom)
   BOOL(ArbitrarySize)
   BOOL(ReuseReference)
