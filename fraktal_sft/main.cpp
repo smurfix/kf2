@@ -3844,25 +3844,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SaveMapB(file);
 	}
 	else if(uMsg==WM_COMMAND && (wParam==ID_FILE_STOREZOOMOUTIMAGES)){
-		if(g_SFT.GetZoomSize()!=2 && MessageBox(hWnd,"The Zoom size is not 2, do you want to proceed?\n\nTo preserve quality the lowest Zoom size is recommended.","Kalle's Fraktaler",MB_OKCANCEL)==IDCANCEL)
-			return 0;
 		MainProc(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 		g_JpegParams.nWidth = g_SFT.GetWidth();
 		g_JpegParams.nHeight = g_SFT.GetHeight();
 		g_JpegParams.nQuality = 100;
-		while(1){
-			if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0))
-				return 0;
-			if(g_JpegParams.nWidth>3840){
-				int nR;
-				if((nR=MessageBox(hWnd,"Width can not be bigger than 3840, do you want to proceed anyway?","Error",MB_YESNOCANCEL|MB_ICONSTOP))==IDCANCEL)
-					return 0;
-				if(nR==IDYES)
-					break;
-			}
-			else
-				break;
-		}
+		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0))
+			return 0;
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_STOREZOOM),hWnd,(DLGPROC)StoreZoomProc,0))
 			return 0;
 		std::string path = get_filename_path(g_szFile);

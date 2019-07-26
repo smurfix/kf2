@@ -182,6 +182,11 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.7** (????-??-??)
+
+    - bugfix: remove annoying warning dialogs from store zoom out sequence
+      (reported by saka)
+
 - **kf-2.14.6.1** (2019-07-19)
 
     - bugfix: load palette after map in command line rendering so that the
