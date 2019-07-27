@@ -185,6 +185,8 @@ Feedback:
 - **kf-2.14.7** (????-??-??)
 
     - feature: option to reduce thread count by 1 (suggested by saka)
+    - bugfix: set thread background mode for improved responsiveness
+      (reported by saka)
     - bugfix: remove annoying warning dialogs from store zoom out sequence
       (reported by saka)
 
