@@ -37,6 +37,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
+	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #ifndef _DEBUG
 try{
 #endif
@@ -45,6 +47,7 @@ try{
 }catch(...){
 }
 #endif
+	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(pE->hDone);
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
@@ -108,8 +111,6 @@ int CParallell::Execute()
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			Sleep(20);
 		}
-		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
-		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 	}
 	for(j=0;j<m_nExecute;j++){
 		if(WaitForSingleObject(m_ppExecute[j]->hDone,m_nTimeout)==WAIT_TIMEOUT)
@@ -124,8 +125,6 @@ int CParallell::Execute()
 				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 				Sleep(20);
 			}
-			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
-			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 			i++;
 		}
 	}
@@ -150,8 +149,6 @@ int CParallell::ExecuteNoOrder()
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			Sleep(20);
 		}
-		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
-		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 		nEnd--;
 	}
 	j=0;
@@ -175,8 +172,6 @@ int CParallell::ExecuteNoOrder()
 				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 				Sleep(20);
 			}
-			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
-			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 			nIndex[nWRet] = i;
 			hDone[nWRet] = m_ppExecute[i]->hDone;
 			i++;

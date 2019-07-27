@@ -118,6 +118,8 @@ struct BallPeriod
 
 static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 {
+  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   int t = b->threadid;
   barrier *barrier = b->c->barrier;
   volatile BOOL *stop = b->c->stop;
@@ -245,8 +247,6 @@ static int ball_period_do(const complex<flyttyp> &center, flyttyp radius, int ma
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBallPeriod, (LPVOID)&ball[i], 0, &dw);
-    SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
-    SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);    
     CloseHandle(hThread);
   }
   // wait for threads to complete
@@ -283,6 +283,8 @@ struct BoxPeriod
 };
 static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
 {
+  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   int t = b->threadid;
   barrier *barrier = b->barrier;
   volatile BOOL *stop = b->stop;
@@ -398,8 +400,6 @@ static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBoxPeriod, (LPVOID)&box[i], 0, &dw);
-    SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
-    SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
     CloseHandle(hThread);
   }
   // wait for threads to complete
@@ -439,6 +439,8 @@ struct STEP_STRUCT
 };
 static DWORD WINAPI ThStep(STEP_STRUCT *t0)
 {
+  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   struct STEP_STRUCT_COMMON *t = t0->common;
   char szStatus[256];
   uint32_t last = GetTickCount();
@@ -547,8 +549,6 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	DWORD dw;
 	for (i = 0; i<threads; i++){
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
-		SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
-		SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 		CloseHandle(hThread);
 	}
 
@@ -684,6 +684,8 @@ int g_period = 0;
 
 static int WINAPI ThSkew(HWND hWnd)
 {
+  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   const int type = g_SFT.GetFractalType();
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
@@ -720,6 +722,8 @@ static int WINAPI ThSkew(HWND hWnd)
 
 static int WINAPI ThNewton(HWND hWnd)
 {
+  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   const int type = g_SFT.GetFractalType();
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
@@ -1022,8 +1026,6 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			running = 1;
 			g_useDZ = SendDlgItemMessage(hWnd,IDC_AUTOSKEW_USEDZ,BM_GETCHECK,0,0);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
-			SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
-			SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
 			SetDlgItemText(hWnd,IDCANCEL,"Stop");
@@ -1062,8 +1064,6 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetLocalTime(&st1);
 			running = 1;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
-			SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
-			SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
 			SetDlgItemText(hWnd,IDCANCEL,"Stop");
