@@ -39,6 +39,7 @@ Feedback:
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
+- zoom size 1.2 sequence JPEGs have "boxes" while KFB is ok (reported by saka)
 - resizing window by dragging frame corner in WINE on Linux sometimes crashes
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
