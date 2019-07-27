@@ -245,6 +245,8 @@ static int ball_period_do(const complex<flyttyp> &center, flyttyp radius, int ma
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBallPeriod, (LPVOID)&ball[i], 0, &dw);
+    SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
+    SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);    
     CloseHandle(hThread);
   }
   // wait for threads to complete
@@ -396,6 +398,8 @@ static int m_d_box_period_do(const complex<flyttyp> &center, flyttyp radius, int
   {
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBoxPeriod, (LPVOID)&box[i], 0, &dw);
+    SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
+    SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
     CloseHandle(hThread);
   }
   // wait for threads to complete
@@ -543,6 +547,8 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	DWORD dw;
 	for (i = 0; i<threads; i++){
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
+		SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
+		SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 		CloseHandle(hThread);
 	}
 
@@ -1016,6 +1022,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			running = 1;
 			g_useDZ = SendDlgItemMessage(hWnd,IDC_AUTOSKEW_USEDZ,BM_GETCHECK,0,0);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
+			SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
+			SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
 			SetDlgItemText(hWnd,IDCANCEL,"Stop");
@@ -1054,6 +1062,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetLocalTime(&st1);
 			running = 1;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
+			SetThreadPriority(hThread, THREAD_MODE_BACKGROUND_BEGIN);
+			SetThreadPriority(hThread, THREAD_PRIORITY_LOWEST);
 			CloseHandle(hThread);
 			g_bNewtonRunning=TRUE;
 			SetDlgItemText(hWnd,IDCANCEL,"Stop");
