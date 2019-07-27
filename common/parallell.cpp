@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -108,6 +108,7 @@ int CParallell::Execute()
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			Sleep(20);
 		}
+		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
 		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 	}
 	for(j=0;j<m_nExecute;j++){
@@ -123,6 +124,7 @@ int CParallell::Execute()
 				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 				Sleep(20);
 			}
+			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
 			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 			i++;
 		}
@@ -148,6 +150,7 @@ int CParallell::ExecuteNoOrder()
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			Sleep(20);
 		}
+		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
 		SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 		nEnd--;
 	}
@@ -172,6 +175,7 @@ int CParallell::ExecuteNoOrder()
 				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 				Sleep(20);
 			}
+			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_MODE_BACKGROUND_BEGIN);
 			SetThreadPriority(m_ppExecute[i]->hThread,THREAD_PRIORITY_LOWEST);
 			nIndex[nWRet] = i;
 			hDone[nWRet] = m_ppExecute[i]->hDone;
