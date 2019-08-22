@@ -20,11 +20,11 @@
 SYSTEM ?= 64
 include $(SYSTEM).mk
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -pipe -MMD -g -O3 -ffast-math -fno-var-tracking-assignments -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -D_FILE_OFFSET_BITS=64
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated -pipe -MMD -g -O3 -ffast-math -fno-var-tracking-assignments -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
-COMPILE_FLAGS := -xc++ -std=c++17 $(FLAGS)
+COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIX)/lib -ffast-math
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas
+LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf -lImath -lHalf -lIex -lIexMath -lIlmThread -lz
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -33,6 +33,7 @@ fraktal_sft/check_for_update.cpp \
 fraktal_sft/cmdline.cpp \
 fraktal_sft/double_perturbation.cpp \
 fraktal_sft/double_reference.cpp \
+fraktal_sft/exr.cpp \
 fraktal_sft/floatexp_approximation.cpp \
 fraktal_sft/floatexp_perturbation.cpp \
 fraktal_sft/floatexp_reference.cpp \
@@ -66,6 +67,7 @@ fraktal_sft/check_for_update.h \
 fraktal_sft/cmdline.h \
 fraktal_sft/colour.h \
 fraktal_sft/complex.h \
+fraktal_sft/exr.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
 fraktal_sft/gradient.h \

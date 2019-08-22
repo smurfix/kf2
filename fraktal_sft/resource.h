@@ -153,6 +153,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_AUTOSKEW_USEDZ              1100
 #define IDC_LOCATION_PERIOD             1101
 #define IDC_BALL_PERIOD                 1102
+#define IDC_STOREZOOM_EXR               1103
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -248,6 +249,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_IMAGE_SHRINK_DEFAULT         40105
 #define ID_IMAGE_SHRINK_BEST            40106
 #define ID_ACTIONS_THREADS_RESERVE_CORE 40107
+#define ID_FILE_SAVEASEXR               40108
 
 // OpenCL
 #ifdef KF_OPENCL

@@ -54,10 +54,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <zlib.h>
 #include <gsl/gsl_version.h>
 #include <pixman.h>
+#include <IlmBaseConfig.h>
+#include <OpenEXRConfig.h>
 #include "check_for_update.h"
 #include "jpeg.h"
 #include "png.h"
 #include "tiff.h"
+#include "exr.h"
 #include "main.h"
 #include "main_color.h"
 #include "main_examine.h"
@@ -137,6 +140,7 @@ BOOL g_bStoreZoomMap=FALSE;
 BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
 BOOL g_bStoreZoomTif=FALSE;
+BOOL g_bStoreZoomExr=FALSE;
 int g_nStoreZoomCount = 0;
 int g_nStoreZoomLimit = 0;
 
@@ -161,6 +165,7 @@ BOOL g_bFirstDone=TRUE;
 BOOL g_bSaveJpeg=FALSE;
 BOOL g_bSavePng=FALSE;
 BOOL g_bSaveTif=FALSE;
+BOOL g_bSaveExr=FALSE;
 BOOL g_bSaveMap=FALSE;
 BOOL g_bInteractive=TRUE;
 const CommandLineArguments *g_args = 0;
@@ -215,6 +220,21 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		nRet = SavePNG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else if (nQuality == -2)
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
+	else if (nQuality == -3)
+		nRet = SaveEXR
+		  ( szFileName
+		  , lpJeg
+		  , bmi.biWidth
+		  , bmi.biHeight
+		  , 3
+		  , comment
+		  , g_SFT.GetIterations()
+		  , g_SFT.GetWidth()
+		  , g_SFT.GetHeight()
+		  , g_SFT.GetArrayCount()
+		  , g_SFT.GetArrayTrans()
+		  , g_SFT.GetArrayDE()
+		  );
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -225,7 +245,10 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 // this version doesn't go via a bitmap structure, avoiding dreaded blank images...
 extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
 {
+	std::cerr << biWidth << " " << biHeight << std::endl;
 	assert(lpBits);
+	assert(biWidth);
+	assert(biHeight);
 	int biBitCount = 24;
 	int row = ((((biWidth*(DWORD)biBitCount)+31)&~31) >> 3);
 	int biSizeImage=row*biHeight;
@@ -236,6 +259,21 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		nRet = SavePNG(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
 	else if (nQuality == -2)
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
+	else if (nQuality == -3)
+		nRet = SaveEXR
+		  ( szFileName
+		  , lpJeg
+		  , biWidth
+		  , biHeight
+		  , 3
+		  , comment
+		  , g_SFT.GetIterations()
+		  , g_SFT.GetWidth()
+		  , g_SFT.GetHeight()
+		  , g_SFT.GetArrayCount()
+		  , g_SFT.GetArrayTrans()
+		  , g_SFT.GetArrayDE()
+		  );
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,biHeight,biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -1673,6 +1711,13 @@ nPos=13;
 				else
 					g_SFT.SaveJpg(File,-2);
 			}
+			if(g_bStoreZoomExr){
+				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "exr"));
+				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
+					SaveZoomImg(File, "KF2");
+				else
+					g_SFT.SaveJpg(File,-3);
+			}
 			std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(File);
@@ -1855,6 +1900,28 @@ nPos=24;
 				std::cerr << "saving TIFF " << szFile << std::endl;
 				if(!g_SFT.SaveJpg(szFile,-2))
 					std::cerr << "ERROR in save TIFF: " << szFile << std::endl;
+			}
+		}
+		if(g_bSaveExr){
+nPos=24;
+			if (g_bInteractive)
+			{
+				g_bSaveExr=FALSE;
+				std::string szFile;
+				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
+					if(!g_SFT.SaveJpg(szFile,-3))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+				}
+			}
+			else if (uMsg==WM_USER+199 && wParam==0)
+			{
+				g_bSaveExr=FALSE;
+				char szFile[1024]={0};
+				strncpy(szFile, g_args->sSaveEXR.c_str(), sizeof(szFile)-1);
+				std::cerr << "saving EXR " << szFile << std::endl;
+				if(!g_SFT.SaveJpg(szFile,-3))
+					std::cerr << "ERROR in save EXR: " << szFile << std::endl;
 			}
 		}
 		if(g_bSaveMap){
@@ -4728,6 +4795,25 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 		}
+		else if(wParam==ID_FILE_SAVEASEXR){
+			g_JpegParams.nWidth = g_SFT.GetWidth();
+			g_JpegParams.nHeight = g_SFT.GetHeight();
+			g_JpegParams.nQuality = 100;
+			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
+				std::string szFile;
+				if(g_JpegParams.nWidth>g_SFT.GetWidth()){
+					g_bSaveExr=TRUE;
+					SetTimer(hWnd,0,500,NULL);
+					DisableUnsafeMenus(hWnd);
+					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					return 0;
+				}
+				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
+					if(!g_SFT.SaveJpg(szFile,-3,g_JpegParams.nWidth,g_JpegParams.nHeight))
+						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
+				}
+			}
+		}
 		else if(wParam==ID_FILE_SAVEAS_){
 			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
 				if(!g_SFT.SaveFile(g_szFile))
@@ -4873,8 +4959,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- MPFR %s <http://mpfr.org>\n"
 				"- GSL %s <http://www.gnu.org/software/gsl>\n"
 				"- PIXMAN %s <http://pixman.org>\n"
+				"- ILMBASE %s <http://openexr.com>\n"
+				"- OPENEXR %s <http://openexr.com>\n"
 				"- GLM %d.%d.%d.%d <http://glm.g-truc.net>\n"
-				"- Boost %d.%d.%d <http://boost.org>\n"
+				"- BOOST %d.%d.%d <http://boost.org>\n"
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 #endif
@@ -4905,6 +4993,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				MPFR_VERSION_STRING,
 				GSL_VERSION,
 				PIXMAN_VERSION_STRING,
+				ILMBASE_VERSION_STRING,
+				OPENEXR_VERSION_STRING,
 				GLM_VERSION_MAJOR, GLM_VERSION_MINOR, GLM_VERSION_PATCH, GLM_VERSION_REVISION,
 				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
 #ifdef __GNUC__
@@ -5012,6 +5102,17 @@ static bool save_frame(int frame)
 	g_SFT.ApplyColors();
 	//  save the result
 	bool ok = true;
+	if (g_args->bSaveEXR)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSaveEXR.c_str(), frame);
+		output_log_message(Info, "saving EXR " << fn);
+		if (! g_SFT.SaveJpg(fn, -3))
+		{
+			ok = false;
+			output_log_message(Error, "saving EXR " << fn << " FAILED");
+		}
+	}
 	if (g_args->bSaveTIF)
 	{
 		char fn[1000];

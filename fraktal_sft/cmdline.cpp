@@ -78,6 +78,8 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 , sLoadLocation("")
 , bLoadSettings(false)
 , sLoadSettings("")
+, bSaveEXR(false)
+, sSaveEXR("")
 , bSaveTIF(false)
 , sSaveTIF("")
 , bSavePNG(false)
@@ -141,6 +143,19 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 			{
 				bLoadSettings = true;
 				sLoadSettings = args[i];
+			}
+			else
+			{
+				bError = true;
+			}
+		}
+		else if ("-x" == args[i] || "--save-exr" == args[i])
+		{
+			++i;
+			if (i < args.size())
+			{
+				bSaveEXR = true;
+				sSaveEXR = args[i];
 			}
 			else
 			{
@@ -250,6 +265,7 @@ const std::string usage =
 "    -c, --load-palette  [FILE.kfp]  load palette file\n"
 "    -l, --load-location [FILE.kfr]  load location file\n"
 "    -s, --load-settings [FILE.kfs]  load settings file\n"
+"    -x, --save-exr      [FILE.exr]  save EXR\n"
 "    -t, --save-tif      [FILE.tif]  save TIFF\n"
 "    -p, --save-png      [FILE.png]  save PNG\n"
 "    -j, --save-jpg      [FILE.jpg]  save JPEG\n"

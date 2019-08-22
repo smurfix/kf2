@@ -185,11 +185,14 @@ Feedback:
 
 - **kf-2.14.7** (????-??-??)
 
+    - feature: save as EXR (combined image with iteration data)
     - feature: option to reduce thread count by 1 (suggested by saka)
     - bugfix: set thread background mode for improved responsiveness
       (reported by saka)
     - bugfix: remove annoying warning dialogs from store zoom out sequence
       (reported by saka)
+    - new dependency: ilmbase 2.3.0
+    - new dependency: openexr 2.3.0
 
 - **kf-2.14.6.1** (2019-07-19)
 
@@ -1052,9 +1055,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.gnu.org/licenses/gpl.html>
 - the PIXMAN library is used under the conditions of the MIT License
   <https://cgit.freedesktop.org/pixman/tree/COPYING>
+- the ILMBASE library is used under the conditions of the Modified BSD License
+  <https://www.openexr.com/license.html>
+- the OPENEXR library is used under the conditions of the Modified BSD License
+  <https://www.openexr.com/license.html>
 - the GLM library is used under the conditions of the MIT License
   <https://glm.g-truc.net/copying.txt>
-- the Boost library is used under the Boost Software License Version 1.0
+- the BOOST library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
   <http://www.boost.org/LICENSE_1_0.txt>
@@ -1103,30 +1110,37 @@ Software license.
 
   - **Save as**
 
-    Saves the current location in a new parameter file (*.kfr)
+      - **KFR** Saves the current location in a new parameter file (*.kfr)
 
-  - **Save as PNG**
+      - **PNG**
+        Saves the current location in a PNG image file (*.png).
+        The location and settings are saved in the file metadata.
 
-    Saves the current location in a PNG file (*.png)
+      - **JPEG**
+        Saves the current location in a JPEG image file (*.jpg).
+        The location and settings are saved in the file metadata.
 
-    The location and settings are saved in the file metadata.
+      - **TIFF**
+        Saves the current location in a TIFF image file (*.tif).
+        The location and settings are saved in the file metadata.
 
-  - **Save as Jpeg**
+      - **EXR**
+        Saves the current location in a EXR image file (*.exr).
+        The iteration data is also saved in the file.
+        The location and settings are saved in the file metadata.
 
-    Saves the current location in a jpeg file (*.jpg)
+      - **KFB**
+        Saves the iteration data in a map file (*.kfb). This file can be used by
+        the KeyFramMovie program.  **The location and settings are not saved.**
 
-    The location and settings are saved in the file metadata.
-
-  - **Save as TIFF**
-
-    Saves the current location in a TIFF file (*.tif)
-
-    The location and settings are saved in the file metadata.
-
-  - **Save map**
-
-    Saves the iteration data in a map file (*.kfb). This file can be used by
-    the KeyFramMovie program.
+    Saved image dimensions can be smaller than the calculated image size set in
+    the settings.  The image will be downscaled according to the shrink quality
+    setting.  If the saved image dimensions are larger, the image will be
+    recalculated at the new size.
+    
+    Note that for EXR, the saved image dimensions are only for the "preview image",
+    the full calculated image size is used for the main image and the iteration
+    data.
 
   - **Open map**
 
@@ -2067,6 +2081,7 @@ generating formula code (for Newton-Raphson zooming, etc).
         -c, --load-palette  [FILE.kfp]  load palette file
         -l, --load-location [FILE.kfr]  load location file
         -s, --load-settings [FILE.kfs]  load settings file
+        -x, --save-exr      [FILE.exr]  save EXR
         -t, --save-tif      [FILE.tif]  save TIFF
         -p, --save-png      [FILE.png]  save PNG
         -j, --save-jpg      [FILE.jpg]  save JPEG

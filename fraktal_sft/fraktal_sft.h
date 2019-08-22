@@ -604,6 +604,10 @@ public:
   void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
   void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
 
+  const int *GetArrayCount() const { return m_nPixels[0]; };
+  const float *GetArrayTrans() const { return m_nTrans[0]; };
+  const float *GetArrayDE() const { return GetDerivatives() ? m_nDE[0] : nullptr; };
+
 };
 
 struct TH_PARAMS
