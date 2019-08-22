@@ -1143,21 +1143,27 @@ void CFraktalSFT::Mirror(int x, int y)
 
 void CFraktalSFT::DeleteArrays()
 {
-		int i;
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nPixels[i];
-		delete[] m_nPixels;
-		m_nPixels = NULL;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nTrans[i];
-		delete[] m_nTrans;
-		m_nTrans = NULL;
-
-		for (i = 0; i<m_nXPrev; i++)
-			delete[] m_nDE[i];
-		delete[] m_nDE;
-		m_nDE = NULL;
+		if (m_nPixels)
+		{
+			if (m_nPixels[0])
+				delete[] m_nPixels[0];
+			delete[] m_nPixels;
+			m_nPixels = NULL;
+		}
+		if (m_nTrans)
+		{
+			if (m_nTrans[0])
+				delete[] m_nTrans[0];
+			delete[] m_nTrans;
+			m_nTrans = NULL;
+		}
+		if (m_nDE)
+		{
+			if (m_nDE[0])
+				delete[] m_nDE[0];
+			delete[] m_nDE;
+			m_nDE = NULL;
+		}
 }
 
 void CFraktalSFT::SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY)
@@ -1790,17 +1796,18 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 		m_nPixels = new int*[m_nX];
 		m_nTrans = new float*[m_nX];
 		m_nDE = new float*[m_nX];
-		for (int x = 0; x<m_nX; x++){
-			m_nPixels[x] = new int[m_nY];
-			m_nTrans[x] = new float[m_nY];
-			m_nDE[x] = new float[m_nY];
+		m_nPixels[0] = new int[m_nX * m_nY];
+		m_nTrans[0] = new float[m_nX * m_nY];
+		m_nDE[0] = new float[m_nX * m_nY];
+		for (int x = 1; x<m_nX; x++){
+			m_nPixels[x] = m_nPixels[0] + x * m_nY;
+			m_nTrans[x] = m_nTrans[0] + x * m_nY;
+			m_nDE[x] = m_nDE[0] + x * m_nY;
 		}
 	}
-	for (int x = 0; x<m_nX; x++){
-		memset(m_nPixels[x], 0, sizeof(int) * m_nY);
-		memset(m_nTrans[x], 0, sizeof(float) * m_nY);
-		memset(m_nDE[x], 0, sizeof(float) * m_nY);
-	}
+	memset(m_nPixels[0], 0, sizeof(int) * m_nX * m_nY);
+	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
+	memset(m_nDE[0], 0, sizeof(float) * m_nX * m_nY);
 	SetImageWidth(nx);
 	SetImageHeight(ny);
 }
