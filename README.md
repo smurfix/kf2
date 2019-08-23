@@ -191,8 +191,11 @@ Feedback:
       (reported by saka)
     - bugfix: remove annoying warning dialogs from store zoom out sequence
       (reported by saka)
+    - new dependency: mingw-std-threads git
     - new dependency: ilmbase 2.3.0
     - new dependency: openexr 2.3.0
+    - upgrade to boost 1.71.0
+    - upgrade to gsl 2.6
 
 - **kf-2.14.6.1** (2019-07-19)
 
@@ -426,7 +429,7 @@ Feedback:
     - Gaussian jitter available as an option
     - jitter scale factor setting (suggested by gerrit)
     - log verbosity flag for command line rendering
-    - upgrade to libjpeg6b2 <http://jpegclub.org/support/>
+    - upgrade to libjpeg6b2 <https://jpegclub.org/support/>
     - fix bug where Ctrl-S would overwrite the wrong file (reported by gerrit)
     - fix bug where lines would appear aligned with references (reported by
       gerrit and CFJH)
@@ -1037,13 +1040,13 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 - this software is based in part on the work of the Independent JPEG Group
-  <http://jpegclub.org/reference/libjpeg-license/>
+  <https://jpegclub.org/reference/libjpeg-license/>
 - the TIFF library is used under the libtiff license:
   <https://gitlab.com/libtiff/libtiff/blob/master/COPYRIGHT>
 - the PNG library is used under the libpng license
-  <http://libpng.org/pub/png/src/libpng-LICENSE.txt>
+  <https://libpng.org/pub/png/src/libpng-LICENSE.txt>
 - the ZLIB library is used under the zlib license
-  <http://zlib.net/zlib_license.html>
+  <https://zlib.net/zlib_license.html>
 - the GMP library is used under the conditions of the GNU Lesser General Public
   License version 3 and the GNU General Public License version 2
   <https://www.gnu.org/licenses/lgpl-3.0.en.html>
@@ -1055,6 +1058,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.gnu.org/licenses/gpl.html>
 - the PIXMAN library is used under the conditions of the MIT License
   <https://cgit.freedesktop.org/pixman/tree/COPYING>
+- the MINGW-STD-THREADS library is used under the conditions of the Simplified
+  BSD License
+  <https://github.com/meganz/mingw-std-threads/blob/master/LICENSE>
 - the ILMBASE library is used under the conditions of the Modified BSD License
   <https://www.openexr.com/license.html>
 - the OPENEXR library is used under the conditions of the Modified BSD License
@@ -1062,9 +1068,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - the GLM library is used under the conditions of the MIT License
   <https://glm.g-truc.net/copying.txt>
 - the BOOST library is used under the Boost Software License Version 1.0
-  <http://www.boost.org/LICENSE_1_0.txt>
+  <https://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
-  <http://www.boost.org/LICENSE_1_0.txt>
+  <https://www.boost.org/LICENSE_1_0.txt>
 
 **NOTE**:
 If you redistribute the binaries or provide access to the binaries as a

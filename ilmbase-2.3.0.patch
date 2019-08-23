@@ -1,0 +1,137 @@
+diff -ruw -x Makefile.in -x ltmain.sh -x aclocal.m4 -x configure -x half.cpp ilmbase-2.3.0.old/Half/Makefile.am ilmbase-2.3.0.new/Half/Makefile.am
+--- ilmbase-2.3.0.old/Half/Makefile.am	2018-08-10 02:34:57.000000000 +0100
++++ ilmbase-2.3.0.new/Half/Makefile.am	2019-08-22 21:46:14.527689354 +0100
+@@ -15,18 +15,18 @@
+ # these are used to build eLut.h and toFloat.h dynamically
+ EXTRA_DIST = eLut.cpp toFloat.cpp CMakeLists.txt
+ 
+-CLEANFILES = eLut eLut.h toFloat toFloat.h
++CLEANFILES = eLut$(EXEEXT) eLut.h toFloat$(EXEEXT) toFloat.h
+ 
+ eLut_SOURCES = eLut.cpp
+ 
+ toFloat_SOURCES = toFloat.cpp
+ 
+-eLut.h:	eLut
+-	./eLut > eLut.h
++eLut.h:	eLut$(EXEEXT)
++	./eLut$(EXEEXT) > eLut.h
+ 
+-toFloat.h: toFloat
+-	   ./toFloat > toFloat.h
++toFloat.h: toFloat$(EXEEXT)
++	   ./toFloat$(EXEEXT) > toFloat.h
+ 
+ BUILT_SOURCES = eLut.h toFloat.h
+ 
+-noinst_PROGRAMS = eLut toFloat
++noinst_PROGRAMS = eLut$(EXEEXT) toFloat$(EXEEXT)
+diff -ruw -x Makefile.in -x ltmain.sh -x aclocal.m4 -x configure -x half.cpp ilmbase-2.3.0.old/IlmThread/IlmThread.h ilmbase-2.3.0.new/IlmThread/IlmThread.h
+--- ilmbase-2.3.0.old/IlmThread/IlmThread.h	2018-08-10 02:34:57.000000000 +0100
++++ ilmbase-2.3.0.new/IlmThread/IlmThread.h	2019-08-22 22:01:18.302840131 +0100
+@@ -106,9 +106,10 @@
+ #      include <pthread.h>
+ #   endif
+ #else
+-#   include <thread>
++#   include <mingw-std-threads/mingw.thread.h>
+ #endif
+ 
++
+ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+ 
+ //
+diff -ruw -x Makefile.in -x ltmain.sh -x aclocal.m4 -x configure -x half.cpp ilmbase-2.3.0.old/IlmThread/IlmThreadMutex.h ilmbase-2.3.0.new/IlmThread/IlmThreadMutex.h
+--- ilmbase-2.3.0.old/IlmThread/IlmThreadMutex.h	2018-08-10 02:34:57.000000000 +0100
++++ ilmbase-2.3.0.new/IlmThread/IlmThreadMutex.h	2019-08-22 22:01:36.830904351 +0100
+@@ -81,7 +81,7 @@
+ #      include <pthread.h>
+ #   endif
+ #else
+-#   include <mutex>
++#   include <mingw-std-threads/mingw.mutex.h>
+ #endif
+ 
+ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+diff -ruw -x Makefile.in -x ltmain.sh -x aclocal.m4 -x configure -x half.cpp ilmbase-2.3.0.old/IlmThread/IlmThreadSemaphore.h ilmbase-2.3.0.new/IlmThread/IlmThreadSemaphore.h
+--- ilmbase-2.3.0.old/IlmThread/IlmThreadSemaphore.h	2018-08-10 02:34:57.000000000 +0100
++++ ilmbase-2.3.0.new/IlmThread/IlmThreadSemaphore.h	2019-08-22 22:18:38.138378468 +0100
+@@ -46,24 +46,8 @@
+ #include "IlmThreadExport.h"
+ #include "IlmThreadNamespace.h"
+ 
+-#if defined _WIN32 || defined _WIN64
+-#   ifdef NOMINMAX
+-#      undef NOMINMAX
+-#   endif
+-#   define NOMINMAX
+-#   include <windows.h>
+-#elif HAVE_POSIX_SEMAPHORES
+-#   include <semaphore.h>
+-#else
+-#   ifdef ILMBASE_FORCE_CXX03
+-#      if HAVE_PTHREAD
+-#         include <pthread.h>
+-#      endif
+-#   else
+-#      include <mutex>
+-#      include <condition_variable>
+-#   endif
+-#endif
++#include <mingw-std-threads/mingw.mutex.h>
++#include <mingw-std-threads/mingw.condition_variable.h>
+ 
+ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+ 
+@@ -82,15 +66,6 @@
+ 
+   private:
+ 
+-#if defined _WIN32 || defined _WIN64
+-
+-	mutable HANDLE _semaphore;
+-
+-#elif defined(HAVE_POSIX_SEMAPHORES)
+-
+-	mutable sem_t _semaphore;
+-
+-#else
+ 	//
+ 	// If the platform has Posix threads but no semapohores,
+ 	// then we implement them ourselves using condition variables
+@@ -100,23 +75,12 @@
+ 	{
+ 	    unsigned int count;
+ 	    unsigned long numWaiting;
+-#   if ILMBASE_FORCE_CXX03
+-#      if HAVE_PTHREAD
+-	    pthread_mutex_t mutex;
+-	    pthread_cond_t nonZero;
+-#      else
+-#         error unhandled legacy setup
+-#      endif
+-#   else
+         std::mutex mutex;
+         std::condition_variable nonZero;
+-#   endif
+ 	};
+ 
+ 	mutable sema_t _semaphore;
+   
+-#endif
+-
+     void operator = (const Semaphore& s);	// not implemented
+     Semaphore (const Semaphore& s);		// not implemented
+ };
+diff -ruw -x Makefile.in -x ltmain.sh -x aclocal.m4 -x configure -x half.cpp ilmbase-2.3.0.old/IlmThread/IlmThreadSemaphorePosixCompat.cpp ilmbase-2.3.0.new/IlmThread/IlmThreadSemaphorePosixCompat.cpp
+--- ilmbase-2.3.0.old/IlmThread/IlmThreadSemaphorePosixCompat.cpp	2018-08-10 02:34:57.000000000 +0100
++++ ilmbase-2.3.0.new/IlmThread/IlmThreadSemaphorePosixCompat.cpp	2019-08-22 22:15:48.325805840 +0100
+@@ -42,7 +42,7 @@
+ 
+ #include "IlmBaseConfig.h"
+ 
+-#if (!HAVE_POSIX_SEMAPHORES) && !defined (_WIN32) && ! defined (_WIN64)
++#if (!HAVE_POSIX_SEMAPHORES)
+ 
+ #include "IlmThreadSemaphore.h"
+ #include "Iex.h"
