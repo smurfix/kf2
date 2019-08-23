@@ -827,12 +827,10 @@ these sources yourself.
 
 ## Building On Linux
 
-Build instructions for cross-compiling from GNU/Linux require about 4.2GB of
-disk space and good internet download speed (or patience). About 600MB of
-downloads including the chroot debootstrap step. To build the PDF manual needs
-some more packages, adding another 600MB of downloads and 1GB of space, so I
-left that optional.  If you have recent Debian you can skip the chroot step and
-install natively.
+Build instructions for cross-compiling from GNU/Linux require about 10GB of
+disk space and good internet download speed (or patience).  About 750MB of
+downloads including the chroot debootstrap step.  If you have recent Debian
+you can skip the chroot step and install natively.
 
 0. Setup Debian Buster chroot:
 
@@ -859,6 +857,7 @@ install natively.
           m4 \
           mingw-w64 \
           p7zip \
+          pkg-config \
           wget \
           wine32 \
           wine64 \
@@ -867,7 +866,8 @@ install natively.
           zip
         apt-get install \
           pandoc \
-          texlive-latex-recommended   # optional, for PDF manual
+          texlive-fonts-recommended \
+          texlive-latex-recommended   # for PDF manual
         mount binfmt_misc /proc/sys/fs/binfmt_misc -t binfmt_misc
         update-binfmts --import /usr/share/binfmts/wine
 
