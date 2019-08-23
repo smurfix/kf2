@@ -221,6 +221,13 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 	else if (nQuality == -2)
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else if (nQuality == -3)
+	{
+		bool allocate = ! g_SFT.GetHalfColour();
+		if (allocate)
+		{
+			g_SFT.SetHalfColour(true);
+			g_SFT.ApplyColors();
+		}
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -235,6 +242,11 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , g_SFT.GetArrayTrans()
 		  , g_SFT.GetArrayDE()
 		  );
+		if (allocate)
+		{
+			g_SFT.SetHalfColour(false);
+		}
+	}
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -245,7 +257,6 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 // this version doesn't go via a bitmap structure, avoiding dreaded blank images...
 extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
 {
-	std::cerr << biWidth << " " << biHeight << std::endl;
 	assert(lpBits);
 	assert(biWidth);
 	assert(biHeight);
@@ -260,6 +271,13 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 	else if (nQuality == -2)
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
 	else if (nQuality == -3)
+	{
+		bool allocate = ! g_SFT.GetHalfColour();
+		if (allocate)
+		{
+			g_SFT.SetHalfColour(true);
+			g_SFT.ApplyColors();
+		}
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -274,6 +292,11 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , g_SFT.GetArrayTrans()
 		  , g_SFT.GetArrayDE()
 		  );
+		if (allocate)
+		{
+			g_SFT.SetHalfColour(false);
+		}
+	}
 	else
 		nRet = SaveJPG(szFileName,(char*)lpJeg,biHeight,biWidth,3,nQuality,comment);
 	delete [] lpJeg;
@@ -540,6 +563,12 @@ static void UpdateShowCrossHair(HWND hWnd)
 	ShowWindow(g_hwHair, b ? SW_SHOWNA : SW_HIDE);
 }
 
+static void UpdateHalfColour(HWND hWnd)
+{
+	bool b = g_SFT.GetHalfColour();
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -564,6 +593,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateNoReuseCenter(hWnd);
 	UpdateIsolatedGlitchNeighbourhood(hWnd);
 	UpdateShowCrossHair(hWnd);
+	UpdateHalfColour(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -4221,6 +4251,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (! (g_SFT.GetUseNanoMB1() || g_SFT.GetUseNanoMB2()))
 			g_SFT.SetInteriorChecking(false);
 		UpdateInteriorChecking(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_HALFCOLOUR){
+		g_SFT.SetHalfColour(!g_SFT.GetHalfColour());
+		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(g_SFT.GetHalfColour()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

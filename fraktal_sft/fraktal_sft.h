@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_FRAKTAL_SFT_H 1
 
 #include <windows.h>
+#include <half.h>
+
 #include "Settings.h"
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
@@ -312,6 +314,7 @@ class CFraktalSFT
 	floatexp m_pixel_step_x, m_pixel_step_y;
 	floatexp m_pixel_center_x, m_pixel_center_y;
 
+	half *m_imageHalf; // for EXR export
 	BYTE *m_lpBits;
 	int m_row;
 	BITMAPINFOHEADER *m_bmi;
@@ -592,6 +595,8 @@ public:
   BOOL(InteriorChecking)
   DOUBLE(RadiusScale)
   INT(Shrink)
+	inline bool   GetHalfColour() const { return m_Settings.GetHalfColour(); };
+	       void   SetHalfColour(bool b);
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -604,9 +609,12 @@ public:
   void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
   void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
 
+  // for SaveEXR()
   const int *GetArrayCount() const { return m_nPixels[0]; };
   const float *GetArrayTrans() const { return m_nTrans[0]; };
   const float *GetArrayDE() const { return GetDerivatives() ? m_nDE[0] : nullptr; };
+  const half *GetArrayHalfColour() const { return m_imageHalf; };
+  size_t GetArrayHalfColourStride() const { return m_row; };
 
 };
 

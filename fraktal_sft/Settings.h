@@ -77,6 +77,7 @@ private:
   bool m_InteriorChecking;
   double m_RadiusScale;
   int m_Shrink;
+  bool m_HalfColour;
 
 public:
 
@@ -123,6 +124,7 @@ public:
   , m_InteriorChecking(false)
   , m_RadiusScale(0.1)
   , m_Shrink(1)
+  , m_HalfColour(false)
   { };
 
   bool FromText(const std::string &text);
@@ -275,6 +277,8 @@ public:
   inline int    GetShrink() const { return m_Shrink; };
   inline void   SetShrink(int n) { m_Shrink = 0 <= n && n <= 2 ? n : 1; };
 
+  inline bool   GetHalfColour() const { return m_HalfColour; };
+  inline void   SetHalfColour(bool b) { m_HalfColour = b; };
 };
 
 #endif

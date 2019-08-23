@@ -190,6 +190,7 @@ CFraktalSFT::CFraktalSFT()
 	m_db_dxr = NULL;
 	m_db_dxi = NULL;
 
+	m_imageHalf = NULL;
 	m_lpBits = NULL;
 	m_row = 0;
 	m_nMaxIter = 200;
@@ -973,16 +974,36 @@ void CFraktalSFT::SetColor(int nIndex, const int nIter0, double offs, int x, int
 			s.b = (1 - diff)*s.b + diff;
 		}
 	}
+	lrgb l;
+	if (m_imageHalf)
+		l = srgb2lrgb(s);
 	srgb8 s8 = dither(s, x, y);
 	if (nIter0 == m_nMaxIter)
 	{
 		s8.r = m_cInterior.r;
 		s8.g = m_cInterior.g;
 		s8.b = m_cInterior.b;
+		if (m_imageHalf)
+		{
+			s.r = s8.r / 255.0f;
+			s.g = s8.g / 255.0f;
+			s.b = s8.b / 255.0f;
+			l = srgb2lrgb(s);
+		}
 	}
 	m_lpBits[nIndex    ] = s8.r;
 	m_lpBits[nIndex + 1] = s8.g;
 	m_lpBits[nIndex + 2] = s8.b;
+	if (m_imageHalf)
+	{
+		// flip vertically and convert BGR to RGB
+		size_t i3 = (nIndex % m_row);
+		size_t j = nIndex / m_row;
+		size_t nIndex2 = (m_nY - 1 - j) * m_row + i3;
+		m_imageHalf[nIndex2    ] = l.b;
+		m_imageHalf[nIndex2 + 1] = l.g;
+		m_imageHalf[nIndex2 + 2] = l.r;
+	}
 }
 
 // based on cache-oblivious matrix transpose by divide and conquer
@@ -2830,6 +2851,27 @@ void CFraktalSFT::SetApproxTerms(int nTerms)
 	delete[] m_APi;
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
+}
+
+void CFraktalSFT::SetHalfColour(bool b)
+{
+	m_Settings.SetHalfColour(b);
+	b = m_Settings.GetHalfColour();
+	if (b)
+	{
+		if (! m_imageHalf)
+		{
+			m_imageHalf = new half[m_nSizeImage];
+		}
+	}
+	else
+	{
+		if (m_imageHalf)
+		{
+			delete[] m_imageHalf;
+			m_imageHalf = nullptr;
+		}
+	}
 }
 
 double CFraktalSFT::GetRatioX()

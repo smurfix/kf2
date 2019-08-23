@@ -25,6 +25,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ImfArray.h>
 #include <ImfPreviewImage.h>
 
+#include <iostream>
+
 #include "fraktal_sft.h"
 #include "exr.h"
 
@@ -94,11 +96,30 @@ extern int SaveEXR
     header.insert("KallesFraktaler2+", StringAttribute(comment));
     header.insert("Iterations", IntAttribute(maxiter));
     // write image
+    const half *rgb = g_SFT.GetArrayHalfColour();
+    if (rgb)
+    {
+      header.channels().insert("R", Channel(IMF::HALF));
+      header.channels().insert("G", Channel(IMF::HALF));
+      header.channels().insert("B", Channel(IMF::HALF));
+    }
     header.channels().insert("N",  Channel(IMF::UINT));
     header.channels().insert("NF", Channel(IMF::FLOAT));
     if (de) header.channels().insert("DE", Channel(IMF::FLOAT));
     OutputFile of(filename.c_str(), header);
     FrameBuffer fb;
+    if (rgb)
+    {
+      // [y][x]
+      size_t row = g_SFT.GetArrayHalfColourStride();
+      fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+    }
+    else
+    {
+      std::cerr << "no rgb" << std::endl;
+    }
     // [x][y]
     fb.insert("N",  Slice(IMF::UINT,  (char *) n,  sizeof(*n ) * arrHeight, sizeof(*n ) * 1));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));

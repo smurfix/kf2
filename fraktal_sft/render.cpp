@@ -176,7 +176,10 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bN
 			if (m_lpBits)
 				delete[] m_lpBits;
 			m_lpBits = new BYTE[m_bmi->biSizeImage];
-
+			if (m_imageHalf)
+				delete[] m_imageHalf;
+			m_imageHalf = nullptr;
+			SetHalfColour(GetHalfColour()); // reallocate if necessary
 			if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
 				(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 				{ /*Beep(1000,10)*/ }
