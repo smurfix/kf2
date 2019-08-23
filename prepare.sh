@@ -17,8 +17,6 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
 NCPUS=32
-#export WINEPATH=/usr/lib/gcc/x86_64-w64-mingw32/8.3-win32/
-#export WINEPATH=/usr/lib/gcc/i686-w64-mingw32/8.3-win32/
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
 export LDFLAGS="-static-libgcc -static-libstdc++"
 mkdir -p ~/win64/src
@@ -40,7 +38,7 @@ wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/ilmbase-2.3.0.tar.gz
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/openexr-2.3.0.tar.gz
-git clone https://github.com/meganz/mingw-std-threads || { cd mingw-std-threads && git pull }
+git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
 cp -avft ~/win32/src *z allpatches mingw-std-threads
 # gmp 64
 cd ~/win64/src
@@ -101,7 +99,7 @@ make install
 cd ~/win32/src
 tar xf libpng-*.tar.xz
 cd libpng-*/
-./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS=-"$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
+./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
 make -j $NCPUS
 make install
 # jpeg 64
@@ -196,25 +194,25 @@ ln -s ../src/mingw-std-threads
 cd ~/win64/src
 tar xf ilmbase-*.tar.gz
 cd ilmbase-*/
-patch -p1 < ../ilmbase-*.patch
+patch -p1 < $(ls ../ilmbase-*.patch)
 ./bootstrap
-./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+CPPFLAGS="$CPPFLAGS -I$HOME/win64/include" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
 make install
 # ilmbase 32
 cd ~/win32/src
 tar xf ilmbase-*.tar.gz
 cd ilmbase-*/
-patch -p1 < ../ilmbase-*.patch
+patch -p1 < $(ls ../ilmbase-*.patch)
 ./bootstrap
-./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win64
+CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
 # openexr 64
 cd ~/win64/src
 tar xf openexr-*.tar.gz
 cd openexr-*/
-patch -p1 < ../openexr-*.patch
+patch -p1 < $(ls ../openexr-*.patch)
 ./bootstrap
 CPPFLAGS="$CPPFLAGS -I$HOME/win64/include -I$HOME/win64/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win64/lib" LIBS="-lHalf" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
@@ -223,7 +221,7 @@ make install
 cd ~/win32/src
 tar xf openexr-*.tar.gz
 cd openexr-*/
-patch -p1 < ../openexr-*.patch
+patch -p1 < $(ls ../openexr-*.patch)
 ./bootstrap
 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include -I$HOME/win32/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" LIBS="-lHalf" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS

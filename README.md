@@ -859,6 +859,7 @@ install natively.
           m4 \
           mingw-w64 \
           p7zip \
+          wget \
           wine32 \
           wine64 \
           wine-binfmt \
@@ -867,6 +868,8 @@ install natively.
         apt-get install \
           pandoc \
           texlive-latex-recommended   # optional, for PDF manual
+        mount binfmt_misc /proc/sys/fs/binfmt_misc -t binfmt_misc
+        update-binfmts --import /usr/share/binfmts/wine
 
     For Ubuntu replace "wine32 wine64 wine-binfmt" with "wine" (but see note
     about build failures with some versions).
@@ -879,37 +882,36 @@ install natively.
         mkdir -p ~/win64/src
         mkdir -p ~/win32/src
 
-3. Download Kalles Fraktaler 2 sources:
+3. Download Kalles Fraktaler 2 + sources:
 
         cd ~/win64/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.14
         cd ..
-        cp -avit ~/win32/src kalles-fraktaler-2/
+        cp -avit ~/win32/src kalles-fraktaler-2
 
 4. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
 necessary), the script builds both 64bit and 32bit variants:
 
-        bash ~/win64/src/kalles-fraktaler-2/prepare.sh
+        cd ~/win64/src/kalles-fraktaler-2
+        bash ./prepare.sh
 
-5. Finally, build Kalles Fraktaler 2 + GMP (64bit and 32bit):
+5. Download the previous version and copy the `et`-generated formulas from it:
 
-        cd ~/win64/src
-        cd kalles-fraktaler-2
-        make -j 8 SYSTEM=64
-        make README.pdf   # optional, for PDF manual
+        cd ~/win64/src/kalles-fraktaler-2
+        wget -c https://mathr.co.uk/kf/kf-2.14.6.1.zip
+        unzip kf-*.zip
+        cd kf-*/
+        unzip kf-*src.zip
+        cd kf-*-src/
+        cp -avit ../../formula/generated formula/generated/*.c
 
-        cd ~/win32/src
-        cd kalles-fraktaler-2
-        make -j 8 SYSTEM=32
+6. Finally, build Kalles Fraktaler 2 + (64bit and 32bit):
 
-6. To cut a release bundle, use the script
-
-        export VERSION=2.whatever
-        git tag -s kf-${VERSION}
-        ./release.sh ${VERSION}
+        cd ~/win64/src/kalles-fraktaler-2
+        ./release.sh $(git describe)
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
 
