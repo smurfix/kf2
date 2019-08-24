@@ -37,4 +37,6 @@ extern int SaveEXR
 , const float *de
 );
 
+extern std::string ReadEXRComment(const std::string &filename);
+
 #endif

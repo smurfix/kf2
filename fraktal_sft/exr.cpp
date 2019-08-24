@@ -18,7 +18,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <ImfNamespace.h>
+#include <ImfMultiPartInputFile.h>
 #include <ImfOutputFile.h>
+#include <ImfHeader.h>
 #include <ImfIntAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfChannelList.h>
@@ -32,6 +34,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
+
+const char magic[] = "KallesFraktaler2+";
 
 extern int SaveEXR
 ( const std::string &filename
@@ -54,24 +58,30 @@ extern int SaveEXR
     uint32_t *n = new uint32_t[size_t(arrWidth) * arrHeight];
     float *nf = new float[size_t(arrWidth) * arrHeight];
     // TODO parallelize
-    for (size_t k = 0; k < size_t(arrWidth) * arrHeight; ++k)
+    for (int j = 0; j < arrHeight; ++j)
     {
-      if (PIXEL_UNEVALUATED == count[k] || GET_TRANS_GLITCH(trans[k]))
+      for (int i = 0; i < arrWidth; ++i)
       {
-        // not calculated, or glitched
-        n[k] = 0;
-        nf[k] = 0.0f;
-      }
-      else if (count[k] == maxiter)
-      {
-        // unescaped
-        n[k] = 0xFFffFFffU;
-        nf[k] = 0.0f;
-      }
-      else
-      {
-        n[k] = count[k];
-        nf[k] = 1.0f - trans[k];
+        // flip vertically ?
+        size_t k = j * size_t(arrWidth) + i;
+        size_t e = (arrHeight - 1 - j) * size_t(arrWidth) + i;
+        if (PIXEL_UNEVALUATED == count[k] || GET_TRANS_GLITCH(trans[k]))
+        {
+          // not calculated, or glitched
+          n[e] = 0;
+          nf[e] = 0.0f;
+        }
+        else if (count[k] == maxiter)
+        {
+          // unescaped
+          n[e] = 0xFFffFFffU;
+          nf[e] = 0.0f;
+        }
+        else
+        {
+          n[e] = count[k];
+          nf[e] = 1.0f - trans[k];
+        }
       }
     }
     // prepare preview image
@@ -93,7 +103,7 @@ extern int SaveEXR
     }
     header.setPreviewImage(PreviewImage(nWidth, nHeight, &preview[0][0]));
     // insert metadata
-    header.insert("KallesFraktaler2+", StringAttribute(comment));
+    header.insert(magic, StringAttribute(comment));
     header.insert("Iterations", IntAttribute(maxiter));
     // write image
     const half *rgb = g_SFT.GetArrayHalfColour();
@@ -134,4 +144,33 @@ extern int SaveEXR
   {
     return 0;
   }
+}
+
+extern std::string ReadEXRComment(const std::string &filename)
+{
+  try
+  {
+    MultiPartInputFile in(filename.c_str());
+    for (int p = 0; p < in.parts(); ++p)
+    {
+      const Header &h = in.header(p);
+      for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
+      {
+        std::string name(i.name());
+        if (name == magic)
+        {
+          const Attribute *a = &i.attribute();
+          if (const StringAttribute *s = dynamic_cast<const StringAttribute *>(a))
+          {
+            return std::string(s->value());
+          }
+        }
+      }
+    }
+  }
+  catch (...)
+  {
+    return "";
+  }
+  return "";
 }

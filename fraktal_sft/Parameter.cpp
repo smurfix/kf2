@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tiff.h"
 #include "png.h"
 #include "jpeg.h"
+#include "exr.h"
 #include "main.h"
 #include "newton.h"
 #include "../common/StringVector.h"
@@ -46,6 +47,12 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 	else if (extension == "jpg" || extension == "jpeg")
 	{
 		data = ReadJPEGComment(szFile);
+		if (data == "")
+		  return FALSE;
+	}
+	else if (extension == "exr")
+	{
+		data = ReadEXRComment(szFile);
 		if (data == "")
 		  return FALSE;
 	}

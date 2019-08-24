@@ -27,6 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "jpeg.h"
 #include "png.h"
 #include "tiff.h"
+#include "exr.h"
 
 bool Settings::FromText(const std::string &text)
 {
@@ -174,6 +175,17 @@ bool Settings::OpenFile(const std::string &filename)
 	{
 		std::string filename = szFile;
 		std::string comment = ReadJPEGComment(filename);
+		if (comment == "")
+		  return false;
+		size_t n = comment.length() + 1;
+		szData = new char[n];
+		strncpy(szData, comment.c_str(), n);
+		szData[n-1] = 0;
+	}
+	else if (extension && (0 == strcmp(".exr", extension)))
+	{
+		std::string filename = szFile;
+		std::string comment = ReadEXRComment(filename);
 		if (comment == "")
 		  return false;
 		size_t n = comment.length() + 1;
