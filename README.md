@@ -92,6 +92,8 @@ Feedback:
   to be too small and de overflows to infinity -> blank screen: workaround is to
   force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
+- navigation with scroll wheel and -/+ keys is hardcoded to factor of 2 instead
+  of using the zoom size set in the View menu
 - NR zoom doesn't work well in skewed locations
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
 - nanomb2 RadiusScale can only be changed by hand-editing .kfs Settings files
