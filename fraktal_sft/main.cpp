@@ -98,7 +98,6 @@ HWND g_hwOpenCL = NULL;
 #endif
 
 
-HBITMAP g_bmMarilyn=NULL;
 double g_nMinDiff=0;
 
 extern BOOL g_LDBL;
@@ -1292,10 +1291,6 @@ double g_dbRotateRatio=0;
 double g_dbRotateStart=0;
 double g_dbRotateAnim=0;
 int g_nSkewFrames=300;
-BOOL g_bMarilyn=FALSE;
-int g_nMarilynDir=0;
-int g_nMarilynX=0;
-int g_nMarilynY=0;
 
 static double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 {
@@ -1365,187 +1360,6 @@ static int KRYield(HWND hWnd)
 }
 #endif
 
-static int Marilyn(HWND hWnd)
-{
-	g_SFT.ApplyColors();
-	InvalidateRect(hWnd,NULL,FALSE);
-	UpdateWindow(hWnd);
-	g_bmMarilyn = GetImage("C:\\Users\\krunmo\\Documents\\bkp\\img\\Marilyn.jpg");
-	g_SFT.ApplyColors();
-	InvalidateRect(hWnd,NULL,FALSE);
-	UpdateWindow(hWnd);
-	HBITMAP bmBmp = g_SFT.GetBitmap();
-	double t = CompareBitmaps(bmBmp,g_bmMarilyn);
-	if(g_nMinDiff==0 || g_nMinDiff>t){
-		g_nMinDiff=t;
-		g_nMarilynDir=0;
-		g_nMarilynX=g_nMarilynY=0;
-		g_SFT.SaveFile("C:\\Users\\krunmo\\Documents\\bkp\\img\\Marilyn.kfr");
-	}
-	char szTitle[1256];
-	sprintf(szTitle,"Diff=%.0f, Dir=%d, t=%.0f <%d,%d>",g_nMinDiff,g_nMarilynDir,t,g_nMarilynX,g_nMarilynY);
-	SetWindowText(hWnd,szTitle);
-	RECT r;
-	GetClientRect(hWnd,&r);
-	int x = 800/2;
-	int y = 450/2;
-	int nOffs = 1 + g_nMarilynDir/30;
-	int nDir = g_nMarilynDir%30;
-	if(nDir==0){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-	}
-	else if(nDir==1){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==2){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==3){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==4){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=2*nOffs;
-		g_nMarilynY-=2*nOffs;
-	}
-	else if(nDir==5){
-		x+=2*nOffs;
-		g_nMarilynX+=2*nOffs;
-	}
-	else if(nDir==6){
-		y+=2*nOffs;
-		g_nMarilynY+=2*nOffs;
-	}
-	else if(nDir==7){
-		x-=2*nOffs;
-		g_nMarilynX-=2*nOffs;
-	}
-	else if(nDir==8){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==9){
-		g_Degree+=(double)nOffs/20;
-	}
-	else if(nDir==10){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-	}
-	else if(nDir==11){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==12){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==13){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==14){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=2*nOffs;
-		g_nMarilynY-=2*nOffs;
-	}
-	else if(nDir==15){
-		x+=2*nOffs;
-		g_nMarilynX+=2*nOffs;
-	}
-	else if(nDir==16){
-		y+=2*nOffs;
-		g_nMarilynY+=2*nOffs;
-	}
-	else if(nDir==17){
-		x-=2*nOffs;
-		g_nMarilynX-=2*nOffs;
-	}
-	else if(nDir==18){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==19){
-		g_Degree-=(double)nOffs/20;
-		g_Degree-=(double)nOffs/20;
-	}
-	if(nDir==20){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-	}
-	else if(nDir==21){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==22){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==23){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y+=nOffs;
-		g_nMarilynY+=nOffs;
-	}
-	else if(nDir==24){
-		x-=nOffs;
-		g_nMarilynX-=nOffs;
-		y-=2*nOffs;
-		g_nMarilynY-=2*nOffs;
-	}
-	else if(nDir==25){
-		x+=2*nOffs;
-		g_nMarilynX+=2*nOffs;
-	}
-	else if(nDir==26){
-		y+=2*nOffs;
-		g_nMarilynY+=2*nOffs;
-	}
-	else if(nDir==27){
-		x-=2*nOffs;
-		g_nMarilynX-=2*nOffs;
-	}
-	else if(nDir==28){
-		x+=nOffs;
-		g_nMarilynX+=nOffs;
-		y-=nOffs;
-		g_nMarilynY-=nOffs;
-	}
-	else if(nDir==29){
-		g_Degree+=(double)nOffs/20;
-	}
-	g_nMarilynDir++;
-
-	DeleteObject(g_bmMarilyn);
-	g_SFT.Zoom(x,y,1,g_SFT.GetWidth(),g_SFT.GetHeight());
-	SetTimer(hWnd,0,500,NULL);
-	return 0;
-}
 static HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 {
 	HDC hDC = GetDC(NULL);
@@ -1718,8 +1532,6 @@ nPos=12;
 		if(g_bFindMinibrot){
 			PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDMINIBROT,1);
 		}
-		if(g_bMarilyn)
-			return Marilyn(hWnd);
 		if(g_bStoreZoom){
 nPos=13;
 			std::string szZ = g_SFT.ToZoom();
@@ -4425,9 +4237,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bSkewAnimation=DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG11),hWnd,(DLGPROC)SkewAnimateProc,(LPARAM)0);
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SKEWANIMATION,MF_BYCOMMAND|(g_bSkewAnimation?MF_CHECKED:MF_UNCHECKED));
 		return 0;
-	}
-	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_CONTROL))){
-		g_bMarilyn=!g_bMarilyn;
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='J' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEASJPEG,0);
