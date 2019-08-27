@@ -26,6 +26,26 @@ Feedback:
 - <mailto:claude@mathr.co.uk?subject=Kalles%20Fraktaler%202> personal mail
 
 
+## Quick Start
+
+- Download the latest zip from the website:
+  <https://mathr.co.uk/kf/kf.html#download>
+
+- Unzip it wherever you want, no installation required.
+
+- Launch `kf.64.exe` for 64-bit (to be preferred), `kf.32.exe` for 32-bit.
+
+- Start exploring!
+
+  - Use the mouse scroll wheel to zoom.
+
+  - Choose different fractal formulas in the iterations dialog (Ctrl-I).
+
+  - Choose different colours in the colouring dialog (Ctrl-C).
+
+  - Zoom deeper more quickly with Newton-Raphson zooming (Ctrl-D).
+
+
 ## Known Bugs
 
 - Windows Defender sometimes reports that KF contains malware
