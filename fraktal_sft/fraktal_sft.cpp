@@ -47,6 +47,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "jpeg.h"
 #include "png.h"
 #include "tiff.h"
+#include "exr.h"
 #include "main.h"
 #include "gradient.h"
 #include "newton.h"
@@ -1839,6 +1840,11 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	SetImageHeight(ny);
 }
 
+bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
+{
+	return ReadEXRMapFile(szfile);
+}
+
 BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
 {
 	int **Org = 0;
@@ -1987,6 +1993,12 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		delete[] OrgT;
 		delete[] OrgDE;
 	}
+	ReinitializeBitmap();
+	return ok;
+}
+
+void CFraktalSFT::ReinitializeBitmap()
+{
 	if (m_bmBmp)
 		DeleteObject(m_bmBmp);
 	HDC hDC = GetDC(NULL);
@@ -2016,7 +2028,6 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 			{ /*Beep(1000,10)*/ }
 	}
-	return ok;
 }
 
 double CFraktalSFT::GetIterDiv()

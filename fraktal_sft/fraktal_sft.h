@@ -455,6 +455,7 @@ public:
 	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
 	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
+	bool OpenMapEXR(const std::string &szFile);
 	std::string ToText();
 	BOOL SaveFile(const std::string &szFile, bool overwrite);
 	double GetIterDiv();
@@ -612,13 +613,13 @@ public:
   void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
   void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
 
-  // for SaveEXR()
-  const int *GetArrayCount() const { return m_nPixels[0]; };
-  const float *GetArrayTrans() const { return m_nTrans[0]; };
-  const float *GetArrayDE() const { return GetDerivatives() ? m_nDE[0] : nullptr; };
-  const half *GetArrayHalfColour() const { return m_imageHalf; };
-  size_t GetArrayHalfColourStride() const { return m_row; };
-
+  // for EXR IO
+  int *GetArrayCount() { return m_nPixels[0]; };
+  float *GetArrayTrans() { return m_nTrans[0]; };
+  float *GetArrayDE() { return GetDerivatives() ? m_nDE[0] : nullptr; };
+  half *GetArrayHalfColour() { return m_imageHalf; };
+  size_t GetArrayHalfColourStride() { return m_row; };
+	void ReinitializeBitmap();
 };
 
 struct TH_PARAMS

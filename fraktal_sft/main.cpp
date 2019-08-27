@@ -390,6 +390,7 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 		switch (nID)
 		{
 			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
+			case IDC_STOREZOOM_EXR: return "Save EXR image + map files for each frame";
 			case IDC_STOREZOOM_TIF: return "Save TIF image files for each frame";
 			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
 			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
@@ -1203,6 +1204,18 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomPng=0;
+	File = replace_path_filename(g_szFile, "*_*.exr");
+	hFind = FindFirstFile(File.c_str(),&fd);
+	int countExr = 0;
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomExr=1;
+		do{
+			countExr++;
+		}while(FindNextFile(hFind,&fd));
+		FindClose(hFind);
+	}
+	else
+		g_bStoreZoomExr=0;
 	File = replace_path_filename(g_szFile, "*_*.kfb");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1257,6 +1270,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	UpdateZoomSize(hWnd);
 	int zoomCount = countMap ? countMap
+	              : countExr ? countExr
 	              : countTif ? countTif
 	              : countPng ? countPng
 	              : countJpg ? countJpg
@@ -2574,7 +2588,7 @@ static long OpenMap(HWND hWnd, bool &ret, const std::string &szFile)
 {
 	g_SFT.Stop();
 	g_bAnim = false;
-	if (! g_SFT.OpenMapB(szFile))
+	if (! (g_SFT.OpenMapB(szFile) || g_SFT.OpenMapEXR(szFile)))
 	{
 		ret = true;
 		if (hWnd)
@@ -2640,6 +2654,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			if (wParam == IDOK)
 			{
 				g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
+				g_bStoreZoomExr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_EXR, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomTif = SendDlgItemMessage(hWnd, IDC_STOREZOOM_TIF, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
@@ -2650,7 +2665,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 					g_nStoreZoomLimit = 0;
 				}
 				ExitToolTip(hWnd);
-				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomTif || g_bStoreZoomPng || g_bStoreZoomJpg);
+				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomExr || g_bStoreZoomTif || g_bStoreZoomPng || g_bStoreZoomJpg);
 			}
 			else if(wParam == IDCANCEL)
 			{
@@ -4574,7 +4589,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_OPENMAP){
 			std::string szfile;
-			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfb\0\0",szfile)){
+			if(BrowseFile(hWnd,TRUE,"Open Map","Kalle's fraktaler\0*.kfb\0EXR files\0*.exr\0\0",szfile)){
 				bool ret;
 				long r = OpenMap(hWnd, ret, szfile);
 				if (ret) return r;
@@ -4615,6 +4630,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
 						g_SFT.SaveMapB(szFile);
+					szFile = replace_path_extension(szFile, "exr");
+					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.exr) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
+						g_SFT.SaveJpg(szFile,-3,g_JpegParams.nWidth,g_JpegParams.nHeight);
 				}
 			}
 		}
@@ -4637,6 +4655,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
 						g_SFT.SaveMapB(szFile);
+					szFile = replace_path_extension(szFile, "exr");
+					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.exr) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
+						g_SFT.SaveJpg(szFile,-3,g_JpegParams.nWidth,g_JpegParams.nHeight);
 				}
 			}
 		}
@@ -4659,6 +4680,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					szFile = replace_path_extension(szFile, "kfb");
 					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.kfb) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
 						g_SFT.SaveMapB(szFile);
+					szFile = replace_path_extension(szFile, "exr");
+					if(FileExists(szFile) && MessageBox(hWnd,"Found a map file (.exr) with the same name, do you want to replace it?","Kalle's Fraktaler",MB_YESNO)==IDYES)
+						g_SFT.SaveJpg(szFile,-3,g_JpegParams.nWidth,g_JpegParams.nHeight);
 				}
 			}
 		}
@@ -5157,8 +5181,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			ret = ! g_SFT.OpenMapB(g_szFile);
 			if (ret)
 			{
-				output_log_message(Error, "loading map " << g_szFile << " FAILED");
-				return 1;
+				ret = ! g_SFT.OpenMapEXR(g_szFile);
+				if (ret)
+				{
+					output_log_message(Error, "loading map " << g_szFile << " FAILED");
+					return 1;
+				}
 		  }
 		}
 		if (g_args->bLoadPalette)

@@ -211,7 +211,9 @@ Feedback:
 
 - **kf-2.14.7** (????-??-??)
 
-    - feature: save as EXR (combined image with iteration data)
+    - feature: save EXR (combined image with iteration map data and metadata)
+      and open EXR (as settings, location or iteration map data).  For
+      motivation and specifications see <https://fractalforums.org/f/11/t/3017>.
     - feature: LogLog and ATan color methods (iteration count transfer
       functions) (ported from Mandel Machine, suggested by Dinkydau)
     - feature: option to control overwriting existing files with Save/Ctrl-S.

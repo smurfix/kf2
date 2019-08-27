@@ -39,4 +39,6 @@ extern int SaveEXR
 
 extern std::string ReadEXRComment(const std::string &filename);
 
+extern bool ReadEXRMapFile(const std::string &filename);
+
 #endif

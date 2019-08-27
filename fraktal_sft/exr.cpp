@@ -19,12 +19,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <ImfNamespace.h>
 #include <ImfMultiPartInputFile.h>
+#include <ImfInputFile.h>
 #include <ImfOutputFile.h>
 #include <ImfHeader.h>
 #include <ImfIntAttribute.h>
 #include <ImfStringAttribute.h>
 #include <ImfChannelList.h>
 #include <ImfArray.h>
+#include <ImfFrameBuffer.h>
+#include <ImathBox.h>
 #include <ImfPreviewImage.h>
 
 #include <iostream>
@@ -34,8 +37,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 namespace IMF = OPENEXR_IMF_NAMESPACE;
 using namespace IMF;
+using namespace IMATH_NAMESPACE;
 
 const char magic[] = "KallesFraktaler2+";
+const int BIAS = 1024;
 
 extern int SaveEXR
 ( const std::string &filename
@@ -49,7 +54,7 @@ extern int SaveEXR
 , int arrHeight
 , const int *count
 , const float *trans
-, const float *de
+, const float *rawde
 )
 {
   try
@@ -57,30 +62,34 @@ extern int SaveEXR
     // prepare arrays with proper format
     uint32_t *n = new uint32_t[size_t(arrWidth) * arrHeight];
     float *nf = new float[size_t(arrWidth) * arrHeight];
+    float *de = rawde ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     // TODO parallelize
-    for (int j = 0; j < arrHeight; ++j)
+    for (int i = 0; i < arrWidth; ++i)
     {
-      for (int i = 0; i < arrWidth; ++i)
+      for (int j = 0; j < arrHeight; ++j)
       {
-        // flip vertically ?
-        size_t k = j * size_t(arrWidth) + i;
-        size_t e = (arrHeight - 1 - j) * size_t(arrWidth) + i;
+        // [x][y], flip vertically
+        size_t k = (arrHeight - 1 - j) + arrHeight * i;
+        size_t e = j + arrHeight * i;
         if (PIXEL_UNEVALUATED == count[k] || GET_TRANS_GLITCH(trans[k]))
         {
           // not calculated, or glitched
           n[e] = 0;
           nf[e] = 0.0f;
+          if (de) de[e] = 0.0f;
         }
         else if (count[k] == maxiter)
         {
           // unescaped
           n[e] = 0xFFffFFffU;
           nf[e] = 0.0f;
+          if (de) de[e] = 0.0f;
         }
         else
         {
-          n[e] = count[k];
+          n[e] = count[k] + BIAS;
           nf[e] = 1.0f - trans[k];
+          if (de) de[e] = rawde[k];
         }
       }
     }
@@ -105,6 +114,7 @@ extern int SaveEXR
     // insert metadata
     header.insert(magic, StringAttribute(comment));
     header.insert("Iterations", IntAttribute(maxiter));
+    header.insert("IterationsBias", IntAttribute(BIAS));
     // write image
     const half *rgb = g_SFT.GetArrayHalfColour();
     if (rgb)
@@ -173,4 +183,93 @@ extern std::string ReadEXRComment(const std::string &filename)
     return "";
   }
   return "";
+}
+
+extern bool ReadEXRMapFile(const std::string &filename)
+{
+  try
+  {
+    InputFile file(filename.c_str());
+    int maxiter = INT_MAX - 1;
+    int bias = BIAS;
+    const Header &h = file.header();
+    for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
+    {
+      std::string name(i.name());
+      if (name == "Iterations")
+      {
+        const Attribute *a = &i.attribute();
+        if (const IntAttribute *s = dynamic_cast<const IntAttribute *>(a))
+        {
+          maxiter = s->value();
+        }
+      }
+      if (name == "IterationsBias")
+      {
+        const Attribute *a = &i.attribute();
+        if (const IntAttribute *s = dynamic_cast<const IntAttribute *>(a))
+        {
+          bias = s->value();
+        }
+      }
+    }
+    Box2i dw = h.dataWindow();
+    size_t width = dw.max.x - dw.min.x + 1;
+    size_t height = dw.max.y - dw.min.y + 1;
+    // prepare arrays with proper format
+    uint32_t *N = new uint32_t[width * height];
+    float *NF = new float[width * height];
+    float *DE = new float[width * height];
+    FrameBuffer fb;
+    // [x][y]
+    fb.insert("N" , Slice(IMF::UINT,  (char *) (&N [0] - dw.min.x - dw.min.y * width), sizeof(N [0]) * height, sizeof(N [0]) * 1, 1, 1, 0));
+    fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
+    fb.insert("DE", Slice(IMF::FLOAT, (char *) (&DE[0] - dw.min.x - dw.min.y * width), sizeof(DE[0]) * height, sizeof(DE[0]) * 1, 1, 1, 0.0f));
+    file.setFrameBuffer(fb);
+    file.readPixels(dw.min.y, dw.max.y);
+    // copy to KF arrays
+    g_SFT.SetIterations(maxiter);
+    g_SFT.SetImageSize(width, height);
+    int *count = g_SFT.GetArrayCount();
+    float *trans = g_SFT.GetArrayTrans();
+    float *de = g_SFT.GetArrayDE();
+    // TODO parallelize
+    for (size_t i = 0; i < width; ++i)
+    {
+      for (size_t j = 0; j < height; ++j)
+      {
+        // [x][y], flip vertically
+        size_t e = j + height * i;
+        size_t k = (height - 1 - j) + height * i;
+        if (N[e] == 0 && NF[e] == 0.0f)
+        {
+          count[k] = PIXEL_UNEVALUATED;
+          trans[k] = 0.0f;
+          if (de) de[k] = 0.0f;
+        }
+        else if (N[e] == 0xFFffFFffU)
+        {
+          count[k] = maxiter;
+          trans[k] = 0.0f;
+          if (de) de[k] = 0.0f;
+        }
+        else
+        {
+          count[k] = int(N[e]) - bias;
+          trans[k] = 1.0f - NF[e];
+          if (de) de[k] = DE[e];
+        }
+      }
+    }
+    g_SFT.ReinitializeBitmap();
+    // FIXME leak on failure
+    delete[] N;
+    delete[] NF;
+    delete[] DE;
+    return true;
+  }
+  catch(...)
+  {
+    return false;
+  }
 }
