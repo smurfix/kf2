@@ -191,6 +191,9 @@ Feedback:
       (reported by saka)
     - bugfix: remove annoying warning dialogs from store zoom out sequence
       (reported by saka)
+    - bugfix: size status bar sections proportionally to window width
+      (fixes accessibility issues with non-standard system font size)
+      (reported by fractal)
     - new dependency: mingw-std-threads git
     - new dependency: ilmbase 2.3.0
     - new dependency: openexr 2.3.0

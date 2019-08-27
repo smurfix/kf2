@@ -603,6 +603,9 @@ static void UpdateWindowSize(HWND hWnd)
 	int r = g_SFT.GetWindowRight();
 	int b = g_SFT.GetWindowBottom();
 	MoveWindow(hWnd,l,t,r,b,TRUE);
+	int w = g_SFT.GetWindowWidth();
+	int widths[3] = { (180 * w) / 640, (430 * w) / 640, -1 };
+	SendMessage(g_hwStatus,SB_SETPARTS,3,(LPARAM)&widths);
 }
 
 #if 0
