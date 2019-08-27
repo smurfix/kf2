@@ -80,6 +80,8 @@ else
     clear de;
     de2 = typecast(de2(:),'uint8');
     fwrite(fid,de2,'uint8');
-end
+endif
 
 fclose(fid);
+
+endfunction

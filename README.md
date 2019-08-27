@@ -220,6 +220,9 @@ Feedback:
     - bugfix: size status bar sections proportionally to window width
       (fixes accessibility issues with non-standard system font size)
       (reported by fractal)
+    - bugfix: make Octave/Matlab scripts into function files for broader
+      compatibility (usage example: `stratify("tile",4)`) (bug reported
+      by Chronicler1701, fix suggested by gerrit).
     - new dependency: mingw-std-threads git
     - new dependency: ilmbase 2.3.0
     - new dependency: openexr 2.3.0

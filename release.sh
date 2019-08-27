@@ -33,7 +33,7 @@ cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
-cp -avit "${BIN}/" "${SRC}.zip" utils/kf-stratify.m
+cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
 make -j 32 SYSTEM=32
 strip kf.exe

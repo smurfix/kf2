@@ -1,7 +1,6 @@
-#!/usr/bin/env octave -qf
 % Kalles Fraktaler 2
 % Copyright (C) 2013-2017 Karl Runmo
-% Copyright (C) 2017-2018 Claude Heiland-Allen
+% Copyright (C) 2017-2019 Claude Heiland-Allen
 %
 % This program is free software: you can redistribute it and/or modify
 % it under the terms of the GNU Affero General Public License as
@@ -16,16 +15,14 @@
 % You should have received a copy of the GNU Affero General Public License
 % along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-arg_list = argv();
-stem = arg_list{1};
-factor = base2dec(arg_list{2}, 10);
+function stratify(stem, factor)
 
 pattern = sprintf('%s-%s-%s.png', stem, '%04d', '%04d');
 output = sprintf('%s.png', stem);
 
 for y=1:factor
   for x=1:factor
-    filename = sprintf(pattern, y - 1, x - 1)
+    filename = sprintf(pattern, y - 1, x - 1);
     image = imread(filename);
     if (x == 1)
       row = image;
@@ -46,3 +43,5 @@ tiled = permute(tiled, [ 2, 1, 4, 3, 5 ]);
 tiled = reshape(tiled, [ factor * height, factor * width, channels ]);
 
 imwrite(tiled, output);
+
+endfunction
