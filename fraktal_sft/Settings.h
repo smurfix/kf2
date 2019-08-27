@@ -78,6 +78,7 @@ private:
   double m_RadiusScale;
   int m_Shrink;
   bool m_HalfColour;
+  bool m_SaveOverwrites;
 
 public:
 
@@ -125,13 +126,14 @@ public:
   , m_RadiusScale(0.1)
   , m_Shrink(1)
   , m_HalfColour(false)
+  , m_SaveOverwrites(false)
   { };
 
   bool FromText(const std::string &text);
   std::string ToText() const;
 
   bool OpenFile(const std::string &filename);
-  bool SaveFile(const std::string &filename) const;
+  bool SaveFile(const std::string &filename, bool overwrite) const;
 
   inline double GetZoomSize() const { return m_ZoomSize; };
   inline void   SetZoomSize(double z) { m_ZoomSize = z; };
@@ -279,6 +281,9 @@ public:
 
   inline bool   GetHalfColour() const { return m_HalfColour; };
   inline void   SetHalfColour(bool b) { m_HalfColour = b; };
+
+  inline bool   GetSaveOverwrites() const { return m_SaveOverwrites; };
+  inline void   SetSaveOverwrites(bool b) { m_SaveOverwrites = b; };
 };
 
 #endif

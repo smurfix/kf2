@@ -568,6 +568,12 @@ static void UpdateHalfColour(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateSaveOverwrites(HWND hWnd)
+{
+	bool b = g_SFT.GetSaveOverwrites();
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SAVE_OVERWRITES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -593,6 +599,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateIsolatedGlitchNeighbourhood(hWnd);
 	UpdateShowCrossHair(hWnd);
 	UpdateHalfColour(hWnd);
+	UpdateSaveOverwrites(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -1676,7 +1683,7 @@ nPos=20;
 		}
 		else{
 nPos=21;
-			g_SFT.SaveFile(g_szRecovery);
+			g_SFT.SaveFile(g_szRecovery, true);
 		}
 
 nPos=22;
@@ -4071,6 +4078,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetHalfColour(!g_SFT.GetHalfColour());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(g_SFT.GetHalfColour()?MF_CHECKED:MF_UNCHECKED));
 	}
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SAVE_OVERWRITES){
+		g_SFT.SetSaveOverwrites(!g_SFT.GetSaveOverwrites());
+		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SAVE_OVERWRITES,MF_BYCOMMAND|(g_SFT.GetSaveOverwrites()?MF_CHECKED:MF_UNCHECKED));
+	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
 		GetClientRect(hWnd,&r);
@@ -4549,7 +4560,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_SAVESETTINGS){
 			if(BrowseFile(hWnd,FALSE,"Save Settings","Kalle's fraktaler\0*.kfs\0\0",g_szSettingsFile)){
-				if(!g_SFT.SaveSettings(g_szSettingsFile))
+				if(!g_SFT.SaveSettings(g_szSettingsFile, true))
 					return MessageBox(hWnd,"Could not save settings","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
@@ -4572,8 +4583,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_FILE_SAVE_){
 			if(g_szFile == "")
 				PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
-			else if(!g_SFT.SaveFile(g_szFile))
-				return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
+			else if (g_SFT.GetSaveOverwrites()){
+				if(!g_SFT.SaveFile(g_szFile, true))
+				  return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
+			}
+			else if (!g_SFT.SaveFile(g_szFile, false)){
+				SYSTEMTIME now = { 0 };
+				GetSystemTime(&now);
+				char date[100];
+				snprintf(date, 100 - 1, "%04d-%02d-%02dT%02d-%02d-%02d-%03d.%s", now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond, now.wMilliseconds, "kfr");
+				if (! g_SFT.SaveFile(replace_path_extension(g_szFile, date), false))
+					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
+			}
 		}
 		else if(wParam==ID_FILE_SAVEASJPEG){
 			g_JpegParams.nWidth = g_SFT.GetWidth();
@@ -4662,7 +4683,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_SAVEAS_){
 			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
-				if(!g_SFT.SaveFile(g_szFile))
+				if(!g_SFT.SaveFile(g_szFile, true))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[1024];
 				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());

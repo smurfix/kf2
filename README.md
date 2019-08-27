@@ -212,6 +212,11 @@ Feedback:
     - feature: save as EXR (combined image with iteration data)
     - feature: LogLog and ATan color methods (iteration count transfer
       functions) (ported from Mandel Machine, suggested by Dinkydau)
+    - feature: option to control overwriting existing files with Save/Ctrl-S.
+      With overwrite disabled by default, KF will save files with a
+      timestamp before the .kfr extension, preventing accidental data loss
+      (suggested by fractal).  The previous behaviour can be restored in
+      the Advanced menu.
     - feature: option to reduce thread count by 1 (suggested by saka)
     - bugfix: set thread background mode for improved responsiveness
       (reported by saka)
@@ -1601,6 +1606,18 @@ Software license.
     Enable interpolation of neighbouring pixel data when the iteration count
     is the same.  This speeds up rendering of interior regions, but some
     colouring can lead to visible artifacts in the exterior.
+
+  - **Half-float image buffer**
+
+    Pre-allocate 16bit image buffer for EXR export.  Otherwise it is only
+    allocated when needed.  May speed up EXR export if this is checked.
+    If not using EXR, leave this unchecked.
+
+  - **'Save' overwrites existing file**
+
+    When this is checked, Save (Ctrl-S) overwrites the current file without
+    asking.  When this is unchecked, Save will add a timestamp to file names
+    to prevent accidental data loss.
 
   - **Threads per CPU**
 

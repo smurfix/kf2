@@ -251,6 +251,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_THREADS_RESERVE_CORE 40107
 #define ID_FILE_SAVEASEXR               40108
 #define ID_SPECIAL_HALFCOLOUR           40109
+#define ID_SPECIAL_SAVE_OVERWRITES      40110
 
 // OpenCL
 #ifdef KF_OPENCL

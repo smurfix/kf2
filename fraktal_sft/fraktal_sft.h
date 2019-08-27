@@ -456,7 +456,7 @@ public:
 	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
 	std::string ToText();
-	BOOL SaveFile(const std::string &szFile);
+	BOOL SaveFile(const std::string &szFile, bool overwrite);
 	double GetIterDiv();
 	void SetIterDiv(double nIterDiv);
 	int SaveJpg(const std::string &szFile, int nQuality, int nWidth = 0, int nHeight = 0);
@@ -527,7 +527,7 @@ public:
 	bool GuessPixel(int x, int y, int w, int h);
 
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
-	inline bool SaveSettings(const std::string &filename) const { return m_Settings.SaveFile(filename); }
+	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
 
 	inline void SetTransformPolar(const polar2 &P)
 	{
@@ -599,6 +599,7 @@ public:
   INT(Shrink)
 	inline bool   GetHalfColour() const { return m_Settings.GetHalfColour(); };
 	       void   SetHalfColour(bool b);
+	BOOL(SaveOverwrites)
 #undef DOUBLE
 #undef INT
 #undef BOOL

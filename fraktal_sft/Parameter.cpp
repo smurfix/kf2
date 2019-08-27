@@ -497,12 +497,12 @@ std::string CFraktalSFT::ToText()
 	return ret;
 }
 
-BOOL CFraktalSFT::SaveFile(const std::string &szFile)
+BOOL CFraktalSFT::SaveFile(const std::string &szFile, bool overwrite)
 {
 	std::string szText(ToText());
 	const char *szData = szText.c_str();
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return FALSE;
 	WriteFile(hFile, szData, strlen(szData), &dw, NULL);

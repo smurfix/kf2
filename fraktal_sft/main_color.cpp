@@ -45,7 +45,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	if(uMsg==WM_SHOWWINDOW && wParam){
 		GetTempPath(sizeof(g_szTmpFile),g_szTmpFile);
 		GetTempFileName(g_szTmpFile,"KFR",TRUE,g_szTmpFile);
-		g_SFT.SaveFile(g_szTmpFile);
+		g_SFT.SaveFile(g_szTmpFile, true);
 	}
 	if(uMsg==WM_INITDIALOG)
 	{
@@ -401,7 +401,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_BUTTON1){
 			std::string szFile;
 			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile))
-				g_SFT.SaveFile(szFile);
+				g_SFT.SaveFile(szFile, true);
 		}
 		else if(wParam==IDC_BUTTON29){
 			int val = GetDlgItemInt(hWnd,IDC_EDIT23,NULL,FALSE);

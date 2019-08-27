@@ -210,13 +210,13 @@ bool Settings::OpenFile(const std::string &filename)
   return FromText(szText);
 }
 
-bool Settings::SaveFile(const std::string &filename) const
+bool Settings::SaveFile(const std::string &filename, bool overwrite) const
 {
 	std::string szText(ToText());
 	const char *szData = szText.c_str();
   const char *szFile = filename.c_str();
 	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
 	if (hFile == INVALID_HANDLE_VALUE)
 		return false;
 	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
