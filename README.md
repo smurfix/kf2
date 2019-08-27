@@ -794,7 +794,6 @@ Feedback:
 - calculate series approximation in parallel with reference
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
-- lowest-connected-bailout radius (suggested by Dinkydau)
 - use minimum |z| pixels for new references (suggested by quaz0r)
 - option to build with int64_t iteration counts (audit -Wconversion)
 
@@ -827,7 +826,6 @@ Feedback:
 
 ### Colouring
 
-- high bit depth image export (eg 16bit PNG) (suggested by Dinkydau)
 - assume sRGB display and gamma-correct downscaling
   (pixman currently supports 32bit sRGB+A, but no 24bit sRGB without alpha)
 - load/save palette to/from image
@@ -852,8 +850,8 @@ The latest source code is available from my git repository:
     git checkout master       # for Karl's original upstream
     git checkout claude       # for MINGW build system and bug fixes
     git checkout kf-2.12      # for old stable bugfixes
-    git checkout kf-2.13      # for current stable development
-    git checkout kf-2.14      # for current experimental development
+    git checkout kf-2.13      # for stable bugfixes
+    git checkout kf-2.14      # for current development
     git tag -l                # list available release tags
 
 You also need `et` to generate the formula code for Newton-Raphson zooming:
@@ -886,8 +884,8 @@ you can skip the chroot step and install natively.
 1. Install dependencies (inside the chroot if you made one):
 
         dpkg --add-architecture i386
-        apt-get update
-        apt-get install \
+        apt update
+        apt install \
           build-essential \
           cabal-install \
           ghc \
@@ -905,7 +903,7 @@ you can skip the chroot step and install natively.
           wine-binfmt \
           xsltproc \
           zip
-        apt-get install \
+        apt install \
           pandoc \
           texlive-fonts-recommended \
           texlive-latex-recommended   # for PDF manual
