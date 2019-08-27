@@ -92,7 +92,11 @@ Feedback:
 
 ### Incompatible Changes
 
-- **In versions `2.14.5` and above**, the new Low "bailout" (SmoothMethod: 2)
+- **In versions `2.14.7` and above**, the new "LogLog" and "ATan" iteration
+  count transfer functions (ColorMethod 9 and 10) are not available in
+  earlier versions.
+
+- **In versions `2.14.5` and above**, the new "Low bailout" (SmoothMethod: 2)
   is not available in earlier versions.
 
 - **In versions `2.14.5` and above**, the two new General Abs Quadratic formulas
@@ -186,6 +190,8 @@ Feedback:
 - **kf-2.14.7** (????-??-??)
 
     - feature: save as EXR (combined image with iteration data)
+    - feature: LogLog and ATan color methods (iteration count transfer
+      functions) (ported from Mandel Machine, suggested by Dinkydau)
     - feature: option to reduce thread count by 1 (suggested by saka)
     - bugfix: set thread background mode for improved responsiveness
       (reported by saka)

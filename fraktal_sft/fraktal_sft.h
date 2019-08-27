@@ -204,7 +204,9 @@ enum ColorMethod
 	ColorMethod_DistanceLinear = 5,
 	ColorMethod_DEPlusStandard = 6,
 	ColorMethod_DistanceLog = 7,
-	ColorMethod_DistanceSqrt = 8
+	ColorMethod_DistanceSqrt = 8,
+	ColorMethod_LogLog = 9,
+	ColorMethod_ATan = 10
 };
 
 enum Differences

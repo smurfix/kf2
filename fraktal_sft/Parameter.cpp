@@ -127,7 +127,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
-		if (m<0 || m>8)
+		if (m<0 || m>10)
 			m = 0;
 		m_nColorMethod = ColorMethod(m);
 	}
