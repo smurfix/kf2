@@ -209,7 +209,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.7** (????-??-??)
+- **kf-2.14.7** (2019-08-29)
 
     - feature: save EXR (combined image with iteration map data and metadata)
       and open EXR (as settings, location or iteration map data).  For
