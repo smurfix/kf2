@@ -370,6 +370,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
     int antal = antal0;
     double test1 = test10;
     double test2 = test20;
@@ -385,7 +386,14 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       test2 = test1;
-      test1 = double(g_real * Xxr * Xxr + g_imag * Xxi * Xxi);
+      if (no_g)
+      {
+        test1 = double(Xxr * Xxr + Xxi * Xxi);
+      }
+      else
+      {
+        test1 = double(g_real * Xxr * Xxr + g_imag * Xxi * Xxi);
+      }
       if (test1 &lt; Xz)
       {
         bGlitch = true;
