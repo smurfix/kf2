@@ -1,7 +1,7 @@
 {-
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -78,8 +78,9 @@ instruction (INeg a b) = tell (["mpfr_neg(", a, ",", b, ",MPFR_RNDN);\n"], [a, b
 instruction (ISub a b c) = tell (["mpfr_sub(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IAdd a b c) = tell (["mpfr_add(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c), ",MPFR_RNDN);\n"] ++ if c < 0 then ["mpfr_neg(", a, ",", a, ",MPFR_RNDN);"] else [], [a, b])
-instruction (IMul a b c) = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
-instruction (ISqr a b) = tell (["mpfr_mul(", a, ",", b, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (IMul a b c) | b == c = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b, c])
+                         | otherwise = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
   u <- compile a
