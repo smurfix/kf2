@@ -249,7 +249,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives, option to disable derivatives
+	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()) // FIXME matrix derivatives, option to disable derivatives
 	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {

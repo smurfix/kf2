@@ -79,6 +79,7 @@ private:
   int m_Shrink;
   bool m_HalfColour;
   bool m_SaveOverwrites;
+  bool m_ThreadedReference;
 
 public:
 
@@ -127,6 +128,7 @@ public:
   , m_Shrink(1)
   , m_HalfColour(false)
   , m_SaveOverwrites(false)
+  , m_ThreadedReference(true)
   { };
 
   bool FromText(const std::string &text);
@@ -284,6 +286,10 @@ public:
 
   inline bool   GetSaveOverwrites() const { return m_SaveOverwrites; };
   inline void   SetSaveOverwrites(bool b) { m_SaveOverwrites = b; };
+
+  inline bool   GetThreadedReference() const { return m_ThreadedReference; };
+  inline void   SetThreadedReference(bool b) { m_ThreadedReference = b; };
+
 };
 
 #endif

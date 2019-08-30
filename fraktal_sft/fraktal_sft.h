@@ -601,6 +601,7 @@ public:
 	inline bool   GetHalfColour() const { return m_Settings.GetHalfColour(); };
 	       void   SetHalfColour(bool b);
 	BOOL(SaveOverwrites)
+	BOOL(ThreadedReference)
 #undef DOUBLE
 #undef INT
 #undef BOOL

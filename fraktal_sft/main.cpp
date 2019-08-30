@@ -575,6 +575,12 @@ static void UpdateSaveOverwrites(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SAVE_OVERWRITES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateThreadedReference(HWND hWnd)
+{
+	bool b = g_SFT.GetThreadedReference();
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -601,6 +607,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateShowCrossHair(hWnd);
 	UpdateHalfColour(hWnd);
 	UpdateSaveOverwrites(hWnd);
+	UpdateThreadedReference(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -4096,6 +4103,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SAVE_OVERWRITES){
 		g_SFT.SetSaveOverwrites(!g_SFT.GetSaveOverwrites());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SAVE_OVERWRITES,MF_BYCOMMAND|(g_SFT.GetSaveOverwrites()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_THREADED_REFERENCE){
+		g_SFT.SetThreadedReference(!g_SFT.GetThreadedReference());
+		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(g_SFT.GetThreadedReference()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;

@@ -209,6 +209,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.8** (????-??-??)
+
+    - feature: optionally disable threaded reference calculations
+    - bugfix: the 20% performance regression vs kf-2.12 has been fixed
+    - bugfix: "save overwrites" now saved in .kfs settings files
+
 - **kf-2.14.7** (2019-08-29)
 
     - feature: save EXR (combined image with iteration map data and metadata)
@@ -1542,6 +1548,13 @@ Software license.
 
     Use always the double mantissa/integer exponent data type. This probably
     only make the render slower
+
+  - **Multi-threaded reference calcs**
+
+    Use multiple threads when calculating reference orbits
+    (available for long double and floatexp only).
+    Speed and CPU efficiency may differ when toggling this flag;
+    evaluate the optimal choice for your location and system.
 
   - **Use NanoMB1 (experimental)**
 

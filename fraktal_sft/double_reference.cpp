@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -109,14 +109,12 @@ mpfr_t t0; mpfr_init2(t0, bits);
 mpfr_t t1; mpfr_init2(t1, bits);
 for (i = 0; i < nMaxIter && !m_bStop; i++) { DLOOP
 mpfr_sub(t0,Xr2,Xi2,MPFR_RNDN);
-mpfr_add(t1,t0,Cr,MPFR_RNDN);
-mpfr_set(Xrn,t1,MPFR_RNDN);
+mpfr_add(Xrn,t0,Cr,MPFR_RNDN);
 mpfr_add(t1,Xr,Xi,MPFR_RNDN);
-mpfr_mul(t0,t1,t1,MPFR_RNDN);
+mpfr_sqr(t0,t1,MPFR_RNDN);
 mpfr_sub(t1,t0,Xr2,MPFR_RNDN);
 mpfr_sub(t0,t1,Xi2,MPFR_RNDN);
-mpfr_add(t1,t0,Ci,MPFR_RNDN);
-mpfr_set(Xin,t1,MPFR_RNDN);
+mpfr_add(Xin,t0,Ci,MPFR_RNDN);
 LOOP }
 mpfr_clear(t0);
 mpfr_clear(t1);
@@ -231,13 +229,11 @@ for (i = 0; i < nMaxIter && !m_bStop; i++) { DLOOP
 mpfr_mul_ui(t0,Xi2,3,MPFR_RNDN);
 mpfr_sub(t1,Xr2,t0,MPFR_RNDN);
 mpfr_mul(t0,Xr,t1,MPFR_RNDN);
-mpfr_add(t1,t0,Cr,MPFR_RNDN);
-mpfr_set(Xrn,t1,MPFR_RNDN);
+mpfr_add(Xrn,t0,Cr,MPFR_RNDN);
 mpfr_mul_ui(t1,Xr2,3,MPFR_RNDN);
 mpfr_sub(t0,t1,Xi2,MPFR_RNDN);
 mpfr_mul(t1,t0,Xi,MPFR_RNDN);
-mpfr_add(t0,t1,Ci,MPFR_RNDN);
-mpfr_set(Xin,t0,MPFR_RNDN);
+mpfr_add(Xin,t1,Ci,MPFR_RNDN);
 LOOP }
 mpfr_clear(t0);
 mpfr_clear(t1);

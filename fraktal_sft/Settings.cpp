@@ -79,6 +79,8 @@ bool Settings::FromText(const std::string &text)
   DOUBLE(RadiusScale)
   INT(Shrink)
   BOOL(HalfColour)
+  BOOL(SaveOverwrites)
+  BOOL(ThreadedReference)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -135,6 +137,8 @@ std::string Settings::ToText() const
   DOUBLE(RadiusScale)
   INT(Shrink)
   BOOL(HalfColour)
+  BOOL(SaveOverwrites)
+  BOOL(ThreadedReference)
 #undef DOUBLE
 #undef INT
 #undef BOOL

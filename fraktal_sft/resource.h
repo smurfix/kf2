@@ -252,6 +252,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_FILE_SAVEASEXR               40108
 #define ID_SPECIAL_HALFCOLOUR           40109
 #define ID_SPECIAL_SAVE_OVERWRITES      40110
+#define ID_SPECIAL_THREADED_REFERENCE   40111
 
 // OpenCL
 #ifdef KF_OPENCL
