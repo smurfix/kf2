@@ -209,8 +209,11 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.8** (????-??-??)
+- **kf-2.14.7.1** (????-??-??)
 
+    - bugfix: iteration data channels are no longer incorrectly vertically
+      flipped when saving and loading EXR files; they now should match the
+      RGB orientation
     - feature: optionally disable threaded reference calculations
     - bugfix: the 20% performance regression vs kf-2.12 has been fixed
     - bugfix: "save overwrites" now saved in .kfs settings files

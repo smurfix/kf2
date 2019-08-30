@@ -68,8 +68,8 @@ extern int SaveEXR
     {
       for (int j = 0; j < arrHeight; ++j)
       {
-        // [x][y], flip vertically
-        size_t k = (arrHeight - 1 - j) + arrHeight * i;
+        // [x][y], don't flip vertically!
+        size_t k = j + arrHeight * i;
         size_t e = j + arrHeight * i;
         if (PIXEL_UNEVALUATED == count[k] || GET_TRANS_GLITCH(trans[k]))
         {
@@ -238,9 +238,9 @@ extern bool ReadEXRMapFile(const std::string &filename)
     {
       for (size_t j = 0; j < height; ++j)
       {
-        // [x][y], flip vertically
+        // [x][y], don't flip vertically!
         size_t e = j + height * i;
-        size_t k = (height - 1 - j) + height * i;
+        size_t k = j + height * i;
         if (N[e] == 0 && NF[e] == 0.0f)
         {
           count[k] = PIXEL_UNEVALUATED;
