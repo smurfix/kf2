@@ -209,7 +209,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.7.1** (????-??-??)
+- **kf-2.14.7.1** (2019-08-30)
 
     - bugfix: iteration data channels are no longer incorrectly vertically
       flipped when saving and loading EXR files; they now should match the
