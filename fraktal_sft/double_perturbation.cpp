@@ -67,11 +67,15 @@ void CFraktalSFT::MandelCalc()
 				if (GetDerivatives())
 				{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
 						yi = m_db_dxi[antal] + Di*m_nScaling;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							long double Xr = m_db_dxr[antal];
 							long double Xi = m_db_dxi[antal];
@@ -101,11 +105,15 @@ void CFraktalSFT::MandelCalc()
 				}
 				} else {
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
 						yi = m_db_dxi[antal] + Di*m_nScaling;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 								bGlitch = TRUE;
 								if (! m_bNoGlitchDetection)
@@ -127,11 +135,15 @@ void CFraktalSFT::MandelCalc()
 				if (GetDerivatives())
 				{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
 						yi = m_db_dxi[antal] + Di*m_nScaling;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
@@ -155,11 +167,15 @@ void CFraktalSFT::MandelCalc()
 				}
 				} else {
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						yr = m_db_dxr[antal] + Dr*m_nScaling;
 						yi = m_db_dxi[antal] + Di*m_nScaling;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
@@ -197,12 +213,16 @@ void CFraktalSFT::MandelCalc()
 				if (GetDerivatives())
 				{
 					complex<double> d(dr, di);
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					if (antal<nMaxIter && test1 <= m_nBailout2){
 						for (; antal<nMaxIter; antal++){
 							yr = m_db_dxr[antal] + Dr;
 							yi = m_db_dxi[antal] + Di;
 							test2 = test1;
-							test1 = g_real*yr*yr + g_imag*yi*yi;
+							if (no_g)
+								test1 = yr*yr + yi*yi;
+							else
+								test1 = g_real*yr*yr + g_imag*yi*yi;
 							if (test1<m_db_z[antal]){
 								bGlitch = TRUE;
 								if (! m_bNoGlitchDetection)
@@ -237,11 +257,15 @@ void CFraktalSFT::MandelCalc()
 				else
 				{
 					if (antal<nMaxIter && test1 <= m_nBailout2){
+						bool no_g = g_real == 1.0 && g_imag == 1.0;
 						for (; antal<nMaxIter; antal++){
 							yr = m_db_dxr[antal] + Dr;
 							yi = m_db_dxi[antal] + Di;
 							test2 = test1;
-							test1 = g_real*yr*yr + g_imag*yi*yi;
+							if (no_g)
+								test1 = yr*yr + yi*yi;
+							else
+								test1 = g_real*yr*yr + g_imag*yi*yi;
 							if (test1<m_db_z[antal]){
 								bGlitch = TRUE;
 								if (! m_bNoGlitchDetection)

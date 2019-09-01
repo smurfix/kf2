@@ -144,11 +144,15 @@ void CFraktalSFT::MandelCalcLDBL()
 			if (GetDerivatives())
 			{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
 						double yi = m_ldxi[antal] + Di*m_nScalingL;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							floatexp Xr(m_ldxr[antal]);
 							floatexp Xi(m_ldxi[antal]);
@@ -181,11 +185,15 @@ void CFraktalSFT::MandelCalcLDBL()
 				}
 			} else {
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
 						double yi = m_ldxi[antal] + Di*m_nScalingL;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
@@ -207,11 +215,15 @@ void CFraktalSFT::MandelCalcLDBL()
 			if (GetDerivatives())
 			{
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
 						double yi = m_ldxi[antal] + Di*m_nScalingL;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
@@ -235,11 +247,15 @@ void CFraktalSFT::MandelCalcLDBL()
 				}
 			} else {
 				if (antal<nMaxIter && test1 <= m_nBailout2){
+					bool no_g = g_real == 1.0 && g_imag == 1.0;
 					for (; antal<nMaxIter && test1 <= m_nBailout2; antal++){
 						double yr = m_ldxr[antal] + Dr*m_nScalingL;
 						double yi = m_ldxi[antal] + Di*m_nScalingL;
 						test2 = test1;
-						test1 = g_real*yr*yr + g_imag*yi*yi;
+						if (no_g)
+							test1 = yr*yr + yi*yi;
+						else
+							test1 = g_real*yr*yr + g_imag*yi*yi;
 						if (test1<m_db_z[antal]){
 							bGlitch = TRUE;
 							if (! m_bNoGlitchDetection)
