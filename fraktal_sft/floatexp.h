@@ -468,6 +468,16 @@ inline floatexp operator*(floatexp b, double a)
 	return floatexp(a) * b;
 }
 
+inline floatexp operator*(long double a, floatexp b)
+{
+	return floatexp(a) * b;
+}
+
+inline floatexp operator*(floatexp b, long double a)
+{
+	return floatexp(a) * b;
+}
+
 inline floatexp operator+(double a, floatexp b)
 {
 	return floatexp(a) + b;
@@ -479,6 +489,11 @@ inline floatexp operator+(floatexp b, double a)
 }
 
 inline floatexp operator*(int a, floatexp b)
+{
+	return double(a) * b;
+}
+
+inline floatexp operator*(floatexp b, int a)
 {
 	return double(a) * b;
 }
