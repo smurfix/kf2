@@ -20,19 +20,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_COMPLEX_H
 #define KF_COMPLEX_H
 
+#include "../formula/formula.h"
+
 template <class tt> class complex
 {
 public:
 	tt m_r, m_i;
 	inline complex()
 	{
-		m_r = (0.);
-		m_i = (0.);
+		m_r = broadcast<tt>(0.);
+		m_i = broadcast<tt>(0.);
+	}
+	template <typename ss> operator complex<ss>() const
+	{
+		return complex<ss>(broadcast<ss>(m_r), broadcast<ss>(m_i));
 	}
 	inline complex(const tt &r)
 	{
 		m_r = r;
-		m_i = (0.);
+		m_i = broadcast<tt>(0.);
 	}
 	inline complex(const tt &r, const tt &i)
 	{
@@ -94,8 +100,8 @@ public:
 		complex<tt> r;
 		tt tmp;
 		if(exp==0){
-			r.m_r=(1.);
-			r.m_i=(0.);
+			r.m_r=broadcast<tt>(1.);
+			r.m_i=broadcast<tt>(0.);
 			return r;
 		}
 		r.m_r = m_r; 
@@ -110,7 +116,7 @@ public:
 	}
 	inline complex operator /(const complex &b) const
 	{
-		complex <tt> r(0.,0.);
+		complex <tt> r;
 		tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
 //		if(!(div==0)){
 			r.m_r = (m_r*b.m_r + m_i*b.m_i)/div;
@@ -143,13 +149,13 @@ public:
 	{
 		complex <tt> r;
 		r.m_r=m_r;
-		r.m_i=(0.);
+		r.m_i=broadcast<tt>(0.);
 		return r;
 	}
 	__inline complex im()
 	{
 		complex <tt> r;
-		r.m_r=(0.);
+		r.m_r=broadcast<tt>(0.);
 		r.m_i=m_i;
 		return r;
 	}
@@ -165,6 +171,12 @@ template <class tt>
 inline complex<tt> operator*(const tt &a, const complex<tt> &b)
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
+}
+
+template <typename ss, typename tt>
+inline complex<tt> operator*(const complex<ss> &a, const complex<tt> &b)
+{
+	return complex<tt>(a) * b;
 }
 
 template <class tt>
