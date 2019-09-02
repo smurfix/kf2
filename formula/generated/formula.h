@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 incorporating components derived from:
 
@@ -22,8 +22,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef KF_FORMULA_H
-#define KF_FORMULA_H 1
+#ifndef KF_GENERATED_FORMULA_H
+#define KF_GENERATED_FORMULA_H 1
 
 #include <assert.h>
 #include <math.h>
