@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "../formula/formula.h"
 
+/*
+
 bool reference_double_0_2_ld(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr0, const CFixedFloat &Ci0, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr0, long double &di0)
 {
   if (m_nFractalType == 0 && m_nPower == 2) // FIXME matrix derivatives
@@ -258,6 +260,7 @@ mpfr_clear(t1);
   return false;
 }
 
+*/
 
 void CFraktalSFT::CalculateReference()
 {
@@ -296,20 +299,10 @@ void CFraktalSFT::CalculateReference()
 	double test1 = 0;
 	double test2 = 0;
 
-  double dr = 1, di = 0;
-  long double ldr = 1, ldi = 0;
+	double dr = 1, di = 0;
+	long double ldr = 1, ldi = 0;
 
-  if (m_nScalingOffset && m_nFractalType == 0 && m_nPower == 2)
-  { // FIXME option to disable derivatives
-		bool ok = reference_double_0_2_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
-		assert(ok && "reference_double_0_2_ld");
-	}
-  else if (m_nScalingOffset && m_nFractalType == 0 && m_nPower == 3)
-  { // FIXME option to disable derivatives
-		bool ok = reference_double_0_3_ld(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi);
-		assert(ok && "reference_double_0_3_ld");
-	}
-	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
+	if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
 
 		double threashold = 0.0001;
@@ -364,6 +357,26 @@ void CFraktalSFT::CalculateReference()
 		}
 		dr = d.m_r;
 		di = d.m_i;
+		ldr = dr * m_lPixelSpacing;
+		ldi = di * m_lPixelSpacing;
+
+	}
+	else if (m_nScalingOffset && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	{
+
+		floatexp _x, _y, daa, dab, dba, dbb;
+		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+		long double ddaa = daa.todouble();
+		long double ddab = dab.todouble();
+		long double ddba = dba.todouble();
+		long double ddbb = dbb.todouble();
+		ldr *= m_lPixelSpacing;
+		ldi *= m_lPixelSpacing;
+		bool ok = GetDerivatives()
+		  ? reference_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi, ddaa, ddab, ddba, ddbb)
+		  : reference_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ;
+		assert(ok && "reference_scaled_double");
 
 	}
 	else
@@ -382,20 +395,11 @@ void CFraktalSFT::CalculateReference()
 		  : reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
 		  ;
 		assert(ok && "reference_double");
+		ldr = dr;
+		ldi = di;
 
 	}
 
-	long double pixel_spacing = m_lPixelSpacing;
-	if (m_nScalingOffset)
-	{
-		ldr = ldr * pixel_spacing;
-		ldi = ldi * pixel_spacing;
-	}
-	else if (m_nPower > 10)
-	{
-		ldr = dr * pixel_spacing;
-		ldi = di * pixel_spacing;
-	}
 	double de = GetDerivatives()
 	  ? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
 	  : 0

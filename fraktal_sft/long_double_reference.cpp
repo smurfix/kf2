@@ -239,6 +239,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	double test2 = 0;
 
 	long double dr = 1, di = 0;
+	floatexp ldr = 1, ldi = 0;
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
@@ -323,10 +324,13 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		long double pixel_spacing = m_lPixelSpacing;
 		dr *= pixel_spacing;
 		di *= pixel_spacing;
+		ldr = dr;
+		ldi = di;
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
+
 		bool stored = false;
 		double old_absval = 0;
 		double abs_val = 0;
@@ -386,9 +390,26 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		long double pixel_spacing = m_lPixelSpacing;
 		dr *= pixel_spacing;
 		di *= pixel_spacing;
+		ldr = dr;
+		ldi = di;
+
 	}
-	else
+	else if (m_nScalingOffset && scaled_long_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
 	{
+
+		floatexp _x, _y, daa, dab, dba, dbb;
+		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
+		ldr *= m_fPixelSpacing;
+		ldi *= m_fPixelSpacing;
+		bool ok = GetDerivatives()
+		  ? reference_scaled_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi, daa, dab, dba, dbb)
+		  : reference_scaled_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ;
+		assert(ok && "reference_scaled_long_double");
+
+  }
+  else
+  {
 
 		floatexp _x, _y, daa, dab, dba, dbb;
 		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
@@ -403,11 +424,13 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		  : reference_long_double(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
 		  ;
     assert(ok && "reference_long_double");
+		ldr = dr;
+		ldi = di;
 
 	}
 
 	double de = GetDerivatives()
-	  ? sqrt(test1) * log(test1) / sqrt(dr * dr + di * di)
+	  ? sqrt(test1) * log(test1) / double(sqrt(ldr * ldr + ldi * ldi))
 	  : 0
 	  ;
 
