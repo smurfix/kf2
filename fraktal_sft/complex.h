@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -26,13 +26,13 @@ public:
 	tt m_r, m_i;
 	inline complex()
 	{
-		m_r = 0;
-		m_i = 0;
+		m_r = (0.);
+		m_i = (0.);
 	}
 	inline complex(const tt &r)
 	{
 		m_r = r;
-		m_i = 0;
+		m_i = (0.);
 	}
 	inline complex(const tt &r, const tt &i)
 	{
@@ -94,8 +94,8 @@ public:
 		complex<tt> r;
 		tt tmp;
 		if(exp==0){
-			r.m_r=1;
-			r.m_i=0;
+			r.m_r=(1.);
+			r.m_i=(0.);
 			return r;
 		}
 		r.m_r = m_r; 
@@ -110,25 +110,25 @@ public:
 	}
 	inline complex operator /(const complex &b) const
 	{
-		complex <tt> r(0,0);
+		complex <tt> r(0.,0.);
 		tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
-		if(!(div==0)){
+//		if(!(div==0)){
 			r.m_r = (m_r*b.m_r + m_i*b.m_i)/div;
 			r.m_i = (m_i*b.m_r - m_r*b.m_i)/div;
-		}
+//		}
 		return r;
 	}
 	__inline complex abs()
 	{
 		complex <tt> r;
-		r.m_r=(m_r>0?m_r:-m_r);
-		r.m_i=(m_i>0?m_i:-m_i);
+		r.m_r=(m_r>0.?m_r:-m_r);
+		r.m_i=(m_i>0.?m_i:-m_i);
 		return r;
 	}
 	__inline complex abs_re()
 	{
 		complex <tt> r;
-		r.m_r=(m_r>0?m_r:-m_r);
+		r.m_r=(m_r>0.?m_r:-m_r);
 		r.m_i=m_i;
 		return r;
 	}
@@ -136,20 +136,20 @@ public:
 	{
 		complex <tt> r;
 		r.m_r=m_r;
-		r.m_i=(m_i>0?m_i:-m_i);
+		r.m_i=(m_i>0.?m_i:-m_i);
 		return r;
 	}
 	__inline complex re()
 	{
 		complex <tt> r;
 		r.m_r=m_r;
-		r.m_i=0;
+		r.m_i=(0.);
 		return r;
 	}
 	__inline complex im()
 	{
 		complex <tt> r;
-		r.m_r=0;
+		r.m_r=(0.);
 		r.m_i=m_i;
 		return r;
 	}

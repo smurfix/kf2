@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -28,6 +28,15 @@ void CFraktalSFT::MandelCalc()
 	long double ldr = 0, ldi = 0;
 	int antal, x, y, w, h;
 
+	// vectorization
+	double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216;
+	int16 antal16, bGlitch16, x16, y16, w16, h16;
+	int k = 0;
+	const int chunksize = GetSIMDChunkSize();
+	const int vectorsize = GetSIMDVectorSize();
+	const bool vectorized = ! GetDerivatives() && ! m_nScalingOffset && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
+
+	int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
@@ -55,7 +64,6 @@ void CFraktalSFT::MandelCalc()
 
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
-		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 		if (m_nScalingOffset){ // FIXME matrix derivatives
 			double dbD0r = D0r.todouble(m_nScalingOffset);
 			double dbD0i = D0i.todouble(m_nScalingOffset);
@@ -298,18 +306,159 @@ void CFraktalSFT::MandelCalc()
 			}
 			else // FIXME matrix derivatives
 			{
-				double daa = daa0.todouble();
-				double dab = dab0.todouble();
-				double dba = dba0.todouble();
-				double dbb = dbb0.todouble();
-				dr *= m_dPixelSpacing;
-				di *= m_dPixelSpacing;
-				bool ok = GetDerivatives()
-				  ? perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, m_epsilon, m_dPixelSpacing, daa, dab, dba, dbb)
-				  : perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
-				  ;
-				assert(ok && "perturbation_double");
-
+				if (vectorized)
+				{
+				  x16[k] = x;
+				  y16[k] = y;
+				  w16[k] = w;
+				  h16[k] = h;
+				  Dr16[k] = Dr;
+				  Di16[k] = Di;
+				  dbD0r16[k] = dbD0r;
+				  dbD0i16[k] = dbD0i;
+				  antal16[k] = antal;
+				  test116[k] = test1;
+				  test216[k] = test2;
+				  bGlitch16[k] = bGlitch;
+				  k = k + 1;
+				  if (k == vectorsize)
+				  {
+				    if (vectorsize == 2)
+				    {
+				      int2 antalv, bGlitchv;
+				      double2 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antalv[q] = antal16[q];
+					bGlitchv[q] = bGlitch16[q];
+					test1v[q] = test116[q];
+					test2v[q] = test216[q];
+					Drv[q] = Dr16[q];
+					Div[q] = Di16[q];
+					dbD0rv[q] = dbD0r16[q];
+					dbD0iv[q] = dbD0i16[q];
+				      }
+				      bool ok = perturbation2_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      assert(ok && "perturbation_double2");
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antal16[q] = antalv[q];
+					bGlitch16[q] = bGlitchv[q];
+					test116[q] = test1v[q];
+					test216[q] = test2v[q];
+					Dr16[q] = Drv[q];
+					Di16[q] = Div[q];
+					dbD0r16[q] = dbD0rv[q];
+					dbD0i16[q] = dbD0iv[q];
+				      }
+				    }
+				    else if (vectorsize == 4)
+				    {
+				      int4 antalv, bGlitchv;
+				      double4 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antalv[q] = antal16[q];
+					bGlitchv[q] = bGlitch16[q];
+					test1v[q] = test116[q];
+					test2v[q] = test216[q];
+					Drv[q] = Dr16[q];
+					Div[q] = Di16[q];
+					dbD0rv[q] = dbD0r16[q];
+					dbD0iv[q] = dbD0i16[q];
+				      }
+				      bool ok = perturbation4_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      assert(ok && "perturbation_double4");
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antal16[q] = antalv[q];
+					bGlitch16[q] = bGlitchv[q];
+					test116[q] = test1v[q];
+					test216[q] = test2v[q];
+					Dr16[q] = Drv[q];
+					Di16[q] = Div[q];
+					dbD0r16[q] = dbD0rv[q];
+					dbD0i16[q] = dbD0iv[q];
+				      }
+				    }
+				    else if (vectorsize == 8)
+				    {
+				      int8 antalv, bGlitchv;
+				      double8 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antalv[q] = antal16[q];
+					bGlitchv[q] = bGlitch16[q];
+					test1v[q] = test116[q];
+					test2v[q] = test216[q];
+					Drv[q] = Dr16[q];
+					Div[q] = Di16[q];
+					dbD0rv[q] = dbD0r16[q];
+					dbD0iv[q] = dbD0i16[q];
+				      }
+				      bool ok = perturbation8_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      assert(ok && "perturbation_double8");
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antal16[q] = antalv[q];
+					bGlitch16[q] = bGlitchv[q];
+					test116[q] = test1v[q];
+					test216[q] = test2v[q];
+					Dr16[q] = Drv[q];
+					Di16[q] = Div[q];
+					dbD0r16[q] = dbD0rv[q];
+					dbD0i16[q] = dbD0iv[q];
+				      }
+				    }
+				    else if (vectorsize == 16)
+				    {
+				      int16 antalv, bGlitchv;
+				      double16 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antalv[q] = antal16[q];
+					bGlitchv[q] = bGlitch16[q];
+					test1v[q] = test116[q];
+					test2v[q] = test216[q];
+					Drv[q] = Dr16[q];
+					Div[q] = Di16[q];
+					dbD0rv[q] = dbD0r16[q];
+					dbD0iv[q] = dbD0i16[q];
+				      }
+				      bool ok = perturbation16_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      assert(ok && "perturbation_double16");
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antal16[q] = antalv[q];
+					bGlitch16[q] = bGlitchv[q];
+					test116[q] = test1v[q];
+					test216[q] = test2v[q];
+					Dr16[q] = Drv[q];
+					Di16[q] = Div[q];
+					dbD0r16[q] = dbD0rv[q];
+					dbD0i16[q] = dbD0iv[q];
+				      }
+				    }
+				    else
+				    {
+				      assert(! "valid vectorsize");
+				    }
+				  }
+				}
+				else
+				{
+				  double daa = daa0.todouble();
+				  double dab = dab0.todouble();
+				  double dba = dba0.todouble();
+				  double dbb = dbb0.todouble();
+				  dr *= m_dPixelSpacing;
+				  di *= m_dPixelSpacing;
+				  bool ok = GetDerivatives()
+				    ? perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, m_epsilon, m_dPixelSpacing, daa, dab, dba, dbb)
+				    : perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+				    ;
+				  assert(ok && "perturbation_double");
+				}
 			}
 		}
 
@@ -334,8 +483,47 @@ void CFraktalSFT::MandelCalc()
 		  : 0
 		  ;
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
-		InterlockedIncrement((LPLONG)&m_nDone);
-		OutputPixelData(x, y, w, h, bGlitch);
+                if (vectorized)
+		{
+		  if (k == vectorsize)
+		  {
+		    for (k = 0; k < vectorsize; ++k)
+		    {
+		      OutputIterationData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k], antal16[k], test116[k], test216[k], 0);
+		      InterlockedIncrement((LPLONG)&m_nDone);
+		      OutputPixelData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k]);
+		    }
+		    k = 0;
+		  }
+		}
+		else
+		{
+		  OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
+		  InterlockedIncrement((LPLONG)&m_nDone);
+		  OutputPixelData(x, y, w, h, bGlitch);
+		}
+	}
+	if (vectorized)
+	{
+		int leftover = k;
+		for (k = 0; k < leftover; ++k)
+		{
+			x = x16[k];
+			y = y16[k];
+			w = w16[k];
+			h = h16[k];
+			antal = antal16[k];
+			double test1 = test116[k];
+			double test2 = test216[k];
+			int bGlitch = bGlitch16[k];
+			double Dr = Dr16[k];
+			double Di = Di16[k];
+			double dbD0r = dbD0r16[k];
+			double dbD0i = dbD0i16[k];
+			perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i);
+			OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, 0);
+			InterlockedIncrement((LPLONG)&m_nDone);
+			OutputPixelData(x, y, w, h, bGlitch);
+		}
 	}
 }

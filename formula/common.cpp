@@ -664,3 +664,76 @@ static inline floatexp mpfr_get(const mpfr_t x, const floatexp &t, mpfr_rnd_t rn
   double d = mpfr_get_d_2exp(&e, x, rnd);
   return floatexp(d, e);
 }
+
+
+static inline bool all2(const int2 &i) {
+  return (((i[0] && i[1])));
+}
+
+static inline bool any2(const int2 &i) {
+  return (((i[0] || i[1])));
+}
+
+
+static inline bool all4(const int4 &i) {
+  return (((i[0] && i[1]) && (i[2] && i[3])));
+}
+
+static inline bool any4(const int4 &i) {
+  return (((i[0] || i[1]) || (i[2] || i[3])));
+}
+
+
+static inline bool all8(const int8 &i) {
+  return (((i[0] && i[1]) && (i[2] && i[3])) &&
+         ((i[4] && i[5]) && (i[6] && i[7])));
+}
+
+static inline bool any8(const int8 &i) {
+  return (((i[0] || i[1]) || (i[2] || i[3])) ||
+         ((i[4] || i[5]) || (i[6] || i[7])));
+}
+
+
+static inline bool all16(const int16 &i) {
+  return (((i[0] && i[1]) && (i[2] && i[3])) &&
+         ((i[4] && i[5]) && (i[6] && i[7]))) &&
+         (((i[8] && i[9]) && (i[10] && i[11])) &&
+         ((i[12] && i[13]) && (i[14] && i[15])));
+}
+
+static inline bool any16(const int16 &i) {
+  return (((i[0] || i[1]) || (i[2] || i[3])) ||
+         ((i[4] || i[5]) || (i[6] || i[7]))) ||
+         (((i[8] || i[9]) || (i[10] || i[11])) ||
+         ((i[12] || i[13]) || (i[14] || i[15])));
+}
+
+static inline double2 abs(const double2 &x) { return x < 0.0 ? -x : x; }
+static inline double4 abs(const double4 &x) { return x < 0.0 ? -x : x; }
+static inline double8 abs(const double8 &x) { return x < 0.0 ? -x : x; }
+static inline double16 abs(const double16 &x) { return x < 0.0 ? -x : x; }
+
+static inline double2 diffabs(const double &c, const double2 &d)
+{
+  double2 cd = c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -d - 2.0 * c : cd > 0.0 ? d + 2.0 * c : -d;
+}
+
+static inline double4 diffabs(const double &c, const double4 &d)
+{
+  double4 cd = c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -d - 2.0 * c : cd > 0.0 ? d + 2.0 * c : -d;
+}
+
+static inline double8 diffabs(const double &c, const double8 &d)
+{
+  double8 cd = c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -d - 2.0 * c : cd > 0.0 ? d + 2.0 * c : -d;
+}
+
+static inline double16 diffabs(const double &c, const double16 &d)
+{
+  double16 cd = c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -d - 2.0 * c : cd > 0.0 ? d + 2.0 * c : -d;
+}

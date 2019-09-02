@@ -581,6 +581,32 @@ static void UpdateThreadedReference(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateSIMDVectorSize(HWND hWnd)
+{
+	int z = g_SFT.GetSIMDVectorSize();
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_16,MF_BYCOMMAND|(z==16?MF_CHECKED:MF_UNCHECKED));
+}
+
+static void UpdateSIMDChunkSize(HWND hWnd)
+{
+	int z = g_SFT.GetSIMDChunkSize();
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_16,MF_BYCOMMAND|(z==16?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_32,MF_BYCOMMAND|(z==32?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_64,MF_BYCOMMAND|(z==64?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_128,MF_BYCOMMAND|(z==128?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_256,MF_BYCOMMAND|(z==256?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_512,MF_BYCOMMAND|(z==512?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_1024,MF_BYCOMMAND|(z==1024?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -608,6 +634,8 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateHalfColour(hWnd);
 	UpdateSaveOverwrites(hWnd);
 	UpdateThreadedReference(hWnd);
+	UpdateSIMDVectorSize(hWnd);
+	UpdateSIMDChunkSize(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -4108,6 +4136,22 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetThreadedReference(!g_SFT.GetThreadedReference());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(g_SFT.GetThreadedReference()?MF_CHECKED:MF_UNCHECKED));
 	}
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_1){ g_SFT.SetSIMDVectorSize(1); UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_2){ g_SFT.SetSIMDVectorSize(2); UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_4){ g_SFT.SetSIMDVectorSize(4); UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_8){ g_SFT.SetSIMDVectorSize(8); UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_16){ g_SFT.SetSIMDVectorSize(16); UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1){ g_SFT.SetSIMDChunkSize(1); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_2){ g_SFT.SetSIMDChunkSize(2); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_4){ g_SFT.SetSIMDChunkSize(4); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_8){ g_SFT.SetSIMDChunkSize(8); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_16){ g_SFT.SetSIMDChunkSize(16); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_32){ g_SFT.SetSIMDChunkSize(32); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_64){ g_SFT.SetSIMDChunkSize(64); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_128){ g_SFT.SetSIMDChunkSize(128); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_256){ g_SFT.SetSIMDChunkSize(256); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_512){ g_SFT.SetSIMDChunkSize(512); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1024){ g_SFT.SetSIMDChunkSize(1024); UpdateSIMDChunkSize(hWnd); }
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
 		GetClientRect(hWnd,&r);

@@ -602,6 +602,8 @@ public:
 	       void   SetHalfColour(bool b);
 	BOOL(SaveOverwrites)
 	BOOL(ThreadedReference)
+  INT(SIMDVectorSize)
+  INT(SIMDChunkSize)
 #undef DOUBLE
 #undef INT
 #undef BOOL

@@ -34,6 +34,9 @@ Feedback:
 - Unzip it wherever you want, no installation required.
 
 - Launch `kf.64.exe` for 64-bit (to be preferred), `kf.32.exe` for 32-bit.
+  If you have a recent 64-bit CPU (Intel "haswell", AMD "bdver4", or VIA
+  "eden-x4"), you can try the experimental `kf.64+.exe` which should be
+  faster.
 
 - Start exploring!
 
@@ -208,6 +211,14 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.8** (????-??-??)
+
+    - feature: SIMD support.  Adjustable tuning parameters SIMD vector size
+      (default 4) and chunk size (default 64) settings in the Advanced menu.
+      Use `kf.64+.exe` if your CPU supports it (if it doesn't, it may crash
+      with an illegal instruction error).  This should speed up perturbation
+      calculations in double precision (up to zoom depth 1e300 or so).
 
 - **kf-2.14.7.1** (2019-08-30)
 
@@ -927,38 +938,37 @@ you can skip the chroot step and install natively.
         adduser build
         # enter and confirm password
         su - build
+        mkdir -p ~/win64+/src
         mkdir -p ~/win64/src
         mkdir -p ~/win32/src
 
 3. Download Kalles Fraktaler 2 + sources:
 
-        cd ~/win64/src
+        cd ~/win64+/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.14
-        cd ..
-        cp -avit ~/win32/src kalles-fraktaler-2
 
 4. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
 necessary), the script builds both 64bit and 32bit variants:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win64+/src/kalles-fraktaler-2
         bash ./prepare.sh
 
 5. Download the previous version and copy the `et`-generated formulas from it:
 
-        cd ~/win64/src/kalles-fraktaler-2
-        wget -c https://mathr.co.uk/kf/kf-2.14.6.1.zip
+        cd ~/win64+/src/kalles-fraktaler-2
+        wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).zip"
         unzip kf-*.zip
         cd kf-*/
         unzip kf-*src.zip
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-6. Finally, build Kalles Fraktaler 2 + (64bit and 32bit):
+6. Finally, build Kalles Fraktaler 2 + (all versions: 32, 64, 64+):
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win64+/src/kalles-fraktaler-2
         ./release.sh $(git describe)
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
@@ -1636,6 +1646,31 @@ Software license.
     When this is checked, Save (Ctrl-S) overwrites the current file without
     asking.  When this is unchecked, Save will add a timestamp to file names
     to prevent accidental data loss.
+
+  - **SIMD vector size**
+
+    Number of pixels to calculate simultaneously per core.  Setting it too
+    small or too large will lead to slower performance.  The sweet spot will
+    depend on your particular CPU model, cache sizes, how KF is compiled (e.g.
+    64 vs 64+), etc.
+
+    Setting it to 1 disables the explicitly vectorized code path; some SIMD
+    instructions may still be used depending on the compiler.
+
+  - **SIMD chunk size**
+
+    Number of iterations to calculate between escape/glitch checkes.  Setting
+    it too small or too large will lead to slower performance, because checks
+    will be done too often (small chunk size) or too many extra iterations will
+    be done per pixel (large chunk size).  The sweet spot will depend on your
+    CPU and the location (if the number of iterations is high, probably a higher
+    chunk size would be beneficial.
+
+    How it works: the last chunk (when any of the SIMD vector escape to infinity
+    or glitch detected) is repeated for each pixel in the vector individually,
+    after rolling back to before the last chunk.  This means some iterations are
+    repeated, but the speedup from doing escape checks less frequently may
+    overcome this issue.
 
   - **Threads per CPU**
 

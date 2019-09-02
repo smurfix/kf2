@@ -236,6 +236,30 @@ prepare "dc" vs = unlines . concat $
   [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
   , [ "const complex<T> x2 = x * x;" | "x2" `elem` vs ]
   ]
+prepare "d2" vs = unlines . concat $
+  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const double2 xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const double2 xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "d4" vs = unlines . concat $
+  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const double4 xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const double4 xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "d8" vs = unlines . concat $
+  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const double8 xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const double8 xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "d16" vs = unlines . concat $
+  [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const double16 xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const double16 xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
 
 def :: GenLanguageDef String () Identity
 def = emptyDef{ identStart = letter

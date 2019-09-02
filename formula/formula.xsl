@@ -2,7 +2,7 @@
 <!--
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -606,6 +606,526 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   return false;
 }
 
+<xsl:choose>
+<xsl:when test="perturbation/@t='R'">
+bool FORMULA(perturbation2,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, int2 &amp;bGlitch0
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double2 &amp;xr00, double2 &amp;xi00
+  , const double2 &amp;cr0, const double2 &amp;ci0
+  , const int &amp;chunksize
+  )
+{
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  {
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
+    const complex&lt;double&gt; A = { Ar, Ai };
+    const complex&lt;double2&gt; c = { cr0, ci0 };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    double2 test1 = test10;
+    double2 test2 = test20;
+    double2 xr0 = xr00;
+    double2 xi0 = xi00;
+    int2 antal = antal0;
+    int2 bGlitch = bGlitch0;
+    int2 bBailed = test1 &gt; m_nBailout2;
+    // vectorized loop
+    if (all2(antal == antal[0]))
+    {
+      for (; antal[0] &lt; nMaxIter; antal = antal + chunksize)
+      {
+        double2 xr_saved = xr0;
+        double2 xi_saved = xi0;
+        for (int q = 0; q &lt; chunksize; ++q)
+        {
+          const double Xr = m_db_dxr[antal[0] + q];
+          const double Xi = m_db_dxi[antal[0] + q];
+          const double Xz = m_db_z[antal[0] + q];
+          double2 Xxr = Xr + xr0;
+          double2 Xxi = Xi + xi0;
+          test2 = test1;
+          if (no_g)
+          {
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          }
+          else
+          {
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          }
+          bGlitch |= test1 &lt; Xz;
+          bBailed |= test1 &gt; m_nBailout2;
+          double2 xrn, xin, cr = cr0, ci = ci0, xr = xr0, xi = xi0;
+
+@d2       {
+            <xsl:value-of select="perturbation" />
+          }
+
+          xr0 = xrn;
+          xi0 = xin;
+        }
+        if (any2(bGlitch) || any2(bBailed))
+        {
+          // rollback last chunk
+          xr0 = xr_saved;
+          xi0 = xi_saved;
+          bGlitch = bGlitch0;
+          break;
+        }
+      }
+    }
+
+    // finish up unvectorized
+    for (int k = 0; k &lt; 2; ++k)
+    {
+      for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
+      {
+        const double Xr = m_db_dxr[antal[k]];
+        const double Xi = m_db_dxi[antal[k]];
+        const double Xz = m_db_z[antal[k]];
+        double Xxr = Xr + xr0[k];
+        double Xxi = Xi + xi0[k];
+        test2[k] = test1[k];
+        if (no_g)
+        {
+          test1[k] = Xxr * Xxr + Xxi * Xxi;
+        }
+        else
+        {
+          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+        }
+        if (test1[k] &lt; Xz)
+        {
+          bGlitch[k] = true;
+          if (! m_bNoGlitchDetection)
+            break;
+        }
+        if (test1[k] &gt; m_nBailout2)
+        {
+          break;
+        }
+        double xrn, xin, cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
+        using T = double;
+        T dummy;
+        (void) dummy;
+
+@d      {
+          <xsl:value-of select="perturbation" />
+        }
+
+        xr0[k] = xrn;
+        xi0[k] = xin;
+      }
+    }
+
+    antal0 = antal;
+    bGlitch0 = bGlitch;
+    test10 = test1;
+    test20 = test2;
+    xr00 = xr0;
+    xi00 = xi0;
+    return true;
+  }
+  return false;
+}
+
+bool FORMULA(perturbation4,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, int4 &amp;bGlitch0
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double4 &amp;xr00, double4 &amp;xi00
+  , const double4 &amp;cr0, const double4 &amp;ci0
+  , const int &amp;chunksize
+  )
+{
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  {
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
+    const complex&lt;double&gt; A = { Ar, Ai };
+    const complex&lt;double4&gt; c = { cr0, ci0 };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    double4 test1 = test10;
+    double4 test2 = test20;
+    double4 xr0 = xr00;
+    double4 xi0 = xi00;
+    int4 antal = antal0;
+    int4 bGlitch = bGlitch0;
+    int4 bBailed = test1 &gt; m_nBailout2;
+    // vectorized loop
+    if (all4(antal == antal[0]))
+    {
+      for (; antal[0] &lt; nMaxIter; antal = antal + chunksize)
+      {
+        double4 xr_saved = xr0;
+        double4 xi_saved = xi0;
+        for (int q = 0; q &lt; chunksize; ++q)
+        {
+          const double Xr = m_db_dxr[antal[0] + q];
+          const double Xi = m_db_dxi[antal[0] + q];
+          const double Xz = m_db_z[antal[0] + q];
+          double4 Xxr = Xr + xr0;
+          double4 Xxi = Xi + xi0;
+          test2 = test1;
+          if (no_g)
+          {
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          }
+          else
+          {
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          }
+          bGlitch |= test1 &lt; Xz;
+          bBailed |= test1 &gt; m_nBailout2;
+          double4 xrn, xin, cr = cr0, ci = ci0, xr = xr0, xi = xi0;
+
+@d4       {
+            <xsl:value-of select="perturbation" />
+          }
+
+          xr0 = xrn;
+          xi0 = xin;
+        }
+        if (any4(bGlitch) || any4(bBailed))
+        {
+          // rollback last chunk
+          xr0 = xr_saved;
+          xi0 = xi_saved;
+          bGlitch = bGlitch0;
+          break;
+        }
+      }
+    }
+
+    // finish up unvectorized
+    for (int k = 0; k &lt; 4; ++k)
+    {
+      for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
+      {
+        const double Xr = m_db_dxr[antal[k]];
+        const double Xi = m_db_dxi[antal[k]];
+        const double Xz = m_db_z[antal[k]];
+        double Xxr = Xr + xr0[k];
+        double Xxi = Xi + xi0[k];
+        test2[k] = test1[k];
+        if (no_g)
+        {
+          test1[k] = Xxr * Xxr + Xxi * Xxi;
+        }
+        else
+        {
+          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+        }
+        if (test1[k] &lt; Xz)
+        {
+          bGlitch[k] = true;
+          if (! m_bNoGlitchDetection)
+            break;
+        }
+        if (test1[k] &gt; m_nBailout2)
+        {
+          break;
+        }
+        double xrn, xin, cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
+        using T = double;
+        T dummy;
+        (void) dummy;
+
+@d      {
+          <xsl:value-of select="perturbation" />
+        }
+
+        xr0[k] = xrn;
+        xi0[k] = xin;
+      }
+    }
+
+    antal0 = antal;
+    bGlitch0 = bGlitch;
+    test10 = test1;
+    test20 = test2;
+    xr00 = xr0;
+    xi00 = xi0;
+    return true;
+  }
+  return false;
+}
+
+bool FORMULA(perturbation8,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, int8 &amp;bGlitch0
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double8 &amp;xr00, double8 &amp;xi00
+  , const double8 &amp;cr0, const double8 &amp;ci0
+  , const int &amp;chunksize
+  )
+{
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  {
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
+    const complex&lt;double&gt; A = { Ar, Ai };
+    const complex&lt;double8&gt; c = { cr0, ci0 };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    double8 test1 = test10;
+    double8 test2 = test20;
+    double8 xr0 = xr00;
+    double8 xi0 = xi00;
+    int8 antal = antal0;
+    int8 bGlitch = bGlitch0;
+    int8 bBailed = test1 &gt; m_nBailout2;
+    // vectorized loop
+    if (all8(antal == antal[0]))
+    {
+      for (; antal[0] &lt; nMaxIter; antal = antal + chunksize)
+      {
+        double8 xr_saved = xr0;
+        double8 xi_saved = xi0;
+        for (int q = 0; q &lt; chunksize; ++q)
+        {
+          const double Xr = m_db_dxr[antal[0] + q];
+          const double Xi = m_db_dxi[antal[0] + q];
+          const double Xz = m_db_z[antal[0] + q];
+          double8 Xxr = Xr + xr0;
+          double8 Xxi = Xi + xi0;
+          test2 = test1;
+          if (no_g)
+          {
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          }
+          else
+          {
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          }
+          bGlitch |= test1 &lt; Xz;
+          bBailed |= test1 &gt; m_nBailout2;
+          double8 xrn, xin, cr = cr0, ci = ci0, xr = xr0, xi = xi0;
+
+@d8       {
+            <xsl:value-of select="perturbation" />
+          }
+
+          xr0 = xrn;
+          xi0 = xin;
+        }
+        if (any8(bGlitch) || any8(bBailed))
+        {
+          // rollback last chunk
+          xr0 = xr_saved;
+          xi0 = xi_saved;
+          bGlitch = bGlitch0;
+          break;
+        }
+      }
+    }
+
+    // finish up unvectorized
+    for (int k = 0; k &lt; 8; ++k)
+    {
+      for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
+      {
+        const double Xr = m_db_dxr[antal[k]];
+        const double Xi = m_db_dxi[antal[k]];
+        const double Xz = m_db_z[antal[k]];
+        double Xxr = Xr + xr0[k];
+        double Xxi = Xi + xi0[k];
+        test2[k] = test1[k];
+        if (no_g)
+        {
+          test1[k] = Xxr * Xxr + Xxi * Xxi;
+        }
+        else
+        {
+          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+        }
+        if (test1[k] &lt; Xz)
+        {
+          bGlitch[k] = true;
+          if (! m_bNoGlitchDetection)
+            break;
+        }
+        if (test1[k] &gt; m_nBailout2)
+        {
+          break;
+        }
+        double xrn, xin, cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
+        using T = double;
+        T dummy;
+        (void) dummy;
+
+@d      {
+          <xsl:value-of select="perturbation" />
+        }
+
+        xr0[k] = xrn;
+        xi0[k] = xin;
+      }
+    }
+
+    antal0 = antal;
+    bGlitch0 = bGlitch;
+    test10 = test1;
+    test20 = test2;
+    xr00 = xr0;
+    xi00 = xi0;
+    return true;
+  }
+  return false;
+}
+
+bool FORMULA(perturbation16,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, int16 &amp;bGlitch0
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double16 &amp;xr00, double16 &amp;xi00
+  , const double16 &amp;cr0, const double16 &amp;ci0
+  , const int &amp;chunksize
+  )
+{
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  {
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
+    const complex&lt;double&gt; A = { Ar, Ai };
+    const complex&lt;double16&gt; c = { cr0, ci0 };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
+    (void) A; // -Wunused-variable
+    (void) c; // -Wunused-variable
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    double16 test1 = test10;
+    double16 test2 = test20;
+    double16 xr0 = xr00;
+    double16 xi0 = xi00;
+    int16 antal = antal0;
+    int16 bGlitch = bGlitch0;
+    int16 bBailed = test1 &gt; m_nBailout2;
+    // vectorized loop
+    if (all16(antal == antal[0]))
+    {
+      for (; antal[0] &lt; nMaxIter; antal = antal + chunksize)
+      {
+        double16 xr_saved = xr0;
+        double16 xi_saved = xi0;
+        for (int q = 0; q &lt; chunksize; ++q)
+        {
+          const double Xr = m_db_dxr[antal[0] + q];
+          const double Xi = m_db_dxi[antal[0] + q];
+          const double Xz = m_db_z[antal[0] + q];
+          double16 Xxr = Xr + xr0;
+          double16 Xxi = Xi + xi0;
+          test2 = test1;
+          if (no_g)
+          {
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          }
+          else
+          {
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          }
+          bGlitch |= test1 &lt; Xz;
+          bBailed |= test1 &gt; m_nBailout2;
+          double16 xrn, xin, cr = cr0, ci = ci0, xr = xr0, xi = xi0;
+
+@d16      {
+            <xsl:value-of select="perturbation" />
+          }
+
+          xr0 = xrn;
+          xi0 = xin;
+        }
+        if (any16(bGlitch) || any16(bBailed))
+        {
+          // rollback last chunk
+          xr0 = xr_saved;
+          xi0 = xi_saved;
+          bGlitch = bGlitch0;
+          break;
+        }
+      }
+    }
+
+    // finish up unvectorized
+    for (int k = 0; k &lt; 16; ++k)
+    {
+      for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
+      {
+        const double Xr = m_db_dxr[antal[k]];
+        const double Xi = m_db_dxi[antal[k]];
+        const double Xz = m_db_z[antal[k]];
+        double Xxr = Xr + xr0[k];
+        double Xxi = Xi + xi0[k];
+        test2[k] = test1[k];
+        if (no_g)
+        {
+          test1[k] = Xxr * Xxr + Xxi * Xxi;
+        }
+        else
+        {
+          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+        }
+        if (test1[k] &lt; Xz)
+        {
+          bGlitch[k] = true;
+          if (! m_bNoGlitchDetection)
+            break;
+        }
+        if (test1[k] &gt; m_nBailout2)
+        {
+          break;
+        }
+        double xrn, xin, cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
+        using T = double;
+        T dummy;
+        (void) dummy;
+
+@d      {
+          <xsl:value-of select="perturbation" />
+        }
+
+        xr0[k] = xrn;
+        xi0[k] = xin;
+      }
+    }
+
+    antal0 = antal;
+    bGlitch0 = bGlitch;
+    test10 = test1;
+    test20 = test2;
+    xr00 = xr0;
+    xi00 = xi0;
+    return true;
+  }
+  return false;
+}
+</xsl:when>
+</xsl:choose>
+
 </xsl:for-each>
 
 bool reference_double(const int m_nFractalType, const int m_nPower, double *m_db_dxr, double *m_db_dxi, double *m_db_z, int &amp;m_bStop, int &amp;m_nRDone, int &amp;m_nGlitchIter, int &amp;m_nMaxIter, const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &amp;antal, double &amp;test1, double &amp;test2)
@@ -848,6 +1368,114 @@ bool perturbation_floatexp(const int m_nFractalType, const int m_nPower, const f
   return false;
 }
 
+bool perturbation2_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int2 &amp;antal, double2 &amp;test1, double2 &amp;test2, int2 &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double2 &amp;xr, double2 &amp;xi, const double2 &amp;cr, const double2 &amp;ci, const int &amp;chunksize)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+<xsl:choose>
+<xsl:when test="perturbation/@t='R'">
+          return FORMULA(perturbation2,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, chunksize);
+</xsl:when>
+<xsl:when test="perturbation/@t='C'">
+          return false; // FIXME
+</xsl:when>
+</xsl:choose>
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
+bool perturbation4_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int4 &amp;antal, double4 &amp;test1, double4 &amp;test2, int4 &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double4 &amp;xr, double4 &amp;xi, const double4 &amp;cr, const double4 &amp;ci, const int &amp;chunksize)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+<xsl:choose>
+<xsl:when test="perturbation/@t='R'">
+          return FORMULA(perturbation4,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, chunksize);
+</xsl:when>
+<xsl:when test="perturbation/@t='C'">
+          return false; // FIXME
+</xsl:when>
+</xsl:choose>
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
+bool perturbation8_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int8 &amp;antal, double8 &amp;test1, double8 &amp;test2, int8 &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double8 &amp;xr, double8 &amp;xi, const double8 &amp;cr, const double8 &amp;ci, const int &amp;chunksize)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+<xsl:choose>
+<xsl:when test="perturbation/@t='R'">
+          return FORMULA(perturbation8,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, chunksize);
+</xsl:when>
+<xsl:when test="perturbation/@t='C'">
+          return false; // FIXME
+</xsl:when>
+</xsl:choose>
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
+bool perturbation16_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, int16 &amp;antal, double16 &amp;test1, double16 &amp;test2, int16 &amp;bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double16 &amp;xr, double16 &amp;xi, const double16 &amp;cr, const double16 &amp;ci, const int &amp;chunksize)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+<xsl:choose>
+<xsl:when test="perturbation/@t='R'">
+          return FORMULA(perturbation16,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, xr, xi, cr, ci, chunksize);
+</xsl:when>
+<xsl:when test="perturbation/@t='C'">
+          return false; // FIXME
+</xsl:when>
+</xsl:choose>
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
 void combo5_addstrings(HWND hWnd, const int IDC_COMBO5)
 {
   <xsl:for-each select="formulas/group">
@@ -896,8 +1524,8 @@ void update_power_dropdown_for_fractal_type(HWND hWnd, const int IDC_COMBO3, con
     }
   </xsl:for-each>
   }
-	SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,selected,0);
-	EnableWindow(GetDlgItem(hWnd,IDC_COMBO3), ix > 1);
+  SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,selected,0);
+  EnableWindow(GetDlgItem(hWnd,IDC_COMBO3), ix > 1);
 }
 
 // EOF

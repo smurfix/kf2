@@ -80,6 +80,9 @@ private:
   bool m_HalfColour;
   bool m_SaveOverwrites;
   bool m_ThreadedReference;
+  int m_SIMDVectorSize;
+  int m_SIMDChunkSize;
+
 
 public:
 
@@ -129,6 +132,8 @@ public:
   , m_HalfColour(false)
   , m_SaveOverwrites(false)
   , m_ThreadedReference(true)
+  , m_SIMDVectorSize(2)
+  , m_SIMDChunkSize(64)
   { };
 
   bool FromText(const std::string &text);
@@ -289,6 +294,18 @@ public:
 
   inline bool   GetThreadedReference() const { return m_ThreadedReference; };
   inline void   SetThreadedReference(bool b) { m_ThreadedReference = b; };
+
+  inline int    GetSIMDChunkSize() const { return m_SIMDChunkSize; };
+  inline void   SetSIMDChunkSize(int n) { m_SIMDChunkSize = 0 < n ? n : 1; };
+
+  inline int    GetSIMDVectorSize() const { return m_SIMDVectorSize; };
+  inline void   SetSIMDVectorSize(int n) {
+    switch (n)
+    {
+      case 2: case 4: case 8: case 16: m_SIMDVectorSize = n; break;
+      default: m_SIMDVectorSize = 1; break;
+    }
+  }
 
 };
 

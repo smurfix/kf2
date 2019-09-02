@@ -81,6 +81,8 @@ bool Settings::FromText(const std::string &text)
   BOOL(HalfColour)
   BOOL(SaveOverwrites)
   BOOL(ThreadedReference)
+  INT(SIMDVectorSize)
+  INT(SIMDChunkSize)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -139,6 +141,8 @@ std::string Settings::ToText() const
   BOOL(HalfColour)
   BOOL(SaveOverwrites)
   BOOL(ThreadedReference)
+  INT(SIMDVectorSize)
+  INT(SIMDChunkSize)
 #undef DOUBLE
 #undef INT
 #undef BOOL
