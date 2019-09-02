@@ -1,6 +1,8 @@
 #ifndef KF_FORMULA_H
 #define KF_FORMULA_H 1
 
+#include <cstdint>
+
 class CFixedFloat;
 class floatexp;
 
@@ -23,17 +25,23 @@ static inline bool type_0_power_2_pixel_has_glitched(R cr, R ci, R zr, R zi, R Z
   return a * h < b * e;
 }
 
+template <typename R, typename T> inline R broadcast(T x) { return x; }
+
 typedef int64_t int2 __attribute__ ((vector_size (16)));
 typedef double double2 __attribute__ ((vector_size (16)));
+template <> inline double2 broadcast<double2,double>(double x) { double2 r = { x, x }; return r; }
 
 typedef int64_t int4 __attribute__ ((vector_size (32)));
 typedef double double4 __attribute__ ((vector_size (32)));
+template <> inline double4 broadcast<double4,double>(double x) { double4 r = { x, x, x, x }; return r; }
 
 typedef int64_t int8 __attribute__ ((vector_size (64)));
 typedef double double8 __attribute__ ((vector_size (64)));
+template <> inline double8 broadcast<double8,double>(double x) { double8 r = { x, x, x, x, x, x, x, x }; return r; }
 
 typedef int64_t int16 __attribute__ ((vector_size (128)));
 typedef double double16 __attribute__ ((vector_size (128)));
+template <> inline double16 broadcast<double16,double>(double x) { double16 r = { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }; return r; }
 
 bool reference_double     (const int m_nFractalType, const int m_nPower, double      *m_db_dxr, double      *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
 bool reference_long_double(const int m_nFractalType, const int m_nPower, long double *m_ldxr,   long double *m_ldxi,   double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
