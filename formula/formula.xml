@@ -2,7 +2,7 @@
 <!--
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -64,6 +64,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         dyan = ((2*(Xxi*dxa))+((2*(Xxr*dya))+dba));
         dybn = ((2*(Xxi*dxb))+((2*(Xxr*dyb))+dbb));
       </derivative>
+      <scaled t="R">
+        xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
+        xin = 2 * ((Xr + xr * s) * xi + Xi * xr) + ci;
+      </scaled>
     </formula>
 
     <formula power="3" glitch="0.000001">
@@ -81,6 +85,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         dyan = ((3*(Xxr*(Xxr*dya)))+((-3*(Xxi*(Xxi*dya)))+((6*(Xxi*(Xxr*dxa)))+dba)));
         dybn = ((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)));
       </derivative>
+      <scaled t="R">
+        xrn = 3 * Xr * Xr * xr - 6 * Xr * Xi * xi - 3 * Xi * Xi * xr + 3 * Xr * xr * xr * s - 3 * Xr * xi * xi * s - 6 * Xi * xr * xi * s + xr * xr * xr * s * s - 3 * xr * xi * xi * s * s + cr;
+        xin = 3 * Xr * Xr * xi + 6 * Xr * Xi * xr - 3 * Xi * Xi * xi + 6 * Xr * xr * xi * s + 3 * Xi * xr * xr * s - 3 * Xi * xi * xi * s + 3 * xr * xr * xi * s * s - xi * xi * xi * s * s + ci;
+      </scaled>
     </formula>
 
     <formula power="4" glitch="0.00001">
@@ -191,6 +199,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         dyan = ((2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+dba));
         dybn = ((2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+dbb));
       </derivative>
+      <scaled t="R">
+        xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
+        xin = 2 * diffabs(Xr * Xi * S, Xr * xi + xr * (Xi + xi * s)) + ci;
+      </scaled>
     </formula>
 
     <formula power="3" glitch="0.0000001">
