@@ -1,3 +1,4 @@
+WINPREFIXPLUS ?= $(HOME)/win32
 WINPREFIX ?= $(HOME)/win32
 # CLEWPREFIX ?= ../clew
 COMPILE ?= i686-w64-mingw32-g++
