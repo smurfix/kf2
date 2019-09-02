@@ -232,10 +232,6 @@ prepare "d" vs = unlines . concat $
   , [ "const T xr2 = xr * xr;" | "xr2" `elem` vs ]
   , [ "const T xi2 = xi * xi;" | "xi2" `elem` vs ]
   ]
-prepare "dc" vs = unlines . concat $
-  [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
-  , [ "const complex<T> x2 = x * x;" | "x2" `elem` vs ]
-  ]
 prepare "d2" vs = unlines . concat $
   [ [ "const double Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
   , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
@@ -259,6 +255,26 @@ prepare "d16" vs = unlines . concat $
   , [ "const double Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
   , [ "const double16 xr2 = xr * xr;" | "xr2" `elem` vs ]
   , [ "const double16 xi2 = xi * xi;" | "xi2" `elem` vs ]
+  ]
+prepare "dc" vs = unlines . concat $
+  [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<T> x2 = x * x;" | "x2" `elem` vs ]
+  ]
+prepare "dc2" vs = unlines . concat $
+  [ [ "const complex<double> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<double2> x2 = x * x;" | "x2" `elem` vs ]
+  ]
+prepare "dc4" vs = unlines . concat $
+  [ [ "const complex<double> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<double4> x2 = x * x;" | "x2" `elem` vs ]
+  ]
+prepare "dc8" vs = unlines . concat $
+  [ [ "const complex<double> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<double8> x2 = x * x;" | "x2" `elem` vs ]
+  ]
+prepare "dc16" vs = unlines . concat $
+  [ [ "const complex<double> X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const complex<double16> x2 = x * x;" | "x2" `elem` vs ]
   ]
 
 def :: GenLanguageDef String () Identity
