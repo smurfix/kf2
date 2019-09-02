@@ -17,14 +17,17 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
 NCPUS=32
+export FLAGS64PLUS="-mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -mavx2"
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
 export LDFLAGS="-static-libgcc -static-libstdc++"
+mkdir -p ~/win64+/src
 mkdir -p ~/win64/src
 mkdir -p ~/win32/src
+cp -avft ~/win64+/src *.patch
 cp -avft ~/win64/src *.patch
 cp -avft ~/win32/src *.patch
 # download
-cd ~/win64/src
+cd ~/win64+/src
 wget -c https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
@@ -39,7 +42,16 @@ wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/ilmbase-2.3.0.tar.gz
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/openexr-2.3.0.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
+cp -avft ~/win64/src *z allpatches mingw-std-threads
 cp -avft ~/win32/src *z allpatches mingw-std-threads
+# gmp 64+
+cd ~/win64+/src
+tar xf gmp-*.tar.lz
+cd gmp-*/
+CFLAGS="$FLAGS64PLUS" CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=$HOME/win64+
+make -j $NCPUS
+make install
+make check
 # gmp 64
 cd ~/win64/src
 tar xf gmp-*.tar.lz
@@ -53,6 +65,15 @@ cd ~/win32/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
 CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+make check
+# mpfr 64+
+cd ~/win64+/src
+tar xf mpfr-*.tar.xz
+cd mpfr-*/
+patch -N -Z -p1 < ../allpatches
+CFLAGS="$FLAGS64PLUS" ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64+ --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
 make check
