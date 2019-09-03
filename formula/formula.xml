@@ -201,7 +201,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       </derivative>
       <scaled t="R">
         xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
-        xin = 2 * diffabs(Xr * Xi * S, Xr * xi + xr * (Xi + xi * s)) + ci;
+        xin = 2 * diffabs(Xr * S * Xi, (Xr + xr * s) * xi + xr * Xi) + ci;
       </scaled>
     </formula>
 
