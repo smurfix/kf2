@@ -190,7 +190,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         Xin = abs(2 * Xr * Xi) + Ci;
       </reference>
       <perturbation t="R">
-        xrn = 2 * xr * Xr + xr * xr - 2 * Xi * xi - xi * xi + cr;
+        xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
         xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
       </perturbation>
       <derivative t='M'>
