@@ -2708,10 +2708,10 @@ void CFraktalSFT::SetPower(int nPower)
 //	if (m_nFractalType>4 && m_nPower>3)
 //		m_nPower = 3;
 	if (g_nLDBL>100){
-		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+		if (m_nPower == 2 && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
+		else if (m_nPower == 3 && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
 		else
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 	}
@@ -2842,10 +2842,10 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 		m_nPower = 2;
 
 	if (g_nLDBL>100){
-		if (m_nPower == 2 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT;
-		else if (m_nPower == 3 && !m_nFractalType)
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT;
+		if (m_nPower == 2 && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
+		else if (m_nPower == 3 && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
 		else
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
 	}

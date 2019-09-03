@@ -69,12 +69,12 @@ public:
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 // thresholds for switching to floatexp iterations
-#define FLOATEXP_THRESHOLD_POWER_2_MANDELBROT 9800
-#define FLOATEXP_THRESHOLD_POWER_3_MANDELBROT 6533
+#define FLOATEXP_THRESHOLD_POWER_2 9800
+#define FLOATEXP_THRESHOLD_POWER_3 6533
 #define FLOATEXP_THRESHOLD_DEFAULT 4900
 // thresholds for switching to long double iterations
-#define LONG_DOUBLE_THRESHOLD_POWER_2_MANDELBROT 590
-#define LONG_DOUBLE_THRESHOLD_POWER_3_MANDELBROT 390
+#define LONG_DOUBLE_THRESHOLD_POWER_2 590
+#define LONG_DOUBLE_THRESHOLD_POWER_3 390
 #define LONG_DOUBLE_THRESHOLD_DEFAULT 290
 // threshold for switching to scaled double iterations
 // this is lower than the theoretical maximum to avoid derivative overflow
