@@ -211,8 +211,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         Xin = (3 * Xr2 - Xi2) * abs(Xi) + Ci;
       </reference>
       <perturbation t="R">
-        xrn = (Xr * Xr - 3 * Xi * Xi) * diffabs(Xr, xr) + (2 * Xr * xr + xr * xr - 6 * Xi * xi - 3 * xi * xi) * abs(Xr + xr) + cr;
-        xin = (3 * Xr * Xr - Xi * Xi) * diffabs(Xi, xi) + (6 * Xr * xr + 3 * xr * xr - 2 * Xi * xi - xi * xi) * abs(Xi + xi) + ci;
+        xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * Xr * xr + xr2 - 6 * Xi * xi - 3 * xi2) * abs(Xr + xr) + cr;
+        xin = (3 * Xr2 - Xi2) * diffabs(Xi, xi) + (6 * Xr * xr + 3 * xr2 - 2 * Xi * xi - xi2) * abs(Xi + xi) + ci;
       </perturbation>
       <derivative t='M'>
         dxan = ((3*(sgn(Xxr)*(sgn(Xxr)*(Xxr*(Xxr*(dxa*sgn(Xxr)))))))+((-3*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxi*(dxa*sgn(Xxr)))))))+((-6*(sgn(Xxi)*(sgn(Xxi)*(Xxi*(Xxr*(dya*sgn(Xxr)))))))+daa)));
