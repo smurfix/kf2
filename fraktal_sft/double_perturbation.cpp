@@ -34,7 +34,7 @@ void CFraktalSFT::MandelCalc()
 	int k = 0;
 	const int chunksize = GetSIMDChunkSize();
 	const int vectorsize = GetSIMDVectorSize();
-	const bool vectorized = ! GetDerivatives() && ! m_nScalingOffset && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
+	const bool vectorized = ! GetDerivatives() && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize >= 1;
 
 	int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -64,6 +64,7 @@ void CFraktalSFT::MandelCalc()
 
 		double test1 = 0, test2 = 0;
 		BOOL bGlitch = FALSE;
+#if 0
 		if (m_nScalingOffset){ // FIXME matrix derivatives
 			double dbD0r = D0r.todouble(m_nScalingOffset);
 			double dbD0i = D0i.todouble(m_nScalingOffset);
@@ -207,6 +208,8 @@ void CFraktalSFT::MandelCalc()
 			ldi = ldci;
 		}
 		else
+#endif
+
 		{
 
 			double dbD0r = D0r.todouble();
@@ -312,10 +315,10 @@ void CFraktalSFT::MandelCalc()
 				  y16[k] = y;
 				  w16[k] = w;
 				  h16[k] = h;
-				  Dr16[k] = Dr;
-				  Di16[k] = Di;
-				  dbD0r16[k] = dbD0r;
-				  dbD0i16[k] = dbD0i;
+				  Dr16[k] = m_nScalingOffset ? TDnr.todouble(m_nScalingOffset) : Dr;
+				  Di16[k] = m_nScalingOffset ? TDni.todouble(m_nScalingOffset) : Di;
+				  dbD0r16[k] = m_nScalingOffset ? D0r.todouble(m_nScalingOffset) : dbD0r;
+				  dbD0i16[k] = m_nScalingOffset ? D0i.todouble(m_nScalingOffset) : dbD0i;
 				  antal16[k] = antal;
 				  test116[k] = test1;
 				  test216[k] = test2;
@@ -323,7 +326,39 @@ void CFraktalSFT::MandelCalc()
 				  k = k + 1;
 				  if (k == vectorsize)
 				  {
-				    if (vectorsize == 2)
+				    if (vectorsize == 1)
+				    {
+				      int antalv, bGlitchv;
+				      double test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antalv = antal16[q];
+					bGlitchv = bGlitch16[q];
+					test1v = test116[q];
+					test2v = test216[q];
+					Drv = Dr16[q];
+					Div = Di16[q];
+					dbD0rv = dbD0r16[q];
+					dbD0iv = dbD0i16[q];
+				      }
+				      bool ok = m_nScalingOffset
+				        ? perturbation_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, m_nScaling, 1 / m_nScaling)
+					: perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv)
+					;
+				      assert(ok && "perturbation_double");
+				      for (int q = 0; q < vectorsize; ++q)
+				      {
+					antal16[q] = antalv;
+					bGlitch16[q] = bGlitchv;
+					test116[q] = test1v;
+					test216[q] = test2v;
+					Dr16[q] = Drv;
+					Di16[q] = Div;
+					dbD0r16[q] = dbD0rv;
+					dbD0i16[q] = dbD0iv;
+				      }
+				    }
+				    else if (vectorsize == 2)
 				    {
 				      int2 antalv, bGlitchv;
 				      double2 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
@@ -338,7 +373,10 @@ void CFraktalSFT::MandelCalc()
 					dbD0rv[q] = dbD0r16[q];
 					dbD0iv[q] = dbD0i16[q];
 				      }
-				      bool ok = perturbation2_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      bool ok = m_nScalingOffset
+				        ? perturbation2_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling)
+					: perturbation2_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize)
+					;
 				      assert(ok && "perturbation_double2");
 				      for (int q = 0; q < vectorsize; ++q)
 				      {
@@ -367,7 +405,10 @@ void CFraktalSFT::MandelCalc()
 					dbD0rv[q] = dbD0r16[q];
 					dbD0iv[q] = dbD0i16[q];
 				      }
-				      bool ok = perturbation4_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      bool ok = m_nScalingOffset
+				        ? perturbation4_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling)
+					: perturbation4_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize)
+					;
 				      assert(ok && "perturbation_double4");
 				      for (int q = 0; q < vectorsize; ++q)
 				      {
@@ -396,7 +437,10 @@ void CFraktalSFT::MandelCalc()
 					dbD0rv[q] = dbD0r16[q];
 					dbD0iv[q] = dbD0i16[q];
 				      }
-				      bool ok = perturbation8_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      bool ok = m_nScalingOffset
+				        ? perturbation8_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling)
+					: perturbation8_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize)
+					;
 				      assert(ok && "perturbation_double8");
 				      for (int q = 0; q < vectorsize; ++q)
 				      {
@@ -425,7 +469,10 @@ void CFraktalSFT::MandelCalc()
 					dbD0rv[q] = dbD0r16[q];
 					dbD0iv[q] = dbD0i16[q];
 				      }
-				      bool ok = perturbation16_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize);
+				      bool ok = m_nScalingOffset
+				        ? perturbation16_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling)
+					: perturbation16_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize)
+					;
 				      assert(ok && "perturbation_double16");
 				      for (int q = 0; q < vectorsize; ++q)
 				      {
@@ -520,7 +567,11 @@ void CFraktalSFT::MandelCalc()
 			double Di = Di16[k];
 			double dbD0r = dbD0r16[k];
 			double dbD0i = dbD0i16[k];
-			perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i);
+			bool ok = m_nScalingOffset
+			  ? perturbation_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
+			  : perturbation_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+			  ;
+			assert(ok && "perturbation_double");
 			OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, 0);
 			InterlockedIncrement((LPLONG)&m_nDone);
 			OutputPixelData(x, y, w, h, bGlitch);
