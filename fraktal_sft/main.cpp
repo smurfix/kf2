@@ -2779,8 +2779,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bSaveJpeg = g_args->bSaveJPG;
 		g_bSaveTif = g_args->bSaveTIF;
 		g_bSavePng = g_args->bSavePNG;
+		g_bSaveExr = g_args->bSaveEXR;
 		g_bSaveMap = g_args->bSaveMap;
-		g_bInteractive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveMap);
+		g_bInteractive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveMap);
 		if (! g_bInteractive)
 		{
 			std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
@@ -5171,7 +5172,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 #endif
 
 
-	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveMap);
+	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveMap);
 	if (interactive)
 	{
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
