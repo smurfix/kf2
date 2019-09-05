@@ -284,6 +284,10 @@ public:
 	{
 		return (*this<a || *this==a);
 	}
+	inline bool operator >=(const floatexp &a) const
+	{
+		return (*this>a || *this==a);
+	}
 	inline bool operator <=(const int a) const
 	{
 		return (*this<a || *this==a);
