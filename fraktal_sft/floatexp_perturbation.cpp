@@ -132,6 +132,8 @@ void CFraktalSFT::MandelCalcEXP()
 					Dr = Dn.m_r;
 				}
 			}
+			dr = d.m_r * m_fPixelSpacing;
+			di = d.m_i * m_fPixelSpacing;
 			} else {
 			if (antal<nMaxIter && test1 <= m_nBailout2){
 				for (; antal<nMaxIter; antal++){
@@ -182,7 +184,7 @@ void CFraktalSFT::MandelCalcEXP()
 		}
 
 		double de = GetDerivatives()
-		  ? double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble())
+		  ? sqrt(test1) * log(test1) / double(sqrt(dr * dr + di * di))
 		  : 0
 		  ;
 
