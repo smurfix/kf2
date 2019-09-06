@@ -131,68 +131,55 @@ void CFraktalSFT::MandelCalcLDBL()
 
     double test1 = 0, test2 = 0;
     BOOL bGlitch = FALSE;
-    {
 
-      long double dbD0r = D0r.toLongDouble();
-      long double dbD0i = D0i.toLongDouble();
-      long double Dr = TDnr.toLongDouble();
-      long double Di = TDni.toLongDouble();
-      dr = TDDnr.toLongDouble();
-      di = TDDni.toLongDouble();
+    long double dbD0r = D0r.toLongDouble();
+    long double dbD0i = D0i.toLongDouble();
+    long double Dr = TDnr.toLongDouble();
+    long double Di = TDni.toLongDouble();
+    dr = TDDnr.toLongDouble();
+    di = TDDni.toLongDouble();
 
-      if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
-      { // FIXME check this is still ok around long double vs scaled double zoom threshold e600
-        antal = GetDerivatives()
-          ? Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection)
-          : Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, m_bNoGlitchDetection)
-          ;
-        long double pixel_spacing = m_lPixelSpacing;
-        dr *= pixel_spacing;
-        di *= pixel_spacing;
-      }
-      else if (m_nScalingOffsetL)
-      {
-	Dr = TDnr.toLongDouble(m_nScalingOffsetL);
-	Di = TDni.toLongDouble(m_nScalingOffsetL);
-	dbD0r = D0r.toLongDouble(m_nScalingOffsetL);
-	dbD0i = D0i.toLongDouble(m_nScalingOffsetL);
-	ldr = TDDnr;
-	ldi = TDDni;
-	ldr *= m_fPixelSpacing;
-	ldi *= m_fPixelSpacing;
-	bool ok = GetDerivatives()
-	  ? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, ldr, ldi, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
-	  : perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
-	  ;
-	assert(ok && "perturbation_long_double_scaled");
-      }
-      else
-      {
-	long double daa = daa0.toLongDouble();
-	long double dab = dab0.toLongDouble();
-	long double dba = dba0.toLongDouble();
-	long double dbb = dbb0.toLongDouble();
-	dr *= m_lPixelSpacing;
-	di *= m_lPixelSpacing;
-	bool ok = GetDerivatives()
-	  ? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
-	  : perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
-	  ;
-	assert(ok && "perturbation_long_double");
-      }
+    if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+    { // FIXME check this is still ok around long double vs scaled double zoom threshold e600
+      antal = GetDerivatives()
+	? Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection)
+	: Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, m_bNoGlitchDetection)
+	;
+      long double pixel_spacing = m_lPixelSpacing;
+      dr *= pixel_spacing;
+      di *= pixel_spacing;
+      ldr = dr;
+      ldi = di;
     }
-    long double pixel_spacing = m_lPixelSpacing;
-    if (m_nScalingOffsetL)
+    else if (m_nScalingOffsetL)
     {
-      // nop
-    }
-    else if (m_nPower > 10)
-    {
-      ldr = dr * pixel_spacing;
-      ldi = di * pixel_spacing;
+      Dr = TDnr.toLongDouble(m_nScalingOffsetL);
+      Di = TDni.toLongDouble(m_nScalingOffsetL);
+      dbD0r = D0r.toLongDouble(m_nScalingOffsetL);
+      dbD0i = D0i.toLongDouble(m_nScalingOffsetL);
+      ldr = TDDnr;
+      ldi = TDDni;
+      ldr *= m_fPixelSpacing;
+      ldi *= m_fPixelSpacing;
+      bool ok = GetDerivatives()
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, ldr, ldi, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
+	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
+	;
+      assert(ok && "perturbation_long_double_scaled");
     }
     else
     {
+      long double daa = daa0.toLongDouble();
+      long double dab = dab0.toLongDouble();
+      long double dba = dba0.toLongDouble();
+      long double dbb = dbb0.toLongDouble();
+      dr *= m_lPixelSpacing;
+      di *= m_lPixelSpacing;
+      bool ok = GetDerivatives()
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
+	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+	;
+      assert(ok && "perturbation_long_double");
       ldr = dr;
       ldi = di;
     }
