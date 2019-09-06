@@ -260,7 +260,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	{
 	bool ld = GetLongDoubleAlways();
 	bool fe = GetFloatExpAlways();
-	if (scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	if (scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 	{
 		if (m_nPower == 2)
 		{

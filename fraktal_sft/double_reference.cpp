@@ -361,7 +361,7 @@ void CFraktalSFT::CalculateReference()
 		ldi = di * m_lPixelSpacing;
 
 	}
-	else if (m_nScalingOffset && scaled_double_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	else if (m_nScalingOffset && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 	{
 
 		floatexp _x, _y, daa, dab, dba, dbb;
@@ -373,8 +373,8 @@ void CFraktalSFT::CalculateReference()
 		ldr *= m_lPixelSpacing;
 		ldi *= m_lPixelSpacing;
 		bool ok = GetDerivatives()
-		  ? reference_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi, ddaa, ddab, ddba, ddbb)
-		  : reference_scaled_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi, ddaa, ddab, ddba, ddbb)
+		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
 		  ;
 		assert(ok && "reference_scaled_double");
 
@@ -391,8 +391,8 @@ void CFraktalSFT::CalculateReference()
 		dr *= m_dPixelSpacing;
 		di *= m_dPixelSpacing;
 		bool ok = GetDerivatives()
-		  ? reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb)
-		  : reference_double(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ddaa, ddab, ddba, ddbb)
+		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
 		  ;
 		assert(ok && "reference_double");
 		ldr = dr;

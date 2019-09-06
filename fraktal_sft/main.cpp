@@ -4053,7 +4053,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nLDBL=0;
 		}
 		else{
-			if(scaled_double_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
+			if(scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
 			{
 				if (g_SFT.GetPower() == 2)
 				{
@@ -4083,7 +4083,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_nEXP=2;
 		}
 		else{
-			if(scaled_double_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
+			if(scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
 			{
 				if (g_SFT.GetPower() == 2)
 				{

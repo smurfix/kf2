@@ -216,9 +216,11 @@ Feedback:
 
     - feature: SIMD support.  Adjustable tuning parameters SIMD vector size
       (default 4) and chunk size (default 64) settings in the Advanced menu.
-      Use `kf.64+.exe` if your CPU supports it (if it doesn't, it may crash
-      with an illegal instruction error).  This should speed up perturbation
-      calculations in double precision (up to zoom depth 1e300 or so).
+      Should speed up perturbation calculations in double precision (up to
+      zoom depth 1e300 or so).  SIMD is also supported in scaled double for
+      Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
+      1e400 or so).
+    - bugfix: --save-exr now sets non-interactive mode flag.
 
 - **kf-2.14.7.1** (2019-08-30)
 

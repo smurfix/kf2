@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -26,6 +26,8 @@ template <typename T> T sgn(const T &a)
 {
   return (a > 0) - (a < 0);
 }
+
+#if 0
 
 static inline double d_add(const double a, const double b)
 {
@@ -616,6 +618,8 @@ static inline long double ConvertFromFixedFloat(const CFixedFloat &f)
   l = ldexp(l, e);
   return l;
 }
+
+#endif
 
 static inline double mpfr_get(const mpfr_t x, const double &t, mpfr_rnd_t rnd)
 {

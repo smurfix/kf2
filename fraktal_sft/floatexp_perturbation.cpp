@@ -59,6 +59,7 @@ void CFraktalSFT::MandelCalcEXP()
 	floatexp Dnr, Dni, yr, yi;
 	int antal, x, y, w, h;
 	floatexp real(g_real), imag(g_imag), _abs_val;
+	floatexp epsilon(m_epsilon);
 
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -173,8 +174,8 @@ void CFraktalSFT::MandelCalcEXP()
 			dr *= m_fPixelSpacing;
 			di *= m_fPixelSpacing;
 			bool ok = GetDerivatives()
-			  ? perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, m_epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
-			  : perturbation_floatexp(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
+			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
+			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
 			  ;
 			assert(ok && "perturbation_floatexp()");
 

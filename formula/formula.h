@@ -1,3 +1,22 @@
+/*
+Kalles Fraktaler 2
+Copyright (C) 2013-2017 Karl Runmo
+Copyright (C) 2017-2019 Claude Heiland-Allen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
 #ifndef KF_FORMULA_H
 #define KF_FORMULA_H 1
 
@@ -25,7 +44,7 @@ static inline bool type_0_power_2_pixel_has_glitched(R cr, R ci, R zr, R zi, R Z
   return a * h < b * e;
 }
 
-template <typename R, typename T> inline R broadcast(T x) { return x; }
+template <typename R, typename T> inline R broadcast(T x) { return R(x); }
 
 typedef int64_t int2 __attribute__ ((vector_size (16)));
 typedef double double2 __attribute__ ((vector_size (16)));
@@ -43,33 +62,103 @@ typedef int64_t int16 __attribute__ ((vector_size (128)));
 typedef double double16 __attribute__ ((vector_size (128)));
 template <> inline double16 broadcast<double16,double>(double x) { double16 r = { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }; return r; }
 
-bool reference_double            (const int m_nFractalType, const int m_nPower, double      *m_db_dxr, double      *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
-bool reference_scaled_double     (const int m_nFractalType, const int m_nPower, double      *m_db_dxr, double      *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
-bool reference_long_double       (const int m_nFractalType, const int m_nPower, long double *m_ldxr,   long double *m_ldxi,   double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
-bool reference_scaled_long_double(const int m_nFractalType, const int m_nPower, long double *m_db_dxr, long double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
-bool reference_floatexp          (const int m_nFractalType, const int m_nPower, floatexp    *m_dxr,    floatexp    *m_dxi,    double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2);
+// reference
 
-bool reference_double            (const int m_nFractalType, const int m_nPower, double      *m_db_dxr, double      *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, double      &dr, double      &di, const      double &daa, const      double &dab, const      double &dba, const      double &dbb);
-bool reference_scaled_double     (const int m_nFractalType, const int m_nPower, double      *m_db_dxr, double      *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr, long double &di, const long double &daa, const long double &dab, const long double &dba, const long double &dbb);
-bool reference_long_double       (const int m_nFractalType, const int m_nPower, long double *m_ldxr,   long double *m_ldxi,   double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, long double &dr, long double &di, const long double &daa, const long double &dab, const long double &dba, const long double &dbb);
-bool reference_scaled_long_double(const int m_nFractalType, const int m_nPower, long double *m_db_dxr, long double *m_db_dxi, double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, floatexp    &dr, floatexp    &di, const floatexp    &daa, const floatexp    &dab, const floatexp    &dba, const floatexp    &dbb);
-bool reference_floatexp          (const int m_nFractalType, const int m_nPower, floatexp    *m_dxr,    floatexp    *m_dxi,    double *m_db_z, int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter, const CFixedFloat &Cr, const CFixedFloat &Ci, const double g_SeedR, const double g_SeedI, const double g_FactorAR, const double g_FactorAI, const double terminate, const double g_real, const double g_imag, const bool m_bGlitchLowTolerance, int &antal, double &test1, double &test2, floatexp    &dr, floatexp    &di, const floatexp    &daa, const floatexp    &dab, const floatexp    &dba, const floatexp    &dbb);
+template <typename T>
+bool reference
+  ( const int m_nFractalType, const int m_nPower
+  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
+  , int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter
+  , const CFixedFloat &Cr, const CFixedFloat &Ci
+  , const double g_SeedR, const double g_SeedI
+  , const double g_FactorAR, const double g_FactorAI
+  , const double terminate, const double g_real, const double g_imag
+  , const bool m_bGlitchLowTolerance
+  , int &antal, double &test1, double &test2
+  );
 
-bool perturbation_double       (const int m_nFractalType, const int m_nPower, const double      *m_db_dxr, const double      *m_db_dxi, const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double      &xr, double      &xi, const double      cr, const double      ci);
-bool perturbation_long_double  (const int m_nFractalType, const int m_nPower, const long double *dxr,      const long double *dxi,      const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, long double &xr, long double &xi, const long double cr, const long double ci);
-bool perturbation_floatexp     (const int m_nFractalType, const int m_nPower, const floatexp    *m_dxr,    const floatexp    *m_dxi,    const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, floatexp    &xr, floatexp    &xi, const floatexp    cr, const floatexp    ci);
+// reference with derivatives
 
-bool perturbation_double     (const int m_nFractalType, const int m_nPower, const double      *m_db_dxr, const double      *m_db_dxi, const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double      &xr, double      &xi, const double      cr, const double      ci, double      &dr, double      &di, const double      &e, const double      &h, const      double &daa, const      double &dab, const      double &dba, const      double &dbb);
-bool perturbation_long_double(const int m_nFractalType, const int m_nPower, const long double *dxr,      const long double *dxi,      const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, long double &xr, long double &xi, const long double cr, const long double ci, long double &dr, long double &di, const long double &e, const long double &h, const long double &daa, const long double &dab, const long double &dba, const long double &dbb);
-bool perturbation_floatexp   (const int m_nFractalType, const int m_nPower, const floatexp    *m_dxr,    const floatexp    *m_dxi,    const double *m_db_z, int &antal, double &test1, double &test2, int &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, floatexp    &xr, floatexp    &xi, const floatexp    cr, const floatexp    ci, floatexp    &dr, floatexp    &di, const floatexp    &e, const floatexp    &h, const floatexp    &daa, const floatexp    &dab, const floatexp    &dba, const floatexp    &dbb);
+template <typename S, typename T>
+bool reference
+  ( const int m_nFractalType, const int m_nPower
+  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
+  , int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter
+  , const CFixedFloat &Cr0, const CFixedFloat &Ci0
+  , const double g_SeedR, const double g_SeedI
+  , const double g_FactorAR, const double g_FactorAI
+  , const double terminate, const double g_real, const double g_imag
+  , const bool m_bGlitchLowTolerance
+  , int &antal, double &test1, double &test2
+  , S &dr0, S &di0
+  , const S &daa, const S &dab, const S &dba, const S &dbb
+  );
 
-bool perturbation_scaled_double(const int m_nFractalType, const int m_nPower, const double      *m_db_dxr, const double      *m_db_dxi, const double *m_db_z, int   &antal, double   &test1, double   &test2, int   &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, double        &xr, double        &xi, const double        &cr, const double        &ci,                       const double s, const double S);
+// perturbation
+
+template <typename T>
+bool perturbation
+  ( const int m_nFractalType, const int m_nPower
+  , const T *m_dxr, const T *m_dxi, const double *m_db_z
+  , int &antal, double &test1, double &test2, int &bGlitch
+  , const double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , T &xr, T &xi
+  , const T &cr, const T &ci
+  );
+
+// perturbation with derivatives
+
+template <typename T>
+bool perturbation
+  ( const int m_nFractalType, const int m_nPower
+  , const T *m_dxr, const T *m_dxi, const double *m_db_z
+  , int &antal, double &test1, double &test2, int &bGlitch
+  , const double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , T &xr, T &xi
+  , const T &cr, const T &ci
+  , T &dr, T &di
+  , const T &e, const T &h
+  , const T &daa, const T &dab, const T &dba, const T &dbb
+  );
+
+// perturbation with SIMD
 
 template <typename intN, typename doubleN>
-bool perturbation_double(const int m_nFractalType, const int m_nPower, const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z, intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, doubleN &xr, doubleN &xi, const doubleN &cr, const doubleN &ci, const int &chunksize);
+bool perturbation
+  ( const int m_nFractalType, const int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
+  , const double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , doubleN &xr, doubleN &xi
+  , const doubleN &cr, const doubleN &ci
+  , const int &chunksize
+  );
+
+// perturbation with scaling
+
+template <typename T>
+bool perturbation
+  ( const int m_nFractalType, const int m_nPower
+  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , int &antal, double &test1, double &test2, int &bGlitch
+  , const double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , T &xr, T &xi
+  , const T &cr, const T &ci
+  , const T &s, const T &S
+  );
+
+// perturbation with SIMD and scaling
 
 template <typename intN, typename doubleN>
-bool perturbation_scaled_double
+bool perturbation
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &antal0, doubleN &test10, doubleN &test20, intN &bGlitch0
@@ -82,13 +171,29 @@ bool perturbation_scaled_double
   , const double s, const double S
   );
 
-bool perturbation_scaled_long_double(const int m_nFractalType, const int m_nPower, const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z, int &antal, double  &test1, double   &test2, int   &bGlitch, const double m_nBailout2, const int nMaxIter, const int m_bNoGlitchDetection, const double g_real, const double g_imag, const double g_FactorAR, const double g_FactorAI, long double   &xr, long double   &xi, const long double   &cr, const long double   &ci, const long double s, const long double S);
+// perturbation with derivatives and scaling
 
+template <typename D, typename Z>
+bool perturbation
+  ( int m_nFractalType, int m_nPower
+  , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
+  , int &antal0, double &test10, double &test20, int &bGlitch
+  , double m_nBailout2, const int nMaxIter
+  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , Z &xr0, Z &xi0
+  , const Z &cr, const Z &ci
+  , D &dr0, D &di0
+  , const D &e, const D &h
+  , const D &daa, const D &dab, const D &dba, const D &dbb
+  , const Z &s, const Z &S
+  );
+
+// miscellaneous
+
+bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
 void combo5_addstrings(HWND hWnd, const int combo);
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower);
 void update_power_dropdown_for_fractal_type(HWND hWnd, const int combo, const int m_nFractalType, const int m_nPower);
-
-bool scaled_double_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
-bool scaled_long_double_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
 
 #endif

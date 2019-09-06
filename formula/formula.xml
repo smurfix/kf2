@@ -76,8 +76,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         Xin = (3 * Xr2 - Xi2)*Xi + Ci;
       </reference>
       <perturbation t="R">
-        xrn = 3 * Xr * Xr * xr - 6 * Xr * Xi * xi - 3 * Xi * Xi * xr + 3 * Xr * xr * xr - 3 * Xr * xi * xi - 3 * Xi * 2 * xr * xi + xr * xr * xr - 3 * xr * xi * xi + cr;
-        xin = 3 * Xr * Xr * xi + 6 * Xr * Xi * xr - 3 * Xi * Xi * xi + 3 * Xr * 2 * xr * xi + 3 * Xi * xr * xr - 3 * Xi * xi * xi + 3 * xr * xr * xi - xi * xi * xi + ci;
+        xrn = 3 * Xr2 * xr - 6 * Xr * Xi * xi - 3 * Xi2 * xr + 3 * Xr * xr2 - 3 * Xr * xi2 - 6 * Xi * xr * xi + xr * xr2 - 3 * xr * xi2 + cr;
+        xin = 3 * Xr2 * xi + 6 * Xr * Xi * xr - 3 * Xi2 * xi + 6 * Xr * xr * xi + 3 * Xi * xr2 - 3 * Xi * xi2 + 3 * xr2 * xi - xi * xi2 + ci;
       </perturbation>
       <derivative t='M'>
         dxan = ((3*(Xxr*(Xxr*dxa)))+((-3*(Xxi*(Xxi*dxa)))+((-6*(Xxi*(Xxr*dya)))+daa)));
@@ -86,8 +86,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         dybn = ((3*(Xxr*(Xxr*dyb)))+((-3*(Xxi*(Xxi*dyb)))+((6*(Xxi*(Xxr*dxb)))+dbb)));
       </derivative>
       <scaled t="R">
-        xrn = 3 * Xr * Xr * xr - 6 * Xr * Xi * xi - 3 * Xi * Xi * xr + 3 * Xr * xr * xr * s - 3 * Xr * xi * xi * s - 6 * Xi * xr * xi * s + xr * xr * xr * s * s - 3 * xr * xi * xi * s * s + cr;
-        xin = 3 * Xr * Xr * xi + 6 * Xr * Xi * xr - 3 * Xi * Xi * xi + 6 * Xr * xr * xi * s + 3 * Xi * xr * xr * s - 3 * Xi * xi * xi * s + 3 * xr * xr * xi * s * s - xi * xi * xi * s * s + ci;
+        xrn = 3 * Xr2 * xr - 6 * Xr * Xi * xi - 3 * Xi2 * xr + 3 * Xr * xr2 * s - 3 * Xr * xi2 * s - 6 * Xi * xr * xi * s + xr2 * xr * s * s - 3 * xr * xi2 * s * s + cr;
+        xin = 3 * Xr2 * xi + 6 * Xr * Xi * xr - 3 * Xi2 * xi + 6 * Xr * xr * xi * s + 3 * Xi * xr2 * s - 3 * Xi * xi2 * s + 3 * xr2 * xi * s * s - xi2 * xi * s * s + ci;
       </scaled>
     </formula>
 
@@ -199,10 +199,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         dyan = ((2*(sgn(Xxi)*(Xxi*(dxa*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dya*sgn(Xxr)))))+dba));
         dybn = ((2*(sgn(Xxi)*(Xxi*(dxb*sgn(Xxr)))))+((2*(sgn(Xxi)*(Xxr*(dyb*sgn(Xxr)))))+dbb));
       </derivative>
+<!--
+neither of these work near on-axis miniships (Xi underflowed already)
+more details here: <https://fractalforums.org/f/15/t/3041>
+v1
       <scaled t="R">
         xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
-        xin = 2 * diffabs(Xr * S * Xi, (Xr + xr * s) * xi + xr * Xi) + ci;
+        xin = 2 * diffabs(Xr * S * Xi, Xr * xi + xr * (Xi + xi * s)) + ci;
       </scaled>
+v2
+      <scaled t="R">
+        xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
+        xin = 2 * diffabs(abs(Xr) &lt; abs(Xi) ? (Xr * S) * Xi : Xr * (S * Xi), Xr * xi + xr * Xi + (abs(xr) &gt; abs(xi) ? (xr * s) * xi : xr * (s * xi))) + ci;
+      </scaled>
+-->
     </formula>
 
     <formula power="3" glitch="0.0000001">
