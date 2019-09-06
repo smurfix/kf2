@@ -34,12 +34,16 @@ data Expr
   | EMul Expr Expr
   | EAdd Expr Expr
   | ESub Expr Expr
+  | EGt Expr Expr
+  | ELt Expr Expr
   | ENeg Expr
   | ESgn Expr
   | EAbs Expr
   | ESqr Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
+  | EIf Expr Expr
+  | ETE Expr Expr
   deriving Show
 
 data Instruction
@@ -193,12 +197,16 @@ vars (EPow a b) = vars a ++ vars b
 vars (EMul a b) = vars a ++ vars b
 vars (EAdd a b) = vars a ++ vars b
 vars (ESub a b) = vars a ++ vars b
+vars (EGt a b) = vars a ++ vars b
+vars (ELt a b) = vars a ++ vars b
 vars (ENeg a) = vars a
 vars (ESgn a) = vars a
 vars (EAbs a) = vars a
 vars (ESqr a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
 vars (EAssign a b) = vars a ++ vars b
+vars (EIf a b) = vars a ++ vars b
+vars (ETE a b) = vars a ++ vars b
 
 interpret _ (EInt n) = show n
 interpret _ (EVar v) = v
@@ -218,6 +226,8 @@ interpret t (ESub a b@(EInt _)) = "(" ++ interpret t a ++ "-" ++ interpret t b +
 interpret t (ESub a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
 interpret t (ESub a@(EInt _) b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
 interpret t (ESub a b) = "(" ++ interpret t a ++ "-" ++ interpret t b ++ ")"
+interpret t (ELt a b) = "(" ++ interpret t a ++ "<" ++ interpret t b ++ ")"
+interpret t (EGt a b) = "(" ++ interpret t a ++ ">" ++ interpret t b ++ ")"
 interpret t (ENeg (EInt v)) = interpret t (EInt (negate v))
 interpret t (ENeg a) = "-(" ++ interpret t a ++ ")"
 interpret t (ESgn a) = "sgn(" ++ interpret t a ++ ")"
@@ -225,6 +235,7 @@ interpret t (EAbs a) = "abs(" ++ interpret t a ++ ")"
 interpret t (ESqr a) = "sqr(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+interpret t (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
 
 prepare "d" vs = unlines . concat $
   [ [ "const T Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
@@ -245,7 +256,7 @@ def = emptyDef{ identStart = letter
               , reservedOpNames = map (:[]) ops
               , reservedNames = ["sqr", "sgn", "abs", "diffabs"]
               }
-  where ops = "=+-*^"
+  where ops = "=?:<>+-*^"
 
 TokenParser{ parens = m_parens
            , identifier = m_identifier
@@ -259,6 +270,10 @@ table = [ [Prefix (op "-" >> return ENeg)]
         , [Infix (op "*" >> return EMul) AssocLeft]
         , [Infix (op "+" >> return EAdd) AssocLeft
           ,Infix (op "-" >> return ESub) AssocLeft]
+        , [Infix (op ">" >> return EGt) AssocLeft
+          ,Infix (op "<" >> return ELt) AssocLeft]
+        , [Infix (op ":" >> return ETE) AssocLeft]
+        , [Infix (op "?" >> return EIf) AssocLeft]
         , [Infix (op "=" >> return EAssign) AssocLeft]
         ]
 term = m_parens exprparser
