@@ -440,6 +440,10 @@ public:
 		}
 		return ret.toLongDouble();
 	}
+	inline explicit operator long double () const
+	{
+		return toLongDouble();
+	}
 
   inline std::string toString() const
   {
@@ -461,6 +465,11 @@ public:
 		return os.str();
 	}
 };
+
+inline std::ostream& operator<<(std::ostream& a, const floatexp& b)
+{
+	return a << b.toString();
+}
 
 inline floatexp operator*(double a, floatexp b)
 {
