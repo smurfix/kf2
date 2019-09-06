@@ -142,7 +142,7 @@ kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
 
 kf-tile.exe: utils/kf-tile.o
-	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -ffast-math -lmpfr -lgmp
+	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
 
 res.o: fraktal_sft/fraktal_sft.rc
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
