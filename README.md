@@ -34,9 +34,6 @@ Feedback:
 - Unzip it wherever you want, no installation required.
 
 - Launch `kf.64.exe` for 64-bit (to be preferred), `kf.32.exe` for 32-bit.
-  If you have a recent 64-bit CPU (Intel "haswell", AMD "bdver4", or VIA
-  "eden-x4"), you can try the experimental `kf.64+.exe` which should be
-  faster.
 
 - Start exploring!
 
@@ -968,10 +965,17 @@ necessary), the script builds both 64bit and 32bit variants:
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-6. Finally, build Kalles Fraktaler 2 + (all versions: 32, 64, 64+):
+6. To build Kalles Fraktaler 2 + release:
 
         cd ~/win64+/src/kalles-fraktaler-2
         ./release.sh $(git describe)
+
+7. To build Kalles Fraktaler 2 + optimized for your own CPU:
+
+        cd ~/win64+/src/kalles-fraktaler-2
+        make clean
+        make SYSTEM=native -j $(nproc)
+
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
 
