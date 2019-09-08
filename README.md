@@ -33,7 +33,7 @@ Feedback:
 
 - Unzip it wherever you want, no installation required.
 
-- Launch `kf.64.exe` for 64-bit (to be preferred), `kf.32.exe` for 32-bit.
+- Launch `kf.exe` for 64-bit (32-bit is no longer supported).
 
 - Start exploring!
 
@@ -212,12 +212,13 @@ Feedback:
 - **kf-2.14.8** (????-??-??)
 
     - feature: SIMD support.  Adjustable tuning parameters SIMD vector size
-      (default 4) and chunk size (default 64) settings in the Advanced menu.
+      (default 2) and chunk size (default 64) settings in the Advanced menu.
       Should speed up perturbation calculations in double precision (up to
       zoom depth 1e300 or so).  SIMD is also supported in scaled double for
       Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
       1e400 or so).
     - bugfix: --save-exr now sets non-interactive mode flag.
+    - note: built for 64bit only; 32bit hardware is obsolete by now.
 
 - **kf-2.14.7.1** (2019-08-30)
 
@@ -937,27 +938,26 @@ you can skip the chroot step and install natively.
         adduser build
         # enter and confirm password
         su - build
-        mkdir -p ~/win64+/src
         mkdir -p ~/win64/src
-        mkdir -p ~/win32/src
 
 3. Download Kalles Fraktaler 2 + sources:
 
-        cd ~/win64+/src
+        cd ~/win64/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.14
 
 4. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
-necessary), the script builds both 64bit and 32bit variants:
+necessary), the script can build both 64bit and 32bit variants if necessary:
 
-        cd ~/win64+/src/kalles-fraktaler-2
-        bash ./prepare.sh
+        cd ~/win64/src/kalles-fraktaler-2
+        bash ./prepare.sh dl
+        bash ./prepare.sh 64
 
 5. Download the previous version and copy the `et`-generated formulas from it:
 
-        cd ~/win64+/src/kalles-fraktaler-2
+        cd ~/win64/src/kalles-fraktaler-2
         wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).zip"
         unzip kf-*.zip
         cd kf-*/
@@ -967,12 +967,12 @@ necessary), the script builds both 64bit and 32bit variants:
 
 6. To build Kalles Fraktaler 2 + release:
 
-        cd ~/win64+/src/kalles-fraktaler-2
+        cd ~/win64/src/kalles-fraktaler-2
         ./release.sh $(git describe)
 
 7. To build Kalles Fraktaler 2 + optimized for your own CPU:
 
-        cd ~/win64+/src/kalles-fraktaler-2
+        cd ~/win64/src/kalles-fraktaler-2
         make clean
         make SYSTEM=native -j $(nproc)
         ./kf.exe
@@ -1089,7 +1089,7 @@ Build instructions for compiling on Windows (thanks to knighty!):
 
 ## Legal
 
-Kalles Fraktaler 2
+Kalles Fraktaler 2 +
 Copyright (C) 2013-2017 Karl Runmo
 Copyright (C) 2017-2019 Claude Heiland-Allen
 

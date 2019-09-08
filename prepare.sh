@@ -16,18 +16,17 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
-NCPUS=32
-export FLAGS64PLUS="-mmmx -msse -msse2 -msse3 -mssse3 -msse4.1 -msse4.2 -mavx -mavx2"
+NCPUS="$(( $(nproc) * 2 ))"
 export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
 export LDFLAGS="-static-libgcc -static-libstdc++"
-mkdir -p ~/win64+/src
+if [ "x$1" = "xdl" ]
+then
 mkdir -p ~/win64/src
 mkdir -p ~/win32/src
-cp -avft ~/win64+/src *.patch
 cp -avft ~/win64/src *.patch
 cp -avft ~/win32/src *.patch
 # download
-cd ~/win64+/src
+cd ~/win64/src
 wget -c https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
@@ -42,38 +41,16 @@ wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/ilmbase-2.3.0.tar.gz
 wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/openexr-2.3.0.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
-cp -avft ~/win64/src *z allpatches mingw-std-threads
 cp -avft ~/win32/src *z allpatches mingw-std-threads
-# gmp 64+
-cd ~/win64+/src
-tar xf gmp-*.tar.lz
-cd gmp-*/
-CFLAGS="$FLAGS64PLUS" CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=$HOME/win64+
-make -j $NCPUS
-make install
-make check
+elif [ "x$1" = "x64" ]
+then
+if false
+then
 # gmp 64
 cd ~/win64/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
 CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-make -j $NCPUS
-make install
-make check
-# gmp 32
-cd ~/win32/src
-tar xf gmp-*.tar.lz
-cd gmp-*/
-CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --prefix=$HOME/win32
-make -j $NCPUS
-make install
-make check
-# mpfr 64+
-cd ~/win64+/src
-tar xf mpfr-*.tar.xz
-cd mpfr-*/
-patch -N -Z -p1 < ../allpatches
-CFLAGS="$FLAGS64PLUS" ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64+ --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS
 make install
 make check
@@ -86,15 +63,6 @@ patch -N -Z -p1 < ../allpatches
 make -j $NCPUS
 make install
 make check
-# mpfr 32
-cd ~/win32/src
-tar xf mpfr-*.tar.xz
-cd mpfr-*/
-patch -N -Z -p1 < ../allpatches
-./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
-make -j $NCPUS
-make install
-make check
 # zlib 64
 cd ~/win64/src
 tar xf zlib-*.tar.xz
@@ -102,25 +70,11 @@ cd zlib-*/
 CC=x86_64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win64
 CC=x86_64-w64-mingw32-gcc make -j $NCPUS
 CC=x86_64-w64-mingw32-gcc make install
-# zlib 32
-cd ~/win32/src
-tar xf zlib-*.tar.xz
-cd zlib-*/
-CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
-CC=i686-w64-mingw32-gcc make -j $NCPUS
-CC=i686-w64-mingw32-gcc make install
 # png 64
 cd ~/win64/src
 tar xf libpng-*.tar.xz
 cd libpng-*/
 ./configure --disable-shared --host=x86_64-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win64/include" LDFLAGS="$LDFLAGS -L$HOME/win64/lib" --prefix=$HOME/win64
-make -j $NCPUS
-make install
-# png 32
-cd ~/win32/src
-tar xf libpng-*.tar.xz
-cd libpng-*/
-./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
 make -j $NCPUS
 make install
 # jpeg 64
@@ -130,25 +84,11 @@ cd jpeg-6b2
 ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
 make install
-# jpeg 32
-cd ~/win32/src
-tar xf jpegsrc.v6b2.tar.gz
-cd jpeg-6b2
-./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
-make -j $NCPUS
-make install
 # tiff 64
 cd ~/win64/src
 tar xf tiff-*.tar.gz
 cd tiff-*/
 ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-make -j $NCPUS
-make install
-# tiff 32
-cd ~/win32/src
-tar xf tiff-*.tar.gz
-cd tiff-*/
-./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
 # gsl 64
@@ -160,15 +100,6 @@ make -j $NCPUS
 make install
 ln -s gsl-histogram.exe gsl-histogram # hack for test suite
 make check
-# gsl 32
-cd ~/win32/src
-tar xf gsl-*.tar.gz
-cd gsl-*/
-./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
-make -j $NCPUS
-make install
-ln -s gsl-histogram.exe gsl-histogram # hack for test suite
-make -k check || echo "expected 2 FAILs (multifit_nlinear, multilarge_nlinear)"
 # pixman 64
 cd ~/win64/src
 tar xf pixman-*.tar.gz
@@ -177,40 +108,23 @@ CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win64/lib ./configure --disable-shared
 make -j $NCPUS
 make install
 make check || echo "expected 1 FAIL (thread-test)"
-# pixman 32
-cd ~/win32/src
-tar xf pixman-*.tar.gz
-cd pixman-*/
-CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win32/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win32
-make -j $NCPUS
-make install
-make check || echo "expected 1 FAIL (thread-test)"
-# boost
+# boost 64
 cd ~/win64/src
 7zr x boost*.7z
 cd ~/win64/include
 rm -f boost
 ln -s ../src/boost*/boost/
-cd ~/win32/include
-rm -f boost
-ln -s ../../win64/src/boost*/boost/
-# glm
+# glm 64
 cd ~/win64/src
 7zr x glm*.7z
 cd ~/win64/include
 rm -f glm
 ln -s ../src/glm*/glm/
-cd ~/win32/include
-rm -f glm
-ln -s ../../win64/src/glm*/glm/
 # mingw-std-threads 64
 cd ~/win64/include
 rm -f mingw-std-threads
 ln -s ../src/mingw-std-threads
-# mingw-std-threads 32
-cd ~/win32/include
-rm -f mingw-std-threads
-ln -s ../src/mingw-std-threads
+fi
 # ilmbase 64
 cd ~/win64/src
 tar xf ilmbase-*.tar.gz
@@ -218,15 +132,6 @@ cd ilmbase-*/
 patch -p1 < $(ls ../ilmbase-*.patch)
 ./bootstrap
 CPPFLAGS="$CPPFLAGS -I$HOME/win64/include" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-make -j $NCPUS
-make install
-# ilmbase 32
-cd ~/win32/src
-tar xf ilmbase-*.tar.gz
-cd ilmbase-*/
-patch -p1 < $(ls ../ilmbase-*.patch)
-./bootstrap
-CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
 # openexr 64
@@ -238,6 +143,95 @@ patch -p1 < $(ls ../openexr-*.patch)
 CPPFLAGS="$CPPFLAGS -I$HOME/win64/include -I$HOME/win64/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win64/lib" LIBS="-lHalf" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
 make install
+elif [ "x$1" = "x32" ]
+then
+# gmp 32
+cd ~/win32/src
+tar xf gmp-*.tar.lz
+cd gmp-*/
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+make check
+# mpfr 32
+cd ~/win32/src
+tar xf mpfr-*.tar.xz
+cd mpfr-*/
+patch -N -Z -p1 < ../allpatches
+./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+make -j $NCPUS
+make install
+make check
+# zlib 32
+cd ~/win32/src
+tar xf zlib-*.tar.xz
+cd zlib-*/
+CC=i686-w64-mingw32-gcc ./configure --static --prefix=$HOME/win32
+CC=i686-w64-mingw32-gcc make -j $NCPUS
+CC=i686-w64-mingw32-gcc make install
+# png 32
+cd ~/win32/src
+tar xf libpng-*.tar.xz
+cd libpng-*/
+./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
+make -j $NCPUS
+make install
+# jpeg 32
+cd ~/win32/src
+tar xf jpegsrc.v6b2.tar.gz
+cd jpeg-6b2
+./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+# tiff 32
+cd ~/win32/src
+tar xf tiff-*.tar.gz
+cd tiff-*/
+./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+# gsl 32
+cd ~/win32/src
+tar xf gsl-*.tar.gz
+cd gsl-*/
+./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
+ln -s gsl-histogram.exe gsl-histogram # hack for test suite
+make -k check || echo "expected 2 FAILs (multifit_nlinear, multilarge_nlinear)"
+# pixman 32
+cd ~/win32/src
+tar xf pixman-*.tar.gz
+cd pixman-*/
+CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win32/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win32
+make -j $NCPUS
+make install
+make check || echo "expected 1 FAIL (thread-test)"
+# boost 32
+cd ~/win32/src
+7zr x boost*.7z
+cd ~/win32/include
+rm -f boost
+ln -s ../src/boost*/boost/
+# glm 32
+cd ~/win32/src
+7zr x glm*.7z
+cd ~/win32/include
+rm -f glm
+ln -s ../src/glm*/glm/
+# mingw-std-threads 32
+cd ~/win32/include
+rm -f mingw-std-threads
+ln -s ../src/mingw-std-threads
+# ilmbase 32
+cd ~/win32/src
+tar xf ilmbase-*.tar.gz
+cd ilmbase-*/
+patch -p1 < $(ls ../ilmbase-*.patch)
+./bootstrap
+CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+make -j $NCPUS
+make install
 # openexr 32
 cd ~/win32/src
 tar xf openexr-*.tar.gz
@@ -247,3 +241,10 @@ patch -p1 < $(ls ../openexr-*.patch)
 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include -I$HOME/win32/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" LIBS="-lHalf" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
+else
+  echo "usage:"
+  echo "  $0 dl    # download sources"
+  echo "  $0 64    # build 64bit libs"
+  echo "  $0 32    # build 32bit libs"
+  exit 1
+fi
