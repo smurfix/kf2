@@ -975,6 +975,7 @@ necessary), the script builds both 64bit and 32bit variants:
         cd ~/win64+/src/kalles-fraktaler-2
         make clean
         make SYSTEM=native -j $(nproc)
+        ./kf.exe
 
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
