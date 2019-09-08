@@ -585,10 +585,18 @@ static void UpdateSIMDVectorSize(HWND hWnd)
 {
 	int z = g_SFT.GetSIMDVectorSize();
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_1,MF_BYCOMMAND|(z==1?MF_CHECKED:MF_UNCHECKED));
+#if KF_SIMD >= 1
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_2,MF_BYCOMMAND|(z==2?MF_CHECKED:MF_UNCHECKED));
+#endif
+#if KF_SIMD >= 2
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
+#endif
+#if KF_SIMD >= 3
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
+#endif
+#if KF_SIMD >= 4
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_VECTOR_SIZE_16,MF_BYCOMMAND|(z==16?MF_CHECKED:MF_UNCHECKED));
+#endif
 }
 
 static void UpdateSIMDChunkSize(HWND hWnd)

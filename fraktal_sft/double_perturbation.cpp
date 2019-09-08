@@ -182,6 +182,7 @@ void CFraktalSFT::MandelCalc()
 	k = k + 1;
 	if (k == vectorsize)
 	{
+	  bool ok = false;
 #define GO \
 	    for (int q = 0; q < vectorsize; ++q) \
 	    { \
@@ -194,7 +195,7 @@ void CFraktalSFT::MandelCalc()
 	      dbD0rv[q] = dbD0r16[q]; \
 	      dbD0iv[q] = dbD0i16[q]; \
 	    } \
-	    bool ok = m_nScalingOffset \
+	    ok = m_nScalingOffset \
 	      ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling) \
 	      : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize) \
 	      ; \
@@ -209,6 +210,7 @@ void CFraktalSFT::MandelCalc()
 	      dbD0r16[q] = dbD0rv[q]; \
 	      dbD0i16[q] = dbD0iv[q]; \
 	    }
+#if KF_SIMD >= 1
 	  if (vectorsize == 2)
 	  {
 	    int2 antalv, bGlitchv;
@@ -216,32 +218,36 @@ void CFraktalSFT::MandelCalc()
 	    GO
 	    assert(ok && "perturbation_double2");
 	  }
-	  else if (vectorsize == 4)
+#endif
+#if KF_SIMD >= 2
+	  if (vectorsize == 4)
 	  {
 	    int4 antalv, bGlitchv;
 	    double4 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
 	    GO
 	    assert(ok && "perturbation_double4");
 	  }
-	  else if (vectorsize == 8)
+#endif
+#if KF_SIMD >= 3
+	  if (vectorsize == 8)
 	  {
 	    int8 antalv, bGlitchv;
 	    double8 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
 	    GO
 	    assert(ok && "perturbation_double8");
 	  }
-	  else if (vectorsize == 16)
+#endif
+#if KF_SIMD >= 4
+	  if (vectorsize == 16)
 	  {
 	    int16 antalv, bGlitchv;
 	    double16 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
 	    GO
 	    assert(ok && "perturbation_double16");
 	  }
-	  else
-	  {
-	    assert(! "valid vectorsize");
-	  }
+#endif
 #undef GO
+	  assert(ok && "valid vectorsize");
 	}
       }
       else

@@ -1155,6 +1155,7 @@ bool perturbation
 
 // explicit template instantiation
 
+#if KF_SIMD >= 1
 template bool perturbation&lt;int2, double2&gt;
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1166,6 +1167,9 @@ template bool perturbation&lt;int2, double2&gt;
   , const double2 &amp;cr, const double2 &amp;ci
   , const int &amp;chunksize
   );
+#endif
+
+#if KF_SIMD >= 2
 template bool perturbation&lt;int4, double4&gt;
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1177,6 +1181,9 @@ template bool perturbation&lt;int4, double4&gt;
   , const double4 &amp;cr, const double4 &amp;ci
   , const int &amp;chunksize
   );
+#endif
+
+#if KF_SIMD >= 3
 template bool perturbation&lt;int8, double8&gt;
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1188,6 +1195,9 @@ template bool perturbation&lt;int8, double8&gt;
   , const double8 &amp;cr, const double8 &amp;ci
   , const int &amp;chunksize
   );
+#endif
+
+#if KF_SIMD >= 4
 template bool perturbation&lt;int16, double16&gt;
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1199,6 +1209,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double16 &amp;cr, const double16 &amp;ci
   , const int &amp;chunksize
   );
+#endif
 
 #endif
 
@@ -1539,6 +1550,7 @@ bool perturbation
   return false;
 }
 
+#if KF_SIMD >= 1
 template bool perturbation&lt;int2, double2&gt;
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1551,7 +1563,9 @@ template bool perturbation&lt;int2, double2&gt;
   , const int &amp;chunksize
   , const double s, const double S
   );
+#endif
 
+#if KF_SIMD >= 2
 template bool perturbation&lt;int4, double4&gt;
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1564,7 +1578,9 @@ template bool perturbation&lt;int4, double4&gt;
   , const int &amp;chunksize
   , const double s, const double S
   );
+#endif
 
+#if KF_SIMD >= 3
 template bool perturbation&lt;int8, double8&gt;
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1577,7 +1593,9 @@ template bool perturbation&lt;int8, double8&gt;
   , const int &amp;chunksize
   , const double s, const double S
   );
+#endif
 
+#if KF_SIMD >= 4
 template bool perturbation&lt;int16, double16&gt;
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
@@ -1590,6 +1608,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const int &amp;chunksize
   , const double s, const double S
   );
+#endif
 
 #endif
 

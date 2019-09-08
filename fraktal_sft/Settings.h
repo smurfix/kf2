@@ -300,6 +300,7 @@ public:
 
   inline int    GetSIMDVectorSize() const { return m_SIMDVectorSize; };
   inline void   SetSIMDVectorSize(int n) {
+    if (n > 1 << KF_SIMD) n = 1 << KF_SIMD;
     switch (n)
     {
       case 2: case 4: case 8: case 16: m_SIMDVectorSize = n; break;

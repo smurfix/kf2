@@ -1,5 +1,6 @@
 WINPREFIXPLUS ?= $(HOME)/win64+
 WINPREFIX ?= $(HOME)/win64
+SIMD ?= 4
 # CLEWPREFIX ?= ../clew
 COMPILE ?= x86_64-w64-mingw32-g++ -march=native
 LINK ?= x86_64-w64-mingw32-g++

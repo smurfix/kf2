@@ -22,7 +22,7 @@
 SYSTEM ?= native
 include $(SYSTEM).mk
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated -pipe -MMD -g -O3 -fno-var-tracking-assignments -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated -pipe -MMD -g -O3 -fno-var-tracking-assignments -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -DKF_SIMD=$(SIMD)
 # -I$(CLEWPREFIX)/include -Dclew_STATIC -DKF_OPENCL
 COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS)
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
@@ -145,7 +145,7 @@ kf-tile.exe: utils/kf-tile.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
 
 res.o: fraktal_sft/fraktal_sft.rc
-	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o
+	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o -DKF_SIMD=$(SIMD)
 
 %.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
