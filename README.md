@@ -28,10 +28,12 @@ Feedback:
 
 ## Quick Start
 
-- Download the latest zip from the website:
+- Download the latest archive from the website:
   <https://mathr.co.uk/kf/kf.html#download>
 
 - Unzip it wherever you want, no installation required.
+  You need `7-zip` to unzip `.7z` archives, available from
+  <https://www.7-zip.org/>.
 
 - Launch `kf.exe` for 64-bit (32-bit is no longer supported).
 
@@ -176,8 +178,8 @@ Feedback:
 ### Other Changes
 
 - Makefile build system using MINGW to cross-compile to Windows from Linux
-- uses GMP for arbitrary precision floating point instead of custom code
-- uses Boost wrapper around GMP floats for higher-level coding
+- uses GMP+MPFR for arbitrary precision floating point instead of custom code
+- uses Boost wrapper around MPFR floats for higher-level coding
 - use installed JPEG library, instead of bundled sources
 - long double support built into EXE (no separate DLL needed)
 - virtually unlimited precision (memory needed for precise numbers is an issue)
@@ -193,17 +195,17 @@ Feedback:
 - XML preprocessor optimizes more reference calculations in the same way
 - optimized Newton-Raphson zooming by using lower-level GMP calls
 - very experimental and broken OpenCL using CLEW (still disabled at build time)
-- save images to PNG format as well as JPEG
+- save images to PNG, TIFF and EXR format as well as JPEG
 - colouring uses floating point internally (fewer quantisation steps)
 - dithering at end of colouring to improve perceptual quality (reduced banding)
 - "glitch low tolerance" checkbox that can be enabled to detect glitches more
   aggressively (disabled by default, enable it if you get undetected glitches)
 - updated program icon with transparent background and large version
-- parameter data is saved as comment in image files (both PNG and JPEG)
+- parameter data is saved as comment in image files (all formats)
 - preferences (rendering settings not related to location) save and load
-  (.kfs files and PNG/JPEG comments too)
+  (.kfs files and image comments too)
 - command line arguments to load settings and/or location
-- command line arguments to render and save PNG/JPEG/KFB Map before quiting
+- command line arguments to render and save images / maps before quiting
 - see change log below for more...
 
 
@@ -217,8 +219,9 @@ Feedback:
       zoom depth 1e300 or so).  SIMD is also supported in scaled double for
       Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
       1e400 or so).
-    - bugfix: --save-exr now sets non-interactive mode flag.
+    - bugfix: command line --save-exr now sets non-interactive mode flag.
     - note: built for 64bit only; 32bit hardware is obsolete by now.
+    - note: distribution package compressed with 7-zip for smaller size.
 
 - **kf-2.14.7.1** (2019-08-30)
 
@@ -886,6 +889,17 @@ these sources yourself.
 
 ## Building On Linux
 
+Compiling KF for your own CPU is recommended for optimal performance.  The
+performance boost can be significant, as the release EXE is compiled for
+generic x86_64 but newer CPUs have additional instructions available.
+
+Note: there is an upstream bug in the GCC compiler.  On Debian it is not hard
+to patch the gcc-mingw-w64 source package and rebuild it, though it does take
+a long time and need about 30GB of disk space.  Without a patched compiler,
+KF may crash in SIMD code due to 32-byte aligned moves with a 16-byte aligned
+stack.  See <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=939559>.
+Contact me if you need help to do this.
+
 Build instructions for cross-compiling from GNU/Linux require about 10GB of
 disk space and good internet download speed (or patience).  About 750MB of
 downloads including the chroot debootstrap step.  If you have recent Debian
@@ -958,24 +972,24 @@ necessary), the script can build both 64bit and 32bit variants if necessary:
 5. Download the previous version and copy the `et`-generated formulas from it:
 
         cd ~/win64/src/kalles-fraktaler-2
-        wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).zip"
-        unzip kf-*.zip
+        wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).7z"
+        7zr x kf-*.7z
         cd kf-*/
         unzip kf-*src.zip
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-6. To build Kalles Fraktaler 2 + release:
-
-        cd ~/win64/src/kalles-fraktaler-2
-        ./release.sh $(git describe)
-
-7. To build Kalles Fraktaler 2 + optimized for your own CPU:
+6. To build Kalles Fraktaler 2 + optimized for your own CPU:
 
         cd ~/win64/src/kalles-fraktaler-2
         make clean
         make SYSTEM=native -j $(nproc)
         ./kf.exe
+
+7. To build Kalles Fraktaler 2 + release:
+
+        cd ~/win64/src/kalles-fraktaler-2
+        ./release.sh $(git describe)
 
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
@@ -1659,7 +1673,7 @@ Software license.
     Number of pixels to calculate simultaneously per core.  Setting it too
     small or too large will lead to slower performance.  The sweet spot will
     depend on your particular CPU model, cache sizes, how KF is compiled (e.g.
-    64 vs 64+), etc.
+    64 vs native), etc.
 
     Setting it to 1 disables the explicitly vectorized code path; some SIMD
     instructions may still be used depending on the compiler.
@@ -1671,7 +1685,7 @@ Software license.
     will be done too often (small chunk size) or too many extra iterations will
     be done per pixel (large chunk size).  The sweet spot will depend on your
     CPU and the location (if the number of iterations is high, probably a higher
-    chunk size would be beneficial.
+    chunk size would be beneficial).
 
     How it works: the last chunk (when any of the SIMD vector escape to infinity
     or glitch detected) is repeated for each pixel in the vector individually,

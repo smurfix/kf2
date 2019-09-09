@@ -48,7 +48,6 @@ cp -avi README.md "${BIN}/kf.txt"
 cp -avi README.pdf "${BIN}/kf.pdf"
 cp -avi LICENSE.md "${BIN}/LICENSE.txt"
 cp -avi LICENSE.pdf "${BIN}/LICENSE.pdf"
-zip -9 -r "${BIN}.zip" "${BIN}/"
 7zr a -t7z -m0=lzma -mx=9 -mfb=64 -md=32m -ms=on "${BIN}.7z" "${BIN}/"
 gpg -b "${BIN}.7z"
 
