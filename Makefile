@@ -73,6 +73,7 @@ fraktal_sft/exr.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
 fraktal_sft/gradient.h \
+fraktal_sft/itercount_array.h \
 fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
 fraktal_sft/main.h \
