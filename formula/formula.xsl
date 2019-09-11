@@ -1285,9 +1285,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
-          const double Xr = m_db_dxr[antal[0]];
-          const double Xi = m_db_dxi[antal[0]];
-          const double Xz = m_db_z[antal[0]];
+          const double Xr = m_db_dxr[antal[0] + q];
+          const double Xi = m_db_dxi[antal[0] + q];
+          const double Xz = m_db_z[antal[0] + q];
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
           test2 = test1;
@@ -1295,16 +1295,6 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
             test1 = Xxr * Xxr + Xxi * Xxi;
           else
             test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-
-          test2 = test1;
-          if (no_g)
-          {
-            test1 = Xxr * Xxr + Xxi * Xxi;
-          }
-          else
-          {
-            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-          }
           bGlitch |= test1 &lt; Xz;
           bBailed |= test1 &gt; m_nBailout2;
       doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
@@ -1419,7 +1409,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         const double Xr = m_db_dxr[antal[k]];
         const double Xi = m_db_dxi[antal[k]];
         const double Xz = m_db_z[antal[k]];
-        const double cr = cr0[k], ci = cr0[k];
+        const double cr = cr0[k], ci = ci0[k];
         double xr = xr0[k], xi = xi0[k];
         Xxr = Xr + xr;
         Xxi = Xi + xi;
