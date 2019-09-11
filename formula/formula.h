@@ -75,6 +75,7 @@ bool reference
   , const double terminate, const double g_real, const double g_imag
   , const bool m_bGlitchLowTolerance
   , int64_t &antal, double &test1, double &test2
+  , double &Xxr, double &Xxi
   );
 
 // reference with derivatives
@@ -90,6 +91,7 @@ bool reference
   , const double terminate, const double g_real, const double g_imag
   , const bool m_bGlitchLowTolerance
   , int64_t &antal, double &test1, double &test2
+  , double &Xxr, double &Xxi
   , S &dr0, S &di0
   , const S &daa, const S &dab, const S &dba, const S &dbb
   );

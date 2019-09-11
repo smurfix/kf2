@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../formula/formula.h"
 
+#include <algorithm>
+
 template <class tt> class complex
 {
 public:
@@ -124,6 +126,10 @@ public:
 //		}
 		return r;
 	}
+	inline complex &operator /=(const complex &b)
+	{
+		return *this = *this / b;
+	}
 	__inline complex abs()
 	{
 		complex <tt> r;
@@ -173,6 +179,12 @@ inline complex<tt> operator*(const tt &a, const complex<tt> &b)
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
+template <class tt>
+inline complex<tt> operator/(const tt &a, const complex<tt> &b)
+{
+	return complex<tt>(a) / b;
+}
+
 template <typename ss, typename tt>
 inline complex<tt> operator*(const complex<ss> &a, const complex<tt> &b)
 {
@@ -195,6 +207,15 @@ template <class tt>
 inline tt abs(const complex<tt> &a)
 {
 	return sqrt(norm(a));
+}
+
+template <class tt>
+inline complex<tt> sqrt(const complex<tt> &a)
+{
+	using std::sqrt;
+	using std::max;
+	tt r = abs(a);
+	return complex<tt>(sqrt(max(0.0, (r + a.m_r)*0.5)), ((a.m_i >= 0) - (0 > a.m_i)) * sqrt(max(0.0, (r - a.m_r)*0.5)));
 }
 
 #endif

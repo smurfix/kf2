@@ -223,6 +223,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 void CFraktalSFT::CalculateReferenceEXP()
 {
+	const bool derivatives = GetDerivatives();
 	Precision prec(m_rref.m_f.precision());
 
 	int64_t i;
@@ -243,6 +244,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
+	double xxr = 0, xxi = 0;
 
 	floatexp dr = 1, di = 0;
 
@@ -398,18 +400,17 @@ void CFraktalSFT::CalculateReferenceEXP()
 		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
 		dr *= m_fPixelSpacing;
 		di *= m_fPixelSpacing;
-    bool ok = GetDerivatives()
-      ? reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, daa, dab, dba, dbb)
-      : reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+    bool ok = derivatives
+      ? reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, daa, dab, dba, dbb)
+      : reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
       ;
     assert(ok && "reference_floatexp");
 
 	}
 
-	double de = GetDerivatives()
-	  ? double(sqrt(test1) * log(test1) / sqrt(dr * dr + di * di).todouble())
-	  : 0
-	  ;
+    complex<double> z((double(xxr)), (double(xxi)));
+    complex<double> dc((double(dr)), (double(di)));
+    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);

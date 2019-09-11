@@ -268,7 +268,8 @@ class CFraktalSFT
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
-	float **m_nDE;
+	float **m_nDEx;
+	float **m_nDEy;
 	BOOL m_bNoGlitchDetection;
 	int m_nPower;
 	int m_nPrevPower;
@@ -525,8 +526,9 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double de);
+	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, const complex<double> &de);
 	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
+	bool GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
 	bool GuessPixel(int x, int y, int w, int h);
 
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
@@ -621,7 +623,8 @@ public:
   // for EXR IO
   itercount_array GetArrayCount() { return m_nPixels; };
   float *GetArrayTrans() { return m_nTrans[0]; };
-  float *GetArrayDE() { return GetDerivatives() ? m_nDE[0] : nullptr; };
+  float *GetArrayDEx() { return GetDerivatives() ? m_nDEx[0] : nullptr; };
+  float *GetArrayDEy() { return GetDerivatives() ? m_nDEy[0] : nullptr; };
   half *GetArrayHalfColour() { return m_imageHalf; };
   size_t GetArrayHalfColourStride() { return m_row; };
 	void ReinitializeBitmap();

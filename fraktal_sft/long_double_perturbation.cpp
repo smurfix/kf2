@@ -103,6 +103,7 @@ void CFraktalSFT::MandelCalcLDBL()
   floatexp ldr = 0, ldi = 0;
   int64_t antal;
   int x, y, w, h;
+  bool derivatives = GetDerivatives();
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -142,7 +143,7 @@ void CFraktalSFT::MandelCalcLDBL()
 
     if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
     { // FIXME check this is still ok around long double vs scaled double zoom threshold e600
-      antal = GetDerivatives()
+      antal = derivatives
 	? Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, m_bNoGlitchDetection)
 	: Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, m_nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, m_bNoGlitchDetection)
 	;
@@ -162,7 +163,7 @@ void CFraktalSFT::MandelCalcLDBL()
       ldi = TDDni;
       ldr *= m_fPixelSpacing;
       ldi *= m_fPixelSpacing;
-      bool ok = GetDerivatives()
+      bool ok = derivatives
 	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, ldr, ldi, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
 	;
@@ -176,7 +177,7 @@ void CFraktalSFT::MandelCalcLDBL()
       long double dbb = dbb0.toLongDouble();
       dr *= m_lPixelSpacing;
       di *= m_lPixelSpacing;
-      bool ok = GetDerivatives()
+      bool ok = derivatives
 	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
 	;
@@ -184,10 +185,9 @@ void CFraktalSFT::MandelCalcLDBL()
       ldr = dr;
       ldi = di;
     }
-    double de = GetDerivatives()
-      ? sqrt(test1) * log(test1) / double(sqrt(ldr * ldr + ldi * ldi))
-      : 0
-      ;
+    complex<double> z((double(Dr)), (double(Di)));
+    complex<double> dc((double(ldr)), (double(ldi)));
+    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
     OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
     InterlockedIncrement((LPLONG)&m_nDone);
     OutputPixelData(x, y, w, h, bGlitch);

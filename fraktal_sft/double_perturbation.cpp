@@ -161,8 +161,8 @@ void CFraktalSFT::MandelCalc()
           }
         }
       }
-      ldr = dr * m_lPixelSpacing;
-      ldi = di * m_lPixelSpacing;
+      dr *= m_lPixelSpacing;
+      di *= m_lPixelSpacing;
 
     }
     else
@@ -293,6 +293,8 @@ void CFraktalSFT::MandelCalc()
             : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
             ;
           assert(ok && "perturbation_double_scaled");
+	  dr = ldr;
+	  di = ldi;
         }
         else
         {
@@ -307,8 +309,6 @@ void CFraktalSFT::MandelCalc()
             : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
             ;
           assert(ok && "perturbation_double");
-          ldr = dr;
-          ldi = di;
         }
       }
     }
@@ -319,12 +319,9 @@ void CFraktalSFT::MandelCalc()
       {
         for (k = 0; k < vectorsize; ++k)
         {
-          long double ldr = dr16[k];
-          long double ldi = di16[k];
-          double de = derivatives
-            ? sqrt(test116[k]) * log(test116[k]) / sqrt(ldr * ldr + ldi * ldi)
-            : 0
-            ;
+	  complex<double> z(Dr16[k], Di16[k]);
+	  complex<double> dc(dr16[k], di16[k]);
+	  complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
           OutputIterationData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k], antal16[k], test116[k], test216[k], de);
           InterlockedIncrement((LPLONG)&m_nDone);
           OutputPixelData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k]);
@@ -334,10 +331,9 @@ void CFraktalSFT::MandelCalc()
     }
     else
     {
-      double de = derivatives
-        ? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
-        : 0
-        ;
+      complex<double> z(Dr, Di);
+      complex<double> dc(dr, di);
+      complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
       InterlockedIncrement((LPLONG)&m_nDone);
       OutputPixelData(x, y, w, h, bGlitch);
@@ -373,12 +369,9 @@ void CFraktalSFT::MandelCalc()
         : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
         ;
       assert(ok && "perturbation_double");
-      long double ldr = dr;
-      long double ldi = di;
-      double de = derivatives
-        ? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
-        : 0
-        ;
+      complex<double> z(Dr16[k], Di16[k]);
+      complex<double> dc(dr16[k], di16[k]);
+      complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
       InterlockedIncrement((LPLONG)&m_nDone);
       OutputPixelData(x, y, w, h, bGlitch);

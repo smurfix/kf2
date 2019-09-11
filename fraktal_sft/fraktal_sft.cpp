@@ -171,7 +171,8 @@ CFraktalSFT::CFraktalSFT()
 	m_ldxi = NULL;
 	m_nZoom = 0;
 	m_nTrans = NULL;
-	m_nDE = NULL;
+	m_nDEx = nullptr;
+	m_nDEy = nullptr;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
@@ -661,8 +662,12 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 			if (diffs == Differences_Analytic)
 			{
 				iter = 0;
-				if (m_nDE)
-					iter = 1 / m_nDE[x][y];
+				if (m_nDEx && m_nDEy)
+				{
+					float dex = m_nDEx[x][y];
+					float dey = m_nDEy[x][y];
+					iter = 1 / sqrt(dex * dex + dey * dey);
+				}
 			}
 			else
 			{
@@ -925,6 +930,16 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 	if(m_bTexture)
 		SetTexture(nIndex,x,y);
 	if (m_bSlopes){
+		double diffx, diffy;
+		if (m_nDifferences == Differences_Analytic)
+		{
+			complex<float> de(m_nDEx[x][y], m_nDEy[x][y]);
+			complex<float> diff = complex<float>(1) / de;
+			diffx = diff.m_r;
+			diffy = diff.m_i;
+		}
+		else
+		{
 		double p1, p2;
 		/*		if(x && y){
 		p1 = (double)m_nPixels[x-1][y-1] + (double)1-m_nTrans[x-1][y-1];
@@ -938,7 +953,6 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		p1=p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
 		double diffCompare = p1/p2;
 		*/
-		double diffx, diffy;
 		if (w <= x && m_nPixels[x - w][y] != PIXEL_UNEVALUATED){
 			p1 = (double)m_nPixels[x - w][y] + (double)1 - m_nTrans[x - w][y];
 			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
@@ -961,8 +975,9 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		else
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		diffy = (p1 - p2) / h;
+	  }
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
-		p1 = fmax(1, (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y]);
+		double p1 = fmax(1, (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y]);
 		diff = (p1 + diff) / p1;
 		diff = pow(diff, (double)m_nSlopePower*(double)(m_nZoom*1.75 + 1)*(double)m_nX / (double)640);
 		if (diff>1){
@@ -1159,7 +1174,10 @@ void CFraktalSFT::Mirror(int x, int y)
 
 	m_nPixels[tx][ty] = m_nPixels[x][y];
 	m_nTrans[tx][ty] = m_nTrans[x][y];
-	m_nDE[tx][ty] = m_nDE[x][y];
+	if (m_nDEx)
+		m_nDEx[tx][ty] = -m_nDEx[x][y];
+	if (m_nDEy)
+		m_nDEy[tx][ty] = -m_nDEy[x][y];
 	int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
 	SetColor(nIndex1, m_nPixels[tx][ty], m_nTrans[tx][ty], tx, ty, 1, 1);
 }
@@ -1189,12 +1207,19 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nTrans;
 			m_nTrans = NULL;
 		}
-		if (m_nDE)
+		if (m_nDEx)
 		{
-			if (m_nDE[0])
-				delete[] m_nDE[0];
-			delete[] m_nDE;
-			m_nDE = NULL;
+			if (m_nDEx[0])
+				delete[] m_nDEx[0];
+			delete[] m_nDEx;
+			m_nDEx = nullptr;
+		}
+		if (m_nDEy)
+		{
+			if (m_nDEy[0])
+				delete[] m_nDEy[0];
+			delete[] m_nDEy;
+			m_nDEy = nullptr;
 		}
 }
 
@@ -1410,7 +1435,8 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	Stop(TRUE);
 	int **Org;
 	float **OrgT;
-	float **OrgDE;
+	float **OrgDEx;
+	float **OrgDEy;
 	int nOX, nOY;
 	int i;
 	m_C = cos(g_Degree);
@@ -1449,9 +1475,12 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
-		OrgDE = new float*[nOX];
+		OrgDEx = new float*[nOX];
 		for (i = 0; i<nOX; i++)
-			OrgDE[i] = new float[nOY];
+			OrgDEx[i] = new float[nOY];
+		OrgDEy = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgDEy[i] = new float[nOY];
 		int x, y, a, b;
 		int nX2 = m_nX/2;
 		int nY2 = m_nY/2;
@@ -1470,7 +1499,8 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					if (a >= 0 && a<m_nX && b >= 0 && b<m_nY){
 						Org[x][y] = m_nPixels[a][b];
 						OrgT[x][y] = m_nTrans[a][b];
-						OrgDE[x][y] = m_nDE[a][b];
+						OrgDEx[x][y] = m_nDEx[a][b];
+						OrgDEy[x][y] = m_nDEy[a][b];
 						if (Org[x][y]>m_nMaxIter)
 							Org[x][y] = m_nMaxIter;
 					}
@@ -1478,7 +1508,8 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					{
 						Org[x][y] = PIXEL_UNEVALUATED;
 						OrgT[x][y] = SET_TRANS_GLITCH(0);
-						OrgDE[x][y] = -1;
+						OrgDEx[x][y] = 0;
+						OrgDEy[x][y] = 0;
 					}
 				}
 			}
@@ -1490,24 +1521,28 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
-					m_nDE[x][y] = OrgDE[x - a][y - b];
+					m_nDEx[x][y] = OrgDEx[x - a][y - b];
+					m_nDEy[x][y] = OrgDEy[x - a][y - b];
 				}
 				else
 				{
 					m_nPixels[x][y] = PIXEL_UNEVALUATED;
 					m_nTrans[x][y] = SET_TRANS_GLITCH(0);
-					m_nDE[x][y] = -1;
+					m_nDEx[x][y] = 0;
+					m_nDEy[x][y] = 0;
 				}
 			}
 		}
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
-			delete[] OrgDE[i];
+			delete[] OrgDEx[i];
+			delete[] OrgDEy[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
-		delete[] OrgDE;
+		delete[] OrgDEx;
+		delete[] OrgDEy;
 	}
 	m_nX = nWidth;
 	m_nY = nHeight;
@@ -1829,12 +1864,15 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 		m_nPixels_LSB = new uint32_t[m_nX * m_nY];
 		m_nPixels_MSB = two ? new uint32_t[m_nX * m_nY] : nullptr;
 		m_nTrans = new float*[m_nX];
-		m_nDE = new float*[m_nX];
+		m_nDEx = new float*[m_nX];
+		m_nDEy = new float*[m_nX];
 		m_nTrans[0] = new float[m_nX * m_nY];
-		m_nDE[0] = new float[m_nX * m_nY];
+		m_nDEx[0] = new float[m_nX * m_nY];
+		m_nDEy[0] = new float[m_nX * m_nY];
 		for (int x = 1; x<m_nX; x++){
 			m_nTrans[x] = m_nTrans[0] + x * m_nY;
-			m_nDE[x] = m_nDE[0] + x * m_nY;
+			m_nDEx[x] = m_nDEx[0] + x * m_nY;
+			m_nDEy[x] = m_nDEy[0] + x * m_nY;
 		}
 		m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
 	}
@@ -1842,7 +1880,8 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	if (two)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
 	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
-	memset(m_nDE[0], 0, sizeof(float) * m_nX * m_nY);
+	memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
+	memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
 	SetImageWidth(nx);
 	SetImageHeight(ny);
 }
@@ -1856,7 +1895,8 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 {
 	int **Org = 0;
 	float **OrgT = 0;
-	float **OrgDE = 0;
+	float **OrgDEx = 0;
+	float **OrgDEy = 0;
 	int nOX = 0, nOY = 0;
 	int i;
 	int x, y, a = 0, b = 0;
@@ -1870,9 +1910,12 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
-		OrgDE = new float*[nOX];
+		OrgDEx = new float*[nOX];
 		for (i = 0; i<nOX; i++)
-			OrgDE[i] = new float[nOY];
+			OrgDEx[i] = new float[nOY];
+		OrgDEy = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgDEy[i] = new float[nOY];
 		for (x = 0; x<nOX; x++){
 			for (y = 0; y<nOY; y++){
 				a = x / nZoomSize;
@@ -1881,7 +1924,8 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 				{
 					Org[x][y] = m_nPixels[a][b];
 					OrgT[x][y] = m_nTrans[a][b];
-					OrgDE[x][y] = m_nDE[a][b];
+					OrgDEx[x][y] = m_nDEx[a][b];
+					OrgDEy[x][y] = m_nDEy[a][b];
 				}
 			}
 		}
@@ -1974,7 +2018,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		{
 			fseeko(hFile, pos1, SEEK_SET);
 			for (x = 0; x<m_nX; x++){
-				ok &= (1 == fread(m_nDE[x], sizeof(float)*m_nY, 1, hFile));
+				ok &= (1 == fread(m_nDEx[x], sizeof(float)*m_nY, 1, hFile));
 			}
 		}
 	}
@@ -1987,18 +2031,21 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
-					m_nDE[x][y] = OrgDE[x - a][y - b];
+					m_nDEx[x][y] = OrgDEx[x - a][y - b];
+					m_nDEy[x][y] = OrgDEy[x - a][y - b];
 				}
 			}
 		}
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
-			delete[] OrgDE[i];
+			delete[] OrgDEx[i];
+			delete[] OrgDEy[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
-		delete[] OrgDE;
+		delete[] OrgDEx;
+		delete[] OrgDEy;
 	}
 	ReinitializeBitmap();
 	return ok;
@@ -2672,10 +2719,10 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	WriteFile(hFile, &m_nMaxIter, sizeof(int), &dw, NULL);
 	for (x = 0; x<m_nX; x++)
 		WriteFile(hFile, m_nTrans[x], m_nY*sizeof(float), &dw, NULL);
-	if (GetDerivatives() && m_nDE)
+	if (GetDerivatives() && m_nDEx)
 	{
 		for (x = 0; x<m_nX; x++)
-			WriteFile(hFile, m_nDE[x], m_nY*sizeof(float), &dw, NULL);
+			WriteFile(hFile, m_nDEx[x], m_nY*sizeof(float), &dw, NULL); // FIXME broken with directional DE
 	}
 	CloseHandle(hFile);
 }
@@ -2764,11 +2811,11 @@ void CFraktalSFT::ErasePixel(int x, int y)
 	if (x >= 0 && y >= 0 && x<m_nX && y<m_nY){
 		m_nPixels[x][y] = 1;
 		m_nTrans[x][y] = 0;
-		m_nDE[x][y] = 1e30;
+		m_nDEx[x][y] = 0;
+		m_nDEy[x][y] = 0;
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, 1, 1);
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
-		m_nDE[x][y] = -1;
 	}
 }
 void CFraktalSFT::StoreLocation()
@@ -3094,7 +3141,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, const complex<double> &de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3102,7 +3149,8 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 		if (antal >= m_nMaxIter){
 			m_nPixels[x][y] = antal;
 			m_nTrans[x][y] = 0;
-			m_nDE[x][y] = 0;
+			m_nDEx[x][y] = 0;
+			m_nDEy[x][y] = 0;
 			m_lpBits[nIndex] = 0;
 			m_lpBits[nIndex + 1] = 0;
 			m_lpBits[nIndex + 2] = 0;
@@ -3110,9 +3158,13 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 		else{
 
 			m_nPixels[x][y] = antal;
-			if (m_nDE)
+			if (m_nDEx)
 			{
-				m_nDE[x][y] = de;
+				m_nDEx[x][y] = de.m_r;
+			}
+			if (m_nDEy)
+			{
+				m_nDEy[x][y] = de.m_i;
 			}
 
 			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt || m_nSmoothMethod == SmoothMethod_SqrtLow)){
@@ -3172,150 +3224,51 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 		}
 }
 
-bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
+bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 {
-	// NOTE casts to int64_t are required to avoid copying just the ref!
-	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
+	if ( 0 <= x && x < m_nX && 0 <= x0 && x0 < m_nX && 0 <= x1 && x1 < m_nX &&
+	     0 <= y && y < m_nY && 0 <= y0 && y0 < m_nY && 0 <= y1 && y1 < m_nY &&
+	     m_nPixels[x0][y0] != PIXEL_UNEVALUATED &&
+	     m_nPixels[x0][y0] == m_nPixels[x1][y1] &&
+	     GET_TRANS_GLITCH(m_nTrans[x0][y0]) == GET_TRANS_GLITCH(m_nTrans[x1][y1])
+	   )
+	{
+		// NOTE cast to int64_t is required to avoid copying just the ref!
+		m_nPixels[x][y] = int64_t(m_nPixels[x0][y0]);
+		m_nTrans[x][y] = (m_nTrans[x0][y0] + m_nTrans[x1][y1])*.5;
+		// use geometric mean for directional DE guessing
+		complex<float> de0(m_nDEx[x0][y0], m_nDEy[x0][y0]);
+		complex<float> de1(m_nDEx[x1][y1], m_nDEy[x1][y1]);
+		complex<float> deA = 0.5*(de0 + de1);
+		complex<float> deG = sqrt(de0 * de1);
+		complex<float> de = (norm(deA - deG) < norm(deA + deG)) ? deG : -1.0*deG;
+		m_nDEx[x][y] = de.m_r;
+		m_nDEy[x][y] = de.m_i;
+		int nIndex  = x  * 3 + (m_bmi->biHeight - 1 - y )*m_row;
+		int nIndex0 = x0 * 3 + (m_bmi->biHeight - 1 - y0)*m_row;
+		int nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
+		m_lpBits[nIndex    ] = (m_lpBits[nIndex0    ] + m_lpBits[nIndex1    ]) / 2;
+		m_lpBits[nIndex + 1] = (m_lpBits[nIndex0 + 1] + m_lpBits[nIndex1 + 1]) / 2;
+		m_lpBits[nIndex + 2] = (m_lpBits[nIndex0 + 2] + m_lpBits[nIndex1 + 2]) / 2;
+		InterlockedIncrement((LPLONG)&m_nDone);
+		InterlockedIncrement((LPLONG)&m_nGuessed);
+		if (m_bMirrored)
+			Mirror(x, y);
+		return true;
+	}
+	return false;
+}
+
+bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
+{
 	if (GetGuessing())
 	{
 		if (w == 1 && h <= 2)
-		{
-			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y] == m_nPixels[x + 1][y] && GET_TRANS_GLITCH(m_nTrans[x - 1][y]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y])){
-				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y]);
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
-				m_nDE[x][y] = (m_nDE[x - 1][y] + m_nDE[x + 1][y])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-		}
-		if (w == 1 && h == 1)
-		{
-			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x][y - 1] == m_nPixels[x][y + 1] && GET_TRANS_GLITCH(m_nTrans[x][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x][y + 1])){
-				m_nPixels[x][y] = int64_t(m_nPixels[x][y - 1]);
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
-				m_nDE[x][y] = (m_nDE[x][y - 1] + m_nDE[x][y + 1])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y + 1])){
-				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y - 1]);
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1])*.5;
-				m_nDE[x][y] = (m_nDE[x - 1][y - 1] + m_nDE[x + 1][y + 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y + 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y - 1])){
-				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y + 1]);
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1])*.5;
-				m_nDE[x][y] = (m_nDE[x - 1][y + 1] + m_nDE[x + 1][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
-				int nIndex2 = (x + 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-#ifdef HARD_GUESS_EXP
-FIXME TODO need to add GET_TRANS_GLITCH check, DE interpolation to these when enabling the define...
-			if (x && x<m_nX - 2 && m_nPixels[x - 1][y] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y] == m_nPixels[x + 2][y]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 2][y])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y && y<m_nY - 2 && m_nPixels[x][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x][y - 1] == m_nPixels[x][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 2])*.5;
-				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x)* 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y - 1] == m_nPixels[x + 2][y + 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 2][y + 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 1]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 1])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-			if (y>1 && y<m_nY - 2 && x && x<m_nX - 2 && m_nPixels[x - 1][y + 2] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y + 2] == m_nPixels[x + 2][y - 2]){
-				m_nTrans[x][y] = (m_nTrans[x - 1][y + 2] + m_nTrans[x + 2][y - 2])*.5;
-				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 2))*m_row;
-				int nIndex2 = (x + 2) * 3 + (m_bmi->biHeight - 1 - (y - 2))*m_row;
-				m_lpBits[nIndex] = (m_lpBits[nIndex1] + m_lpBits[nIndex2]) / 2;
-				m_lpBits[nIndex + 1] = (m_lpBits[nIndex1 + 1] + m_lpBits[nIndex2 + 1]) / 2;
-				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
-				InterlockedIncrement((LPLONG)&m_nDone);
-				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 2];
-				if (m_bMirrored)
-					Mirror(x, y);
-				return true;
-			}
-#endif
+			if (GuessPixel(x, y, x - 1, y    , x + 1, y    )) return true;
+		if (w == 1 && h == 1) {
+			if (GuessPixel(x, y, x    , y - 1, x    , y + 1)) return true;
+			if (GuessPixel(x, y, x - 1, y - 1, x + 1, y + 1)) return true;
+			if (GuessPixel(x, y, x - 1, y + 1, x + 1, y - 1)) return true;
 	  }
 	}
 	return false;

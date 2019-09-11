@@ -36,7 +36,8 @@ extern int SaveEXR
 , int arrHeight
 , const itercount_array &count
 , const float *trans
-, const float *de
+, const float *dex
+, const float *dey
 );
 
 extern std::string ReadEXRComment(const std::string &filename);

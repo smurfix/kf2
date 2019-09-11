@@ -221,6 +221,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 void CFraktalSFT::CalculateReferenceLDBL()
 {
+	const bool derivatives = GetDerivatives();
 	Precision prec(m_rref.m_f.precision());
 
 	int64_t i;
@@ -237,6 +238,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
+	double xxr = 0, xxi = 0;
 
 	long double dr = 1, di = 0;
 	floatexp ldr = 1, ldi = 0;
@@ -394,16 +396,16 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		ldi = di;
 
 	}
-	else if (m_nScalingOffset && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	else if (m_nScalingOffset && scaling_supported(m_nFractalType, m_nPower, derivatives))
 	{
 
 		floatexp _x, _y, daa, dab, dba, dbb;
 		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
 		ldr *= m_fPixelSpacing;
 		ldi *= m_fPixelSpacing;
-		bool ok = GetDerivatives()
-		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, ldr, ldi, daa, dab, dba, dbb)
-		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		bool ok = derivatives
+		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, ldr, ldi, daa, dab, dba, dbb)
+		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
 		  ;
 		assert(ok && "reference_scaled_long_double");
 
@@ -419,9 +421,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		long double ldbb = dbb.toLongDouble();
 		dr *= m_lPixelSpacing;
 		di *= m_lPixelSpacing;
-		bool ok = GetDerivatives()
-		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, dr, di, ldaa, ldab, ldba, ldbb)
-		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2)
+		bool ok = derivatives
+		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, ldaa, ldab, ldba, ldbb)
+		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
 		  ;
     assert(ok && "reference_long_double");
 		ldr = dr;
@@ -429,10 +431,9 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	}
 
-	double de = GetDerivatives()
-	  ? sqrt(test1) * log(test1) / double(sqrt(ldr * ldr + ldi * ldi))
-	  : 0
-	  ;
+    complex<double> z((double(xxr)), (double(xxi)));
+    complex<double> dc((double(ldr)), (double(ldi)));
+    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
 		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);

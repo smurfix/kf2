@@ -239,7 +239,8 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , g_SFT.GetHeight()
 		  , g_SFT.GetArrayCount()
 		  , g_SFT.GetArrayTrans()
-		  , g_SFT.GetArrayDE()
+		  , g_SFT.GetArrayDEx()
+		  , g_SFT.GetArrayDEy()
 		  );
 		if (allocate)
 		{
@@ -289,7 +290,8 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , g_SFT.GetHeight()
 		  , g_SFT.GetArrayCount()
 		  , g_SFT.GetArrayTrans()
-		  , g_SFT.GetArrayDE()
+		  , g_SFT.GetArrayDEx()
+		  , g_SFT.GetArrayDEy()
 		  );
 		if (allocate)
 		{

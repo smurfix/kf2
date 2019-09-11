@@ -55,7 +55,8 @@ extern int SaveEXR
 , int arrHeight
 , const itercount_array &count
 , const float *trans
-, const float *rawde
+, const float *rawdex
+, const float *rawdey
 )
 {
   try
@@ -64,7 +65,8 @@ extern int SaveEXR
     uint32_t *n0 = new uint32_t[size_t(arrWidth) * arrHeight];
     uint32_t *n1 = (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     float *nf = new float[size_t(arrWidth) * arrHeight];
-    float *de = rawde ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    float *dex = rawdex ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    float *dey = rawdey ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     // TODO parallelize
     for (int i = 0; i < arrWidth; ++i)
     {
@@ -79,7 +81,8 @@ extern int SaveEXR
           if (n1) n1[e] = 0;
           n0[e] = 0;
           nf[e] = 0.0f;
-          if (de) de[e] = 0.0f;
+          if (dex) dex[e] = 0.0f;
+          if (dey) dey[e] = 0.0f;
         }
         else if (count[i][j] == maxiter)
         {
@@ -87,7 +90,8 @@ extern int SaveEXR
           if (n1) n1[e] = 0xFFffFFffU;
           n0[e] = 0xFFffFFffU;
           nf[e] = 0.0f;
-          if (de) de[e] = 0.0f;
+          if (dex) dex[e] = 0.0f;
+          if (dey) dey[e] = 0.0f;
         }
         else
         {
@@ -95,7 +99,8 @@ extern int SaveEXR
           if (n1) n1[e] = (n >> 32) & 0xFFffFFffLL;
           n0[e] = n & 0xFFffFFffLL;
           nf[e] = 1.0f - trans[k];
-          if (de) de[e] = rawde[k];
+          if (dex) dex[e] = rawdex[k];
+          if (dey) dey[e] = rawdey[k];
         }
       }
     }
@@ -137,7 +142,8 @@ extern int SaveEXR
     else
       header.channels().insert("N",  Channel(IMF::UINT));
     header.channels().insert("NF", Channel(IMF::FLOAT));
-    if (de) header.channels().insert("DE", Channel(IMF::FLOAT));
+    if (dex) header.channels().insert("DEX", Channel(IMF::FLOAT));
+    if (dey) header.channels().insert("DEY", Channel(IMF::FLOAT));
     OutputFile of(filename.c_str(), header);
     FrameBuffer fb;
     if (rgb)
@@ -161,13 +167,15 @@ extern int SaveEXR
     else
       fb.insert("N",  Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));
-    if (de) fb.insert("DE", Slice(IMF::FLOAT, (char *) de, sizeof(*de) * arrHeight, sizeof(*de) * 1));
+    if (dex) fb.insert("DEX", Slice(IMF::FLOAT, (char *) dex, sizeof(*dex) * arrHeight, sizeof(*dex) * 1));
+    if (dey) fb.insert("DEY", Slice(IMF::FLOAT, (char *) dey, sizeof(*dey) * arrHeight, sizeof(*dey) * 1));
     of.setFrameBuffer(fb);
     of.writePixels(arrHeight);
     delete[] nf;
     delete[] n0;
     delete[] n1;
-    delete[] de;
+    delete[] dex;
+    delete[] dey;
     return 1;
   }
   catch (...)
@@ -207,6 +215,12 @@ extern std::string ReadEXRComment(const std::string &filename)
 
 extern bool ReadEXRMapFile(const std::string &filename)
 {
+  bool retval = false;
+  uint32_t *N0 = nullptr;
+  uint32_t *N1 = nullptr;
+  float *NF = nullptr;
+  float *DEX = nullptr;
+  float *DEY = nullptr;
   try
   {
     InputFile file(filename.c_str());
@@ -245,10 +259,11 @@ extern bool ReadEXRMapFile(const std::string &filename)
     size_t width = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
     // prepare arrays with proper format
-    uint32_t *N0 = new uint32_t[width * height];
-    uint32_t *N1 = maxiter + bias >= 0xFFffFFffLL ? new uint32_t[width * height] : nullptr;
-    float *NF = new float[width * height];
-    float *DE = new float[width * height];
+    N0 = new uint32_t[width * height];
+    N1 = maxiter + bias >= 0xFFffFFffLL ? new uint32_t[width * height] : nullptr;
+    NF = new float[width * height];
+    DEX = new float[width * height];
+    DEY = new float[width * height];
     FrameBuffer fb;
     // [x][y]
     if (N1)
@@ -259,7 +274,8 @@ extern bool ReadEXRMapFile(const std::string &filename)
     else
       fb.insert("N" , Slice(IMF::UINT,  (char *) (&N0[0] - dw.min.x - dw.min.y * width), sizeof(N0[0]) * height, sizeof(N0[0]) * 1, 1, 1, 0));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
-    fb.insert("DE", Slice(IMF::FLOAT, (char *) (&DE[0] - dw.min.x - dw.min.y * width), sizeof(DE[0]) * height, sizeof(DE[0]) * 1, 1, 1, 0.0f));
+    fb.insert("DEX", Slice(IMF::FLOAT, (char *) (&DEX[0] - dw.min.x - dw.min.y * width), sizeof(DEX[0]) * height, sizeof(DEX[0]) * 1, 1, 1, 0.0f));
+    fb.insert("DEY", Slice(IMF::FLOAT, (char *) (&DEY[0] - dw.min.x - dw.min.y * width), sizeof(DEY[0]) * height, sizeof(DEY[0]) * 1, 1, 1, 0.0f));
     file.setFrameBuffer(fb);
     file.readPixels(dw.min.y, dw.max.y);
     // copy to KF arrays
@@ -267,7 +283,8 @@ extern bool ReadEXRMapFile(const std::string &filename)
     g_SFT.SetImageSize(width, height);
     itercount_array count = g_SFT.GetArrayCount();
     float *trans = g_SFT.GetArrayTrans();
-    float *de = g_SFT.GetArrayDE();
+    float *dex = g_SFT.GetArrayDEx();
+    float *dey = g_SFT.GetArrayDEy();
     // TODO parallelize
     for (size_t i = 0; i < width; ++i)
     {
@@ -280,32 +297,36 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           count[i][j] = PIXEL_UNEVALUATED;
           trans[k] = 0.0f;
-          if (de) de[k] = 0.0f;
+          if (dex) dex[k] = 0.0f;
+          if (dey) dey[k] = 0.0f;
         }
         else if ((N1 ? N1[e] == 0xFFffFFffU : true) && N0[e] == 0xFFffFFffU)
         {
           count[i][j] = maxiter;
           trans[k] = 0.0f;
-          if (de) de[k] = 0.0f;
+          if (dex) dex[k] = 0.0f;
+          if (dey) dey[k] = 0.0f;
         }
         else
         {
           count[i][j] = ((N1 ? int64_t(N1[e]) << 32 : 0) | N0[e]) - bias;
           trans[k] = 1.0f - NF[e];
-          if (de) de[k] = DE[e];
+          if (dex) dex[k] = DEX[e];
+          if (dey) dey[k] = DEY[e];
         }
       }
     }
     g_SFT.ReinitializeBitmap();
-    // FIXME leak on failure
-    delete[] N0;
-    delete[] N1;
-    delete[] NF;
-    delete[] DE;
-    return true;
+    retval = true;
   }
   catch(...)
   {
-    return false;
+    retval = false;
   }
+  delete[] N0;
+  delete[] N1;
+  delete[] NF;
+  delete[] DEX;
+  delete[] DEY;
+  return retval;
 }

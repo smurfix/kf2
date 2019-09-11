@@ -61,6 +61,7 @@ void CFraktalSFT::MandelCalcEXP()
 	int x, y, w, h;
 	floatexp real(g_real), imag(g_imag), _abs_val;
 	floatexp epsilon(m_epsilon);
+	const bool derivatives = GetDerivatives();
 
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -96,7 +97,7 @@ void CFraktalSFT::MandelCalcEXP()
 
     if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
-			if (GetDerivatives())
+			if (derivatives)
 			{
 			complex<floatexp> d(dr, di);
 			if (antal<nMaxIter && test1 <= m_nBailout2){
@@ -132,6 +133,8 @@ void CFraktalSFT::MandelCalcEXP()
 					Di = Dn.m_i;
 					Dr = Dn.m_r;
 				}
+				Dr = yr;
+				Di = yi;
 			}
 			dr = d.m_r * m_fPixelSpacing;
 			di = d.m_i * m_fPixelSpacing;
@@ -168,6 +171,8 @@ void CFraktalSFT::MandelCalcEXP()
 					Di = Dn.m_i;
 					Dr = Dn.m_r;
 				}
+				Dr = yr;
+				Di = yi;
 			}
 			}
 		}
@@ -184,10 +189,9 @@ void CFraktalSFT::MandelCalcEXP()
 
 		}
 
-		double de = GetDerivatives()
-		  ? sqrt(test1) * log(test1) / double(sqrt(dr * dr + di * di))
-		  : 0
-		  ;
+    complex<double> z((double(Dr)), (double(Di)));
+    complex<double> dc((double(dr)), (double(di)));
+    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
 		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
 
