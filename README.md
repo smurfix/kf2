@@ -35,7 +35,7 @@ Feedback:
   You need `7-zip` to unzip `.7z` archives, available from
   <https://www.7-zip.org/>.
 
-- Launch `kf.exe` for 64-bit (32-bit is no longer supported).
+- Launch `kf.exe` for 64-bit (32-bit binaries are no longer provided).
 
 - Start exploring!
 
@@ -218,7 +218,19 @@ Feedback:
       Should speed up perturbation calculations in double precision (up to
       zoom depth 1e300 or so).  SIMD is also supported in scaled double for
       Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
-      1e400 or so).
+      1e400 or so).  Compile KF yourself with optimisations for your own
+      specific CPU for a bigger speed boost.
+    - note: SIMD is not yet implemented for derivatives (needed for analytic
+      distance estimation)
+    - feature: Newton-Raphson zooming completion estimate (number of steps)
+    - feature: Newton-Raphson zooming progress backups (after each step)
+    - feature: fewer required fields when loading location parameters (allows
+      loading the NR-zoom backups)
+    - feature: 64bit iteration count support (limit is now 9 exa-iterations
+      up from 2 giga-iterations), use EXR for export.  This feature is very
+      experimental, I haven't had the patience to test it properly.  Please
+      report back success or failure.
+    - note: periods are still 32bit and limited to 2 giga-iterations
     - bugfix: command line --save-exr now sets non-interactive mode flag.
     - note: built for 64bit only; 32bit hardware is obsolete by now.
     - note: distribution package compressed with 7-zip for smaller size.
@@ -1443,7 +1455,8 @@ Software license.
 
     Click on the fractal to specify the start point of the search of the
     minibrot. The current zoom size is used to set the boundaries of search
-    around the selected point
+    around the selected point.  It is recommended to set the zoom size to 128
+    and use the crosshair window for pixel-accurate selection.
 
     Notice that it can take a long time to calculate the position of
     deep minibrots. However, that should be still much faster than
