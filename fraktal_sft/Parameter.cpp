@@ -77,21 +77,15 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 {
 	CStringTable stParams(data.c_str(), ": ", "\r\n");
 
-	int nR = stParams.FindString(0, "Re");
-	if (nR == -1)
-		return FALSE;
-	int nI = stParams.FindString(0, "Im");
-	if (nI == -1)
-		return FALSE;
-	int nZ = stParams.FindString(0, "Zoom");
-	if (nZ == -1)
-		return FALSE;
-	int nC = stParams.FindString(0, "Colors");
-	if (nC == -1)
-		return FALSE;
-	int nIterations = stParams.FindString(0, "Iterations");
-	if (nIterations == -1)
-		return FALSE;
+	int nR = -1, nI = -1, nZ = -1, nIterations = -1;
+	if (! bNoLocation)
+	{
+		nR = stParams.FindString(0, "Re");
+		nI = stParams.FindString(0, "Im");
+		nZ = stParams.FindString(0, "Zoom");
+		nIterations = stParams.FindString(0, "Iterations");
+	}
+
 	int nID = stParams.FindString(0, "IterDiv");
 	if (nID == -1)
 		m_nIterDiv = 1;
@@ -251,7 +245,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	nID = stParams.FindString(0, "Period");
 	if (nID != -1)
-		g_period = atoi(stParams[nID][1]);
+		g_period = atoll(stParams[nID][1]);
 	else
 		g_period = 0;
 	}
@@ -288,24 +282,25 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 	}
 
-	if (!bNoLocation)
-		SetPosition(stParams[nR][1], stParams[nI][1], stParams[nZ][1]);
-	CStringTable stColors(stParams[nC][1], "", ",");
-	m_nParts = stColors.GetCount() / 3;
-	int i;
-	for (i = 0; i<m_nParts; i++){
-		m_cKeys[i].r = atoi(stColors[i * 3][0]);
-		m_cKeys[i].g = atoi(stColors[i * 3 + 1][0]);
-		m_cKeys[i].b = atoi(stColors[i * 3 + 2][0]);
-	}
-	i = stParams.FindString(0, "MultiColor");
+	int nC = stParams.FindString(0, "Colors");
+  if (nC != -1)
+  {
+		CStringTable stColors(stParams[nC][1], "", ",");
+		m_nParts = stColors.GetCount() / 3;
+		int i;
+		for (i = 0; i<m_nParts; i++){
+			m_cKeys[i].r = atoi(stColors[i * 3][0]);
+			m_cKeys[i].g = atoi(stColors[i * 3 + 1][0]);
+			m_cKeys[i].b = atoi(stColors[i * 3 + 2][0]);
+		}
+  }
+	int i = stParams.FindString(0, "MultiColor");
 	if (i != -1){
 		m_bMW = atoi(stParams[i][1]);
 		m_nMW = 0;
 		i = stParams.FindString(0, "MultiColors");
 		if (i != -1){
-			stColors.Reset();
-			stColors.SplitString(stParams[i][1], "\t", ",");
+			CStringTable stColors(stParams[i][1], "\t", ",");
 			for (i = 0; i<stColors.GetCount() && m_nMW<MULTIWAVE_MAX; i++){
 				m_MW[m_nMW].nPeriod = atoi(stColors[i][0]);
 				m_MW[m_nMW].nStart = atoi(stColors[i][1]);
@@ -334,10 +329,17 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	if (! bNoLocation)
 	{
+		if (nIterations != -1) m_nMaxIter = atoll(stParams[nIterations][1]);
+		std::string re = GetRe();
+		std::string im = GetIm();
+		std::string zm = GetZoom();
+		if (nR != -1) re = stParams[nR][1];
+		if (nI != -1) im = stParams[nI][1];
+		if (nZ != -1) zm = stParams[nZ][1];
+		SetPosition(re, im, zm);
+	}
 	ApplyColors();
 	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
-	m_nMaxIter = atoi(stParams[nIterations][1]);
-	}
 	return TRUE;
 }
 
