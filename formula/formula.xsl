@@ -959,7 +959,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   )
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
@@ -1132,7 +1132,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr, doubleN &amp;xi
   , const doubleN &amp;cr, const doubleN &amp;ci
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   )
 {
   switch (m_nFractalType)
@@ -1165,7 +1165,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr, double2 &amp;xi
   , const double2 &amp;cr, const double2 &amp;ci
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   );
 #endif
 
@@ -1179,7 +1179,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr, double4 &amp;xi
   , const double4 &amp;cr, const double4 &amp;ci
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   );
 #endif
 
@@ -1193,7 +1193,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr, double8 &amp;xi
   , const double8 &amp;cr, const double8 &amp;ci
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   );
 #endif
 
@@ -1207,7 +1207,472 @@ template bool perturbation&lt;int16, double16&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr, double16 &amp;xi
   , const double16 &amp;cr, const double16 &amp;ci
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
+  );
+#endif
+
+#endif
+
+#ifdef PASSA // perturbation with SIMD and derivatives
+
+<xsl:for-each select="formulas/group/formula">
+
+template &lt;typename intN, typename doubleN&gt;
+bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , doubleN &amp;xr00, doubleN &amp;xi00
+  , const doubleN &amp;cr0, const doubleN &amp;ci0
+  , doubleN &amp;dr00, doubleN &amp;di00
+  , const double e, const double h
+  , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
+  , const int64_t chunksize
+  )
+{
+  (void) dr00; // -Wunused-parameter
+  (void) di00; // -Wunused-parameter
+  (void) h; // -Wunused-parameter
+  (void) e; // -Wunused-parameter
+  (void) daa0; // -Wunused-parameter
+  (void) dab0; // -Wunused-parameter
+  (void) dba0; // -Wunused-parameter
+  (void) dbb0; // -Wunused-parameter
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  {
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
+    const complex&lt;double&gt; A = { Ar, Ai };
+    (void) Ar; // -Wunused-variable
+    (void) Ai; // -Wunused-variable
+    (void) A; // -Wunused-variable
+    (void) dr00; // -Wunused-parameter
+    (void) di00; // -Wunused-parameter
+    doubleN test1 = test10;
+    doubleN test2 = test20;
+    doubleN xr0 = xr00;
+    doubleN xi0 = xi00;
+    intN antal = antal0;
+    intN bGlitch = bGlitch0;
+    intN bBailed = test1 &gt; m_nBailout2;
+<xsl:choose>
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
+    doubleN dr0 = dr00, di0 = di00;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+    doubleN dxa0 = dr00, dxb0 = -di00, dya0 = di00, dyb0 = dr00;
+</xsl:when>
+</xsl:choose>
+    // vectorized loop
+    if (all(antal == antal[0]))
+    {
+      for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
+      {
+        doubleN xr_saved = xr0;
+        doubleN xi_saved = xi0;
+<xsl:choose>
+<xsl:when test="derivative/@t='M'">
+        doubleN dxa_saved = dxa0, dxb_saved = dxb0, dya_saved = dya0, dyb_saved = dyb0;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
+        doubleN dr_saved = dr0, di_saved = di0;
+</xsl:when>
+</xsl:choose>
+        doubleN test1_saved = test1;
+        for (int64_t q = 0; q &lt; chunksize; ++q)
+        {
+          const double Xr = m_db_dxr[antal[0]];
+          const double Xi = m_db_dxi[antal[0]];
+          const double Xz = m_db_z[antal[0]];
+          doubleN Xxr = Xr + xr0;
+          doubleN Xxi = Xi + xi0;
+          test2 = test1;
+          if (no_g)
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          else
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+
+          test2 = test1;
+          if (no_g)
+          {
+            test1 = Xxr * Xxr + Xxi * Xxi;
+          }
+          else
+          {
+            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          }
+          bGlitch |= test1 &lt; Xz;
+          bBailed |= test1 &gt; m_nBailout2;
+      doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
+      doubleN xrn, xin;
+<xsl:choose>
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
+      doubleN dr = dr0, di = di0;
+      doubleN drn, din;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+      doubleN daa = daa0, dab = dab0, dba = dba0, dbb = dbb0;
+      doubleN dxa = dxa0, dxb = dxb0, dya = dya0, dyb = dyb0;
+      doubleN dxan, dxbn, dyan, dybn;
+</xsl:when>
+</xsl:choose>
+
+      using T = double;
+      T dummyT;
+      (void) dummyT;
+      using V = doubleN;
+      V dummyV;
+      (void) dummyV;
+<xsl:choose>
+<xsl:when test="perturbation/@t='C'">
+      const complex&lt;double&gt; X = {Xr, Xi};
+      const complex&lt;doubleN&gt; x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci};
+      complex&lt;doubleN&gt; xn;
+      (void) X; (void) x; (void) Xx;
+<xsl:choose>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+@d    {
+        <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+      const complex&lt;doubleN&gt; d = {dr, di}, d0 = {daa0, dba0}; <!-- FIXME matrix derivatives -->
+      complex&lt;doubleN&gt; dn;
+@dc   {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+</xsl:choose>
+@dc   {
+        <xsl:value-of select="perturbation" />
+      }
+      xrn = xn.m_r; xin = xn.m_i;
+</xsl:when>
+<xsl:when test="perturbation/@t='R'">
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+      const complex&lt;double&gt; X = {Xr, Xi};
+      const complex&lt;doubleN&gt; x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci}, d = {dr, di}, d0 = {daa, dba}; <!-- FIXME matrix derivatives -->
+      complex&lt;doubleN&gt; dn;
+      (void) X; (void) x; (void) Xx; (void) d;
+@dc   {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+@d    {
+        <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+</xsl:choose>
+@d    {
+        <xsl:value-of select="perturbation" />
+      }
+</xsl:when>
+</xsl:choose>
+
+          xr0 = xrn;
+          xi0 = xin;
+<xsl:choose>
+<xsl:when test="derivative/@t='M'">
+          dxa0 = dxan; dxb0 = dxbn; dya0 = dyan; dyb0 = dybn;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
+          dr0 = drn; di0 = din;
+</xsl:when>
+</xsl:choose>
+        }
+
+        if (any(bGlitch) || any(bBailed))
+        {
+          // rollback last chunk
+          xr0 = xr_saved;
+          xi0 = xi_saved;
+<xsl:choose>
+<xsl:when test="derivative/@t='M'">
+          dxa0 = dxa_saved; dxb0 = dxb_saved; dya0 = dya_saved; dyb0 = dyb_saved;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
+          dr0 = dr_saved; di0 = di_saved;
+</xsl:when>
+</xsl:choose>
+          test1 = test1_saved;
+          bGlitch = bGlitch0;
+          break;
+        }
+      }
+    }
+
+    // finish up unvectorized
+    const int64_t N = sizeof(doubleN) / sizeof(double);
+    for (int64_t k = 0; k &lt; N; ++k)
+    {
+      double Xxr = 0, Xxi = 0;
+      for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
+      {
+        const double Xr = m_db_dxr[antal[k]];
+        const double Xi = m_db_dxi[antal[k]];
+        const double Xz = m_db_z[antal[k]];
+        const double cr = cr0[k], ci = cr0[k];
+        double xr = xr0[k], xi = xi0[k];
+        Xxr = Xr + xr;
+        Xxi = Xi + xi;
+        test2[k] = test1[k];
+        if (no_g)
+        {
+          test1[k] = Xxr * Xxr + Xxi * Xxi;
+        }
+        else
+        {
+          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+        }
+        if (test1[k] &lt; Xz)
+        {
+<xsl:choose>
+<xsl:when test="../@type='0' and @power='2'">
+#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
+        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa0[k] / h, dya0[k] / h, e, h)) // FIXME matrix derivatives
+        {
+#endif
+</xsl:when>
+</xsl:choose>
+        bGlitch[k] = true;
+        if (! m_bNoGlitchDetection)
+          break;
+<xsl:choose>
+<xsl:when test="../@type='0' and @power='2'">
+#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
+        }
+#endif
+</xsl:when>
+</xsl:choose>
+        }
+        if (test1[k] &gt; m_nBailout2)
+        {
+          break;
+        }
+        double xrn = 0, xin = 0;
+
+      using T = double;
+      T dummyT;
+      (void) dummyT;
+      using V = double;
+      V dummyV;
+      (void) dummyV;
+<xsl:choose>
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
+      double dr = dr0[k], di = di0[k];
+      double drn = 0, din = 0;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+      double daa = daa0[k], dab = dab0[k], dba = dba0[k], dbb = dbb0[k];
+      double dxa = dxa0[k], dxb = dxb0[k], dya = dya0[k], dyb = dyb0[k];
+      double dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
+</xsl:when>
+</xsl:choose>
+<xsl:choose>
+<xsl:when test="perturbation/@t='C'">
+      const complex&lt;double&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci};
+      complex&lt;double&gt; xn;
+      (void) X; (void) x; (void) Xx;
+<xsl:choose>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+@d    {
+        <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+      const complex&lt;double&gt; d = {dr, di}, d0 = {daa0[k], dba0[k]}; <!-- FIXME matrix derivatives -->
+      complex&lt;double&gt; dn;
+@dc   {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+</xsl:choose>
+@dc   {
+        <xsl:value-of select="perturbation" />
+      }
+      xrn = xn.m_r; xin = xn.m_i;
+</xsl:when>
+<xsl:when test="perturbation/@t='R'">
+<xsl:choose>
+<xsl:when test="derivative/@t='C'">
+      const complex&lt;double&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci}, d = {dr, di}, d0 = {daa[k], dba[k]}; <!-- FIXME matrix derivatives -->
+      complex&lt;double&gt; dn;
+      (void) X; (void) x; (void) Xx; (void) d;
+@dc   {
+        <xsl:value-of select="derivative" />
+      }
+      drn = dn.m_r; din = dn.m_i;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
+@d    {
+        <xsl:value-of select="derivative" />
+      }
+</xsl:when>
+</xsl:choose>
+@d    {
+        <xsl:value-of select="perturbation" />
+      }
+</xsl:when>
+</xsl:choose>
+
+<xsl:choose>
+<xsl:when test="derivative/@t='M'">
+      dxa0[k] = dxan; dxb0[k] = dxbn; dya0[k] = dyan; dyb0[k] = dybn;
+</xsl:when>
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
+      dr0[k] = drn; di0[k] = din;
+</xsl:when>
+</xsl:choose>
+
+        xr0[k] = xrn;
+        xi0[k] = xin;
+
+      }
+<xsl:choose>
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
+    dr00[k] = dr0[k]; di00[k] = di0[k];
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+    dr00[k] = (Xxr * dxa0[k] + Xxi * dya0[k]) / sqrt(test1[k]);
+    di00[k] = (Xxr * dxb0[k] + Xxi * dyb0[k]) / sqrt(test1[k]);
+</xsl:when>
+</xsl:choose>
+    }
+
+    antal0 = antal;
+    bGlitch0 = bGlitch;
+    test10 = test1;
+    test20 = test2;
+    xr00 = xr0;
+    xi00 = xi0;
+    return true;
+  }
+  return false;
+}
+
+</xsl:for-each>
+
+template &lt;typename intN, typename doubleN&gt;
+bool perturbation
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , doubleN &amp;xr0, doubleN &amp;xi0
+  , const doubleN &amp;cr0, const doubleN &amp;ci0
+  , doubleN &amp;dr00, doubleN &amp;di00
+  , const double e, const double h
+  , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
+  , const int64_t chunk_size
+  )
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+          return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+            ( m_nFractalType, m_nPower
+            , m_db_dxr, m_db_dxi, m_db_z
+            , antal0, test10, test20, bGlitch0
+            , m_nBailout2, nMaxIter
+            , m_bNoGlitchDetection, g_real, g_imag
+            , g_FactorAR, g_FactorAI
+            , xr0, xi0
+            , cr0, ci0
+            , dr00, di00
+            , e, h
+            , daa0, dab0, dba0, dbb0
+            , chunk_size
+            );
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
+#if KF_SIMD >= 1
+template bool perturbation&lt;int2, double2&gt;
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, int2 &amp;bGlitch
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double2 &amp;xr0, double2 &amp;xi0
+  , const double2 &amp;cr0, const double2 &amp;ci0
+  , double2 &amp;dr00, double2 &amp;di00
+  , const double e, const double h
+  , const double2 &amp;daa0, const double2 &amp;dab0, const double2 &amp;dba0, const double2 &amp;dbb0
+  , const int64_t chunk_size
+  );
+#endif
+
+#if KF_SIMD >= 2
+template bool perturbation&lt;int4, double4&gt;
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, int4 &amp;bGlitch
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double4 &amp;xr0, double4 &amp;xi0
+  , const double4 &amp;cr0, const double4 &amp;ci0
+  , double4 &amp;dr00, double4 &amp;di00
+  , const double e, const double h
+  , const double4 &amp;daa0, const double4 &amp;dab0, const double4 &amp;dba0, const double4 &amp;dbb0
+  , const int64_t chunk_size
+  );
+#endif
+
+#if KF_SIMD >= 3
+template bool perturbation&lt;int8, double8&gt;
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, int8 &amp;bGlitch
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double8 &amp;xr0, double8 &amp;xi0
+  , const double8 &amp;cr0, const double8 &amp;ci0
+  , double8 &amp;dr00, double8 &amp;di00
+  , const double e, const double h
+  , const double8 &amp;daa0, const double8 &amp;dab0, const double8 &amp;dba0, const double8 &amp;dbb0
+  , const int64_t chunk_sizes
+  );
+#endif
+
+#if KF_SIMD >= 4
+template bool perturbation&lt;int16, double16&gt;
+  ( int m_nFractalType, int m_nPower
+  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, int16 &amp;bGlitch
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , double16 &amp;xr0, double16 &amp;xi0
+  , const double16 &amp;cr0, const double16 &amp;ci0
+  , double16 &amp;dr00, double16 &amp;di00
+  , const double e, const double h
+  , const double16 &amp;daa0, const double16 &amp;dab0, const double16 &amp;dba0, const double16 &amp;dbb0
+  , const int64_t chunk_size
   );
 #endif
 
@@ -1373,7 +1838,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   )
 {
@@ -1528,7 +1993,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   )
 {
@@ -1560,7 +2025,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr00, double2 &amp;xi00
   , const double2 &amp;cr0, const double2 &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   );
 #endif
@@ -1575,7 +2040,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr00, double4 &amp;xi00
   , const double4 &amp;cr0, const double4 &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   );
 #endif
@@ -1590,7 +2055,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr00, double8 &amp;xi00
   , const double8 &amp;cr0, const double8 &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   );
 #endif
@@ -1605,7 +2070,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr00, double16 &amp;xi00
   , const double16 &amp;cr0, const double16 &amp;ci0
-  , const int64_t &amp;chunksize
+  , const int64_t chunksize
   , const double s, const double S
   );
 #endif
@@ -1684,7 +2149,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-#if 0
+#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
         if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
         {
 #endif
@@ -1695,7 +2160,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           break;
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-#if 0
+#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
         }
 #endif
 </xsl:when>

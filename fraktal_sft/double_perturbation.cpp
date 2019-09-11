@@ -31,12 +31,13 @@ void CFraktalSFT::MandelCalc()
   int64_t antal;
 
   // vectorization
-  double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216;
+  double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216, dr16, di16, daa16, dab16, dba16, dbb16;
   int16 antal16, bGlitch16, x16, y16, w16, h16;
   int k = 0;
   const int64_t chunksize = GetSIMDChunkSize();
   const int vectorsize = GetSIMDVectorSize();
-  const bool vectorized = ! GetDerivatives() && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
+  const bool derivatives = GetDerivatives();
+  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -76,7 +77,7 @@ void CFraktalSFT::MandelCalc()
 
     if (m_nFractalType == 0 && m_nPower > 10)
     {
-      if (GetDerivatives())
+      if (derivatives)
       {
 	complex<double> d(dr, di);
 	bool no_g = g_real == 1.0 && g_imag == 1.0;
@@ -180,11 +181,19 @@ void CFraktalSFT::MandelCalc()
 	test116[k] = test1;
 	test216[k] = test2;
 	bGlitch16[k] = bGlitch;
+	daa16[k] = daa0.todouble();
+	dab16[k] = dab0.todouble();
+	dba16[k] = dba0.todouble();
+	dbb16[k] = dbb0.todouble();
+	dr16[k] = dr * m_dPixelSpacing;
+	di16[k] = di * m_dPixelSpacing;
 	k = k + 1;
 	if (k == vectorsize)
 	{
 	  bool ok = false;
-#define GO \
+#define GO(intN,doubleN) \
+	    intN antalv, bGlitchv; \
+	    doubleN test1v, test2v, Drv, Div, dbD0rv, dbD0iv, drv, div, daav, dabv, dbav, dbbv; \
 	    for (int q = 0; q < vectorsize; ++q) \
 	    { \
 	      antalv[q] = antal16[q]; \
@@ -195,9 +204,20 @@ void CFraktalSFT::MandelCalc()
 	      Div[q] = Di16[q]; \
 	      dbD0rv[q] = dbD0r16[q]; \
 	      dbD0iv[q] = dbD0i16[q]; \
+	      if (derivatives) \
+	      { \
+		drv[q] = dr16[q]; \
+		div[q] = di16[q]; \
+		daav[q] = daa16[q]; \
+		dabv[q] = dab16[q]; \
+		dbav[q] = dba16[q]; \
+		dbbv[q] = dbb16[q]; \
+	      } \
 	    } \
 	    ok = m_nScalingOffset \
 	      ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling) \
+	      : derivatives \
+	      ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, drv, div, epsilon, m_dPixelSpacing, daav, dabv, dbav, dbbv, chunksize) \
 	      : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antalv, test1v, test2v, bGlitchv, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize) \
 	      ; \
 	    for (int q = 0; q < vectorsize; ++q) \
@@ -210,40 +230,41 @@ void CFraktalSFT::MandelCalc()
 	      Di16[q] = Div[q]; \
 	      dbD0r16[q] = dbD0rv[q]; \
 	      dbD0i16[q] = dbD0iv[q]; \
+	      if (derivatives) \
+	      { \
+		dr16[q] = drv[q]; \
+		di16[q] = div[q]; \
+		daa16[q] = daav[q]; \
+		dab16[q] = dabv[q]; \
+		dba16[q] = dbav[q]; \
+		dbb16[q] = dbbv[q]; \
+	      } \
 	    }
 #if KF_SIMD >= 1
 	  if (vectorsize == 2)
 	  {
-	    int2 antalv, bGlitchv;
-	    double2 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
-	    GO
+	    GO(int2, double2)
 	    assert(ok && "perturbation_double2");
 	  }
 #endif
 #if KF_SIMD >= 2
 	  if (vectorsize == 4)
 	  {
-	    int4 antalv, bGlitchv;
-	    double4 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
-	    GO
+	    GO(int4, double4)
 	    assert(ok && "perturbation_double4");
 	  }
 #endif
 #if KF_SIMD >= 3
 	  if (vectorsize == 8)
 	  {
-	    int8 antalv, bGlitchv;
-	    double8 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
-	    GO
+	    GO(int8, double8)
 	    assert(ok && "perturbation_double8");
 	  }
 #endif
 #if KF_SIMD >= 4
 	  if (vectorsize == 16)
 	  {
-	    int16 antalv, bGlitchv;
-	    double16 test1v, test2v, Drv, Div, dbD0rv, dbD0iv;
-	    GO
+	    GO(int16, double16)
 	    assert(ok && "perturbation_double16");
 	  }
 #endif
@@ -267,7 +288,7 @@ void CFraktalSFT::MandelCalc()
 	  long double dbb = dbb0.toLongDouble();
 	  ldr *= m_lPixelSpacing;
 	  ldi *= m_lPixelSpacing;
-	  bool ok = GetDerivatives()
+	  bool ok = derivatives
 	    ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, ldr, ldi, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb, m_nScaling, 1 / m_nScaling)
 	    : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
 	    ;
@@ -281,7 +302,7 @@ void CFraktalSFT::MandelCalc()
 	  double dbb = dbb0.todouble();
 	  dr *= m_dPixelSpacing;
 	  di *= m_dPixelSpacing;
-	  bool ok = GetDerivatives()
+	  bool ok = derivatives
 	    ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, epsilon, m_dPixelSpacing, daa, dab, dba, dbb)
 	    : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
 	    ;
@@ -307,7 +328,7 @@ void CFraktalSFT::MandelCalc()
     }
     else
     {
-      double de = GetDerivatives()
+      double de = derivatives
 	? sqrt(test1) * log(test1) / sqrt(ldr * ldr + ldi * ldi)
 	: 0
 	;
@@ -333,8 +354,16 @@ void CFraktalSFT::MandelCalc()
       double Di = Di16[k];
       double dbD0r = dbD0r16[k];
       double dbD0i = dbD0i16[k];
+      double dr = dr16[k];
+      double di = di16[k];
+      double daa = daa16[k];
+      double dab = dab16[k];
+      double dba = dba16[k];
+      double dbb = dbb16[k];
       bool ok = m_nScalingOffset
         ? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
+	: derivatives
+	? perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, epsilon, m_dPixelSpacing, daa, dab, dba, dbb)
         : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
         ;
       assert(ok && "perturbation_double");

@@ -137,7 +137,25 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
-  , const int64_t &chunksize
+  , const int64_t chunksize
+  );
+
+// perturbation with SIMD and derivatives
+
+template <typename intN, typename doubleN>
+bool perturbation
+  ( const int m_nFractalType, const int m_nPower
+  , const double *m_dxr, const double *m_dxi, const double *m_db_z
+  , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
+  , const double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double g_FactorAR, const double g_FactorAI
+  , doubleN &xr, doubleN &xi
+  , const doubleN &cr, const doubleN &ci
+  , doubleN &dr, doubleN &di
+  , const double e, const double h
+  , const doubleN &daa, const doubleN &dab, const doubleN &dba, const doubleN &dbb
+  , const int64_t chunksize
   );
 
 // perturbation with scaling
@@ -167,7 +185,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr00, doubleN &xi00
   , const doubleN &cr0, const doubleN &ci0
-  , const int64_t &chunksize
+  , const int64_t chunksize
   , const double s, const double S
   );
 
