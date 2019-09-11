@@ -27,7 +27,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "fraktal_sft.h"
 #include "CDecNumber.h"
+#include "main.h"
 #include "../common/barrier.h"
+#include "../common/StringVector.h"
 #include "newton.h"
 #include <iostream>
 #include <string>
@@ -51,11 +53,25 @@ extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 
 static volatile int running = 0;
-BOOL g_bNewtonRunning=FALSE;
-BOOL g_bNewtonStop=FALSE;
-static BOOL g_bNewtonExit=FALSE;
+bool g_bNewtonRunning = false;
+bool g_bNewtonStop = false;
+static bool g_bNewtonExit = false;
 bool g_bJustDidNewton = false;
 bool g_bUseBallPeriod = false;
+
+static floatexp g_fNewtonDelta2[2];
+static int g_nNewtonETA = 0;
+
+static int newtonETA(const floatexp &delta0, const floatexp &delta1, const floatexp &epsilon)
+{
+  floatexp l0 = log(delta0);
+  floatexp l1 = log(delta1);
+  floatexp e  = log(epsilon);
+  // (e - l0) = 1 (l1 - l0) + 2 (l1 - l0) + 4 (l1 - l0) + ... 2^N (l1 - l0)
+  // (e - l0) / (l1 - l0) = sum_0^N 2^i
+  floatexp N = log2((e - l0) / (l1 - l0));
+  return double(N);
+}
 
 static std::string g_szRe;
 static std::string g_szIm;
@@ -101,10 +117,10 @@ struct BallPeriodCommon
 {
   HWND hWnd;
   barrier *barrier;
-  volatile BOOL *stop;
-  int *haveperiod;
-  int *period;
-  int maxperiod;
+  volatile bool *stop;
+  bool *haveperiod;
+  int64_t *period;
+  int64_t maxperiod;
   mpfr_t cr, ci, zr, zi, zr2, zi2, zri, t;
   floatexp zradius;
 };
@@ -122,9 +138,9 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   int t = b->threadid;
   barrier *barrier = b->c->barrier;
-  volatile BOOL *stop = b->c->stop;
-  int *haveperiod = b->c->haveperiod;
-  int *period = b->c->period;
+  volatile bool *stop = b->c->stop;
+  bool *haveperiod = b->c->haveperiod;
+  int64_t *period = b->c->period;
   char szStatus[300];
   floatexp r = b->c->zradius;
   complex<floatexp> z(0.0, 0.0);
@@ -140,14 +156,14 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
     SetDlgItemText(b->c->hWnd,IDC_EDIT1,szStatus);
     last = GetTickCount();
   }
-  for (int i = 1; i < b->c->maxperiod; ++i)
+  for (int64_t i = 1; i < b->c->maxperiod; ++i)
   {
     if (t == 0)
     {
       if(i%100==0){
 	uint32_t now = GetTickCount();
 	if (now - last > 250){
-	  wsprintf(szStatus,"Finding period, %d...",i);
+	  snprintf(szStatus,200,"Finding period, %lld...",i);
 	  SetDlgItemText(b->c->hWnd,IDC_EDIT1,szStatus);
 	  last = now;
 	}
@@ -210,12 +226,12 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   return 0;
 }
 
-static int ball_period_do(const complex<flyttyp> &center, flyttyp radius, int maxperiod,int &steps,HWND hWnd) {
+static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps,HWND hWnd) {
   radius = flyttyp(4)/radius;
   mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
   barrier bar(2);
-  int haveperiod = false;
-  int period = 0;
+  bool haveperiod = false;
+  int64_t period = 0;
   HANDLE hDone[2];
   // prepare threads
   BallPeriod ball[2];
@@ -272,7 +288,7 @@ struct BoxPeriod
 {
   int threadid;
   barrier *barrier;
-  volatile BOOL *stop;
+  volatile bool *stop;
   int maxperiod;
   mpfr_t zr, zi, zr2, zi2, zri, cr, ci, t, *z2r, *z2i;
   int *crossing[4];
@@ -287,7 +303,7 @@ static DWORD WINAPI ThBoxPeriod(BoxPeriod *b)
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   int t = b->threadid;
   barrier *barrier = b->barrier;
-  volatile BOOL *stop = b->stop;
+  volatile bool *stop = b->stop;
   int *haveperiod = b->haveperiod;
   int *period = b->period;
   char szStatus[300];
@@ -426,9 +442,9 @@ struct STEP_STRUCT_COMMON
 {
 	HWND hWnd;
 	barrier *barrier;
-	volatile BOOL *stop;
+	volatile bool *stop;
 	int newtonStep;
-	int period;
+	int64_t period;
 	mpfr_t zr, zi, zrn, zin, zr2, zi2, cr, ci, dcr, dci, dcrn, dcin, dcrzr, dcrzi, dcizr, dcizi;
 };
 struct STEP_STRUCT
@@ -447,7 +463,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
   switch (t0->nType)
   {
     case 0: // zr
-      for (int i = 0; i < t->period; ++i)
+      for (int64_t i = 0; i < t->period; ++i)
       {
 	mpfr_sqr(t->zr2, t->zr, MPFR_RNDN);
 	mpfr_sqr(t->zi2, t->zi, MPFR_RNDN);
@@ -458,13 +474,13 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
     case 1: // zi
-      for (int i = 0; i < t->period; ++i)
+      for (int64_t i = 0; i < t->period; ++i)
       {
 	if(i%100==0){
 		uint32_t now = GetTickCount();
 		if (now - last > 250)
 		{
-			wsprintf(szStatus,"Newton-Raphson %d(%d%%) %s",t->newtonStep,i*100/t->period,g_szProgress);
+			wsprintf(szStatus,"NR %d/%d (%d%%) %s",t->newtonStep + 1,g_nNewtonETA ? t->newtonStep + g_nNewtonETA : 0,i*100/t->period,g_szProgress);
 			SetDlgItemText(t->hWnd,IDC_EDIT1,szStatus);
 			last = now;
 		}
@@ -477,7 +493,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
     case 2: // dcr
-      for (int i = 0; i < t->period; ++i)
+      for (int64_t i = 0; i < t->period; ++i)
       {
 	mpfr_mul(t->dcrzr, t->dcr, t->zr, MPFR_RNDN);
 	mpfr_mul(t->dcizi, t->dci, t->zi, MPFR_RNDN);
@@ -489,7 +505,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
     case 3: // dci
-      for (int i = 0; i < t->period; ++i)
+      for (int64_t i = 0; i < t->period; ++i)
       {
 	mpfr_mul(t->dcrzi, t->dcr, t->zi, MPFR_RNDN);
 	mpfr_mul(t->dcizr, t->dci, t->zr, MPFR_RNDN);
@@ -506,7 +522,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
   return 0;
 }
 
-static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, const int period,const flyttyp &epsilon2,HWND hWnd,int newtonStep, const flyttyp &radius2) {
+static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, const int64_t period,const flyttyp &epsilon2,HWND hWnd,int newtonStep, const flyttyp &radius2) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
@@ -593,28 +609,16 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   complex<flyttyp> d = c_new - c_guess;
   ad = cabs2(d);
 
-  *g_szProgress=0;
-  std::string szAD = ad.ToText();
-  const char *szE1 = strstr(szAD.c_str(),"e");
-  if(!szE1)
-	  szE1 = strstr(szAD.c_str(),"E");
-  if(szE1){
-	  szE1++;
-	  if(*szE1=='-')
-		  szE1++;
-	  strcat(g_szProgress,szE1);
-  }
-  std::string szEP = epsilon2.ToText();
-  szE1 = strstr(szEP.c_str(),"e");
-  if(!szE1)
-	  szE1 = strstr(szEP.c_str(),"E");
-  if(szE1){
-	  szE1++;
-	  if(*szE1=='-')
-		  szE1++;
-	  strcat(g_szProgress,"/");
-	  strcat(g_szProgress,szE1);
-  }
+  // progress reporting
+  floatexp delta = floatexp(CFixedFloat(ad.m_dec));
+  floatexp epsilon = floatexp(CFixedFloat(epsilon2.m_dec));
+  std::string elast = sqrt(floatexp(4.0)/delta).toString(1);
+  std::string etarget = sqrt(floatexp(4.0)/epsilon).toString(1);
+  snprintf(g_szProgress, sizeof(g_szProgress) - 1, "%s %s %s", elast.c_str(), ad < epsilon2 ? ">" : "<", etarget.c_str());
+  g_fNewtonDelta2[0] = g_fNewtonDelta2[1];
+  g_fNewtonDelta2[1] = delta;
+  if (g_fNewtonDelta2[0] > 0)
+    g_nNewtonETA = newtonETA(g_fNewtonDelta2[0], g_fNewtonDelta2[1], epsilon);
 
   if (ad < epsilon2) {
     *c_out = c_new;
@@ -629,14 +633,60 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   }
 }
 
-static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int period, int maxsteps,int &steps,const flyttyp &radius,HWND hWnd) {
+bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const std::string &im, const std::string &zoom, int64_t period)
+{
+	bool overwrite = false; // FIXME
+	CStringTable stSave;
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Re");
+	stSave.AddString(stSave.GetCount() - 1, re);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Im");
+	stSave.AddString(stSave.GetCount() - 1, im);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Zoom");
+	stSave.AddString(stSave.GetCount() - 1, zoom);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Period");
+	stSave.AddInt   (stSave.GetCount() - 1, period);
+	char *szData = stSave.ToText(": ", "\r\n");
+	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
+	if (hFile == INVALID_HANDLE_VALUE)
+	{
+		stSave.DeleteToText(szData);
+		return false;
+	}
+	DWORD dw;
+	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
+	CloseHandle(hFile);
+	stSave.DeleteToText(szData);
+	return true;
+}
+
+bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_old, int64_t period, int step)
+{
+  complex<flyttyp> delta = c_new - c_old;
+  complex<floatexp> delta_lo = delta;
+  std::string re = c_new.m_r.ToText();
+  std::string im = c_new.m_i.ToText();
+  std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();
+  char extension[100];
+  snprintf(extension, sizeof(extension) - 1, "newton-%04d.kfr", step);
+  return SaveNewtonBackup(replace_path_extension(g_szFile, extension), re, im, zoom, period);
+}
+
+static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int64_t period, int maxsteps,int &steps,const flyttyp &radius,HWND hWnd) {
   int result = -1, i;
   complex<flyttyp> c = c_guess;
+  complex<flyttyp> c_new;
 
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
   flyttyp radius2 = radius * radius;
   for (i = 0; i < maxsteps && !g_bNewtonStop && !g_bNewtonExit; ++i) {
-    if (1 != (result = m_d_nucleus_step(&c, c, period,epsilon2,hWnd,i,radius2)))
+    result = m_d_nucleus_step(&c_new, c, period,epsilon2,hWnd,i,radius2);
+    SaveNewtonBackup(c_new, c, period, i + 1);
+    c = c_new;
+    if (result != 1)
       break;
   }
   steps = i;
@@ -651,7 +701,7 @@ static inline complex<floatexp> fec(const complex<flyttyp> &z)
   return complex<floatexp>(mpfr_get_fe(z.m_r.m_dec.backend().data()), mpfr_get_fe(z.m_i.m_dec.backend().data()));
 }
 
-static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HWND hWnd)
+static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t period,HWND hWnd)
 {
   complex<floatexp> fec1(1,0);
   complex<floatexp> fec2(2,0);
@@ -660,7 +710,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
   complex<flyttyp> z(0,0);
   char szStatus[256];
   uint32_t last = GetTickCount();
-  for (int i = 1; i < period && !g_bNewtonStop; ++i) {
+  for (int64_t i = 1; i < period && !g_bNewtonStop; ++i) {
 	  if(i%100==0){
 		uint32_t now = GetTickCount();
 		if (now - last > 250)
@@ -680,7 +730,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int period,HW
 
 static int g_useDZ = 1;
 static double g_skew[4];
-int g_period = 0;
+int64_t g_period = 0;
 
 static int WINAPI ThSkew(HWND hWnd)
 {
@@ -690,7 +740,7 @@ static int WINAPI ThSkew(HWND hWnd)
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
 
-  const int iters = g_SFT.GetIterations();
+  const int64_t iters = g_SFT.GetIterations();
   g_szRe = g_SFT.GetRe();
   g_szIm = g_SFT.GetIm();
   g_szZoom = g_SFT.GetZoom();
@@ -762,7 +812,8 @@ static int WINAPI ThNewton(HWND hWnd)
 	else{
 	  if (type == 0 && power == 2)
 	  {
-		g_period= ball_period_do(center,radius,100000000,steps,hWnd);
+		int64_t maxperiod = INT_MAX; // FIXME
+		g_period= ball_period_do(center,radius,maxperiod,steps,hWnd);
 	  }
 	  else
 	  {
@@ -792,13 +843,14 @@ static int WINAPI ThNewton(HWND hWnd)
 	SetDlgItemInt(hWnd,IDC_EDIT3,g_period,0);
 	BOOL bOK=-1;
 	if(g_period){
-		sprintf(szStatus,"period=%d (steps:%d)\n",g_period,steps);
+		sprintf(szStatus,"period=%lld (steps:%d)\n",g_period,steps);
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		complex<flyttyp> c;
 		int test = 1;
 		if (type == 0 && power == 2)
 		{
-		  test = m_d_nucleus(&c,center,g_period,100,steps,radius,hWnd);
+		  int maxsteps = INT_MAX; // FIXME
+		  test = m_d_nucleus(&c,center,g_period,maxsteps,steps,radius,hWnd);
 		}
 		else
 		{
@@ -1023,6 +1075,9 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bNewtonStop=FALSE;
 			g_bNewtonExit=FALSE;
 			*g_szProgress=0;
+			g_nNewtonETA = 0;
+			g_fNewtonDelta2[0] = 0;
+			g_fNewtonDelta2[1] = 0;
 			running = 1;
 			g_useDZ = SendDlgItemMessage(hWnd,IDC_AUTOSKEW_USEDZ,BM_GETCHECK,0,0);
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
@@ -1061,6 +1116,9 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetDlgItemText(hWnd,IDC_EDIT4,szText,sizeof(szText));
 			g_sMinibrotSourceZoom = std::string(szText);
 			*g_szProgress=0;
+			g_nNewtonETA = 0;
+			g_fNewtonDelta2[0] = 0;
+			g_fNewtonDelta2[1] = 0;
 			GetLocalTime(&st1);
 			running = 1;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);

@@ -20,9 +20,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_NEWTON_H
 #define KF_NEWTON_H 1
 
-extern BOOL g_bNewtonRunning;
-extern BOOL g_bNewtonStop;
-extern int g_period;
+extern bool g_bNewtonRunning;
+extern bool g_bNewtonStop;
+extern int64_t g_period;
 extern bool g_bJustDidNewton;
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
