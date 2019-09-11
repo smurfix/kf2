@@ -36,6 +36,7 @@ extern std::string replace_path_extension(const std::string &path, const std::st
 extern std::string get_filename_extension(const std::string &file);
 extern std::string get_filename_zoom_string(const std::string &file);
 
+extern std::string g_szFile;
 extern bool g_bExamineDirty;
 extern bool g_bAnim;
 extern bool g_bAddReference;

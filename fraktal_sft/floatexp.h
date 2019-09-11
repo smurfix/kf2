@@ -95,6 +95,10 @@ public:
 	{
 		initFromDouble(a);
 	}
+	inline floatexp(int64_t a)
+	{
+		initFromDouble(a);
+	}
 	inline floatexp(double a)
 	{
 		initFromDouble(a);
@@ -380,6 +384,17 @@ public:
 		align();
 		return *this;
 	}
+	inline floatexp(const CFixedFloat &a)
+	{
+		*this = a;
+	}
+	inline floatexp(const CDecNumber &a)
+	{
+		signed long int e = 0;
+		val = mpfr_get_d_2exp(&e, a.m_dec.backend().data(), MPFR_RNDN);
+		exp = e;
+		align();
+	}
 	inline void ToFixedFloat(CFixedFloat &a) const
 	{
 		a = val;
@@ -445,7 +460,7 @@ public:
 		return toLongDouble();
 	}
 
-  inline std::string toString() const
+  inline std::string toString(int digits = 0) const
   {
 		/*
 		  f = val 2^exp
@@ -459,7 +474,7 @@ public:
 		double d10 = std::pow(10, lf - e10) * ((val > 0) - (val < 0));
 		if (val == 0) { d10 = 0; e10 = 0; }
 		std::ostringstream os; os
-		  << std::setprecision(std::numeric_limits<double>::digits10 + 1)
+		  << std::setprecision(digits ? digits : (std::numeric_limits<double>::digits10 + 1))
 		  << std::fixed
 		  << d10 << 'E' << e10;
 		return os.str();
@@ -527,6 +542,11 @@ inline floatexp sqrt(floatexp a)
 inline floatexp log(floatexp a)
 {
 	return floatexp(std::log(a.val) + std::log(2.0) * a.exp);
+}
+
+inline floatexp log2(floatexp a)
+{
+	return floatexp(std::log2(a.val) + a.exp);
 }
 
 inline floatexp mpfr_get_fe(const mpfr_t value)

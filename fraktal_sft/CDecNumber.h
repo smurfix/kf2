@@ -139,6 +139,18 @@ inline CDecNumber operator*(const CDecNumber &a, const CDecNumber &b)
 	return CDecNumber(a.m_dec * b.m_dec);
 }
 
+inline CDecNumber operator*(const double &a, const CDecNumber &b)
+{
+	Precision p(std::max(decNumber::default_precision(), std::max(53u, b.m_dec.precision())));
+	return CDecNumber(a * b.m_dec);
+}
+
+inline CDecNumber operator*(const CDecNumber &b, const double &a)
+{
+	Precision p(std::max(decNumber::default_precision(), std::max(53u, b.m_dec.precision())));
+	return CDecNumber(b.m_dec * a);
+}
+
 inline CDecNumber operator/(const CDecNumber &a, const CDecNumber &b)
 {
 	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
