@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "nanomb1.h"
 #include "nanomb1.inc"
-extern int g_period;
+extern int64_t g_period;
 
 void CFraktalSFT::CalculateReferenceNANOMB1()
 {
@@ -31,7 +31,7 @@ void CFraktalSFT::CalculateReferenceNANOMB1()
 	complex<decNumber> c(m_rref.m_f, m_iref.m_f);
 	int m = GetOrderM();
 	int n = GetOrderN() / 2;
-	int period = g_period ? g_period : 1;
+	int64_t period = g_period ? g_period : 1;
 	double er2 = m_nBailout * m_nBailout;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
 

@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "../formula/formula.h"
 
-static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, const bool m_bNoGlitchDetection)
+static int Perturbation_Var(int64_t antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int64_t m_nMaxIter,const double *m_db_z,bool &bGlitch,int m_nPower,const int *m_pnExpConsts, const bool m_bNoGlitchDetection)
 {
   long double yr, yi;
   bGlitch=FALSE;
@@ -57,7 +57,7 @@ static int Perturbation_Var(int antal,const long double *dxr,const long double *
   return antal;
 }
 
-static int Perturbation_Var(int antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int m_nMaxIter,const double *m_db_z,BOOL &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di, const bool m_bNoGlitchDetection)
+static int Perturbation_Var(int64_t antal,const long double *dxr,const long double *dxi, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, int m_nBailout2, int64_t m_nMaxIter,const double *m_db_z,bool &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di, const bool m_bNoGlitchDetection)
 {
   complex<long double> d(dr, di);
   long double yr, yi;
@@ -101,9 +101,10 @@ void CFraktalSFT::MandelCalcLDBL()
   m_bIterChanged = TRUE;
   long double dr = 0, di = 0;
   floatexp ldr = 0, ldi = 0;
-  int antal, x, y, w, h;
+  int64_t antal;
+  int x, y, w, h;
 
-  int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+  int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
     int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
@@ -130,7 +131,7 @@ void CFraktalSFT::MandelCalcLDBL()
     floatexp TDDni = dya1;
 
     double test1 = 0, test2 = 0;
-    BOOL bGlitch = FALSE;
+    bool bGlitch = false;
 
     long double dbD0r = D0r.toLongDouble();
     long double dbD0i = D0i.toLongDouble();

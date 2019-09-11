@@ -266,7 +266,7 @@ void CFraktalSFT::CalculateReference()
 {
 	Precision prec(m_rref.m_f.precision());
 
-	int i;
+	int64_t i;
 	if (m_db_dxr)
 		delete[] m_db_dxr;
 	m_db_dxr = new double [m_nMaxIter];
@@ -293,9 +293,9 @@ void CFraktalSFT::CalculateReference()
 	}
 
 	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
+	int64_t nMaxIter = m_nMaxIter;
 
-	int antal = 0;
+	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
 

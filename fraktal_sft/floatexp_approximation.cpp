@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -141,11 +141,11 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				APs->t[i][j] = m_APs->t[i][j];
 			}
 
-	for (int iteration = 0; iteration<m_nMaxIter - 1 && !m_bStop; iteration++){
+	for (int64_t iteration = 0; iteration<m_nMaxIter - 1 && !m_bStop; iteration++){
 		m_nApprox++;
 
 		// get reference
-		int n = iteration - 1;
+		int64_t n = iteration - 1;
 		if (iteration == 0)
 			xr = xi = 0;
 		else if (nType == 0){
@@ -294,7 +294,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				for (j = 0; j<nProbe; j++){
 
 					// do approximation
-					int antal_;
+					int64_t antal_;
 					floatexp Dnr, Dni, DDnr_, DDni_;
 					if (isC)
 						DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
@@ -480,7 +480,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	delete[] p;
 }
 
-void CFraktalSFT::DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni)
+void CFraktalSFT::DoApproximation(int64_t &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni)
 {
 	if (m_nMaxApproximation)
 	{
@@ -513,7 +513,7 @@ void CFraktalSFT::DoApproximation(int &antal, const floatexp &D0r, const floatex
 }
 
 void CFraktalSFT::DoApproximation
-( int &antal
+( int64_t &antal
 , const floatexp &a
 , const floatexp &b
 , floatexp &x

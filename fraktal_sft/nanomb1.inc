@@ -28,7 +28,7 @@ Largely based on knighty's public domain nanomb1/nanomb2 code from:
 #define re m_r
 #define im m_i
 // type aliases
-typedef int N;
+typedef int64_t N;
 typedef floatexp R_lo;
 typedef decNumber R_hi;
 typedef complex<R_lo> C_lo;
@@ -98,7 +98,7 @@ class perturbationClassD{
 	R_lo m_col;
 	bool m_escaped;
 	bool m_glitched;
-	int m_iters;
+	int64_t m_iters;
 	R_lo m_test1;
 	R_lo m_test2;
 	R_lo m_de;
@@ -128,7 +128,7 @@ public:
 	}
 	bool haveEscaped(){return m_escaped;}
 	bool haveGlitched(){return m_glitched;}
-	int getIters(){return m_iters;}
+	int64_t getIters(){return m_iters;}
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
 	R_lo getDE(){return m_de;}
@@ -366,7 +366,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -392,7 +392,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 			  {
 			    C_lo w(w0);
 			    dw = C_lo(1);
-			    for (int n = 0; n < si; ++n)
+			    for (int64_t n = 0; n < si; ++n)
 			    {
 			      up.eval_dz(w, dw);
 			    }
@@ -527,7 +527,7 @@ struct NanoMB1_Reference
   { };
 };
 
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, bool lowGlitchTol, volatile BOOL &stop, int &m_nRDone)
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, bool lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
 {
   double glitch_threshold = 0.0000001;
   if (lowGlitchTol)
@@ -570,7 +570,7 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
     return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout, er2);
 }
 
-void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
+void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
   iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de, interior_checking);
 }

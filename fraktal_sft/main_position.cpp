@@ -56,11 +56,15 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetDlgItemText(hWnd,IDC_EDIT1,re.c_str());
 		SetDlgItemText(hWnd,IDC_EDIT3,im.c_str());
 		SetDlgItemText(hWnd,IDC_EDIT4,z.c_str());
-		int nMin, nMax;
+		int64_t nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
-		SetDlgItemInt(hWnd,IDC_EDIT2,nMin,FALSE);
-		SetDlgItemInt(hWnd,IDC_EDIT5,nMax,FALSE);
-		SetDlgItemInt(hWnd,IDC_LOCATION_PERIOD,g_period,FALSE);
+		char s[100];
+		snprintf(s, 100, "%lld", nMin);
+		SetDlgItemText(hWnd,IDC_EDIT2,s);
+		snprintf(s, 100, "%lld", nMax);
+		SetDlgItemText(hWnd,IDC_EDIT5,s);
+		snprintf(s, 100, "%lld", g_period);
+		SetDlgItemText(hWnd,IDC_LOCATION_PERIOD,s);
 		return 1;
 	}
 	else if(uMsg==WM_COMMAND){
@@ -81,7 +85,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT4));
 			char *szP = new char[n+1];
 			GetDlgItemText(hWnd,IDC_LOCATION_PERIOD,szP,n+1);
-			g_period = atoi(szP);
+			g_period = atoll(szP);
 			g_SFT.SetPosition(szR,szI,szZ);
 			delete [] szR;
 			delete [] szI;

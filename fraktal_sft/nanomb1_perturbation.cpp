@@ -45,7 +45,8 @@ void CFraktalSFT::MandelCalcNANOMB1()
 		GetPixelCoordinates(x, y, D0r, D0i, daa, dab, dba, dbb);
 		
 		complex<floatexp> dc(D0r, D0i);
-		int bGlitch = 0, antal = 0;
+		bool bGlitch = 0;
+		int64_t antal = 0;
 		double test1 = 0, test2 = 0, de = 0;
 
 		if (m_NanoMB1Ref)

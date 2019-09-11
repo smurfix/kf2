@@ -34,8 +34,8 @@ bool Settings::FromText(const std::string &text)
   char *data = strdup(text.c_str());
   CStringTable s(data, ": ", "\r\n");
 #define DOUBLE(KEY) { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atof(s[n][1]); } }
-#define INT(KEY)    { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoi(s[n][1]); } }
-#define BOOL(KEY)   { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoi(s[n][1]); } }
+#define INT(KEY)    { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoll(s[n][1]); } }
+#define BOOL(KEY)   { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoll(s[n][1]); } }
   DOUBLE(ZoomSize)
   INT(MaxReferences)
   BOOL(GlitchLowTolerance)

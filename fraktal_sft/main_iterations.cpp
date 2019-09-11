@@ -28,33 +28,41 @@ static int g_nPrevCalc = -1;
 
 static void UpdateIterations(HWND hWnd)
 {
-	int i = g_SFT.GetIterations();
-	SetDlgItemInt(hWnd,IDC_EDIT1,i,FALSE);
+	int64_t i = g_SFT.GetIterations();
+	char s[100];
+	snprintf(s, 100, "%lld", i);
+	SetDlgItemText(hWnd,IDC_EDIT1,s);
 }
 
 static void RefreshIterations(HWND hWnd)
 {
 	char sz[256];
 	GetDlgItemText(hWnd,IDC_EDIT1,sz,sizeof(sz));
-	int i = atoi(sz);
-  g_SFT.SetIterations(i);
+	int64_t i = atoll(sz);
+	g_SFT.SetIterations(i);
 }
 
-static void UpdateMinIterations(HWND hWnd, int i)
+static void UpdateMinIterations(HWND hWnd, int64_t i)
 {
-  SetDlgItemInt(hWnd,IDC_EDIT2,i,FALSE);
+	char s[100];
+	snprintf(s, 100, "%lld", i);
+	SetDlgItemText(hWnd,IDC_EDIT2,s);
 }
 
-static void UpdateMaxIterations(HWND hWnd, int i)
+static void UpdateMaxIterations(HWND hWnd, int64_t i)
 {
-  SetDlgItemInt(hWnd,IDC_EDIT5,i,FALSE);
+	char s[100];
+	snprintf(s, 100, "%lld", i);
+	SetDlgItemText(hWnd,IDC_EDIT5,s);
 }
 
 static void UpdateApproxIterations(HWND hWnd)
 {
 
-	int i = g_SFT.GetMaxApproximation();
-	SetDlgItemInt(hWnd,IDC_EDIT7,i,FALSE);
+	int64_t i = g_SFT.GetMaxApproximation();
+	char s[100];
+	snprintf(s, 100, "%lld", i);
+	SetDlgItemText(hWnd,IDC_EDIT7,s);
 }
 
 static void UpdateSmoothMethod(HWND hWnd)
@@ -325,7 +333,7 @@ static void RefreshFactorAI(HWND hWnd)
 	g_FactorAI = atof(szTmp);
 }
 
-extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
+extern INT_PTR WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG || uMsg==WM_TIMER){
@@ -386,7 +394,8 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			UpdateJitterShape(hWnd);
 			UpdateDerivatives(hWnd);
 		}
-		int nMin, nMax, nCalc=0,nType=0;
+		int64_t nMin, nMax;
+		int nCalc=0,nType=0;
 
 		g_SFT.GetIterations(nMin,nMax,&nCalc,&nType);
     UpdateMinIterations(hWnd, nMin);
@@ -425,7 +434,7 @@ extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RefreshMaxReferences(hWnd);
       RefreshIterations(hWnd);
 			ExitToolTip(hWnd);
-			EndDialog(hWnd, g_SFT.GetIterations());
+			EndDialog(hWnd, 1);
 		}
 		else if(wParam==IDC_CHECK3){
 			if(!SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0) && !SendDlgItemMessage(hWnd,IDC_CHECK5,BM_GETCHECK,0,0))

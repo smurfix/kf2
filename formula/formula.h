@@ -68,13 +68,13 @@ template <typename T>
 bool reference
   ( const int m_nFractalType, const int m_nPower
   , T *m_db_dxr, T *m_db_dxi, double *m_db_z
-  , int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate, const double g_real, const double g_imag
   , const bool m_bGlitchLowTolerance
-  , int &antal, double &test1, double &test2
+  , int64_t &antal, double &test1, double &test2
   );
 
 // reference with derivatives
@@ -83,13 +83,13 @@ template <typename S, typename T>
 bool reference
   ( const int m_nFractalType, const int m_nPower
   , T *m_db_dxr, T *m_db_dxi, double *m_db_z
-  , int &m_bStop, int &m_nRDone, int &m_nGlitchIter, int &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate, const double g_real, const double g_imag
   , const bool m_bGlitchLowTolerance
-  , int &antal, double &test1, double &test2
+  , int64_t &antal, double &test1, double &test2
   , S &dr0, S &di0
   , const S &daa, const S &dab, const S &dba, const S &dbb
   );
@@ -100,9 +100,9 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
-  , int &antal, double &test1, double &test2, int &bGlitch
-  , const double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , const double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -114,9 +114,9 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
-  , int &antal, double &test1, double &test2, int &bGlitch
-  , const double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , const double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -132,12 +132,12 @@ bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
-  , const double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
-  , const int &chunksize
+  , const int64_t &chunksize
   );
 
 // perturbation with scaling
@@ -146,9 +146,9 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
-  , int &antal, double &test1, double &test2, int &bGlitch
-  , const double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , const double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -162,12 +162,12 @@ bool perturbation
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &antal0, doubleN &test10, doubleN &test20, intN &bGlitch0
-  , double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr00, doubleN &xi00
   , const doubleN &cr0, const doubleN &ci0
-  , const int &chunksize
+  , const int64_t &chunksize
   , const double s, const double S
   );
 
@@ -177,9 +177,9 @@ template <typename D, typename Z>
 bool perturbation
   ( int m_nFractalType, int m_nPower
   , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
-  , int &antal0, double &test10, double &test20, int &bGlitch
-  , double m_nBailout2, const int nMaxIter
-  , const int m_bNoGlitchDetection, const double g_real, const double g_imag
+  , int64_t &antal0, double &test10, double &test20, bool &bGlitch
+  , double m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
   , const double g_FactorAR, const double g_FactorAI
   , Z &xr0, Z &xi0
   , const Z &cr, const Z &ci

@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-extern int WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+extern INT_PTR WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 extern const char *IterationToolTip(int nID);
 
 #endif

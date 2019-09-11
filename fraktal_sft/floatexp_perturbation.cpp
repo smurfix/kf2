@@ -57,7 +57,8 @@ void CFraktalSFT::MandelCalcEXP()
 {
 	m_bIterChanged = TRUE;
 	floatexp Dnr, Dni, yr, yi;
-	int antal, x, y, w, h;
+	int64_t antal;
+	int x, y, w, h;
 	floatexp real(g_real), imag(g_imag), _abs_val;
 	floatexp epsilon(m_epsilon);
 
@@ -90,8 +91,8 @@ void CFraktalSFT::MandelCalcEXP()
 		floatexp di = dya1;
 
 		double test1 = 0, test2 = 0;
-		BOOL bGlitch = FALSE;
-		int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+		bool bGlitch = FALSE;
+		int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
     if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{

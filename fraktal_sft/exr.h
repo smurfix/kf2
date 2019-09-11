@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <string>
 
+class itercount_array;
+
 extern int SaveEXR
 ( const std::string &filename
 , const unsigned char *Data
@@ -29,10 +31,10 @@ extern int SaveEXR
 , int nHeight
 , int nColors
 , const std::string &comment
-, int maxiter
+, int64_t maxiter
 , int arrWidth
 , int arrHeight
-, const int *count
+, const itercount_array &count
 , const float *trans
 , const float *de
 );

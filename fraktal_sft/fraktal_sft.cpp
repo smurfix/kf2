@@ -125,6 +125,7 @@ void ErrorText()
 }
 
 CFraktalSFT::CFraktalSFT()
+: m_nPixels(0, 0, nullptr, nullptr) // invalid array
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -169,7 +170,6 @@ CFraktalSFT::CFraktalSFT()
 	m_ldxr = NULL;
 	m_ldxi = NULL;
 	m_nZoom = 0;
-	m_nPixels = NULL;
 	m_nTrans = NULL;
 	m_nDE = NULL;
 	m_bTrans = TRUE;
@@ -396,7 +396,7 @@ int CFraktalSFT::GetNumOfColors()
 void CFraktalSFT::ApplyIterationColors()
 {
 	if (m_nPixels && m_lpBits){
-		int nMin, nMax;
+		int64_t nMin, nMax;
 		GetIterations(nMin, nMax);
 		if (nMin == nMax)
 			nMax = nMin + 1;
@@ -452,7 +452,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 		GetObject(bmSrc, sizeof(BITMAP), &s);
 		GetObject(bmDst, sizeof(BITMAP), &d);
 		bool ok = scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight);
-		assert(ok && "scale_bitmap_rgb8");
+		//assert(ok && "scale_bitmap_rgb8");
 	}
 	else
 	{
@@ -599,7 +599,7 @@ static inline double sqr(double x) { return x * x; }
 static inline double hypot2(double x, double y) { return x * x + y * y; }
 static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
-void CFraktalSFT::SetColor(int nIndex, const int nIter0, double offs, int x, int y, int w, int h)
+void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x, int y, int w, int h)
 {
 	if (m_bInhibitColouring) return;
 	srgb s;
@@ -615,7 +615,7 @@ void CFraktalSFT::SetColor(int nIndex, const int nIter0, double offs, int x, int
 	else{
 		ColorMethod method = m_nColorMethod;
 		Differences diffs = m_nDifferences;
-		int nIter = nIter0;
+		int64_t nIter = nIter0;
 
 		double iter = (double)nIter + (double)1 - offs;
 		/*		if(1){//DE
@@ -649,7 +649,7 @@ void CFraktalSFT::SetColor(int nIndex, const int nIter0, double offs, int x, int
 			iter = atan(iter);
 		}
 		else if (method == ColorMethod_Stretched){
-			int nMin, nMax;
+			int64_t nMin, nMax;
 			GetIterations(nMin, nMax,NULL,NULL,TRUE);
 			iter = (double)1024 * ((double)iter - (double)nMin) / ((double)nMax - (double)nMin);
 		}
@@ -834,7 +834,7 @@ void CFraktalSFT::SetColor(int nIndex, const int nIter0, double offs, int x, int
 		}
 		if (m_nColorOffset)
 			iter += m_nColorOffset;// = (nIter+m_nColorOffset)%1024;
-		nIter = (int)floor(iter);
+		nIter = (int64_t)floor(iter);
 		offs = 1 - (iter - (double)nIter);
 		if (m_bITrans)
 			offs = 1 - offs;
@@ -1018,8 +1018,8 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 {
 	int w = x1 - x0;
 	int h = y1 - y0;
-	assert(w > 0);
-	assert(h > 0);
+	//assert(w > 0);
+	//assert(h > 0);
 	if (w <= 16 && h <= 16)
 	{
 		for (int x = x0; x < x1; ++x)
@@ -1171,13 +1171,17 @@ void CFraktalSFT::Mirror(int x, int y)
 
 void CFraktalSFT::DeleteArrays()
 {
-		if (m_nPixels)
+		if (m_nPixels_LSB)
 		{
-			if (m_nPixels[0])
-				delete[] m_nPixels[0];
-			delete[] m_nPixels;
-			m_nPixels = NULL;
+			delete[] m_nPixels_LSB;
+			m_nPixels_LSB = nullptr;
 		}
+		if (m_nPixels_MSB)
+		{
+			delete[] m_nPixels_MSB;
+			m_nPixels_MSB = nullptr;
+		}
+		m_nPixels = itercount_array(0, 0, nullptr, nullptr); // invalid
 		if (m_nTrans)
 		{
 			if (m_nTrans[0])
@@ -1540,7 +1544,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 extern int g_bAutoGlitch;
 double CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
 {
-	int iters = m_nMaxIter;
+	int64_t iters = m_nMaxIter;
 	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1)
 		iters = g_period;
 	if (iters <= 0)
@@ -1609,12 +1613,12 @@ int CFraktalSFT::CountFrames(int nProcent)
 	double z = std::stod(ToZoom().substr(0, 4));
 	return (int)((log10(z) + m_nZoom) / (log10(1 + (double)2 * (double)nProcent / (double)100))) + 1;
 }
-void CFraktalSFT::GetIterations(int &nMin, int &nMax, int *pnCalculated, int *pnType, BOOL bSkipMaxIter)
+void CFraktalSFT::GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated, int *pnType, BOOL bSkipMaxIter)
 {
 	if (m_bIterChanged || pnCalculated){
-		int nMA = (m_nMaxApproximation == m_nMaxIter ? 0 : m_nMaxApproximation);
-		int nCalc1 = 0;
-		int nCalc2 = 0;
+		int64_t nMA = (m_nMaxApproximation == m_nMaxIter ? 0 : m_nMaxApproximation);
+		int64_t nCalc1 = 0;
+		int64_t nCalc2 = 0;
 		if (pnType)
 			*pnType = 0;
 		if (m_nPixels){
@@ -1658,11 +1662,11 @@ void CFraktalSFT::GetIterations(int &nMin, int &nMax, int *pnCalculated, int *pn
 		nMax = m_nMaxI;
 	}
 }
-int CFraktalSFT::GetIterations()
+int64_t CFraktalSFT::GetIterations()
 {
 	return m_nMaxIter;
 }
-void CFraktalSFT::SetIterations(int nIterations)
+void CFraktalSFT::SetIterations(int64_t nIterations)
 {
 	m_nMaxIter = nIterations;
 }
@@ -1741,9 +1745,9 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 		nStep0 = 1 << 30;
 	int nStep = nStep0;
 	GetBitmap();
-	int nMin, nMax;
+	int64_t nMin, nMax;
 	GetIterations(nMin, nMax, NULL, NULL, TRUE);
-	int nMinIter = nMin + (nMax - nMin) / 4;
+	int64_t nMinIter = nMin + (nMax - nMin) / 4;
 
 	for (tx = nSegmentX; tx<nHalfX + nSegmentX; tx++){
 		if (bSkipM && tx>nHalfX - nSegmentX / 3 && tx<nHalfX + nSegmentX / 3)
@@ -1819,21 +1823,24 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	m_nY = ny;
 	m_nXPrev = m_nX;
 	m_nYPrev = m_nY;
-	if (! m_nPixels)
+	bool two = GetIterations() >= INT_MAX;
+	if (! m_nPixels_LSB)
 	{
-		m_nPixels = new int*[m_nX];
+		m_nPixels_LSB = new uint32_t[m_nX * m_nY];
+		m_nPixels_MSB = two ? new uint32_t[m_nX * m_nY] : nullptr;
 		m_nTrans = new float*[m_nX];
 		m_nDE = new float*[m_nX];
-		m_nPixels[0] = new int[m_nX * m_nY];
 		m_nTrans[0] = new float[m_nX * m_nY];
 		m_nDE[0] = new float[m_nX * m_nY];
 		for (int x = 1; x<m_nX; x++){
-			m_nPixels[x] = m_nPixels[0] + x * m_nY;
 			m_nTrans[x] = m_nTrans[0] + x * m_nY;
 			m_nDE[x] = m_nDE[0] + x * m_nY;
 		}
+		m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
 	}
-	memset(m_nPixels[0], 0, sizeof(int) * m_nX * m_nY);
+	memset(m_nPixels_LSB, 0, sizeof(*m_nPixels_LSB) * m_nX * m_nY);
+	if (two)
+		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
 	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDE[0], 0, sizeof(float) * m_nX * m_nY);
 	SetImageWidth(nx);
@@ -1932,7 +1939,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 			}
 			else
 				//ReadFile(hFile,m_nPixels[x],sizeof(int)*m_nY,&dw,NULL);
-				fread(m_nPixels[x], 1, sizeof(float)*m_nY, hFile);
+				fread(m_nPixels_LSB + x * m_nY, 1, sizeof(*m_nPixels_LSB)*m_nY, hFile);
 		}
 	}
 	if (pLine)
@@ -2058,11 +2065,11 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 		return nRet;
 	}
 }
-int CFraktalSFT::GetMaxApproximation()
+int64_t CFraktalSFT::GetMaxApproximation()
 {
 	return m_nApprox;
 }
-int CFraktalSFT::GetIterationOnPoint(int x, int y)
+int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
 	WaitForSingleObject(m_hMutex, INFINITE);
 	if (!m_nPixels || m_nXPrev != m_nX || m_nYPrev != m_nY){
@@ -2073,16 +2080,16 @@ int CFraktalSFT::GetIterationOnPoint(int x, int y)
 		ReleaseMutex(m_hMutex);
 		return PIXEL_UNEVALUATED;
 	}
-	int nRet = m_nPixels[x][y];
+	int64_t nRet = m_nPixels[x][y];
 	ReleaseMutex(m_hMutex);
 	return nRet;
 }
-int CFraktalSFT::GetTransOnPoint(int x, int y)
+double CFraktalSFT::GetTransOnPoint(int x, int y)
 {
 	if (x<0 || x >= m_nX || y<0 || y >= m_nY || !m_nTrans){
 		return 0;
 	}
-	return (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]);
+	return 1 - m_nTrans[x][y];
 }
 static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 {
@@ -2164,7 +2171,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		for (x = 0; x<m_nX; x++)
 		for (y = 0; y<m_nY; y++)
 			Node[x][y] = m_nPixels[x][y];
-		GetArea(Node, nXPos, nYPos, 2, NULL, -1);
+		GetArea(Node, nXPos, nYPos, 2, itercount_array_invalid, -1);
 		for (x = 0; x<m_nX; x++)
 		for (y = 0; y<m_nY; y++)
 		if (Node[x][y] == -1)
@@ -2198,7 +2205,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 #undef KF_RERENDER_ONLY_ALL_GLITCHES
 
 #define SMOOTH_TO 7
-int CFraktalSFT::GetArea(int **Node, int nXStart,int nYStart,int nEqSpan,int **Pixels,int nDone)
+int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone)
 {
 	int x, y;
 	int nAreaC=0;
@@ -2327,13 +2334,14 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	int x, y, i=0, io;
 	int rx = -1, ry = -1;
 
-	int **Pixels = m_nPixels;
-	int **Node = new int*[m_nX];
-	for(i=0;i<m_nX;i++)
-		Node[i] = new int[m_nY];
-	for(x=0;x<m_nX;x++)
-		for(y=0;y<m_nY;y++)
-			Node[x][y]=Pixels[x][y];
+	itercount_array &Pixels = m_nPixels;
+
+	uint32_t *lsb = new uint32_t[m_nX * m_nY];
+	uint32_t *msb = m_nPixels_MSB ? new uint32_t[m_nX * m_nY] : nullptr;
+	memcpy(lsb, m_nPixels_LSB, sizeof(*lsb) * m_nX * m_nY);
+	if (msb)
+		memcpy(msb, m_nPixels_MSB, sizeof(*msb) * m_nX * m_nY);
+	itercount_array Node(m_nY, 1, lsb, msb);
 
 	int nDistance=-1;
 
@@ -2383,7 +2391,8 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 						continue;
 					}
 				}
-				int nDist = GetArea(Node,x,y,1,NULL,nDone);
+				itercount_array invalid(0, 0, nullptr, nullptr);
+				int nDist = GetArea(Node,x,y,1,invalid,nDone);
 				if(nDistance<nDist){
 					nDistance=nDist;
 					rx=x;
@@ -2580,9 +2589,8 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			m_pOldGlitch[io].y=ret_y;
 		}
 	}
-	for(i=0;i<m_nX;i++)
-		delete [] Node[i];
-	delete[] Node;
+	delete[] lsb;
+	delete[] msb;
 	return nDistance + 1; // -1 becomes 0
 }
 #undef KF_CENTER_VIA_TRANS
@@ -2608,7 +2616,7 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 {
 	if (x<0 || x >= m_nX || y<0 || y >= m_nY || !m_nPixels)
 		return -1;
-	return ((((int)floor(m_nPixels[x][y] / m_nIterDiv)) % 1024) + 1024) % 1024;
+	return ((((int64_t)floor(m_nPixels[x][y] / m_nIterDiv)) % 1024) + 1024) % 1024;
 }
 void CFraktalSFT::SaveMap(const std::string &szFile)
 {
@@ -2647,7 +2655,8 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 }
 void CFraktalSFT::SaveMapB(const std::string &szFile)
 {
-	if (!m_nPixels)
+	// WONTFIX doesn't save m_nPixels_MSB
+	if (!m_nPixels_LSB)
 		return;
 	DWORD dw;
 	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
@@ -2655,8 +2664,7 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	WriteFile(hFile, "KFB", 3, &dw, NULL);
 	WriteFile(hFile, &m_nX, sizeof(m_nX), &dw, NULL);
 	WriteFile(hFile, &m_nY, sizeof(m_nY), &dw, NULL);
-	for (x = 0; x<m_nX; x++)
-		WriteFile(hFile, m_nPixels[x], m_nY*sizeof(int), &dw, NULL);
+	WriteFile(hFile, m_nPixels_LSB, sizeof(*m_nPixels_LSB) * m_nX * m_nY, &dw, NULL);
 	int div = m_nIterDiv;
 	WriteFile(hFile, &div, sizeof(m_nParts), &dw, NULL);
 	WriteFile(hFile, &m_nParts, sizeof(m_nParts), &dw, NULL);
@@ -2821,9 +2829,9 @@ BOOL CFraktalSFT::DeleteMW(int nIndex)
 		m_MW[i].nPeriod = m_MW[i + 1].nPeriod;
 	return TRUE;
 }
-int CFraktalSFT::GetMaxExceptCenter()
+int64_t CFraktalSFT::GetMaxExceptCenter()
 {
-	int nMax = 0;
+	int64_t nMax = 0;
 	int x, y;
 	int nXO = m_nX / 2 - 2;
 	int nYO = m_nY / 2 - 2;
@@ -2860,7 +2868,7 @@ int CFraktalSFT::GetExponent()
 	return m_nZoom;
 }
 
-void CFraktalSFT::SetApproxTerms(int nTerms)
+void CFraktalSFT::SetApproxTerms(int64_t nTerms)
 {
 	m_Settings.SetApproxTerms(nTerms);
 	int m_nTerms = GetApproxTerms();
@@ -3065,7 +3073,7 @@ void CPixels::Init(int width, int height, bool interactive)
 		end = ix;
 		if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
   }
-	assert(ix == width * height);
+	//assert(ix == width * height);
 }
 
 BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
@@ -3086,7 +3094,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, int antal, double test1, double test2, double de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3119,8 +3127,9 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, i
 				double t = log(log(sqrt(test1))) / log((double)m_nPower);
 				if (!ISFLOATOK(t))
 					t = 0;
-				int i = floor(t);
-				m_nPixels[x][y] -= i;
+				int64_t i = floor(t);
+				auto r = m_nPixels[x][y];
+				r = r - i;
 				m_nTrans[x][y] = t - i;
 			}
 
@@ -3134,7 +3143,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, int bGlitch, i
 			Mirror(x, y);
 }
 
-void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, int bGlitch)
+void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 {
 		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring)
     {
@@ -3165,12 +3174,14 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, int bGlitch)
 
 bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 {
+	// NOTE casts to int64_t are required to avoid copying just the ref!
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
 	if (GetGuessing())
 	{
 		if (w == 1 && h <= 2)
 		{
 			if (x && x<m_nX - 1 && m_nPixels[x - 1][y] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y] == m_nPixels[x + 1][y] && GET_TRANS_GLITCH(m_nTrans[x - 1][y]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y])){
+				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y]);
 				m_nTrans[x][y] = (m_nTrans[x - 1][y] + m_nTrans[x + 1][y])*.5;
 				m_nDE[x][y] = (m_nDE[x - 1][y] + m_nDE[x + 1][y])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y))*m_row;
@@ -3180,7 +3191,6 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
 				InterlockedIncrement((LPLONG)&m_nDone);
 				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y];
 				if (m_bMirrored)
 					Mirror(x, y);
 				return true;
@@ -3189,6 +3199,7 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 		if (w == 1 && h == 1)
 		{
 			if (y && y<m_nY - 1 && m_nPixels[x][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x][y - 1] == m_nPixels[x][y + 1] && GET_TRANS_GLITCH(m_nTrans[x][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x][y + 1])){
+				m_nPixels[x][y] = int64_t(m_nPixels[x][y - 1]);
 				m_nTrans[x][y] = (m_nTrans[x][y - 1] + m_nTrans[x][y + 1])*.5;
 				m_nDE[x][y] = (m_nDE[x][y - 1] + m_nDE[x][y + 1])*.5;
 				int nIndex1 = (x)* 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
@@ -3198,12 +3209,12 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
 				InterlockedIncrement((LPLONG)&m_nDone);
 				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x][y - 1];
 				if (m_bMirrored)
 					Mirror(x, y);
 				return true;
 			}
 			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y - 1] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y - 1] == m_nPixels[x + 1][y + 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y - 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y + 1])){
+				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y - 1]);
 				m_nTrans[x][y] = (m_nTrans[x - 1][y - 1] + m_nTrans[x + 1][y + 1])*.5;
 				m_nDE[x][y] = (m_nDE[x - 1][y - 1] + m_nDE[x + 1][y + 1])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y - 1))*m_row;
@@ -3213,12 +3224,12 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
 				InterlockedIncrement((LPLONG)&m_nDone);
 				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y - 1];
 				if (m_bMirrored)
 					Mirror(x, y);
 				return true;
 			}
 			if (y && y<m_nY - 1 && x && x<m_nX - 1 && m_nPixels[x - 1][y + 1] != PIXEL_UNEVALUATED && m_nPixels[x - 1][y + 1] == m_nPixels[x + 1][y - 1] && GET_TRANS_GLITCH(m_nTrans[x - 1][y + 1]) == GET_TRANS_GLITCH(m_nTrans[x + 1][y - 1])){
+				m_nPixels[x][y] = int64_t(m_nPixels[x - 1][y + 1]);
 				m_nTrans[x][y] = (m_nTrans[x - 1][y + 1] + m_nTrans[x + 1][y - 1])*.5;
 				m_nDE[x][y] = (m_nDE[x - 1][y + 1] + m_nDE[x + 1][y - 1])*.5;
 				int nIndex1 = (x - 1) * 3 + (m_bmi->biHeight - 1 - (y + 1))*m_row;
@@ -3228,7 +3239,6 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h) // FIXME m_nDE support
 				m_lpBits[nIndex + 2] = (m_lpBits[nIndex1 + 2] + m_lpBits[nIndex2 + 2]) / 2;
 				InterlockedIncrement((LPLONG)&m_nDone);
 				InterlockedIncrement((LPLONG)&m_nGuessed);
-				m_nPixels[x][y] = m_nPixels[x - 1][y + 1];
 				if (m_bMirrored)
 					Mirror(x, y);
 				return true;

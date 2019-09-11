@@ -27,9 +27,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
 #include "complex.h"
-
 #include "floatexp.h"
 #include "../common/matrix.h"
+#include "itercount_array.h"
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
@@ -255,14 +255,16 @@ class CFraktalSFT
 	POINT m_pOldGlitch[OLD_GLITCH];
 	int m_nSizeImage;
 	int m_nZoom;
-	int m_nMaxIter;
-	int m_nGlitchIter;
+	int64_t m_nMaxIter;
+	int64_t m_nGlitchIter;
 	int m_nTotal;
 	HBITMAP m_bmBmp;
 	COLOR14 m_cPos[1025], m_cKeys[1025], m_cInterior;
 	int m_nParts;
 	int m_nSeed;
-	int **m_nPixels;
+	uint32_t *m_nPixels_LSB;
+	uint32_t *m_nPixels_MSB; // may be nullptr
+	itercount_array m_nPixels; // FIXME
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
@@ -290,7 +292,7 @@ class CFraktalSFT
 	Differences m_nDifferences;
 	int m_nColorOffset;
 	BOOL m_bIterChanged;
-	int m_nMinI, m_nMaxI;
+	int64_t m_nMinI, m_nMaxI;
 
 	double m_xrd, m_xid;
 
@@ -305,8 +307,8 @@ class CFraktalSFT
 	long double *m_ldxr, *m_ldxi;
 
 	double m_nIterDiv;
-	int m_nMaxApproximation;
-	int m_nApprox;
+	int64_t m_nMaxApproximation;
+	int64_t m_nApprox;
 	RECT m_rApprox;
 
 	double *m_db_dxr;
@@ -325,8 +327,8 @@ class CFraktalSFT
 	int m_nY, m_nYPrev;
 	int m_nDone;
 	int m_nGuessed;
-	int m_nRDone;
-	BOOL m_bStop;
+	int64_t m_nRDone;
+	bool m_bStop;
 	HWND m_hWnd;
 	char *m_szPosition;
 	BOOL m_bReuseRef;
@@ -362,8 +364,8 @@ class CFraktalSFT
 		return SeriesType_None;
 	}
 	void CalculateApproximation(int nType);
-	void DoApproximation(int &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
-	void DoApproximation(int &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
+	void DoApproximation(int64_t &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
+	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
 	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
 	void CalculateReference();
 	void CalculateReferenceEXP();
@@ -381,10 +383,10 @@ class CFraktalSFT
 	void RenderFractalOpenCL();
 	void RenderFractalOpenCLEXP();
 #endif
-	int GetArea(int **Node, int nXStart, int nXStop, int nEqSpan = 2, int **Pixels = NULL, int nDone = -1);
+	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone);
 
 	void SetTexture(int nIndex, int x, int y);
-	void SetColor(int nIndex, int nIter, double offs = 0, int x = -1, int y = -1, int w = 1, int h = 1);
+	void SetColor(int nIndex, int64_t nIter, double offs = 0, int x = -1, int y = -1, int w = 1, int h = 1);
 	void DeleteArrays();
 
 #ifdef KF_OPENCL
@@ -415,7 +417,7 @@ public:
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	std::string ToZoom();
 	void SetImageSize(int nx, int ny);
-	void RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
+	void RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
 	void CalcStart(int x0, int x1, int y0, int y1);
 	HBITMAP GetBitmap();
@@ -429,9 +431,9 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	double GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL, int *pnT = NULL);
 	std::string GetPosition();
-	void GetIterations(int &nMin, int &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
-	int GetIterations();
-	void SetIterations(int nIterations);
+	void GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
+	int64_t GetIterations();
+	void SetIterations(int64_t nIterations);
 	std::string GetRe();
 	std::string GetRe(int nXPos, int nYPos, int width, int height);
 	std::string GetIm();
@@ -461,9 +463,9 @@ public:
 	double GetIterDiv();
 	void SetIterDiv(double nIterDiv);
 	int SaveJpg(const std::string &szFile, int nQuality, int nWidth = 0, int nHeight = 0);
-	int GetMaxApproximation();
-	int GetIterationOnPoint(int x, int y);
-	int GetTransOnPoint(int x, int y);
+	int64_t GetMaxApproximation();
+	int64_t GetIterationOnPoint(int x, int y);
+	double GetTransOnPoint(int x, int y);
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
 	BOOL HighestIteration(int &rx, int &ry);
 	int FindCenterOfGlitch(int &rx, int &ry);
@@ -499,7 +501,7 @@ public:
 	BOOL UpdateMW(int nIndex, int nPeriod, int nStart, int nType);
 	BOOL DeleteMW(int nIndex);
 
-	int GetMaxExceptCenter();
+	int64_t GetMaxExceptCenter();
 	void SetFractalType(int nFractalType);
 	int GetFractalType();
 
@@ -523,8 +525,8 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int w, int h, int bGlitch, int antal, double test1, double test2, double de);
-	void OutputPixelData(int x, int y, int w, int h, int bGlitch);
+	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double de);
+	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
 	bool GuessPixel(int x, int y, int w, int h);
 
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
@@ -550,8 +552,8 @@ public:
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
 	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };
 #define INT(KEY) \
-	inline int    Get##KEY() const { return m_Settings.Get##KEY(); }; \
-	inline void   Set##KEY(int x) { return m_Settings.Set##KEY(x); };
+	inline int64_t    Get##KEY() const { return m_Settings.Get##KEY(); }; \
+	inline void   Set##KEY(int64_t x) { return m_Settings.Set##KEY(x); };
 #define BOOL(KEY) \
 	inline bool   Get##KEY() const { return m_Settings.Get##KEY(); }; \
 	inline void   Set##KEY(bool x) { return m_Settings.Set##KEY(x); };
@@ -560,8 +562,8 @@ public:
   BOOL(GlitchLowTolerance)
   BOOL(ApproxLowTolerance)
   BOOL(AutoApproxTerms)
-	inline int    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
-	       void   SetApproxTerms(int t);
+	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
+	       void   SetApproxTerms(int64_t t);
   INT(WindowWidth)
   INT(WindowHeight)
   INT(WindowTop)
@@ -617,7 +619,7 @@ public:
   void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
 
   // for EXR IO
-  int *GetArrayCount() { return m_nPixels[0]; };
+  itercount_array GetArrayCount() { return m_nPixels; };
   float *GetArrayTrans() { return m_nTrans[0]; };
   float *GetArrayDE() { return GetDerivatives() ? m_nDE[0] : nullptr; };
   half *GetArrayHalfColour() { return m_imageHalf; };

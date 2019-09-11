@@ -1179,7 +1179,7 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 static void AutoIterations()
 {
 	if(g_SFT.GetAutoIterations()){
-		int nMin, nMax, nIter;
+		int64_t nMin, nMax, nIter;
 		g_SFT.GetIterations(nMin,nMax);
 		// sanity check, abort if no pixels have been calculated
 		if (nMax == PIXEL_UNEVALUATED)
@@ -3078,8 +3078,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int y = (short)HIWORD(lParam)*g_SFT.GetHeight()/rc.bottom;
 		int i = g_SFT.GetIterationOnPoint(x,y);
 		if(i != PIXEL_UNEVALUATED){
-			wsprintf(szI+strlen(szI),"%d",i);
-			wsprintf(szI+strlen(szI)," <%d,%d> S:%d",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
+			snprintf(szI+strlen(szI),100,"%d",i);
+			snprintf(szI+strlen(szI),100," <%d,%d> S:%f",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
 			SendMessage(g_hwStatus,SB_SETTEXT,2,(LPARAM)szI);
 		}
 	}
@@ -4505,8 +4505,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_ACTIONS_CANCELRENDERING)
 			PostMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 		else if(wParam==ID_ACTIONS_ITERATIONS){
-			int n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG2),hWnd,(DLGPROC)IterationProc,0);
-			if(n){
+			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG2),hWnd,IterationProc,0);
+			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
 				RECT r;
 				GetClientRect(hWnd,&r);
@@ -4517,7 +4517,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.UndoStore();
-				g_SFT.SetIterations(n);
+				g_SFT.SetIterations(g_SFT.GetIterations());
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
@@ -4823,7 +4823,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bmSaveZoomBuff=NULL;
 			int x, y;
 			if(g_bFindMinibrotCount && g_bFindMinibrotCount==g_bFindMinibrotPos){
-				int nMin,nMax;
+				int64_t nMin,nMax;
 				g_SFT.GetIterations(nMin,nMax);
 				if(nMax<nMin+3){
 					SYSTEMTIME st;
@@ -4833,7 +4833,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetTimer(hWnd,0,500,NULL);
 					return 0;
 				}
-				int nIter;
+				int64_t nIter;
 				g_SFT.GetIterations(nMin,nMax,NULL,NULL,TRUE);
 				int diff = (nMax-nMin)/6;
 				int nTries=0;
@@ -4852,9 +4852,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				return MessageBox(hWnd,"Cannot find center","Error",MB_OK|MB_ICONSTOP);
 			}
 			if(g_bFindMinibrotCount){
-				int nMin,nMax;
+				int64_t nMin,nMax;
 				g_SFT.GetIterations(nMin,nMax);
-				int nIter=g_SFT.GetIterationOnPoint(x,y);
+				int64_t nIter=g_SFT.GetIterationOnPoint(x,y);
 				if(nIter<nMin+8)
 					g_SFT.HighestIteration(x,y);
 			}
@@ -4870,7 +4870,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			else
 				SetWindowText(hWnd,"Kalle's Fraktaler 2");
-			int nMin, nMax, nIter;
+			int64_t nMin, nMax, nIter;
 			g_SFT.GetIterations(nMin,nMax);
 			nIter = g_SFT.GetIterations();
 			if(nIter<nMin+nMin/2+2000)

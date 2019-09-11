@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <ImfPreviewImage.h>
 
 #include <iostream>
+#include <cstdlib>
 
 #include "fraktal_sft.h"
 #include "exr.h"
@@ -40,7 +41,7 @@ using namespace IMF;
 using namespace IMATH_NAMESPACE;
 
 const char magic[] = "KallesFraktaler2+";
-const int BIAS = 1024;
+const int64_t BIAS = 1024;
 
 extern int SaveEXR
 ( const std::string &filename
@@ -49,10 +50,10 @@ extern int SaveEXR
 , int nHeight
 , int nColors
 , const std::string &comment
-, int maxiter
+, int64_t maxiter
 , int arrWidth
 , int arrHeight
-, const int *count
+, const itercount_array &count
 , const float *trans
 , const float *rawde
 )
@@ -60,7 +61,8 @@ extern int SaveEXR
   try
   {
     // prepare arrays with proper format
-    uint32_t *n = new uint32_t[size_t(arrWidth) * arrHeight];
+    uint32_t *n0 = new uint32_t[size_t(arrWidth) * arrHeight];
+    uint32_t *n1 = (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     float *nf = new float[size_t(arrWidth) * arrHeight];
     float *de = rawde ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     // TODO parallelize
@@ -71,23 +73,27 @@ extern int SaveEXR
         // [x][y], don't flip vertically!
         size_t k = j + arrHeight * i;
         size_t e = j + arrHeight * i;
-        if (PIXEL_UNEVALUATED == count[k] || GET_TRANS_GLITCH(trans[k]))
+        if (PIXEL_UNEVALUATED == count[i][j] || GET_TRANS_GLITCH(trans[k]))
         {
           // not calculated, or glitched
-          n[e] = 0;
+          if (n1) n1[e] = 0;
+          n0[e] = 0;
           nf[e] = 0.0f;
           if (de) de[e] = 0.0f;
         }
-        else if (count[k] == maxiter)
+        else if (count[i][j] == maxiter)
         {
           // unescaped
-          n[e] = 0xFFffFFffU;
+          if (n1) n1[e] = 0xFFffFFffU;
+          n0[e] = 0xFFffFFffU;
           nf[e] = 0.0f;
           if (de) de[e] = 0.0f;
         }
         else
         {
-          n[e] = count[k] + BIAS;
+          int64_t n = count[i][j] + BIAS;
+          if (n1) n1[e] = (n >> 32) & 0xFFffFFffLL;
+          n0[e] = n & 0xFFffFFffLL;
           nf[e] = 1.0f - trans[k];
           if (de) de[e] = rawde[k];
         }
@@ -123,7 +129,13 @@ extern int SaveEXR
       header.channels().insert("G", Channel(IMF::HALF));
       header.channels().insert("B", Channel(IMF::HALF));
     }
-    header.channels().insert("N",  Channel(IMF::UINT));
+    if (n1)
+    {
+      header.channels().insert("N0",  Channel(IMF::UINT));
+      header.channels().insert("N1",  Channel(IMF::UINT));
+    }
+    else
+      header.channels().insert("N",  Channel(IMF::UINT));
     header.channels().insert("NF", Channel(IMF::FLOAT));
     if (de) header.channels().insert("DE", Channel(IMF::FLOAT));
     OutputFile of(filename.c_str(), header);
@@ -141,13 +153,21 @@ extern int SaveEXR
       std::cerr << "no rgb" << std::endl;
     }
     // [x][y]
-    fb.insert("N",  Slice(IMF::UINT,  (char *) n,  sizeof(*n ) * arrHeight, sizeof(*n ) * 1));
+    if (n1)
+    {
+      fb.insert("N0", Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
+      fb.insert("N1", Slice(IMF::UINT,  (char *) n1, sizeof(*n1) * arrHeight, sizeof(*n1) * 1));
+    }
+    else
+      fb.insert("N",  Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));
     if (de) fb.insert("DE", Slice(IMF::FLOAT, (char *) de, sizeof(*de) * arrHeight, sizeof(*de) * 1));
     of.setFrameBuffer(fb);
     of.writePixels(arrHeight);
-    delete [] nf;
-    delete [] n;
+    delete[] nf;
+    delete[] n0;
+    delete[] n1;
+    delete[] de;
     return 1;
   }
   catch (...)
@@ -190,8 +210,8 @@ extern bool ReadEXRMapFile(const std::string &filename)
   try
   {
     InputFile file(filename.c_str());
-    int maxiter = INT_MAX - 1;
-    int bias = BIAS;
+    int64_t maxiter = INT_MAX - 1 - BIAS;
+    int64_t bias = BIAS;
     const Header &h = file.header();
     for (Header::ConstIterator i = h.begin(); i != h.end(); ++i)
     {
@@ -203,6 +223,10 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           maxiter = s->value();
         }
+        if (const StringAttribute *s = dynamic_cast<const StringAttribute *>(a))
+        {
+          maxiter = atoll(s->value().c_str());
+        }
       }
       if (name == "IterationsBias")
       {
@@ -211,18 +235,29 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           bias = s->value();
         }
+        if (const StringAttribute *s = dynamic_cast<const StringAttribute *>(a))
+        {
+          bias = atoll(s->value().c_str());
+        }
       }
     }
     Box2i dw = h.dataWindow();
     size_t width = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
     // prepare arrays with proper format
-    uint32_t *N = new uint32_t[width * height];
+    uint32_t *N0 = new uint32_t[width * height];
+    uint32_t *N1 = maxiter + bias >= 0xFFffFFffLL ? new uint32_t[width * height] : nullptr;
     float *NF = new float[width * height];
     float *DE = new float[width * height];
     FrameBuffer fb;
     // [x][y]
-    fb.insert("N" , Slice(IMF::UINT,  (char *) (&N [0] - dw.min.x - dw.min.y * width), sizeof(N [0]) * height, sizeof(N [0]) * 1, 1, 1, 0));
+    if (N1)
+    {
+      fb.insert("N0", Slice(IMF::UINT,  (char *) (&N0[0] - dw.min.x - dw.min.y * width), sizeof(N0[0]) * height, sizeof(N0[0]) * 1, 1, 1, 0));
+      fb.insert("N1", Slice(IMF::UINT,  (char *) (&N1[0] - dw.min.x - dw.min.y * width), sizeof(N1[0]) * height, sizeof(N1[0]) * 1, 1, 1, 0));
+    }
+    else
+      fb.insert("N" , Slice(IMF::UINT,  (char *) (&N0[0] - dw.min.x - dw.min.y * width), sizeof(N0[0]) * height, sizeof(N0[0]) * 1, 1, 1, 0));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
     fb.insert("DE", Slice(IMF::FLOAT, (char *) (&DE[0] - dw.min.x - dw.min.y * width), sizeof(DE[0]) * height, sizeof(DE[0]) * 1, 1, 1, 0.0f));
     file.setFrameBuffer(fb);
@@ -230,7 +265,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
     // copy to KF arrays
     g_SFT.SetIterations(maxiter);
     g_SFT.SetImageSize(width, height);
-    int *count = g_SFT.GetArrayCount();
+    itercount_array count = g_SFT.GetArrayCount();
     float *trans = g_SFT.GetArrayTrans();
     float *de = g_SFT.GetArrayDE();
     // TODO parallelize
@@ -241,21 +276,21 @@ extern bool ReadEXRMapFile(const std::string &filename)
         // [x][y], don't flip vertically!
         size_t e = j + height * i;
         size_t k = j + height * i;
-        if (N[e] == 0 && NF[e] == 0.0f)
+        if ((N1 ? N1[e] == 0 : true) && N0[e] == 0 && NF[e] == 0.0f)
         {
-          count[k] = PIXEL_UNEVALUATED;
+          count[i][j] = PIXEL_UNEVALUATED;
           trans[k] = 0.0f;
           if (de) de[k] = 0.0f;
         }
-        else if (N[e] == 0xFFffFFffU)
+        else if ((N1 ? N1[e] == 0xFFffFFffU : true) && N0[e] == 0xFFffFFffU)
         {
-          count[k] = maxiter;
+          count[i][j] = maxiter;
           trans[k] = 0.0f;
           if (de) de[k] = 0.0f;
         }
         else
         {
-          count[k] = int(N[e]) - bias;
+          count[i][j] = ((N1 ? int64_t(N1[e]) << 32 : 0) | N0[e]) - bias;
           trans[k] = 1.0f - NF[e];
           if (de) de[k] = DE[e];
         }
@@ -263,7 +298,8 @@ extern bool ReadEXRMapFile(const std::string &filename)
     }
     g_SFT.ReinitializeBitmap();
     // FIXME leak on failure
-    delete[] N;
+    delete[] N0;
+    delete[] N1;
     delete[] NF;
     delete[] DE;
     return true;

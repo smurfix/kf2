@@ -41,11 +41,11 @@ struct mcthread_common
 	mpfr_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	long double *m_ldxr, *m_ldxi;
 	double *m_db_z, *terminate, *glitch_threshold;
-	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
-	int *antal;
+	int64_t *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	int64_t *antal;
 	double *test1;
 	double *test2;
-	volatile BOOL *stop;
+	volatile bool *stop;
 	long double dr, di;
 };
 
@@ -60,7 +60,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-	int antal = 0;
+	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
 	bool stored = false;
@@ -71,7 +71,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	long double dr = p->dr;
 	long double di = p->di;
 	const double glitch_threshold = *p->glitch_threshold;
-	int i = 0;
+	int64_t i = 0;
 	switch (p0->nType)
 	{
 		case 0:
@@ -223,7 +223,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 {
 	Precision prec(m_rref.m_f.precision());
 
-	int i;
+	int64_t i;
 	if (m_ldxr)
 		delete[] m_ldxr;
 	m_ldxr = new long double[m_nMaxIter];
@@ -234,7 +234,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		delete[] m_db_z;
 	m_db_z = new double [m_nMaxIter];
 
-	int antal = 0;
+	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
 
@@ -243,7 +243,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
+	int64_t nMaxIter = m_nMaxIter;
 
 	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()){ // FIXME matrix derivatives, option to disable derivatives
 		double glitch_threshold = 0.0000001;

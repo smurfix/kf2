@@ -36,21 +36,21 @@ class Settings
 private:
 
   double m_ZoomSize;
-  int m_MaxReferences;
+  int64_t m_MaxReferences;
   bool m_GlitchLowTolerance;
   bool m_ApproxLowTolerance;
   bool m_AutoApproxTerms;
-  int m_ApproxTerms;
-  int m_WindowWidth;
-  int m_WindowHeight;
-  int m_WindowTop;
-  int m_WindowLeft;
-  int m_WindowBottom;
-  int m_WindowRight;
-  int m_ImageWidth;
-  int m_ImageHeight;
+  int64_t m_ApproxTerms;
+  int64_t m_WindowWidth;
+  int64_t m_WindowHeight;
+  int64_t m_WindowTop;
+  int64_t m_WindowLeft;
+  int64_t m_WindowBottom;
+  int64_t m_WindowRight;
+  int64_t m_ImageWidth;
+  int64_t m_ImageHeight;
   double m_ThreadsPerCore;
-  int m_ThreadsReserveCore;
+  int64_t m_ThreadsReserveCore;
   bool m_AnimateZoom;
   bool m_ArbitrarySize;
   bool m_ReuseReference;
@@ -64,24 +64,24 @@ private:
   bool m_AutoIterations;
   bool m_ShowGlitches;
   bool m_NoReuseCenter;
-  int m_IsolatedGlitchNeighbourhood;
-  int m_JitterSeed;
-  int m_JitterShape;
+  int64_t m_IsolatedGlitchNeighbourhood;
+  int64_t m_JitterSeed;
+  int64_t m_JitterShape;
   double m_JitterScale;
   bool m_Derivatives;
   bool m_ShowCrossHair;
   bool m_UseNanoMB1;
   bool m_UseNanoMB2;
-  int m_OrderM;
-  int m_OrderN;
+  int64_t m_OrderM;
+  int64_t m_OrderN;
   bool m_InteriorChecking;
   double m_RadiusScale;
-  int m_Shrink;
+  int64_t m_Shrink;
   bool m_HalfColour;
   bool m_SaveOverwrites;
   bool m_ThreadedReference;
-  int m_SIMDVectorSize;
-  int m_SIMDChunkSize;
+  int64_t m_SIMDVectorSize;
+  int64_t m_SIMDChunkSize;
 
 
 public:
@@ -145,8 +145,8 @@ public:
   inline double GetZoomSize() const { return m_ZoomSize; };
   inline void   SetZoomSize(double z) { m_ZoomSize = z; };
 
-  inline int    GetMaxReferences() const { return m_MaxReferences; };
-  inline void   SetMaxReferences(int r) {
+  inline int64_t    GetMaxReferences() const { return m_MaxReferences; };
+  inline void   SetMaxReferences(int64_t r) {
     if (r < 0) r = 0;
     if (r > OLD_GLITCH) r = OLD_GLITCH;
     m_MaxReferences = r;
@@ -161,42 +161,42 @@ public:
   inline bool   GetAutoApproxTerms() const { return m_AutoApproxTerms; };
   inline void   SetAutoApproxTerms(bool b) { m_AutoApproxTerms = b; };
 
-  inline int    GetApproxTerms() const { return m_ApproxTerms; };
-  inline void   SetApproxTerms(int t) {
+  inline int64_t    GetApproxTerms() const { return m_ApproxTerms; };
+  inline void   SetApproxTerms(int64_t t) {
     if (t < MIN_APPROX_TERMS) t = MIN_APPROX_TERMS;
     if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
     m_ApproxTerms = t;
   };
 
-  inline int    GetWindowWidth() const { return m_WindowWidth; };
-  inline void   SetWindowWidth(int w) { m_WindowWidth = w; };
+  inline int64_t    GetWindowWidth() const { return m_WindowWidth; };
+  inline void   SetWindowWidth(int64_t w) { m_WindowWidth = w; };
 
-  inline int    GetWindowHeight() const { return m_WindowHeight; };
-  inline void   SetWindowHeight(int h) { m_WindowHeight = h; };
+  inline int64_t    GetWindowHeight() const { return m_WindowHeight; };
+  inline void   SetWindowHeight(int64_t h) { m_WindowHeight = h; };
 
-  inline int    GetWindowTop() const { return m_WindowTop; };
-  inline void   SetWindowTop(int w) { m_WindowTop = w; };
+  inline int64_t    GetWindowTop() const { return m_WindowTop; };
+  inline void   SetWindowTop(int64_t w) { m_WindowTop = w; };
 
-  inline int    GetWindowLeft() const { return m_WindowLeft; };
-  inline void   SetWindowLeft(int w) { m_WindowLeft = w; };
+  inline int64_t    GetWindowLeft() const { return m_WindowLeft; };
+  inline void   SetWindowLeft(int64_t w) { m_WindowLeft = w; };
 
-  inline int    GetWindowBottom() const { return m_WindowBottom; };
-  inline void   SetWindowBottom(int w) { m_WindowBottom = w; };
+  inline int64_t    GetWindowBottom() const { return m_WindowBottom; };
+  inline void   SetWindowBottom(int64_t w) { m_WindowBottom = w; };
 
-  inline int    GetWindowRight() const { return m_WindowRight; };
-  inline void   SetWindowRight(int w) { m_WindowRight = w; };
+  inline int64_t    GetWindowRight() const { return m_WindowRight; };
+  inline void   SetWindowRight(int64_t w) { m_WindowRight = w; };
 
-  inline int    GetImageWidth() const { return m_ImageWidth; };
-  inline void   SetImageWidth(int w) { m_ImageWidth = w; };
+  inline int64_t    GetImageWidth() const { return m_ImageWidth; };
+  inline void   SetImageWidth(int64_t w) { m_ImageWidth = w; };
 
-  inline int    GetImageHeight() const { return m_ImageHeight; };
-  inline void   SetImageHeight(int h) { m_ImageHeight = h; };
+  inline int64_t    GetImageHeight() const { return m_ImageHeight; };
+  inline void   SetImageHeight(int64_t h) { m_ImageHeight = h; };
 
   inline double GetThreadsPerCore() const { return m_ThreadsPerCore; };
   inline void   SetThreadsPerCore(double t) { m_ThreadsPerCore = t; };
 
-  inline int    GetThreadsReserveCore() const { return m_ThreadsReserveCore; };
-  inline void   SetThreadsReserveCore(int t) { m_ThreadsReserveCore = t; };
+  inline int64_t    GetThreadsReserveCore() const { return m_ThreadsReserveCore; };
+  inline void   SetThreadsReserveCore(int64_t t) { m_ThreadsReserveCore = t; };
 
   inline bool   GetAnimateZoom() const { return m_AnimateZoom; };
   inline void   SetAnimateZoom(bool b) { m_AnimateZoom = b; };
@@ -237,14 +237,14 @@ public:
   inline bool   GetNoReuseCenter() const { return m_NoReuseCenter; };
   inline void   SetNoReuseCenter(bool b) { m_NoReuseCenter = b; };
 
-  inline int    GetIsolatedGlitchNeighbourhood() const { return m_IsolatedGlitchNeighbourhood; };
-  inline void   SetIsolatedGlitchNeighbourhood(int n) { m_IsolatedGlitchNeighbourhood = n; };
+  inline int64_t    GetIsolatedGlitchNeighbourhood() const { return m_IsolatedGlitchNeighbourhood; };
+  inline void   SetIsolatedGlitchNeighbourhood(int64_t n) { m_IsolatedGlitchNeighbourhood = n; };
 
-  inline int    GetJitterSeed() const { return m_JitterSeed; };
-  inline void   SetJitterSeed(int n) { m_JitterSeed = n; };
+  inline int64_t    GetJitterSeed() const { return m_JitterSeed; };
+  inline void   SetJitterSeed(int64_t n) { m_JitterSeed = n; };
 
-  inline int    GetJitterShape() const { return m_JitterShape; };
-  inline void   SetJitterShape(int n) { m_JitterShape = 0 <= n && n <= 1 ? n : 0; };
+  inline int64_t    GetJitterShape() const { return m_JitterShape; };
+  inline void   SetJitterShape(int64_t n) { m_JitterShape = 0 <= n && n <= 1 ? n : 0; };
 
   inline double GetJitterScale() const { return m_JitterScale; };
   inline void   SetJitterScale(double n) { m_JitterScale = n; };
@@ -261,16 +261,16 @@ public:
   inline bool   GetUseNanoMB2() const { return m_UseNanoMB2; };
   inline void   SetUseNanoMB2(bool b) { m_UseNanoMB2 = b; };
 
-  inline int    GetOrderM() const { return m_OrderM; };
-  inline void   SetOrderM(int t)
+  inline int64_t    GetOrderM() const { return m_OrderM; };
+  inline void   SetOrderM(int64_t t)
   {
     if (t < 1) t = 1;
     if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
     m_OrderM = t;
   };
 
-  inline int    GetOrderN() const { return m_OrderN; };
-  inline void   SetOrderN(int t)
+  inline int64_t    GetOrderN() const { return m_OrderN; };
+  inline void   SetOrderN(int64_t t)
   {
     if (t < 1) t = 1;
     if (t > MAX_APPROX_TERMS) t = MAX_APPROX_TERMS;
@@ -283,8 +283,8 @@ public:
   inline double GetRadiusScale() const { return m_RadiusScale; };
   inline void   SetRadiusScale(double b) { m_RadiusScale = b; };
 
-  inline int    GetShrink() const { return m_Shrink; };
-  inline void   SetShrink(int n) { m_Shrink = 0 <= n && n <= 2 ? n : 1; };
+  inline int64_t    GetShrink() const { return m_Shrink; };
+  inline void   SetShrink(int64_t n) { m_Shrink = 0 <= n && n <= 2 ? n : 1; };
 
   inline bool   GetHalfColour() const { return m_HalfColour; };
   inline void   SetHalfColour(bool b) { m_HalfColour = b; };
@@ -295,11 +295,11 @@ public:
   inline bool   GetThreadedReference() const { return m_ThreadedReference; };
   inline void   SetThreadedReference(bool b) { m_ThreadedReference = b; };
 
-  inline int    GetSIMDChunkSize() const { return m_SIMDChunkSize; };
-  inline void   SetSIMDChunkSize(int n) { m_SIMDChunkSize = 0 < n ? n : 1; };
+  inline int64_t    GetSIMDChunkSize() const { return m_SIMDChunkSize; };
+  inline void   SetSIMDChunkSize(int64_t n) { m_SIMDChunkSize = 0 < n ? n : 1; };
 
-  inline int    GetSIMDVectorSize() const { return m_SIMDVectorSize; };
-  inline void   SetSIMDVectorSize(int n) {
+  inline int64_t    GetSIMDVectorSize() const { return m_SIMDVectorSize; };
+  inline void   SetSIMDVectorSize(int64_t n) {
     if (n > 1 << KF_SIMD) n = 1 << KF_SIMD;
     switch (n)
     {

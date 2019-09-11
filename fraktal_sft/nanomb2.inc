@@ -28,7 +28,7 @@ Largely based on knighty's public domain nanomb1/nanomb2 code from:
 #define re m_r
 #define im m_i
 // type aliases
-typedef int N;
+typedef int64_t N;
 typedef floatexp R_lo;
 typedef decNumber R_hi;
 typedef complex<R_lo> C_lo;
@@ -66,7 +66,7 @@ class perturbationClassD{
 	N    m_si;
 	N    m_n0;
 	bool m_escaped;
-	int m_iters;
+	int64_t m_iters;
   R_lo m_test1;
   R_lo m_test2;
 	R_lo m_de;
@@ -127,7 +127,7 @@ public:
 		}
 	}
 	bool haveEscaped(){return m_escaped;}
-	int getIters(){return m_iters;}
+	int64_t getIters(){return m_iters;}
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
 	R_lo getDE(){return m_de;}
@@ -423,7 +423,7 @@ std::cerr << "period " << m_period << " radius " << r.toString() << std::endl;
 // d0 is relative to the center of the screen. The SSAs transparently transform the point into their own reference frame when called thanks to their m_shift member variable.
 //---------------------------------------------------------------------------------------------------
 
-static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int &antal, double &test1, double &test2, double &de, bool interior_checking){
+static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking){
 	//try the SSAs from the latest (deepest) to the first. if not possible use perturbation until we get near to 0 again then repeat.
 	//ToDo: edit refClass to add another run(inside radius) function that verify if the iterated point returns near 0
 	//ToDo2: we need to test for escapes AFTER the iteration --> edit biPolyClass to compute the "other" bailout.
@@ -466,7 +466,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 			  {
 			    C_lo w(w0);
 			    dw = C_lo(1);
-			    for (int n = 0; n < si; ++n)
+			    for (int64_t n = 0; n < si; ++n)
 			    {
 			      dw = dw * SSAs[curSSA].eval_dz(w, d00);
 			      w = SSAs[curSSA].eval(w, d00);
@@ -489,7 +489,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 #if 0			    
 			    // is interior, calculate interior DE
 			    C_lo z(w0), dz(1), dc(0), dzdz(0), dcdz(0);
-			    for (int n = 0; n < si; ++n)
+			    for (int64_t n = 0; n < si; ++n)
 			      up.eval(z, dz, dc, dzdz, dcdz);
 			    R_lo de = (R_lo(1) - norm(dz)) / abs(dcdz + (dzdz * dc) / (C_lo(1) - dz));
 			    iters = si * period;
@@ -557,7 +557,7 @@ struct NanoMB2_Reference
   { };
 };
 
-NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile BOOL &stop, int &m_nRDone, R_lo radius_scale)
+NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile bool &stop, int64_t &m_nRDone, R_lo radius_scale)
 {
   R_lo tmax = r0;
 
@@ -627,7 +627,7 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
     return new NanoMB2_Reference(SSAs, ref);
 }
 
-void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, int &bGlitch, int &antal, double &test1, double &test2, double &de, bool interior_checking)
+void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
 {
   iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, de, interior_checking);
   bGlitch = false;

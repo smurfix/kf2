@@ -27,19 +27,20 @@ void CFraktalSFT::MandelCalc()
   double yr, yi, dr, di;
   long double ldr = 0, ldi = 0;
   double epsilon(m_epsilon);
-  int antal, x, y, w, h;
+  int x, y, w, h;
+  int64_t antal;
 
   // vectorization
   double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216;
   int16 antal16, bGlitch16, x16, y16, w16, h16;
   int k = 0;
-  const int chunksize = GetSIMDChunkSize();
+  const int64_t chunksize = GetSIMDChunkSize();
   const int vectorsize = GetSIMDVectorSize();
   const bool vectorized = ! GetDerivatives() && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
 
-  int nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+  int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
-    int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+    int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
       continue;
@@ -64,7 +65,7 @@ void CFraktalSFT::MandelCalc()
     floatexp TDDni = dya1;
 
     double test1 = 0, test2 = 0;
-    BOOL bGlitch = FALSE;
+    bool bGlitch = false;
 
     double dbD0r = D0r.todouble();
     double dbD0i = D0i.todouble();
@@ -327,7 +328,7 @@ void CFraktalSFT::MandelCalc()
       antal = antal16[k];
       double test1 = test116[k];
       double test2 = test216[k];
-      int bGlitch = bGlitch16[k];
+      bool bGlitch = bGlitch16[k];
       double Dr = Dr16[k];
       double Di = Di16[k];
       double dbD0r = dbD0r16[k];

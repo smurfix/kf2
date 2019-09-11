@@ -87,7 +87,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
-void CFraktalSFT::RenderFractal(int nX, int nY, int nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
+void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = TRUE;
 	double counter = 0;

@@ -41,11 +41,11 @@ struct mcthread_common
 	mpfr_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	floatexp *m_dxr, *m_dxi;
 	double *m_db_z, *terminate, *glitch_threshold;
-	int *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
-	int *antal;
+	int64_t *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	int64_t *antal;
 	double *test1;
 	double *test2;
-	volatile BOOL *stop;
+	volatile bool *stop;
 	floatexp dr, di;
 };
 
@@ -63,7 +63,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	bool stored = false;
 	double old_absval = 0;
 	double abs_val = 0;
-	int antal = 0;
+	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
 	const floatexp real(g_real);
@@ -72,7 +72,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	floatexp dr = p->dr;
 	floatexp di = p->di;
 	double glitch_threshold = *p->glitch_threshold;
-	int i = 0;
+	int64_t i = 0;
 	switch (p0->nType)
 	{
 		case 0:
@@ -225,7 +225,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 {
 	Precision prec(m_rref.m_f.precision());
 
-	int i;
+	int64_t i;
 	if (m_dxr)
 		delete[] m_dxr;
 	m_dxr = new floatexp[m_nMaxIter];
@@ -240,7 +240,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 	floatexp real(g_real);
 	floatexp imag(g_imag);
 
-	int antal = 0;
+	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
 
@@ -248,7 +248,7 @@ void CFraktalSFT::CalculateReferenceEXP()
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
-	int nMaxIter = m_nMaxIter;
+	int64_t nMaxIter = m_nMaxIter;
 	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()) // FIXME matrix derivatives, option to disable derivatives
 	{
 		double glitch_threshold = 0.0000001;
