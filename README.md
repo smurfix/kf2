@@ -218,14 +218,16 @@ Feedback:
       Should speed up perturbation calculations in double precision (up to
       zoom depth 1e300 or so).  SIMD is also supported in scaled double for
       Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
-      1e400 or so).  Compile KF yourself with optimisations for your own
+      1e400 or so).  SIMD is not yet implemented for scaled double with
+      derivatives.  Compile KF yourself with optimisations for your own
       specific CPU for a bigger speed boost.
-    - note: SIMD is not yet implemented for derivatives (needed for analytic
-      distance estimation)
     - feature: Newton-Raphson zooming completion estimate (number of steps)
     - feature: Newton-Raphson zooming progress backups (after each step)
     - feature: fewer required fields when loading location parameters (allows
       loading the NR-zoom backups)
+    - feature: directional DE stored in EXR as `DEX` and `DEY` channels,
+      and used for slopes colouring with `Analytic` differences (requires
+      derivatives, fixes noisy texture when jitter is enabled)
     - feature: 64bit iteration count support (limit is now 9 exa-iterations
       up from 2 giga-iterations), use EXR for export.  This feature is very
       experimental, I haven't had the patience to test it properly.  Please
