@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -739,10 +739,10 @@ int CStringTable::AppendString(int nRow, int nIndex, char *szString, int nString
 */	}	
 	return m_pVektors[nRow]->AppendString(nIndex,szString,nString);
 }
-int CStringTable::SetInt(int nRow, int nIndex, int nVal)
+int CStringTable::SetInt(int nRow, int nIndex, intptr_t nVal)
 {
 	char szTmp[80];
-	itoa(nVal,szTmp,10);
+	snprintf(szTmp, 80, "%" PRIdPTR, nVal);
 	return SetString(nRow,nIndex,szTmp);
 }
 char *CStringTable::GetString(int nRow, int nIndex,int *pnSize)

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -83,7 +83,7 @@ public:
 	void Reset();
 	int SetString(int nRow, int nIndex, char *szString, int nString=-1);
 	int AppendString(int nRow, int nIndex, char *szString,int nString=-1);
-	int SetInt(int nRow, int nIndex, int nVal);
+	int SetInt(int nRow, int nIndex, intptr_t nVal);
 	char* GetString(int nRow, int nIndex,int *pnSize=NULL);
 	int GetCount();
 	int GetRowSize(int nRow=-1);
