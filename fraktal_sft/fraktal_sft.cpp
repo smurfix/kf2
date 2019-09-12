@@ -3237,13 +3237,16 @@ bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		m_nPixels[x][y] = int64_t(m_nPixels[x0][y0]);
 		m_nTrans[x][y] = (m_nTrans[x0][y0] + m_nTrans[x1][y1])*.5;
 		// use geometric mean for directional DE guessing
+#ifdef KF_GUESS_DE_GEOMETRIC
 		complex<float> de0(m_nDEx[x0][y0], m_nDEy[x0][y0]);
 		complex<float> de1(m_nDEx[x1][y1], m_nDEy[x1][y1]);
 		complex<float> deA = 0.5*(de0 + de1);
 		complex<float> deG = sqrt(de0 * de1);
 		complex<float> de = (norm(deA - deG) < norm(deA + deG)) ? deG : -1.0*deG;
-		m_nDEx[x][y] = de.m_r;
-		m_nDEy[x][y] = de.m_i;
+#else
+		m_nDEx[x][y] = 0.5 * (m_nDEx[x0][y0] + m_nDEx[x1][y1]);
+		m_nDEy[x][y] = 0.5 * (m_nDEy[x0][y0] + m_nDEy[x1][y1]);
+#endif
 		int nIndex  = x  * 3 + (m_bmi->biHeight - 1 - y )*m_row;
 		int nIndex0 = x0 * 3 + (m_bmi->biHeight - 1 - y0)*m_row;
 		int nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
