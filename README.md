@@ -116,6 +116,15 @@ Feedback:
 
 ### Incompatible Changes
 
+- **In versions `2.14.8` and above**, the iteration count limit is raised
+  above 2 giga-iterations.  Parameters with such high iterations counts will
+  load incorrectly in earlier versions.
+
+- **In versions `2.14.8` and above**, directional DE is saved in EXR files
+  using `DEX` and `DEY` channels, instead of distance using`DE` channel.
+  Old EXR files' `DE` can not be re-loaded in newer versions, and
+  new EXR files' `DEX` and `DEY` can not be re-loaded in older versions.
+
 - **In versions `2.14.7` and above**, the new "LogLog" and "ATan" iteration
   count transfer functions (ColorMethod 9 and 10) are not available in
   earlier versions.
