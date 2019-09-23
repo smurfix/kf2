@@ -38,6 +38,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <float.h>
 #include <malloc.h>
 #include "complex.h"
+#include <cmath>
 #include <string>
 #include <iostream>
 #include <set>
@@ -2721,8 +2722,14 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 		WriteFile(hFile, m_nTrans[x], m_nY*sizeof(float), &dw, NULL);
 	if (GetDerivatives() && m_nDEx)
 	{
+		float *column = new float[m_nY];
 		for (x = 0; x<m_nX; x++)
-			WriteFile(hFile, m_nDEx[x], m_nY*sizeof(float), &dw, NULL); // FIXME broken with directional DE
+		{
+			for (int y = 0; y < m_nY; ++y)
+				column[y] = std::hypot(m_nDEx[x][y], m_nDEy[x][y]);
+			WriteFile(hFile, column, m_nY*sizeof(float), &dw, NULL);
+		}
+		delete[] column;
 	}
 	CloseHandle(hFile);
 }
