@@ -220,7 +220,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.8** (????-??-??)
+- **kf-2.14.8** (2019-09-23)
 
     - feature: SIMD support.  Adjustable tuning parameters SIMD vector size
       (default 2) and chunk size (default 64) settings in the Advanced menu.
