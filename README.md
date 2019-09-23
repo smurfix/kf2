@@ -121,7 +121,7 @@ Feedback:
   load incorrectly in earlier versions.
 
 - **In versions `2.14.8` and above**, directional DE is saved in EXR files
-  using `DEX` and `DEY` channels, instead of distance using`DE` channel.
+  using `DEX` and `DEY` channels, instead of distance using `DE` channel.
   Old EXR files' `DE` can not be re-loaded in newer versions, and
   new EXR files' `DEX` and `DEY` can not be re-loaded in older versions.
 
@@ -855,8 +855,6 @@ Feedback:
 - properly debug huge zoom values from size estimate
 - make it work better in hard-skewed locations (need to skew the box
   period coordinates?)
-- add disk save/resume functionality for long-running calculations in
-  case of system snafu
 
 ### NanoMB
 
@@ -898,8 +896,7 @@ The latest source code is available from my git repository:
     cd kalles-fraktaler-2
     git checkout master       # for Karl's original upstream
     git checkout claude       # for MINGW build system and bug fixes
-    git checkout kf-2.12      # for old stable bugfixes
-    git checkout kf-2.13      # for stable bugfixes
+    git checkout kf-2.13      # old stable (bugfixes only)
     git checkout kf-2.14      # for current development
     git tag -l                # list available release tags
 
@@ -919,12 +916,12 @@ Compiling KF for your own CPU is recommended for optimal performance.  The
 performance boost can be significant, as the release EXE is compiled for
 generic x86_64 but newer CPUs have additional instructions available.
 
-Note: there is an upstream bug in the GCC compiler.  On Debian it is not hard
-to patch the gcc-mingw-w64 source package and rebuild it, though it does take
-a long time and need about 30GB of disk space.  Without a patched compiler,
+Note: there is an upstream bug in the GCC compiler.  On Debian the compiler
+is patched in recent versions.  Patching it yourself is not hard, but it does
+take a long time and need about 30GB of disk space.  Without a patched compiler,
 KF may crash in SIMD code due to 32-byte aligned moves with a 16-byte aligned
 stack.  See <https://bugs.debian.org/cgi-bin/bugreport.cgi?bug=939559>.
-Contact me if you need help to do this.
+Contact me if you need help to patch your compiler.
 
 Build instructions for cross-compiling from GNU/Linux require about 10GB of
 disk space and good internet download speed (or patience).  About 750MB of
@@ -944,6 +941,7 @@ you can skip the chroot step and install natively.
 1. Install dependencies (inside the chroot if you made one):
 
         dpkg --add-architecture i386
+        echo >> /etc/apt/source.list "deb http://ftp.uk.debian.org/debian/ experimental main contrib non-free"
         apt update
         apt install \
           build-essential \
@@ -954,7 +952,6 @@ you can skip the chroot step and install natively.
           libtool \
           lzip \
           m4 \
-          mingw-w64 \
           p7zip \
           pkg-config \
           wget \
@@ -963,6 +960,8 @@ you can skip the chroot step and install natively.
           wine-binfmt \
           xsltproc \
           zip
+        apt install -t experimental \
+          mingw-w64
         apt install \
           pandoc \
           texlive-fonts-recommended \
@@ -1054,6 +1053,14 @@ The working Debian Buster has:
     $ x86_64-w64-mingw32-g++ --version
     x86_64-w64-mingw32-g++ (GCC) 8.3-win32 20190406
     Copyright (C) 2018 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+The working Debian Buster with compiler from Experimental has:
+
+    $ x86_64-w64-mingw32-g++ --version
+    x86_64-w64-mingw32-g++ (GCC) 9.2-win32 20190909
+    Copyright (C) 2019 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
