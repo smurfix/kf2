@@ -245,6 +245,9 @@ Feedback:
     - bugfix: command line --save-exr now sets non-interactive mode flag.
     - note: built for 64bit only; 32bit hardware is obsolete by now.
     - note: distribution package compressed with 7-zip for smaller size.
+    - upgrade to openexr 2.4.0
+    - upgrade to mingw64 g++ 9.2.1-8+22~exp1 (Debian experimental)
+      and rebuild everything
 
 - **kf-2.14.7.1** (2019-08-30)
 

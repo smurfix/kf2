@@ -38,13 +38,10 @@ wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
 wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
 wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
-wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/ilmbase-2.3.0.tar.gz
-wget -c https://github.com/openexr/openexr/releases/download/v2.3.0/openexr-2.3.0.tar.gz
+wget -c https://github.com/openexr/openexr/archive/v2.4.0.tar.gz -O openexr-2.4.0.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
 cp -avft ~/win32/src *z allpatches mingw-std-threads
 elif [ "x$1" = "x64" ]
-then
-if false
 then
 # gmp 64
 cd ~/win64/src
@@ -124,23 +121,14 @@ ln -s ../src/glm*/glm/
 cd ~/win64/include
 rm -f mingw-std-threads
 ln -s ../src/mingw-std-threads
-fi
-# ilmbase 64
-cd ~/win64/src
-tar xf ilmbase-*.tar.gz
-cd ilmbase-*/
-patch -p1 < $(ls ../ilmbase-*.patch)
-./bootstrap
-CPPFLAGS="$CPPFLAGS -I$HOME/win64/include" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
-make -j $NCPUS
-make install
 # openexr 64
 cd ~/win64/src
 tar xf openexr-*.tar.gz
 cd openexr-*/
 patch -p1 < $(ls ../openexr-*.patch)
-./bootstrap
-CPPFLAGS="$CPPFLAGS -I$HOME/win64/include -I$HOME/win64/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win64/lib" LIBS="-lHalf" ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+mkdir -p build
+cd build
+cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win64/include -DZLIB_INCLUDE_DIR=$HOME/win64/include -DZLIB_LIBRARY=$HOME/win64/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win64 ..
 make -j $NCPUS
 make install
 elif [ "x$1" = "x32" ]
@@ -223,22 +211,15 @@ ln -s ../src/glm*/glm/
 cd ~/win32/include
 rm -f mingw-std-threads
 ln -s ../src/mingw-std-threads
-# ilmbase 32
-cd ~/win32/src
-tar xf ilmbase-*.tar.gz
-cd ilmbase-*/
-patch -p1 < $(ls ../ilmbase-*.patch)
-./bootstrap
-CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
-make -j $NCPUS
-make install
 # openexr 32
 cd ~/win32/src
 tar xf openexr-*.tar.gz
 cd openexr-*/
 patch -p1 < $(ls ../openexr-*.patch)
-./bootstrap
-CPPFLAGS="$CPPFLAGS -I$HOME/win32/include -I$HOME/win32/include/OpenEXR" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" LIBS="-lHalf" ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
+mkdir -p build
+cd build
+sed -i "s/x86_64/i686/g" ../cmake/Toolchain-mingw.cmake
+cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win32/include -DZLIB_INCLUDE_DIR=$HOME/win32/include -DZLIB_LIBRARY=$HOME/win32/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win32 ..
 make -j $NCPUS
 make install
 else
