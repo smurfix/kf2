@@ -322,6 +322,48 @@ bool sf_is_nan(const softfloat f)
     sf_mantissa(f) != 0;
 }
 
+bool sf_lt(const softfloat a, const softfloat b)
+{
+  if (sf_is_nan(a) || sf_is_nan(b))
+  {
+    return false;
+  }
+  else if (sf_sign_bit(a) && ! sf_sign_bit(b))
+  {
+    return true;
+  }
+  else if (! sf_sign_bit(a) && sf_sign_bit(b))
+  {
+    return false;
+  }
+  else if (sf_biased_exponent(a) > sf_biased_exponent(b))
+  {
+    return sf_sign_bit(a);
+  }
+  else if (sf_biased_exponent(a) < sf_biased_exponent(b))
+  {
+    return ! sf_sign_bit(a);
+  }
+  else if (sf_mantissa(a) > sf_mantissa(b))
+  {
+    return sf_sign_bit(a);
+  }
+  else if (sf_mantissa(a) < sf_mantissa(b))
+  {
+    return ! sf_sign_bit(a);
+  }
+  else
+  {
+    // equal
+    return false;
+  }
+}
+
+bool sf_gt(const softfloat a, const softfloat b)
+{
+  return sf_lt(b, a);
+}
+
 float sf_to_float(const softfloat f)
 {
   if (sf_is_zero(f) || sf_is_denormal(f))
@@ -434,6 +476,42 @@ softfloat sf_from_double(const double x)
   }
 }
 
+softfloat sf_ldexp(const softfloat a, int e)
+{
+  if (sf_is_zero(a) || sf_is_inf(a) || sf_is_nan(a))
+  {
+    return a;
+  }
+  else if (e >= (int)(0x7FFFFFFFU - sf_biased_exponent(a)))
+  {
+    // overflow to +/-infinity
+    softfloat o = { (a.se & 0x80000000U) | 0x7FFFFFFFU, 0U };
+    return o;
+  }
+  else if ((int)(sf_biased_exponent(a)) + e <= 0)
+  {
+    // underfloat to 0
+    softfloat o = { (a.se & 0x80000000U) | 0U, 0U };
+    return o;
+  }
+  else
+  {
+    softfloat o = { (a.se & 0x80000000U) | (sf_biased_exponent(a) + e), sf_mantissa(a) };
+    return o;
+  }
+}
+
+softfloat sf_from_floatexp(const floatexp x)
+{
+  return sf_ldexp(sf_from_double(x.val), convert_int_sat(x.exp));
+}
+
+softfloat sf_zero()
+{
+  softfloat o = { 0, 0 };
+  return o;
+}
+
 softfloat sf_one()
 {
   return sf_from_float(1.0f);
@@ -532,6 +610,16 @@ softfloat sf_mul(const softfloat a, const softfloat b)
     softfloat o = { ((a.se ^ b.se) & 0x80000000U) | biased_e, mantissa };
     return o;
   }
+}
+
+softfloat sf_muli(const softfloat a, const int b)
+{
+  return sf_mul(a, sf_from_float(b));
+}
+
+softfloat sf_imul(const int a, const softfloat b)
+{
+  return sf_mul(sf_from_float(a), b);
 }
 
 softfloat sf_add_a_gt_b_gt_0(const softfloat a, const softfloat b)
@@ -1732,7 +1820,7 @@ __kernel void perturbation_softfloat
     DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
     floatexp TDDnr = dxa1;
     floatexp TDDni = dya1;
-    softfloat test1 = sf_zero(), test2 = sf_zero();
+    double test1 = 0.0, test2 = 0.0;
     bool bGlitch = false;
     // in
     p_status_sf l =
@@ -1746,8 +1834,8 @@ __kernel void perturbation_softfloat
       , sf_from_floatexp(dab0)
       , sf_from_floatexp(dba0)
       , sf_from_floatexp(dbb0)
-      , test1
-      , test2
+      , sf_from_double(test1)
+      , sf_from_double(test2)
       , antal
       , bGlitch
       };
@@ -1758,8 +1846,8 @@ __kernel void perturbation_softfloat
     softfloat Di = l.xi;
     softfloat dr = l.dr;
     softfloat di = l.di;
-    test1 = l.test1;
-    test2 = l.test2;
+    test1 = sf_to_double(l.test1);
+    test2 = sf_to_double(l.test2);
     antal = l.antal;
     bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };

@@ -8,7 +8,7 @@ void perturbation_softfloat_loop
 {
   const softfloat zero = sf_zero();
   const softfloat Ar = sf_from_double(g->g_FactorAR);
-  const softfloat Ai = sf_from_doublt(g->g_FactorAI);
+  const softfloat Ai = sf_from_double(g->g_FactorAI);
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0;
   const softfloat cr = l->cr;
   const softfloat ci = l->ci;

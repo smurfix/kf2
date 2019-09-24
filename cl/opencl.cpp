@@ -153,6 +153,129 @@ void OpenCL::unlock()
   ReleaseMutex(mutex);
 }
 
+struct softfloat
+{
+  uint32_t se;
+  uint32_t m;
+};
+#define SF_EXPONENT_BIAS ((1U << 30U) - 1U)
+#define SF_MANTISSA_BITS 32
+
+bool sf_sign_bit(const softfloat f)
+{
+  return !!(f.se & 0x80000000U);
+}
+
+uint32_t sf_biased_exponent(const softfloat f)
+{
+  return f.se & 0x7FFFFFFFU;
+}
+
+uint32_t sf_mantissa(const softfloat f)
+{
+  return f.m;
+}
+
+bool sf_is_zero(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0 &&
+    sf_mantissa(f) == 0;
+}
+
+bool sf_is_denormal(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0 &&
+    sf_mantissa(f) != 0;
+}
+
+bool sf_is_inf(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0x7FFFFFFFU &&
+    sf_mantissa(f) == 0;
+}
+
+bool sf_is_nan(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0x7FFFFFFFU &&
+    sf_mantissa(f) != 0;
+}
+
+softfloat sf_from_double(const double x)
+{
+  if (isnan(x))
+  {
+    softfloat f = { ((uint32_t)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0xFFFFFFFFU };
+    return f;
+  }
+  else if (isinf(x))
+  {
+    softfloat f = { ((uint32_t)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0U };
+    return f;
+  }
+  else if (x == 0.0)
+  {
+    softfloat f = { ((uint32_t)(!!signbit(x)) << 31) | 0U, 0U };
+    return f;
+  }
+  else
+  {
+    int e;
+    double y = frexp(fabs(x), &e);
+    double z = ldexp(y, SF_MANTISSA_BITS);
+    uint32_t mantissa = (uint32_t) trunc(z); // rounding might overflow rarely
+    uint32_t biased_e = e + SF_EXPONENT_BIAS; // always in range?
+    assert(0 < biased_e);
+    assert(biased_e < 0x7FFFFFFFU);
+    assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+    softfloat f = { ((uint32_t)(!!signbit(x)) << 31) | biased_e, mantissa };
+    return f;
+  }
+}
+
+softfloat sf_ldexp(const softfloat a, int e)
+{
+  if (sf_is_zero(a) || sf_is_inf(a) || sf_is_nan(a))
+  {
+    return a;
+  }
+  else if (e >= (int32_t)(0x7FFFFFFFU - sf_biased_exponent(a)))
+  {
+    // overflow to +/-infinity
+    softfloat o = { (a.se & 0x80000000U) | 0x7FFFFFFFU, 0U };
+    return o;
+  }
+  else if ((int)(sf_biased_exponent(a)) + e <= 0)
+  {
+    // underfloat to 0
+    softfloat o = { (a.se & 0x80000000U) | 0U, 0U };
+    return o;
+  }
+  else
+  {
+    softfloat o = { (a.se & 0x80000000U) | (sf_biased_exponent(a) + e), sf_mantissa(a) };
+    return o;
+  }
+}
+
+softfloat sf_from_floatexp(const floatexp x)
+{
+  return sf_ldexp(sf_from_double(x.val), x.exp < INT_MIN ? INT_MIN : x.exp > INT_MAX ? INT_MAX : x.exp);
+}
+
+softfloat sf_softfloat(const floatexp f)
+{
+  return sf_from_floatexp(f);
+}
+
+softfloat sf_softfloat(const double f)
+{
+  return sf_from_double(f);
+}
+
 template <typename T>
 void OpenCL::run
 (
@@ -278,8 +401,8 @@ void OpenCL::run
 
   // upload reference
   cl_int err;
-  size_t ref_bytes  = sizeof(rx[0])  * (rcount - roffset);
-  size_t ref_bytesz = sizeof(double) * (rcount - roffset);
+  int64_t ref_bytes  = sizeof(rx[0]) * (rcount - roffset);
+  int64_t ref_bytesz = sizeof(rz[0]) * (rcount - roffset);
   cl_mem refx = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refx) { E(err); }
   cl_mem refy = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refy) { E(err); }
   cl_mem refz = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytesz, nullptr, &err); if (! refz) { E(err); }

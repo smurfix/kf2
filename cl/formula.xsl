@@ -15,6 +15,10 @@
 #include "floatexp_post_cl.c"
 #include "floatexp_post_rc_cl.c"
 #include "floatexp_post_m_cl.c"
+#include "softfloat_pre_cl.c"
+#include "softfloat_post_cl.c"
+#include "softfloat_post_rc_cl.c"
+#include "softfloat_post_m_cl.c"
 
 #define STR(s) #s
 <xsl:for-each select="formulas/group/formula">
