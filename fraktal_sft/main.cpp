@@ -405,11 +405,14 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 	static char szTmp[1024];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
 	return szTmp;
+#if 0
 #ifdef KF_OPENCL
 		case IDC_COMBO_OPENCL_DEVICE:
 			return "Select the OpenCL device to use for per-pixel iteration calculations";
 #endif
+#endif
 }
+
 extern char *GetToolText(int nID, LPARAM lParam)
 {
 	return const_cast<char *>(GetToolText_const(nID, lParam));

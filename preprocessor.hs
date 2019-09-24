@@ -210,6 +210,115 @@ vars (ETE a b) = vars a ++ vars b
 
 interpret _ (EInt n) = show n
 interpret _ (EVar v) = v
+
+interpret t@"cld" (EPow a b) = "d_powi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EMul a@(ENeg (EInt _)) b) = "d_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EMul a b@(ENeg (EInt _))) = "d_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EMul a@(EInt _) b) = "d_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EMul a b@(EInt _)) = "d_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EMul a b) = "d_mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAdd a b@(ENeg (EInt _))) = "d_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAdd a b@(EInt _)) = "d_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAdd a@(ENeg (EInt _)) b) = "d_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAdd a@(EInt _) b) = "d_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAdd a b) = "d_add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ESub a b@(ENeg (EInt _))) = "d_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ESub a b@(EInt _)) = "d_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ESub a@(ENeg (EInt _)) b) = "d_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ESub a@(EInt _) b) = "d_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ESub a b) = "d_sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ELt a b) = "d_lt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EGt a b) = "d_gt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (ENeg (EInt v)) = interpret t (EInt (negate v))
+interpret t@"cld" (ENeg a) = "d_neg(" ++ interpret t a ++ ")"
+interpret t@"cld" (ESgn a) = "d_sgn(" ++ interpret t a ++ ")"
+interpret t@"cld" (EAbs a) = "d_abs(" ++ interpret t a ++ ")"
+interpret t@"cld" (ESqr a) = "d_sqr(" ++ interpret t a ++ ")"
+interpret t@"cld" (EDiffAbs a b) = "d_diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cld" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+interpret t@"cld" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
+
+interpret t@"cldc" (EPow a b) = "dc_powi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EMul a@(ENeg (EInt _)) b) = "dc_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EMul a b@(ENeg (EInt _))) = "dc_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EMul a@(EInt _) b) = "dc_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EMul a b@(EInt _)) = "dc_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EMul a b) = "dc_mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAdd a b@(ENeg (EInt _))) = "dc_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAdd a b@(EInt _)) = "dc_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAdd a@(ENeg (EInt _)) b) = "dc_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAdd a@(EInt _) b) = "dc_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAdd a b) = "dc_add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ESub a b@(ENeg (EInt _))) = "dc_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ESub a b@(EInt _)) = "dc_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ESub a@(ENeg (EInt _)) b) = "dc_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ESub a@(EInt _) b) = "dc_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ESub a b) = "dc_sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ELt a b) = "dc_lt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EGt a b) = "dc_gt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (ENeg (EInt v)) = interpret t (EInt (negate v))
+interpret t@"cldc" (ENeg a) = "dc_neg(" ++ interpret t a ++ ")"
+interpret t@"cldc" (ESgn a) = "dc_sgn(" ++ interpret t a ++ ")"
+interpret t@"cldc" (EAbs a) = "dc_abs(" ++ interpret t a ++ ")"
+interpret t@"cldc" (ESqr a) = "dc_sqr(" ++ interpret t a ++ ")"
+interpret t@"cldc" (EDiffAbs a b) = "dc_diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"cldc" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+interpret t@"cldc" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
+
+interpret t@"clfe" (EPow a b) = "fe_powi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EMul a@(ENeg (EInt _)) b) = "fe_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EMul a b@(ENeg (EInt _))) = "fe_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EMul a@(EInt _) b) = "fe_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EMul a b@(EInt _)) = "fe_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EMul a b) = "fe_mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAdd a b@(ENeg (EInt _))) = "fe_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAdd a b@(EInt _)) = "fe_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAdd a@(ENeg (EInt _)) b) = "fe_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAdd a@(EInt _) b) = "fe_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAdd a b) = "fe_add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ESub a b@(ENeg (EInt _))) = "fe_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ESub a b@(EInt _)) = "fe_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ESub a@(ENeg (EInt _)) b) = "fe_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ESub a@(EInt _) b) = "fe_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ESub a b) = "fe_sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ELt a b) = "fe_lt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EGt a b) = "fe_gt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (ENeg (EInt v)) = interpret t (EInt (negate v))
+interpret t@"clfe" (ENeg a) = "fe_neg(" ++ interpret t a ++ ")"
+interpret t@"clfe" (ESgn a) = "fe_sgn(" ++ interpret t a ++ ")"
+interpret t@"clfe" (EAbs a) = "fe_abs(" ++ interpret t a ++ ")"
+interpret t@"clfe" (ESqr a) = "fe_sqr(" ++ interpret t a ++ ")"
+interpret t@"clfe" (EDiffAbs a b) = "fe_diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfe" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+interpret t@"clfe" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
+
+interpret t@"clfec" (EPow a b) = "fec_powi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EMul a@(ENeg (EInt _)) b) = "fec_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EMul a b@(ENeg (EInt _))) = "fec_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EMul a@(EInt _) b) = "fec_imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EMul a b@(EInt _)) = "fec_muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EMul a b) = "fec_mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAdd a b@(ENeg (EInt _))) = "fec_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAdd a b@(EInt _)) = "fec_addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAdd a@(ENeg (EInt _)) b) = "fec_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAdd a@(EInt _) b) = "fec_iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAdd a b) = "fec_add(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ESub a b@(ENeg (EInt _))) = "fec_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ESub a b@(EInt _)) = "fec_subi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ESub a@(ENeg (EInt _)) b) = "fec_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ESub a@(EInt _) b) = "fec_isub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ESub a b) = "fec_sub(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ELt a b) = "fec_lt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EGt a b) = "fec_gt(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (ENeg (EInt v)) = interpret t (EInt (negate v))
+interpret t@"clfec" (ENeg a) = "fec_neg(" ++ interpret t a ++ ")"
+interpret t@"clfec" (ESgn a) = "fec_sgn(" ++ interpret t a ++ ")"
+interpret t@"clfec" (EAbs a) = "fec_abs(" ++ interpret t a ++ ")"
+interpret t@"clfec" (ESqr a) = "fec_sqr(" ++ interpret t a ++ ")"
+interpret t@"clfec" (EDiffAbs a b) = "fec_diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"clfec" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
+interpret t@"clfec" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
+
 interpret t (EPow a b) = "(" ++ interpret t a ++ "^" ++ interpret t b ++ ")"
 interpret t (EMul a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
 interpret t (EMul a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
@@ -237,6 +346,7 @@ interpret t (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
 
+
 prepare "d" vs = unlines . concat $
   [ [ "const T Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
   , [ "const T Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
@@ -246,6 +356,26 @@ prepare "d" vs = unlines . concat $
 prepare "dc" vs = unlines . concat $
   [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
   , [ "const complex<V> x2 = x * x;" | "x2" `elem` vs ]
+  ]
+prepare "cld" vs = unlines . concat $
+  [ [ "const double Xr2 = d_mul(Xr, Xr);" | "Xr2" `elem` vs ]
+  , [ "const double Xi2 = d_mul(Xi, Xi);" | "Xi2" `elem` vs ]
+  , [ "const double xr2 = d_mul(xr, xr);" | "xr2" `elem` vs ]
+  , [ "const double xi2 = d_mul(xi, xi);" | "xi2" `elem` vs ]
+  ]
+prepare "cldc" vs = unlines . concat $
+  [ [ "const dcomplex X2 = dc_sqr(X);" | "X2" `elem` vs ]
+  , [ "const dcomplex x2 = dc_sqr(x);" | "x2" `elem` vs ]
+  ]
+prepare "clfe" vs = unlines . concat $
+  [ [ "const floatexp Xr2 = fe_mul(Xr, Xr);" | "Xr2" `elem` vs ]
+  , [ "const floatexp Xi2 = fe_mul(Xi, Xi);" | "Xi2" `elem` vs ]
+  , [ "const floatexp xr2 = fe_mul(xr, xr);" | "xr2" `elem` vs ]
+  , [ "const floatexp xi2 = fe_mul(xi, xi);" | "xi2" `elem` vs ]
+  ]
+prepare "clfec" vs = unlines . concat $
+  [ [ "const fecomplex X2 = fec_sqr(X);" | "X2" `elem` vs ]
+  , [ "const fecomplex x2 = fec_sqr(x);" | "x2" `elem` vs ]
   ]
 
 def :: GenLanguageDef String () Identity
@@ -313,7 +443,7 @@ interpretCL (Block "rr" s) = case parse blockp "" $ filter (not . isSpace) s of
   Left e -> error (show e ++ " : " ++ show s)
 interpretCL (Block "rc" s) = "assert(! \"implemented yet\");\n"
 interpretCL (Block t s) = case parse blockp "" $ filter (not . isSpace) s of
-  Right es -> "{" ++ prepare t (nub $ concatMap vars es) ++ unlines (map (interpret (t ++ "_")) es) ++ "}"
+  Right es -> "{" ++ prepare t (nub $ concatMap vars es) ++ unlines (map (interpret t) es) ++ "}"
   Left e -> error (show e ++ " : " ++ show s)
 
 main = interact parseCL

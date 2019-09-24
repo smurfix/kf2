@@ -1,11 +1,10 @@
 #ifdef KF_OPENCL
+
 #include <assert.h>
 #include <math.h>
 #include <string.h>
 
-#include "opencl.h"
-
-extern const char *kf_opencl_source;
+#include "../fraktal_sft/fraktal_sft.h"
 
 const char *error_string(int err) {
   switch (err) {
@@ -105,8 +104,20 @@ std::vector<cldevice> initialize_opencl()
 
 
 OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
+: platform_id(platform_id0)
+, device_id(device_id0)
+, context(0)
+, commands(0)
+, program(0)
+, config_bytes(0)
+, config(0)
+, n1_bytes(0), n1(0)
+, n0_bytes(0), n0(0)
+, nf_bytes(0), nf(0)
+, dex_bytes(0), dex(0)
+, dey_bytes(0), dey(0)
 {
-  memset(this, 0, sizeof(*this));
+  //memset(this, 0, sizeof(*this));
   mutex = CreateMutex(0,0,0);
   platform_id = platform_id0;
   device_id = device_id0;
@@ -121,28 +132,8 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
   if (! context) { E(err); }
   commands = clCreateCommandQueue(context, device_id, 0, &err);
   if (! commands) { E(err); }
-  // build program
-  program = clCreateProgramWithSource(context, 1, &kf_opencl_source, 0, &err);
-  if (! program) { E(err); }
-  // FIXME synchronous program building, async would be better
-  err = clBuildProgram(program, 1, &device_id, "-Werror", 0, 0);
-  if (err != CL_SUCCESS) {
-    char *buf = (char *) malloc(1000000);
-    buf[0] = 0;
-    E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
-    fprintf(stderr, "build failed:\n%s\n", buf);
-    free(buf);
-    E(err);
-  }
-
   config_bytes = sizeof(p_config);
-  config = clCreateBuffer(context, CL_MEM_READ_ONLY, config_bytes, 0, &err);
-
-  formulas = compile_kernels(program);
-  approxdoublek = clCreateKernel(program, "series_approximation_double", &err);
-  if (! approxdoublek) { E(err); }
-  approxfloatexpk = clCreateKernel(program, "series_approximation_floatexp", &err);
-  if (! approxfloatexpk) { E(err); }
+  config = clCreateBuffer(context, CL_MEM_READ_ONLY, config_bytes, 0, &err); if (! config) { E(err); }
 }
 
 OpenCL::~OpenCL()
@@ -162,341 +153,484 @@ void OpenCL::unlock()
   ReleaseMutex(mutex);
 }
 
-void OpenCL::upload_reference(const double *rx, const double *ry, const double *rz, size_t count)
-{
-  cl_int err;
-  size_t bytes = sizeof(double) * count;
-  if (bytes != ref_bytes || bytes != ref_bytesz)
-  {
-    if (ref_bytes > 0)
-    {
-      clReleaseMemObject(refx);
-      clReleaseMemObject(refy);
-    }
-    if (ref_bytesz > 0)
-    {
-      clReleaseMemObject(refz);
-    }
-    ref_bytes = bytes;
-    ref_bytesz = bytes;
-    refx = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes, 0, &err);
-    if (! refx) { E(err); }
-    refy = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes, 0, &err);
-    if (! refy) { E(err); }
-    refz = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes, 0, &err);
-    if (! refz) { E(err); }
-  }
-  // FIXME synchronous upload to device, async would be better
-  E(clEnqueueWriteBuffer(commands, refx, CL_TRUE, 0, bytes, rx, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, refy, CL_TRUE, 0, bytes, ry, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, refz, CL_TRUE, 0, bytes, rz, 0, 0, 0));
-}
-
-void OpenCL::upload_reference(const floatexp *rx, const floatexp *ry, const double *rz, size_t count)
-{
-  WaitForSingleObject(mutex, INFINITE);
-  cl_int err;
-  size_t bytes = sizeof(floatexp) * count;
-  size_t bytesz = sizeof(double) * count;
-  if (bytes != ref_bytes || bytesz != ref_bytesz)
-  {
-    if (ref_bytes > 0)
-    {
-      clReleaseMemObject(refx);
-      clReleaseMemObject(refy);
-    }
-    if (ref_bytesz > 0)
-    {
-      clReleaseMemObject(refz);
-    }
-    ref_bytes = bytes;
-    ref_bytesz = bytesz;
-    refx = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes, 0, &err);
-    if (! refx) { E(err); }
-    refy = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes, 0, &err);
-    if (! refy) { E(err); }
-    refz = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytesz, 0, &err);
-    if (! refz) { E(err); }
-  }
-  // FIXME synchronous upload to device, async would be better
-  E(clEnqueueWriteBuffer(commands, refx, CL_TRUE, 0, bytes, rx, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, refy, CL_TRUE, 0, bytes, ry, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, refz, CL_TRUE, 0, bytes, rz, 0, 0, 0));
-}
-
-void OpenCL::upload_config(
-  int32_t count,
-  int32_t width,
-  int32_t height,
+template <typename T>
+void OpenCL::run
+(
+  // for pixel -> parameter mapping
   int32_t m_nX,
   int32_t m_nY,
-  int32_t antal,
-  int32_t m_nMaxIter,
-  int32_t m_nGlitchIter,
-  int32_t m_bNoGlitchDetection,
-  int32_t m_nSmoothMethod,
-  int32_t m_nPower,
-  int32_t m_nMaxApproximation,
-  int32_t m_nTerms,
+  uint32_t JitterSeed,
+  int32_t JitterShape,
+  double JitterScale,
+  floatexp m_pixel_step_x,
+  floatexp m_pixel_step_y,
+  floatexp m_pixel_center_x,
+  floatexp m_pixel_center_y,
+  double m_C,
+  double m_S,
+  // for result -> output mapping
+  int64_t stride_y,
+  int64_t stride_x,
+  int64_t stride_offset,
+  // for iteration control
   double m_nBailout,
   double m_nBailout2,
+  double log_m_nPower,
+  int64_t m_nGlitchIter,
+  int64_t m_nMaxIter,
+  int64_t nMaxIter,
+  int64_t nMinIter,
+  int16_t m_bNoGlitchDetection,
+  int16_t m_bAddReference,
+  int16_t m_nSmoothMethod,
   double g_real,
   double g_imag,
   double g_FactorAR,
   double g_FactorAI,
-  double m_C,
-  double m_S,
-  int32_t m_bAddReference
+  double m_epsilon,
+  // for series approximation
+  double m_dPixelSpacing,
+  floatexp m_fPixelSpacing,
+  int64_t m_nMaxApproximation,
+  int32_t m_nApproxTerms,
+  int32_t approximation_type,
+  floatexp *APr,
+  floatexp *APi,
+  SeriesR2 *APs,
+ 
+  // reference orbit
+  const T *rx,
+  const T *ry,
+  const double *rz,
+  size_t roffset,
+  size_t rcount,
+ 
+  // formula selection
+  int type,
+  int m_nFractalType,
+  int m_nPower,
+  int16_t derivatives,
+
+  // output arrays
+  uint32_t *n1_p,
+  uint32_t *n0_p,
+  float *nf_p,
+  float *dex_p,
+  float *dey_p
 )
 {
+  lock();
+
+  // upload config
   p_config configdata =
     {
-      count,
-      width,
-      height,
+      sizeof(p_config),
       m_nX,
       m_nY,
-      antal,
-      m_nMaxIter,
-      m_nGlitchIter,
-      m_bNoGlitchDetection,
-      m_nSmoothMethod,
-      m_nPower,
-      m_nMaxApproximation,
-      m_nTerms,
-      m_bAddReference,
+      JitterSeed,
+      JitterShape,
+      JitterScale,
+      m_pixel_step_x,
+      m_pixel_step_y,
+      m_pixel_center_x,
+      m_pixel_center_y,
+      m_C,
+      m_S,
+      stride_y,
+      stride_x,
+      stride_offset,
       m_nBailout,
       m_nBailout2,
+      log_m_nPower,
+      m_nGlitchIter,
+      m_nMaxIter,
+      nMaxIter,
+      nMinIter,
+      m_bNoGlitchDetection,
+      derivatives,
+      m_bAddReference,
+      m_nSmoothMethod,
       g_real,
       g_imag,
       g_FactorAR,
       g_FactorAI,
-      m_C,
-      m_S
+      m_epsilon,
+      m_dPixelSpacing,
+      m_fPixelSpacing,
+      m_nMaxApproximation,
+      m_nApproxTerms,
+      approximation_type
+      // arrays go here
     };
-  // FIXME synchronous upload to device, async would be better
-  E(clEnqueueWriteBuffer(commands, config, CL_TRUE, 0, sizeof(configdata), &configdata, 0, 0, 0));
-}
+  const floatexp zero(0);
+  for (int i = 0; i < MAX_APPROX_TERMS + 1; ++i)
+  {
+    configdata.m_APr[i] = APr ? APr[i] : zero;
+    configdata.m_APi[i] = APi ? APi[i] : zero;
+    for (int j = 0; j < MAX_APPROX_TERMS + 1; ++j)
+    {
+      configdata.m_APs_s[i][j] = APs ? APs->s[i][j] : zero;
+      configdata.m_APs_t[i][j] = APs ? APs->t[i][j] : zero;
+    }
+  }
+  cl_event config_uploaded;
+  E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata), &configdata, 0, 0, &config_uploaded));
 
-void OpenCL::upload_approximation(const double *m_pDX, size_t m_nX, const double *m_pDY, size_t m_nY, const floatexp *m_APr, const floatexp *m_APi, size_t m_nTerms)
-{
+  // upload reference
   cl_int err;
-  size_t bytesx = sizeof(double) * m_nX;
-  size_t bytesy = sizeof(double) * m_nY;
-  size_t bytesa = sizeof(floatexp) * m_nTerms;
-  size_t bytesc = sizeof(double) * 4 * m_nX * m_nY;
-  size_t bytesp = sizeof(int) * m_nX * m_nY;
-  size_t bytest = sizeof(float) * m_nX * m_nY;
-  if (bytesx != dx_bytes || bytesy != dy_bytes || bytesa != ap_bytes || bytesc != cx_bytes || bytesp != pixels_bytes || bytest != trans_bytes)
-  {
-    if (dx_bytes > 0)
-    {
-      clReleaseMemObject(dx);
-    }
-    if (dy_bytes > 0)
-    {
-      clReleaseMemObject(dy);
-    }
-    if (ap_bytes > 0)
-    {
-      clReleaseMemObject(apr);
-      clReleaseMemObject(api);
-    }
-    if (cx_bytes > 0)
-    {
-      clReleaseMemObject(cx);
-    }
-    if (pixels_bytes > 0)
-    {
-      clReleaseMemObject(pixels);
-    }
-    if (trans_bytes > 0)
-    {
-      clReleaseMemObject(trans);
-    }
-    dx_bytes = bytesx;
-    dy_bytes = bytesy;
-    ap_bytes = bytesa;
-    cx_bytes = bytesc;
-    pixels_bytes = bytesp;
-    trans_bytes = bytest;
-    dx = clCreateBuffer(context, CL_MEM_READ_ONLY, dx_bytes, 0, &err);
-    if (! dx) { E(err); }
-    dy = clCreateBuffer(context, CL_MEM_READ_ONLY, dy_bytes, 0, &err);
-    if (! dy) { E(err); }
-    apr = clCreateBuffer(context, CL_MEM_READ_ONLY, ap_bytes, 0, &err);
-    if (! apr) { E(err); }
-    api = clCreateBuffer(context, CL_MEM_READ_ONLY, ap_bytes, 0, &err);
-    if (! api) { E(err); }
-    cx = clCreateBuffer(context, CL_MEM_READ_WRITE, cx_bytes, 0, &err);
-    if (! cx) { E(err); }
-    pixels = clCreateBuffer(context, CL_MEM_READ_WRITE, pixels_bytes, 0, &err);
-    if (! pixels) { E(err); }
-    trans = clCreateBuffer(context, CL_MEM_READ_WRITE, trans_bytes, 0, &err);
-    if (! trans) { E(err); }
-  }
-  // FIXME synchronous upload to device, async would be better
-  E(clEnqueueWriteBuffer(commands, dx, CL_TRUE, 0, dx_bytes, m_pDX, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, dy, CL_TRUE, 0, dy_bytes, m_pDY, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, apr, CL_TRUE, 0, ap_bytes, m_APr, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, api, CL_TRUE, 0, ap_bytes, m_APi, 0, 0, 0));
-}
+  size_t ref_bytes  = sizeof(rx[0])  * (rcount - roffset);
+  size_t ref_bytesz = sizeof(double) * (rcount - roffset);
+  cl_mem refx = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refx) { E(err); }
+  cl_mem refy = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refy) { E(err); }
+  cl_mem refz = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytesz, nullptr, &err); if (! refz) { E(err); }
+  cl_event refx_uploaded, refy_uploaded, refz_uploaded;
+  E(clEnqueueWriteBuffer(commands, refx, CL_FALSE, 0, ref_bytes,  &rx[roffset], 0, 0, &refx_uploaded));
+  E(clEnqueueWriteBuffer(commands, refy, CL_FALSE, 0, ref_bytes,  &ry[roffset], 0, 0, &refy_uploaded));
+  E(clEnqueueWriteBuffer(commands, refz, CL_FALSE, 0, ref_bytesz, &rz[roffset], 0, 0, &refz_uploaded));
 
-void OpenCL::upload_approximation(const floatexp *m_DX, size_t m_nX, const floatexp *m_DY, size_t m_nY, const floatexp *m_APr, const floatexp *m_APi, size_t m_nTerms)
-{
-  cl_int err;
-  size_t bytesx = sizeof(floatexp) * m_nX;
-  size_t bytesy = sizeof(floatexp) * m_nY;
-  size_t bytesa = sizeof(floatexp) * m_nTerms;
-  size_t bytesc = sizeof(floatexp) * 4 * m_nX * m_nY;
-  size_t bytesp = sizeof(int) * m_nX * m_nY;
-  size_t bytest = sizeof(float) * m_nX * m_nY;
-  if (bytesx != dx_bytes || bytesy != dy_bytes || bytesa != ap_bytes || bytesc != cx_bytes || bytesp != pixels_bytes || bytest != trans_bytes)
+  // reallocate output buffers if necessary
   {
-    if (dx_bytes > 0)
+    if (n1_p)
     {
-      clReleaseMemObject(dx);
+      size_t bytes = sizeof(uint32_t) * m_nX * m_nY;
+      if (n1_bytes != bytes)
+      {
+        if (n1_bytes)
+        {
+          clReleaseMemObject(n1);
+        }
+        n1_bytes = bytes;
+        if (n1_bytes)
+        {
+          n1 = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! n1) { E(err); }
+        }
+      }
     }
-    if (dy_bytes > 0)
+    else
     {
-      clReleaseMemObject(dy);
+      if (n1_bytes)
+      {
+        clReleaseMemObject(n1);
+        n1_bytes = 0;
+      }
     }
-    if (ap_bytes > 0)
+  
+    if (n0_p)
     {
-      clReleaseMemObject(apr);
-      clReleaseMemObject(api);
+      size_t bytes = sizeof(uint32_t) * m_nX * m_nY;
+      if (n0_bytes != bytes)
+      {
+        if (n0_bytes)
+        {
+          clReleaseMemObject(n0);
+        }
+        n0_bytes = bytes;
+        if (n0_bytes)
+        {
+          n0 = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! n0) { E(err); }
+        }
+      }
     }
-    if (cx_bytes > 0)
+    else
     {
-      clReleaseMemObject(cx);
+      if (n0_bytes)
+      {
+        clReleaseMemObject(n0);
+        n0_bytes = 0;
+      }
     }
-    if (pixels_bytes > 0)
+  
+    if (nf_p)
     {
-      clReleaseMemObject(pixels);
+      size_t bytes = sizeof(float) * m_nX * m_nY;
+      if (nf_bytes != bytes)
+      {
+        if (nf_bytes)
+        {
+          clReleaseMemObject(nf);
+        }
+        nf_bytes = bytes;
+        if (nf_bytes)
+        {
+          nf = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! nf) { E(err); }
+        }
+      }
     }
-    if (trans_bytes > 0)
+    else
     {
-      clReleaseMemObject(trans);
+      if (nf_bytes)
+      {
+        clReleaseMemObject(nf);
+        nf_bytes = 0;
+      }
     }
-    dx_bytes = bytesx;
-    dy_bytes = bytesy;
-    ap_bytes = bytesa;
-    cx_bytes = bytesc;
-    pixels_bytes = bytesp;
-    trans_bytes = bytest;
-    dx = clCreateBuffer(context, CL_MEM_READ_ONLY, dx_bytes, 0, &err);
-    if (! dx) { E(err); }
-    dy = clCreateBuffer(context, CL_MEM_READ_ONLY, dy_bytes, 0, &err);
-    if (! dy) { E(err); }
-    apr = clCreateBuffer(context, CL_MEM_READ_ONLY, ap_bytes, 0, &err);
-    if (! apr) { E(err); }
-    api = clCreateBuffer(context, CL_MEM_READ_ONLY, ap_bytes, 0, &err);
-    if (! api) { E(err); }
-    cx = clCreateBuffer(context, CL_MEM_READ_WRITE, cx_bytes, 0, &err);
-    if (! cx) { E(err); }
-    pixels = clCreateBuffer(context, CL_MEM_READ_WRITE, pixels_bytes, 0, &err);
-    if (! pixels) { E(err); }
-    trans = clCreateBuffer(context, CL_MEM_READ_WRITE, trans_bytes, 0, &err);
-    if (! trans) { E(err); }
+  
+    if (dex_p)
+    {
+      size_t bytes = sizeof(float) * m_nX * m_nY;
+      if (dex_bytes != bytes)
+      {
+        if (dex_bytes)
+        {
+          clReleaseMemObject(dex);
+        }
+        dex_bytes = bytes;
+        if (dex_bytes)
+        {
+          dex = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! dex) { E(err); }
+        }
+      }
+    }
+    else
+    {
+      if (dex_bytes)
+      {
+        clReleaseMemObject(dex);
+        dex_bytes = 0;
+      }
+    }
+  
+    if (dey_p)
+    {
+      size_t bytes = sizeof(float) * m_nX * m_nY;
+      if (dey_bytes != bytes)
+      {
+        if (dey_bytes)
+        {
+          clReleaseMemObject(dey);
+        }
+        dey_bytes = bytes;
+        if (dey_bytes)
+        {
+          dey = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! dey) { E(err); }
+        }
+      }
+    }
+    else
+    {
+      if (dey_bytes)
+      {
+        clReleaseMemObject(dey);
+        dey_bytes = 0;
+      }
+    }
   }
-  // FIXME synchronous upload to device, async would be better
-  E(clEnqueueWriteBuffer(commands, dx, CL_TRUE, 0, dx_bytes, m_DX, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, dy, CL_TRUE, 0, dy_bytes, m_DY, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, apr, CL_TRUE, 0, ap_bytes, m_APr, 0, 0, 0));
-  E(clEnqueueWriteBuffer(commands, api, CL_TRUE, 0, ap_bytes, m_APi, 0, 0, 0));
-}
 
-void OpenCL::execute_approximation(int type, cl_int count)
-{
-  if (type == 0)
-  {
-    size_t local, global;
-    E(clSetKernelArg(approxdoublek, 0, sizeof(cl_mem), &config));
-    E(clSetKernelArg(approxdoublek, 1, sizeof(cl_mem), &dx));
-    E(clSetKernelArg(approxdoublek, 2, sizeof(cl_mem), &dy));
-    E(clSetKernelArg(approxdoublek, 3, sizeof(cl_mem), &apr));
-    E(clSetKernelArg(approxdoublek, 4, sizeof(cl_mem), &api));
-    E(clSetKernelArg(approxdoublek, 5, sizeof(cl_mem), &cx));
-    E(clSetKernelArg(approxdoublek, 6, sizeof(cl_mem), &pixels));
-    E(clSetKernelArg(approxdoublek, 7, sizeof(cl_mem), &trans));
-    E(clGetKernelWorkGroupInfo(approxdoublek, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, 0));
-    global = ((count + local - 1)/local) * local;
-    cl_event ev;
-    E(clEnqueueNDRangeKernel(commands, approxdoublek, 1, 0, &global, &local, 0, 0, &ev));
-    clWaitForEvents(1, &ev); // FIXME should be async
-  }
-  else
-  {
-    size_t local, global;
-    E(clSetKernelArg(approxfloatexpk, 0, sizeof(cl_mem), &config));
-    E(clSetKernelArg(approxfloatexpk, 1, sizeof(cl_mem), &dx));
-    E(clSetKernelArg(approxfloatexpk, 2, sizeof(cl_mem), &dy));
-    E(clSetKernelArg(approxfloatexpk, 3, sizeof(cl_mem), &apr));
-    E(clSetKernelArg(approxfloatexpk, 4, sizeof(cl_mem), &api));
-    E(clSetKernelArg(approxfloatexpk, 5, sizeof(cl_mem), &cx));
-    E(clSetKernelArg(approxfloatexpk, 6, sizeof(cl_mem), &pixels));
-    E(clSetKernelArg(approxfloatexpk, 7, sizeof(cl_mem), &trans));
-    E(clGetKernelWorkGroupInfo(approxfloatexpk, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, 0));
-    global = ((count + local - 1)/local) * local;
-    cl_event ev;
-    E(clEnqueueNDRangeKernel(commands, approxfloatexpk, 1, 0, &global, &local, 0, 0, &ev));
-    clWaitForEvents(1, &ev); // FIXME should be async
-  }
-}
-
-void OpenCL::execute_formula(int type, int m_nFractalType, int m_nPower, cl_int count)
-{
+  // upload buffers
+  // FIXME synchronous, async would be better
+  if (n1_p)  E(clEnqueueWriteBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  0, 0, 0));
+  if (n0_p)  E(clEnqueueWriteBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  0, 0, 0));
+  if (nf_p)  E(clEnqueueWriteBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  0, 0, 0));
+  if (dex_p) E(clEnqueueWriteBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 0, 0, 0));
+  if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
+  
+  // compile formula or retrieve kernel from cache
+  cl_event formula_executed;
+  clformula *formula = nullptr;
   for (int i = 0; i < formulas.size(); ++i)
   {
-    if (formulas[i].type == m_nFractalType && formulas[i].power == m_nPower)
+    if (   formulas[i].type == type
+        && formulas[i].fractalType == m_nFractalType
+        && formulas[i].power == m_nPower
+        && formulas[i].derivatives == derivatives
+       )
     {
-      if (type == 0)
-      {
-        size_t local, global;
-        E(clSetKernelArg(formulas[i].doublek, 0, sizeof(cl_mem), &refx));
-        E(clSetKernelArg(formulas[i].doublek, 1, sizeof(cl_mem), &refy));
-        E(clSetKernelArg(formulas[i].doublek, 2, sizeof(cl_mem), &refz));
-        E(clSetKernelArg(formulas[i].doublek, 3, sizeof(cl_mem), &config));
-        E(clSetKernelArg(formulas[i].doublek, 4, sizeof(cl_mem), &cx));
-        E(clSetKernelArg(formulas[i].doublek, 5, sizeof(cl_mem), &pixels));
-        E(clSetKernelArg(formulas[i].doublek, 6, sizeof(cl_mem), &trans));
-        E(clGetKernelWorkGroupInfo(formulas[i].doublek, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, 0));
-        global = ((count + local - 1)/local) * local;
-        cl_event ev;
-        E(clEnqueueNDRangeKernel(commands, formulas[i].doublek, 1, 0, &global, &local, 0, 0, &ev));
-        clWaitForEvents(1, &ev); // FIXME should be async
-      }
-      else
-      {
-        size_t local, global;
-        E(clSetKernelArg(formulas[i].floatexpk, 0, sizeof(cl_mem), &refx));
-        E(clSetKernelArg(formulas[i].floatexpk, 1, sizeof(cl_mem), &refy));
-        E(clSetKernelArg(formulas[i].floatexpk, 2, sizeof(cl_mem), &refz));
-        E(clSetKernelArg(formulas[i].floatexpk, 3, sizeof(cl_mem), &config));
-        E(clSetKernelArg(formulas[i].floatexpk, 4, sizeof(cl_mem), &cx));
-        E(clSetKernelArg(formulas[i].floatexpk, 5, sizeof(cl_mem), &pixels));
-        E(clSetKernelArg(formulas[i].floatexpk, 6, sizeof(cl_mem), &trans));
-        E(clGetKernelWorkGroupInfo(formulas[i].floatexpk, device_id, CL_KERNEL_WORK_GROUP_SIZE, sizeof(local), &local, 0));
-        global = ((count + local - 1)/local) * local;
-        cl_event ev;
-        E(clEnqueueNDRangeKernel(commands, formulas[i].floatexpk, 1, 0, &global, &local, 0, 0, &ev));
-        clWaitForEvents(1, &ev); // FIXME should be async
-      }
-      return;
+      formula = &formulas[i];
     }
   }
-  assert(! "found kernel in execute_formula");
-}
-
-void OpenCL::download_iterations(int **m_nPixels, float **m_nTrans, size_t m_nX, size_t m_nY)
-{
-  for (int x = 0; x < m_nX; ++x)
+  if (formula == nullptr)
   {
-    // FIXME synchronous download from device, async would be better
-    E(clEnqueueReadBuffer(commands, pixels, CL_TRUE, x * m_nY * sizeof(int),   m_nY * sizeof(int),   m_nPixels[x], 0, 0, 0));
-    E(clEnqueueReadBuffer(commands, trans,  CL_TRUE, x * m_nY * sizeof(float), m_nY * sizeof(float), m_nTrans[x],  0, 0, 0));
+    // build program
+    std::string source = perturbation_opencl(m_nFractalType, m_nPower, derivatives);
+    std::string name =
+      type == 0 ? "perturbation_double"   :
+      type == 2 ? "perturbation_floatexp" :
+      "#error unknown type\n";
+    const char *src = source.c_str();
+    program = clCreateProgramWithSource(context, 1, &src, 0, &err);
+    if (! program) { E(err); }
+    // FIXME synchronous program building, async would be better
+    std::ostringstream options;
+    options << "-Werror -D DERIVATIVES=" << (derivatives ? 1 : 0)
+            << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS;
+    err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
+    if (err != CL_SUCCESS) {
+      char *buf = (char *) malloc(1000000);
+      buf[0] = 0;
+      E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
+      fprintf(stderr, "source:\n%s\nbuild failed:\n%s\n", source.c_str(), buf);
+      free(buf);
+      E(err);
+    }
+    cl_kernel kernel = clCreateKernel(program, name.c_str(), &err);
+    if (! kernel) { E(err); }
+    clformula newformula = { type, m_nFractalType, m_nPower, derivatives, kernel };
+    formulas.push_back(newformula);
+    formula = &formulas[ssize_t(formulas.size()) - 1];
   }
+  assert(formula);
+
+  // execute formula
+  E(clSetKernelArg(formula->kernel, 0, sizeof(cl_mem), &config));
+  E(clSetKernelArg(formula->kernel, 1, sizeof(cl_mem), &refx));
+  E(clSetKernelArg(formula->kernel, 2, sizeof(cl_mem), &refy));
+  E(clSetKernelArg(formula->kernel, 3, sizeof(cl_mem), &refz));
+  E(clSetKernelArg(formula->kernel, 4, sizeof(cl_mem), n1_p  ? &n1  : nullptr));
+  E(clSetKernelArg(formula->kernel, 5, sizeof(cl_mem), n0_p  ? &n0  : nullptr));
+  E(clSetKernelArg(formula->kernel, 6, sizeof(cl_mem), nf_p  ? &nf  : nullptr));
+  E(clSetKernelArg(formula->kernel, 7, sizeof(cl_mem), dex_p ? &dex : nullptr));
+  E(clSetKernelArg(formula->kernel, 8, sizeof(cl_mem), dey_p ? &dey : nullptr));
+  size_t global[2] = { m_nY, m_nX };
+  cl_event uploaded[4] =
+    { config_uploaded
+    , refx_uploaded
+    , refy_uploaded
+    , refz_uploaded
+    };
+  E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 4, uploaded, &formula_executed));
+
+  // download results
+  // FIXME synchronous, async would be better
+  if (n1_p)  E(clEnqueueReadBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  1, &formula_executed, 0));
+  if (n0_p)  E(clEnqueueReadBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  1, &formula_executed, 0));
+  if (nf_p)  E(clEnqueueReadBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  1, &formula_executed, 0));
+  if (dex_p) E(clEnqueueReadBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 1, &formula_executed, 0));
+  if (dey_p) E(clEnqueueReadBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 1, &formula_executed, 0));
+
+  // clean up reference
+  clReleaseMemObject(refz);
+  clReleaseMemObject(refy);
+  clReleaseMemObject(refx);
+
+  unlock();  
 }
 
-#include "opencl.inc"
+template void OpenCL::run<double>(
+  // for pixel -> parameter mapping
+  int32_t m_nX,
+  int32_t m_nY,
+  uint32_t JitterSeed,
+  int32_t JitterShape,
+  double JitterScale,
+  floatexp m_pixel_step_x,
+  floatexp m_pixel_step_y,
+  floatexp m_pixel_center_x,
+  floatexp m_pixel_center_y,
+  double m_C,
+  double m_S,
+  // for result -> output mapping
+  int64_t stride_y,
+  int64_t stride_x,
+  int64_t stride_offset,
+  // for iteration control
+  double m_nBailout,
+  double m_nBailout2,
+  double log_m_nPower,
+  int64_t m_nGlitchIter,
+  int64_t m_nMaxIter,
+  int64_t nMaxIter,
+  int64_t nMinIter,
+  int16_t m_bNoGlitchDetection,
+  int16_t m_bAddReference,
+  int16_t m_nSmoothMethod,
+  double g_real,
+  double g_imag,
+  double g_FactorAR,
+  double g_FactorAI,
+  double m_epsilon,
+  // for series approximation
+  double m_dPixelSpacing,
+  floatexp m_fPixelSpacing,
+  int64_t m_nMaxApproximation,
+  int32_t m_nApproxTerms,
+  int32_t approximation_type,
+  floatexp *APr,
+  floatexp *APi,
+  SeriesR2 *APs,
+ 
+  // reference orbit
+  const double *rx,
+  const double *ry,
+  const double *rz,
+  size_t roffset,
+  size_t rcount,
+ 
+  // formula selection
+  int type,
+  int m_nFractalType,
+  int m_nPower,
+  int16_t derivatives,
+
+  // output arrays
+  uint32_t *n1_p,
+  uint32_t *n0_p,
+  float *nf_p,
+  float *dex_p,
+  float *dey_p
+);
+
+template void OpenCL::run<floatexp>(
+  // for pixel -> parameter mapping
+  int32_t m_nX,
+  int32_t m_nY,
+  uint32_t JitterSeed,
+  int32_t JitterShape,
+  double JitterScale,
+  floatexp m_pixel_step_x,
+  floatexp m_pixel_step_y,
+  floatexp m_pixel_center_x,
+  floatexp m_pixel_center_y,
+  double m_C,
+  double m_S,
+  // for result -> output mapping
+  int64_t stride_y,
+  int64_t stride_x,
+  int64_t stride_offset,
+  // for iteration control
+  double m_nBailout,
+  double m_nBailout2,
+  double log_m_nPower,
+  int64_t m_nGlitchIter,
+  int64_t m_nMaxIter,
+  int64_t nMaxIter,
+  int64_t nMinIter,
+  int16_t m_bNoGlitchDetection,
+  int16_t m_bAddReference,
+  int16_t m_nSmoothMethod,
+  double g_real,
+  double g_imag,
+  double g_FactorAR,
+  double g_FactorAI,
+  double m_epsilon,
+  // for series approximation
+  double m_dPixelSpacing,
+  floatexp m_fPixelSpacing,
+  int64_t m_nMaxApproximation,
+  int32_t m_nApproxTerms,
+  int32_t approximation_type,
+  floatexp *APr,
+  floatexp *APi,
+  SeriesR2 *APs,
+ 
+  // reference orbit
+  const floatexp *rx,
+  const floatexp *ry,
+  const double *rz,
+  size_t roffset,
+  size_t rcount,
+ 
+  // formula selection
+  int type,
+  int m_nFractalType,
+  int m_nPower,
+  int16_t derivatives,
+
+  // output arrays
+  uint32_t *n1_p,
+  uint32_t *n0_p,
+  float *nf_p,
+  float *dex_p,
+  float *dey_p
+);
+
 #endif

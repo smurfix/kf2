@@ -1,5 +1,7 @@
 #pragma OPENCL EXTENSION cl_khr_fp64: enable
 
+#define assert(n) do{}while(0)
+
 double d_add(const double a, const double b)
 {
   return a + b;
@@ -117,6 +119,22 @@ floatexp fe_neg(const floatexp f)
 {
   floatexp fe = { -f.val, f.exp };
   return fe;
+}
+
+floatexp fe_sqr(const floatexp a)
+{
+  return fe_floatexp(a.val * a.val, a.exp << 1);
+}
+
+
+floatexp fe_muld(const floatexp a, const double b)
+{
+  return fe_floatexp(a.val * b, a.exp);
+}
+
+floatexp fe_dmul(const double a, const floatexp b)
+{
+  return fe_floatexp(a * b.val, b.exp);
 }
 
 floatexp fe_muli(const floatexp a, const int b)
@@ -252,11 +270,508 @@ floatexp fe_pow(const floatexp a, int b)
   return r;
 }
 
+typedef struct {
+  uint se;
+  uint m;
+} softfloat;
+
+#define SF_EXPONENT_BIAS ((1U << 30U) - 1U)
+
+#define SF_MANTISSA_BITS 32
+
+bool sf_sign_bit(const softfloat f)
+{
+  return !!(f.se & 0x80000000U);
+}
+
+uint sf_biased_exponent(const softfloat f)
+{
+  return f.se & 0x7FFFFFFFU;
+}
+
+uint sf_mantissa(const softfloat f)
+{
+  return f.m;
+}
+
+bool sf_is_zero(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0 &&
+    sf_mantissa(f) == 0;
+}
+
+bool sf_is_denormal(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0 &&
+    sf_mantissa(f) != 0;
+}
+
+bool sf_is_inf(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0x7FFFFFFFU &&
+    sf_mantissa(f) == 0;
+}
+
+bool sf_is_nan(const softfloat f)
+{
+  return
+    sf_biased_exponent(f) == 0x7FFFFFFFU &&
+    sf_mantissa(f) != 0;
+}
+
+float sf_to_float(const softfloat f)
+{
+  if (sf_is_zero(f) || sf_is_denormal(f))
+  {
+    if (sf_sign_bit(f)) return -0.0f; else return 0.0f;
+  }
+  else if (sf_is_inf(f))
+  {
+    if (sf_sign_bit(f)) return -1.0f/0.0f; else return 1.0f/0.0f;
+  }
+  else if (sf_is_nan(f))
+  {
+    if (sf_sign_bit(f)) return -(0.0f/0.0f); else return 0.0f/0.0f;
+  }
+  else
+  {
+    float x = sf_mantissa(f);
+    int e
+      = convert_int_sat((long)(sf_biased_exponent(f))
+      - (SF_EXPONENT_BIAS + SF_MANTISSA_BITS));
+    if (sf_sign_bit(f)) return -ldexp(x, e); else return ldexp(x, e);
+  }
+}
+
+double sf_to_double(const softfloat f)
+{
+  if (sf_is_zero(f) || sf_is_denormal(f))
+  {
+    if (sf_sign_bit(f)) return -0.0; else return 0.0;
+  }
+  else if (sf_is_inf(f))
+  {
+    if (sf_sign_bit(f)) return -1.0/0.0; else return 1.0/0.0;
+  }
+  else if (sf_is_nan(f))
+  {
+    if (sf_sign_bit(f)) return -(0.0/0.0); else return 0.0/0.0;
+  }
+  else
+  {
+    double x = sf_mantissa(f);
+    int e
+      = convert_int_sat((long)(sf_biased_exponent(f))
+      - (SF_EXPONENT_BIAS + SF_MANTISSA_BITS));
+    if (sf_sign_bit(f)) return -ldexp(x, e); else return ldexp(x, e);
+  }
+}
+
+softfloat sf_from_float(const float x)
+{
+  if (isnan(x))
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0xFFFFFFFFU };
+    return f;
+  }
+  else if (isinf(x))
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0U };
+    return f;
+  }
+  else if (x == 0.0f)
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0U, 0U };
+    return f;
+  }
+  else
+  {
+    int e;
+    float y = frexp(fabs(x), &e);
+    float z = ldexp(y, SF_MANTISSA_BITS);
+    uint mantissa = convert_uint_rtz(z);
+    uint biased_e = convert_uint_sat(e + SF_EXPONENT_BIAS);
+    assert(0 < biased_e);
+    assert(biased_e < 0x7FFFFFFFU);
+    assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | biased_e, mantissa };
+    return f;
+  }
+}
+
+softfloat sf_from_double(const double x)
+{
+  if (isnan(x))
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0xFFFFFFFFU };
+    return f;
+  }
+  else if (isinf(x))
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0x7FFFFFFFU, 0U };
+    return f;
+  }
+  else if (x == 0.0)
+  {
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | 0U, 0U };
+    return f;
+  }
+  else
+  {
+    int e;
+    double y = frexp(fabs(x), &e);
+    double z = ldexp(y, SF_MANTISSA_BITS);
+    uint mantissa = convert_uint_rtz(z); // rte might overflow rarely
+    uint biased_e = convert_uint_sat(e + SF_EXPONENT_BIAS);
+    assert(0 < biased_e);
+    assert(biased_e < 0x7FFFFFFFU);
+    assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+    softfloat f = { ((uint)(!!signbit(x)) << 31) | biased_e, mantissa };
+    return f;
+  }
+}
+
+softfloat sf_one()
+{
+  return sf_from_float(1.0f);
+}
+
+softfloat sf_abs(const softfloat a)
+{
+  softfloat o = { a.se & 0x7FFFFFFFU, a.m };
+  return o;
+}
+
+softfloat sf_neg(const softfloat a)
+{
+  softfloat o = { a.se ^ 0x80000000U, a.m };
+  return o;
+}
+
+softfloat sf_sqr(const softfloat a)
+{
+  if (sf_biased_exponent(a) >= ((0x7FFFFFFFU >> 1) + (SF_EXPONENT_BIAS >> 1)))
+  {
+    // overflow to +infinity
+    softfloat o = { 0x7FFFFFFFU, sf_is_nan(a) ? 0xFFFFFFFFU : 0U };
+    return o;
+  }
+  else if (sf_biased_exponent(a) <= (SF_EXPONENT_BIAS >> 1) + 1)
+  {
+    // underflow to +0
+    // FIXME handle denormals
+    softfloat o = { 0U, 0U };
+    return o;
+  }
+  else
+  {
+    ulong m = a.m;
+    uint mantissa = (m * m) >> SF_MANTISSA_BITS;
+    uint biased_e = ((a.se & 0x7FFFFFFFU) << 1) - SF_EXPONENT_BIAS;
+    if ((mantissa & 0x80000000U) == 0)
+    {
+      mantissa <<= 1;
+      biased_e -= 1;
+    }
+    assert(0 < biased_e);
+    assert(biased_e < 0x7FFFFFFFU);
+    assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+    softfloat o = { biased_e, mantissa };
+    return o;
+  }
+} 
+
+softfloat sf_mul(const softfloat a, const softfloat b)
+{
+  if ( sf_is_nan(a) ||
+       sf_is_nan(b) ||
+       (sf_is_inf(a) && sf_is_zero(b)) ||
+       (sf_is_zero(a) && sf_is_inf(b))
+     )
+  {
+    // nan
+    softfloat o = { ((a.se ^ b.se) & 0x80000000U) | 0x7FFFFFFFU, 0xFFFFFFFFU };
+    return o;
+  }
+  else if (sf_is_zero(a) || sf_is_zero(b))
+  {
+    // zero
+    softfloat o = { ((a.se ^ b.se) & 0x80000000U) | 0U, 0U };
+    return o;
+  }
+  else if ((sf_biased_exponent(a) + sf_biased_exponent(b)) >= (0x7FFFFFFFU + SF_EXPONENT_BIAS))
+  {
+    // overflow to +/-infinity
+    softfloat o = { ((a.se ^ b.se) & 0x80000000U) | 0x7FFFFFFFU, 0U };
+    return o;
+  }
+  else if ((sf_biased_exponent(a) + sf_biased_exponent(b)) <= (SF_EXPONENT_BIAS + 1))
+  {
+    // underflow to +/-0
+    // FIXME handle denormals
+    softfloat o = { ((a.se ^ b.se) & 0x80000000U) | 0U, 0U };
+    return o;
+  }
+  else
+  {
+    ulong ma = a.m;
+    ulong mb = b.m;
+    uint mantissa = (ma * mb) >> SF_MANTISSA_BITS;
+    uint biased_e = ((a.se & 0x7FFFFFFFU) + (b.se & 0x7FFFFFFFU)) - SF_EXPONENT_BIAS;
+    if ((mantissa & 0x80000000U) == 0)
+    {
+      mantissa <<= 1;
+      biased_e -= 1;
+    }
+    assert(0 < biased_e);
+    assert(biased_e < 0x7FFFFFFFU);
+    assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+    softfloat o = { ((a.se ^ b.se) & 0x80000000U) | biased_e, mantissa };
+    return o;
+  }
+}
+
+softfloat sf_add_a_gt_b_gt_0(const softfloat a, const softfloat b)
+{
+  // same sign addition, |a| > |b| or same exponent
+  uint ea = sf_biased_exponent(a);
+  uint eb = sf_biased_exponent(b);
+  ulong ma = sf_mantissa(a);
+  ulong mb = sf_mantissa(b);
+  assert(ea >= eb);
+  assert(sf_sign_bit(a) == sf_sign_bit(b));
+  ulong mantissa = ma + (mb >> (ea - eb));
+  uint biased_e = ea;
+  if (!! (mantissa & 0x100000000LLU))
+  {
+    biased_e += 1;
+    mantissa >>= 1;
+  }
+  if (biased_e >= 0x7FFFFFFFU)
+  {
+    // overflow to +/-infinity
+    softfloat o = { (a.se & 0x80000000U) | 0x7FFFFFFFU, 0U };
+    return o;
+  }
+  assert(0 < biased_e);
+  assert(biased_e < 0x7FFFFFFFU);
+  assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+  assert((mantissa >> SF_MANTISSA_BITS) == 0U);
+  softfloat o = { biased_e, mantissa };
+  if (sf_sign_bit(a)) return sf_neg(o); else return o;
+}
+
+softfloat sf_add_a_gt_0_gt_b(const softfloat a, const softfloat b)
+{
+  // opposite sign addition, a > 0 > b, |a| > |b|
+  uint ea = sf_biased_exponent(a);
+  uint eb = sf_biased_exponent(b);
+  ulong ma = sf_mantissa(a);
+  ulong mb = sf_mantissa(b);
+  assert(ea > eb);
+  assert(! sf_sign_bit(a));
+  assert(  sf_sign_bit(b));
+  // a > 0 > b, |a| > |b|
+  long smantissa = (ma << 1) - ((mb << 1) >> (ea - eb));
+  assert(smantissa > 0);
+  ulong mantissa = smantissa;
+  long biased_e = ea - 1;
+  int shift = ((int)(clz(mantissa))) - SF_MANTISSA_BITS;
+  if (shift > 0)
+  {
+    mantissa <<= shift;
+    biased_e -= shift;
+  }
+  else if (shift < 0)
+  {
+    mantissa >>= -shift;
+    biased_e += -shift;
+  }
+  if (biased_e >= 0x7FFFFFFFU)
+  {
+    // overflow to +infinity, impossible?
+    softfloat o = { 0x7FFFFFFFU, 0U };
+    return o;
+  }
+  else if (biased_e <= 0)
+  {
+    // underflow to +0
+    softfloat o = { 0U, 0U };
+    return o;
+  }
+  assert(0 < biased_e);
+  assert(biased_e < 0x7FFFFFFFU);
+  assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+  assert((mantissa >> SF_MANTISSA_BITS) == 0U);
+  softfloat o = { biased_e, (uint)(mantissa) };
+  return o;
+}
+
+softfloat sf_add(const softfloat a, const softfloat b)
+{
+  if ( sf_is_nan(a) ||
+       sf_is_nan(b) ||
+       (sf_is_inf(a) && sf_is_inf(b) && !!((a.se ^ b.se) & 0x80000000U))
+     )
+  {
+    // nan
+    softfloat o = { 0x7FFFFFFFU, 0xFFFFFFFFU };
+    return o;
+  }
+  else if (sf_is_zero(a))
+  {
+    return b;
+  }
+  else if (sf_is_zero(b))
+  {
+    return a;
+  }
+  else if (sf_is_inf(a))
+  {
+    return a;
+  }
+  else if (sf_is_inf(b))
+  {
+    return b;
+  }
+  else if (((a.se ^ b.se) & 0x80000000U) == 0)
+  {
+    // same sign addition
+    uint ea = sf_biased_exponent(a);
+    uint eb = sf_biased_exponent(b);
+    if (ea > eb + SF_MANTISSA_BITS)
+    {
+      return a;
+    }
+    else if (eb > ea + SF_MANTISSA_BITS)
+    {
+      return b;
+    }
+    else if (ea >= eb)
+    {
+      return sf_add_a_gt_b_gt_0(a, b);
+    }
+    else
+    {
+      return sf_add_a_gt_b_gt_0(b, a);
+    }
+  }
+  else
+  {
+    // opposite sign addition
+    uint ea = sf_biased_exponent(a);
+    uint eb = sf_biased_exponent(b);
+    if (ea > eb + SF_MANTISSA_BITS)
+    {
+      return a;
+    }
+    else if (eb > ea + SF_MANTISSA_BITS)
+    {
+      return b;
+    }
+    else if (ea == eb)
+    {
+      uint ma = sf_mantissa(a);
+      uint mb = sf_mantissa(b);
+      if (ma > mb)
+      {
+        uint mantissa = ma - mb;
+        uint shift = clz(mantissa);
+        mantissa <<= shift;
+        if (ea > shift)
+        {
+          uint biased_e = ea - shift;
+          assert(0 < biased_e);
+          assert(biased_e < 0x7FFFFFFFU);
+          assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+          softfloat o = { biased_e, mantissa };
+          if (sf_sign_bit(a)) return sf_neg(o); else return o;
+        }
+        else
+        {
+          // FIXME handle denormals
+          softfloat o = { 0U, 0U };
+          return o;
+        }
+      }
+      else if (mb > ma)
+      {
+        uint mantissa = mb - ma;
+        uint shift = clz(mantissa);
+        mantissa <<= shift;
+        if (eb > shift)
+        {
+          uint biased_e = eb - shift;
+          assert(0 < biased_e);
+          assert(biased_e < 0x7FFFFFFFU);
+          assert((mantissa >> (SF_MANTISSA_BITS - 1)) == 1U);
+          softfloat o = { biased_e, mantissa };
+          if (sf_sign_bit(b)) return sf_neg(o); else return o;
+        }
+        else
+        {
+          // FIXME handle denormals
+          softfloat o = { 0U, 0U };
+          return o;
+        }
+      }
+      else
+      {
+        // cancels to 0
+        softfloat o = { 0U, 0U };
+        return o;
+      }
+    }
+    else if (ea > eb)
+    {
+      // |a| > |b|
+      if (sf_sign_bit(a))
+      {
+        return sf_neg(sf_add_a_gt_0_gt_b(sf_neg(a), sf_neg(b)));
+      }
+      else
+      {
+        return sf_add_a_gt_0_gt_b(a, b);
+      }
+    }
+    else
+    {
+      // |b| > |a|
+      if (sf_sign_bit(b))
+      {
+        return sf_neg(sf_add_a_gt_0_gt_b(sf_neg(b), sf_neg(a)));
+      }
+      else
+      {
+        return sf_add_a_gt_0_gt_b(b, a);
+      }
+    }
+  }
+}
+
+softfloat sf_sub(const softfloat a, const softfloat b)
+{
+  return sf_add(a, sf_neg(b));
+}
+
 typedef struct
 {
   double re;
   double im;
 } dcomplex;
+
+double dc_norm(const dcomplex a)
+{
+  return a.re * a.re + a.im * a.im;
+}
+
+double dc_abs(const dcomplex a)
+{
+  return sqrt(dc_norm(a));
+}
 
 dcomplex dc_neg(const dcomplex a)
 {
@@ -291,6 +806,20 @@ dcomplex dc_muli(const dcomplex a, const int b)
 dcomplex dc_mul(const dcomplex a, const dcomplex b)
 {
   dcomplex dc = { a.re * b.re - a.im * b.im, a.re * b.im + a.im * b.re };
+  return dc;
+}
+
+dcomplex dc_ddiv(const double a, const dcomplex b)
+{
+  double b2 = dc_norm(b);
+  dcomplex dc = { (a * b.re) / b2, (-a * b.im) / b2 };
+  return dc;
+}
+
+dcomplex dc_div(const dcomplex a, const dcomplex b)
+{
+  double b2 = dc_norm(b);
+  dcomplex dc = { (a.re * b.re + a.im * b.im) / b2, (-a.re * b.im + a.im * b.re) / b2 };
   return dc;
 }
 
@@ -356,156 +885,931 @@ fecomplex fec_pow(const fecomplex a, const int b)
   return r;
 }
 
+typedef struct
+{
+  softfloat re;
+  softfloat im;
+} sfcomplex;
+
+sfcomplex sfc_neg(const sfcomplex a)
+{
+  sfcomplex sfc = { sf_neg(a.re), sf_neg(a.im) };
+  return sfc;
+}
+
+sfcomplex sfc_add(const sfcomplex a, const sfcomplex b)
+{
+  sfcomplex sfc = { sf_add(a.re, b.re), sf_add(a.im, b.im) };
+  return sfc;
+}
+
+sfcomplex sfc_sub(const sfcomplex a, const sfcomplex b)
+{
+  sfcomplex sfc = { sf_sub(a.re, b.re), sf_sub(a.im, b.im) };
+  return sfc;
+}
+
+sfcomplex sfc_imul(const int a, const sfcomplex b)
+{
+  sfcomplex sfc = { sf_imul(a, b.re), sf_imul(a, b.im) };
+  return sfc;
+}
+
+sfcomplex sfc_muli(const sfcomplex a, const int b)
+{
+  sfcomplex sfc = { sf_muli(a.re, b), sf_muli(a.im, b) };
+  return sfc;
+}
+
+sfcomplex sfc_mul(const sfcomplex a, const sfcomplex b)
+{
+  sfcomplex sfc = { sf_sub(sf_mul(a.re, b.re), sf_mul(a.im, b.im)), sf_add(sf_mul(a.re, b.im), sf_mul(a.im, b.re)) };
+  return sfc;
+}
+
+sfcomplex sfc_pow(const sfcomplex a, const int b)
+{
+  sfcomplex r = { sf_one(), sf_zero() };
+  for (int i = 0; i < b; ++i)
+  {
+    r = sfc_mul(r, a);
+  }
+  return r;
+}
 
 typedef struct
 {
-  int antal;
-  int bGlitch;
+  double cr;
+  double ci;
+  double xr;
+  double xi;
+  double dr;
+  double di;
+  double daa;
+  double dab;
+  double dba;
+  double dbb;
   double test1;
   double test2;
-} p_status;
-
+  long antal;
+  int bGlitch;
+} p_status_d;
 
 typedef struct
 {
-  int count;
-  int width;
-  int height;
+  floatexp cr;
+  floatexp ci;
+  floatexp xr;
+  floatexp xi;
+  floatexp dr;
+  floatexp di;
+  floatexp daa;
+  floatexp dab;
+  floatexp dba;
+  floatexp dbb;
+  double test1;
+  double test2;
+  long antal;
+  int bGlitch;
+} p_status_fe;
+
+typedef struct
+{
+  softfloat cr;
+  softfloat ci;
+  softfloat xr;
+  softfloat xi;
+  softfloat dr;
+  softfloat di;
+  softfloat daa;
+  softfloat dab;
+  softfloat dba;
+  softfloat dbb;
+  softfloat test1;
+  softfloat test2;
+  long antal;
+  int bGlitch;
+} p_status_sf;
+
+
+typedef struct __attribute__((packed))
+{
+  long BYTES;
+  // for pixel -> parameter mapping
   int m_nX;
   int m_nY;
-  int antal;
-  int m_nMaxIter;
-  int m_nGlitchIter;
-  int m_bNoGlitchDetection;
-  int m_nSmoothMethod;
-  int m_nPower;
-  int m_nMaxApproximation;
-  int m_nTerms;
-  int m_bAddReference;
+  uint JitterSeed;
+  int JitterShape;
+  double JitterScale;
+  floatexp m_pixel_step_x;
+  floatexp m_pixel_step_y;
+  floatexp m_pixel_center_x;
+  floatexp m_pixel_center_y;
+  double m_C;
+  double m_S;
+  // for result -> output mapping
+  long stride_y;
+  long stride_x;
+  long stride_offset;
+  // for iteration control
   double m_nBailout;
   double m_nBailout2;
+  double log_m_nPower;
+  long m_nGlitchIter;
+  long m_nMaxIter;
+  long nMaxIter;
+  long nMinIter;
+  short m_bNoGlitchDetection;
+  short derivatives;
+  short m_bAddReference;
+  short m_nSmoothMethod;
   double g_real;
   double g_imag;
   double g_FactorAR;
   double g_FactorAI;
-  double m_C;
-  double m_S;
+  double m_epsilon;
+  // for series approximation
+  double m_dPixelSpacing;
+  floatexp m_fPixelSpacing;
+  long m_nMaxApproximation;
+  int m_nApproxTerms;
+  int approximation_type;
+  // 130kB data follows
+  floatexp m_APr[MAX_APPROX_TERMS + 1];
+  floatexp m_APi[MAX_APPROX_TERMS + 1];
+  floatexp m_APs_s[MAX_APPROX_TERMS + 1][MAX_APPROX_TERMS + 1];
+  floatexp m_APs_t[MAX_APPROX_TERMS + 1][MAX_APPROX_TERMS + 1];
 } p_config;
 
+uint burtle_hash(uint a)
+{
+    a = (a+0x7ed55d16) + (a<<12);
+    a = (a^0xc761c23c) ^ (a>>19);
+    a = (a+0x165667b1) + (a<<5);
+    a = (a+0xd3a2646c) ^ (a<<9);
+    a = (a+0xfd7046c5) + (a<<3);
+    a = (a^0xb55a4f09) ^ (a>>16);
+    return a;
+}
 
-__kernel void series_approximation_double
-( __global const p_config *config0
-, __global const double *m_pDX
-, __global const double *m_pDY
-, __global const floatexp *m_APr
-, __global const floatexp *m_APi
-, __global double *cx
-, __global int *pixels
-, __global float *trans
+// uniform in [0,1)
+double dither(uint x, uint y, uint c)
+{
+  return
+    burtle_hash(x +
+    burtle_hash(y +
+    burtle_hash(c))) / (double) (0x100000000LL);
+}
+
+void GetPixelOffset
+( __global const p_config *g
+, const int i
+, const int j
+, double *x
+, double *y
 )
 {
-  p_config config = *config0;
-  int ix = get_global_id(0);
-  if (0 <= ix && ix < config.count)
+  uint c = g->JitterSeed;
+  if (c != 0)
   {
-    if (! config.m_bAddReference)
+    double s = g->JitterScale;
+    double u = dither(i, j, 2 * c + 0);
+    double v = dither(i, j, 2 * c + 1);
+    switch (g->JitterShape)
     {
-      pixels[ix] = -1;
-      trans[ix] = 0;
-    }
-    if (pixels[ix] == -1)
-    {
-      int y = ix % config.height;
-      int x = ix / config.height;
-      double dbD0r = m_pDX[config.m_nX / 2] + config.m_C*(m_pDX[x] - m_pDX[config.m_nX / 2]) + config.m_S*(m_pDY[y] - m_pDY[config.m_nY / 2]);
-      double dbD0i = m_pDY[config.m_nY / 2] - config.m_S*(m_pDX[x] - m_pDX[config.m_nX / 2]) + config.m_C*(m_pDY[y] - m_pDY[config.m_nY / 2]);
-      floatexp D0r = fe_floatexp(dbD0r, 0);
-      floatexp D0i = fe_floatexp(dbD0i, 0);
-      floatexp Dr = D0r;
-      floatexp Di = D0i;
-      if (config.m_nMaxApproximation)
-      {
-        floatexp Dnr = fe_sub(fe_mul(m_APr[0] , D0r) , fe_mul(m_APi[0] , D0i));
-        floatexp Dni = fe_add(fe_mul(m_APr[0] , D0i) , fe_mul(m_APi[0] , D0r));
-        floatexp D_r = fe_sub(fe_mul(D0r,D0r), fe_mul(D0i,D0i));
-        floatexp D_i = fe_mul_2si(fe_mul(D0r, D0i), 1);
-        Dnr = fe_add(Dnr , fe_sub(fe_mul(m_APr[1] , D_r) , fe_mul(m_APi[1] , D_i)));
-        Dni = fe_add(Dni , fe_add(fe_mul(m_APr[1] , D_i) , fe_mul(m_APi[1] , D_r)));
-        for (int k = 2; k < config.m_nTerms; ++k)
+      default:
+      case 0: // uniform
         {
-          floatexp t = fe_sub(fe_mul(D_r,D0r) , fe_mul(D_i,D0i));
-          D_i =        fe_add(fe_mul(D_r,D0i) , fe_mul(D_i,D0r));
-          D_r = t;
-          Dnr = fe_add(Dnr, fe_sub(fe_mul(m_APr[k] , D_r) , fe_mul(m_APi[k] , D_i)));
-          Dni = fe_add(Dni, fe_add(fe_mul(m_APr[k] , D_i) , fe_mul(m_APi[k] , D_r)));
+          *x = s * (u - 0.5);
+          *y = s * (v - 0.5);
         }
-        Dr = Dnr;
-        Di = Dni;
+        break;
+      case 1: // Gaussian
+        {
+          // FIXME cache slow trig functions for every pixel for every image?
+          // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+          double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
+          double t = 2 * 3.141592653589793 * v;
+          s *= 0.5;
+          *x = s * r * cos(t);
+          *y = s * r * sin(t);
+        }
+        break;
+    }
+  }
+  else
+  {
+    *x = 0.0;
+    *y = 0.0;
+  }
+}
+
+void GetPixelCoordinates
+( __global const p_config *g
+, const int i
+, const int j
+, floatexp *x
+, floatexp *y
+)
+{
+  double di = 0;
+  double dj = 0;
+  GetPixelOffset(g, i, j, &di, &dj);
+  floatexp u = fe_muld(g->m_pixel_step_x, i - g->m_nX/2 + di);
+  floatexp v = fe_muld(g->m_pixel_step_y, j - g->m_nY/2 + dj);
+  *x = fe_add(g->m_pixel_center_x, fe_add(fe_muld(u, g->m_C), fe_muld(v, g->m_S)));
+  *y = fe_sub(g->m_pixel_center_y, fe_sub(fe_muld(u, g->m_S), fe_muld(v, g->m_C)));
+}
+
+void GetPixelCoordinatesM
+( __global const p_config *g
+, const int i
+, const int j
+, floatexp *x
+, floatexp *y
+, floatexp *daa
+, floatexp *dab
+, floatexp *dba
+, floatexp *dbb
+)
+{
+  double di = 0;
+  double dj = 0;
+  GetPixelOffset(g, i, j, &di, &dj);
+  floatexp u = fe_muld(g->m_pixel_step_x, i - g->m_nX/2 + di);
+  floatexp v = fe_muld(g->m_pixel_step_y, j - g->m_nY/2 + dj);
+  *x = fe_add(g->m_pixel_center_x, fe_add(fe_muld(u, g->m_C), fe_muld(v, g->m_S)));
+  *y = fe_sub(g->m_pixel_center_y, fe_sub(fe_muld(u, g->m_S), fe_muld(v, g->m_C)));
+  *daa = fe_muld(g->m_pixel_step_x,  g->m_C);
+  *dab = fe_muld(g->m_pixel_step_y,  g->m_S);
+  *dba = fe_muld(g->m_pixel_step_x, -g->m_S);
+  *dbb = fe_muld(g->m_pixel_step_y,  g->m_C);
+}
+
+void DoApproximationD
+( __global const p_config *g
+, long *antal
+, const floatexp D0r
+, const floatexp D0i
+, floatexp *oTDnr
+, floatexp *oTDni
+, floatexp *oTDDnr
+, floatexp *oTDDni
+)
+{
+  const floatexp zero = fe_floatexp(0.0, 0);
+  if (g->m_nMaxApproximation)
+  {
+    floatexp TDnr = zero;
+    floatexp TDni = zero;
+    floatexp TDDnr = zero;
+    floatexp TDDni = zero;
+    for (int k = g->m_nApproxTerms - 1; k >= 0; --k)
+    {
+      floatexp tr = fe_add(fe_sub(fe_mul(TDnr, D0r), fe_mul(TDni, D0i)), g->m_APr[k]);
+      floatexp ti = fe_add(fe_add(fe_mul(TDnr, D0i), fe_mul(TDni, D0r)), g->m_APi[k]);
+      TDnr = tr;
+      TDni = ti;
+      tr = fe_add(fe_sub(fe_mul(TDDnr, D0r), fe_mul(TDDni, D0i)), fe_muli(g->m_APr[k], k + 1));
+      ti = fe_add(fe_add(fe_mul(TDDnr, D0i), fe_mul(TDDni, D0r)), fe_muli(g->m_APi[k], k + 1));
+      TDDnr = tr;
+      TDDni = ti;
+    }
+    floatexp tr = fe_sub(fe_mul(TDnr, D0r), fe_mul(TDni, D0i));
+    floatexp ti = fe_add(fe_mul(TDnr, D0i), fe_mul(TDni, D0r));
+    TDnr = tr;
+    TDni = ti;
+    *antal = g->m_nMaxApproximation - 1;
+    *oTDnr = TDnr;
+    *oTDni = TDni;
+    *oTDDnr = TDnr;
+    *oTDDni = TDni;
+  }
+  else
+  {
+    *antal = 0;
+    *oTDnr = D0r;
+    *oTDni = D0i;
+    *oTDDnr = fe_floatexp(1.0, 0);
+    *oTDDni = zero;
+  }
+}
+
+void DoApproximationM
+( __global const p_config *g
+, long *antal
+, const floatexp a
+, const floatexp b
+, floatexp *x
+, floatexp *y
+, floatexp *dxa
+, floatexp *dxb
+, floatexp *dya
+, floatexp *dyb
+)
+{
+    const floatexp zero = fe_floatexp(0.0, 0);
+    const floatexp one  = fe_floatexp(1.0, 0);
+    if (g->approximation_type == 1)
+    {
+      floatexp dx, dy;
+      DoApproximationD(g, antal, a, b, x, y, &dx, &dy);
+      // Cauchy-Riemann
+      *dxa = dx;
+      *dxb = fe_neg(dy);
+      *dya = dy;
+      *dyb = dx;
+    }
+    else if (g->approximation_type == 2)
+    {
+      if (g->m_nMaxApproximation)
+      {
+        floatexp an[MAX_APPROX_TERMS + 1];
+        floatexp bn[MAX_APPROX_TERMS + 1];
+        floatexp dan[MAX_APPROX_TERMS + 1];
+        floatexp dbn[MAX_APPROX_TERMS + 1];
+        an[0] = one;
+        bn[0] = one;
+        dan[0] = zero;
+        dbn[0] = zero;
+        for (int i = 1; i <= g->m_nApproxTerms; ++i)
+        {
+          an[i] = fe_mul(an[i - 1], a);
+          bn[i] = fe_mul(bn[i - 1], b);
+          dan[i] = fe_muli(an[i - 1], i);
+          dbn[i] = fe_muli(bn[i - 1], i);
+        }
+        // x   = sum ApproxSeriesR2X[i][j]   a^i       b^j
+        // dxa = sum ApproxSeriesR2X[i][j] i a^{i-1}   b^j
+        // dxb = sum ApproxSeriesR2X[i][j]   a^i     j b^{j-1}
+        floatexp totalX = zero;
+        floatexp totalY = zero;
+        floatexp totalDXA = zero;
+        floatexp totalDXB = zero;
+        floatexp totalDYA = zero;
+        floatexp totalDYB = zero;
+        for (int i = 0; i <= g->m_nApproxTerms; ++i)
+        {
+          floatexp subtotalX = zero;
+          floatexp subtotalY = zero;
+          floatexp subtotalDXB = zero;
+          floatexp subtotalDYB = zero;
+          for (int j = 0; j <= g->m_nApproxTerms - i; ++j)
+          {
+            subtotalX   = fe_add(subtotalX,   fe_mul(g->m_APs_s[i][j],  bn[j]));
+            subtotalY   = fe_add(subtotalY,   fe_mul(g->m_APs_t[i][j],  bn[j]));
+            subtotalDXB = fe_add(subtotalDXB, fe_mul(g->m_APs_s[i][j], dbn[j]));
+            subtotalDYB = fe_add(subtotalDYB, fe_mul(g->m_APs_t[i][j], dbn[j]));
+          }
+          totalX   = fe_add(totalX,   fe_mul(subtotalX  ,  an[i]));
+          totalY   = fe_add(totalY,   fe_mul(subtotalY  ,  an[i]));
+          totalDXA = fe_add(totalDXA, fe_mul(subtotalX  , dan[i]));
+          totalDYA = fe_add(totalDYA, fe_mul(subtotalY  , dan[i]));
+          totalDXB = fe_add(totalDXB, fe_mul(subtotalDXB,  an[i]));
+          totalDYB = fe_add(totalDYB, fe_mul(subtotalDYB,  an[i]));
+        }
+        *antal = g->m_nMaxApproximation - 1;
+        *x   = totalX;
+        *y   = totalY;
+        *dxa = totalDXA;
+        *dxb = totalDXB;
+        *dya = totalDYA;
+        *dyb = totalDYB;
       }
-      cx[4 * ix + 0] = dbD0r;
-      cx[4 * ix + 1] = dbD0i;
-      cx[4 * ix + 2] = fe_double(Dr);
-      cx[4 * ix + 3] = fe_double(Di);
+      else
+      {
+        *antal = 0;
+        *x = a;
+        *y = b;
+        *dxa = one;
+        *dxb = zero;
+        *dya = zero;
+        *dyb = one;
+      }
+    }
+    else
+    {
+      *antal = 0;
+      *x = a;
+      *y = b;
+      *dxa = one;
+      *dxb = zero;
+      *dya = zero;
+      *dyb = one;
+    }
+}
+
+#if 0
+void DoApproximation
+( __global const p_config *g
+, const floatexp a
+, const floatexp b
+, floatexp *x
+, floatexp *y
+)
+{
+  floatexp an[MAX_APPROX_TERMS + 1];
+  floatexp bn[MAX_APPROX_TERMS + 1];
+  an[0] = 1;
+  bn[0] = 1;
+  for (int i = 1; i <= g->m_nApproxTerms; ++i)
+  {
+    an[i] = an[i - 1] * a;
+    bn[i] = bn[i - 1] * b;
+  }
+  floatexp totalX = 0;
+  floatexp totalY = 0;
+  for (int i = 0; i <= g->m_nApproxTerms; ++i)
+  {
+    floatexp subtotalX = 0;
+    floatexp subtotalY = 0;
+    for (int j = 0; j <= g->m_nApproxTerms - i; ++j)
+    {
+      subtotalX += g->m_APs_s[i][j] * bn[j];
+      subtotalY += g->m_APs_t[i][j] * bn[j];
+    }
+    totalX += subtotalX * an[i];
+    totalY += subtotalY * an[i];
+  }
+  x = totalX;
+  y = totalY;
+}
+#endif
+
+#define PIXEL_UNEVALUATED (-2147483648LL)
+#define ISFLOATOK(x) ((! isnan(x)) && (! isinf(x)))
+#define SET_TRANS_GLITCH(x) (-1.0)
+
+// forward declaration, defined per formula
+void perturbation_double_loop
+( __global const p_config   *g
+, __global const double     *m_db_dxr
+, __global const double     *m_db_dxi
+, __global const double     *m_db_z
+,                p_status_d *l
+);
+
+// forward declaration, defined per formula
+void perturbation_floatexp_loop
+( __global const p_config    *g
+, __global const floatexp    *m_db_dxr
+, __global const floatexp    *m_db_dxi
+, __global const double      *m_db_z
+,                p_status_fe *l
+);
+
+// forward declaration, defined per formula
+void perturbation_softfloat_loop
+( __global const p_config    *g
+, __global const softfloat   *m_db_dxr
+, __global const softfloat   *m_db_dxi
+, __global const softfloat   *m_db_z
+,                p_status_sf *l
+);
+
+// entry point
+__kernel void perturbation_double
+( __global const p_config *g // configuration including series approximation coefficients
+, __global const double *m_db_dxr // reference orbit re
+, __global const double *m_db_dxi // reference orbit im
+, __global const double *m_db_z   // reference orbit (re^2+im^2)*glitch_threshold
+, __global       uint   *n1  // iteration count msb, may be null
+, __global       uint   *n0  // iteration count lsb
+, __global       float  *nf  // iteration count fractional part
+, __global       float  *dex // directional de x, may be null
+, __global       float  *dey // directional de y, may be null
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  long orig = 0;
+  float origf = 0;
+  if (n1)
+  {
+    orig |= ((long)(int)(n1[ix])) << 32;
+    if (n0) orig |= n0[ix];
+  }
+  else
+  {
+    if (n0) orig = (long)(int)(n0[ix]); // sign extend
+  }
+  if (nf)
+  {
+    origf = nf[ix];
+  }
+  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  {
+    const floatexp zero = fe_floatexp(0.0, 0);
+    const floatexp one  = fe_floatexp(1.0, 0);
+    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
+    // FIXME TODO mirroring, incremental rendering, guessing
+/*
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+    int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+    if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
+      SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+      continue;
+    }
+    if (GuessPixel(x, y, w, h))
+      continue;
+*/
+    // Series approximation
+    floatexp D0r = zero;
+    floatexp D0i = zero;
+    floatexp daa0 = one;
+    floatexp dab0 = zero;
+    floatexp dba0 = zero;
+    floatexp dbb0 = one;
+    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    long antal;
+    floatexp TDnr;
+    floatexp TDni;
+    floatexp dxa1, dxb1, dya1, dyb1;
+    DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
+    floatexp TDDnr = dxa1;
+    floatexp TDDni = dya1;
+    double test1 = 0, test2 = 0;
+    bool bGlitch = false;
+    double dbD0r = fe_double(D0r);
+    double dbD0i = fe_double(D0i);
+    double Dr = fe_double(TDnr);
+    double Di = fe_double(TDni);
+    double daa = fe_double(daa0);
+    double dab = fe_double(dab0);
+    double dba = fe_double(dba0);
+    double dbb = fe_double(dbb0);
+    double dr = fe_double(TDDnr);
+    double di = fe_double(TDDni);
+    dr *= g->m_dPixelSpacing;
+    di *= g->m_dPixelSpacing;
+    // in
+    p_status_d l =
+      { dbD0r
+      , dbD0i
+      , Dr
+      , Di
+      , dr
+      , di
+      , daa
+      , dab
+      , dba
+      , dbb
+      , test1
+      , test2
+      , antal
+      , bGlitch
+      };
+    // core per pixel calculation
+    perturbation_double_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
+    // out
+    Dr = l.xr;
+    Di = l.xi;
+    dr = l.dr;
+    di = l.di;
+    test1 = l.test1;
+    test2 = l.test2;
+    antal = l.antal;
+    bGlitch = l.bGlitch;
+    dcomplex de = { 0.0, 0.0 };
+    if (g->derivatives)
+    {
+      dcomplex z = { Dr, Di };
+      dcomplex dc = { dr, di };
+      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+    }
+    // output iteration data
+    if (antal == g->m_nGlitchIter)
+      bGlitch = true;
+    if (antal >= g->m_nMaxIter){
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (nf) nf[ix] = 0;
+      if (dex) dex[ix] = 0;
+      if (dey) dey[ix] = 0;
+    }
+    else{
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (dex) dex[ix] = de.re;
+      if (dey) dey[ix] = de.im;
+      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
+        double div = sqrt(test1) - sqrt(test2);
+        if (div != 0)
+        {
+          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
+        }
+        else
+        {
+          if (nf) nf[ix] = 0;
+        }
+      }
+      else if (!bGlitch && g->m_nSmoothMethod == 0){
+        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        if (!ISFLOATOK(t))
+          t = 0;
+        long i = floor(t);
+        antal -= i;
+        t -= i;
+        if (n1) n1[ix] = antal >> 32;
+        if (n0) n0[ix] = antal;
+        if (nf) nf[ix] = t;
+      }
+
+      if (bGlitch && !g->m_bNoGlitchDetection){
+        if (nf) nf[ix] = SET_TRANS_GLITCH(test1);
+      }
     }
   }
 }
 
-
-__kernel void series_approximation_floatexp
-( __global const p_config *config0
-, __global const floatexp *m_DX
-, __global const floatexp *m_DY
-, __global const floatexp *m_APr
-, __global const floatexp *m_APi
-, __global floatexp *cx
-, __global int *pixels
-, __global float *trans
+// entry point
+__kernel void perturbation_floatexp
+( __global const p_config *g // configuration including series approximation coefficients
+, __global const floatexp *m_db_dxr // reference orbit re
+, __global const floatexp *m_db_dxi // reference orbit im
+, __global const double   *m_db_z   // reference orbit (re^2+im^2)*glitch_threshold
+, __global       uint     *n1  // iteration count msb, may be null
+, __global       uint     *n0  // iteration count lsb
+, __global       float    *nf  // iteration count fractional part
+, __global       float    *dex // directional de x, may be null
+, __global       float    *dey // directional de y, may be null
 )
 {
-  p_config config = *config0;
-  int ix = get_global_id(0);
-  if (0 <= ix && ix < config.count)
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  long orig = 0;
+  float origf = 0;
+  if (n1)
   {
-    if (! config.m_bAddReference)
-    {
-      pixels[ix] = -1;
-      trans[ix] = 0;
+    orig |= ((long)(int)(n1[ix])) << 32;
+    if (n0) orig |= n0[ix];
+  }
+  else
+  {
+    if (n0) orig = (long)(int)(n0[ix]); // sign extend
+  }
+  if (nf)
+  {
+    origf = nf[ix];
+  }
+  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  {
+    const floatexp zero = fe_floatexp(0.0, 0);
+    const floatexp one  = fe_floatexp(1.0, 0);
+    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
+    // FIXME TODO mirroring, incremental rendering, guessing
+/*
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+    int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+    if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
+      SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+      continue;
     }
-    if (pixels[ix] == -1)
+    if (GuessPixel(x, y, w, h))
+      continue;
+*/
+    // Series approximation
+    floatexp D0r = zero;
+    floatexp D0i = zero;
+    floatexp daa0 = one;
+    floatexp dab0 = zero;
+    floatexp dba0 = zero;
+    floatexp dbb0 = one;
+    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    long antal;
+    floatexp TDnr;
+    floatexp TDni;
+    floatexp dxa1, dxb1, dya1, dyb1;
+    DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
+    floatexp TDDnr = dxa1;
+    floatexp TDDni = dya1;
+    double test1 = 0, test2 = 0;
+    bool bGlitch = false;
+    // in
+    p_status_fe l =
+      { D0r
+      , D0i
+      , TDnr
+      , TDni
+      , fe_mul(TDDnr, g->m_fPixelSpacing)
+      , fe_mul(TDDni, g->m_fPixelSpacing)
+      , daa0
+      , dab0
+      , dba0
+      , dbb0
+      , test1
+      , test2
+      , antal
+      , bGlitch
+      };
+    // core per pixel calculation
+    perturbation_floatexp_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
+    // out
+    floatexp Dr = l.xr;
+    floatexp Di = l.xi;
+    floatexp dr = l.dr;
+    floatexp di = l.di;
+    test1 = l.test1;
+    test2 = l.test2;
+    antal = l.antal;
+    bGlitch = l.bGlitch;
+    dcomplex de = { 0.0, 0.0 };
+    if (g->derivatives)
     {
-      int y = ix % config.height;
-      int x = ix / config.height;
-      floatexp c = fe_floatexp(config.m_C, 0);
-      floatexp s = fe_floatexp(config.m_S, 0);
-      floatexp dbD0r = fe_add(m_DX[config.m_nX / 2] , fe_add(fe_mul(c , fe_sub(m_DX[x] , m_DX[config.m_nX / 2])) , fe_mul(s , fe_sub(m_DY[y] , m_DY[config.m_nY / 2]))));
-      floatexp dbD0i = fe_sub(m_DY[config.m_nY / 2] , fe_add(fe_mul(s , fe_sub(m_DX[x] , m_DX[config.m_nX / 2])) , fe_mul(c , fe_sub(m_DY[y] , m_DY[config.m_nY / 2]))));
-      floatexp D0r = dbD0r;
-      floatexp D0i = dbD0i;
-      floatexp Dr = D0r;
-      floatexp Di = D0i;
-      if (config.m_nMaxApproximation)
-      {
-        floatexp Dnr = fe_sub(fe_mul(m_APr[0] , D0r) , fe_mul(m_APi[0] , D0i));
-        floatexp Dni = fe_add(fe_mul(m_APr[0] , D0i) , fe_mul(m_APi[0] , D0r));
-        floatexp D_r = fe_sub(fe_mul(D0r,D0r), fe_mul(D0i,D0i));
-        floatexp D_i = fe_mul_2si(fe_mul(D0r, D0i), 1);
-        Dnr = fe_add(Dnr , fe_sub(fe_mul(m_APr[1] , D_r) , fe_mul(m_APi[1] , D_i)));
-        Dni = fe_add(Dni , fe_add(fe_mul(m_APr[1] , D_i) , fe_mul(m_APi[1] , D_r)));
-        for (int k = 2; k < config.m_nTerms; ++k)
+      dcomplex z = { fe_double(Dr), fe_double(Di) };
+      dcomplex dc = { fe_double(dr), fe_double(di) };
+      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+    }
+    // output iteration data
+    if (antal == g->m_nGlitchIter)
+      bGlitch = true;
+    if (antal >= g->m_nMaxIter){
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (nf) nf[ix] = 0;
+      if (dex) dex[ix] = 0;
+      if (dey) dey[ix] = 0;
+    }
+    else{
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (dex) dex[ix] = de.re;
+      if (dey) dey[ix] = de.im;
+      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
+        double div = sqrt(test1) - sqrt(test2);
+        if (div != 0)
         {
-          floatexp t = fe_sub(fe_mul(D_r,D0r) , fe_mul(D_i,D0i));
-          D_i =        fe_add(fe_mul(D_r,D0i) , fe_mul(D_i,D0r));
-          D_r = t;
-          Dnr = fe_add(Dnr, fe_sub(fe_mul(m_APr[k] , D_r) , fe_mul(m_APi[k] , D_i)));
-          Dni = fe_add(Dni, fe_add(fe_mul(m_APr[k] , D_i) , fe_mul(m_APi[k] , D_r)));
+          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
         }
-        Dr = Dnr;
-        Di = Dni;
+        else
+        {
+          if (nf) nf[ix] = 0;
+        }
       }
-      cx[4 * ix + 0] = D0r;
-      cx[4 * ix + 1] = D0i;
-      cx[4 * ix + 2] = Dr;
-      cx[4 * ix + 3] = Di;
+      else if (!bGlitch && g->m_nSmoothMethod == 0){
+        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        if (!ISFLOATOK(t))
+          t = 0;
+        long i = floor(t);
+        antal -= i;
+        t -= i;
+        if (n1) n1[ix] = antal >> 32;
+        if (n0) n0[ix] = antal;
+        if (nf) nf[ix] = t;
+      }
+
+      if (bGlitch && !g->m_bNoGlitchDetection){
+        if (nf) nf[ix] = SET_TRANS_GLITCH(test1);
+      }
+    }
+  }
+}
+
+// entry point
+__kernel void perturbation_softfloat
+( __global const p_config  *g // configuration including series approximation coefficients
+, __global const softfloat *m_db_dxr // reference orbit re
+, __global const softfloat *m_db_dxi // reference orbit im
+, __global const softfloat *m_db_z   // reference orbit (re^2+im^2)*glitch_threshold
+, __global       uint      *n1  // iteration count msb, may be null
+, __global       uint      *n0  // iteration count lsb
+, __global       float     *nf  // iteration count fractional part
+, __global       float     *dex // directional de x, may be null
+, __global       float     *dey // directional de y, may be null
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  long orig = 0;
+  float origf = 0;
+  if (n1)
+  {
+    orig |= ((long)(int)(n1[ix])) << 32;
+    if (n0) orig |= n0[ix];
+  }
+  else
+  {
+    if (n0) orig = (long)(int)(n0[ix]); // sign extend
+  }
+  if (nf)
+  {
+    origf = nf[ix];
+  }
+  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  {
+    const floatexp zero = fe_floatexp(0.0, 0);
+    const floatexp one  = fe_floatexp(1.0, 0);
+    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
+    // FIXME TODO mirroring, incremental rendering, guessing
+/*
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+    int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+    if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
+      SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+      continue;
+    }
+    if (GuessPixel(x, y, w, h))
+      continue;
+*/
+    // Series approximation
+    floatexp D0r = zero;
+    floatexp D0i = zero;
+    floatexp daa0 = one;
+    floatexp dab0 = zero;
+    floatexp dba0 = zero;
+    floatexp dbb0 = one;
+    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    long antal;
+    floatexp TDnr;
+    floatexp TDni;
+    floatexp dxa1, dxb1, dya1, dyb1;
+    DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
+    floatexp TDDnr = dxa1;
+    floatexp TDDni = dya1;
+    softfloat test1 = sf_zero(), test2 = sf_zero();
+    bool bGlitch = false;
+    // in
+    p_status_sf l =
+      { sf_from_floatexp(D0r)
+      , sf_from_floatexp(D0i)
+      , sf_from_floatexp(TDnr)
+      , sf_from_floatexp(TDni)
+      , sf_from_floatexp(fe_mul(TDDnr, g->m_fPixelSpacing))
+      , sf_from_floatexp(fe_mul(TDDni, g->m_fPixelSpacing))
+      , sf_from_floatexp(daa0)
+      , sf_from_floatexp(dab0)
+      , sf_from_floatexp(dba0)
+      , sf_from_floatexp(dbb0)
+      , test1
+      , test2
+      , antal
+      , bGlitch
+      };
+    // core per pixel calculation
+    perturbation_softfloat_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
+    // out
+    softfloat Dr = l.xr;
+    softfloat Di = l.xi;
+    softfloat dr = l.dr;
+    softfloat di = l.di;
+    test1 = l.test1;
+    test2 = l.test2;
+    antal = l.antal;
+    bGlitch = l.bGlitch;
+    dcomplex de = { 0.0, 0.0 };
+    if (g->derivatives)
+    {
+      dcomplex z = { sf_to_double(Dr), sf_to_double(Di) };
+      dcomplex dc = { sf_to_double(dr), sf_to_double(di) };
+      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+    }
+    // output iteration data
+    if (antal == g->m_nGlitchIter)
+      bGlitch = true;
+    if (antal >= g->m_nMaxIter){
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (nf) nf[ix] = 0;
+      if (dex) dex[ix] = 0;
+      if (dey) dey[ix] = 0;
+    }
+    else{
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (dex) dex[ix] = de.re;
+      if (dey) dey[ix] = de.im;
+      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
+        double div = sqrt(test1) - sqrt(test2);
+        if (div != 0)
+        {
+          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
+        }
+        else
+        {
+          if (nf) nf[ix] = 0;
+        }
+      }
+      else if (!bGlitch && g->m_nSmoothMethod == 0){
+        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        if (!ISFLOATOK(t))
+          t = 0;
+        long i = floor(t);
+        antal -= i;
+        t -= i;
+        if (n1) n1[ix] = antal >> 32;
+        if (n0) n0[ix] = antal;
+        if (nf) nf[ix] = t;
+      }
+
+      if (bGlitch && !g->m_bNoGlitchDetection){
+        if (nf) nf[ix] = SET_TRANS_GLITCH(test1);
+      }
     }
   }
 }

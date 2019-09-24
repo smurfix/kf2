@@ -1279,100 +1279,160 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 }
 
 #ifdef KF_OPENCL
+
 void CFraktalSFT::RenderFractalOpenCL()
 {
-	int32_t antal = 0;
+	int64_t antal = 0;
 	if (m_nMaxApproximation)
 	{
 		antal = m_nMaxApproximation - 1;
 	}
-	cl->lock();
-  cl->upload_config(m_nX * m_nY, m_nX, m_nY, m_nX, m_nY, antal, m_nMaxIter, m_nGlitchIter, m_bNoGlitchDetection, m_nSmoothMethod, m_nPower, m_nMaxApproximation, m_nTerms, m_nBailout, m_nBailout2, g_real, g_imag, g_FactorAR, g_FactorAI, m_C, m_S, m_bAddReference);
-  cl->upload_approximation(m_pDX, m_nX, m_pDY, m_nY, m_APr, m_APi, m_nTerms);
-  cl->upload_reference(m_db_dxr, m_db_dxi, m_db_z, m_nMaxIter);
-  cl->execute_approximation(0, m_nX * m_nY);
-  cl->execute_formula(0, m_nFractalType, m_nPower, m_nX * m_nY);
-  cl->download_iterations(m_nPixels, m_nTrans, m_nX, m_nY);
-	cl->unlock();
+	std::cerr << antal << std::endl;
+	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
+	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
+	size_t stride_offset = 0;
+	cl->run
+  (
+	  // for pixel -> parameter mapping
+	  m_nX,
+	  m_nY,
+	  GetJitterSeed(),
+	  GetJitterShape(),
+	  GetJitterScale(),
+	  m_pixel_step_x,
+	  m_pixel_step_y,
+	  m_pixel_center_x,
+	  m_pixel_center_y,
+	  m_C,
+	  m_S,
+	  // for result -> output mapping
+	  stride_y,
+	  stride_x,
+	  stride_offset,
+	  // for iteration control
+	  m_nBailout,
+	  m_nBailout2,
+	  log(m_nPower),
+	  m_nGlitchIter,
+	  m_nMaxIter,
+	  m_nMaxIter,
+	  antal,
+	  m_bNoGlitchDetection,
+	  m_bAddReference,
+	  m_nSmoothMethod,
+	  g_real,
+	  g_imag,
+	  g_FactorAR,
+	  g_FactorAI,
+	  m_epsilon,
+	  // for series approximation
+	  m_dPixelSpacing,
+	  m_fPixelSpacing,
+	  m_nMaxApproximation,
+	  GetApproxTerms(),
+	  GetApproximationType(),
+	  m_APr,
+	  m_APi,
+	  m_APs,
+
+	  // reference orbit
+	  m_db_dxr,
+	  m_db_dxi,
+	  m_db_z,
+	  antal,
+	  m_nMaxIter,
+	 
+	  // formula selection
+	  0,
+	  m_nFractalType,
+	  m_nPower,
+	  GetDerivatives(),
+	
+	  // output arrays
+	  m_nPixels_MSB,
+	  m_nPixels_LSB,
+	  &m_nTrans[0][0],
+	  &m_nDEx[0][0],
+	  &m_nDEy[0][0]
+  );
 }
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
 {
-	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (!GetReuseReference() || !m_dxr){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-		}
-		CalculateReferenceEXP();
-	}
-	int i;
-	int x, y;
-	if (!m_DX || !m_DY){
-		CFixedFloat c = m_rstart;
-		CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-		m_DX = new floatexp[m_nX];
-		for (x = 0; x<m_nX; x++, c += step)
-			m_DX[x] = (c - m_rref);
-		c = m_istart;
-		step = (m_istop - m_istart)*(1 / (double)m_nY);
-		m_DY = new floatexp[m_nY];
-		for (y = 0; y<m_nY; y++, c += step)
-			m_DY[y] = (c - m_iref);
-	}
-	m_rApprox.left = 0;
-	m_rApprox.top = 0;
-	m_rApprox.right = m_nX;
-	m_rApprox.bottom = m_nY;
-	CalculateApproximation(2);
-
-#if 0
-	// CalcStart
-	if (!m_bAddReference){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				m_nPixels[x][y] = PIXEL_UNEVALUATED;
-				m_nTrans[x][y] = 0;
-			}
-		}
-	}
-#endif
-
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-
-	int32_t antal = 0;
+	int64_t antal = 0;
 	if (m_nMaxApproximation)
 	{
 		antal = m_nMaxApproximation - 1;
 	}
-	cl->lock();
-  cl->upload_config(m_nX * m_nY, m_nX, m_nY, m_nX, m_nY, antal, m_nMaxIter, m_nGlitchIter, m_bNoGlitchDetection, m_nSmoothMethod, m_nPower, m_nMaxApproximation, m_nTerms, m_nBailout, m_nBailout2, g_real, g_imag, g_FactorAR, g_FactorAI, m_C, m_S, m_bAddReference);
-  cl->upload_approximation(m_DX, m_nX, m_DY, m_nY, m_APr, m_APi, m_nTerms);
-  cl->upload_reference(m_dxr, m_dxi, m_db_z, m_nMaxIter);
-  cl->execute_approximation(1, m_nX * m_nY);
-  cl->execute_formula(1, m_nFractalType, m_nPower, m_nX * m_nY);
-  cl->download_iterations(m_nPixels, m_nTrans, m_nX, m_nY);
-	cl->unlock();
+	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
+	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
+	size_t stride_offset = 0;
+	cl->run
+  (
+	  // for pixel -> parameter mapping
+	  m_nX,
+	  m_nY,
+	  GetJitterSeed(),
+	  GetJitterShape(),
+	  GetJitterScale(),
+	  m_pixel_step_x,
+	  m_pixel_step_y,
+	  m_pixel_center_x,
+	  m_pixel_center_y,
+	  m_C,
+	  m_S,
+	  // for result -> output mapping
+	  stride_y,
+	  stride_x,
+	  stride_offset,
+	  // for iteration control
+	  m_nBailout,
+	  m_nBailout2,
+	  log(m_nPower),
+	  m_nGlitchIter,
+	  m_nMaxIter,
+	  m_nMaxIter,
+	  antal,
+	  m_bNoGlitchDetection,
+	  m_bAddReference,
+	  m_nSmoothMethod,
+	  g_real,
+	  g_imag,
+	  g_FactorAR,
+	  g_FactorAI,
+	  m_epsilon,
+	  // for series approximation
+	  m_dPixelSpacing,
+	  m_fPixelSpacing,
+	  m_nMaxApproximation,
+	  GetApproxTerms(),
+	  GetApproximationType(),
+	  m_APr,
+	  m_APi,
+	  m_APs,
 
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-	m_bRunning = FALSE;
+	  // reference orbit
+	  m_dxr,
+	  m_dxi,
+	  m_db_z,
+	  antal,
+	  m_nMaxIter,
+	 
+	  // formula selection
+	  2,
+	  m_nFractalType,
+	  m_nPower,
+	  GetDerivatives(),
+	
+	  // output arrays
+	  m_nPixels_MSB,
+	  m_nPixels_LSB,
+	  &m_nTrans[0][0],
+	  &m_nDEx[0][0],
+	  &m_nDEy[0][0]
+  );
 }
+
 #endif
 
 HBITMAP CFraktalSFT::GetBitmap()

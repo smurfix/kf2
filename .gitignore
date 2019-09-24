@@ -21,9 +21,8 @@ kf-tile.64.exe
 kf.rec
 preprocessor
 formula/formula.cpp
-cl/kf_opencl_source.c
-cl/kf.cl
-cl/opencl.inc
+cl/formula.cpp
+cl/*_cl.c
 vm/
 _
 examples/examples.html

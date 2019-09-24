@@ -275,7 +275,7 @@ void CFraktalSFT::RenderFractal()
 #ifdef KF_OPENCL
 		if (cl)
 		{
-			RenderFractalOpenCLEXP();
+			RenderFractalEXP();
 		}
 		else
 #endif
@@ -301,16 +301,7 @@ void CFraktalSFT::RenderFractal()
 			delete[] m_ldxi;
 			m_ldxi = NULL;
 		}
-#ifdef KF_OPENCL
-		if (cl)
-		{
-			RenderFractalOpenCLEXP();
-		}
-		else
-#endif
-		{
-			RenderFractalEXP();
-		}
+		RenderFractalEXP();
 		return;
 	}
 	if (m_ldxr){
@@ -590,47 +581,59 @@ void CFraktalSFT::RenderFractalEXP()
 
 	CalcStart();
 
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-	if (nParallel < 1) nParallel = 1;
+  if (cl)
+  {
 
-	CParallell P(
-#ifdef _DEBUG
-		1
-#else
-		nParallel
-#endif
-		);
-	TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-	int nStep = m_nX / nParallel;
-	if (nStep<2)
-		nStep = 2;
-	else
-		nStep++;
-	int nXStart = 0;
-	for (i = 0; i<nParallel; i++){
-		pMan[i].p = this;
-		pMan[i].nXStart = nXStart;
-		nXStart += nStep;
-		if (nXStart>m_nX)
-			nXStart = m_nX;
-		if (i == nParallel - 1)
-			pMan[i].nXStop = m_nX;
-		else
-			pMan[i].nXStop = nXStart;
-		P.AddFunction((LPEXECUTE)ThMandelCalcEXP, &pMan[i]);
-		if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-			pMan[i].nXStop--;
-			nXStart = pMan[i].nXStop;
-		}
-		if (pMan[i].nXStop == m_nX){
-			break;
-		}
+    RenderFractalOpenCLEXP();
+
 	}
-	P.Execute();
-	P.Reset();
-	delete[] pMan;
+	else
+	{
+
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		if (nParallel < 1) nParallel = 1;
+	
+		CParallell P(
+#ifdef _DEBUG
+			1
+#else
+			nParallel
+#endif
+			);
+		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+		int nStep = m_nX / nParallel;
+		if (nStep<2)
+			nStep = 2;
+		else
+			nStep++;
+		int nXStart = 0;
+		for (i = 0; i<nParallel; i++){
+			pMan[i].p = this;
+			pMan[i].nXStart = nXStart;
+			nXStart += nStep;
+			if (nXStart>m_nX)
+				nXStart = m_nX;
+			if (i == nParallel - 1)
+				pMan[i].nXStop = m_nX;
+			else
+				pMan[i].nXStop = nXStart;
+			P.AddFunction((LPEXECUTE)ThMandelCalcEXP, &pMan[i]);
+			if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
+				pMan[i].nXStop--;
+				nXStart = pMan[i].nXStop;
+			}
+			if (pMan[i].nXStop == m_nX){
+				break;
+			}
+		}
+		P.Execute();
+		P.Reset();
+		delete[] pMan;
+
+	}
+
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;

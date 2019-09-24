@@ -40,7 +40,8 @@ wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.5/glm-0.9.9.5.7z
 wget -c https://github.com/openexr/openexr/archive/v2.4.0.tar.gz -O openexr-2.4.0.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
-cp -avft ~/win32/src *z allpatches mingw-std-threads
+git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
+cp -avft ~/win32/src *z allpatches mingw-std-threads clew
 elif [ "x$1" = "x64" ]
 then
 # gmp 64
@@ -131,6 +132,8 @@ cd build
 cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win64/include -DZLIB_INCLUDE_DIR=$HOME/win64/include -DZLIB_LIBRARY=$HOME/win64/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win64 ..
 make -j $NCPUS
 make install
+# clew 64
+#nop
 elif [ "x$1" = "x32" ]
 then
 # gmp 32
@@ -222,6 +225,8 @@ sed -i "s/x86_64/i686/g" ../cmake/Toolchain-mingw.cmake
 cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win32/include -DZLIB_INCLUDE_DIR=$HOME/win32/include -DZLIB_LIBRARY=$HOME/win32/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win32 ..
 make -j $NCPUS
 make install
+# clew 32
+#nop
 else
   echo "usage:"
   echo "  $0 dl    # download sources"
