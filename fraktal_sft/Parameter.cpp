@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
+#include "cmdline.h"
 #include "tiff.h"
 #include "png.h"
 #include "jpeg.h"
@@ -76,7 +77,17 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 {
 	CStringTable stParams(data.c_str(), ": ", "\r\n");
-
+	{
+		int nv = stParams.FindString(0, "Version");
+		if (nv != -1)
+		{
+			int str_version_number = atoi(stParams[nv][1]);
+			if (str_version_number > kfr_version_number)
+			{
+				fprintf(stderr, "WARNING: file format is newer than this EXE version\n");
+			}
+		}
+	}
 	int nR = -1, nI = -1, nZ = -1, nIterations = -1;
 	if (! bNoLocation)
 	{
@@ -496,6 +507,9 @@ std::string CFraktalSFT::ToText()
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Period");
 	stSave.AddInt(stSave.GetCount() - 1, g_period);
+	stSave.addRow();
+	stSave.AddString(stSave.GetCount() - 1, "Version");
+	stSave.AddInt(stSave.GetCount() - 1, kfr_version_number);
 	char *szData = stSave.ToText(": ", "\r\n");
 	std::string ret(szData);
 	stSave.DeleteToText(szData);

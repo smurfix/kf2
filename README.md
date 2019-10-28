@@ -224,6 +224,7 @@ Feedback:
     - don't set zoom size when resuming zoom out sequence (now you need to
       set it manually before resuming) (fixes issue where it was clamped to
       integer; reported by david)
+    - save file format version number with parameters and settings
 
 - **kf-2.14.8** (2019-09-23)
 

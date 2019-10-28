@@ -71,5 +71,7 @@ public:
 
 extern const std::string usage;
 extern const std::string version;
+extern const int kfr_version_number;
+extern const int kfs_version_number;
 
 #endif

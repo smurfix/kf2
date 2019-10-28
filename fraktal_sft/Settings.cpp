@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 #include "../common/StringVector.h"
+#include "cmdline.h"
 #include "jpeg.h"
 #include "png.h"
 #include "tiff.h"
@@ -33,6 +34,17 @@ bool Settings::FromText(const std::string &text)
 {
   char *data = strdup(text.c_str());
   CStringTable s(data, ": ", "\r\n");
+  {
+    int nv = s.FindString(0, "SettingsVersion");
+    if (nv != -1)
+    {
+      int str_version_number = atoi(stParams[nv][1]);
+      if (str_version_number > kfs_version_number)
+      {
+        fprintf(stderr, "WARNING: file format is newer than this EXE version\n");
+      }
+    }
+  }
 #define DOUBLE(KEY) { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atof(s[n][1]); } }
 #define INT(KEY)    { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoll(s[n][1]); } }
 #define BOOL(KEY)   { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoll(s[n][1]); } }
@@ -146,6 +158,7 @@ std::string Settings::ToText() const
 #undef DOUBLE
 #undef INT
 #undef BOOL
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "SettingsVersion"); s.AddInt(s.GetCount() - 1, kfs_version_number); }
   char *data = s.ToText(": ", "\r\n");
   std::string r(data);
   s.DeleteToText(data);
