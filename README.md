@@ -74,7 +74,6 @@ Feedback:
   (reported by CFJH)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
-- "resume zoom sequence" assumes "zoom size" is an integer
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
@@ -219,6 +218,12 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.9** (????-??-??)
+
+    - don't set zoom size when resuming zoom out sequence (now you need to
+      set it manually before resuming) (fixes issue where it was clamped to
+      integer; reported by david)
 
 - **kf-2.14.8** (2019-09-23)
 

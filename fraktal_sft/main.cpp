@@ -1309,14 +1309,6 @@ static int ResumeZoomSequence(HWND hWnd)
 		}
 	}
 
-	if(stExamine.size()<2)
-		g_SFT.SetZoomSize(2);
-	else{
-		CDecNumber A(get_filename_zoom_string(stExamine[0]));
-		CDecNumber B(get_filename_zoom_string(stExamine[1]));
-		g_SFT.SetZoomSize((B/A+CDecNumber(0.5)).ToInt());
-	}
-	UpdateZoomSize(hWnd);
 	int zoomCount = countMap ? countMap
 	              : countExr ? countExr
 	              : countTif ? countTif
