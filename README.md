@@ -847,10 +847,10 @@ Feedback:
 - optimize series approximation and probe point stuff
 - work on OpenCL some more (try to get it working)
 - calculate series approximation in parallel with reference
+- only store reference orbit after series approximation
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
 - use minimum |z| pixels for new references (suggested by quaz0r)
-- option to build with int64_t iteration counts (audit -Wconversion)
 
 ### Newton-Raphson Zooming
 
@@ -861,6 +861,7 @@ Feedback:
 - properly debug huge zoom values from size estimate
 - make it work better in hard-skewed locations (need to skew the box
   period coordinates?)
+- improve stopping criterion for resuming (don't over-refine)
 
 ### NanoMB
 
