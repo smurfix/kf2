@@ -2302,3 +2302,25 @@ New in 2.14.6 is standalone KFB map colouring support with the `-o`/`--load-map`
 flag:
 
     kf.exe -o map.kfb -c palette.kfp -p out.png
+
+### Tiled Rendering
+
+Tiled rendering is useful for large images, including images larger than the
+2GB pixel data limit of Windows bitmaps.  The currently supported way of
+rendering tiled images is via EXR files, though there are some Octave/Matlab
+scripts still available that can work with more common image files.
+
+Example: target final size 64000x36000, tile factor 10x10.  Configure image
+size to 6400x3600, adjust other settings, save `input.kfs` and `input.kfr`.
+Then run (syntax for Bash shell):
+
+    kf-tile.exe input.kfs input.kfr 10
+    for tile in input-*.kfs
+    do
+      kf.exe -s ${tile} -l ${tile%.kfs}.kfr --save-exr ${tile%.kfs}.exr
+    done
+    exrtactile.exe input 10 0 output.exr  # for side-by-side tiles
+    exrtactile.exe input 10 1 output.exr  # for stratified tiles
+
+The EXR tile assembler is available at <https://mathr.co.uk/exrtact/>
+including Windows program binary.
