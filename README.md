@@ -106,7 +106,6 @@ Feedback:
 - kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
 - help button in file browser does nothing
-- opencl support is very broken, proof of concept only
 - may be difficult to build the source at the moment
   (out of date instructions for Windows, dependency on 'et', ...)
 
@@ -202,7 +201,6 @@ Feedback:
 - optimized some reference calculations by floating temporaries out of loops
 - XML preprocessor optimizes more reference calculations in the same way
 - optimized Newton-Raphson zooming by using lower-level GMP calls
-- very experimental and broken OpenCL using CLEW (still disabled at build time)
 - save images to PNG, TIFF and EXR format as well as JPEG
 - colouring uses floating point internally (fewer quantisation steps)
 - dithering at end of colouring to improve perceptual quality (reduced banding)
@@ -221,9 +219,12 @@ Feedback:
 
 - **kf-2.14.9** (????-??-??)
 
+    - OpenCL support for GPU rendering (enabled at build time with
+      `make clean && make OPENCL=1`)
     - don't set zoom size when resuming zoom out sequence (now you need to
       set it manually before resuming) (fixes issue where it was clamped to
       integer; reported by david)
+    - clamp half-precision colour output in EXR (fixes issue with NaNs)
     - save file format version number with parameters and settings
 
 - **kf-2.14.8** (2019-09-23)
@@ -845,7 +846,6 @@ Feedback:
 - increase ref count limit without restarting from scratch
 - increase maxiters limit without restarting from scratch
 - optimize series approximation and probe point stuff
-- work on OpenCL some more (try to get it working)
 - calculate series approximation in parallel with reference
 - only store reference orbit after series approximation
 - refine minibrot using interior distance estimates
