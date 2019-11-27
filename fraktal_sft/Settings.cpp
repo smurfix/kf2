@@ -38,7 +38,7 @@ bool Settings::FromText(const std::string &text)
     int nv = s.FindString(0, "SettingsVersion");
     if (nv != -1)
     {
-      int str_version_number = atoi(stParams[nv][1]);
+      int str_version_number = atoi(s[nv][1]);
       if (str_version_number > kfs_version_number)
       {
         fprintf(stderr, "WARNING: file format is newer than this EXE version\n");

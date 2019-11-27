@@ -1023,9 +1023,10 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		size_t i3 = (nIndex % m_row);
 		size_t j = nIndex / m_row;
 		size_t nIndex2 = (m_nY - 1 - j) * m_row + i3;
-		m_imageHalf[nIndex2    ] = l.b;
-		m_imageHalf[nIndex2 + 1] = l.g;
-		m_imageHalf[nIndex2 + 2] = l.r;
+		float c; // clamp to finite non-negative
+		c = l.b; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2    ] = c;
+		c = l.g; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2 + 1] = c;
+		c = l.r; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2 + 2] = c;
 	}
 }
 

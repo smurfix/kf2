@@ -507,7 +507,7 @@ std::string CFraktalSFT::ToText()
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Period");
 	stSave.AddInt(stSave.GetCount() - 1, g_period);
-	stSave.addRow();
+	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Version");
 	stSave.AddInt(stSave.GetCount() - 1, kfr_version_number);
 	char *szData = stSave.ToText(": ", "\r\n");
