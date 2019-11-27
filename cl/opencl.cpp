@@ -342,6 +342,7 @@ void OpenCL::run
   float *dey_p
 )
 {
+  assert(roffset < rcount);
   lock();
 
   // upload config

@@ -24,8 +24,7 @@ include $(SYSTEM).mk
 
 CLEWPREFIX := $(WINPREFIX)/src/clew
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -pipe -MMD -g -O3 -fno-var-tracking-assignments -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -DKF_OPENCL
-COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS)
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -pipe -MMD -g -O3 -fno-var-tracking-assignments -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
 LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_4 -lImath-2_4 -lHalf-2_4 -lIex-2_4 -lIexMath-2_4 -lIlmThread-2_4 -lz
 
@@ -117,10 +116,23 @@ UTILS_SOURCES_CPP = utils/kf-tile.cpp
 
 OPENCL_SOURCES_CPP = cl/opencl.cpp cl/formula.cpp
 OPENCL_SOURCES_C = $(CLEWPREFIX)/src/clew.c
+OPENCL_SOURCES_H = cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
-SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP) $(OPENCL_SOURCES_CPP)
-SOURCES_C = $(OPENCL_SOURCES_C) $(wildcard formula/generated/*.c)
-SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H) cl/opencl.h $(CLEWPREFIX)/include/clew.h
+SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP)
+SOURCES_C = $(wildcard formula/generated/*.c)
+SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H)
+
+FLAGS_WINDRES = -DKF_SIMD=$(SIMD)
+
+ifeq ($(OPENCL), 1)
+FLAGS += -DKF_OPENCL
+SOURCES_CPP += $(OPENCL_SOURCES_CPP)
+SOURCES_C += $(OPENCL_SOURCES_C)
+SOURCES_H += $(OPENCL_SOURCES_H)
+FLAGS_WINDRES += -DKF_OPENCL=1
+endif
+
+COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
@@ -143,8 +155,8 @@ kf.exe: $(OBJECTS)
 kf-tile.exe: utils/kf-tile.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
 
-res.o: fraktal_sft/fraktal_sft.rc
-	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o -DKF_SIMD=$(SIMD) -DKF_OPENCL=1
+res.o: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
+	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o $(FLAGS_WINDRES)
 
 %.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<

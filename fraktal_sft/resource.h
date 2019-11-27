@@ -274,8 +274,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
-#define IDC_COMBO_OPENCL_DEVICE  1103
-#define ID_SPECIAL_OPENCL       40104
+#define IDC_COMBO_OPENCL_DEVICE  1104
+#define ID_SPECIAL_OPENCL       40128
 #endif
 
 // Next default values for new objects

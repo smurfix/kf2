@@ -581,6 +581,7 @@ void CFraktalSFT::RenderFractalEXP()
 
 	CalcStart();
 
+#ifdef KF_OPENCL
   if (cl)
   {
 
@@ -588,6 +589,7 @@ void CFraktalSFT::RenderFractalEXP()
 
 	}
 	else
+#endif
 	{
 
 		SYSTEM_INFO sysinfo;
