@@ -2322,5 +2322,129 @@ Then run (syntax for Bash shell):
     exrtactile.exe input 10 0 output.exr  # for side-by-side tiles
     exrtactile.exe input 10 1 output.exr  # for stratified tiles
 
-The EXR tile assembler is available at <https://mathr.co.uk/exrtact/>
+The EXR tile assembler is available at <https://mathr.co.uk/exrtact>
 including Windows program binary.
+
+## Third-party Software
+
+### exrtact
+
+<https://mathr.co.uk/exrtact>
+
+exrtact is a suite of small command-line programs for manipulating EXR
+files.  Of particular note is `exrtactile` for tile assembly (see above).
+
+### kf-extras
+
+<https://code.mathr.co.uk/kf-extras/blob/HEAD:/README>
+
+    git clone https://code.mathr.co.uk/kf-extras.git
+
+kf-extras is a suite of small command-line programs for manipulating KFB
+files.    Programs include colouring algorithms (curvature, histogram,
+pseudo-de, rainbow, stretch) and other tools (de-histogram, expmap, resize,
+statistics, to-exr, to-mmit) as well as a bash script to generate a zoom
+video (which needs the mightymandel zoom assembler below).  The programs
+use a small library to abstract the KFB and PPM reading and writing, which
+can be used as a basis for your own programs.
+
+### mightymandel zoom interpolator
+
+mightymandel is a Mandelbrot set renderer using OpenGL.
+
+<https://mightymandel.mathr.co.uk/>
+
+It has a zoom assembler in its `extra` subfolder.
+
+<https://mightymandel.mathr.co.uk/current/usage.html#usagezoom>
+
+    usage: zoom iwidth iheight iframes olength [ofps [oshutter]] < stream.ppm > stream.y4m
+
+It is a bit picky about the format of the input PPM stream, and input frames
+must be 2x zoomed at each frame from zoomed out to zoomed in.  Arguments:
+
+iwidth: input frame width
+
+iheight: input frame height
+
+iframes: input frame count
+
+olength: output video length in seconds
+
+ofps: output frame rate (25fps default)
+
+oshutter: motion blur (0 no blur, 1 full blur, 0.5 default)
+
+You might need to downscale the input PPM stream to something your GPU can
+manage, noting that the internal code needs a texture 2x bigger than the
+input/output frames.  Up to 4096x4096 input should be ok on most modern
+cards.  The output dimensions are the same as the input.  For best quality
+downscale after zoom interpolation, not before, if possible.
+
+### et zoom interpolator
+
+et is an escape time fractal project implemented in Haskell.
+
+<https://mathr.co.uk/et>
+
+It has a forked version of the mightymandel zoom interpolator optimized
+for distance estimation rendering.  Usage is the same as the mightymandel
+zoom interpolator except that the input is raw headerless floating point
+data (single channel containing distance estimate, normalized to 1 for
+the neighbouring pixel).
+
+The difference to the mightymandel zoom interpolator is that it interpolates
+the DE data before colouring instead of after, which gives a much smoother
+image (no strobing filaments).  Output size is hardcoded to 1920x1080, you
+can edit this near the top of the `main()` function in `zoom.c` before
+compiling.  Input frame size should be as large as possible for best quality.
+
+The program has two more arguments compared to the mightymandel zoom
+interpolator: whether to output a header (set to 1 unless you know what you
+are doing) and an "inverse video" flag that makes it white on black instead
+of black on white.  The output Y4M stream is mono, you might have to tell
+ffmpeg to encode `-pix_fmt yuv420p` for some codecs.
+
+    usage: zoom iwidth iheight iframes olength \
+      [ofps [oshutter [header [inverse]]]] < stream.raw > stream.y4m
+
+### zoom-tools zoom-interpolator
+
+<https://mathr.co.uk/zoom-tool>
+
+zoom-tools is a suite of small command-line programs for turning EXR zoom
+sequences into zoom videos.  It has filters for input keyframes and output
+video frames, allowing video files to be encoded without needing so much
+temporary disk space.
+
+### AfterEffects zoom tools
+
+by saka on fractalforums.org
+
+### KF Movie Maker
+
+### Yann's YMM3D 3D Movie Maker 
+
+### Dinkydau's MMIT Convertor
+
+### SeryZone's Map Visualizer
+
+### "book" zoom interpolator
+
+The mightymandel zoom interpolator is better in every way (it is based on
+the same code, just enhanced).  And the book repository is 60MB because it
+has images.  But if you want to study it for historical reference:
+
+    wget -O Makefile https://code.mathr.co.uk/book/blob_plain/HEAD:/code/Makefile
+    wget -O zoom.c https://code.mathr.co.uk/book/blob_plain/HEAD:/code/zoom.c
+    make zoom
+
+Or using git (note: the repository is large):
+
+    git clone https://code.mathr.co.uk/book.git
+    cd book/code
+    make zoom
+
+Usage:
+
+    ./zoom iwidth iheight iframes olength < stream.ppm > stream.y4m
