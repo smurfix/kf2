@@ -70,8 +70,12 @@ Feedback:
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
   the skinniest part very quickly"
+- crash when zooming out by a huge custom zoom factor (2^25) (reported by CFJH)
+  (divide by zero in `StretchBlt()`)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
+- scaled long double rendering broken with some locations (reported by CFJH)
+  (blank image, "always use floatexp" gives correct render)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
 - "resume zoom sequence" re-uses last set zoom count limit
@@ -105,6 +109,8 @@ Feedback:
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
 - status bar reference count doesn't reset when zooming before it is "Done"
+- aborting rendering should not recolour incomplete image (reported by CFJH)
+- cannot edit coordinates when zoom is deeper than e7000 or so (reported by CFJH)
 - help button in file browser does nothing
 - may be difficult to build the source at the moment
   (out of date instructions for Windows, dependency on 'et', ...)
