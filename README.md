@@ -2559,9 +2559,9 @@ Here are the channels and metadata that KF currently supports:
 
     `uint32 N0` least significant 32 bits
 
-    `uint32 N1` most significant 32 bits; `0xFFFFFFFF` is interpreted as
-    non-escaped, regardless of the value of `N0` (but it should also be set
-    to `0xFFFFFFFF`)
+    `uint32 N1` most significant 32 bits
+    
+    `(0xFFFFFFFF, 0xFFFFFFFF)` is interpreted as non-escaped
 
     For future supercomputers, this can be extended with `N2` etc...
 
