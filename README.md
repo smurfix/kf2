@@ -1007,7 +1007,7 @@ necessary), the script can build both 64bit and 32bit variants if necessary:
         bash ./prepare.sh dl
         bash ./prepare.sh 64
 
-5. Download the previous version and copy the `et`-generated formulas from it:
+5. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
 
         cd ~/win64/src/kalles-fraktaler-2
         wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).7z"
@@ -1078,71 +1078,114 @@ The working Debian Buster with compiler from Experimental has:
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-## Building on Windows
-
-(note: these instructions are out of date)
+## Building on Windows 64-bit (may be adaptable to 32-bit)
 
 Build instructions for compiling on Windows (thanks to knighty!):
 
-0. Remove any old msys2.
+0. Remove any old version of MSYS2.
 
-1. Downloaded latest version of msys2 (msys2-x86_64-20161025.exe).
-  This is the 64 bit version. msys2-i686-20161025.exe is the 32 bit version.
+    These instructions assume you are using a fresh version of MSYS2. Depending on
+    how confident you are, you may be fine skipping this step.
 
-2. After running it, it installs msys2. At the end the msys2 shell is launched.
+1. Download the latest version of MSYS2 from https://www.msys2.org/ (msys2-x86_64-20190524.exe).
 
-3. In the msys2 shell, invoke pacman:
+2. Run it to install MSYS2. When the installation finishes, the MSYS2 shell should open.
+
+   Note: Many files you interact with in future steps are in the installation directory
+   of MSYS2. It is recommended that you install MSYS2 on a drive with plenty of space, as
+   there will be about 10 gigabytes of files in there at the end of the installation process.
+
+3. In the MSYS2 shell, invoke pacman:
 
         pacman -Syuu
 
-    This have to be done until is says there is nothing to do anymore.
+    You will need to keep running this command until is says "there is nothing to do".
+    While it's running, it may ask you to close the terminal. Follow these instructions.
+    When you open the terminal again (see step 5), keep running the command.
 
-4. Close the msys2 shell:
+4. Close the MSYS2 shell:
 
         exit
 
-5. Reopen msys2 shell (from startup menu).
+5. Reopen the MSYS2 shell (from startup menu, under the name MSYS2 MSYS).
 
-6. Install mingw/gcc 64 bit:
+6. Install mingw/gcc 64 bit (this will take a fair bit of time):
 
         pacman -S mingw-w64-x86_64-toolchain
 
-    one can also install 32 bit version by:
+    When it asks you to enter a selection, just hit enter (all).
 
-        pacman -S mingw-w64-i686-toolchain
+7. Install required tools (this will likely take less time):
 
-7. Install Boost
+        pacman -S --needed git patch make diffutils mingw-w64-x86_64-cmake lzip p7zip unzip
 
-        pacman -S mingw-w64-x86_64-boost
+8. Close the MSYS2 shell then open "MSYS2 MinGW 64-bit" shell (instead of MSYS2 MSYS,
+in order to have all the environment variables properly set)
 
-    from msys shell
+9. Install tar. The version of tar that comes installed with MSYS2 has trouble extracting xz files.
 
-8. Close msys2 shell then open "msys2 mingw 64 bit" shell (in order to have all
-  the environment variables properly set)
+        pacman -S tar
 
-9. Change directory to the kalles fraktaler sources (where `Makefile` resides).
+10. Restart MSYS2 again (Close and reopen "MSYS2 MinGW 64-bit").
 
-10. Compile
+11. Install ghc (Haskell)
 
-        mingw32-make WINDRES=windres
+        # See https://gitlab.haskell.org/ghc/ghc/wikis/building/preparation/windows
+        curl -L https://downloads.haskell.org/~ghc/8.6.5/ghc-8.6.5-x86_64-unknown-mingw32.tar.xz | tar -xJ -C /mingw64 --strip-components=1
 
-    (if this doesn't work edit the Makefile to replace the line
+12. Change directory to the kalles fraktaler sources (where `Makefile` resides).
 
-        WINDRES ?= x86_64-w64-mingw32-windres
+    If this directory is outside of the msys64 directory, include the full Windows path, replacing
+    backslashes with forward slashes and drive letters like "C:\" to paths like "/c/".
 
-    to
+13. Download and build and install 3rd party library sources (inspect the script
+if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
+necessary), the script will need to be modified to build the 32bit version:
 
-        WINDRES ?= windres
+        bash ./prepare-msys.sh dl
+        bash ./prepare-msys.sh 64
 
-    and run `mingw32-make` without arguments)
+    The first script is relatively fast depending on your internet speed, as it
+    downloads dependencies. Depending on the speed of your machines, the second
+    script takes about an hour to run.
 
-11. Execute it this way from (msys2 mingw 64 bit) command line:
+    The script has several places where it pauses for a while with no output.
+    You will know that it has finished successfully when it shows a bunch of lines
+    starting with "-- Installing:" and then exists, giving you back control of
+    the command line.
 
-        ./fraktal_sft64    # for the claude branch
-        ./kf.exe           # for the claude-gmp branch
+14. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
+
+        cd "/path/to/Kalles Fraktaler 2 +"
+        wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).7z"
+        7zr x kf-*.7z
+        cd kf-*/
+        unzip kf-*src.zip
+        cd kf-*-src/
+        cp -avit ../../formula/generated formula/generated/*.c
+
+    Feel free to delete kf-2.14.8 and kf-2.14.8.7z inside your git repository afterwards.
+
+15. To build Kalles Fraktaler 2 + optimized for your own CPU:
+
+        cd "/path/to/Kalles Fraktaler 2 +"
+        make clean
+        WINDRES=windres make SYSTEM=native -j $(nproc)
+
+    Note that mingw32-make does not properly detect that files are already up-to-date,
+    making building slow each time. Use make instead.
+
+16. To build Kalles Fraktaler 2 + release:
+
+        Follow the instructions for Linux, possibly making adaptions to allow them
+        to work with MSYS2
+
+17. Execute it this way from (MSYS2 MinGW 64-bit) command line:
+
+        ./kf.exe
 
     because it is linked dynamically to some libraries. In order to execute it
-    from the explorer one needs to copy `libgmp-10.dll` and
+    from the explorer one needs to copy `liblzma-5.dll`, `libzstd.dll`, and
     `libwinpthread-1.dll` from `msys64/mingw64/bin` next to the generated
     executable.
 

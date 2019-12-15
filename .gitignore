@@ -4,6 +4,8 @@ kf.64.exe
 kf-tile.exe
 kf-tile.32.exe
 kf-tile.64.exe
+preprocessor.exe
+*.dll
 *.o
 *.d
 *.hi
