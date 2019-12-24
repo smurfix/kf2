@@ -32,6 +32,7 @@ data Expr
   | EVar String
   | EPow Expr Expr
   | EMul Expr Expr
+  | EDiv Expr Expr
   | EAdd Expr Expr
   | ESub Expr Expr
   | EGt Expr Expr
@@ -40,6 +41,8 @@ data Expr
   | ESgn Expr
   | EAbs Expr
   | ESqr Expr
+  | EExp Expr
+  | ESinh Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
   | EIf Expr Expr
@@ -55,7 +58,10 @@ data Instruction
   | IAdd String String String
   | IMul String String String
   | IMulI String String Int
+  | IDiv String String String
   | ISqr String String
+  | IExp String String
+  | ISinh String String
   deriving Show
 
 temporaries = [ "t" ++ show i | i <- [0..] ]
@@ -84,6 +90,7 @@ instruction (IAdd a b c) = tell (["mpfr_add(", a, ",", b, ",", c, ",MPFR_RNDN);\
 instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c), ",MPFR_RNDN);\n"] ++ if c < 0 then ["mpfr_neg(", a, ",", a, ",MPFR_RNDN);"] else [], [a, b])
 instruction (IMul a b c) | b == c = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b, c])
                          | otherwise = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IDiv a b c) = tell (["mpfr_div(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
@@ -171,6 +178,15 @@ compile (EMul a b) = do
   deallocate v
   return w
 
+compile (EDiv a b) = do
+  u <- compile a
+  v <- compile b
+  w <- allocate
+  instruction (IDiv w u v)
+  deallocate u
+  deallocate v
+  return w
+
 compile (ESqr a) = do
   u <- compile a
   v <- allocate
@@ -195,6 +211,7 @@ vars (EInt _) = []
 vars (EVar a) = [a]
 vars (EPow a b) = vars a ++ vars b
 vars (EMul a b) = vars a ++ vars b
+vars (EDiv a b) = vars a ++ vars b
 vars (EAdd a b) = vars a ++ vars b
 vars (ESub a b) = vars a ++ vars b
 vars (EGt a b) = vars a ++ vars b
@@ -203,6 +220,8 @@ vars (ENeg a) = vars a
 vars (ESgn a) = vars a
 vars (EAbs a) = vars a
 vars (ESqr a) = vars a
+vars (EExp a) = vars a
+vars (ESinh a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
 vars (EAssign a b) = vars a ++ vars b
 vars (EIf a b) = vars a ++ vars b
@@ -217,6 +236,7 @@ interpret t@"" (EMul a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "*" ++ inter
 interpret t@"" (EMul a@(EInt _) b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
 interpret t@"" (EMul a b@(EInt _)) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
 interpret t@"" (EMul a b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t@"" (EDiv a b) = "(" ++ interpret t a ++ "/" ++ interpret t b ++ ")"
 interpret t@"" (EAdd a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
 interpret t@"" (EAdd a b@(EInt _)) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
 interpret t@"" (EAdd a@(ENeg (EInt _)) b) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
@@ -234,6 +254,8 @@ interpret t@"" (ENeg a) = "-(" ++ interpret t a ++ ")"
 interpret t@"" (ESgn a) = "sgn(" ++ interpret t a ++ ")"
 interpret t@"" (EAbs a) = "abs(" ++ interpret t a ++ ")"
 interpret t@"" (ESqr a) = "sqr(" ++ interpret t a ++ ")"
+interpret t@"" (EExp a) = "exp(" ++ interpret t a ++ ")"
+interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
 interpret t@"" (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t@"" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
@@ -244,6 +266,7 @@ interpret t (EMul a b@(ENeg (EInt _))) = t ++ "muli(" ++ interpret t a ++ "," ++
 interpret t (EMul a@(EInt _) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b@(EInt _)) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b) = t ++ "mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EDiv a b) = t ++ "div(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a b@(ENeg (EInt _))) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a b@(EInt _)) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a@(ENeg (EInt _)) b) = t ++ "iadd(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
@@ -261,6 +284,8 @@ interpret t (ENeg a) = t ++ "neg(" ++ interpret t a ++ ")"
 interpret t (ESgn a) = t ++ "sgn(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
+interpret t (EExp a) = t ++ "exp(" ++ interpret t a ++ ")"
+interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
@@ -312,7 +337,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["sqr", "sgn", "abs", "diffabs"]
+              , reservedNames = ["exp", "sinh", "sqr", "sgn", "abs", "diffabs"]
               }
   where ops = "=?:<>+-*^"
 
@@ -325,7 +350,8 @@ TokenParser{ parens = m_parens
 exprparser = buildExpressionParser table term <?> "expression"
 table = [ [Prefix (op "-" >> return ENeg)]
         , [Infix (op "^" >> return EPow) AssocLeft]
-        , [Infix (op "*" >> return EMul) AssocLeft]
+        , [Infix (op "*" >> return EMul) AssocLeft
+          ,Infix (op "/" >> return EDiv) AssocLeft]
         , [Infix (op "+" >> return EAdd) AssocLeft
           ,Infix (op "-" >> return ESub) AssocLeft]
         , [Infix (op ">" >> return EGt) AssocLeft
@@ -338,6 +364,8 @@ term = m_parens exprparser
        <|> (EVar <$> m_identifier)
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
+       <|> (m_reserved "sinh" >> ESinh <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "exp" >> EExp <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")

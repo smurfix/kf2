@@ -549,6 +549,61 @@ inline floatexp log2(floatexp a)
 	return floatexp(std::log2(a.val) + a.exp);
 }
 
+template <typename T> T pow(T x, uint64_t n)
+{
+  if (n == 0) return T(1);
+  T y(1);
+  while (n > 1)
+  {
+    if (n & 1)
+      y *= x;
+    x *= x;
+    n >>= 1;
+	}
+  return x * y;
+}
+
+inline floatexp exp(floatexp a)
+{
+	using std::exp;
+	using std::ldexp;
+	using std::pow;
+  if (-53 <= a.exp && a.exp <= 8) return floatexp(exp(ldexp(a.val, a.exp)));
+  if (61 <= a.exp) return floatexp(a.val > 0.0 ? a.val / 0.0 : 0.0);
+  if (a.exp < -53) return floatexp(1.0);
+  return pow(floatexp(exp(a.val)), 1ULL << a.exp);
+}
+
+inline floatexp expm1(floatexp a)
+{
+	using std::expm1;
+	using std::ldexp;
+  if (a.exp <= -1020) return a;
+  if (8 <= a.exp) return exp(a) - 1;
+  return floatexp(expm1(ldexp(a.val, a.exp)));
+}
+
+inline floatexp sin(floatexp a)
+{
+	using std::sin;
+	if (a.exp <= -1020) return a;
+	return floatexp(sin(ldexp(a.val, a.exp)));
+}
+
+inline floatexp cos(floatexp a)
+{
+	using std::cos;
+	if (a.exp <= -1020) return floatexp(1.0);
+	return floatexp(cos(ldexp(a.val, a.exp)));
+}
+
+inline floatexp diffabs(const floatexp &c, const floatexp &d)
+{
+  const floatexp cd = c + d;
+  const floatexp c2d = c.mul2() + d;
+  return c.val >= 0.0 ? cd.val >= 0.0 ? d : -c2d : cd.val > 0.0 ? c2d : -d;
+}
+
 inline floatexp mpfr_get_fe(const mpfr_t value)
 {
 	signed long int e = 0;

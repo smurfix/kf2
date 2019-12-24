@@ -20,12 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "complex.h"
 
-floatexp diffabs(const floatexp &c, const floatexp &d)
-{
-  if (c.val >= 0) if ((c + d).val >= 0) return d; else return -(c.mul2() + d);
-  else if ((c + d).val > 0) return c.mul2() + d; else return -d;
-}
-
 void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
