@@ -26,7 +26,7 @@ class CFixedFloat;
 class floatexp;
 
 // https://fractalforums.org/fractal-mathematics-and-new-theories/28/perturbation-theory/487/msg3170#msg3170
-// |2w′(w+z)+1|/|δ0|+|w|(|w+2z|+|w|+2|z|)<ϵ/h
+// |2w'(w+z)+1|/|delta0|+|w|(|w+2z|+|w|+2|z|)<epsilon/h
 template <typename R>
 static inline R mag(const R &x, const R &y)
 {

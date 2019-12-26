@@ -1035,7 +1035,7 @@ Note: build fails on Ubuntu 16.04.3 LTS (xenial):
     $ make
     x86_64-w64-mingw32-g++ -mfpmath=sse -xc++ -Wno-write-strings -pipe -MMD -g -O3 -ffast-math -I/home/claude/win64/include -DKF_THREADED_REFERENCE_BARRIER -o fraktal_sft/CDecNumber.o -c fraktal_sft/CDecNumber.cpp
     In file included from fraktal_sft/CDecNumber.cpp:1:0:
-    fraktal_sft/CDecNumber.h:5:76: error: ‘decNumber’ was not declared in this scope
+    fraktal_sft/CDecNumber.h:5:76: error: 'decNumber' was not declared in this scope
      typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
                                                                                 ^
     fraktal_sft/CDecNumber.h:5:76: error: template argument 1 is invalid
@@ -1043,7 +1043,7 @@ Note: build fails on Ubuntu 16.04.3 LTS (xenial):
      typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
                                                                   ^
     fraktal_sft/CDecNumber.h:5:62: error: template argument 2 is invalid
-    fraktal_sft/CDecNumber.h:5:32: warning: ‘typedef’ was ignored in this declaration
+    fraktal_sft/CDecNumber.h:5:32: warning: 'typedef' was ignored in this declaration
      typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> decNumber;
                                     ^
     ...
