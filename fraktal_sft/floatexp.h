@@ -526,6 +526,11 @@ inline floatexp operator*(floatexp b, int a)
 	return double(a) * b;
 }
 
+inline floatexp operator-(int a, floatexp b)
+{
+	return floatexp(a) - b;
+}
+
 inline floatexp abs(floatexp a)
 {
 	return a.abs();

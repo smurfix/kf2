@@ -145,6 +145,12 @@ inline complex<tt> operator/(const tt &a, const complex<tt> &b)
 }
 
 template <class tt>
+inline complex<tt> operator/(const int &a, const complex<tt> &b)
+{
+	return complex<tt>(a) / b;
+}
+
+template <class tt>
 inline complex<tt> operator/(const complex<tt> &a, const int &b)
 {
 	return complex<tt>(a.m_r / b, a.m_i / b);
@@ -159,8 +165,21 @@ inline complex<tt> operator*(const complex<ss> &a, const complex<tt> &b)
 template <class tt>
 inline complex<tt> operator-(int a, const complex<tt> &b)
 {
-	return complex<tt>(tt(a) - b.m_r, -b.m_i);
+	return complex<tt>(a - b.m_r, -b.m_i);
 }
+
+template <class tt>
+inline complex<tt> operator+(int a, const complex<tt> &b)
+{
+	return complex<tt>(a + b.m_r, b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator-(const complex<tt> &b, int a)
+{
+	return complex<tt>(b.m_r - a, b.m_i);
+}
+
 
 template <class tt>
 inline complex<tt> operator-(const complex<tt> &b)
