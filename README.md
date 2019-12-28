@@ -112,8 +112,7 @@ Feedback:
 - aborting rendering should not recolour incomplete image (reported by CFJH)
 - cannot edit coordinates when zoom is deeper than e7000 or so (reported by CFJH)
 - help button in file browser does nothing
-- may be difficult to build the source at the moment
-  (out of date instructions for Windows, dependency on 'et', ...)
+- may be difficult to build the source at the moment (dependency on 'et')
 
 
 ## Differences From Upstream 2.11.1
@@ -232,6 +231,7 @@ Feedback:
       integer; reported by david)
     - clamp half-precision colour output in EXR (fixes issue with NaNs)
     - save file format version number with parameters and settings
+    - updated Windows/MSYS2 build instructions (thanks to Patrick Owen)
 
 - **kf-2.14.8** (2019-09-23)
 
@@ -1080,7 +1080,7 @@ The working Debian Buster with compiler from Experimental has:
 
 ## Building on Windows 64-bit (may be adaptable to 32-bit)
 
-Build instructions for compiling on Windows (thanks to knighty!):
+Build instructions for compiling on Windows (thanks to knighty and Patrick Owen!):
 
 0. Remove any old version of MSYS2.
 
@@ -1136,7 +1136,7 @@ in order to have all the environment variables properly set)
 12. Change directory to the kalles fraktaler sources (where `Makefile` resides).
 
     If this directory is outside of the msys64 directory, include the full Windows path, replacing
-    backslashes with forward slashes and drive letters like "C:\" to paths like "/c/".
+    backslashes with forward slashes and drive letters like `C:\` to paths like `/c/`.
 
 13. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
@@ -1151,7 +1151,7 @@ necessary), the script will need to be modified to build the 32bit version:
 
     The script has several places where it pauses for a while with no output.
     You will know that it has finished successfully when it shows a bunch of lines
-    starting with "-- Installing:" and then exists, giving you back control of
+    starting with "-- Installing:" and then exits, giving you back control of
     the command line.
 
 14. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
@@ -1164,7 +1164,7 @@ necessary), the script will need to be modified to build the 32bit version:
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-    Feel free to delete kf-2.14.8 and kf-2.14.8.7z inside your git repository afterwards.
+    Feel free to delete `kf-2.14.8/` and `kf-2.14.8.7z` inside your git repository afterwards.
 
 15. To build Kalles Fraktaler 2 + optimized for your own CPU:
 
@@ -1172,20 +1172,20 @@ necessary), the script will need to be modified to build the 32bit version:
         make clean
         WINDRES=windres make SYSTEM=native -j $(nproc)
 
-    Note that mingw32-make does not properly detect that files are already up-to-date,
-    making building slow each time. Use make instead.
+    Note that `mingw32-make` does not properly detect that files are already up-to-date,
+    making building slow each time. Use `make` instead.
 
 16. To build Kalles Fraktaler 2 + release:
 
-        Follow the instructions for Linux, possibly making adaptions to allow them
-        to work with MSYS2
+    Follow the instructions for Linux, possibly making adaptions to allow them
+    to work with MSYS2
 
 17. Execute it this way from (MSYS2 MinGW 64-bit) command line:
 
         ./kf.exe
 
     because it is linked dynamically to some libraries. In order to execute it
-    from the explorer one needs to copy `liblzma-5.dll`, `libzstd.dll`, and
+    from the explorer one needs to copy
     `libwinpthread-1.dll` from `msys64/mingw64/bin` next to the generated
     executable.
 
@@ -1193,7 +1193,9 @@ necessary), the script will need to be modified to build the 32bit version:
 ## Legal
 
 Kalles Fraktaler 2 +
+
 Copyright (C) 2013-2017 Karl Runmo
+
 Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
@@ -1320,7 +1322,7 @@ Software license.
 
   - **Open map**
 
-    Load the iteration data from map file (*.kfb).
+    Load the iteration data from map file (*.kfb, *.exr).
 
     Note: you must set the aspect ratio of the window to match the KFB data
     before opening the map file.  If you have also saved images, you can do
@@ -1338,8 +1340,8 @@ Software license.
   - **Store zoom-out images**
 
     Zoom out automatically with the selected Zoom size and store JPEG/PNG/TIFF
-    images and map file (*.kfb) for each zoom out. The zoom out stops when the
-    depth is lower than 1. The resulting files can be used by the KeyFramMovie
+    images and map file (*.kfb, *.exr) for each zoom out. The zoom out stops when
+    the depth is lower than 1. The resulting files can be used by the KeyFrameMovie
     program to create a zoom-in animation.
 
   - **Examine Zoom sequence**
@@ -1353,7 +1355,8 @@ Software license.
 
     Make sure you store the end location as a kfr file in the same directory as
     you store the zoom sequence frames. This function allows you to resume and
-    continue the zoom out sequnce, if it got interrupted.
+    continue the zoom out sequnce, if it got interrupted.  You must set the zoom
+    size factor to the correct value for the sequence before invoking this command.
 
   - **Open Settings**
 
