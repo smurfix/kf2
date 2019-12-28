@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_COMPLEX_H
 
 #include "../formula/formula.h"
+#include "floatexp.h"
 
 #include <algorithm>
 
@@ -33,19 +34,35 @@ public:
 	, m_i(0)
 	{
 	}
-	template <typename ss> operator complex<ss>() const
-	{
-		return complex<ss>(ss(m_r), ss(m_i));
-	}
-	inline complex(const tt &r)
-	: m_r(r)
-	, m_i(0)
-	{
-	}
 	inline complex(const tt &r, const tt &i)
 	: m_r(r)
 	, m_i(i)
 	{
+	}
+	inline complex(const int &r) : m_r(r), m_i(0) { }
+	inline complex(const int64_t &r) : m_r(r), m_i(0) { }
+	inline complex(const float &r) : m_r(r), m_i(0) { }
+	inline complex(const double &r) : m_r(r), m_i(0) { }
+	inline complex(const long double &r) : m_r(r), m_i(0) { }
+	inline complex(const floatexp &r) : m_r(r), m_i(0) { }
+	inline complex(const complex<double> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	inline complex(const complex<long double> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	inline complex(const complex<floatexp> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	explicit inline operator complex<floatexp>() const
+	{
+		return complex<floatexp>(floatexp(m_r), floatexp(m_i));
 	}
 	inline complex &operator =(const complex &a)
 	{
