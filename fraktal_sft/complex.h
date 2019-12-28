@@ -225,10 +225,16 @@ inline complex<tt> sqrt(const complex<tt> &a)
 	return complex<tt>(sqrt(max(0.0, (r + a.m_r)*0.5)), ((a.m_i >= 0) - (0 > a.m_i)) * sqrt(max(0.0, (r - a.m_r)*0.5)));
 }
 
+template <typename tt>
+inline complex<tt> cinfnan_to_zero(const complex<tt> &a)
+{
+	return complex<tt>(infnan_to_zero(a.m_r), infnan_to_zero(a.m_i));
+}
+
 template <class tt>
 inline complex<tt> exp(const complex<tt> &a)
 {
-	return exp(a.m_r) * complex<tt>(cos(a.m_i), sin(a.m_i));
+	return cinfnan_to_zero(exp(a.m_r) * complex<tt>(cos(a.m_i), sin(a.m_i)));
 }
 
 template <class tt>
@@ -241,7 +247,7 @@ inline tt cosm1(const tt &x)
 template <class tt>
 inline complex<tt> expm1(const complex<tt> &a)
 {
-	return complex<tt>(expm1(a.m_r) * cos(a.m_i) + cosm1(a.m_i), exp(a.m_r) * sin(a.m_i));
+	return cinfnan_to_zero(complex<tt>(expm1(a.m_r) * cos(a.m_i) + cosm1(a.m_i), exp(a.m_r) * sin(a.m_i)));
 }
 
 template <class tt>

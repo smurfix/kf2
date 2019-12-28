@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2019 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -511,5 +511,19 @@ inline CFixedFloat cos(const CFixedFloat &A)
 	Precision p(A.m_f.precision());
 	return CFixedFloat(FixedFloat(cos(A.m_f)));
 }
+
+inline bool isnan(const CFixedFloat &A)
+{
+	return isnan(A.m_f);
+}
+
+inline bool isinf(const CFixedFloat &A)
+{
+	return isinf(A.m_f);
+}
+
+#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
+I(CFixedFloat)
+#undef I
 
 #endif

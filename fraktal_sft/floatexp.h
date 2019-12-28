@@ -568,6 +568,20 @@ template <typename T> T pow(T x, uint64_t n)
   return x * y;
 }
 
+inline bool isnan(const floatexp &a)
+{
+	return isnan(a.val);
+}
+
+inline bool isinf(const floatexp &a)
+{
+	return isinf(a.val);
+}
+
+#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
+I(floatexp)
+#undef I
+
 inline floatexp exp(floatexp a)
 {
 	using std::exp;

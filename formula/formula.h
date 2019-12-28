@@ -51,6 +51,12 @@ static inline double diffabs(const double &c, const double &d)
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
 }
 
+#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
+I(float)
+I(double)
+I(long double)
+#undef I
+
 typedef int64_t int2 __attribute__ ((vector_size (16)));
 typedef double vdouble2 __attribute__ ((vector_size (16)));
 struct double2
@@ -87,6 +93,9 @@ static inline double2 diffabs(const double &c, const double2 &d)
   const double2 c2d = 2.0 * c + d;
   return double2(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
 }
+static inline int2 isnan(const double2 &a) { int2 r = { isnan(a[0]), isnan(a[1]) }; return r; }
+static inline int2 isinf(const double2 &a) { int2 r = { isinf(a[0]), isinf(a[1]) }; return r; }
+static inline double2 infnan_to_zero(const double2 &a) { double2 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]) }; return r; }
 
 typedef int64_t int4 __attribute__ ((vector_size (32)));
 typedef double vdouble4 __attribute__ ((vector_size (32)));
@@ -124,6 +133,9 @@ static inline double4 diffabs(const double &c, const double4 &d)
   const double4 c2d = 2.0 * c + d;
   return double4(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
 }
+static inline int4 isnan(const double4 &a) { int4 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]) }; return r; }
+static inline int4 isinf(const double4 &a) { int4 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]) }; return r; }
+static inline double4 infnan_to_zero(const double4 &a) { double4 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]) }; return r; }
 
 typedef int64_t int8 __attribute__ ((vector_size (64)));
 typedef double vdouble8 __attribute__ ((vector_size (64)));
@@ -161,6 +173,9 @@ static inline double8 diffabs(const double &c, const double8 &d)
   const double8 c2d = 2.0 * c + d;
   return double8(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
 }
+static inline int8 isnan(const double8 &a) { int8 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]), isnan(a[4]), isnan(a[5]), isnan(a[6]), isnan(a[7]) }; return r; }
+static inline int8 isinf(const double8 &a) { int8 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]), isinf(a[4]), isinf(a[5]), isinf(a[6]), isinf(a[7]) }; return r; }
+static inline double8 infnan_to_zero(const double8 &a) { double8 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]) }; return r; }
 
 typedef int64_t int16 __attribute__ ((vector_size (128)));
 typedef double vdouble16 __attribute__ ((vector_size (128)));
@@ -198,6 +213,9 @@ static inline double16 diffabs(const double &c, const double16 &d)
   const double16 c2d = 2.0 * c + d;
   return double16(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
 }
+static inline int16 isnan(const double16 &a) { int16 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]), isnan(a[4]), isnan(a[5]), isnan(a[6]), isnan(a[7]), isnan(a[8]), isnan(a[9]), isnan(a[10]), isnan(a[11]), isnan(a[12]), isnan(a[13]), isnan(a[14]), isnan(a[15]) }; return r; }
+static inline int16 isinf(const double16 &a) { int16 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]), isinf(a[4]), isinf(a[5]), isinf(a[6]), isinf(a[7]), isinf(a[8]), isinf(a[9]), isinf(a[10]), isinf(a[11]), isinf(a[12]), isinf(a[13]), isinf(a[14]), isinf(a[15]) }; return r; }
+static inline double16 infnan_to_zero(const double16 &a) { double16 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]), infnan_to_zero(a[8]), infnan_to_zero(a[9]), infnan_to_zero(a[10]), infnan_to_zero(a[11]), infnan_to_zero(a[12]), infnan_to_zero(a[13]), infnan_to_zero(a[14]), infnan_to_zero(a[15]) }; return r; }
 
 #define F2(F) static inline double2 F(const double2 &x) { return double2(F(x[0]), F(x[1])); }
 F2(sin)
