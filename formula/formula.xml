@@ -1716,4 +1716,32 @@ v2
     </formula>
   </group>
 
+  <group type="71" name="z^2 exp(2 a / z) + c">
+    <formula power="2" glitch="0.0001">
+      <reference t="C">
+        Xn = (X ^ 2) * exp(2 * A / X) + C;
+      </reference>
+      <perturbation t="C">
+        xn = (x + 2 * X) * x * exp(2 * A / Xx) + 2 * (X ^ 2) * sinh(-A * x / (Xx * X)) * exp(A * (x + 2 * X) / (Xx * X)) + c;
+      </perturbation>
+      <derivative t="C">
+        dn = 2 * (Xx - A) * exp(2 * A / Xx) * d + d0;
+      </derivative>
+    </formula>
+  </group>
+
+  <group type="72" name="Nova: z-a(z^p-1)/(pz^(p-1))+c">
+    <formula power="3" glitch="0.0001">
+      <reference t="C">
+        Xn = X - A * ((X ^ 3) - 1) / (3 * (X ^ 2)) + C;
+      </reference>
+      <perturbation t="C">
+        xn = x * (1 - A / 3 * (1 + (2 * X + x) / ((X ^ 2) * Xx))) + c;
+      </perturbation>
+      <derivative t="C">
+        dn = d * (1 - A / 3 * (1 + 2 / (Xx ^ 3))) + d0;
+      </derivative>
+    </formula>
+  </group>
+
 </formulas>
