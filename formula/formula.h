@@ -26,7 +26,7 @@ class CFixedFloat;
 class floatexp;
 
 // https://fractalforums.org/fractal-mathematics-and-new-theories/28/perturbation-theory/487/msg3170#msg3170
-// |2w′(w+z)+1|/|δ0|+|w|(|w+2z|+|w|+2|z|)<ϵ/h
+// |2w'(w+z)+1|/|delta0|+|w|(|w+2z|+|w|+2|z|)<epsilon/h
 template <typename R>
 static inline R mag(const R &x, const R &y)
 {
@@ -44,23 +44,188 @@ static inline bool type_0_power_2_pixel_has_glitched(R cr, R ci, R zr, R zi, R Z
   return a * h < b * e;
 }
 
-template <typename R, typename T> inline R broadcast(T x) { return R(x); }
+static inline double diffabs(const double &c, const double &d)
+{
+  const double cd = c + d;
+  const double c2d = 2.0 * c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
+}
 
 typedef int64_t int2 __attribute__ ((vector_size (16)));
-typedef double double2 __attribute__ ((vector_size (16)));
-template <> inline double2 broadcast<double2,double>(double x) { double2 r = { x, x }; return r; }
+typedef double vdouble2 __attribute__ ((vector_size (16)));
+struct double2
+{
+  vdouble2 v;
+  inline double2() { vdouble2 r = { 0, 0 }; v = r; };
+  inline double2(double x) { vdouble2 r = { x, x }; v = r;};
+  inline double2(double x, double y) { vdouble2 r = { x, y }; v = r;};
+  inline double2(const int2 &x) { vdouble2 r = { x[0], x[1] }; v = r; };
+  inline double2(const double2 &x) { v = x.v; };
+  inline double2(const vdouble2 &x) { v = x; };
+  inline operator vdouble2() const { return v; };
+  inline const double& operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return v[ix]; }
+};
+static inline double2 operator-(const double2 &a) { return double2(-a.v); }
+static inline double2 operator+(const double2 &a, const double2 &b) { return double2(a.v + b.v); }
+static inline double2 operator-(const double2 &a, const double2 &b) { return double2(a.v - b.v); }
+static inline double2 operator*(const double2 &a, const double2 &b) { return double2(a.v * b.v); }
+static inline double2 operator/(const double2 &a, const double2 &b) { return double2(a.v / b.v); }
+static inline int2 operator<(const double2 &a, const double &b) { return a.v < b; }
+static inline int2 operator>(const double2 &a, const double &b) { return a.v > b; }
+static inline int2 operator<=(const double2 &a, const double &b) { return a.v <= b; }
+static inline int2 operator>=(const double2 &a, const double &b) { return a.v >= b; }
+static inline int2 operator<(const double2 &a, const double2 &b) { return a.v < b.v; }
+static inline int2 operator>(const double2 &a, const double2 &b) { return a.v > b.v; }
+static inline int2 operator<=(const double2 &a, const double2 &b) { return a.v <= b.v; }
+static inline int2 operator>=(const double2 &a, const double2 &b) { return a.v >= b.v; }
+static inline double2 operator+(const double &a, const double2 &b) { return double2(a + b.v); }
+static inline double2 abs(const double2 &a) { return double2(a.v < 0.0 ? -a.v : a.v); }
+static inline double2 diffabs(const double &c, const double2 &d)
+{
+  const double2 cd = c + d;
+  const double2 c2d = 2.0 * c + d;
+  return double2(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
+}
 
 typedef int64_t int4 __attribute__ ((vector_size (32)));
-typedef double double4 __attribute__ ((vector_size (32)));
-template <> inline double4 broadcast<double4,double>(double x) { double4 r = { x, x, x, x }; return r; }
+typedef double vdouble4 __attribute__ ((vector_size (32)));
+struct double4
+{
+  vdouble4 v;
+  inline double4() { vdouble4 r = { 0, 0, 0, 0 }; v = r; };
+  inline double4(double x) { vdouble4 r = { x, x, x, x }; v = r;};
+  inline double4(double x0, double x1, double x2, double x3) { vdouble4 r = { x0, x1, x2, x3 }; v = r;};
+  inline double4(const int4 &x) { vdouble4 r = { x[0], x[1], x[2], x[3] }; v = r; };
+  inline double4(const double4 &x) { v = x.v; };
+  inline double4(const vdouble4 &x) { v = x; };
+  inline operator vdouble4() const { return v; };
+  inline const double& operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return v[ix]; }
+};
+static inline double4 operator-(const double4 &a) { return double4(-a.v); }
+static inline double4 operator+(const double4 &a, const double4 &b) { return double4(a.v + b.v); }
+static inline double4 operator-(const double4 &a, const double4 &b) { return double4(a.v - b.v); }
+static inline double4 operator*(const double4 &a, const double4 &b) { return double4(a.v * b.v); }
+static inline double4 operator/(const double4 &a, const double4 &b) { return double4(a.v / b.v); }
+static inline int4 operator<(const double4 &a, const double &b) { return a.v < b; }
+static inline int4 operator>(const double4 &a, const double &b) { return a.v > b; }
+static inline int4 operator<=(const double4 &a, const double &b) { return a.v <= b; }
+static inline int4 operator>=(const double4 &a, const double &b) { return a.v >= b; }
+static inline int4 operator<(const double4 &a, const double4 &b) { return a.v < b.v; }
+static inline int4 operator>(const double4 &a, const double4 &b) { return a.v > b.v; }
+static inline int4 operator<=(const double4 &a, const double4 &b) { return a.v <= b.v; }
+static inline int4 operator>=(const double4 &a, const double4 &b) { return a.v >= b.v; }
+static inline double4 operator+(const double &a, const double4 &b) { return double4(a + b.v); }
+static inline double4 abs(const double4 &a) { return double4(a.v < 0.0 ? -a.v : a.v); }
+static inline double4 diffabs(const double &c, const double4 &d)
+{
+  const double4 cd = c + d;
+  const double4 c2d = 2.0 * c + d;
+  return double4(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
+}
 
 typedef int64_t int8 __attribute__ ((vector_size (64)));
-typedef double double8 __attribute__ ((vector_size (64)));
-template <> inline double8 broadcast<double8,double>(double x) { double8 r = { x, x, x, x, x, x, x, x }; return r; }
+typedef double vdouble8 __attribute__ ((vector_size (64)));
+struct double8
+{
+  vdouble8 v;
+  inline double8() { vdouble8 r = { 0, 0, 0, 0, 0, 0, 0, 0 }; v = r; };
+  inline double8(double x) { vdouble8 r = { x, x, x, x, x, x, x, x }; v = r;};
+  inline double8(double x0, double x1, double x2, double x3, double x4, double x5, double x6, double x7) { vdouble8 r = { x0, x1, x2, x3, x4, x5, x6, x7 }; v = r;};
+  inline double8(const int8 &x) { vdouble8 r = { x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7] }; v = r; };
+  inline double8(const double8 &x) { v = x.v; };
+  inline double8(const vdouble8 &x) { v = x; };
+  inline operator vdouble8() const { return v; };
+  inline const double& operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return v[ix]; }
+};
+static inline double8 operator-(const double8 &a) { return double8(-a.v); }
+static inline double8 operator+(const double8 &a, const double8 &b) { return double8(a.v + b.v); }
+static inline double8 operator-(const double8 &a, const double8 &b) { return double8(a.v - b.v); }
+static inline double8 operator*(const double8 &a, const double8 &b) { return double8(a.v * b.v); }
+static inline double8 operator/(const double8 &a, const double8 &b) { return double8(a.v / b.v); }
+static inline int8 operator<(const double8 &a, const double &b) { return a.v < b; }
+static inline int8 operator>(const double8 &a, const double &b) { return a.v > b; }
+static inline int8 operator<=(const double8 &a, const double &b) { return a.v <= b; }
+static inline int8 operator>=(const double8 &a, const double &b) { return a.v >= b; }
+static inline int8 operator<(const double8 &a, const double8 &b) { return a.v < b.v; }
+static inline int8 operator>(const double8 &a, const double8 &b) { return a.v > b.v; }
+static inline int8 operator<=(const double8 &a, const double8 &b) { return a.v <= b.v; }
+static inline int8 operator>=(const double8 &a, const double8 &b) { return a.v >= b.v; }
+static inline double8 operator+(const double &a, const double8 &b) { return double8(a + b.v); }
+static inline double8 abs(const double8 &a) { return double8(a.v < 0.0 ? -a.v : a.v); }
+static inline double8 diffabs(const double &c, const double8 &d)
+{
+  const double8 cd = c + d;
+  const double8 c2d = 2.0 * c + d;
+  return double8(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
+}
 
 typedef int64_t int16 __attribute__ ((vector_size (128)));
-typedef double double16 __attribute__ ((vector_size (128)));
-template <> inline double16 broadcast<double16,double>(double x) { double16 r = { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }; return r; }
+typedef double vdouble16 __attribute__ ((vector_size (128)));
+struct double16
+{
+  vdouble16 v;
+  inline double16() { vdouble16 r = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; v = r; };
+  inline double16(double x) { vdouble16 r = { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }; v = r;};
+  inline double16(double x0, double x1, double x2, double x3, double x4, double x5, double x6, double x7, double x8, double x9, double x10, double x11, double x12, double x13, double x14, double x15) { vdouble16 r = { x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15 }; v = r;};
+  inline double16(const int16 &x) { vdouble16 r = { x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12], x[13], x[14], x[15] }; v = r; };
+  inline double16(const double16 &x) { v = x.v; };
+  inline double16(const vdouble16 &x) { v = x; };
+  inline operator vdouble16() const { return v; };
+  inline const double& operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return v[ix]; }
+};
+static inline double16 operator-(const double16 &a) { return double16(-a.v); }
+static inline double16 operator+(const double16 &a, const double16 &b) { return double16(a.v + b.v); }
+static inline double16 operator-(const double16 &a, const double16 &b) { return double16(a.v - b.v); }
+static inline double16 operator*(const double16 &a, const double16 &b) { return double16(a.v * b.v); }
+static inline double16 operator/(const double16 &a, const double16 &b) { return double16(a.v / b.v); }
+static inline int16 operator<(const double16 &a, const double &b) { return a.v < b; }
+static inline int16 operator>(const double16 &a, const double &b) { return a.v > b; }
+static inline int16 operator<=(const double16 &a, const double &b) { return a.v <= b; }
+static inline int16 operator>=(const double16 &a, const double &b) { return a.v >= b; }
+static inline int16 operator<(const double16 &a, const double16 &b) { return a.v < b.v; }
+static inline int16 operator>(const double16 &a, const double16 &b) { return a.v > b.v; }
+static inline int16 operator<=(const double16 &a, const double16 &b) { return a.v <= b.v; }
+static inline int16 operator>=(const double16 &a, const double16 &b) { return a.v >= b.v; }
+static inline double16 operator+(const double &a, const double16 &b) { return double16(a + b.v); }
+static inline double16 abs(const double16 &a) { return double16(a.v < 0.0 ? -a.v : a.v); }
+static inline double16 diffabs(const double &c, const double16 &d)
+{
+  const double16 cd = c + d;
+  const double16 c2d = 2.0 * c + d;
+  return double16(c >= 0.0 ? cd.v >= 0.0 ? d.v : -c2d.v : cd.v > 0.0 ? c2d.v : -d.v);
+}
+
+#define F2(F) static inline double2 F(const double2 &x) { return double2(F(x[0]), F(x[1])); }
+F2(sin)
+F2(cos)
+F2(exp)
+F2(expm1)
+#undef F2
+
+#define F4(F) static inline double4 F(const double4 &x) { return double4(F(x[0]), F(x[1]), F(x[2]), F(x[3])); }
+F4(sin)
+F4(cos)
+F4(exp)
+F4(expm1)
+#undef F4
+
+#define F8(F) static inline double8 F(const double8 &x) { return double8(F(x[0]), F(x[1]), F(x[2]), F(x[3]), F(x[4]), F(x[5]), F(x[6]), F(x[7])); }
+F8(sin)
+F8(cos)
+F8(exp)
+F8(expm1)
+#undef F8
+
+#define F16(F) static inline double16 F(const double16 &x) { return double16(F(x[0]), F(x[1]), F(x[2]), F(x[3]), F(x[4]), F(x[5]), F(x[6]), F(x[7]), F(x[8]), F(x[9]), F(x[10]), F(x[11]), F(x[12]), F(x[13]), F(x[14]), F(x[15])); }
+F16(sin)
+F16(cos)
+F16(exp)
+F16(expm1)
+#undef F16
 
 // reference
 
@@ -211,6 +376,7 @@ bool perturbation
 
 // miscellaneous
 
+typedef struct HWND__* HWND;
 bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
 void combo5_addstrings(HWND hWnd, const int combo);
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower);

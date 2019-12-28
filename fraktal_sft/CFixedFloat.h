@@ -484,4 +484,32 @@ inline CFixedFloat sqr(const CFixedFloat &A)
 	return A.Square();
 }
 
+inline CFixedFloat exp(const CFixedFloat &A)
+{
+	using std::exp;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(exp(A.m_f)));
+}
+
+inline CFixedFloat expm1(const CFixedFloat &A)
+{
+	using std::expm1;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(expm1(A.m_f)));
+}
+
+inline CFixedFloat sin(const CFixedFloat &A)
+{
+	using std::sin;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(sin(A.m_f)));
+}
+
+inline CFixedFloat cos(const CFixedFloat &A)
+{
+	using std::cos;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(cos(A.m_f)));
+}
+
 #endif

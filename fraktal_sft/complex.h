@@ -21,6 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_COMPLEX_H
 
 #include "../formula/formula.h"
+#include "floatexp.h"
 
 #include <algorithm>
 
@@ -29,23 +30,39 @@ template <class tt> class complex
 public:
 	tt m_r, m_i;
 	inline complex()
+	: m_r(0)
+	, m_i(0)
 	{
-		m_r = broadcast<tt>(0.);
-		m_i = broadcast<tt>(0.);
-	}
-	template <typename ss> operator complex<ss>() const
-	{
-		return complex<ss>(broadcast<ss>(m_r), broadcast<ss>(m_i));
-	}
-	inline complex(const tt &r)
-	{
-		m_r = r;
-		m_i = broadcast<tt>(0.);
 	}
 	inline complex(const tt &r, const tt &i)
+	: m_r(r)
+	, m_i(i)
 	{
-		m_r = r;
-		m_i = i;
+	}
+	inline complex(const int &r) : m_r(r), m_i(0) { }
+	inline complex(const int64_t &r) : m_r(r), m_i(0) { }
+	inline complex(const float &r) : m_r(r), m_i(0) { }
+	inline complex(const double &r) : m_r(r), m_i(0) { }
+	inline complex(const long double &r) : m_r(r), m_i(0) { }
+	inline complex(const floatexp &r) : m_r(r), m_i(0) { }
+	inline complex(const complex<double> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	inline complex(const complex<long double> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	inline complex(const complex<floatexp> &a)
+	: m_r(a.m_r)
+	, m_i(a.m_i)
+	{
+	}
+	explicit inline operator complex<floatexp>() const
+	{
+		return complex<floatexp>(floatexp(m_r), floatexp(m_i));
 	}
 	inline complex &operator =(const complex &a)
 	{
@@ -99,76 +116,22 @@ public:
 	}
 	inline complex operator ^(int exp) const
 	{
-		complex<tt> r;
-		tt tmp;
-		if(exp==0){
-			r.m_r=broadcast<tt>(1.);
-			r.m_i=broadcast<tt>(0.);
-			return r;
-		}
-		r.m_r = m_r; 
-		r.m_i = m_i;
-		int i;
-		for(i=1;i<exp;i++){
-			tmp = r.m_r*m_r - r.m_i*m_i;
-			r.m_i = r.m_r*m_i + r.m_i*m_r;
-			r.m_r=tmp;
-		}
-		return r;
-	}
-	inline complex operator /(const complex &b) const
-	{
-		complex <tt> r;
-		tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
-//		if(!(div==0)){
-			r.m_r = (m_r*b.m_r + m_i*b.m_i)/div;
-			r.m_i = (m_i*b.m_r - m_r*b.m_i)/div;
-//		}
-		return r;
+		return pow(*this, exp);
 	}
 	inline complex &operator /=(const complex &b)
 	{
 		return *this = *this / b;
 	}
-	__inline complex abs()
-	{
-		complex <tt> r;
-		r.m_r=(m_r>0.?m_r:-m_r);
-		r.m_i=(m_i>0.?m_i:-m_i);
-		return r;
-	}
-	__inline complex abs_re()
-	{
-		complex <tt> r;
-		r.m_r=(m_r>0.?m_r:-m_r);
-		r.m_i=m_i;
-		return r;
-	}
-	__inline complex abs_im()
-	{
-		complex <tt> r;
-		r.m_r=m_r;
-		r.m_i=(m_i>0.?m_i:-m_i);
-		return r;
-	}
-	__inline complex re()
-	{
-		complex <tt> r;
-		r.m_r=m_r;
-		r.m_i=broadcast<tt>(0.);
-		return r;
-	}
-	__inline complex im()
-	{
-		complex <tt> r;
-		r.m_r=broadcast<tt>(0.);
-		r.m_i=m_i;
-		return r;
-	}
 };
 
 template <class tt>
 inline complex<tt> operator*(int a, const complex<tt> &b)
+{
+	return complex<tt>(a * b.m_r, a * b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator*(const complex<tt> &b, int a)
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
@@ -180,9 +143,34 @@ inline complex<tt> operator*(const tt &a, const complex<tt> &b)
 }
 
 template <class tt>
+inline complex<tt> operator/(const complex<tt> &a, const tt &b)
+{
+	return complex<tt>(a.m_r / b, a.m_i / b);
+}
+
+template <class tt>
+inline complex<tt> operator/(const complex<tt> &a, const complex<tt> &b)
+{
+	tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
+	return complex<tt>(a.m_r*b.m_r + a.m_i*b.m_i, a.m_i*b.m_r - a.m_r*b.m_i)/div;
+}
+
+template <class tt>
 inline complex<tt> operator/(const tt &a, const complex<tt> &b)
 {
 	return complex<tt>(a) / b;
+}
+
+template <class tt>
+inline complex<tt> operator/(const int &a, const complex<tt> &b)
+{
+	return complex<tt>(a) / b;
+}
+
+template <class tt>
+inline complex<tt> operator/(const complex<tt> &a, const int &b)
+{
+	return complex<tt>(a.m_r / b, a.m_i / b);
 }
 
 template <typename ss, typename tt>
@@ -194,7 +182,26 @@ inline complex<tt> operator*(const complex<ss> &a, const complex<tt> &b)
 template <class tt>
 inline complex<tt> operator-(int a, const complex<tt> &b)
 {
-	return complex<tt>(tt(a) - b.m_r, -b.m_i);
+	return complex<tt>(a - b.m_r, -b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator+(int a, const complex<tt> &b)
+{
+	return complex<tt>(a + b.m_r, b.m_i);
+}
+
+template <class tt>
+inline complex<tt> operator-(const complex<tt> &b, int a)
+{
+	return complex<tt>(b.m_r - a, b.m_i);
+}
+
+
+template <class tt>
+inline complex<tt> operator-(const complex<tt> &b)
+{
+	return complex<tt>(-b.m_r, -b.m_i);
 }
 
 template <class tt>
@@ -216,6 +223,31 @@ inline complex<tt> sqrt(const complex<tt> &a)
 	using std::max;
 	tt r = abs(a);
 	return complex<tt>(sqrt(max(0.0, (r + a.m_r)*0.5)), ((a.m_i >= 0) - (0 > a.m_i)) * sqrt(max(0.0, (r - a.m_r)*0.5)));
+}
+
+template <class tt>
+inline complex<tt> exp(const complex<tt> &a)
+{
+	return exp(a.m_r) * complex<tt>(cos(a.m_i), sin(a.m_i));
+}
+
+template <class tt>
+inline tt cosm1(const tt &x)
+{
+	tt s(sin(x / 2));
+	return -2 * s * s;
+}
+
+template <class tt>
+inline complex<tt> expm1(const complex<tt> &a)
+{
+	return complex<tt>(expm1(a.m_r) * cos(a.m_i) + cosm1(a.m_i), exp(a.m_r) * sin(a.m_i));
+}
+
+template <class tt>
+inline complex<tt> sinh(const complex<tt> &a)
+{
+	return (expm1(a) - expm1(-a)) / 2;
 }
 
 #endif

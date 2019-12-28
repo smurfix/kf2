@@ -666,7 +666,7 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_old, int64_t period, int step)
 {
   complex<flyttyp> delta = c_new - c_old;
-  complex<floatexp> delta_lo = delta;
+  complex<floatexp> delta_lo = complex<floatexp>(delta);
   std::string re = c_new.m_r.ToText();
   std::string im = c_new.m_i.ToText();
   std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();

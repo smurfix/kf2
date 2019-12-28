@@ -686,12 +686,6 @@ static inline bool any(const int16 &i) {
 }
 
 template <typename T>
-static inline T abs(const T &x) { return x < 0.0 ? -x : x; }
+static inline T abs(const T &x) { return x < T(0.0) ? -x : x; }
 
-template<typename S, typename T>
-static inline T diffabs(const S &c, const T &d)
-{
-  const T cd = c + d;
-  const T c2d = 2.0 * c + d;
-  return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
-}
+
