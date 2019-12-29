@@ -38,7 +38,7 @@ wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
 wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
 wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.6/glm-0.9.9.6.7z
-wget -c https://github.com/openexr/openexr/archive/v2.4.0.tar.gz -O openexr-2.4.0.tar.gz
+wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.4.0.tar.gz -O openexr-2.4.0.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
 git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
 cp -avft ~/win32/src *z allpatches mingw-std-threads clew
