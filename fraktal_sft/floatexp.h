@@ -578,9 +578,10 @@ inline bool isinf(const floatexp &a)
 	return isinf(a.val);
 }
 
-#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
-I(floatexp)
-#undef I
+inline floatexp infnan_to_zero(const floatexp &a)
+{
+	return isinf(a.val) ? floatexp(copysign(1e30, a.val)) : isnan(a.val) ? floatexp(0) : a;
+}
 
 inline floatexp exp(floatexp a)
 {

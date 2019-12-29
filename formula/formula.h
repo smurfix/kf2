@@ -51,7 +51,7 @@ static inline double diffabs(const double &c, const double &d)
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
 }
 
-#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
+#define I(T) inline T infnan_to_zero(const T &a) { return isinf(a) ? copysign(1e30, a) : isnan(a) ? 0 : a; }
 I(float)
 I(double)
 I(long double)
