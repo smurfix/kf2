@@ -48,7 +48,7 @@ then
 cd ~/win64/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
-CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --prefix=$HOME/win64
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=x86_64-w64-mingw32 --enable-fat --prefix=$HOME/win64
 make -j $NCPUS
 make install
 make check
@@ -140,7 +140,7 @@ then
 cd ~/win32/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
-CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --prefix=$HOME/win32
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=i686-w64-mingw32 --enable-fat --prefix=$HOME/win32
 make -j $NCPUS
 make install
 make check

@@ -57,7 +57,7 @@ cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
 patch -N -Z -p1 < ../allpatches
-./configure --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+./configure --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared --enable-fat
 make -j $NCPUS # mingw32-make does not work here
 make install
 make check
