@@ -27,7 +27,7 @@ cp -avft ~/win64/src *.patch
 cp -avft ~/win32/src *.patch
 # download
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.71.0/source/boost_1_71_0.7z
+wget -c https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
 wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
 wget -c https://www.mpfr.org/mpfr-current/allpatches
