@@ -169,9 +169,9 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		m_nPower = 2;
 	nID = stParams.FindString(0, "FractalType");
 	if (nID != -1)
-		m_nFractalType = atoi(stParams[nID][1]);
+		SetFractalType(atoi(stParams[nID][1]));
 	else
-		m_nFractalType = 0;
+		SetFractalType(0);
 	}
 
 	int nT = stParams.FindString(0, "Smooth");
