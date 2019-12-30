@@ -2671,6 +2671,10 @@ static long OpenSettings(HWND hWnd, bool &ret)
 						return 0;
 				}
 				else{
+#ifdef KF_OPENCL
+					std::cerr << "CL: " << g_SFT.GetOpenCLPlatform() << std::endl;
+					g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
+#endif
 					if (hWnd)
 						UpdateMenusFromSettings(hWnd);
 					if (hWnd)

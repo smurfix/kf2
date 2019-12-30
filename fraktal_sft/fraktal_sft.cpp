@@ -3181,11 +3181,14 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 			delete cl;
 			cl = NULL;
 			clid = -1;
+			SetUseOpenCL(false);
 		}
 		if (0 <= i && i < cldevices.size())
 		{
 			clid = i;
 			cl = new OpenCL(cldevices[i].pid, cldevices[i].did);
+			SetUseOpenCL(true);
+			SetOpenCLPlatform(i);
 		}
 	}
 }
