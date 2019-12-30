@@ -119,6 +119,9 @@ Feedback:
 
 ### Incompatible Changes
 
+- **In versions `2.14.9` and above**, the new formula `z^2 exp(2 a / z) + c`
+  is not available in earlier versions.
+
 - **In versions `2.14.8` and above**, the iteration count limit is raised
   above 2 giga-iterations.  Parameters with such high iterations counts will
   load incorrectly in earlier versions.
@@ -2183,6 +2186,10 @@ Formulas:
   -   General Abs Quadratic Plus
 
           z := ((x^2 + y^2) + i (2 d |x y| + e x^2)) + c
+
+  -   `z^2 exp(2 a / z) + c`
+
+          z := z^2 exp(2 f / z) + c
 
 A machine-readable version of this formula list is found in the 'et' repository:
 <https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This is used by 'et' when
