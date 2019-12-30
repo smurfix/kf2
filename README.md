@@ -227,14 +227,35 @@ Feedback:
 
 - **kf-2.14.9** (????-??-??)
 
-    - OpenCL support for GPU rendering (enabled at build time with
-      `make clean && make OPENCL=1`)
-    - don't set zoom size when resuming zoom out sequence (now you need to
-      set it manually before resuming) (fixes issue where it was clamped to
-      integer; reported by david)
-    - clamp half-precision colour output in EXR (fixes issue with NaNs)
-    - save file format version number with parameters and settings
-    - updated Windows/MSYS2 build instructions (thanks to Patrick Owen)
+    - feature: new formula `z^2 exp(2 a / z) + c` (suggested by gerrit);
+      set seed to `0` (default) for singular orbit;
+      set seed to `a` for critical orbit (large `|a|` bugs at zooms <= 1e3);
+      no Newton zooming yet;
+      thread: <https://fractalforums.org/f/28/t/3234>
+    - feature: use minimum `|z|` pixels for new references (suggested by quaz0r)
+      (option disabled by default as it is not always faster)
+    - feature: save file format version number with parameters and settings
+    - feature: documentation improvements (references to third-party software
+      and EXR map file semantics)
+    - bugfix: don't set zoom size when resuming zoom out sequence (now you
+      need to set it manually before resuming) (fixes issue where it was
+      clamped to integer; reported by david)
+    - bugfix: clamp half-precision colour output in EXR (fixes issue with NaNs)
+    - bugfix: interpolate neighbourhood when ignoring isolated glitches
+      (appearance should be smoother, especially analytic DE was broken before)
+    - bugfix: avoid assertion failure when loading a parameter with fractal type
+      out of range (instead unknown formulas appear incorrectly as Mandelbrot)
+      (reported by gerrit)
+    - bugfix: remove -pipe from Makefile to allow builds with smaller RAM
+    - bugfix: updated Windows/MSYS2 build instructions (thanks to Patrick Owen)
+    - upgrade to boost 1.72.0
+    - upgrade to glm 0.9.9.6
+    - update openexr repository url
+    - update pixman build to skip demos
+    - enable fat gmp build (with runtime CPU detection for faster reference
+      calculations)
+    - feature: experimental OpenCL support for GPU rendering (not built by
+      default, enable it at build time with `make clean && make OPENCL=1`)
 
 - **kf-2.14.8** (2019-09-23)
 
