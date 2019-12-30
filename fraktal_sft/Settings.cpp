@@ -95,6 +95,9 @@ bool Settings::FromText(const std::string &text)
   BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
+  BOOL(UseArgMinAbsZAsGlitchCenter)
+  BOOL(UseOpenCL)
+  INT(OpenCLPlatform)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -155,6 +158,9 @@ std::string Settings::ToText() const
   BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
+  BOOL(UseArgMinAbsZAsGlitchCenter)
+  BOOL(UseOpenCL)
+  INT(OpenCLPlatform)
 #undef DOUBLE
 #undef INT
 #undef BOOL

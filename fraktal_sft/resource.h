@@ -269,13 +269,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_SIMD_VECTOR_SIZE_4   40125
 #define ID_SIMD_VECTOR_SIZE_8   40126
 #define ID_SIMD_VECTOR_SIZE_16  40127
-
+#define ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER 40128
 
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         120
-#define IDC_COMBO_OPENCL_DEVICE  1104
-#define ID_SPECIAL_OPENCL       40128
+#define IDC_COMBO_OPENCL_DEVICE  1200
+#define ID_SPECIAL_OPENCL       40200
 #endif
 
 // Next default values for new objects

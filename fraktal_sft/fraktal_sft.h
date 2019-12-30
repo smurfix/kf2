@@ -61,7 +61,7 @@ public:
 // magic value stored in m_nPixels[][] when pixel needs (re)computation
 #define PIXEL_UNEVALUATED INT_MIN
 // magic value stored in m_nTrans[][] when a glitch is detected
-#if 0
+#if 1
 #define SET_TRANS_GLITCH(x) (fmin(log2((x) + 2.2250738585072014e-308) - 1024.0, -1.0))
 #else
 #define SET_TRANS_GLITCH(x) (-1.0)
@@ -469,6 +469,7 @@ public:
 	double GetTransOnPoint(int x, int y);
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
 	BOOL HighestIteration(int &rx, int &ry);
+	void IgnoreIsolatedGlitches();
 	int FindCenterOfGlitch(int &rx, int &ry);
 	int GetColorIndex(int x, int y);
 	BOOL GetTransition();
@@ -608,6 +609,9 @@ public:
 	BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
+  BOOL(UseArgMinAbsZAsGlitchCenter)
+  BOOL(UseOpenCL)
+  BOOL(OpenCLPlatform)
 #undef DOUBLE
 #undef INT
 #undef BOOL

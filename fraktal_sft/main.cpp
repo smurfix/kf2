@@ -481,6 +481,12 @@ static void UpdateAutoSolveGlitches(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateUseArgMinAbsZAsGlitchCenter(HWND hWnd)
+{
+	bool b = g_SFT.GetUseArgMinAbsZAsGlitchCenter();
+	CheckMenuItem(GetMenu(hWnd),ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateSolveGlitchNear(HWND hWnd)
 {
 	bool b = g_SFT.GetSolveGlitchNear();
@@ -631,6 +637,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateReuseReference(hWnd);
 	UpdateAutoSolveGlitches(hWnd);
 	UpdateSolveGlitchNear(hWnd);
+	UpdateUseArgMinAbsZAsGlitchCenter(hWnd);
 	UpdateNoApprox(hWnd);
 	UpdateMirror(hWnd);
 	UpdateLongDoubleAlways(hWnd);
@@ -4029,6 +4036,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD){
 		g_SFT.SetSolveGlitchNear(! g_SFT.GetSolveGlitchNear());
 		UpdateSolveGlitchNear(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER){
+		g_SFT.SetUseArgMinAbsZAsGlitchCenter(! g_SFT.GetUseArgMinAbsZAsGlitchCenter());
+		UpdateUseArgMinAbsZAsGlitchCenter(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
 		g_bAutoGlitch=!g_bAutoGlitch;

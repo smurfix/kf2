@@ -856,7 +856,6 @@ Feedback:
 - only store reference orbit after series approximation
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
-- use minimum |z| pixels for new references (suggested by quaz0r)
 
 ### Newton-Raphson Zooming
 

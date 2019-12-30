@@ -82,7 +82,9 @@ private:
   bool m_ThreadedReference;
   int64_t m_SIMDVectorSize;
   int64_t m_SIMDChunkSize;
-
+  bool m_UseArgMinAbsZAsGlitchCenter;
+  bool m_UseOpenCL;
+  int64_t m_OpenCLPlatform;
 
 public:
 
@@ -134,6 +136,9 @@ public:
   , m_ThreadedReference(true)
   , m_SIMDVectorSize(2)
   , m_SIMDChunkSize(64)
+  , m_UseArgMinAbsZAsGlitchCenter(false)
+  , m_UseOpenCL(false)
+  , m_OpenCLPlatform(0)
   { };
 
   bool FromText(const std::string &text);
@@ -307,6 +312,15 @@ public:
       default: m_SIMDVectorSize = 1; break;
     }
   }
+
+  inline bool   GetUseArgMinAbsZAsGlitchCenter() const { return m_UseArgMinAbsZAsGlitchCenter; };
+  inline void   SetUseArgMinAbsZAsGlitchCenter(bool b) { m_UseArgMinAbsZAsGlitchCenter = b; };
+
+  inline bool   GetUseOpenCL() const { return m_UseOpenCL; };
+  inline void   SetUseOpenCL(bool b) { m_UseOpenCL = b; };
+
+  inline int64_t GetOpenCLPlatform() const { return m_OpenCLPlatform; };
+  inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = 0 < n ? n : 1; };
 
 };
 

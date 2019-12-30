@@ -666,6 +666,7 @@ BEGIN
     POPUP "&Advanced",                       65535,MFT_STRING,MFS_ENABLED
     BEGIN
         MENUITEM "Auto solve glitches",         ID_ACTIONS_AUTOSOLVEGLITCHES,MFT_STRING,MFS_ENABLED
+        MENUITEM "Use argmin|Z| as glitch center", ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MFT_STRING,MFS_ENABLED
         MENUITEM "Solve glitch with near pixels method", ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MFT_STRING,MFS_ENABLED
         POPUP "Ignore isolated small glitches", 65535,MFT_STRING,MFS_ENABLED
         BEGIN
