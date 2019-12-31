@@ -48,7 +48,7 @@ then
 cd ~/win64/src
 tar xf gmp-*.tar.lz
 cd gmp-*/
-CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" MAKE="mingw32-make" ./configure --build=x86_64-w64-mingw32 --prefix=$HOME/win64
+CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" MAKE="mingw32-make" ./configure --build=x86_64-w64-mingw32 --enable-fat --prefix=$HOME/win64
 mingw32-make -j $NCPUS
 mingw32-make install
 mingw32-make check
@@ -57,7 +57,7 @@ cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
 patch -N -Z -p1 < ../allpatches
-./configure --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared --enable-fat
+./configure --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
 make -j $NCPUS # mingw32-make does not work here
 make install
 make check
