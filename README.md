@@ -78,6 +78,8 @@ Feedback:
   (blank image, "always use floatexp" gives correct render)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
+- fractal type out of range (e.g. parameter from newer KF) is silently reset
+  to Mandelbrot
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
@@ -870,6 +872,7 @@ Feedback:
 - save image now function (without waiting for calculations)
 - command line: print total runtime (suggested by gerrit)
 - log window for diagnostics/debugging
+- two-phase parameter loading with validation (suggested by Pauldelbrot)
 
 ### Calculations
 
@@ -1187,7 +1190,7 @@ necessary), the script will need to be modified to build the 32bit version:
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-    Feel free to delete `kf-2.14.8/` and `kf-2.14.8.7z` inside your git repository afterwards.
+    Feel free to delete `kf-*/` and `kf-*.7z` inside your git repository afterwards.
 
 15. To build Kalles Fraktaler 2 + optimized for your own CPU:
 
@@ -1617,6 +1620,11 @@ Software license.
   - **Auto solve glitches**
 
     Turns the Auto solve glitches function on or off
+
+  - **Use argmin|Z| as glitch center**
+
+    Use alternative method for finding center of glitches.  May be faster/slower
+    depending on location.
 
   - **Solve glitch with near pixel method**
 
