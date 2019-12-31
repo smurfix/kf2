@@ -227,7 +227,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.9** (????-??-??)
+- **kf-2.14.9** (2019-12-31)
 
     - feature: new formula `z^2 exp(2 a / z) + c` (suggested by gerrit);
       set seed to `0` (default) for singular orbit;
