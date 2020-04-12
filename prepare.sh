@@ -28,7 +28,7 @@ cp -avft ~/win32/src *.patch
 # download
 cd ~/win64/src
 wget -c https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.7z
-wget -c https://gmplib.org/download/gmp/gmp-6.1.2.tar.lz
+wget -c https://gmplib.org/download/gmp/gmp-6.2.0.tar.lz
 wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
 wget -c https://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
@@ -57,7 +57,7 @@ cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
 patch -N -Z -p1 < ../allpatches
-./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 --with-gmp-build=../gmp-6.2.0 --enable-static --disable-shared
 make -j $NCPUS
 make install
 make check
@@ -149,7 +149,7 @@ cd ~/win32/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
 patch -N -Z -p1 < ../allpatches
-./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.1.2 --enable-static --disable-shared
+./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.2.0 --enable-static --disable-shared
 make -j $NCPUS
 make install
 make check
