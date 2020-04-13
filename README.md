@@ -87,7 +87,6 @@ Feedback:
   too much before spirals appear in next frame) (reported by gerrit)
 - there is still a race conditions in guessing (doesn't wait for previous
   progressive interlacing pass to be 100% done before the next one starts)
-- newton-raphson zooming to minibrot doesn't increase maxiters enough sometimes
 - newton-raphson zoom preset depths are bad for formulas with power other than 2
 - burning ship series approximation stops at first fold (typically 1 period of
   a central miniship), could potentially subdivide the region (and shift the
@@ -110,7 +109,6 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
-- cannot edit coordinates when zoom is deeper than e7000 or so (reported by CFJH)
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
 
@@ -245,6 +243,7 @@ Feedback:
       - new setting "Save As -> Set EXR save channels" for choosing which
         channels to store in EXR files (for conserving disk space when
         not all of the data is needed in later processing)
+      - default settings loaded from next to EXE file (`kf.exe` -> `kf.kfs`)
 
     - fixes
 
@@ -252,6 +251,9 @@ Feedback:
         recolouring from scratch (badly) (reported by CFJH)
       - status bar correctly resets when zooming before the previous
         image is completed
+      - multiline widgets in location dialog fixes editing problems
+        (reported by CFJH)
+      - newton-raphson zooming increases maxiters more suitably
 
     - library upgrades
 
