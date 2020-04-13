@@ -5237,6 +5237,22 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	cldevices = initialize_opencl();
 #endif
 
+	// load default settings next to EXE file
+	{
+	  char exe[1024];
+	  int len = GetModuleFileName(NULL, exe, 1024);
+		if (0 < len && len < 1024)
+		{
+			std::string default_settings(exe);
+			g_szSettingsFile = replace_path_extension(default_settings, "kfs");
+			bool ret;
+			OpenSettings(nullptr, ret);
+			if (! ret)
+			{
+				output_log_message(Info, "loaded default settings " << g_szSettingsFile);
+			}
+		}
+	}
 
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveMap);
 	if (interactive)
