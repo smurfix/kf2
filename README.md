@@ -204,7 +204,7 @@ Feedback:
 - workaround for WINE issue artificially limiting image size (up to 2GiB now)
 - bugfix: inflection performance issue (was converting number types needlessly)
 - bugfix: cross-hair resource issue (reported and fixed by Kalles Fraktaler)
-- miscellaneous code cleanups (-fpermissive fixes, const fixes, delete[] fixes,
+- miscellaneous code cleanups (-fpermissive fixes, const fixes, delete\[\] fixes,
   64bit compatibility paranoia)
 - formula inner loops generated at compile time from high level specification
   XML using XSLT and a preprocessor implemented in Haskell
@@ -824,7 +824,7 @@ Feedback:
 
     - removed threaded reference calculations (too much overhead)
     - miscellaneous code cleanups (no need for -fpermissive, const fixes,
-      delete[] fixes, 64bit compatibility paranoia)
+      delete\[\] fixes, 64bit compatibility paranoia)
 
 - **kf-2.11.1+gmp.20170406**
 
