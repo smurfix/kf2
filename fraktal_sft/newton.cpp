@@ -61,6 +61,7 @@ bool g_bUseBallPeriod = true;
 
 static floatexp g_fNewtonDelta2[2];
 static int g_nNewtonETA = 0;
+static int64_t g_iterations = 0;
 
 // progress reporting threads
 
@@ -1094,18 +1095,34 @@ static int WINAPI ThNewton(HWND hWnd)
 			}
 
 			double zooms = zooms1;
-			if(g_nMinibrotPos){
-				if(g_nMinibrotPos==1)
-					zooms = zooms0 * 0.5 + 0.5 * zooms1;
-				else if(g_nMinibrotPos==2)
-					zooms = zooms0 * 0.25 + 0.75 * zooms1;
-				else if(g_nMinibrotPos==3)
-					zooms = zooms0 * 0.125 + 0.875 * zooms1;
-				else if(g_nMinibrotPos==4)
-				{
-					double f = 1 - (1 - g_nMinibrotFactor) * 2;
-					zooms = zooms0 * (1 - f) + f * zooms1;
-				}
+			double start_iterations = g_SFT.GetIterations();
+			double minibrot_iterations = 50.0 * g_period;
+
+			if(g_nMinibrotPos==0)
+			{
+				g_iterations = minibrot_iterations;
+				zooms = zooms1;
+			}
+			else if(g_nMinibrotPos==1)
+			{
+				g_iterations = 2 * start_iterations;
+				zooms = zooms0 * 0.5 + 0.5 * zooms1;
+			}
+			else if(g_nMinibrotPos==2)
+			{
+				g_iterations = 3 * start_iterations;
+				zooms = zooms0 * 0.25 + 0.75 * zooms1;
+			}
+			else if(g_nMinibrotPos==3)
+			{
+				g_iterations = 4 * start_iterations;
+				zooms = zooms0 * 0.125 + 0.875 * zooms1;
+			}
+			else if(g_nMinibrotPos==4)
+			{
+				double f = 1 - (1 - g_nMinibrotFactor) * 2;
+				g_iterations = fmin(fmax(start_iterations * pow(2, -log(1 - f)), start_iterations), minibrot_iterations);
+				zooms = zooms0 * (1 - f) + f * zooms1;
 			}
 			if(4 * g_period > zooms && zooms>startZooms)
 			{
@@ -1249,7 +1266,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if((g_AutoSkew = SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_GETCHECK,0,0)))
 				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
 			g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
-			g_SFT.SetIterations(3*g_SFT.GetIterations()/2);
+			g_SFT.SetIterations(g_iterations);
 			g_bJustDidNewton = true;
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 			if(SendDlgItemMessage(hWnd,IDC_CHECK9,BM_GETCHECK,0,0)){
