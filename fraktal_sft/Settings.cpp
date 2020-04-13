@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -98,6 +98,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(UseArgMinAbsZAsGlitchCenter)
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
+  INT(EXRChannels)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -161,6 +162,7 @@ std::string Settings::ToText() const
   BOOL(UseArgMinAbsZAsGlitchCenter)
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
 #undef DOUBLE
 #undef INT
 #undef BOOL

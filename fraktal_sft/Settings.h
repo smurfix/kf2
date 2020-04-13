@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_SETTINGS_H 1
 
 #include <string>
+
+#include "exr.h"
 
 // this sets the maximum number of references per image
 #define OLD_GLITCH 10000
@@ -85,6 +87,7 @@ private:
   bool m_UseArgMinAbsZAsGlitchCenter;
   bool m_UseOpenCL;
   int64_t m_OpenCLPlatform;
+  int64_t m_EXRChannels;
 
 public:
 
@@ -139,6 +142,7 @@ public:
   , m_UseArgMinAbsZAsGlitchCenter(false)
   , m_UseOpenCL(false)
   , m_OpenCLPlatform(0)
+  , m_EXRChannels(~0)
   { };
 
   bool FromText(const std::string &text);
@@ -321,6 +325,9 @@ public:
 
   inline int64_t GetOpenCLPlatform() const { return m_OpenCLPlatform; };
   inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = 0 < n ? n : 1; };
+
+  inline EXRChannels GetEXRChannels() const { return unpack_exr_channels(m_EXRChannels); };
+  inline void SetEXRChannels(const EXRChannels n) { m_EXRChannels = pack_exr_channels(n); };
 
 };
 

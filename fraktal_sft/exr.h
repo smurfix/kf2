@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -24,6 +24,49 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 class itercount_array;
 
+// select which channels should be saved into EXR files
+
+enum EXRChannel_Bit {
+  EXRChannel_R = 0,
+  EXRChannel_G = 1,
+  EXRChannel_B = 2,
+  EXRChannel_N = 3,
+  EXRChannel_NF = 4,
+  EXRChannel_DEX = 5,
+  EXRChannel_DEY = 6
+};
+
+struct EXRChannels
+{
+  bool R, G, B, N, NF, DEX, DEY;
+};
+
+static inline int64_t pack_exr_channels(EXRChannels c)
+{
+  return
+    ((int64_t) c.R << EXRChannel_R) |
+    ((int64_t) c.G << EXRChannel_G) |
+    ((int64_t) c.B << EXRChannel_B) |
+    ((int64_t) c.N << EXRChannel_N) |
+    ((int64_t) c.NF << EXRChannel_NF) |
+    ((int64_t) c.DEX << EXRChannel_DEX) |
+    ((int64_t) c.DEY << EXRChannel_DEY) ;
+}
+
+static inline EXRChannels unpack_exr_channels(int64_t x)
+{
+  EXRChannels r =
+    { x & (1 << EXRChannel_R)
+    , x & (1 << EXRChannel_G)
+    , x & (1 << EXRChannel_B)
+    , x & (1 << EXRChannel_N)
+    , x & (1 << EXRChannel_NF)
+    , x & (1 << EXRChannel_DEX)
+    , x & (1 << EXRChannel_DEY)
+    };
+  return r;
+}
+
 extern int SaveEXR
 ( const std::string &filename
 , const unsigned char *Data
@@ -38,6 +81,7 @@ extern int SaveEXR
 , const float *trans
 , const float *dex
 , const float *dey
+, const EXRChannels channels
 );
 
 extern std::string ReadEXRComment(const std::string &filename);

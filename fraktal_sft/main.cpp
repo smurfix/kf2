@@ -241,6 +241,7 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , g_SFT.GetArrayTrans()
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
+		  , g_SFT.GetEXRChannels()
 		  );
 		if (allocate)
 		{
@@ -292,6 +293,7 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , g_SFT.GetArrayTrans()
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
+		  , g_SFT.GetEXRChannels()
 		  );
 		if (allocate)
 		{
@@ -1876,6 +1878,39 @@ static int HandleDoneSEH(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}catch(...){
 	}
 #endif
+	return 0;
+}
+
+static int WINAPI EXRChannelsProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam){
+	if(uMsg==WM_INITDIALOG){
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+		EXRChannels *e = (EXRChannels *) lParam;
+		SetWindowLongPtr(hWnd,GWLP_USERDATA, lParam);
+		SendDlgItemMessage(hWnd, IDC_EXR_R, BM_SETCHECK, e->R, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_G, BM_SETCHECK, e->G, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_B, BM_SETCHECK, e->B, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_N, BM_SETCHECK, e->N, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_NF, BM_SETCHECK, e->NF, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_SETCHECK, e->DEX, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_SETCHECK, e->DEY, 0);
+		return 1;
+	}
+	if(uMsg==WM_COMMAND){
+		if(wParam==IDCANCEL)
+			EndDialog(hWnd,0);
+		else if(wParam==IDOK){
+			EXRChannels *e = (EXRChannels *) GetWindowLongPtr(hWnd, GWLP_USERDATA);
+			e->R = SendDlgItemMessage(hWnd, IDC_EXR_R, BM_GETCHECK, 0, 0);
+			e->G = SendDlgItemMessage(hWnd, IDC_EXR_G, BM_GETCHECK, 0, 0);
+			e->B = SendDlgItemMessage(hWnd, IDC_EXR_B, BM_GETCHECK, 0, 0);
+			e->N = SendDlgItemMessage(hWnd, IDC_EXR_N, BM_GETCHECK, 0, 0);
+			e->NF = SendDlgItemMessage(hWnd, IDC_EXR_NF, BM_GETCHECK, 0, 0);
+			e->DEX = SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_GETCHECK, 0, 0);
+			e->DEY = SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_GETCHECK, 0, 0);
+			EndDialog(hWnd,1);
+		}
+	}
 	return 0;
 }
 
@@ -4143,6 +4178,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (! (g_SFT.GetUseNanoMB1() || g_SFT.GetUseNanoMB2()))
 			g_SFT.SetInteriorChecking(false);
 		UpdateInteriorChecking(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_EXR_CHANNELS){
+		EXRChannels e = g_SFT.GetEXRChannels();
+		if (DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_EXR), hWnd, (DLGPROC) EXRChannelsProc, (LPARAM) &e))
+		{
+			g_SFT.SetEXRChannels(e);
+		}
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_HALFCOLOUR){
 		g_SFT.SetHalfColour(!g_SFT.GetHalfColour());

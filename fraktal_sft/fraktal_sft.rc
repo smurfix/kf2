@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -409,6 +409,22 @@ BEGIN
     PUSHBUTTON      "Cancel",IDCANCEL,60,58,50,14
 END
 
+IDD_DIALOG_EXR DIALOGEX 0, 0, 200, 200
+STYLE DS_SETFONT | DS_MODALFRAME | DS_CENTER | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "EXR properties"
+FONT 8, "MS Sans Serif", 0, 0, 0x0
+BEGIN
+    CONTROL "R (colour, red channel)",IDC_EXR_R,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,10,150,10
+    CONTROL "G (colour, green channel)",IDC_EXR_G,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,30,150,10
+    CONTROL "B (colour, blue channel)",IDC_EXR_B,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,50,150,10
+    CONTROL "N (iterations, integer part)",IDC_EXR_N,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,80,150,10
+    CONTROL "NF (iterations, smooth part)",IDC_EXR_NF,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,100,150,10
+    CONTROL "DEX (distance estimate, horizontal)",IDC_EXR_DEX,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,130,150,10
+    CONTROL "DEY (distance estimate, vertical)",IDC_EXR_DEY,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,10,150,150,10
+    DEFPUSHBUTTON "OK",IDOK,10,180,80,14
+    PUSHBUTTON "Cancel",IDCANCEL,110,180,80,14
+END
+
 IDD_DIALOG8 DIALOGEX 0, 0, 153, 161
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Examine zoom sequence"
@@ -589,6 +605,7 @@ BEGIN
             MENUITEM "&JPEG...\tCtrl+J",        ID_FILE_SAVEASJPEG,MFT_STRING,MFS_ENABLED
             MENUITEM "TIFF...",                 ID_FILE_SAVEASTIF,MFT_STRING,MFS_ENABLED
             MENUITEM "EXR...",                  ID_FILE_SAVEASEXR,MFT_STRING,MFS_ENABLED
+            MENUITEM "Set EXR save channels",   ID_EXR_CHANNELS,MFT_STRING,MFS_ENABLED
             MENUITEM "KFB...",                  ID_FILE_SAVEMAP,MFT_STRING,MFS_ENABLED
         END
         MENUITEM "Store Zoom-out images...\tCtrl+Q", ID_FILE_STOREZOOMOUTIMAGES,MFT_STRING,MFS_ENABLED
@@ -691,7 +708,7 @@ BEGIN
         MENUITEM "Interior checking (NanoMB only)", ID_ACTIONS_SPECIAL_INTERIORCHECKING,MFT_STRING,MFS_ENABLED
         MENUITEM "Use auto iterations",         ID_ACTIONS_SPECIAL_AUTOITERATION,MFT_STRING,MFS_ENABLED
         MENUITEM "Use guessing",                ID_ACTIONS_SPECIAL_GUESSING,MFT_STRING,MFS_ENABLED
-        MENUITEM "Half-float image buffer",     ID_SPECIAL_HALFCOLOUR,MFT_STRING,MFS_ENABLED
+        MENUITEM "Pre-allocate half-float image buffer",     ID_SPECIAL_HALFCOLOUR,MFT_STRING,MFS_ENABLED
         MENUITEM "'Save' overwrites existing file",ID_SPECIAL_SAVE_OVERWRITES,MFT_STRING,MFS_ENABLED
         POPUP "SIMD vector size",               65535,MFT_STRING,MFS_ENABLED
         BEGIN

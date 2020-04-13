@@ -38,6 +38,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDD_DIALOG11                    115
 #define IDD_DIALOG12                    116
 #define IDD_STOREZOOM                   117
+#define IDD_DIALOG_EXR                  118
 
 #define IDC_EDIT1                       1000
 #define IDC_EDIT3                       1001
@@ -154,6 +155,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_LOCATION_PERIOD             1101
 #define IDC_BALL_PERIOD                 1102
 #define IDC_STOREZOOM_EXR               1103
+#define IDC_EXR_R                       1104
+#define IDC_EXR_G                       1105
+#define IDC_EXR_B                       1106
+#define IDC_EXR_N                       1107
+#define IDC_EXR_NF                      1108
+#define IDC_EXR_DEX                     1109
+#define IDC_EXR_DEY                     1110
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -270,6 +278,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_SIMD_VECTOR_SIZE_8   40126
 #define ID_SIMD_VECTOR_SIZE_16  40127
 #define ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER 40128
+#define ID_EXR_CHANNELS 40129
 
 // OpenCL
 #ifdef KF_OPENCL

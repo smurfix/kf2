@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -57,16 +57,17 @@ extern int SaveEXR
 , const float *trans
 , const float *rawdex
 , const float *rawdey
+, const EXRChannels C
 )
 {
   try
   {
     // prepare arrays with proper format
-    uint32_t *n0 = new uint32_t[size_t(arrWidth) * arrHeight];
-    uint32_t *n1 = (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
-    float *nf = new float[size_t(arrWidth) * arrHeight];
-    float *dex = rawdex ? new float[size_t(arrWidth) * arrHeight] : nullptr;
-    float *dey = rawdey ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    uint32_t *n0 = C.N ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
+    uint32_t *n1 = C.N && (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
+    float *nf = C.NF ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    float *dex = C.DEX && rawdex ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    float *dey = C.DEY && rawdey ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     // TODO parallelize
     for (int i = 0; i < arrWidth; ++i)
     {
@@ -79,8 +80,8 @@ extern int SaveEXR
         {
           // not calculated, or glitched
           if (n1) n1[e] = 0;
-          n0[e] = 0;
-          nf[e] = 0.0f;
+          if (n0) n0[e] = 0;
+          if (nf) nf[e] = 0.0f;
           if (dex) dex[e] = 0.0f;
           if (dey) dey[e] = 0.0f;
         }
@@ -88,8 +89,8 @@ extern int SaveEXR
         {
           // unescaped
           if (n1) n1[e] = 0xFFffFFffU;
-          n0[e] = 0xFFffFFffU;
-          nf[e] = 0.0f;
+          if (n0) n0[e] = 0xFFffFFffU;
+          if (nf) nf[e] = 0.0f;
           if (dex) dex[e] = 0.0f;
           if (dey) dey[e] = 0.0f;
         }
@@ -97,8 +98,8 @@ extern int SaveEXR
         {
           int64_t n = count[i][j] + BIAS;
           if (n1) n1[e] = (n >> 32) & 0xFFffFFffLL;
-          n0[e] = n & 0xFFffFFffLL;
-          nf[e] = 1.0f - trans[k];
+          if (n0) n0[e] = n & 0xFFffFFffLL;
+          if (nf) nf[e] = 1.0f - trans[k];
           if (dex) dex[e] = rawdex[k];
           if (dey) dey[e] = rawdey[k];
         }
@@ -130,18 +131,18 @@ extern int SaveEXR
     const half *rgb = g_SFT.GetArrayHalfColour();
     if (rgb)
     {
-      header.channels().insert("R", Channel(IMF::HALF));
-      header.channels().insert("G", Channel(IMF::HALF));
-      header.channels().insert("B", Channel(IMF::HALF));
+      if (C.R) header.channels().insert("R", Channel(IMF::HALF));
+      if (C.G) header.channels().insert("G", Channel(IMF::HALF));
+      if (C.B) header.channels().insert("B", Channel(IMF::HALF));
     }
-    if (n1)
+    if (n1 && n0)
     {
       header.channels().insert("N0",  Channel(IMF::UINT));
       header.channels().insert("N1",  Channel(IMF::UINT));
     }
-    else
+    else if (n0)
       header.channels().insert("N",  Channel(IMF::UINT));
-    header.channels().insert("NF", Channel(IMF::FLOAT));
+    if (nf) header.channels().insert("NF", Channel(IMF::FLOAT));
     if (dex) header.channels().insert("DEX", Channel(IMF::FLOAT));
     if (dey) header.channels().insert("DEY", Channel(IMF::FLOAT));
     OutputFile of(filename.c_str(), header);
@@ -150,23 +151,23 @@ extern int SaveEXR
     {
       // [y][x]
       size_t row = g_SFT.GetArrayHalfColourStride();
-      fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      if (C.R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      if (C.G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      if (C.B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * 3, sizeof(*rgb) * row));
     }
     else
     {
       std::cerr << "no rgb" << std::endl;
     }
     // [x][y]
-    if (n1)
+    if (n1 && n0)
     {
       fb.insert("N0", Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
       fb.insert("N1", Slice(IMF::UINT,  (char *) n1, sizeof(*n1) * arrHeight, sizeof(*n1) * 1));
     }
-    else
+    else if (n0)
       fb.insert("N",  Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
-    fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));
+    if (nf) fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));
     if (dex) fb.insert("DEX", Slice(IMF::FLOAT, (char *) dex, sizeof(*dex) * arrHeight, sizeof(*dex) * 1));
     if (dey) fb.insert("DEY", Slice(IMF::FLOAT, (char *) dey, sizeof(*dey) * arrHeight, sizeof(*dey) * 1));
     of.setFrameBuffer(fb);
