@@ -1,12 +1,12 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 incorporating components derived from:
 
 et -- escape time fractals
-Copyright (C) 2018 Claude Heiland-Allen
+Copyright (C) 2018-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -72,11 +72,11 @@ typedef int f_referencel(int,long double,long double,long double,mpfr_t,mpfr_t,l
 typedef int f_perturbationf(int,int,float,float*,float,float,float,float,float*,float*,volatile int*);
 typedef int f_perturbation(int,int,double,double*,double,double,double,double,double*,double*,volatile int*);
 typedef int f_perturbationl(int,int,long double,long double*,long double,long double,long double,long double,long double*,long double*,volatile int*);
-typedef int f_period_tri(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
-typedef int f_period_jsk(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
-typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,volatile int*);
-typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*);
-typedef int f_skew(int,double,double,mpfr_t,mpfr_t,int,double*,volatile int*);
+typedef int f_period_tri(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*,int*);
+typedef int f_period_jsk(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*,int*);
+typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*,int*);
+typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*,int*);
+typedef int f_skew(int,double,double,mpfr_t,mpfr_t,int,double*,volatile int*,int*);
 typedef int f_domain_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
 
 #ifndef KF_MAIN
@@ -101,7 +101,7 @@ static f_domain_size domain_size;
 
 #define MAGIC ((int)(0xC01dCaf3))
 #define SIZE ((int)(sizeof(struct formula)))
-#define VERSION 6
+#define VERSION 7
 
 struct formula
 {

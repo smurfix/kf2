@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -57,10 +57,86 @@ bool g_bNewtonRunning = false;
 bool g_bNewtonStop = false;
 static bool g_bNewtonExit = false;
 bool g_bJustDidNewton = false;
-bool g_bUseBallPeriod = false;
+bool g_bUseBallPeriod = true;
 
 static floatexp g_fNewtonDelta2[2];
 static int g_nNewtonETA = 0;
+
+// progress reporting threads
+
+struct progress_t
+{
+	int counters[4];
+	volatile bool running;
+	HWND hWnd;
+	HANDLE hDone;
+};
+
+static DWORD WINAPI ThPeriodProgress(progress_t *progress)
+{
+	while (progress->running)
+	{
+		int limit = progress->counters[0];
+		int iter = progress->counters[1];
+		char status[100];
+		snprintf(status, 100, "Period %d (%d%%)", iter, (int) (iter * 100.0 / limit));
+		SetDlgItemText(progress->hWnd, IDC_EDIT1, status);
+		Sleep(250);
+	}
+	SetEvent(progress->hDone);
+	return 0;
+}
+
+static DWORD WINAPI ThNewtonProgress(progress_t *progress)
+{
+	while (progress->running)
+	{
+		int eta = progress->counters[0];
+		int step = progress->counters[1];
+		int period = progress->counters[2];
+		int iter = progress->counters[3];
+		char status[100];
+		snprintf(status, 100, "NR %d/%d (%d%%)", step, eta > 0 ? step + eta : 0, (int) (iter * 100.0 / period));
+		SetDlgItemText(progress->hWnd, IDC_EDIT1, status);
+		Sleep(250);
+	}
+	SetEvent(progress->hDone);
+	return 0;
+}
+
+static DWORD WINAPI ThSizeProgress(progress_t *progress)
+{
+	while (progress->running)
+	{
+		int period = progress->counters[0];
+		int iter = progress->counters[1];
+		char status[100];
+		snprintf(status, 100, "Size %d%%", (int) (iter * 100.0 / period));
+		SetDlgItemText(progress->hWnd, IDC_EDIT1, status);
+		Sleep(250);
+	}
+	SetEvent(progress->hDone);
+	return 0;
+}
+
+static DWORD WINAPI ThSkewProgress(progress_t *progress)
+{
+	while (progress->running)
+	{
+		int period = progress->counters[0];
+		int iter = progress->counters[1];
+		char status[100];
+		snprintf(status, 100, "Skew %d%%", (int) (iter * 100.0 / period));
+		SetDlgItemText(progress->hWnd, IDC_EDIT1, status);
+		Sleep(250);
+	}
+	SetEvent(progress->hDone);
+	return 0;
+}
+
+
+
+
 
 static int newtonETA(const floatexp &delta0, const floatexp &delta1, const floatexp &epsilon)
 {
@@ -757,14 +833,24 @@ static int WINAPI ThSkew(HWND hWnd)
   g_skew[1] = 0;
   g_skew[2] = 0;
   g_skew[3] = 1;
-  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_useDZ, &g_skew[0], &running))
+  // fork progress updater
+  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSkewProgress, (LPVOID) &progress, 0, NULL);
+  CloseHandle(hThread);
+  int ret = 0;
+  if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_useDZ, &g_skew[0], &running, &progress.counters[0]))
   {
-    PostMessage(hWnd,WM_USER+2,0,2);
+    ret = 2;
   }
   else
   {
-    PostMessage(hWnd,WM_USER+2,0,-2);
+    ret = -2;
   }
+  // join progress updater
+  progress.running = false;
+  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+  CloseHandle(progress.hDone);
+  PostMessage(hWnd,WM_USER+2,0,ret);
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
@@ -820,14 +906,22 @@ static int WINAPI ThNewton(HWND hWnd)
 		if (f)
 		{
 		  flyttyp r = flyttyp(4) / radius;
+		  // fork progress updater
+		  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+		  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThPeriodProgress, (LPVOID) &progress, 0, NULL);
+		  CloseHandle(hThread);
 		  if (g_bUseBallPeriod)
 		  {
-		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_skew[0], &running);
+		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_skew[0], &running, &progress.counters[0]);
 		  }
 		  else
 		  {
-		    g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running);
+		    g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running, &progress.counters[0]);
 		  }
+		  // join progress updater
+		  progress.running = false;
+		  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+		  CloseHandle(progress.hDone);
 		  if (g_period < 0) g_period = 0;
 		}
 		else
@@ -856,14 +950,23 @@ static int WINAPI ThNewton(HWND hWnd)
 		{
 		  if (f)
 		  {
+		    // fork progress updater
+		    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+		    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThNewtonProgress, (LPVOID) &progress, 0, NULL);
+		    CloseHandle(hThread);
 		    // c = center; // seems to copy precision too, so do it low-level...
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
-		    test = f->newton(100, g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), &running) ? 0 : 1;
+		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
+		    test = f->newton(100, g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &running, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
 		    steps = 1;
+		    // join progress updater
+		    progress.running = false;
+		    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+		    CloseHandle(progress.hDone);
 		  }
 		}
 		// std::cerr << "newton " << test << " " << steps << std::endl;
@@ -884,7 +987,15 @@ static int WINAPI ThNewton(HWND hWnd)
 			{
 			  if (f)
 			  {
-			    f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &g_skew[0], &running);
+			    // fork progress updater
+			    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+			    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSizeProgress, (LPVOID) &progress, 0, NULL);
+			    CloseHandle(hThread);
+			    f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &g_skew[0], &running, &progress.counters[0]);
+			    // join progress updater
+			    progress.running = false;
+			    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+			    CloseHandle(progress.hDone);
 			    msize = flyttyp(.25) / msize;
 			  }
 			}
@@ -1030,6 +1141,8 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_RADIO1,BM_SETCHECK,1,0);
 		if (g_AutoSkew)
 			SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_SETCHECK,1,0);
+		if (g_bUseBallPeriod)
+			SendDlgItemMessage(hWnd,IDC_BALL_PERIOD,BM_SETCHECK,1,0);
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 		std::ostringstream s;
