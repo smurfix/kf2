@@ -725,6 +725,8 @@ static int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if(hWnd==WindowFromPoint(p) || hWnd==GetParent(WindowFromPoint(p)))
 			return 0;
 		HDC dcScreen = GetDC(NULL);
+		int screen_width = GetDeviceCaps(dcScreen, HORZRES);
+		int screen_height = GetDeviceCaps(dcScreen, VERTRES);
 
 		HWND hwPrev = GetDlgItem(hWnd,IDC_PREV);
 		RECT r, r2={0,0,16,16};
@@ -734,8 +736,8 @@ static int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		r.bottom=r2.bottom*8;
 
 		HDC dcPrev = GetDC(hwPrev);
-		r2.left = p.x-r2.right/2+1;
-		r2.top = p.y-r2.bottom/2+1;
+		r2.left = std::max(0L, std::min(p.x-r2.right/2+1, screen_width - r2.right));
+		r2.top = std::max(0L, std::min(p.y-r2.bottom/2+1, screen_height - r2.bottom));
 		StretchBlt(dcPrev,0,0,r.right,r.bottom,dcScreen,r2.left,r2.top,r2.right,r2.bottom,SRCCOPY);
 
 		SetROP2(dcPrev,R2_NOT);

@@ -254,6 +254,8 @@ Feedback:
       - multiline widgets in location dialog fixes editing problems
         (reported by CFJH)
       - newton-raphson zooming increases maxiters more suitably
+      - clamp crosshair window read region to screen size
+        (prevent out strobing display of uninitialized memory)
 
     - library upgrades
 
