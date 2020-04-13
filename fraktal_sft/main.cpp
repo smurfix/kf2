@@ -1936,23 +1936,18 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	memset(lpBits,0,bmi.biSizeImage);
 	int x, y;
 	double diagonal = sqrt((double)(bmi.biWidth*bmi.biWidth/4+bmi.biHeight*bmi.biHeight/4));
+	complex<double> z0(pm.x, pm.y);
+	int power = g_SFT.GetPower();
 	for(x=0;x<bmi.biWidth;x++){
 		for(y=0;y<bmi.biHeight;y++){
-			double ratio = (double)(y-pm.y)/(double)(x-pm.x);
-			double degree = -atan(ratio);
-			if(x==pm.x){
-				if(y<pm.y)
-					degree=-pi/2;
-				else
-					degree=pi/2;
-			}
-			if(x>pm.x)
-				degree-=pi;
-			double dist = sqrt((double)((x-pm.x)*(x-pm.x)+(y-pm.y)*(y-pm.y)))/diagonal;
-			int dx = (double)pm.x + (double)(x-pm.x)*cos(degree)*dist
-				+ (double)(y-pm.y)*sin(degree)*dist;
-			int dy = (double)pm.y + (double)(y-pm.y)*cos(degree)*dist
-				- (double)(x-pm.x)*sin(degree)*dist;
+			complex<double> z(x, y);
+			z -= z0;
+			z /= diagonal;
+			z = z ^ power;
+			z *= diagonal;
+			z += z0;
+			int dx = z.m_r;
+			int dy = z.m_i;
 			if(dx<=-1 || dy<=-1 || dx>=bmi.biWidth || dy>=bmi.biHeight)
 				continue;
 			int nIndex = x*3 + (bmi.biHeight-1-y)*row;
