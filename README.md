@@ -227,6 +227,34 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.10** (????-??-??)
+
+    - speed boosts
+
+      - Mandelbrot power 3+ and TheRedshiftRider formulas Newton zooming:
+        twice as fast
+      - Mandelbrot power 3 perturbation: 50% faster
+      - Mandelbrot power 3 rescaled perturbation: 7.5% faster
+
+    - new features
+
+      - Show Inflection generalized to arbitrary power Mandelbrot
+        (behaviour for power 2 is slightly different, but more correct)
+      - better progress reporting for Newton-Raphson zooming
+        (especially noticable for formulas other than Mandelbrot power 2)
+      - use ball method for Newton-Raphson period finding by default
+        (works much better than box method in skewed locations)
+      - new setting "Save As -> Set EXR save channels" for choosing which
+        channels to store in EXR files (for conserving disk space when
+        not all of the data is needed in later processing)
+
+    - library upgrades
+
+      - upgrade to openexr-2.4.1
+      - upgrade to glm-0.9.9.7
+      - upgrade to gmp-6.2.0
+      - upgrade compiler to g++-mingw-w64 9.3.0-8+22 and rebuild everything
+
 - **kf-2.14.9** (2019-12-31)
 
     - feature: new formula `z^2 exp(2 a / z) + c` (suggested by gerrit);
@@ -1303,38 +1331,43 @@ Software license.
 
   - **Open**
 
-    Opens the current location from a parameter file (*.kfr)
+    Opens the current location from a parameter file (`*.kfr`)
     You can also load metadata from images saved by KF.
     You can also drag-and-drop files from the file manager on to the
     main window to open them as parameters.
 
   - **Save**
 
-    Saves the current location in the current parameter file (*.kfr)
+    Saves the current location in the current parameter file (`*.kfr`)
 
   - **Save as**
 
-      - **KFR** Saves the current location in a new parameter file (*.kfr)
+      - **KFR** Saves the current location in a new parameter file (`*.kfr`)
 
       - **PNG**
-        Saves the current location in a PNG image file (*.png).
+        Saves the current location in a PNG image file (`*.png`).
         The location and settings are saved in the file metadata.
 
       - **JPEG**
-        Saves the current location in a JPEG image file (*.jpg).
+        Saves the current location in a JPEG image file (`*.jpg`).
         The location and settings are saved in the file metadata.
 
       - **TIFF**
-        Saves the current location in a TIFF image file (*.tif).
+        Saves the current location in a TIFF image file (`*.tif`).
         The location and settings are saved in the file metadata.
 
       - **EXR**
-        Saves the current location in a EXR image file (*.exr).
-        The iteration data is also saved in the file.
+        Saves the current location in a EXR image file (`*.exr`).
+        The iteration data is also saved in the file by default.
         The location and settings are saved in the file metadata.
 
+      - **Set EXR save channels**
+        Choose which channels to save in EXR image files.
+        This is stored in the settings, so you can use it with command
+        line rendering.
+
       - **KFB**
-        Saves the iteration data in a map file (*.kfb). This file can be used by
+        Saves the iteration data in a map file (`*.kfb`). This file can be used by
         the KeyFramMovie program.  **The location and settings are not saved.**
 
     Saved image dimensions can be smaller than the calculated image size set in
@@ -1348,7 +1381,7 @@ Software license.
 
   - **Open map**
 
-    Load the iteration data from map file (*.kfb, *.exr).
+    Load the iteration data from map file (`*.kfb`, `*.exr`).
 
     Note: you must set the aspect ratio of the window to match the KFB data
     before opening the map file.  If you have also saved images, you can do
@@ -1366,7 +1399,7 @@ Software license.
   - **Store zoom-out images**
 
     Zoom out automatically with the selected Zoom size and store JPEG/PNG/TIFF
-    images and map file (*.kfb, *.exr) for each zoom out. The zoom out stops when
+    images and map file (`*.kfb`, `*.exr`) for each zoom out. The zoom out stops when
     the depth is lower than 1. The resulting files can be used by the KeyFrameMovie
     program to create a zoom-in animation.
 
@@ -1386,12 +1419,12 @@ Software license.
 
   - **Open Settings**
 
-    Opens rendering settings from a settings file (*.kfs)
+    Opens rendering settings from a settings file (`*.kfs`)
     You can also load metadata from images saved by KF.
 
   - **Save Settings**
 
-    Saves the current rendering settings to a settings file (*.kfs)
+    Saves the current rendering settings to a settings file (`*.kfs`)
 
   - **Check for update**
 
@@ -2267,11 +2300,11 @@ generating formula code (for Newton-Raphson zooming, etc).
 
   - **Save palette**
 
-    Save the current palette in KFP (*.kfp) file
+    Save the current palette in KFP (`*.kfp`) file
 
   - **Open palette**
 
-    Load palette from a KFP (*.kfp) file
+    Load palette from a KFP (`*.kfp`) file
 
   - **Expand double**
 
@@ -2364,7 +2397,7 @@ Then launch KF from the command line telling it to load the settings file you
 just saved, plus the location file you want to render, and where to save the
 output images to.  Then wait patiently.  You can write a script that renders
 multiple locations in succession, either in batch .BAT on Windows, or in Shell
-.sh on *nix with WINE.
+.sh on \*nix with WINE.
 
 Note that you might have to double up backslashes within quoted paths (if they
 contain spaces).  Maybe forward slashes work instead, but you do need quotes
