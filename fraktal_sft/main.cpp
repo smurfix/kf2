@@ -3460,7 +3460,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bAddMainReference=false;
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 		}
-		g_SFT.Stop();
+		g_SFT.Stop(TRUE); // TRUE -> don't apply colors; this is not graceful completion
+		KillTimer(hWnd, 0); // stop the render clock
+		InvalidateRect(hWnd,NULL,FALSE); // update display including status bar...
+		UpdateWindow(hWnd); // ...so that fast zooming makes zoom number change
+		g_bAutoGlitch=1; // reset reference count before next render starts
 		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
@@ -3625,6 +3629,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			delete pAnim;
 
+		g_bAutoGlitch=1;
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -3688,6 +3693,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			delete pAnim;
 
+		g_bAutoGlitch=1;
+		SYSTEMTIME st;
+		GetLocalTime(&st);
+		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();

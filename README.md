@@ -110,8 +110,6 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
-- status bar reference count doesn't reset when zooming before it is "Done"
-- aborting rendering should not recolour incomplete image (reported by CFJH)
 - cannot edit coordinates when zoom is deeper than e7000 or so (reported by CFJH)
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
@@ -236,7 +234,7 @@ Feedback:
       - Mandelbrot power 3 perturbation: 50% faster
       - Mandelbrot power 3 rescaled perturbation: 7.5% faster
 
-    - new features
+    - enhancements
 
       - Show Inflection generalized to arbitrary power Mandelbrot
         (behaviour for power 2 is slightly different, but more correct)
@@ -247,6 +245,13 @@ Feedback:
       - new setting "Save As -> Set EXR save channels" for choosing which
         channels to store in EXR files (for conserving disk space when
         not all of the data is needed in later processing)
+
+    - fixes
+
+      - stopping rendering with ESC leaves image as-is, instead of
+        recolouring from scratch (badly) (reported by CFJH)
+      - status bar correctly resets when zooming before the previous
+        image is completed
 
     - library upgrades
 
