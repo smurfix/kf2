@@ -453,7 +453,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 		BITMAP s, d;
 		GetObject(bmSrc, sizeof(BITMAP), &s);
 		GetObject(bmDst, sizeof(BITMAP), &d);
-		bool ok = scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight);
+		/*bool ok = */ scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight);
 		//assert(ok && "scale_bitmap_rgb8");
 	}
 	else

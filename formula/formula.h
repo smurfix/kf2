@@ -65,7 +65,7 @@ struct double2
   inline double2() { vdouble2 r = { 0, 0 }; v = r; };
   inline double2(double x) { vdouble2 r = { x, x }; v = r;};
   inline double2(double x, double y) { vdouble2 r = { x, y }; v = r;};
-  inline double2(const int2 &x) { vdouble2 r = { x[0], x[1] }; v = r; };
+  inline double2(const int2 &x) { vdouble2 r = { double(x[0]), double(x[1]) }; v = r; };
   inline double2(const double2 &x) { v = x.v; };
   inline double2(const vdouble2 &x) { v = x; };
   inline operator vdouble2() const { return v; };
@@ -105,7 +105,7 @@ struct double4
   inline double4() { vdouble4 r = { 0, 0, 0, 0 }; v = r; };
   inline double4(double x) { vdouble4 r = { x, x, x, x }; v = r;};
   inline double4(double x0, double x1, double x2, double x3) { vdouble4 r = { x0, x1, x2, x3 }; v = r;};
-  inline double4(const int4 &x) { vdouble4 r = { x[0], x[1], x[2], x[3] }; v = r; };
+  inline double4(const int4 &x) { vdouble4 r = { double(x[0]), double(x[1]), double(x[2]), double(x[3]) }; v = r; };
   inline double4(const double4 &x) { v = x.v; };
   inline double4(const vdouble4 &x) { v = x; };
   inline operator vdouble4() const { return v; };
@@ -145,7 +145,7 @@ struct double8
   inline double8() { vdouble8 r = { 0, 0, 0, 0, 0, 0, 0, 0 }; v = r; };
   inline double8(double x) { vdouble8 r = { x, x, x, x, x, x, x, x }; v = r;};
   inline double8(double x0, double x1, double x2, double x3, double x4, double x5, double x6, double x7) { vdouble8 r = { x0, x1, x2, x3, x4, x5, x6, x7 }; v = r;};
-  inline double8(const int8 &x) { vdouble8 r = { x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7] }; v = r; };
+  inline double8(const int8 &x) { vdouble8 r = { double(x[0]), double(x[1]), double(x[2]), double(x[3]), double(x[4]), double(x[5]), double(x[6]), double(x[7]) }; v = r; };
   inline double8(const double8 &x) { v = x.v; };
   inline double8(const vdouble8 &x) { v = x; };
   inline operator vdouble8() const { return v; };
@@ -185,7 +185,7 @@ struct double16
   inline double16() { vdouble16 r = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 }; v = r; };
   inline double16(double x) { vdouble16 r = { x, x, x, x, x, x, x, x, x, x, x, x, x, x, x, x }; v = r;};
   inline double16(double x0, double x1, double x2, double x3, double x4, double x5, double x6, double x7, double x8, double x9, double x10, double x11, double x12, double x13, double x14, double x15) { vdouble16 r = { x0, x1, x2, x3, x4, x5, x6, x7, x8, x9, x10, x11, x12, x13, x14, x15 }; v = r;};
-  inline double16(const int16 &x) { vdouble16 r = { x[0], x[1], x[2], x[3], x[4], x[5], x[6], x[7], x[8], x[9], x[10], x[11], x[12], x[13], x[14], x[15] }; v = r; };
+  inline double16(const int16 &x) { vdouble16 r = { double(x[0]), double(x[1]), double(x[2]), double(x[3]), double(x[4]), double(x[5]), double(x[6]), double(x[7]), double(x[8]), double(x[9]), double(x[10]), double(x[11]), double(x[12]), double(x[13]), double(x[14]), double(x[15]) }; v = r; };
   inline double16(const double16 &x) { v = x.v; };
   inline double16(const vdouble16 &x) { v = x; };
   inline operator vdouble16() const { return v; };

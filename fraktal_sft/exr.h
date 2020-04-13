@@ -56,13 +56,13 @@ static inline int64_t pack_exr_channels(EXRChannels c)
 static inline EXRChannels unpack_exr_channels(int64_t x)
 {
   EXRChannels r =
-    { x & (1 << EXRChannel_R)
-    , x & (1 << EXRChannel_G)
-    , x & (1 << EXRChannel_B)
-    , x & (1 << EXRChannel_N)
-    , x & (1 << EXRChannel_NF)
-    , x & (1 << EXRChannel_DEX)
-    , x & (1 << EXRChannel_DEY)
+    { bool(x & (1 << EXRChannel_R))
+    , bool(x & (1 << EXRChannel_G))
+    , bool(x & (1 << EXRChannel_B))
+    , bool(x & (1 << EXRChannel_N))
+    , bool(x & (1 << EXRChannel_NF))
+    , bool(x & (1 << EXRChannel_DEX))
+    , bool(x & (1 << EXRChannel_DEY))
     };
   return r;
 }
