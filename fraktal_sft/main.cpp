@@ -3326,8 +3326,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sb.cy = g_SFT.GetHeight();
 				pSelect.x = g_pSelect.x*sb.cx/rc.right;
 				pSelect.y = g_pSelect.y*sb.cy/rc.bottom;
-				sc.cx = sb.cx/(g_SFT.GetZoomSize());
-				sc.cy = sb.cy/(g_SFT.GetZoomSize());
+				sc.cx = std::max(1.0, sb.cx/(g_SFT.GetZoomSize()));
+				sc.cy = std::max(1.0, sb.cy/(g_SFT.GetZoomSize()));
 				HBITMAP bmSBmp = create_bitmap(hDC,sc.cx,sc.cy);
 				HBITMAP bmSOld = (HBITMAP)SelectObject(dcSBmp,bmSBmp);
 				SetStretchBltMode(dcSBmp,HALFTONE);
