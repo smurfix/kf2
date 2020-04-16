@@ -162,6 +162,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_EXR_NF                      1108
 #define IDC_EXR_DEX                     1109
 #define IDC_EXR_DEY                     1110
+#define IDC_STOREZOOM_KFR               1111
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002

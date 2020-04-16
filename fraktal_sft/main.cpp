@@ -140,6 +140,7 @@ BOOL g_bStoreZoomJpg=FALSE;
 BOOL g_bStoreZoomPng=FALSE;
 BOOL g_bStoreZoomTif=FALSE;
 BOOL g_bStoreZoomExr=FALSE;
+BOOL g_bStoreZoomKfr=FALSE;
 int g_nStoreZoomCount = 0;
 int g_nStoreZoomLimit = 0;
 
@@ -394,6 +395,7 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 		switch (nID)
 		{
 			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
+			case IDC_STOREZOOM_KFR: return "Save KFR parameter files for each frame";
 			case IDC_STOREZOOM_EXR: return "Save EXR image + map files for each frame";
 			case IDC_STOREZOOM_TIF: return "Save TIF image files for each frame";
 			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
@@ -1282,6 +1284,13 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomMap=0;
+	File = replace_path_filename(g_szFile, "*_*.kfr");
+	hFind = FindFirstFile(File.c_str(),&fd);
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomKfr=1;
+	}
+	else
+		g_bStoreZoomKfr=0;
 
 	std::vector<std::string> stExamine;
 	int countMap = 0;
@@ -1634,6 +1643,10 @@ nPos=13;
 					SaveZoomImg(File, "KF2");
 				else
 					g_SFT.SaveJpg(File,-3);
+			}
+			if(g_bStoreZoomKfr){
+				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfr"));
+				g_SFT.SaveFile(File, true);
 			}
 			std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
@@ -2737,6 +2750,7 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			if (wParam == IDOK)
 			{
 				g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
+				g_bStoreZoomKfr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFR, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomExr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_EXR, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomTif = SendDlgItemMessage(hWnd, IDC_STOREZOOM_TIF, BM_GETCHECK, 0, 0) != 0;
 				g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
