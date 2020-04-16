@@ -2839,6 +2839,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
+	else if(uMsg==WM_GETMINMAXINFO){
+		LPMINMAXINFO lpMMI = (LPMINMAXINFO)lParam;
+		lpMMI->ptMinTrackSize.x = 256;
+		lpMMI->ptMinTrackSize.y = 128;
+	}
 	else if(uMsg==WM_PAINT){
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
