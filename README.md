@@ -62,7 +62,6 @@ Feedback:
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
 - zoom size 1.2 sequence JPEGs have "boxes" while KFB is ok (reported by saka)
-- resizing window by dragging frame corner in WINE on Linux sometimes crashes
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
@@ -70,8 +69,6 @@ Feedback:
   Foxxie) "usually near the elephant valley area or seahorse valley area of
   minibrots, happens worse the faster you zoom, usually if you try to zoom at
   the skinniest part very quickly"
-- crash when zooming out by a huge custom zoom factor (2^25) (reported by CFJH)
-  (divide by zero in `StretchBlt()`)
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - scaled long double rendering broken with some locations (reported by CFJH)
@@ -244,6 +241,9 @@ Feedback:
         channels to store in EXR files (for conserving disk space when
         not all of the data is needed in later processing)
       - default settings loaded from next to EXE file (`kf.exe` -> `kf.kfs`)
+      - "Save KFR" option for Store Zoom Out Sequence, also `--save-kfr`
+        command line flag (suggested by Fluoroantimonic_Acid)
+        (note that metadata is already saved in all formats apart from KFB)
 
     - fixes
 
@@ -255,7 +255,11 @@ Feedback:
         (reported by CFJH)
       - newton-raphson zooming increases maxiters more suitably
       - clamp crosshair window read region to screen size
-        (prevent out strobing display of uninitialized memory)
+        (prevent strobing display of uninitialized memory)
+      - fix crash when zooming out by a huge custom zoom factor (2^25)
+        (reported by CFJH) (divide by zero in `StretchBlt()`)
+      - fix crashes when resizing window by dragging frame corner by
+        setting a minimum size
 
     - library upgrades
 
@@ -2387,6 +2391,7 @@ generating formula code (for Newton-Raphson zooming, etc).
         -p, --save-png      [FILE.png]  save PNG
         -j, --save-jpg      [FILE.jpg]  save JPEG
         -m, --save-map      [FILE.kfb]  save KFB
+            --save-kfr      [FILE.kfr]  save KFR
         -z, --zoom-out      [NFRAMES]   zoom sequence
         --log (debug|status|info|warn|error)
                                         logging verbosity

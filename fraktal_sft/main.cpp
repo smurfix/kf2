@@ -5185,6 +5185,17 @@ static bool save_frame(int frame)
 			output_log_message(Error, "saving JPG " << fn << " FAILED");
 		}
 	}
+	if (g_args->bSaveKFR)
+	{
+		char fn[1000];
+		snprintf(fn, 1000, g_args->sSaveKFR.c_str(), frame);
+		output_log_message(Info, "saving KFR " << fn);
+		if (! g_SFT.SaveFile(fn, true))
+		{
+			ok = false;
+			output_log_message(Error, "saving KFR " << fn << " FAILED");
+		}
+	}
 	if (g_args->bSaveMap)
 	{
 		char fn[1000];
