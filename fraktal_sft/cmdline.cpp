@@ -221,8 +221,8 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 			++i;
 			if (i < args.size())
 			{
-				bSaveMap = true;
-				sSaveMap = args[i];
+				bSaveKFR = true;
+				sSaveKFR = args[i];
 			}
 			else
 			{
