@@ -145,6 +145,7 @@ BOOL g_bStoreZoomExr=FALSE;
 BOOL g_bStoreZoomKfr=FALSE;
 int g_nStoreZoomCount = 0;
 int g_nStoreZoomLimit = 0;
+bool g_FileSaveAs_Cancelled = false;
 
 bool g_bWaitRead=false;
 int g_nStopAtExponent=0;
@@ -3947,6 +3948,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && (wParam==ID_FILE_STOREZOOMOUTIMAGES)){
 		MainProc(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
+		if (g_FileSaveAs_Cancelled)
+		  return 0;
 		g_JpegParams.nWidth = g_SFT.GetWidth();
 		g_JpegParams.nHeight = g_SFT.GetHeight();
 		g_JpegParams.nQuality = 100;
@@ -4952,11 +4955,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_SAVEAS_){
 			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
+				g_FileSaveAs_Cancelled = false;
 				if(!g_SFT.SaveFile(g_szFile, true))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[1024];
 				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
 				SetWindowText(hWnd,szTitle);
+			}
+			else
+			{
+				g_FileSaveAs_Cancelled = true;
 			}
 		}
 /*		else if(wParam==ID_ACTIONS_CREATEZOOMSEQUENCE){
@@ -5232,11 +5240,14 @@ DWORD ThReportProgress(LPVOID arg)
 	return 0;
 }
 
-static bool save_frame(int frame)
+static bool save_frame(int frame, bool onlyKFR)
 {
-	output_log_message(Info, "colouring final image");
-	g_SFT.m_bInhibitColouring = FALSE;
-	g_SFT.ApplyColors();
+	if (! onlyKFR)
+	{
+		output_log_message(Info, "colouring final image");
+		g_SFT.m_bInhibitColouring = FALSE;
+		g_SFT.ApplyColors();
+	}
 	//  save the result
 	bool ok = true;
 	if (g_args->bSaveEXR)
@@ -5304,14 +5315,20 @@ static bool save_frame(int frame)
 	return ok;
 }
 
-static bool render_frame(int frame)
+static bool render_frame(int frame, bool onlyKFR)
 {
-	output_log_message(Info, "reference " << 1);
+	if (! onlyKFR)
+	{
+		output_log_message(Info, "reference " << 1);
+	}
 	g_SFT.m_bInhibitColouring = TRUE;
 	g_SFT.m_bInteractive = false;
 	if (frame == 0)
 	{
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+		if (! onlyKFR)
+		{
+			g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+		}
 	}
 	else
 	{
@@ -5320,24 +5337,33 @@ static bool render_frame(int frame)
 		{
 			g_SFT.SetJitterSeed(j + 1);
 		}
-		AutoIterations();
-		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
-	}
-	for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
-	{
-		int x = -1, y = -1;
-		int n = g_SFT.FindCenterOfGlitch(x, y);
-		if (! n)
+		if (! onlyKFR)
 		{
-			output_log_message(Info, "no more glitches");
-			break;
+			AutoIterations();
 		}
-		output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
-		g_SFT.AddReference(x, y);
+		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
+		if (! onlyKFR)
+		{
+			g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+		}
+	}
+	if (! onlyKFR)
+	{
+		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+		{
+			int x = -1, y = -1;
+			int n = g_SFT.FindCenterOfGlitch(x, y);
+			if (! n)
+			{
+				output_log_message(Info, "no more glitches");
+				break;
+			}
+			output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
+			g_SFT.AddReference(x, y);
+		}
 	}
 	ThReportProgress_running = false;
-	return save_frame(frame);
+	return save_frame(frame, onlyKFR);
 }
 
 extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
@@ -5384,7 +5410,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 	}
 
-	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveMap);
+	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
@@ -5473,26 +5499,30 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				return 1;
 			}
 		}
+		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
+		bool ok = true;
     if (g_args->bLoadMap)
     {
-			save_frame(0);
+			save_frame(0, onlyKFR);
 		}
 		else
 	  {
-			output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
-			// render the image (add reference calls render fractal...)
-			if (LogLevel_Status >= g_log_level)
+			if (! onlyKFR)
 			{
-				HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-				CloseHandle(hProgress);
+				output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
+				// render the image (add reference calls render fractal...)
+				if (LogLevel_Status >= g_log_level)
+				{
+					HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
+					CloseHandle(hProgress);
+				}
 			}
-			bool ok = true;
 			if (g_args->bZoomOut)
 			{
 				for (int frame = 0; g_args->nZoomOut < 0 || frame < g_args->nZoomOut; ++frame)
 				{
 					output_log_message(Info, "frame " << frame << " of " << g_args->nZoomOut);
-					ok = render_frame(frame);
+					ok = render_frame(frame, onlyKFR);
 					if (! ok)
 					{
 						break;
@@ -5505,18 +5535,18 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			}
 			else
 			{
-				ok = render_frame(0);
+				ok = render_frame(0, onlyKFR);
 			}
-			if (! ok)
-			{
-				output_log_message(Error, "FAILED");
-			}
-			else
-			{
-				output_log_message(Info, "all done, exiting");
-			}
-			return ok ? 0 : 1;
 		}
+		if (! ok)
+		{
+			output_log_message(Error, "FAILED");
+		}
+		else
+		{
+			output_log_message(Info, "all done, exiting");
+		}
+		return ok ? 0 : 1;
 	}
 
 	return 0;
