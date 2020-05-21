@@ -265,6 +265,7 @@ class CFraktalSFT
 	uint32_t *m_nPixels_LSB;
 	uint32_t *m_nPixels_MSB; // may be nullptr
 	itercount_array m_nPixels; // FIXME
+	BOOL m_bFlat;
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
@@ -472,6 +473,8 @@ public:
 	void IgnoreIsolatedGlitches();
 	int FindCenterOfGlitch(int &rx, int &ry);
 	int GetColorIndex(int x, int y);
+	BOOL GetFlat();
+	void SetFlat(BOOL bFlat);
 	BOOL GetTransition();
 	void SetTransition(BOOL bTransition);
 	BOOL GetITransition();

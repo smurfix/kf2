@@ -176,6 +176,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ScreenToClient(hWnd,(LPPOINT)&g_rShow);
 			DestroyWindow(hw);
 		}
+		SendDlgItemMessage(hWnd,IDC_COLOR_TRANSITION_FLAT,BM_SETCHECK,g_SFT.GetFlat(),0);
 		SendDlgItemMessage(hWnd,IDC_CHECK2,BM_SETCHECK,g_SFT.GetTransition(),0);
 		SendDlgItemMessage(hWnd,IDC_CHECK3,BM_SETCHECK,g_SFT.GetITransition(),0);
 		if(uMsg==WM_INITDIALOG || (uMsg==WM_SHOWWINDOW && wParam)){
@@ -347,6 +348,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SetDlgItemInt(hWnd,IDC_EDIT12,g_SFT.GetColorOffset(),FALSE);
 			g_SFT.SetColorMethod(SendDlgItemMessage(hWnd,IDC_COMBO1,CB_GETCURSEL,0,0));
 			g_SFT.SetDifferences(SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_GETCURSEL,0,0));
+			g_SFT.SetFlat(SendDlgItemMessage(hWnd,IDC_COLOR_TRANSITION_FLAT,BM_GETCHECK,0,0));
 			g_SFT.SetTransition(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
 			g_SFT.SetITransition(SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0));
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -392,7 +394,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
 		}
-		else if(wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
+		else if(wParam==IDC_COLOR_TRANSITION_FLAT || wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 		{
 			g_AutoUpdate++;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
@@ -1120,6 +1122,8 @@ extern const char *ColorToolTip(int nID)
 		return "Double by repeating the Key Colors";
 	case IDC_CHECK1:
 		return "Move the cursor over the fractal to select the Key Color in the list.\nWill only work if color offset is zero";
+	case IDC_COLOR_TRANSITION_FLAT:
+		return "Make colors flat";
 	case IDC_CHECK2:
 		return "Make colors smooth";
 	case IDC_CHECK3:

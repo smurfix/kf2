@@ -177,6 +177,9 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	int nT = stParams.FindString(0, "Smooth");
 	if (nT != -1)
 		m_bTrans = atoi(stParams[nT][1]);
+	nT = stParams.FindString(0, "Flat");
+	if (nT != -1)
+		m_bFlat = atoi(stParams[nT][1]);
 	if (! bNoLocation)
 	{
 	nID = stParams.FindString(0, "SmoothMethod"); // must come after "Power"
@@ -440,6 +443,9 @@ std::string CFraktalSFT::ToText()
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Smooth");
 	stSave.AddInt(stSave.GetCount() - 1, m_bTrans);
+	stSave.AddRow();
+	stSave.AddString(stSave.GetCount() - 1, "Flat");
+	stSave.AddInt(stSave.GetCount() - 1, m_bFlat);
 
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "MultiColor");

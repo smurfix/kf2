@@ -174,6 +174,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nTrans = NULL;
 	m_nDEx = nullptr;
 	m_nDEy = nullptr;
+	m_bFlat = FALSE;
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
@@ -619,7 +620,11 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		Differences diffs = m_nDifferences;
 		int64_t nIter = nIter0;
 
-		double iter = (double)nIter + (double)1 - offs;
+		double iter = (double)nIter;
+		if (! m_bFlat)
+		{
+			iter += (double)1 - offs;
+		}
 		/*		if(1){//DE
 		double p1, p2;
 		if(x){
@@ -2774,6 +2779,14 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 }
 #undef KF_CENTER_VIA_TRANS
 
+BOOL CFraktalSFT::GetFlat()
+{
+	return m_bFlat;
+}
+void CFraktalSFT::SetFlat(BOOL bFlat)
+{
+	m_bFlat = bFlat;
+}
 BOOL CFraktalSFT::GetTransition()
 {
 	return m_bTrans;
