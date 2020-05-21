@@ -46,6 +46,7 @@ fraktal_sft/listbox.cpp \
 fraktal_sft/long_double_perturbation.cpp \
 fraktal_sft/long_double_reference.cpp \
 fraktal_sft/main.cpp \
+fraktal_sft/main_bailout.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
 fraktal_sft/main_formula.cpp \
@@ -78,6 +79,7 @@ fraktal_sft/itercount_array.h \
 fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
 fraktal_sft/main.h \
+fraktal_sft/main_bailout.h \
 fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
 fraktal_sft/main_formula.h \

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -39,6 +39,9 @@ void CFraktalSFT::CalculateReference()
 
 	CFixedFloat xr = g_SeedR, xi = g_SeedI, xin, xrn, sr = xr.Square(), si = xi.Square(), xrxid = 0;
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
+	const double nBailout = GetBailoutRadius();
+	const double p = GetBailoutNorm();
+	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 
 	if (m_Inflections.size() > 0)
 	{
@@ -87,7 +90,7 @@ void CFraktalSFT::CalculateReference()
 			m_db_dxr[i] = X.m_r.ToDouble();
 			m_db_dxi[i] = X.m_i.ToDouble();
 			old_absval = abs_val;
-			abs_val = (g_real * m_db_dxr[i] * m_db_dxr[i] + g_imag * m_db_dxi[i] * m_db_dxi[i]);
+			abs_val = (m_db_dxr[i] * m_db_dxr[i] + m_db_dxi[i] * m_db_dxi[i]);
 			m_db_z[i] = abs_val*threashold;
 			if (abs_val >= 4)
 			{
@@ -134,8 +137,8 @@ void CFraktalSFT::CalculateReference()
 		ldr *= m_lPixelSpacing;
 		ldi *= m_lPixelSpacing;
 		bool ok = derivatives
-		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, ldr, ldi, ddaa, ddab, ddba, ddbb)
-		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
+		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, ldr, ldi, ddaa, ddab, ddba, ddbb)
+		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
 		  ;
 		assert(ok && "reference_scaled_double");
 
@@ -152,8 +155,8 @@ void CFraktalSFT::CalculateReference()
 		dr *= m_dPixelSpacing;
 		di *= m_dPixelSpacing;
 		bool ok = derivatives
-		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, ddaa, ddab, ddba, ddbb)
-		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
+		  ? reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, ddaa, ddab, ddba, ddbb)
+		  : reference(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
 		  ;
 		assert(ok && "reference_double");
 		ldr = dr;
@@ -166,5 +169,5 @@ void CFraktalSFT::CalculateReference()
     complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, SMOOTH_BAILOUT, de);
 }

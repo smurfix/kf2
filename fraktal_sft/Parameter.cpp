@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -182,16 +182,55 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		m_bFlat = atoi(stParams[nT][1]);
 	if (! bNoLocation)
 	{
-	nID = stParams.FindString(0, "SmoothMethod"); // must come after "Power"
-	if (nID != -1){
-		int m = atoi(stParams[nID][1]);
-		if (m<0 || m>2)
-			m = 0;
-		m_nSmoothMethod = SmoothMethod(m);
-	}
+		// KFR version < 2
+		nID = stParams.FindString(0, "SmoothMethod"); // must come after "Power"
+		if (nID != -1){
+			int m = atoi(stParams[nID][1]);
+			switch (m)
+			{
+				default:
+				case 0:
+					SetBailoutRadiusPreset(BailoutRadius_High);
+					SetSmoothMethod(SmoothMethod_Log);
+				  break;
+				case 1:
+					SetBailoutRadiusPreset(BailoutRadius_2);
+					SetSmoothMethod(SmoothMethod_Sqrt);
+				  break;
+				case 2:
+					SetBailoutRadiusPreset(BailoutRadius_Low);
+					SetSmoothMethod(SmoothMethod_Sqrt);
+				  break;
+			}
+		}
+#if 0
 	m_nBailout = m_nSmoothMethod == SmoothMethod_SqrtLow ? pow(2.0, 1.0 / (m_nPower - 1))
 	           : m_nSmoothMethod == SmoothMethod_Sqrt ? 2 : SMOOTH_BAILOUT;
 	m_nBailout2 = m_nBailout*m_nBailout;
+#endif
+		// KFR version >= 2
+		nID = stParams.FindString(0, "SmoothingMethod"); // must come after SmoothMethod
+		if (nID != -1){
+			int m = atoi(stParams[nID][1]);
+			if (m < 0 || m > 1)
+			{
+				m = 0;
+			}
+			SetSmoothMethod(SmoothMethod(m));
+		}
+		nID = stParams.FindString(0, "BailoutRadiusPreset"); // must come after SmoothMethod
+		if (nID != -1){
+			int m = atoi(stParams[nID][1]);
+			if (m < 0 || m > 3)
+			{
+				m = 0;
+			}
+			SetBailoutRadiusPreset(BailoutRadiusPreset(m));
+		}
+		nID = stParams.FindString(0, "BailoutRadiusCustom"); // must come after SmoothMethod
+		if (nID != -1){
+			SetBailoutRadiusCustom(atof(stParams[nID][1]));
+		}
 	}
 
 	nID = stParams.FindString(0, "Slopes");
@@ -227,14 +266,47 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	{
 	nID = stParams.FindString(0, "real");
 	if (nID != -1)
-		g_real = atoi(stParams[nID][1]);
+	{
+		g_real = atof(stParams[nID][1]);
+	}
 	else
+	{
 		g_real = 1;
+	}
 	nID = stParams.FindString(0, "imag");
 	if (nID != -1)
-		g_imag = atoi(stParams[nID][1]);
+	{
+		g_imag = atof(stParams[nID][1]);
+	}
 	else
+	{
 		g_imag = 1;
+	}
+
+	nID = stParams.FindString(0, "BailoutNormPreset");
+	if (nID != -1)
+	{
+		int m = atoi(stParams[nID][1]);
+		if (m < 0 || m > 3)
+		{
+			m = 1;
+		}
+		SetBailoutNormPreset(BailoutNormPreset(m));
+	}
+	else
+	{
+		SetBailoutNormPreset(BailoutNorm_2);
+	}
+
+	nID = stParams.FindString(0, "BailoutNormCustom");
+	if (nID != -1)
+	{
+		SetBailoutNormCustom(atof(stParams[nID][1]));
+	}
+	else
+	{
+		SetBailoutNormCustom(2);
+	}
 
 	nID = stParams.FindString(0, "SeedR");
 	if (nID != -1)
@@ -360,70 +432,75 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 std::string CFraktalSFT::ToText()
 {
 	CStringTable stSave;
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Re");
-	stSave.AddString(stSave.GetCount() - 1, GetRe());
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Im");
-	stSave.AddString(stSave.GetCount() - 1, GetIm());
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Zoom");
-	stSave.AddString(stSave.GetCount() - 1, GetZoom());
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Iterations");
-	stSave.AddInt(stSave.GetCount() - 1, m_nMaxIter);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "IterDiv");
-	char szDiv[256];
-	sprintf(szDiv, "%f", m_nIterDiv);
-	stSave.AddString(stSave.GetCount() - 1, szDiv);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SmoothMethod");
-	stSave.AddInt(stSave.GetCount() - 1, m_nSmoothMethod);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "ColorMethod");
-	stSave.AddInt(stSave.GetCount() - 1, m_nColorMethod);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Differences");
-	stSave.AddInt(stSave.GetCount() - 1, m_nDifferences);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "ColorOffset");
-	stSave.AddInt(stSave.GetCount() - 1, m_nColorOffset);
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Rotate");
-	sprintf(szDiv, "%f", g_Degree);
-	stSave.AddString(stSave.GetCount() - 1, szDiv);
+#define STRING(k,v) \
+	stSave.AddRow(); \
+	stSave.AddString(stSave.GetCount() - 1, k); \
+	stSave.AddString(stSave.GetCount() - 1, v);
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Ratio");
-	double nRatio = m_scRatio.cy;
-	SIZE size;
-	size.cx = m_nX;
-	size.cy = m_nY;
-	double xRatio = 640.0/size.cx;
-	size.cx = 640;
-	size.cy = size.cy*xRatio;
-	xRatio = (double)360/(double)size.cy;
-	nRatio*=xRatio;
-	sprintf(szDiv, "%f", nRatio);
-	stSave.AddString(stSave.GetCount() - 1, szDiv);
+#define INT(k,v) \
+	stSave.AddRow(); \
+	stSave.AddString(stSave.GetCount() - 1, k); \
+	stSave.AddInt(stSave.GetCount() - 1, v);
 
-	CStringTable stColors;
-	int i;
-	for (i = 0; i<m_nParts; i++){
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].r);
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].g);
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
+#define DOUBLE(k,v) \
+	{ \
+		char s[100]; \
+		snprintf(s, sizeof(s), "%.18g", v); \
+		stSave.AddRow(); \
+		stSave.AddString(stSave.GetCount() - 1, k); \
+		stSave.AddString(stSave.GetCount() - 1, s); \
 	}
-	char *szColors = stColors.ToText("", ",");
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Colors");
-	stSave.AddString(stSave.GetCount() - 1, szColors);
-	stColors.DeleteToText(szColors);
+
+	STRING("Re", GetRe())
+	STRING("Im", GetIm())
+	STRING("Zoom", GetZoom())
+	INT("Iterations", GetIterations())
+	DOUBLE("IterDiv", GetIterDiv())
+
+	// KFR version < 2
+	INT("SmoothMethod", GetBailoutRadiusPreset() == BailoutRadius_Low ? 2 : GetSmoothMethod())
+	// KFR version >= 2
+	INT("SmoothingMethod", GetSmoothMethod())
+	INT("BailoutRadiusPreset", GetBailoutRadiusPreset())
+	DOUBLE("BailoutRadiusCustom", GetBailoutRadiusCustom())
+	INT("BailoutNormPreset", GetBailoutNormPreset())
+	DOUBLE("BailoutNormCustom", GetBailoutNormCustom())
+
+	INT("ColorMethod", GetColorMethod())
+	INT("Differences", GetDifferences())
+	INT("ColorOffset", GetColorOffset()) // FIXME DOUBLE
+
+	DOUBLE("Rotate", g_Degree) // FIXME global
+
+	{
+		double nRatio = m_scRatio.cy;
+		SIZE size;
+		size.cx = m_nX;
+		size.cy = m_nY;
+		double xRatio = 640.0/size.cx;
+		size.cx = 640;
+		size.cy = size.cy*xRatio;
+		xRatio = (double)360/(double)size.cy;
+		nRatio*=xRatio;
+		DOUBLE("Ratio", nRatio) // FIXME complicated...
+	}
+
+	{
+		CStringTable stColors;
+		int i;
+		for (i = 0; i<m_nParts; i++){
+			stColors.AddRow();
+			stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].r);
+			stColors.AddRow();
+			stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].g);
+			stColors.AddRow();
+			stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
+		}
+		char *szColors = stColors.ToText("", ",");
+		STRING("Colors", szColors)
+		stColors.DeleteToText(szColors);
+	}
 
 	{
 		CStringTable stColor;
@@ -434,88 +511,48 @@ std::string CFraktalSFT::ToText()
 		stColor.AddRow();
 		stColor.AddInt(stColor.GetCount() - 1, m_cInterior.b);
 		char *szColor = stColor.ToText("", ",");
-		stSave.AddRow();
-		stSave.AddString(stSave.GetCount() - 1, "InteriorColor");
-		stSave.AddString(stSave.GetCount() - 1, szColor);
+		STRING("InteriorColor", szColor)
 		stColor.DeleteToText(szColor);
 	}
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Smooth");
-	stSave.AddInt(stSave.GetCount() - 1, m_bTrans);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Flat");
-	stSave.AddInt(stSave.GetCount() - 1, m_bFlat);
+	INT("Smooth", GetTransition())
+	INT("Flat", GetFlat()) // KFR version >= 2
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "MultiColor");
-	stSave.AddInt(stSave.GetCount() - 1, m_bMW);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "BlendMC");
-	stSave.AddInt(stSave.GetCount() - 1, m_bBlend);
-	stColors.Reset();
-	for (i = 0; i<m_nMW; i++){
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nPeriod);
-		stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nStart);
-		stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nType);
+	INT("MultiColor", m_bMW)
+	INT("BlendMC", m_bBlend)
+
+	{
+		CStringTable stColors;
+		int i;
+		for (i = 0; i<m_nMW; i++){
+			stColors.AddRow();
+			stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nPeriod);
+			stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nStart);
+			stColors.AddInt(stColors.GetCount() - 1, m_MW[i].nType);
+		}
+		char *szColors = stColors.ToText("\t", ",");
+		STRING("MultiColors", szColors)
+		stColors.DeleteToText(szColors);
 	}
-	szColors = stColors.ToText("\t", ",");
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "MultiColors");
-	stSave.AddString(stSave.GetCount() - 1, szColors);
-	stColors.DeleteToText(szColors);
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Power");
-	stSave.AddInt(stSave.GetCount() - 1, m_nPower);
+	INT("Power", GetPower())
+	INT("FractalType", GetFractalType())
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "FractalType");
-	stSave.AddInt(stSave.GetCount() - 1, m_nFractalType);
+	INT("Slopes", m_bSlopes)
+	INT("SlopePower", m_nSlopePower);
+	INT("SlopeRatio", m_nSlopeRatio);
+	INT("SlopeAngle", m_nSlopeAngle);
 
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Slopes");
-	stSave.AddInt(stSave.GetCount() - 1, m_bSlopes);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SlopePower");
-	stSave.AddInt(stSave.GetCount() - 1, m_nSlopePower);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SlopeRatio");
-	stSave.AddInt(stSave.GetCount() - 1, m_nSlopeRatio);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SlopeAngle");
-	stSave.AddInt(stSave.GetCount() - 1, m_nSlopeAngle);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "imag");
-	stSave.AddInt(stSave.GetCount() - 1, g_imag);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "real");
-	stSave.AddInt(stSave.GetCount() - 1, g_real);
-	stSave.AddRow();
-	char szTmp[50];
-	sprintf(szTmp,"%g",g_SeedR);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SeedR");
-	stSave.AddString(stSave.GetCount() - 1, szTmp);
-	sprintf(szTmp,"%g",g_SeedI);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "SeedI");
-	stSave.AddString(stSave.GetCount() - 1, szTmp);
-	sprintf(szTmp,"%g",g_FactorAR);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "FactorAR");
-	stSave.AddString(stSave.GetCount() - 1, szTmp);
-	sprintf(szTmp,"%g",g_FactorAI);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "FactorAI");
-	stSave.AddString(stSave.GetCount() - 1, szTmp);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Period");
-	stSave.AddInt(stSave.GetCount() - 1, g_period);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Version");
-	stSave.AddInt(stSave.GetCount() - 1, kfr_version_number);
+	DOUBLE("real", g_real)
+	DOUBLE("imag", g_imag)
+	DOUBLE("SeedR", g_SeedR)
+	DOUBLE("SeedI", g_SeedI)
+	DOUBLE("FactorAR", g_FactorAR)
+	DOUBLE("FactorAI", g_FactorAI)
+	INT("Period", g_period)
+
+	INT("Version", kfr_version_number)
+
 	char *szData = stSave.ToText(": ", "\r\n");
 	std::string ret(szData);
 	stSave.DeleteToText(szData);

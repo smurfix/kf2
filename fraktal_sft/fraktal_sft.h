@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -190,8 +190,23 @@ public:
 enum SmoothMethod
 {
 	SmoothMethod_Log = 0,
-	SmoothMethod_Sqrt = 1,
-	SmoothMethod_SqrtLow = 2
+	SmoothMethod_Sqrt = 1
+};
+
+enum BailoutRadiusPreset
+{
+	BailoutRadius_High = 0,
+	BailoutRadius_2 = 1,
+	BailoutRadius_Low = 2,
+	BailoutRadius_Custom = 3
+};
+
+enum BailoutNormPreset
+{
+	BailoutNorm_1 = 0,
+	BailoutNorm_2 = 1,
+	BailoutNorm_Infinity = 2,
+	BailoutNorm_Custom = 3
 };
 
 enum ColorMethod
@@ -287,9 +302,11 @@ class CFraktalSFT
 	double m_nSlopeX, m_nSlopeY;
 	double m_nZooms;
 
-	double m_nBailout;
-	double m_nBailout2;
 	SmoothMethod m_nSmoothMethod;
+	BailoutRadiusPreset m_nBailoutRadiusPreset;
+	double m_nBailoutRadiusCustom;
+	BailoutNormPreset m_nBailoutNormPreset;
+	double m_nBailoutNormCustom;
 	ColorMethod m_nColorMethod;
 	Differences m_nDifferences;
 	int m_nColorOffset;
@@ -485,6 +502,16 @@ public:
 
 	SmoothMethod GetSmoothMethod();
 	void SetSmoothMethod(int nSmoothMethod);
+	BailoutRadiusPreset GetBailoutRadiusPreset();
+	void SetBailoutRadiusPreset(int nBailoutRadiusPreset);
+	double GetBailoutRadiusCustom();
+	void SetBailoutRadiusCustom(double nBailoutRadiusCustom);
+	double GetBailoutRadius();
+	BailoutNormPreset GetBailoutNormPreset();
+	void SetBailoutNormPreset(int nBailoutNormPreset);
+	double GetBailoutNormCustom();
+	void SetBailoutNormCustom(double nBailoutNormCustom);
+	double GetBailoutNorm();
 	int GetPower();
 	void SetPower(int nPower);
 	void SetColorMethod(int nColorMethod);
@@ -530,7 +557,7 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, const complex<double> &de);
+	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double nBailout, const complex<double> &de);
 	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
 	bool GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
 	bool GuessPixel(int x, int y, int w, int h);

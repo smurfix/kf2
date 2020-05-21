@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -174,6 +174,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_FORMULA_FACTOR_A_RE         1205
 #define IDC_FORMULA_FACTOR_A_IM         1206
 
+// "Bailout" dialog
+#define IDD_BAILOUT                     121
+#define IDC_BAILOUT_ITERATIONS          1211
+#define IDC_BAILOUT_SMOOTHMETHOD        1212
+#define IDC_BAILOUT_RADIUS_PRESET       1213
+#define IDC_BAILOUT_RADIUS_CUSTOM       1214
+#define IDC_BAILOUT_RE                  1215
+#define IDC_BAILOUT_IM                  1216
+#define IDC_BAILOUT_NORM_PRESET         1217
+#define IDC_BAILOUT_NORM_CUSTOM         1218
+
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
 #define ID_ACTIONS_POSITION             40003
@@ -291,6 +302,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER 40128
 #define ID_EXR_CHANNELS 40129
 #define ID_ACTIONS_FORMULA 40130
+#define ID_ACTIONS_BAILOUT 40131
 
 // OpenCL
 #ifdef KF_OPENCL

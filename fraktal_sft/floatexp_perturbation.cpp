@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -62,6 +62,9 @@ void CFraktalSFT::MandelCalcEXP()
 	floatexp real(g_real), imag(g_imag), _abs_val;
 	floatexp epsilon(m_epsilon);
 	const bool derivatives = GetDerivatives();
+  const double nBailout = GetBailoutRadius();
+  const double p = GetBailoutNorm();
+  const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -100,7 +103,7 @@ void CFraktalSFT::MandelCalcEXP()
 			if (derivatives)
 			{
 			complex<floatexp> d(dr, di);
-			if (antal<nMaxIter && test1 <= m_nBailout2){
+			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
 					yr = m_dxr[antal] + Dr;
 					yi = m_dxi[antal] + Di;
@@ -111,7 +114,7 @@ void CFraktalSFT::MandelCalcEXP()
 						if (! m_bNoGlitchDetection)
 							break;
 					}
-					if (test1 > m_nBailout2)
+					if (test1 > nBailout2)
 					{
 						break;
 					}
@@ -139,7 +142,7 @@ void CFraktalSFT::MandelCalcEXP()
 			dr = d.m_r * m_fPixelSpacing;
 			di = d.m_i * m_fPixelSpacing;
 			} else {
-			if (antal<nMaxIter && test1 <= m_nBailout2){
+			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
 					yr = m_dxr[antal] + Dr;
 					yi = m_dxi[antal] + Di;
@@ -150,7 +153,7 @@ void CFraktalSFT::MandelCalcEXP()
 						if (! m_bNoGlitchDetection)
 							break;
 					}
-					if (test1 > m_nBailout2)
+					if (test1 > nBailout2)
 					{
 						break;
 					}
@@ -182,8 +185,8 @@ void CFraktalSFT::MandelCalcEXP()
 			dr *= m_fPixelSpacing;
 			di *= m_fPixelSpacing;
 			bool ok = GetDerivatives()
-			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
-			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, m_nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
+			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
+			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, bGlitch, nBailout2, nMaxIter, m_bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
 			  ;
 			assert(ok && "perturbation_floatexp()");
 
@@ -193,7 +196,7 @@ void CFraktalSFT::MandelCalcEXP()
     complex<double> dc((double(dr)), (double(di)));
     complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, nBailout, de);
 
 		InterlockedIncrement((LPLONG)&m_nDone);
     OutputPixelData(x, y, w, h, bGlitch);

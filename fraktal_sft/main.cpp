@@ -62,6 +62,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tiff.h"
 #include "exr.h"
 #include "main.h"
+#include "main_bailout.h"
 #include "main_color.h"
 #include "main_examine.h"
 #include "main_iterations.h"
@@ -409,6 +410,9 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 	}
 	else if(lParam==6){
 		return const_cast<char *>(FormulaToolTip(nID));
+	}
+	else if(lParam==7){
+		return const_cast<char *>(BailoutToolTip(nID));
 	}
 	static char szTmp[1024];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
@@ -4408,13 +4412,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 	}
 #endif
-	else if((uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL))) || (uMsg==WM_COMMAND && wParam==ID_SPECIAL_SKEWANIMATION)){
+	else if((uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL)) &&  HIWORD(GetKeyState(VK_SHIFT))) || (uMsg==WM_COMMAND && wParam==ID_SPECIAL_SKEWANIMATION)){
 		g_bSkewAnimation=!g_bSkewAnimation;
 		if(g_bSkewAnimation)
 			g_bSkewAnimation=DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG11),hWnd,(DLGPROC)SkewAnimateProc,(LPARAM)0);
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SKEWANIMATION,MF_BYCOMMAND|(g_bSkewAnimation?MF_CHECKED:MF_UNCHECKED));
 		return 0;
 	}
+	else if(uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_BAILOUT,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='J' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEASJPEG,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='P' && HIWORD(GetKeyState(VK_CONTROL)))
@@ -4608,6 +4614,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_ACTIONS_FORMULA){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
+			if(n > 0){
+				SetTimer(hWnd,0,500,NULL);
+				g_SFT.Stop();
+				g_bAnim=false;
+				g_SFT.UndoStore();
+				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			}
+		}
+		else if(wParam==ID_ACTIONS_BAILOUT){
+			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_BAILOUT),hWnd,BailoutProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
 				g_SFT.Stop();

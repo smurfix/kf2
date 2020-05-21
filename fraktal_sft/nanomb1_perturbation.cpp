@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 void CFraktalSFT::MandelCalcNANOMB1()
 {
+	const double nBailout = GetBailoutRadius();
 	bool interior_checking = GetInteriorChecking();
 	m_bIterChanged = TRUE;
 	int x, y, w, h;
@@ -53,7 +54,7 @@ void CFraktalSFT::MandelCalcNANOMB1()
 			NanoMB1_Pixel(m_NanoMB1Ref, dc, m_fPixelSpacing, m_nMaxIter, bGlitch, antal, test1, test2, de, interior_checking);
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, nBailout, de);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);
 	}

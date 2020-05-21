@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_FORMULA_H
 #define KF_FORMULA_H 1
 
+#include <algorithm>
 #include <cstdint>
 
 class CFixedFloat;
@@ -49,6 +50,27 @@ static inline double diffabs(const double &c, const double &d)
   const double cd = c + d;
   const double c2d = 2.0 * c + d;
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
+}
+
+template<typename R>
+static inline R pnorm(const double g_real, const double g_imag, const double p, const R x, const R y)
+{
+  using std::abs;
+  using std::max;
+  using std::pow;
+  if (g_real == 1.0 && g_imag == 1.0 && p == 2.0)
+  {
+    return x * x + y * y;
+  }
+  if (p == 1.0)
+  {
+    return abs(g_real * abs(x) + g_imag * abs(y));
+  }
+  if (p == 1.0/0.0)
+  {
+    return abs(max(g_real * abs(x), g_imag * abs(y)));
+  }
+  return abs(g_real * pow(abs(x), p) + g_imag * pow(abs(y), p));
 }
 
 #define I(T) inline T infnan_to_zero(const T &a) { return isinf(a) ? copysign(1e30, a) : isnan(a) ? 0 : a; }
@@ -96,6 +118,8 @@ static inline double2 diffabs(const double &c, const double2 &d)
 static inline int2 isnan(const double2 &a) { int2 r = { isnan(a[0]), isnan(a[1]) }; return r; }
 static inline int2 isinf(const double2 &a) { int2 r = { isinf(a[0]), isinf(a[1]) }; return r; }
 static inline double2 infnan_to_zero(const double2 &a) { double2 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]) }; return r; }
+static inline double2 pow(const double2 &a, const double p) { using std::pow; double2 r = { pow(a[0], p), pow(a[1], p) }; return r; }
+static inline double2 max(const double2 &a, const double2 &b) { return double2(a.v > b.v ? a.v : b.v); }
 
 typedef int64_t int4 __attribute__ ((vector_size (32)));
 typedef double vdouble4 __attribute__ ((vector_size (32)));
@@ -136,6 +160,8 @@ static inline double4 diffabs(const double &c, const double4 &d)
 static inline int4 isnan(const double4 &a) { int4 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]) }; return r; }
 static inline int4 isinf(const double4 &a) { int4 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]) }; return r; }
 static inline double4 infnan_to_zero(const double4 &a) { double4 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]) }; return r; }
+static inline double4 pow(const double4 &a, const double p) { using std::pow; double4 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p) }; return r; }
+static inline double4 max(const double4 &a, const double4 &b) { return double4(a.v > b.v ? a.v : b.v); }
 
 typedef int64_t int8 __attribute__ ((vector_size (64)));
 typedef double vdouble8 __attribute__ ((vector_size (64)));
@@ -176,6 +202,8 @@ static inline double8 diffabs(const double &c, const double8 &d)
 static inline int8 isnan(const double8 &a) { int8 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]), isnan(a[4]), isnan(a[5]), isnan(a[6]), isnan(a[7]) }; return r; }
 static inline int8 isinf(const double8 &a) { int8 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]), isinf(a[4]), isinf(a[5]), isinf(a[6]), isinf(a[7]) }; return r; }
 static inline double8 infnan_to_zero(const double8 &a) { double8 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]) }; return r; }
+static inline double8 pow(const double8 &a, const double p) { using std::pow; double8 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p), pow(a[4], p), pow(a[5], p), pow(a[6], p), pow(a[7], p) }; return r; }
+static inline double8 max(const double8 &a, const double8 &b) { return double8(a.v > b.v ? a.v : b.v); }
 
 typedef int64_t int16 __attribute__ ((vector_size (128)));
 typedef double vdouble16 __attribute__ ((vector_size (128)));
@@ -216,6 +244,8 @@ static inline double16 diffabs(const double &c, const double16 &d)
 static inline int16 isnan(const double16 &a) { int16 r = { isnan(a[0]), isnan(a[1]), isnan(a[2]), isnan(a[3]), isnan(a[4]), isnan(a[5]), isnan(a[6]), isnan(a[7]), isnan(a[8]), isnan(a[9]), isnan(a[10]), isnan(a[11]), isnan(a[12]), isnan(a[13]), isnan(a[14]), isnan(a[15]) }; return r; }
 static inline int16 isinf(const double16 &a) { int16 r = { isinf(a[0]), isinf(a[1]), isinf(a[2]), isinf(a[3]), isinf(a[4]), isinf(a[5]), isinf(a[6]), isinf(a[7]), isinf(a[8]), isinf(a[9]), isinf(a[10]), isinf(a[11]), isinf(a[12]), isinf(a[13]), isinf(a[14]), isinf(a[15]) }; return r; }
 static inline double16 infnan_to_zero(const double16 &a) { double16 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]), infnan_to_zero(a[8]), infnan_to_zero(a[9]), infnan_to_zero(a[10]), infnan_to_zero(a[11]), infnan_to_zero(a[12]), infnan_to_zero(a[13]), infnan_to_zero(a[14]), infnan_to_zero(a[15]) }; return r; }
+static inline double16 pow(const double16 &a, const double p) { using std::pow; double16 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p), pow(a[4], p), pow(a[5], p), pow(a[6], p), pow(a[7], p), pow(a[8], p), pow(a[9], p), pow(a[10], p), pow(a[11], p), pow(a[12], p), pow(a[13], p), pow(a[14], p), pow(a[15], p) }; return r; }
+static inline double16 max(const double16 &a, const double16 &b) { return double16(a.v > b.v ? a.v : b.v); }
 
 #define F2(F) static inline double2 F(const double2 &x) { return double2(F(x[0]), F(x[1])); }
 F2(sin)
@@ -255,7 +285,7 @@ bool reference
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &antal, double &test1, double &test2
   , double &Xxr, double &Xxi
@@ -271,7 +301,7 @@ bool reference
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &antal, double &test1, double &test2
   , double &Xxr, double &Xxi
@@ -287,7 +317,7 @@ bool perturbation
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
   , int64_t &antal, double &test1, double &test2, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -301,7 +331,7 @@ bool perturbation
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
   , int64_t &antal, double &test1, double &test2, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -318,7 +348,7 @@ bool perturbation
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
@@ -333,7 +363,7 @@ bool perturbation
   , const double *m_dxr, const double *m_dxi, const double *m_db_z
   , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
@@ -351,7 +381,7 @@ bool perturbation
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &antal, double &test1, double &test2, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
@@ -366,7 +396,7 @@ bool perturbation
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &antal0, doubleN &test10, doubleN &test20, intN &bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr00, doubleN &xi00
   , const doubleN &cr0, const doubleN &ci0
@@ -382,7 +412,7 @@ bool perturbation
   , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
   , int64_t &antal0, double &test10, double &test20, bool &bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , Z &xr0, Z &xi0
   , const Z &cr, const Z &ci

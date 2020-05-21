@@ -2,7 +2,7 @@
 <!--
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -58,7 +58,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -108,7 +108,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
       Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN); \
       Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN); \
       old_absval = abs_val; \
-      abs_val = double(g_real * Xrd * Xrd + g_imag * Xid * Xid); \
+      abs_val = double(Xrd * Xrd + Xid * Xid); \
       const double Xz = abs_val * glitch; \
       m_db_dxr[i] = Xrd; \
       m_db_dxi[i] = Xid; \
@@ -189,7 +189,7 @@ bool reference
   , const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -211,7 +211,7 @@ bool reference
             , Cr, Ci
             , g_SeedR, g_SeedI
             , g_FactorAR, g_FactorAI
-            , terminate, g_real, g_imag
+            , terminate, g_real, g_imag, p
             , m_bGlitchLowTolerance
             , antal, test1, test2
             , Xxr0, Xxi0
@@ -231,7 +231,7 @@ template bool reference&lt;double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -243,7 +243,7 @@ template bool reference&lt;long double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -255,7 +255,7 @@ template bool reference&lt;floatexp&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -275,7 +275,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -348,7 +348,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
       Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN); \
       Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN); \
       old_absval = abs_val; \
-      abs_val = double(g_real * Xrd * Xrd + g_imag * Xid * Xid); \
+      abs_val = double(Xrd * Xrd + Xid * Xid); \
       const double Xz = abs_val * glitch; \
       m_db_dxr[i] = Xrd; \
       m_db_dxi[i] = Xid; \
@@ -471,7 +471,7 @@ bool reference
   , const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -495,7 +495,7 @@ bool reference
             , Cr, Ci
             , g_SeedR, g_SeedI
             , g_FactorAR, g_FactorAI
-            , terminate, g_real, g_imag
+            , terminate, g_real, g_imag, p
             , m_bGlitchLowTolerance
             , antal, test1, test2
             , Xxr0, Xxi0
@@ -517,7 +517,7 @@ template bool reference&lt;double, double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -531,7 +531,7 @@ template bool reference&lt;long double, double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -545,7 +545,7 @@ template bool reference&lt;long double, long double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -559,7 +559,7 @@ template bool reference&lt;floatexp, long double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -573,7 +573,7 @@ template bool reference&lt;floatexp, floatexp&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag
+  , const double terminate, const double g_real, const double g_imag, const double p
   , const bool m_bGlitchLowTolerance
   , int64_t &amp;antal, double &amp;test1, double &amp;test2
   , double &amp;Xxr0, double &amp;Xxi0
@@ -593,7 +593,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
@@ -609,7 +609,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     int64_t antal = antal0;
     double test1 = test10;
     double test2 = test20;
@@ -625,19 +625,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       test2 = test1;
-      if (no_g)
-      {
-        test1 = double(Xxr * Xxr + Xxi * Xxi);
-      }
-      else
-      {
-        test1 = double(g_real * Xxr * Xxr + g_imag * Xxi * Xxi);
-      }
+      test1 = double(Xxr * Xxr + Xxi * Xxi);
       if (test1 &lt; Xz)
       {
         bGlitch = true;
         if (! m_bNoGlitchDetection)
           break;
+      }
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
       }
       if (test1 &gt; m_nBailout2)
       {
@@ -689,7 +686,7 @@ bool perturbation
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr, T &amp;xi
   , const T &amp;cr, const T &amp;ci
@@ -709,7 +706,7 @@ bool perturbation
             , m_dxr, m_dxi, m_db_z
             , antal, test1, test2, bGlitch
             , m_nBailout2, nMaxIter
-            , m_bNoGlitchDetection, g_real, g_imag
+            , m_bNoGlitchDetection, g_real, g_imag, p
             , g_FactorAR, g_FactorAI
             , xr, xi
             , cr, ci
@@ -727,7 +724,7 @@ template bool perturbation&lt;double&gt;
   , const double *m_dxr, const double *m_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr, double &amp;xi
   , const double &amp;cr, const double &amp;ci
@@ -737,7 +734,7 @@ template bool perturbation&lt;long double&gt;
   , const long double *m_dxr, const long double *m_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr, long double &amp;xi
   , const long double &amp;cr, const long double &amp;ci
@@ -747,7 +744,7 @@ template bool perturbation&lt;floatexp&gt;
   , const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , floatexp &amp;xr, floatexp &amp;xi
   , const floatexp &amp;cr, const floatexp &amp;ci
@@ -765,7 +762,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
@@ -784,7 +781,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const T Ar = g_FactorAR;
     const T Ai = g_FactorAI;
     const complex&lt;T&gt; A = { Ar, Ai };
@@ -818,10 +815,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       test2 = test1;
-      if (no_g)
-        test1 = double(Xxr * Xxr + Xxi * Xxi);
-      else
-        test1 = double(g_real * Xxr * Xxr + g_imag * Xxi * Xxi);
+      test1 = double(Xxr * Xxr + Xxi * Xxi);
       if (test1 &lt; Xz)
       {
 <xsl:choose>
@@ -838,6 +832,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         }
 </xsl:when>
 </xsl:choose>
+      }
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
       }
       if (test1 &gt; m_nBailout2)
       {
@@ -926,8 +924,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     dr0 = dr; di0 = di;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    dr0 = (Xxr * dxa + Xxi * dya) / sqrt(test1);
-    di0 = (Xxr * dxb + Xxi * dyb) / sqrt(test1);
+    T sqrttest1 = sqrt(Xxr * Xxr + Xxi * Xxi);
+    dr0 = (Xxr * dxa + Xxi * dya) / sqrttest1;
+    di0 = (Xxr * dxb + Xxi * dyb) / sqrttest1;
 </xsl:when>
 </xsl:choose>
     return true;
@@ -943,7 +942,7 @@ bool perturbation
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr, T &amp;xi
   , const T &amp;cr, const T &amp;ci
@@ -966,7 +965,7 @@ bool perturbation
             , m_db_dxr, m_db_dxi, m_db_z
             , antal, test1, test2, bGlitch
             , m_nBailout2, nMaxIter
-            , m_bNoGlitchDetection, g_real, g_imag
+            , m_bNoGlitchDetection, g_real, g_imag, p
             , g_FactorAR, g_FactorAI
             , xr, xi
             , cr, ci
@@ -987,7 +986,7 @@ template bool perturbation&lt;double&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr0, double &amp;xi0
   , const double &amp;cr, const double &amp;ci
@@ -1000,7 +999,7 @@ template bool perturbation&lt;long double&gt;
   , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr0, long double &amp;xi0
   , const long double &amp;cr, const long double &amp;ci
@@ -1013,7 +1012,7 @@ template bool perturbation&lt;floatexp&gt;
   , const floatexp *m_db_dxr, const floatexp *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , floatexp &amp;xr0, floatexp &amp;xi0
   , const floatexp &amp;cr, const floatexp &amp;ci
@@ -1034,7 +1033,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
@@ -1051,7 +1050,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     doubleN test1 = test10;
     doubleN test2 = test20;
     doubleN xr0 = xr00;
@@ -1075,15 +1074,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
           test2 = test1;
-          if (no_g)
-          {
-            test1 = Xxr * Xxr + Xxi * Xxi;
-          }
-          else
-          {
-            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-          }
+          test1 = Xxr * Xxr + Xxi * Xxi;
           bGlitch |= test1 &lt; Xz;
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, Xxr, Xxi);
+          }
           bBailed |= test1 &gt; m_nBailout2;
           doubleN xrn, xin;
 
@@ -1140,19 +1136,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         Xxr = Xr + xr0[k];
         Xxi = Xi + xi0[k];
         test2[k] = test1[k];
-        if (no_g)
-        {
-          test1[k] = Xxr * Xxr + Xxi * Xxi;
-        }
-        else
-        {
-          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-        }
+        test1[k] = Xxr * Xxr + Xxi * Xxi;
         if (test1[k] &lt; Xz)
         {
           bGlitch[k] = true;
           if (! m_bNoGlitchDetection)
             break;
+        }
+        if (! no_g)
+        {
+          test1[k] = pnorm(g_real, g_imag, p, Xxr, Xxi);
         }
         if (test1[k] &gt; m_nBailout2)
         {
@@ -1208,7 +1201,7 @@ bool perturbation
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal, doubleN &amp;test1, doubleN &amp;test2, intN &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr, doubleN &amp;xi
   , const doubleN &amp;cr, const doubleN &amp;ci
@@ -1229,7 +1222,7 @@ bool perturbation
             , m_db_dxr, m_db_dxi, m_db_z
             , antal, test1, test2, bGlitch
             , m_nBailout2, nMaxIter
-            , m_bNoGlitchDetection, g_real, g_imag
+            , m_bNoGlitchDetection, g_real, g_imag, p
             , g_FactorAR, g_FactorAI
             , xr, xi
             , cr, ci
@@ -1251,7 +1244,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int2 &amp;antal, double2 &amp;test1, double2 &amp;test2, int2 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b2oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b2oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr, double2 &amp;xi
   , const double2 &amp;cr, const double2 &amp;ci
@@ -1265,7 +1258,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int4 &amp;antal, double4 &amp;test1, double4 &amp;test2, int4 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b4oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b4oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr, double4 &amp;xi
   , const double4 &amp;cr, const double4 &amp;ci
@@ -1279,7 +1272,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int8 &amp;antal, double8 &amp;test1, double8 &amp;test2, int8 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b8oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b8oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr, double8 &amp;xi
   , const double8 &amp;cr, const double8 &amp;ci
@@ -1293,7 +1286,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int16 &amp;antal, double16 &amp;test1, double16 &amp;test2, int16 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b16oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b16oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr, double16 &amp;xi
   , const double16 &amp;cr, const double16 &amp;ci
@@ -1313,7 +1306,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
@@ -1333,7 +1326,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   (void) dbb0; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const double Ar = g_FactorAR;
     const double Ai = g_FactorAI;
     const complex&lt;double&gt; A = { Ar, Ai };
@@ -1381,11 +1374,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
           test2 = test1;
-          if (no_g)
-            test1 = Xxr * Xxr + Xxi * Xxi;
-          else
-            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
+          test1 = Xxr * Xxr + Xxi * Xxi;
           bGlitch |= test1 &lt; Xz;
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, Xxr, Xxi);
+          }
           bBailed |= test1 &gt; m_nBailout2;
       doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
       doubleN xrn, xin;
@@ -1504,14 +1498,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         Xxr = Xr + xr;
         Xxi = Xi + xi;
         test2[k] = test1[k];
-        if (no_g)
-        {
-          test1[k] = Xxr * Xxr + Xxi * Xxi;
-        }
-        else
-        {
-          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-        }
+        test1[k] = Xxr * Xxr + Xxi * Xxi;
         if (test1[k] &lt; Xz)
         {
 <xsl:choose>
@@ -1532,6 +1519,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 #endif
 </xsl:when>
 </xsl:choose>
+        }
+        if (! no_g)
+        {
+          test1[k] = pnorm(g_real, g_imag, p, Xxr, Xxi);
         }
         if (test1[k] &gt; m_nBailout2)
         {
@@ -1624,8 +1615,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     dr00[k] = dr0[k]; di00[k] = di0[k];
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    dr00[k] = (Xxr * dxa0[k] + Xxi * dya0[k]) / sqrt(test1[k]);
-    di00[k] = (Xxr * dxb0[k] + Xxi * dyb0[k]) / sqrt(test1[k]);
+    double sqrttest1k = sqrt(Xxr * Xxr + Xxi * Xxi);
+    dr00[k] = (Xxr * dxa0[k] + Xxi * dya0[k]) / sqrttest1k;
+    di00[k] = (Xxr * dxb0[k] + Xxi * dyb0[k]) / sqrttest1k;
 </xsl:when>
 </xsl:choose>
     }
@@ -1647,7 +1639,7 @@ bool perturbation
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr0, doubleN &amp;xi0
   , const doubleN &amp;cr0, const doubleN &amp;ci0
@@ -1671,7 +1663,7 @@ bool perturbation
             , m_db_dxr, m_db_dxi, m_db_z
             , antal0, test10, test20, bGlitch0
             , m_nBailout2, nMaxIter
-            , m_bNoGlitchDetection, g_real, g_imag
+            , m_bNoGlitchDetection, g_real, g_imag, p
             , g_FactorAR, g_FactorAI
             , xr0, xi0
             , cr0, ci0
@@ -1694,7 +1686,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, int2 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr0, double2 &amp;xi0
   , const double2 &amp;cr0, const double2 &amp;ci0
@@ -1711,7 +1703,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, int4 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr0, double4 &amp;xi0
   , const double4 &amp;cr0, const double4 &amp;ci0
@@ -1728,7 +1720,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, int8 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr0, double8 &amp;xi0
   , const double8 &amp;cr0, const double8 &amp;ci0
@@ -1745,7 +1737,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, int16 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr0, double16 &amp;xi0
   , const double16 &amp;cr0, const double16 &amp;ci0
@@ -1768,7 +1760,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch0
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr00, T &amp;xi00
   , const T &amp;cr0, const T &amp;ci0
@@ -1785,7 +1777,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     double test1 = test10;
     double test2 = test20;
     T xr0 = xr00;
@@ -1802,19 +1794,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         Xxr = Xr + xr0 * s;
         Xxi = Xi + xi0 * s;
         test2 = test1;
-        if (no_g)
-        {
-          test1 = Xxr * Xxr + Xxi * Xxi;
-        }
-        else
-        {
-          test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-        }
+        test1 = double(Xxr * Xxr + Xxi * Xxi);
         if (test1 &lt; Xz)
         {
           bGlitch = true;
           if (! m_bNoGlitchDetection)
             break;
+        }
+        if (! no_g)
+        {
+          test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
         }
         if (test1 &gt; m_nBailout2)
         {
@@ -1857,7 +1846,7 @@ bool perturbation
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr00, T &amp;xi00
   , const T &amp;cr0, const T &amp;ci0
@@ -1871,7 +1860,7 @@ bool perturbation
       , m_db_dxr, m_db_dxi, m_db_z
       , antal, test1, test2, bGlitch
       , m_nBailout2, nMaxIter
-      , m_bNoGlitchDetection, g_real, g_imag
+      , m_bNoGlitchDetection, g_real, g_imag, p
       , g_FactorAR, g_FactorAI
       , xr00, xi00
       , cr0, ci0
@@ -1886,7 +1875,7 @@ template bool perturbation&lt;double&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr00, double &amp;xi00
   , const double &amp;cr0, const double &amp;ci0
@@ -1897,7 +1886,7 @@ template bool perturbation&lt;long double&gt;
   , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr00, long double &amp;xi00
   , const long double &amp;cr0, const long double &amp;ci0
@@ -1916,7 +1905,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
@@ -1934,7 +1923,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     doubleN test1 = test10;
     doubleN test2 = test20;
     doubleN xr0 = xr00;
@@ -1958,15 +1947,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           doubleN Xxr = Xr + xr0 * s;
           doubleN Xxi = Xi + xi0 * s;
           test2 = test1;
-          if (no_g)
-          {
-            test1 = Xxr * Xxr + Xxi * Xxi;
-          }
-          else
-          {
-            test1 = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-          }
+          test1 = Xxr * Xxr + Xxi * Xxi;
           bGlitch |= test1 &lt; Xz;
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, Xxr, Xxi);
+          }
           bBailed |= test1 &gt; m_nBailout2;
           doubleN xrn, xin;
 
@@ -2013,19 +1999,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         Xxr = Xr + xr0[k] * s;
         Xxi = Xi + xi0[k] * s;
         test2[k] = test1[k];
-        if (no_g)
-        {
-          test1[k] = Xxr * Xxr + Xxi * Xxi;
-        }
-        else
-        {
-          test1[k] = g_real * Xxr * Xxr + g_imag * Xxi * Xxi;
-        }
+        test1[k] = Xxr * Xxr + Xxi * Xxi;
         if (test1[k] &lt; Xz)
         {
           bGlitch[k] = true;
           if (! m_bNoGlitchDetection)
             break;
+        }
+        if (! no_g)
+        {
+          test1[k] = pnorm(g_real, g_imag, p, Xxr, Xxi);
         }
         if (test1[k] &gt; m_nBailout2)
         {
@@ -2072,7 +2055,7 @@ bool perturbation
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
@@ -2087,7 +2070,7 @@ bool perturbation
       , m_db_dxr, m_db_dxi, m_db_z
       , antal0, test10, test20, bGlitch0
       , m_nBailout2, nMaxIter
-      , m_bNoGlitchDetection, g_real, g_imag
+      , m_bNoGlitchDetection, g_real, g_imag, p
       , g_FactorAR, g_FactorAI
       , xr00, xi00
       , cr0, ci0
@@ -2104,7 +2087,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, int2 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b2oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b2oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr00, double2 &amp;xi00
   , const double2 &amp;cr0, const double2 &amp;ci0
@@ -2119,7 +2102,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, int4 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b4oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b4oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr00, double4 &amp;xi00
   , const double4 &amp;cr0, const double4 &amp;ci0
@@ -2134,7 +2117,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, int8 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b8oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b8oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr00, double8 &amp;xi00
   , const double8 &amp;cr0, const double8 &amp;ci0
@@ -2149,7 +2132,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, int16 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_b16oGlitchDetection, const double g_real, const double g_imag
+  , const bool m_b16oGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr00, double16 &amp;xi00
   , const double16 &amp;cr0, const double16 &amp;ci0
@@ -2170,7 +2153,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , Z &amp;xr0, Z &amp;xi0
   , const Z &amp;cr, const Z &amp;ci
@@ -2190,7 +2173,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const Z Ar = g_FactorAR;
     const Z Ai = g_FactorAI;
     const complex&lt;Z&gt; A = { Ar, Ai };
@@ -2224,10 +2207,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       Xxr = Xr + xr * s;
       Xxi = Xi + xi * s;
       test2 = test1;
-      if (no_g)
-        test1 = double(Xxr * Xxr + Xxi * Xxi);
-      else
-        test1 = double(g_real * Xxr * Xxr + g_imag * Xxi * Xxi);
+      test1 = double(Xxr * Xxr + Xxi * Xxi);
       if (test1 &lt; Xz)
       {
 <xsl:choose>
@@ -2248,6 +2228,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 #endif
 </xsl:when>
 </xsl:choose>
+      }
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
       }
       if (test1 &gt; m_nBailout2)
       {
@@ -2324,7 +2308,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     dr0 = dr; di0 = di;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    Z t = 1 / sqrt(test1);
+    Z t = 1 / sqrt(Xxr * Xxr + Xxi * Xxi);
     dr0 = Xxr * t * dxa + Xxi * t * dya;
     di0 = Xxr * t * dxb + Xxi * t * dyb;
 </xsl:when>
@@ -2342,7 +2326,7 @@ bool perturbation
   , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , Z &amp;xr, Z &amp;xi
   , const Z &amp;cr, const Z &amp;ci
@@ -2359,7 +2343,7 @@ bool perturbation
       , m_db_dxr, m_db_dxi, m_db_z
       , antal, test1, test2, bGlitch
       , m_nBailout2, nMaxIter
-      , m_bNoGlitchDetection, g_real, g_imag
+      , m_bNoGlitchDetection, g_real, g_imag, p
       , g_FactorAR, g_FactorAI
       , xr, xi
       , cr, ci
@@ -2377,7 +2361,7 @@ template bool perturbation&lt;long double, double&gt;
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr0, double &amp;xi0
   , const double &amp;cr, const double &amp;ci
@@ -2391,7 +2375,7 @@ template bool perturbation&lt;floatexp, long double&gt;
   , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag
+  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr0, long double &amp;xi0
   , const long double &amp;cr, const long double &amp;ci

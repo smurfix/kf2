@@ -183,9 +183,11 @@ CFraktalSFT::CFraktalSFT()
 	m_nTotal = -1;
 	m_pnExpConsts = NULL;
 
-	m_nBailout = SMOOTH_BAILOUT;
-	m_nBailout2 = m_nBailout*m_nBailout;
 	m_nSmoothMethod = SmoothMethod_Log;
+	m_nBailoutRadiusPreset = BailoutRadius_High;
+	m_nBailoutRadiusCustom = 2;
+	m_nBailoutNormPreset = BailoutNorm_2;
+	m_nBailoutNormCustom = 2;
 	m_nColorMethod = ColorMethod_DistanceLog;
 	m_nDifferences = Differences_Analytic;
 
@@ -2884,22 +2886,102 @@ SmoothMethod CFraktalSFT::GetSmoothMethod()
 }
 void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
 {
-	if (nSmoothMethod == 0){
-		m_nSmoothMethod = SmoothMethod(nSmoothMethod);
-		m_nBailout = SMOOTH_BAILOUT;
-		m_nBailout2 = m_nBailout*m_nBailout;
-	}
-	else if (nSmoothMethod == 1){
-		m_nSmoothMethod = SmoothMethod_Sqrt;
-		m_nBailout = 2;
-		m_nBailout2 = m_nBailout*m_nBailout;
-	}
-	else{
-		m_nSmoothMethod = SmoothMethod_SqrtLow;
-		m_nBailout = pow(2.0, 1.0 / (m_nPower - 1));
-		m_nBailout2 = m_nBailout*m_nBailout;
+	switch (nSmoothMethod)
+	{
+		case 0:
+			m_nSmoothMethod = SmoothMethod_Log;
+			break;
+		default:
+		case 1:
+			m_nSmoothMethod = SmoothMethod_Sqrt;
+			break;
 	}
 }
+BailoutRadiusPreset CFraktalSFT::GetBailoutRadiusPreset()
+{
+	return m_nBailoutRadiusPreset;
+}
+void CFraktalSFT::SetBailoutRadiusPreset(int nBailoutRadiusPreset)
+{
+	switch (nBailoutRadiusPreset)
+	{
+		default:
+		case 0:
+			m_nBailoutRadiusPreset = BailoutRadius_High;
+			break;
+		case 1:
+			m_nBailoutRadiusPreset = BailoutRadius_2;
+			break;
+		case 2:
+			m_nBailoutRadiusPreset = BailoutRadius_Low;
+			break;
+		case 3:
+			m_nBailoutRadiusPreset = BailoutRadius_Custom;
+			break;
+	}
+}
+double CFraktalSFT::GetBailoutRadiusCustom()
+{
+	return m_nBailoutRadiusCustom;
+}
+void CFraktalSFT::SetBailoutRadiusCustom(double nBailoutRadiusCustom)
+{
+	m_nBailoutRadiusCustom = nBailoutRadiusCustom;
+}
+double CFraktalSFT::GetBailoutRadius()
+{
+	switch (GetBailoutRadiusPreset())
+	{
+		default:
+		case BailoutRadius_High: return SMOOTH_BAILOUT;
+		case BailoutRadius_2: return 2;
+		case BailoutRadius_Low: return pow(2.0, 1.0 / (GetPower() - 1));
+		case BailoutRadius_Custom: return GetBailoutRadiusCustom();
+	}
+}
+BailoutNormPreset CFraktalSFT::GetBailoutNormPreset()
+{
+	return m_nBailoutNormPreset;
+}
+void CFraktalSFT::SetBailoutNormPreset(int nBailoutNormPreset)
+{
+	switch (nBailoutNormPreset)
+	{
+		case 0:
+			m_nBailoutNormPreset = BailoutNorm_1;
+			break;
+		default:
+		case 1:
+			m_nBailoutNormPreset = BailoutNorm_2;
+			break;
+		case 2:
+			m_nBailoutNormPreset = BailoutNorm_Infinity;
+			break;
+		case 3:
+			m_nBailoutNormPreset = BailoutNorm_Custom;
+			break;
+	}
+}
+double CFraktalSFT::GetBailoutNormCustom()
+{
+	return m_nBailoutNormCustom;
+}
+void CFraktalSFT::SetBailoutNormCustom(double nBailoutNormCustom)
+{
+	m_nBailoutNormCustom = nBailoutNormCustom;
+}
+double CFraktalSFT::GetBailoutNorm()
+{
+	switch (GetBailoutNormPreset())
+	{
+		case BailoutNorm_1: return 1;
+		default:
+		case BailoutNorm_2: return 2;
+		case BailoutNorm_Infinity: return 1.0/0.0;
+		case BailoutNorm_Custom: return GetBailoutNormCustom();
+	}
+}
+
 int CFraktalSFT::GetPower()
 {
 	return m_nPower;
@@ -3297,7 +3379,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, const complex<double> &de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double nBailout, const complex<double> &de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3323,10 +3405,12 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 				m_nDEy[x][y] = de.m_i;
 			}
 
-			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt || m_nSmoothMethod == SmoothMethod_SqrtLow)){
-				double div = sqrt(test1) - sqrt(test2);
+			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt)){
+				double p = GetBailoutNorm();
+				if (! (p < 1.0 / 0.0)) p = 1;
+				double div = pow(test1, 1 / p) - pow(test2, 1 / p);
 				if (div != 0)
-					m_nTrans[x][y] = (sqrt(test1) - m_nBailout) / div;
+					m_nTrans[x][y] = (pow(test1, 1 / p) - nBailout) / div;
 				else
 					m_nTrans[x][y] = 0;
 			}

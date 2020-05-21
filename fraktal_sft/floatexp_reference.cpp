@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -249,6 +249,9 @@ void CFraktalSFT::CalculateReferenceEXP()
 	floatexp dr = 1, di = 0;
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
+	const double nBailout = GetBailoutRadius();
+	const double p = GetBailoutNorm();
+	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int64_t nMaxIter = m_nMaxIter;
 	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()) // FIXME matrix derivatives, option to disable derivatives
@@ -401,8 +404,8 @@ void CFraktalSFT::CalculateReferenceEXP()
 		dr *= m_fPixelSpacing;
 		di *= m_fPixelSpacing;
     bool ok = derivatives
-      ? reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, daa, dab, dba, dbb)
-      : reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
+      ? reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, daa, dab, dba, dbb)
+      : reference(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
       ;
     assert(ok && "reference_floatexp");
 
@@ -413,6 +416,6 @@ void CFraktalSFT::CalculateReferenceEXP()
     complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
 
 	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, de);
+		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, SMOOTH_BAILOUT, de);
 
 }

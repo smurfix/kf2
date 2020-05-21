@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 void CFraktalSFT::MandelCalcNANOMB2()
 {
+	const double nBailout = GetBailoutRadius();
 	bool interior_checking = GetInteriorChecking();
 	m_bIterChanged = TRUE;
 	int x, y, w, h;
@@ -54,7 +55,7 @@ void CFraktalSFT::MandelCalcNANOMB2()
 			NanoMB2_Pixel(m_NanoMB2Ref, dc, m_fPixelSpacing, maxsi, m_nMaxIter, bGlitch, antal, test1, test2, de, interior_checking);
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, nBailout, de);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);
 	}
