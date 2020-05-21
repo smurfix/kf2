@@ -1,6 +1,6 @@
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2019 Claude Heiland-Allen
+# Copyright (C) 2017-2020 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -48,6 +48,7 @@ fraktal_sft/long_double_reference.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
+fraktal_sft/main_formula.cpp \
 fraktal_sft/main_iterations.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/nanomb1_perturbation.cpp \
@@ -79,6 +80,7 @@ fraktal_sft/listbox.h \
 fraktal_sft/main.h \
 fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
+fraktal_sft/main_formula.h \
 fraktal_sft/main_iterations.h \
 fraktal_sft/main_position.h \
 fraktal_sft/nanomb1.h \

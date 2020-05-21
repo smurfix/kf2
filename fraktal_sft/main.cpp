@@ -65,6 +65,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_color.h"
 #include "main_examine.h"
 #include "main_iterations.h"
+#include "main_formula.h"
 #include "main_position.h"
 #include "cmdline.h"
 #include <iostream>
@@ -405,6 +406,9 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 			case IDOK: return "Apply and close";
 			case IDCANCEL: return "Close and undo";
 		}
+	}
+	else if(lParam==6){
+		return const_cast<char *>(FormulaToolTip(nID));
 	}
 	static char szTmp[1024];
 	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
@@ -4421,8 +4425,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_RESETROTATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ROTATE,0);
-	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDCENTEROFGLITCH,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FORMULA,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='A' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 	else if(uMsg==WM_RBUTTONUP && !g_bWaitRead){
@@ -4597,6 +4603,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_bAnim=false;
 				g_SFT.UndoStore();
 				g_SFT.SetIterations(g_SFT.GetIterations());
+				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			}
+		}
+		else if(wParam==ID_ACTIONS_FORMULA){
+			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
+			if(n > 0){
+				SetTimer(hWnd,0,500,NULL);
+				g_SFT.Stop();
+				g_bAnim=false;
+				g_SFT.UndoStore();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}

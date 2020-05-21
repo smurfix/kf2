@@ -165,6 +165,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_STOREZOOM_KFR               1111
 #define IDC_COLOR_TRANSITION_FLAT       1112
 
+// "Formula" dialog
+#define IDD_FORMULA                     120
+#define IDC_FORMULA_TYPE                1201
+#define IDC_FORMULA_POWER               1202
+#define IDC_FORMULA_SEED_RE             1203
+#define IDC_FORMULA_SEED_IM             1204
+#define IDC_FORMULA_FACTOR_A_RE         1205
+#define IDC_FORMULA_FACTOR_A_IM         1206
+
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
 #define ID_ACTIONS_POSITION             40003
@@ -281,21 +290,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_SIMD_VECTOR_SIZE_16  40127
 #define ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER 40128
 #define ID_EXR_CHANNELS 40129
+#define ID_ACTIONS_FORMULA 40130
 
 // OpenCL
 #ifdef KF_OPENCL
-#define IDD_DIALOG_OPENCL         120
-#define IDC_COMBO_OPENCL_DEVICE  1200
-#define ID_SPECIAL_OPENCL       40200
-#endif
-
-// Next default values for new objects
-// 
-#ifdef APSTUDIO_INVOKED
-#ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        121
-#define _APS_NEXT_COMMAND_VALUE         40105
-#define _APS_NEXT_CONTROL_VALUE         1104
-#define _APS_NEXT_SYMED_VALUE           101
-#endif
+#define IDD_DIALOG_OPENCL         150
+#define IDC_COMBO_OPENCL_DEVICE  1500
+#define ID_SPECIAL_OPENCL       40150
 #endif
