@@ -65,7 +65,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_bailout.h"
 #include "main_color.h"
 #include "main_examine.h"
-#include "main_iterations.h"
+#include "main_information.h"
 #include "main_formula.h"
 #include "main_position.h"
 #include "cmdline.h"
@@ -367,7 +367,7 @@ const char *GetToolText_const(int nID,LPARAM lParam)
 		return const_cast<char *>(ColorToolTip(nID));
 	}
 	else if(lParam==1){
-		return const_cast<char *>(IterationToolTip(nID));
+		return const_cast<char *>(InformationToolTip(nID));
 	}
 	else if(lParam==2){
 		return const_cast<char *>(PositionToolTip(nID));
@@ -453,6 +453,30 @@ static void UpdateZoomSize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ZOOMSIZE_128,MF_BYCOMMAND|(z==128?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateApproxTerms(HWND hWnd)
+{
+	bool a = g_SFT.GetAutoApproxTerms();
+	int t = g_SFT.GetApproxTerms();
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_AUTO,MF_BYCOMMAND|(a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_5,MF_BYCOMMAND|(t==5&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_10,MF_BYCOMMAND|(t==10&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_15,MF_BYCOMMAND|(t==15&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_20,MF_BYCOMMAND|(t==20&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_30,MF_BYCOMMAND|(t==30&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_40,MF_BYCOMMAND|(t==40&&!a?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_TERMS_60,MF_BYCOMMAND|(t==60&&!a?MF_CHECKED:MF_UNCHECKED));
+}
+
+static void UpdateMaxReferences(HWND hWnd)
+{
+	int t = g_SFT.GetMaxReferences();
+	CheckMenuItem(GetMenu(hWnd),ID_MAX_REFERENCES_1,MF_BYCOMMAND|(t==1?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_MAX_REFERENCES_10,MF_BYCOMMAND|(t==10?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_MAX_REFERENCES_100,MF_BYCOMMAND|(t==100?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_MAX_REFERENCES_1000,MF_BYCOMMAND|(t==1000?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_MAX_REFERENCES_10000,MF_BYCOMMAND|(t==10000?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateThreadsPerCore(HWND hWnd)
 {
 	double z = g_SFT.GetThreadsPerCore();
@@ -503,6 +527,18 @@ static void UpdateSolveGlitchNear(HWND hWnd)
 {
 	bool b = g_SFT.GetSolveGlitchNear();
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
+static void UpdateGlitchLowTolerance(HWND hWnd)
+{
+	bool b = g_SFT.GetGlitchLowTolerance();
+	CheckMenuItem(GetMenu(hWnd),ID_GLITCH_LOW_TOLERANCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
+static void UpdateApproxLowTolerance(HWND hWnd)
+{
+	bool b = g_SFT.GetApproxLowTolerance();
+	CheckMenuItem(GetMenu(hWnd),ID_APPROX_LOW_TOLERANCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateNoApprox(HWND hWnd)
@@ -668,6 +704,10 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateThreadedReference(hWnd);
 	UpdateSIMDVectorSize(hWnd);
 	UpdateSIMDChunkSize(hWnd);
+	UpdateApproxTerms(hWnd);
+	UpdateApproxLowTolerance(hWnd);
+	UpdateGlitchLowTolerance(hWnd);
+	UpdateMaxReferences(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -4595,22 +4635,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		else if(wParam==ID_ACTIONS_CANCELRENDERING)
 			PostMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
-		else if(wParam==ID_ACTIONS_ITERATIONS){
-			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG2),hWnd,IterationProc,0);
-			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
-				RECT r;
-				GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
-				g_SFT.Stop();
-				g_bAnim=false;
-				g_SFT.UndoStore();
-				g_SFT.SetIterations(g_SFT.GetIterations());
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-			}
+		else if(wParam==ID_ACTIONS_INFORMATION){
+			DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_INFORMATION),hWnd,InformationProc,0);
 		}
 		else if(wParam==ID_ACTIONS_FORMULA){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
@@ -4671,6 +4697,38 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			UpdateZoomSize(hWnd);
 		}
+		else if(wParam==ID_APPROX_TERMS_AUTO ||
+			wParam==ID_APPROX_TERMS_5 ||
+			wParam==ID_APPROX_TERMS_10 ||
+			wParam==ID_APPROX_TERMS_15 ||
+			wParam==ID_APPROX_TERMS_20 ||
+			wParam==ID_APPROX_TERMS_30 ||
+			wParam==ID_APPROX_TERMS_40 ||
+			wParam==ID_APPROX_TERMS_60){
+			bool old = g_SFT.GetAutoApproxTerms();
+			g_SFT.SetAutoApproxTerms(false);
+			if(wParam==ID_APPROX_TERMS_AUTO) g_SFT.SetAutoApproxTerms(! old);
+			if(wParam==ID_APPROX_TERMS_5) g_SFT.SetApproxTerms(5);
+			if(wParam==ID_APPROX_TERMS_10) g_SFT.SetApproxTerms(10);
+			if(wParam==ID_APPROX_TERMS_15) g_SFT.SetApproxTerms(15);
+			if(wParam==ID_APPROX_TERMS_20) g_SFT.SetApproxTerms(20);
+			if(wParam==ID_APPROX_TERMS_30) g_SFT.SetApproxTerms(30);
+			if(wParam==ID_APPROX_TERMS_40) g_SFT.SetApproxTerms(40);
+			if(wParam==ID_APPROX_TERMS_60) g_SFT.SetApproxTerms(60);
+			UpdateApproxTerms(hWnd);
+		}
+		else if(wParam==ID_MAX_REFERENCES_1 ||
+			wParam==ID_MAX_REFERENCES_10 ||
+			wParam==ID_MAX_REFERENCES_100 ||
+			wParam==ID_MAX_REFERENCES_1000 ||
+			wParam==ID_MAX_REFERENCES_10000){
+			if(wParam==ID_MAX_REFERENCES_1) g_SFT.SetMaxReferences(1);
+			if(wParam==ID_MAX_REFERENCES_10) g_SFT.SetMaxReferences(10);
+			if(wParam==ID_MAX_REFERENCES_100) g_SFT.SetMaxReferences(100);
+			if(wParam==ID_MAX_REFERENCES_1000) g_SFT.SetMaxReferences(1000);
+			if(wParam==ID_MAX_REFERENCES_10000) g_SFT.SetMaxReferences(10000);
+			UpdateMaxReferences(hWnd);
+		}
 		else if(wParam==ID_IMAGE_SHRINK_FAST ||
 			wParam==ID_IMAGE_SHRINK_DEFAULT ||
 			wParam==ID_IMAGE_SHRINK_BEST){
@@ -4700,6 +4758,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetGlitchLowTolerance(true);
 			g_SFT.SetApproxLowTolerance(true);
 			g_SFT.SetJitterSeed(1);
+		}
+		else if(wParam==ID_GLITCH_LOW_TOLERANCE){
+			g_SFT.SetGlitchLowTolerance(! g_SFT.GetGlitchLowTolerance());
+			UpdateGlitchLowTolerance(hWnd);
+		}
+		else if(wParam==ID_APPROX_LOW_TOLERANCE){
+			g_SFT.SetApproxLowTolerance(! g_SFT.GetApproxLowTolerance());
+			UpdateApproxLowTolerance(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1_4){
 			g_SFT.SetThreadsPerCore(1./4);

@@ -50,7 +50,7 @@ fraktal_sft/main_bailout.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
 fraktal_sft/main_formula.cpp \
-fraktal_sft/main_iterations.cpp \
+fraktal_sft/main_information.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/nanomb1_perturbation.cpp \
 fraktal_sft/nanomb1_reference.cpp \
@@ -83,7 +83,7 @@ fraktal_sft/main_bailout.h \
 fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
 fraktal_sft/main_formula.h \
-fraktal_sft/main_iterations.h \
+fraktal_sft/main_information.h \
 fraktal_sft/main_position.h \
 fraktal_sft/nanomb1.h \
 fraktal_sft/nanomb1.inc \

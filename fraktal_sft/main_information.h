@@ -17,12 +17,12 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef KF_MAIN_ITERATIONS_H
-#define KF_MAIN_ITERATIONS_H 1
+#ifndef KF_MAIN_INFORMATION_H
+#define KF_MAIN_INFORMATION_H 1
 
 #include <windows.h>
 
-extern INT_PTR WINAPI IterationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-extern const char *IterationToolTip(int nID);
+extern INT_PTR WINAPI InformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+extern const char *InformationToolTip(int nID);
 
 #endif

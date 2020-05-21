@@ -142,11 +142,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_STOREZOOM_PNG               1088
 #define IDC_STOREZOOM_COUNT             1089
 #define IDC_STOREZOOM_COUNTAUTO         1090
-#define IDC_JITTERSEED                  1091
-#define IDC_JITTERSCALE                 1092
-#define IDC_JITTERSHAPE                 1093
 #define IDC_AUTOCOLOUR                  1094
-#define IDC_DERIVATIVES                 1095
 #define IDC_INTERIORCOLOR               1096
 #define IDC_STOREZOOM_TIF               1097
 #define IDC_AUTOSKEW                    1098
@@ -173,6 +169,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_FORMULA_SEED_IM             1204
 #define IDC_FORMULA_FACTOR_A_RE         1205
 #define IDC_FORMULA_FACTOR_A_IM         1206
+#define IDC_FORMULA_DERIVATIVES         1207
+#define IDC_FORMULA_JITTER_SEED         1208
+#define IDC_FORMULA_JITTER_SCALE        1209
+#define IDC_FORMULA_JITTER_GAUSSIAN     1210
 
 // "Bailout" dialog
 #define IDD_BAILOUT                     121
@@ -184,6 +184,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_BAILOUT_IM                  1216
 #define IDC_BAILOUT_NORM_PRESET         1217
 #define IDC_BAILOUT_NORM_CUSTOM         1218
+
+// "Information" dialog
+#define IDD_INFORMATION                 122
+#define IDC_INFORMATION_MIN_ITERS       1221
+#define IDC_INFORMATION_MAX_ITERS       1222
+#define IDC_INFORMATION_APPROX_ITERS    1223
+#define IDC_INFORMATION_APPROX_TERMS    1224
+#define IDC_INFORMATION_CALCULATIONS    1225
+
 
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -303,7 +312,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_EXR_CHANNELS 40129
 #define ID_ACTIONS_FORMULA 40130
 #define ID_ACTIONS_BAILOUT 40131
-
+#define ID_ACTIONS_INFORMATION 40132
+#define ID_APPROX_TERMS_AUTO 40133
+#define ID_APPROX_TERMS_5  40134
+#define ID_APPROX_TERMS_10 40135
+#define ID_APPROX_TERMS_15 40136
+#define ID_APPROX_TERMS_20 40137
+#define ID_APPROX_TERMS_30 40138
+#define ID_APPROX_TERMS_40 40139
+#define ID_APPROX_TERMS_60 40140
+#define ID_MAX_REFERENCES_1 40141
+#define ID_MAX_REFERENCES_10 40142
+#define ID_MAX_REFERENCES_100 40143
+#define ID_MAX_REFERENCES_1000 40144
+#define ID_MAX_REFERENCES_10000 40145
+#define ID_GLITCH_LOW_TOLERANCE 40146
+#define ID_APPROX_LOW_TOLERANCE 40147
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         150

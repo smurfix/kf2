@@ -118,6 +118,58 @@ static void RefreshFactorAI(HWND hWnd)
   g_FactorAI = atof(szTmp);
 }
 
+static void UpdateJitterSeed(HWND hWnd)
+{
+	int i = g_SFT.GetJitterSeed();
+	SetDlgItemInt(hWnd,IDC_FORMULA_JITTER_SEED,i,FALSE);
+}
+
+static void RefreshJitterSeed(HWND hWnd)
+{
+	char sz[256];
+	GetDlgItemText(hWnd,IDC_FORMULA_JITTER_SEED,sz,sizeof(sz));
+	int i = atoi(sz);
+	g_SFT.SetJitterSeed(i);
+}
+
+static void UpdateJitterScale(HWND hWnd)
+{
+	double f = g_SFT.GetJitterScale();
+	char szTmp[40];
+	snprintf(szTmp,40,"%g",f);
+	SetDlgItemText(hWnd,IDC_FORMULA_JITTER_SCALE,szTmp);
+}
+
+static void RefreshJitterScale(HWND hWnd)
+{
+	char szTmp[40];
+	GetDlgItemText(hWnd,IDC_FORMULA_JITTER_SCALE,szTmp,sizeof(szTmp));
+	double f = atof(szTmp);
+	g_SFT.SetJitterScale(f > 0 ? f : 1);
+}
+
+static void UpdateJitterShape(HWND hWnd)
+{
+	int i = g_SFT.GetJitterShape();
+	SendDlgItemMessage(hWnd,IDC_FORMULA_JITTER_GAUSSIAN,BM_SETCHECK,i != 0,0);
+}
+
+static void RefreshJitterShape(HWND hWnd)
+{
+	g_SFT.SetJitterShape(SendDlgItemMessage(hWnd,IDC_FORMULA_JITTER_GAUSSIAN,BM_GETCHECK,0,0) ? 1 : 0);
+}
+
+static void UpdateDerivatives(HWND hWnd)
+{
+	int i = g_SFT.GetDerivatives();
+	SendDlgItemMessage(hWnd,IDC_FORMULA_DERIVATIVES,BM_SETCHECK,i != 0,0);
+}
+
+static void RefreshDerivatives(HWND hWnd)
+{
+	g_SFT.SetDerivatives(SendDlgItemMessage(hWnd,IDC_FORMULA_DERIVATIVES,BM_GETCHECK,0,0) ? 1 : 0);
+}
+
 extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
   (void) lParam;
@@ -148,6 +200,10 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     UpdateSeedI(hWnd);
     UpdateFactorAR(hWnd);
     UpdateFactorAI(hWnd);
+    UpdateDerivatives(hWnd);
+    UpdateJitterSeed(hWnd);
+    UpdateJitterScale(hWnd);
+    UpdateJitterShape(hWnd);
     return 1;
   }
   else if(uMsg==WM_COMMAND){
@@ -160,6 +216,10 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       RefreshFactorAI(hWnd);
       RefreshFractalType(hWnd);
       RefreshPower(hWnd);
+      RefreshDerivatives(hWnd);
+      RefreshJitterSeed(hWnd);
+      RefreshJitterScale(hWnd);
+      RefreshJitterShape(hWnd);
       ExitToolTip(hWnd);
       EndDialog(hWnd, 1);
     }
@@ -192,6 +252,14 @@ extern const char *FormulaToolTip(int nID)
     return "Real 'a' value (for TheRedshiftRider formulas)";
   case IDC_FORMULA_FACTOR_A_IM:
     return "Imaginary 'a' value (for TheRedshiftRider formulas)";
+  case IDC_FORMULA_DERIVATIVES:
+    return "Select checkbox to compute derivatives\nRequired for analytic DE";
+  case IDC_FORMULA_JITTER_SEED:
+    return "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter";
+  case IDC_FORMULA_JITTER_SCALE:
+    return "Pixel jitter amount\nDefault 1.0";
+  case IDC_FORMULA_JITTER_GAUSSIAN:
+    return "Select checkbox to use Gaussian jitter\nUncheck for uniform";
   case IDOK:
     return "Apply and close";
   case IDCANCEL:
