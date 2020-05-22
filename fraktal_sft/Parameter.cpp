@@ -413,6 +413,17 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		}
 	}
 
+	i = stParams.FindString(0, "TextureEnabled");
+	if (i != -1) m_bTexture = atoi(stParams[i][1]);
+	i = stParams.FindString(0, "TextureMerge");
+	if (i != -1) m_nImgMerge = atof(stParams[i][1]);
+	i = stParams.FindString(0, "TexturePower");
+	if (i != -1) m_nImgPower = atof(stParams[i][1]);
+	i = stParams.FindString(0, "TextureRatio");
+	if (i != -1) m_nImgRatio = atoi(stParams[i][1]);
+	i = stParams.FindString(0, "TextureFile");
+	if (i != -1) m_szTexture = stParams[i][1];
+
 	if (! bNoLocation)
 	{
 		if (nIterations != -1) m_nMaxIter = atoll(stParams[nIterations][1]);
@@ -550,6 +561,12 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("FactorAR", g_FactorAR)
 	DOUBLE("FactorAI", g_FactorAI)
 	INT("Period", g_period)
+
+	INT("TextureEnabled", m_bTexture)
+	DOUBLE("TextureMerge", m_nImgMerge)
+	DOUBLE("TexturePower", m_nImgPower)
+	INT("TextureRatio", m_nImgRatio)
+	STRING("TextureFile", m_szTexture)
 
 	INT("Version", kfr_version_number)
 
