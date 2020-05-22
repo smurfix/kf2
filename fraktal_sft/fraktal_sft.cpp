@@ -480,33 +480,65 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 	ReleaseDC(NULL,hDC);
 	return bmDst;
 }
-void CFraktalSFT::SetTexture(int nIndex, int x, int y)
-{
-	int nImgOffs=m_nImgPower/64;
-	if(m_lpTextureBits==NULL){
-		HBITMAP bmBitmapIn = GetImage(m_szTexture);
-		SIZE scImg;
-		scImg.cx = m_nX+(nImgOffs+m_nImgPower)/64;
-		scImg.cy = m_nY+(m_nImgPower+nImgOffs)/64;
-		HBITMAP bmBitmap = ShrinkBitmap(bmBitmapIn,scImg.cx,scImg.cy);
 
-		HDC hDC = GetDC(NULL);
-		memset(&m_bmiBkg,0,sizeof(BITMAPINFOHEADER));
-		m_bmiBkg.biSize=sizeof(BITMAPINFOHEADER);
-		if(!GetDIBits(hDC,bmBitmap,0,0,NULL,(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
-			Beep(1000,10);
-		m_bmiBkg.biCompression=m_bmiBkg.biClrUsed=m_bmiBkg.biClrImportant=0;
-		m_bmiBkg.biBitCount = 24;
-		m_rowBkg = ((((m_bmiBkg.biWidth*(DWORD)m_bmiBkg.biBitCount)+31)&~31) >> 3);
-		m_bmiBkg.biSizeImage=m_rowBkg*m_bmiBkg.biHeight;
-		m_lpTextureBits = new BYTE[m_bmiBkg.biSizeImage];
-		if(!GetDIBits(hDC,bmBitmap,0,m_bmiBkg.biHeight,m_lpTextureBits,
-				(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
-			Beep(1000,10);
-		DeleteObject(bmBitmap);
-		DeleteObject(bmBitmapIn);
-		ReleaseDC(NULL,hDC);
+bool operator==(const TextureParams &a, const TextureParams &b)
+{
+  return
+    a.m_bTexture == b.m_bTexture &&
+    a.m_szTexture == b.m_szTexture &&
+    a.m_nImgPower == b.m_nImgPower &&
+    a.m_nX == b.m_nX &&
+    a.m_nY == b.m_nY;
+}
+void CFraktalSFT::LoadTexture()
+{
+	TextureParams currentTextureParams =
+	  { m_bTexture, m_szTexture, m_nImgPower, m_nX, m_nY };
+	if (currentTextureParams == m_ActiveTextureParams)
+	{
+		return;
 	}
+	m_ActiveTextureParams = currentTextureParams;
+	if (m_lpTextureBits)
+	{
+		delete[] m_lpTextureBits;
+		m_lpTextureBits = nullptr;
+	}
+	if (! m_bTexture)
+	{
+		return;
+	}
+	int nImgOffs=m_nImgPower/64;
+	HBITMAP bmBitmapIn = GetImage(m_szTexture);
+	SIZE scImg;
+	scImg.cx = m_nX+(nImgOffs+m_nImgPower)/64;
+	scImg.cy = m_nY+(m_nImgPower+nImgOffs)/64;
+	HBITMAP bmBitmap = ShrinkBitmap(bmBitmapIn,scImg.cx,scImg.cy);
+	HDC hDC = GetDC(NULL);
+	memset(&m_bmiBkg,0,sizeof(BITMAPINFOHEADER));
+	m_bmiBkg.biSize=sizeof(BITMAPINFOHEADER);
+	if(!GetDIBits(hDC,bmBitmap,0,0,NULL,(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
+		Beep(1000,10);
+	m_bmiBkg.biCompression=m_bmiBkg.biClrUsed=m_bmiBkg.biClrImportant=0;
+	m_bmiBkg.biBitCount = 24;
+	m_rowBkg = ((((m_bmiBkg.biWidth*(DWORD)m_bmiBkg.biBitCount)+31)&~31) >> 3);
+	m_bmiBkg.biSizeImage=m_rowBkg*m_bmiBkg.biHeight;
+	m_lpTextureBits = new BYTE[m_bmiBkg.biSizeImage];
+	if(!GetDIBits(hDC,bmBitmap,0,m_bmiBkg.biHeight,m_lpTextureBits,
+			(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
+		Beep(1000,10);
+	DeleteObject(bmBitmap);
+	DeleteObject(bmBitmapIn);
+	ReleaseDC(NULL,hDC);
+}
+void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
+{
+	if (! m_lpTextureBits)
+	{
+		// can't load texture here (not thread safe)
+		return;
+	}
+	int nImgOffs=m_nImgPower/64;
 	double p1,p2;
 
 	double diffx, diffy;
@@ -595,9 +627,9 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y)
 	else if(nX>m_bmiBkg.biWidth-1)
 		nX=m_bmiBkg.biWidth-1;
 	int nIndexBkg = nX*3 + (m_bmiBkg.biHeight-1-nY)*m_rowBkg;
-	m_lpBits[nIndex] = m_lpTextureBits[nIndexBkg]*m_nImgMerge + m_lpBits[nIndex]*(1-m_nImgMerge);
-	m_lpBits[nIndex+1] = m_lpTextureBits[nIndexBkg+1]*m_nImgMerge + m_lpBits[nIndex+1]*(1-m_nImgMerge);
-	m_lpBits[nIndex+2] = m_lpTextureBits[nIndexBkg+2]*m_nImgMerge + m_lpBits[nIndex+2]*(1-m_nImgMerge);
+	s.r = s.r * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+0] / 255.0;
+	s.g = s.g * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+1] / 255.0;
+	s.b = s.b * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+2] / 255.0;
 }
 
 static inline double sqr(double x) { return x * x; }
@@ -615,7 +647,11 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		return;
 	if (nIter0 == m_nMaxIter)
 	{
-		s.r = s.g = s.b = 1;
+		// this is reset later to the precise RGB8 (unless image texture)
+		// set it here anyway for to make image texture blending better
+		s.r = m_cInterior.r / 255.0;
+		s.g = m_cInterior.g / 255.0;
+		s.b = m_cInterior.b / 255.0;
 	}
 	else{
 		ColorMethod method = m_nColorMethod;
@@ -936,7 +972,7 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		}
 	}
 	if(m_bTexture)
-		SetTexture(nIndex,x,y);
+		SetTexture(nIndex,x,y,s);
 	if (m_bSlopes){
 		double diffx, diffy;
 		if (m_nDifferences == Differences_Analytic)
@@ -1008,7 +1044,7 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 	if (m_imageHalf)
 		l = srgb2lrgb(s);
 	srgb8 s8 = dither(s, x, y);
-	if (nIter0 == m_nMaxIter)
+	if (nIter0 == m_nMaxIter && ! m_bTexture)
 	{
 		s8.r = m_cInterior.r;
 		s8.g = m_cInterior.g;
@@ -1075,6 +1111,7 @@ static int ThApplyColors(TH_PARAMS *pMan)
 
 void CFraktalSFT::ApplyColors()
 {
+	LoadTexture();
 	int i, p = 0;
 	for (i = 0; i<1024; i++){
 		double temp = (double)i*(double)m_nParts / (double)1024;
@@ -3288,8 +3325,6 @@ BOOL CFraktalSFT::GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,
 }
 void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture)
 {
-	delete[] m_lpTextureBits;
-	m_lpTextureBits=NULL;
 	m_bTexture = bTexture;
 	m_nImgMerge = nImgMerge;
 	m_nImgPower = nImgPower;

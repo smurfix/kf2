@@ -257,6 +257,7 @@ Feedback:
         animation (previously Ctrl+B)
       - new p-norm options in the Bailout dialog, radius is tested against
         $$\sqrt[p]{\left|b_x |z_x|^p + b_y |z_y|^p \right|}$$
+        (suggested by FractalAlex)
       - new Flat colouring mode for when disabling Smooth is not enough
 
     - fixes
@@ -280,6 +281,8 @@ Feedback:
         (reported by saka)
       - add prepare-msys.sh to release bundle (reported by PieMan597)
       - fixed -Wnarrowing warnings
+      - fixed texture option in colouring settings (broken for years)
+        (reported by FractalAlex)
 
     - library upgrades
 

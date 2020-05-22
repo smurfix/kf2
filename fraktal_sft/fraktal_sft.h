@@ -30,6 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 #include "../common/matrix.h"
 #include "itercount_array.h"
+#include "colour.h"
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
@@ -251,6 +252,16 @@ struct SeriesR2
 	floatexp t[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
 };
 
+
+struct TextureParams
+{
+	BOOL m_bTexture;
+	std::string m_szTexture;
+	double m_nImgPower;
+	int m_nX;
+	int m_nY;
+};
+
 struct TH_FIND_CENTER;
 
 class CFraktalSFT
@@ -370,6 +381,7 @@ class CFraktalSFT
 	BYTE *m_lpTextureBits;
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
+	TextureParams m_ActiveTextureParams;
 
 	std::vector< complex<CFixedFloat> > m_Inflections;
 
@@ -406,7 +418,8 @@ class CFraktalSFT
 #endif
 	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone);
 
-	void SetTexture(int nIndex, int x, int y);
+	void LoadTexture();
+	void SetTexture(int nIndex, int x, int y, srgb &s);
 	void SetColor(int nIndex, int64_t nIter, double offs = 0, int x = -1, int y = -1, int w = 1, int h = 1);
 	void DeleteArrays();
 
