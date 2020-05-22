@@ -251,6 +251,8 @@ struct SeriesR2
 	floatexp t[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
 };
 
+struct TH_FIND_CENTER;
+
 class CFraktalSFT
 {
 	Settings m_Settings;
@@ -489,6 +491,8 @@ public:
 	BOOL HighestIteration(int &rx, int &ry);
 	void IgnoreIsolatedGlitches();
 	int FindCenterOfGlitch(int &rx, int &ry);
+	void FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CENTER *p);
+
 	int GetColorIndex(int x, int y);
 	BOOL GetFlat();
 	void SetFlat(BOOL bFlat);

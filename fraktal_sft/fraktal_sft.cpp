@@ -2512,6 +2512,54 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 	}
 }
 
+struct glitch_id
+{
+  double glitch;
+  int x;
+  int y;
+};
+
+static inline glitch_id min_glitch(const glitch_id &a, const glitch_id &b)
+{
+  if (a.glitch < b.glitch) return a; else return b;
+}
+
+struct TH_FIND_CENTER
+{
+  CFraktalSFT *p;
+  int nXStart;
+  int nXStop;
+  glitch_id glitch;
+  int64_t count;
+};
+
+static int ThFindCenterOfGlitch(TH_FIND_CENTER *pMan)
+{
+	pMan->p->FindCenterOfGlitch(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight(), pMan);
+	return 0;
+}
+
+void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CENTER *p)
+{
+	glitch_id us = { 1.0 / 0.0, -1, -1 };
+	int64_t count = 0;
+	for (int x = x0; x < x1; ++x)
+	{
+		for (int y = y0; y < y1; ++y)
+		{
+			float t = m_nTrans[x][y];
+			if (GET_TRANS_GLITCH(t))
+			{
+				glitch_id me = { t, x, y };
+				us = min_glitch(us, me);
+				count++;
+			}
+		}
+	}
+	p->glitch = us;
+	p->count = count;
+}
+
 // old method works better, so don't use the gradient descent for now...
 #undef KF_CENTER_VIA_TRANS
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
@@ -2519,32 +2567,39 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	IgnoreIsolatedGlitches();
 	if (GetUseArgMinAbsZAsGlitchCenter())
 	{
-		double min_glitch = 1.0 / 0.0;
-		int min_x = -1;
-		int min_y = -1;
-		int64_t glitch_count = 0;
-		for (int x = 0; x < m_nX; ++x)
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		if (nParallel < 1) nParallel = 1;
+		TH_FIND_CENTER *pMan = new TH_FIND_CENTER[nParallel];
+		CParallell P(nParallel);
+		int nXStart = 0;
+		int nXStep = (m_nX + nParallel - 1) / nParallel;
+		for (int i = 0; i < nParallel; i++)
 		{
-			for (int y = 0; y < m_nY; ++y)
-			{
-				float t = m_nTrans[x][y];
-				if (GET_TRANS_GLITCH(t))
-				{
-					glitch_count += 1;
-					if (t < min_glitch)
-					{
-						min_glitch = t;
-						min_x = x;
-						min_y = y;
-					}
-				}
-			}
+			pMan[i].p = this;
+			pMan[i].nXStart = nXStart;
+			nXStart += nXStep;
+			if (nXStart > m_nX) nXStart = m_nX;
+			pMan[i].nXStop = nXStart;
+			P.AddFunction((LPEXECUTE) ThFindCenterOfGlitch, &pMan[i]);
 		}
-		if (glitch_count > 0)
+		P.Execute();
+		P.Reset();
+		glitch_id us = { 1.0 / 0.0, -1, -1 };
+		int64_t count = 0;
+		for (int i = 0; i < nParallel; ++i)
 		{
-			ret_x = min_x;
-			ret_y = min_y;
-			return glitch_count;
+			us = min_glitch(us, pMan[i].glitch);
+			count += pMan[i].count;
+		}
+
+		delete[] pMan;
+		if (count > 0)
+		{
+			ret_x = us.x;
+			ret_y = us.y;
+			return count + 1;
 		}
 		else
 		{
