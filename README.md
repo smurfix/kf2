@@ -228,6 +228,8 @@ Feedback:
         twice as fast
       - Mandelbrot power 3 perturbation: 50% faster
       - Mandelbrot power 3 rescaled perturbation: 7.5% faster
+      - "find glitch center using argmin|z|" is now parallelized
+        (suggested by gerrit)
 
     - enhancements
 
@@ -244,6 +246,18 @@ Feedback:
       - "Save KFR" option for Store Zoom Out Sequence, also `--save-kfr`
         command line flag (suggested by Fluoroantimonic_Acid)
         (note that metadata is already saved in all formats apart from KFB)
+      - "Save KFR" is fast if no images will be saved (suggested by saka)
+        (currently only fast in command line mode, and auto-iterations does
+        not work because no images are rendered to be analysed)
+      - split up Iterations dialog into Formula, Bailout and Information,
+        with some controls going to the Advanced menu. keyboard shortcuts
+        changed: Ctrl+F formula dialog, Ctrl+B bailout dialog, Ctrl+I
+        information dialog (previously iterations dialog), Ctrl+Shift+F
+        find center of glitch (previously Ctrl+F), Ctrl+Shift+B skew
+        animation (previously Ctrl+B)
+      - new p-norm options in the Bailout dialog, radius is tested against
+        $$\sqrt[p]{\left|b_x |z_x|^p + b_y |z_y|^p \right|}$$
+      - new Flat colouring mode for when disabling Smooth is not enough
 
     - fixes
 
@@ -260,6 +274,12 @@ Feedback:
         (reported by CFJH) (divide by zero in `StretchBlt()`)
       - fix crashes when resizing window by dragging frame corner by
         setting a minimum size
+      - glitches are detected with 2-norm always (regardless of p-norm)
+      - series approximation uses low bailout radius (fixes far exterior)
+      - store zoom out dialog does not proceed to ask for size when cancelled
+        (reported by saka)
+      - add prepare-msys.sh to release bundle (reported by PieMan597)
+      - fixed -Wnarrowing warnings
 
     - library upgrades
 
