@@ -102,31 +102,36 @@ class perturbationClassD{
 	R_lo m_test1;
 	R_lo m_test2;
 	double m_phase;
-	R_lo m_de;
+	C_lo m_de;
 public:
 	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N n0): m_d0(d0), m_d(d), m_dd(dd), m_n0(n0), m_col(0), m_escaped(false), m_glitched(false), m_iters(0), m_test1(0), m_test2(0), m_phase(0), m_de(0) {}
-	void run(const refClass &ref, N maxiter, R_lo er2, R_lo pixel_spacing){
+	void run(const refClass &ref, N maxiter, R_lo pixel_spacing, double g_real, double g_imag, double pval, double mBailout2){
+		const bool no_g = g_real == 1.0 && g_imag == 1.0 && pval == 2.0;
 		for(N i = m_n0 ; i < maxiter; i++){
 			C_lo zn(ref[i].z);
 			C_lo zme(zn + m_d);
-			R_lo r(norm(zme));
+			R_lo r2(norm(zme));
 			m_test2 = m_test1;
-			m_test1 = r;
-			if (r > er2){
-				m_escaped = true;
-				m_iters = i;
-				m_phase = atan2(double(zme.m_i), double(zme.m_i)) / M_PI / 2;
-				m_phase -= floor(m_phase);
-				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
-				return;
-			}
-			if (r < ref[i].g)
+			m_test1 = r2;
+			if (r2 < ref[i].g)
 			{
 				m_glitched = true;
-				m_iters = i;
+				m_iters = i - 1; // this offset makes it match the regular (non-nanomb, series+perturbation) colouring
 				return;
 			}
-			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
+			if (! no_g)
+			{
+				m_test1 = r2 = pnorm(g_real, g_imag, pval, zme.m_r, zme.m_i);
+			}
+			if (double(r2) > mBailout2){
+				m_escaped = true;
+				m_iters = i - 1; // this offset makes it match the regular (non-nanomb, series+perturbation) colouring
+				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
+				m_phase -= floor(m_phase);
+				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
+				return;
+			}
+			m_dd = R_lo(2) * m_dd * zme + R_lo(1);
 			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
 		}
 	}
@@ -136,7 +141,7 @@ public:
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
 	double getPhase(){return m_phase;}
-	R_lo getDE(){return m_de;}
+	C_lo getDE(){return m_de;}
 };
 
 class uniPolyClass;
@@ -371,7 +376,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -450,7 +455,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	//               One can use perturbation without adding delta_c. Some other optimizations may become possible. (from comment by Pauldelbrot @fractalforums.com)
 	d -= ref[i].z; //put d in reference orbit's local frame
 	perturbationClassD p(d0,d,dd,i);//We use original d0 because the reference orbit was computed there.
-	p.run(ref, maxiter, er2, pixel_spacing);
+	p.run(ref, maxiter, pixel_spacing, g_real, g_imag, pval, mBailout2);
 	if (p.haveGlitched())
 	{
 	  bGlitch = 1;
@@ -458,7 +463,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	  test1 = p.getTest1().todouble();
 	  test2 = p.getTest2().todouble();
 	  phase = p.getPhase();
-	  de = p.getDE().todouble();
+	  de = complex<double>(p.getDE().m_r.todouble(), p.getDE().m_i.todouble());
 	  return;
 	}
 	else if(p.haveEscaped())
@@ -468,7 +473,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	  test1 = p.getTest1().todouble();
 	  test2 = p.getTest2().todouble();
 	  phase = p.getPhase();
-	  de = p.getDE().todouble();
+	  de = complex<double>(p.getDE().m_r.todouble(), p.getDE().m_i.todouble());
 	  return;
 	}
 	else
@@ -580,7 +585,7 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
     return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout, er2);
 }
 
-void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
+void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2)
 {
-  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, phase, de, interior_checking);
+  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, pval, mBailout2);
 }
