@@ -520,10 +520,12 @@ static void UpdateAutoSolveGlitches(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
-static void UpdateUseArgMinAbsZAsGlitchCenter(HWND hWnd)
+static void UpdateGlitchCenterMethod(HWND hWnd)
 {
-	bool b = g_SFT.GetUseArgMinAbsZAsGlitchCenter();
-	CheckMenuItem(GetMenu(hWnd),ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+	int b = g_SFT.GetGlitchCenterMethod();
+	CheckMenuItem(GetMenu(hWnd),ID_USE_ORIGINAL_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==0?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==1?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_USE_RANDOM_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==2?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateSolveGlitchNear(HWND hWnd)
@@ -688,7 +690,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateReuseReference(hWnd);
 	UpdateAutoSolveGlitches(hWnd);
 	UpdateSolveGlitchNear(hWnd);
-	UpdateUseArgMinAbsZAsGlitchCenter(hWnd);
+	UpdateGlitchCenterMethod(hWnd);
 	UpdateNoApprox(hWnd);
 	UpdateMirror(hWnd);
 	UpdateLongDoubleAlways(hWnd);
@@ -4173,9 +4175,17 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetSolveGlitchNear(! g_SFT.GetSolveGlitchNear());
 		UpdateSolveGlitchNear(hWnd);
 	}
+	else if(uMsg==WM_COMMAND && wParam==ID_USE_ORIGINAL_AS_GLITCH_CENTER){
+		g_SFT.SetGlitchCenterMethod(0);
+		UpdateGlitchCenterMethod(hWnd);
+	}
 	else if(uMsg==WM_COMMAND && wParam==ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER){
-		g_SFT.SetUseArgMinAbsZAsGlitchCenter(! g_SFT.GetUseArgMinAbsZAsGlitchCenter());
-		UpdateUseArgMinAbsZAsGlitchCenter(hWnd);
+		g_SFT.SetGlitchCenterMethod(1);
+		UpdateGlitchCenterMethod(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_USE_RANDOM_AS_GLITCH_CENTER){
+		g_SFT.SetGlitchCenterMethod(2);
+		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
 		g_bAutoGlitch=!g_bAutoGlitch;

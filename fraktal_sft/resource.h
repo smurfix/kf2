@@ -330,9 +330,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_GLITCH_LOW_TOLERANCE 40146
 #define ID_APPROX_LOW_TOLERANCE 40147
 #define ID_APPLY_PHASE_COLORS 40148
+#define ID_USE_RANDOM_AS_GLITCH_CENTER 40149
+#define ID_USE_ORIGINAL_AS_GLITCH_CENTER 40150
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         150
 #define IDC_COMBO_OPENCL_DEVICE  1500
-#define ID_SPECIAL_OPENCL       40150
+#define ID_SPECIAL_OPENCL       40250
 #endif

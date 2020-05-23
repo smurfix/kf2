@@ -95,7 +95,10 @@ bool Settings::FromText(const std::string &text)
   BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
-  BOOL(UseArgMinAbsZAsGlitchCenter)
+  int m_UseArgMinAbsZAsGlitchCenter = 0;
+  INT(UseArgMinAbsZAsGlitchCenter)
+  if (m_UseArgMinAbsZAsGlitchCenter) m_GlitchCenterMethod = 1;
+  INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
   INT(EXRChannels)
@@ -160,6 +163,7 @@ std::string Settings::ToText() const
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
   BOOL(UseArgMinAbsZAsGlitchCenter)
+  INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }

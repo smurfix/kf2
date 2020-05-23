@@ -658,7 +658,8 @@ public:
 	BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
-  BOOL(UseArgMinAbsZAsGlitchCenter)
+  INT(GlitchCenterMethod)
+  inline bool GetUseArgMinAbsZAsGlitchCenter() const { return m_Settings.GetUseArgMinAbsZAsGlitchCenter(); };
   BOOL(UseOpenCL)
   BOOL(OpenCLPlatform)
   inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };

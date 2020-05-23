@@ -84,7 +84,7 @@ private:
   bool m_ThreadedReference;
   int64_t m_SIMDVectorSize;
   int64_t m_SIMDChunkSize;
-  bool m_UseArgMinAbsZAsGlitchCenter;
+  int64_t m_GlitchCenterMethod;
   bool m_UseOpenCL;
   int64_t m_OpenCLPlatform;
   int64_t m_EXRChannels;
@@ -139,7 +139,7 @@ public:
   , m_ThreadedReference(true)
   , m_SIMDVectorSize(2)
   , m_SIMDChunkSize(64)
-  , m_UseArgMinAbsZAsGlitchCenter(false)
+  , m_GlitchCenterMethod(0)
   , m_UseOpenCL(false)
   , m_OpenCLPlatform(0)
   , m_EXRChannels(~0)
@@ -317,8 +317,9 @@ public:
     }
   }
 
-  inline bool   GetUseArgMinAbsZAsGlitchCenter() const { return m_UseArgMinAbsZAsGlitchCenter; };
-  inline void   SetUseArgMinAbsZAsGlitchCenter(bool b) { m_UseArgMinAbsZAsGlitchCenter = b; };
+  inline int64_t GetGlitchCenterMethod() const { return m_GlitchCenterMethod; };
+  inline void    SetGlitchCenterMethod(int64_t b) { m_GlitchCenterMethod = b; };
+  inline bool    GetUseArgMinAbsZAsGlitchCenter() const { return m_GlitchCenterMethod == 1; }
 
   inline bool   GetUseOpenCL() const { return m_UseOpenCL; };
   inline void   SetUseOpenCL(bool b) { m_UseOpenCL = b; };

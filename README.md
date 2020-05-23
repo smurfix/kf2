@@ -275,6 +275,10 @@ Feedback:
         $$\sqrt[p]{\left|b_x |z_x|^p + b_y |z_y|^p \right|}$$
         (suggested by FractalAlex)
       - new Flat colouring mode for when disabling Smooth is not enough
+        (Linear smooth method is recommended; Log can give seams)
+      - "Random" method for choosing new references among glitched pixels,
+        is sometimes better than both the "Original" and "argmin|z|" methods
+        (suggested by gerrit)
 
     - fixes
 

@@ -109,6 +109,36 @@ int(Perturbation_Var)(int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, vo
 int(LDBL_MandelCalc)(int nFractal, int nPower, int antal, void *pdxr, void *pdxi, void* pDr, void*pDi, void* pD0r, void*pD0i, double *ptest1, double *ptest2, int m_nBailout2, int m_nMaxIter, double *db_z, BOOL *pGlitch,double dbFactorAR,double dbFactorAI);
 #endif
 
+// http://www.burtleburtle.net/bob/hash/integer.html
+#if 0
+static uint32_t wang_hash(uint32_t a)
+{
+    a = (a ^ 61) ^ (a >> 16);
+    a = a + (a << 3);
+    a = a ^ (a >> 4);
+    a = a * 0x27d4eb2d;
+    a = a ^ (a >> 15);
+    return a;
+}
+#else
+static uint32_t burtle_hash(uint32_t a)
+{
+    a = (a+0x7ed55d16) + (a<<12);
+    a = (a^0xc761c23c) ^ (a>>19);
+    a = (a+0x165667b1) + (a<<5);
+    a = (a+0xd3a2646c) ^ (a<<9);
+    a = (a+0xfd7046c5) + (a<<3);
+    a = (a^0xb55a4f09) ^ (a>>16);
+    return a;
+}
+#endif
+
+// uniform in [0,1)
+static double dither(uint32_t x, uint32_t y, uint32_t c)
+{
+  return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
+}
+
 void ErrorText()
 {
 	TCHAR szMsgBuf[500];
@@ -2637,6 +2667,7 @@ static int ThFindCenterOfGlitch(TH_FIND_CENTER *pMan)
 
 void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CENTER *p)
 {
+	int mode = GetGlitchCenterMethod();
 	glitch_id us = { 1.0 / 0.0, -1, -1 };
 	int64_t count = 0;
 	for (int x = x0; x < x1; ++x)
@@ -2646,9 +2677,20 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 			float t = m_nTrans[x][y];
 			if (GET_TRANS_GLITCH(t))
 			{
-				glitch_id me = { t, x, y };
-				us = min_glitch(us, me);
 				count++;
+				glitch_id me = { t, x, y };
+				if (mode == 1) // argmin|z|
+				{
+					us = min_glitch(us, me);
+				}
+				else // mode = 2 // random
+				{
+					double random = dither(uint32_t(x), uint32_t(y), uint32_t(g_bAutoGlitch));
+					if (random * count <= 1.0)
+					{
+						us = me;
+					}
+				}
 			}
 		}
 	}
@@ -2661,7 +2703,7 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
 	IgnoreIsolatedGlitches();
-	if (GetUseArgMinAbsZAsGlitchCenter())
+	if (1 == GetGlitchCenterMethod() || 2 == GetGlitchCenterMethod())
 	{
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
@@ -2684,10 +2726,30 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		P.Reset();
 		glitch_id us = { 1.0 / 0.0, -1, -1 };
 		int64_t count = 0;
+		int mode = GetGlitchCenterMethod();
+		int n = 0;
 		for (int i = 0; i < nParallel; ++i)
 		{
-			us = min_glitch(us, pMan[i].glitch);
 			count += pMan[i].count;
+			if (mode == 1) // argmin|z|
+			{
+				us = min_glitch(us, pMan[i].glitch);
+			}
+			else // mode == 2 // random
+			{
+				if (pMan[i].count > 0)
+				{
+					n++;
+					// this is not quite uniform weighting
+					// doesn't take different counts into account
+					// but that probably doesn't matter too much
+					double random = dither(uint32_t(i), uint32_t(nParallel), uint32_t(-g_bAutoGlitch));
+					if (random * n <= 1.0)
+					{
+						us = pMan[i].glitch;
+					}
+				}
+			}
 		}
 
 		delete[] pMan;
@@ -3624,7 +3686,10 @@ bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 	     0 <= y && y < m_nY && 0 <= y0 && y0 < m_nY && 0 <= y1 && y1 < m_nY &&
 	     m_nPixels[x0][y0] != PIXEL_UNEVALUATED &&
 	     m_nPixels[x0][y0] == m_nPixels[x1][y1] &&
-	     GET_TRANS_GLITCH(m_nTrans[x0][y0]) == GET_TRANS_GLITCH(m_nTrans[x1][y1])
+	     GET_TRANS_GLITCH(m_nTrans[x0][y0]) == GET_TRANS_GLITCH(m_nTrans[x1][y1]) &&
+	      // never guess reference, in case we guess it to be glitched
+	      // (prevent possible infinite loop in next reference selection)
+	     x != g_nAddRefX && y != g_nAddRefY
 	   )
 	{
 		// NOTE cast to int64_t is required to avoid copying just the ref!
@@ -3677,36 +3742,6 @@ bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 	  }
 	}
 	return false;
-}
-
-// http://www.burtleburtle.net/bob/hash/integer.html
-#if 0
-static uint32_t wang_hash(uint32_t a)
-{
-    a = (a ^ 61) ^ (a >> 16);
-    a = a + (a << 3);
-    a = a ^ (a >> 4);
-    a = a * 0x27d4eb2d;
-    a = a ^ (a >> 15);
-    return a;
-}
-#else
-static uint32_t burtle_hash(uint32_t a)
-{
-    a = (a+0x7ed55d16) + (a<<12);
-    a = (a^0xc761c23c) ^ (a>>19);
-    a = (a+0x165667b1) + (a<<5);
-    a = (a+0xd3a2646c) ^ (a<<9);
-    a = (a+0xfd7046c5) + (a<<3);
-    a = (a^0xb55a4f09) ^ (a>>16);
-    return a;
-}
-#endif
-
-// uniform in [0,1)
-static double dither(uint32_t x, uint32_t y, uint32_t c)
-{
-  return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
 
 void CFraktalSFT::GetPixelOffset(const int i, const int j, double &x, double &y) const
