@@ -71,17 +71,21 @@ Feedback:
   the skinniest part very quickly"
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
+- with glitch center found by argmin|z|, endless references with little progress
+  (reported by gerrit, only some locations)
 - scaled long double rendering broken with some locations (reported by CFJH)
   (blank image, "always use floatexp" gives correct render)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
 - fractal type out of range (e.g. parameter from newer KF) is silently reset
   to Mandelbrot
+- power 5 is considered out of range for Burning Ship when loading KFR
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
+  workaround is to disable auto-iterations)
 - there is still a race conditions in guessing (doesn't wait for previous
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zoom preset depths are bad for formulas with power other than 2
@@ -106,13 +110,22 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
+- tooltip implementation broken on multiple monitors / virtual desktops.
 - help button in file browser does nothing
+- colors dialog title filename does not reflect loading KFR files
+  (only last loaded/saved KFP files, which may be out of date)
 - may be difficult to build the source at the moment (dependency on 'et')
 
 
 ## Differences From Upstream 2.11.1
 
 ### Incompatible Changes
+
+- **In versions `2.14.10` and above**, the texture information is saved and
+  loaded from parameters; there are new controls for bailout escape radius
+  and norm power and the real/imag factors can be fractional and/or negative;
+  there is a new phase channel for texturing (exported raw to EXR); the smoothing
+  method is decoupled from escape radius
 
 - **In versions `2.14.9` and above**, the new formula `z^2 exp(2 a / z) + c`
   is not available in earlier versions.
@@ -1487,37 +1500,26 @@ Software license.
       enables low tolerance for glitches and approximation, and enables jitter
       with a default seed of 1.
 
+  - **Formula...**
+
+    Adjust fractal type and power etc.  See below.
+
+  - **Bailout...**
+
+    Adjust iteration limit and escape radius, etc.  See below
+
   - **Location...**
 
     Displays the Location dialog where the coordinates for this location is
     displayed and can be edited.
 
-  - **Iterations...**
+  - **Colors...**
 
-    Displays the Iterations dialog where the maximum iteration number for this
-    location is displayed and can be edited.
+    Adjust colouring.  See below.
 
-    The smooth color transition method is also set here, and the power on the
-    Mandelbrot function.
+  - **Information...**
 
-    The fractal types is also set here - Mandelbrot, Burning Ship, Buffalo or
-    Celtic.
-
-    This dialog also displays
-
-    - **Min:** The minimum iteration count for a pixel in this location
-
-    - **Max:** The maximum iteration count for a pixel in this location
-
-    - **Appr:** The number of iterations given by Series approximation
-
-    - **Calculations:** The number of calculations performed and also the number of
-      calculations per second is shown if this dialog is displayed while the
-      image is rendered
-
-  - **Set colors...**
-
-    Displays the Number of colors dialog where the colors can be edited.
+    Display information about the fractal.  See below.
 
   - **Refresh**
 
@@ -1709,6 +1711,26 @@ Software license.
     from neighbouring pixels.  If the image size is very large, there may be
     a very large number of these tiny glitches, whose incorrect rendering may
     be invisible to the eye, and whose correct rendering may take forever.
+
+  - **Glitch low tolerance**
+
+    When checked, glitches are more likely to be
+    detected.  Disabling it can lead to bad images, but is faster.
+
+  - **Series approximation low tolerance**
+
+    When checked, series approximation
+    is stricter.  Disabling it can lead to bad images, but is faster.
+
+  - **Approximation terms**
+
+    Automatic (default, recommended) is based on number of pixels.
+
+  - **Max references**
+
+    Sets limit of secondary reference points for automatic glitch
+    correction.  There is a hard limit of 10000, which is also the
+    default.
 
   - **Set main reference**
 
@@ -1914,52 +1936,23 @@ At the very top right:
     This also functions as a lock mechanism, preventing accidental zooming
     while a long render is taking place.
 
-## Iterations dialog
+## Formula dialog
 
-  - Number of iterations. Increase this if the interior is "blobby".
+  - Fractal type: Mandelbrot, Burning Ship, etc
 
-  - Minimum iteration count achieved in the image (display only).
+  - Power
 
-  - Maximum iteration count achieved in the image (display only).
-
-  - Series approximation iteration count (display only).
-
-  - Smooth method
-
-      - High bailout: large escape radius gives a smoother appearance.
-
-      - Bailout=2: small escape radius can help finding features.
-
-  - Value of the power `p` in the fractal formula (not used in every
-    formula)
-
-  - Fractal type (formula name).  See below for details.
-
-  - Maximum number of secondary reference points for automatic glitch
-    correction.  There is a hard limit of 10000, which is also the
-    default.
-
-  - Glitch low tolerance.  When checked, glitches are more likely to be
-    detected.  Disabling it can lead to bad images, but is faster.
-
-  - Series approximation low tolerance.  When checked, series approximation
-    is stricter.  Disabling it can lead to bad images, but is faster.
-
-  - Automatic approximation terms based on number of pixels.
-
-  - Approximation terms: number of terms used for series approximation.
-
-  - Calculations per second (display only).
-
-  - Real and Imag checkboxes: use these parts of `z` when considering
-    bailout past the escape radius.
-
-  - Seed R and I number boxes: start iterating `z` from these coordinates
+  - Seed: where to start iterating from
     (default `0 + 0 i`, for best semantics it should be a critical point
     of the iteration formula, where it's `d/dz` derivative is zero).
 
-  - Factor `a` R and I number boxes: set the complex number `a` (denoted
+  - Factor A: set the complex number `a` (denoted
     `f = d + e i` in the formula list below) for TheRedshiftRider formulas.
+
+  - Derivatives: compute derivatives (required for Analytic distance estimation,
+    and Analytic is recommended for slopes when jitter is enabled).  Also
+    enables a more accurate glitch detection criterion (for power 2 Mandelbrot
+    only).
 
   - Jitter seed: non-zero enables jitter with a pseudo-random-number generator
     seed value.
@@ -1969,10 +1962,174 @@ At the very top right:
   - Gaussian jitter is probably best left disabled (uniform jitter looks
     better).
 
-  - Derivatives calculation can be enabled (if needed for analytic DE
-    colouring) or disabled (speeds up rendering).
 
-### Formulas
+## Bailout dialog
+
+  - Number of iterations. Increase this if the interior is "blobby".
+
+  - Smooth method (new in 2.14.10, was previously linked to escape radius)
+
+      - Log: use the renormalized smooth iteration count for Mandelbrot
+
+      - Linear: interpolate between last two iterations
+        (better for small escape radius and Flat colouring)
+
+  - Escape radius
+
+      - High: large escape radius gives a smoother appearance.
+
+      - Bailout=2: classic escape radius for power 2 Mandelbrot.
+
+      - Low bailout: smallest valid escape radius for higher power Mandelbrot.
+
+      - Custom: choose your own escape radius value (new in 2.14.10)
+
+  - Bailout Re+Im: modify these for special effects (default 1, 1)
+
+  - Norm power (new in 2.14.10)
+
+      - 1: use abs norm (taxicab, Manhatten)
+
+      - 2: regular Euclidean norm
+
+      - Infinity: use maximum norm (special case)
+
+      - Custom: choose your own power
+
+    The value compared to the escape radius when testing for escape is
+    `pow(abs(b_x * pow(abs(z_x), p) + b_y * pow(abs(z_y), p)), 1/p)`.
+
+
+## Colors dialog
+
+  - **Number of key colors**
+
+    Set the number of key colors between 1 and 1024.
+
+  - **Divide iteration**
+
+    Divide each iteration number with this value, for dense images this value
+    can be greater than 1.  For DE, values less than 1 can be useful.
+
+  - **Color offset**
+
+    Offset the colors in the palette
+
+  - **Random**
+
+    Fill the palette with random colors made from the Seed value. The Seed
+    button select a seed value randomly.
+
+  - **More contrast**
+
+    Move RGB values closer to max or min
+
+  - **Less contrast**
+
+    Move RGB values closer to the middle
+
+  - **Show slopes**
+
+    Enable slope encoding for 3D effect.
+
+    First value is the magnification of the slopes. The start value of 100 is
+    suitable for the unzoomed view. Deep views requires a couple of magnitudes
+    higher value.
+
+    The second value is the percentage with which the slope encoding is applied
+    on the coloring. 100 is max, however flat areas will still have the palette
+    color visible.
+
+  - **Save palette**
+
+    Save the current palette in KFP (`*.kfp`) file
+
+  - **Open palette**
+
+    Load palette from a KFP (`*.kfp`) file
+
+  - **Expand double**
+
+    Double the number of key colors without changing the palette. This allows
+    finer control of individual colors without changing the palette for other
+    colors
+
+  - **Expand all**
+
+    Increase the number of key color to maximum 1024 without changing the
+    palette
+
+  - **Double**
+
+    Double the key colors by repeating them
+
+  - **Merge Colors**
+
+    Allows a selected color to be merged to every specied key color
+
+  - **Show index**
+
+    Capture the mouse, hover the mouse over the fractal image and the
+    corresponding color in the list will be highlighted. Click and the color
+    selection dialog will be displayed for the active color
+
+  - **Smooth color transition**
+
+    Makes the transitions of colors smooth
+
+  - **Inverse smooth color transition**
+
+    Inverse the smooth color transition which makes edges more visible
+
+  - **Unnamed dropdown box**
+
+    Specifies handling of the iteration count values prior to coloring
+
+  - **Palette waves**
+
+    The palette can be filled from sine waves applied on Red, Green, Blue and
+    Black-and-white. Each input box specifies the number of periods applied on
+    the number of key colors in the palette. If the input box is left empty, no
+    wave of this color is applied. At right of each input box the "P"-button
+    makes the number you entered prime, since different prime numbers probably
+    give more variation. The last input box specifies the waves offset.
+
+    The button "Generate" applies the waves on the palette, the "Seed" button
+    fills the fields with random values
+
+  - **Infinite waves**
+
+    Waves can be applied on Hue, Saturation and Brightness rather than RGB
+    values. The Period value specifies the length of the period (not the
+    number of periods as for the Palette waves). Periods with prime numbers
+    should be able to produce an infinite number unique colors
+
+    A negative value on Hue, Saturation or Brightness makes a flat percentage
+    value to be applied on all iterations.
+
+  - **Texture**
+
+    A background image can be loaded, which is distorted by a slope effect.
+    Only BMP, JPEG, GIF files can be loaded so far.
+
+    Privacy note: the full file system path to the texture file is saved
+    in the parameter files (including saved image metadata).
+
+
+## Information dialog
+
+  - Minimum iteration count achieved in the image (display only).
+
+  - Maximum iteration count achieved in the image (display only).
+
+  - Series approximation iteration count (display only).
+
+  - Series approximation terms in use (display only).
+
+  - Calculations per second (display only).
+
+
+## Formulas
 
 Notation:
 
@@ -2294,114 +2451,6 @@ A machine-readable version of this formula list is found in the 'et' repository:
 generating formula code (for Newton-Raphson zooming, etc).
 
 
-## Number of colors dialog
-
-  - **Number of key colors**
-
-    Set the number of key colors between 1 and 1024.
-
-  - **Divide iteration**
-
-    Divide each iteration number with this value, for dense images this value
-    can be greater than 1.  For DE, values less than 1 can be useful.
-
-  - **Color offset**
-
-    Offset the colors in the palette
-
-  - **Random**
-
-    Fill the palette with random colors made from the Seed value. The Seed
-    button select a seed value randomly.
-
-  - **More contrast**
-
-    Move RGB values closer to max or min
-
-  - **Less contrast**
-
-    Move RGB values closer to the middle
-
-  - **Show slopes**
-
-    Enable slope encoding for 3D effect.
-
-    First value is the magnification of the slopes. The start value of 100 is
-    suitable for the unzoomed view. Deep views requires a couple of magnitudes
-    higher value.
-
-    The second value is the percentage with which the slope encoding is applied
-    on the coloring. 100 is max, however flat areas will still have the palette
-    color visible.
-
-  - **Save palette**
-
-    Save the current palette in KFP (`*.kfp`) file
-
-  - **Open palette**
-
-    Load palette from a KFP (`*.kfp`) file
-
-  - **Expand double**
-
-    Double the number of key colors without changing the palette. This allows
-    finer control of individual colors without changing the palette for other
-    colors
-
-  - **Expand all**
-
-    Increase the number of key color to maximum 1024 without changing the
-    palette
-
-  - **Double**
-
-    Double the key colors by repeating them
-
-  - **Merge Colors**
-
-    Allows a selected color to be merged to every specied key color
-
-  - **Show index**
-
-    Capture the mouse, hover the mouse over the fractal image and the
-    corresponding color in the list will be highlighted. Click and the color
-    selection dialog will be displayed for the active color
-
-  - **Smooth color transition**
-
-    Makes the transitions of colors smooth
-
-  - **Inverse smooth color transition**
-
-    Inverse the smooth color transition which makes edges more visible
-
-  - **Unnamed dropdown box**
-
-    Specifies handling of the iteration count values prior to coloring
-
-  - **Palette waves**
-
-    The palette can be filled from sine waves applied on Red, Green, Blue and
-    Black-and-white. Each input box specifies the number of periods applied on
-    the number of key colors in the palette. If the input box is left empty, no
-    wave of this color is applied. At right of each input box the "P"-button
-    makes the number you entered prime, since different prime numbers probably
-    give more variation. The last input box specifies the waves offset.
-
-    The button "Generate" applies the waves on the palette, the "Seed" button
-    fills the fields with random values
-
-  - **Infinite waves**
-
-    Waves can be applied on Hue, Saturation and Brightness rather than RGB
-    values. The Period value specifies the length of the period (not the
-    number of periods as for the Palette waves). Periods with prime numbers
-    should be able to produce an infinite number unique colors
-
-    A negative value on Hue, Saturation or Brightness makes a flat percentage
-    value to be applied on all iterations.
-
-
 ## Command Line Usage
 
     kf.exe [options]
@@ -2459,6 +2508,11 @@ New in 2.14.6 is standalone KFB map colouring support with the `-o`/`--load-map`
 flag:
 
     kf.exe -o map.kfb -c palette.kfp -p out.png
+
+New in 2.14.10 is KFR writing, if no image files need to be rendered it is
+very fast to output a zoom sequence (note: no auto-iterations support in this
+mode).
+
 
 ### Tiled Rendering
 
@@ -2711,15 +2765,22 @@ Here are the channels and metadata that KF currently supports:
     `uint32 N0` least significant 32 bits
 
     `uint32 N1` most significant 32 bits
-    
+
     `(0xFFFFFFFF, 0xFFFFFFFF)` is interpreted as non-escaped
 
     For future supercomputers, this can be extended with `N2` etc...
 
-    `float NF` fractional iteration count, expected to be in [0.0 .. 1.0)
+    `float NF` fractional iteration count, expected to be in `[0.0 .. 1.0)`
 
     The continuous iteration count (when escaped) is `N+NF-IterationsBias`.
     This is stored separately to avoid losing precision at high iteration counts
+
+- phase of first escaped Z value, measured in turns
+
+    `float T` in `[0.0 .. 1.0)`
+
+    It is desirable that this aligns with `NF` to give 2D exterior grid
+    cell coordinates, currently this works only with `Linear` smoothing.
 
 - directional DE (when derivatives have been calculated)
 
