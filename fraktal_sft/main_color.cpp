@@ -137,7 +137,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_LIST6,LB_ADDSTRING,0,(LPARAM)szTmp);
 		}
 
-		SetWindowText(hWnd,"Number of Colors");
+		if (uMsg==WM_INITDIALOG)
+		{
+			SetWindowText(hWnd,"Colors");
+		}
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetNumOfColors(),FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT2,g_SFT.GetSeed(),FALSE);
 		sprintf(szTmp,"%f",g_SFT.GetIterDiv());
@@ -403,7 +406,12 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==IDC_BUTTON1){
 			std::string szFile;
 			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile))
+			{
 				g_SFT.SaveFile(szFile, true);
+				char szTitle[1024];
+				snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(szFile).c_str());
+				SetWindowText(hWnd, szTitle);
+			}
 		}
 		else if(wParam==IDC_BUTTON29){
 			int val = GetDlgItemInt(hWnd,IDC_EDIT23,NULL,FALSE);
@@ -614,6 +622,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::string szFile;
 			if(BrowseFile(hWnd,TRUE,"Open palette","Palette\0*.kfp\0\0",szFile)){
 				g_SFT.OpenFile(szFile, TRUE);
+				char szTitle[1024];
+				snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(szFile).c_str());
+				SetWindowText(hWnd, szTitle);
 				SendMessage(hWnd,WM_USER+99,0,0);
 				if (g_AutoColour) g_SFT.ApplyColors();
 				g_AutoUpdate++;
@@ -1051,6 +1062,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					{
 						std::string file(buffer);
 						g_SFT.OpenFile(file, TRUE);
+						char szTitle[1024];
+						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(file).c_str());
+						SetWindowText(hWnd, szTitle);
 						SendMessage(hWnd,WM_USER+99,0,0);
 						if (g_AutoColour) g_SFT.ApplyColors();
 						g_AutoUpdate++;

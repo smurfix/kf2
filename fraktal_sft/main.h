@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -33,6 +33,8 @@ extern int FileExists(const std::string &szFind);
 
 extern std::string replace_path_filename(const std::string &path, const std::string &file);
 extern std::string replace_path_extension(const std::string &path, const std::string &ext);
+extern std::string get_filename_path(const std::string &file);
+extern std::string get_filename_file(const std::string &file);
 extern std::string get_filename_extension(const std::string &file);
 extern std::string get_filename_zoom_string(const std::string &file);
 

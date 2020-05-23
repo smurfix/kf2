@@ -1213,6 +1213,19 @@ extern std::string get_filename_path(const std::string &path)
 	}
 }
 
+extern std::string get_filename_file(const std::string &path)
+{
+	size_t slash = path.rfind('\\');
+	if (slash == std::string::npos)
+	{
+		return path;
+	}
+	else
+	{
+		return path.substr(slash + 1);
+	}
+}
+
 extern std::string get_filename_extension(const std::string &path)
 {
 	size_t dot = path.rfind('.');
@@ -2664,7 +2677,7 @@ static long OpenFile(HWND hWnd, bool &ret)
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
 					char szTitle[1024];
-					wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
+					snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
 					if (hWnd)
 					{
 						SetWindowText(hWnd,szTitle);
@@ -2676,9 +2689,9 @@ static long OpenFile(HWND hWnd, bool &ret)
 							if (IDOK == MessageBox(hWnd,
 								"This parameter file requests analytic DE colouring,\n"
 								"but derivative calculations are disabled.\n"
-								"Derivative calculations are slower but needed for analytic DE.\n"
+								"Derivative calculations are needed for analytic DE.\n"
 								"You may switch to non-analytic DE in the Colors dialog.\n"
-								"You may control derivatives in the Iterations dialog.\n"
+								"You may control derivatives in the Formula dialog.\n"
 								"\n"
 								"Enable derivatives calculation now?",
 								"Kalle's Fraktaler",
@@ -4959,7 +4972,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(!g_SFT.SaveFile(g_szFile, true))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[1024];
-				wsprintf(szTitle,"Kalle's Fraktaler 2 - %s",g_szFile.c_str());
+				snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
 				SetWindowText(hWnd,szTitle);
 			}
 			else
