@@ -172,6 +172,7 @@ CFraktalSFT::CFraktalSFT()
 	m_ldxi = NULL;
 	m_nZoom = 0;
 	m_nTrans = NULL;
+	m_nPhase = nullptr;
 	m_nDEx = nullptr;
 	m_nDEy = nullptr;
 	m_bFlat = FALSE;
@@ -410,6 +411,19 @@ void CFraktalSFT::ApplyIterationColors()
 			for (y = 0; y<m_nY; y++){
 				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 				m_lpBits[nIndex] = 255 * (m_nPixels[x][y] - nMin) / (nMax - nMin);
+				m_lpBits[nIndex + 1] = m_lpBits[nIndex];
+				m_lpBits[nIndex + 2] = m_lpBits[nIndex];
+			}
+		}
+	}
+}
+void CFraktalSFT::ApplyPhaseColors()
+{
+	if (m_nPhase && m_lpBits){
+		for (int x = 0; x<m_nX; x++){
+			for (int y = 0; y<m_nY; y++){
+				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+				m_lpBits[nIndex] = 256 * m_nPhase[x][y];
 				m_lpBits[nIndex + 1] = m_lpBits[nIndex];
 				m_lpBits[nIndex + 2] = m_lpBits[nIndex];
 			}
@@ -1220,6 +1234,8 @@ void CFraktalSFT::Mirror(int x, int y)
 
 	m_nPixels[tx][ty] = m_nPixels[x][y];
 	m_nTrans[tx][ty] = m_nTrans[x][y];
+	if (m_nPhase)
+		m_nPhase[tx][ty] = m_nPhase[x][y];
 	if (m_nDEx)
 		m_nDEx[tx][ty] = -m_nDEx[x][y];
 	if (m_nDEy)
@@ -1252,6 +1268,13 @@ void CFraktalSFT::DeleteArrays()
 				delete[] m_nTrans[0];
 			delete[] m_nTrans;
 			m_nTrans = NULL;
+		}
+		if (m_nPhase)
+		{
+			if (m_nPhase[0])
+				delete[] m_nPhase[0];
+			delete[] m_nPhase;
+			m_nPhase = nullptr;
 		}
 		if (m_nDEx)
 		{
@@ -1397,6 +1420,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
 	  &m_nTrans[0][0],
+	  &m_nPhase[0][0],
 	  &m_nDEx[0][0],
 	  &m_nDEy[0][0]
   );
@@ -1473,6 +1497,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
 	  &m_nTrans[0][0],
+	  &m_nPhase[0][0],
 	  &m_nDEx[0][0],
 	  &m_nDEy[0][0]
   );
@@ -1541,6 +1566,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 	Stop(TRUE);
 	int **Org;
 	float **OrgT;
+	float **OrgP;
 	float **OrgDEx;
 	float **OrgDEy;
 	int nOX, nOY;
@@ -1581,6 +1607,9 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
+		OrgP = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgP[i] = new float[nOY];
 		OrgDEx = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgDEx[i] = new float[nOY];
@@ -1605,6 +1634,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					if (a >= 0 && a<m_nX && b >= 0 && b<m_nY){
 						Org[x][y] = m_nPixels[a][b];
 						OrgT[x][y] = m_nTrans[a][b];
+						OrgP[x][y] = m_nPhase[a][b];
 						OrgDEx[x][y] = m_nDEx[a][b];
 						OrgDEy[x][y] = m_nDEy[a][b];
 						if (Org[x][y]>m_nMaxIter)
@@ -1614,6 +1644,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 					{
 						Org[x][y] = PIXEL_UNEVALUATED;
 						OrgT[x][y] = SET_TRANS_GLITCH(0);
+						OrgP[x][y] = 0;
 						OrgDEx[x][y] = 0;
 						OrgDEy[x][y] = 0;
 					}
@@ -1627,6 +1658,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
+					m_nPhase[x][y] = OrgP[x - a][y - b];
 					m_nDEx[x][y] = OrgDEx[x - a][y - b];
 					m_nDEy[x][y] = OrgDEy[x - a][y - b];
 				}
@@ -1634,6 +1666,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				{
 					m_nPixels[x][y] = PIXEL_UNEVALUATED;
 					m_nTrans[x][y] = SET_TRANS_GLITCH(0);
+					m_nPhase[x][y] = 0;
 					m_nDEx[x][y] = 0;
 					m_nDEy[x][y] = 0;
 				}
@@ -1642,11 +1675,13 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
+			delete[] OrgP[i];
 			delete[] OrgDEx[i];
 			delete[] OrgDEy[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
+		delete[] OrgP;
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
@@ -1970,13 +2005,16 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 		m_nPixels_LSB = new uint32_t[m_nX * m_nY];
 		m_nPixels_MSB = two ? new uint32_t[m_nX * m_nY] : nullptr;
 		m_nTrans = new float*[m_nX];
+		m_nPhase = new float*[m_nX];
 		m_nDEx = new float*[m_nX];
 		m_nDEy = new float*[m_nX];
 		m_nTrans[0] = new float[m_nX * m_nY];
+		m_nPhase[0] = new float[m_nX * m_nY];
 		m_nDEx[0] = new float[m_nX * m_nY];
 		m_nDEy[0] = new float[m_nX * m_nY];
 		for (int x = 1; x<m_nX; x++){
 			m_nTrans[x] = m_nTrans[0] + x * m_nY;
+			m_nPhase[x] = m_nPhase[0] + x * m_nY;
 			m_nDEx[x] = m_nDEx[0] + x * m_nY;
 			m_nDEy[x] = m_nDEy[0] + x * m_nY;
 		}
@@ -1986,6 +2024,7 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	if (two)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
 	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
+	memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
 	SetImageWidth(nx);
@@ -2001,6 +2040,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 {
 	int **Org = 0;
 	float **OrgT = 0;
+	float **OrgP = 0;
 	float **OrgDEx = 0;
 	float **OrgDEy = 0;
 	int nOX = 0, nOY = 0;
@@ -2016,6 +2056,9 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		OrgT = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgT[i] = new float[nOY];
+		OrgP = new float*[nOX];
+		for (i = 0; i<nOX; i++)
+			OrgP[i] = new float[nOY];
 		OrgDEx = new float*[nOX];
 		for (i = 0; i<nOX; i++)
 			OrgDEx[i] = new float[nOY];
@@ -2030,6 +2073,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 				{
 					Org[x][y] = m_nPixels[a][b];
 					OrgT[x][y] = m_nTrans[a][b];
+					OrgP[x][y] = m_nPhase[a][b];
 					OrgDEx[x][y] = m_nDEx[a][b];
 					OrgDEy[x][y] = m_nDEy[a][b];
 				}
@@ -2137,6 +2181,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
+					m_nPhase[x][y] = OrgP[x - a][y - b];
 					m_nDEx[x][y] = OrgDEx[x - a][y - b];
 					m_nDEy[x][y] = OrgDEy[x - a][y - b];
 				}
@@ -2145,11 +2190,13 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		for (i = 0; i<nOX; i++){
 			delete[] Org[i];
 			delete[] OrgT[i];
+			delete[] OrgP[i];
 			delete[] OrgDEx[i];
 			delete[] OrgDEy[i];
 		}
 		delete[] Org;
 		delete[] OrgT;
+		delete[] OrgP;
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
@@ -2493,6 +2540,8 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 				{
 					bool neighbour_glitched = false;
 					double sum = 0;
+					double sum_phase_x = 0;
+					double sum_phase_y = 0;
 					double sum_de_x = 0;
 					double sum_de_y = 0;
 					for (int dx = -1; dx <= 1; ++dx)
@@ -2520,6 +2569,11 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 							int64_t p = m_nPixels[x2][y2];
 							double i = double(p) + double(t);
 							sum += i;
+							if (m_nPhase)
+							{
+								sum_phase_x += cos(m_nPhase[x2][y2] * M_PI * 2);
+								sum_phase_y += sin(m_nPhase[x2][y2] * M_PI * 2);
+							}
 							if (m_nDEx) sum_de_x += m_nDEx[x2][y2];
 							if (m_nDEy) sum_de_y += m_nDEy[x2][y2];
 							
@@ -2536,6 +2590,11 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 						int64_t p = floor(sum);
 						m_nPixels[x][y] = p;
 						m_nTrans[x][y] = 1 - (sum - p);
+						if (m_nPhase)
+						{
+							m_nPhase[x][y] = atan2(sum_phase_y, sum_phase_x) / M_PI / 2;
+							m_nPhase[x][y] -= floor(m_nPhase[x][y]);
+						}
 						if (m_nDEx) m_nDEx[x][y] = sum_de_x / neighbourhood;
 						if (m_nDEy) m_nDEy[x][y] = sum_de_y / neighbourhood;
 						if(m_bMirrored)
@@ -3136,6 +3195,7 @@ void CFraktalSFT::ErasePixel(int x, int y)
 	if (x >= 0 && y >= 0 && x<m_nX && y<m_nY){
 		m_nPixels[x][y] = 1;
 		m_nTrans[x][y] = 0;
+		m_nPhase[x][y] = 0;
 		m_nDEx[x][y] = 0;
 		m_nDEy[x][y] = 0;
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
@@ -3218,7 +3278,7 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 	if (nFractalType < 0 || nFractalType > 71)
 		nFractalType = 0;
 	m_nFractalType = nFractalType;
-	if ((m_nFractalType == 1 || m_nFractalType == 2) && (m_nPower<2 || m_nPower>3))
+	if ((1 <= m_nFractalType && m_nFractalType <= 4) && !(2 <= m_nPower && m_nPower <= 5))
 		m_nPower = 2;
 	if (m_nFractalType>2 && m_nPower>2)
 		m_nPower = 2;
@@ -3469,7 +3529,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double nBailout, const complex<double> &de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3477,23 +3537,27 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 		if (antal >= m_nMaxIter){
 			m_nPixels[x][y] = antal;
 			m_nTrans[x][y] = 0;
-			m_nDEx[x][y] = 0;
-			m_nDEy[x][y] = 0;
-			m_lpBits[nIndex] = 0;
-			m_lpBits[nIndex + 1] = 0;
-			m_lpBits[nIndex + 2] = 0;
+			if (m_nPhase)
+				m_nPhase[x][y] = 0;
+			if (m_nDEx)
+				m_nDEx[x][y] = 0;
+			if (m_nDEy)
+				m_nDEy[x][y] = 0;
 		}
 		else{
+			if (x == g_nAddRefX && y == g_nAddRefY)
+			{
+				// never consider the pixel of the reference to be glitched
+				bGlitch = false;
+			}
 
 			m_nPixels[x][y] = antal;
+			if (m_nPhase)
+				m_nPhase[x][y] = phase;
 			if (m_nDEx)
-			{
 				m_nDEx[x][y] = de.m_r;
-			}
 			if (m_nDEy)
-			{
 				m_nDEy[x][y] = de.m_i;
-			}
 
 			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt)){
 				double p = GetBailoutNorm();
@@ -3519,8 +3583,8 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 				m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
 			}
 
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
 		}
+		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
 		if (m_bMirrored)
 			Mirror(x, y);
 }
@@ -3566,6 +3630,14 @@ bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		// NOTE cast to int64_t is required to avoid copying just the ref!
 		m_nPixels[x][y] = int64_t(m_nPixels[x0][y0]);
 		m_nTrans[x][y] = (m_nTrans[x0][y0] + m_nTrans[x1][y1])*.5;
+		if (m_nPhase)
+		{
+			m_nPhase[x][y] = atan2
+			  ( sin(m_nPhase[x0][y0] * M_PI * 2) + sin(m_nPhase[x1][y1] * M_PI * 2)
+			  , cos(m_nPhase[x0][y0] * M_PI * 2) + cos(m_nPhase[x1][y1] * M_PI * 2)
+			  ) / M_PI / 2;
+			m_nPhase[x][y] -= floor(m_nPhase[x][y]);
+		}
 		// use geometric mean for directional DE guessing
 #ifdef KF_GUESS_DE_GEOMETRIC
 		complex<float> de0(m_nDEx[x0][y0], m_nDEy[x0][y0]);

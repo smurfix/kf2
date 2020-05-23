@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -101,18 +101,22 @@ class perturbationClassD{
 	int64_t m_iters;
 	R_lo m_test1;
 	R_lo m_test2;
+	double m_phase;
 	R_lo m_de;
 public:
-	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N n0): m_d0(d0), m_d(d), m_dd(dd), m_n0(n0), m_col(0), m_escaped(false), m_glitched(false), m_iters(0), m_test1(0), m_test2(0), m_de(0) {}
+	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N n0): m_d0(d0), m_d(d), m_dd(dd), m_n0(n0), m_col(0), m_escaped(false), m_glitched(false), m_iters(0), m_test1(0), m_test2(0), m_phase(0), m_de(0) {}
 	void run(const refClass &ref, N maxiter, R_lo er2, R_lo pixel_spacing){
 		for(N i = m_n0 ; i < maxiter; i++){
 			C_lo zn(ref[i].z);
-			R_lo r(norm(zn + m_d));
+			C_lo zme(zn + m_d);
+			R_lo r(norm(zme));
 			m_test2 = m_test1;
 			m_test1 = r;
 			if (r > er2){
 				m_escaped = true;
 				m_iters = i;
+				m_phase = atan2(double(zme.m_i), double(zme.m_i)) / M_PI / 2;
+				m_phase -= floor(m_phase);
 				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
 				return;
 			}
@@ -131,6 +135,7 @@ public:
 	int64_t getIters(){return m_iters;}
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
+	double getPhase(){return m_phase;}
 	R_lo getDE(){return m_de;}
 };
 
@@ -366,7 +371,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -410,6 +415,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 			    antal = maxiter;
 			    test1 = 0;
 			    test2 = 0;
+			    phase = 0;
 			    de = 0;
 			    return;
 #if 0
@@ -433,6 +439,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
           antal = maxiter;
           test1 = 0;
           test2 = 0;
+	  phase = 0;
           de = 0;
           return;
 	}
@@ -450,6 +457,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	  antal = p.getIters();
 	  test1 = p.getTest1().todouble();
 	  test2 = p.getTest2().todouble();
+	  phase = p.getPhase();
 	  de = p.getDE().todouble();
 	  return;
 	}
@@ -459,6 +467,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	  antal = p.getIters();
 	  test1 = p.getTest1().todouble();
 	  test2 = p.getTest2().todouble();
+	  phase = p.getPhase();
 	  de = p.getDE().todouble();
 	  return;
 	}
@@ -467,6 +476,7 @@ void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, co
 	  antal = maxiter;
 	  test1 = 0;
 	  test2 = 0;
+	  phase = 0;
 	  de = 0;
 	  return;
 	}
@@ -570,7 +580,7 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
     return new NanoMB1_Reference(fp, ref, nucleusPos, period, Bout, er2);
 }
 
-void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
+void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
 {
-  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, de, interior_checking);
+  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, phase, de, interior_checking);
 }

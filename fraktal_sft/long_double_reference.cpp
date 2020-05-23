@@ -238,6 +238,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 	int64_t antal = 0;
 	double test1 = 0;
 	double test2 = 0;
+	double phase = 0;
 	double xxr = 0, xxi = 0;
 
 	long double dr = 1, di = 0;
@@ -433,11 +434,4 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		ldi = di;
 
 	}
-
-    complex<double> z((double(xxr)), (double(xxi)));
-    complex<double> dc((double(ldr)), (double(ldi)));
-    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
-
-	if (0 <= g_nAddRefX && g_nAddRefX < m_nX && 0 <= g_nAddRefY && g_nAddRefY < m_nY)
-		OutputIterationData(g_nAddRefX, g_nAddRefY, 1, 1, false, antal ? antal + 1 : m_nMaxIter, test1, test2, SMOOTH_BAILOUT, de);
 }

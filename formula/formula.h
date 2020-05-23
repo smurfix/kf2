@@ -22,6 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <algorithm>
 #include <cstdint>
+#include <cmath>
+
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
 
 class CFixedFloat;
 class floatexp;
@@ -315,7 +320,7 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
-  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
@@ -329,7 +334,7 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_dxr, const T *m_dxi, const double *m_db_z
-  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
@@ -346,9 +351,9 @@ template <typename intN, typename doubleN>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
-  , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
+  , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
+  , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
@@ -361,9 +366,9 @@ template <typename intN, typename doubleN>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const double *m_dxr, const double *m_dxi, const double *m_db_z
-  , intN &antal, doubleN &test1, doubleN &test2, intN &bGlitch
+  , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
+  , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
@@ -379,7 +384,7 @@ template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
   , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
-  , int64_t &antal, double &test1, double &test2, bool &bGlitch
+  , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
@@ -394,9 +399,9 @@ template <typename intN, typename doubleN>
 bool perturbation
   ( int m_nFractalType, int m_nPower
   , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
-  , intN &antal0, doubleN &test10, doubleN &test20, intN &bGlitch0
+  , intN &antal0, doubleN &test10, doubleN &test20, doubleN &phase0, intN &bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
+  , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr00, doubleN &xi00
   , const doubleN &cr0, const doubleN &ci0
@@ -410,7 +415,7 @@ template <typename D, typename Z>
 bool perturbation
   ( int m_nFractalType, int m_nPower
   , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
-  , int64_t &antal0, double &test10, double &test20, bool &bGlitch
+  , int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI

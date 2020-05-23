@@ -33,12 +33,13 @@ enum EXRChannel_Bit {
   EXRChannel_N = 3,
   EXRChannel_NF = 4,
   EXRChannel_DEX = 5,
-  EXRChannel_DEY = 6
+  EXRChannel_DEY = 6,
+  EXRChannel_T = 7
 };
 
 struct EXRChannels
 {
-  bool R, G, B, N, NF, DEX, DEY;
+  bool R, G, B, N, NF, DEX, DEY, T;
 };
 
 static inline int64_t pack_exr_channels(EXRChannels c)
@@ -50,7 +51,8 @@ static inline int64_t pack_exr_channels(EXRChannels c)
     ((int64_t) c.N << EXRChannel_N) |
     ((int64_t) c.NF << EXRChannel_NF) |
     ((int64_t) c.DEX << EXRChannel_DEX) |
-    ((int64_t) c.DEY << EXRChannel_DEY) ;
+    ((int64_t) c.DEY << EXRChannel_DEY) |
+    ((int64_t) c.T << EXRChannel_T) ;
 }
 
 static inline EXRChannels unpack_exr_channels(int64_t x)
@@ -63,6 +65,7 @@ static inline EXRChannels unpack_exr_channels(int64_t x)
     , bool(x & (1 << EXRChannel_NF))
     , bool(x & (1 << EXRChannel_DEX))
     , bool(x & (1 << EXRChannel_DEY))
+    , bool(x & (1 << EXRChannel_T))
     };
   return r;
 }
@@ -79,6 +82,7 @@ extern int SaveEXR
 , int arrHeight
 , const itercount_array &count
 , const float *trans
+, const float *phase
 , const float *dex
 , const float *dey
 , const EXRChannels channels

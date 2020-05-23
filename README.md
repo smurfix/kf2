@@ -121,11 +121,14 @@ Feedback:
 
 ### Incompatible Changes
 
-- **In versions `2.14.10` and above**, the texture information is saved and
-  loaded from parameters; there are new controls for bailout escape radius
-  and norm power and the real/imag factors can be fractional and/or negative;
-  there is a new phase channel for texturing (exported raw to EXR); the smoothing
-  method is decoupled from escape radius
+- **In versions `2.14.10` and above**,
+  new controls for custom bailout escape radius;
+  bailout norm power can be customized;
+  bailout real/imag factors can be fractional and/or negative;
+  the smoothing method is decoupled from escape radius;
+  there is a new phase channel (`T` in EXR);
+  the texture information is saved and loaded from parameters;
+  the texture mode can be changed between image/finalZ/distance
 
 - **In versions `2.14.9` and above**, the new formula `z^2 exp(2 a / z) + c`
   is not available in earlier versions.

@@ -297,6 +297,7 @@ class CFraktalSFT
 	BOOL m_bTrans;
 	BOOL m_bITrans;
 	float **m_nTrans;
+	float **m_nPhase;
 	float **m_nDEx;
 	float **m_nDEy;
 	BOOL m_bNoGlitchDetection;
@@ -481,6 +482,7 @@ public:
 	void ApplyColors(int x0, int x1, int y0, int y1);
 	void ApplyColors();
 	void ApplyIterationColors();
+	void ApplyPhaseColors();
 	void ApplySmoothColors();
 	int GetSeed();
 	COLOR14 GetKeyColor(int i);
@@ -574,7 +576,7 @@ public:
   void SetOpenCLDeviceIndex(int i);
 #endif
 
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double nBailout, const complex<double> &de);
+	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de);
 	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
 	bool GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
 	bool GuessPixel(int x, int y, int w, int h);
@@ -676,6 +678,7 @@ public:
   // for EXR IO
   itercount_array GetArrayCount() { return m_nPixels; };
   float *GetArrayTrans() { return m_nTrans[0]; };
+  float *GetArrayPhase() { return m_nPhase ? m_nPhase[0] : nullptr; };
   float *GetArrayDEx() { return GetDerivatives() ? m_nDEx[0] : nullptr; };
   float *GetArrayDEy() { return GetDerivatives() ? m_nDEy[0] : nullptr; };
   half *GetArrayHalfColour() { return m_imageHalf; };

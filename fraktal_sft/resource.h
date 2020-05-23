@@ -160,6 +160,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_EXR_DEY                     1110
 #define IDC_STOREZOOM_KFR               1111
 #define IDC_COLOR_TRANSITION_FLAT       1112
+#define IDC_EXR_T                       1113
 
 // "Formula" dialog
 #define IDD_FORMULA                     120
@@ -328,6 +329,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_MAX_REFERENCES_10000 40145
 #define ID_GLITCH_LOW_TOLERANCE 40146
 #define ID_APPROX_LOW_TOLERANCE 40147
+#define ID_APPLY_PHASE_COLORS 40148
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         150

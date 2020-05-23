@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -69,10 +69,11 @@ class perturbationClassD{
 	int64_t m_iters;
   R_lo m_test1;
   R_lo m_test2;
+	double m_phase;
 	R_lo m_de;
 public:
 
-	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N si, N n0): m_d0(d0), m_d(d), m_dd(dd), m_si(si), m_n0(n0), m_escaped(false), m_iters(0), m_test1(0), m_test2(0), m_de(0) {}
+	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N si, N n0): m_d0(d0), m_d(d), m_dd(dd), m_si(si), m_n0(n0), m_escaped(false), m_iters(0), m_test1(0), m_test2(0), m_phase(0), m_de(0) {}
 	
 	//Experimental: Usually, after series approximation delta_0 (m_d0 here) have no effect.
 	//              Here we do a first loop where we add delta_0 then, when delta_0 is too small,
@@ -85,12 +86,15 @@ public:
 			if(abs(m_d0.re)+abs(m_d0.im) < 1e-20 * (abs(zn.re)+abs(zn.im))) break;
 			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
 			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
-			R_lo r(norm(zn + m_d));
+			C_lo zme(zn + m_d);
+			R_lo r(norm(zme));
       m_test2 = m_test1;
       m_test1 = r;
 			if (r > R_lo(1e10)){
 				m_escaped = true;
 				m_iters = i;
+				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
+				m_phase -= floor(m_phase);
 				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
 				return;
 			}
@@ -99,12 +103,15 @@ public:
 			C_lo zn(ref[i]);
 			m_dd = R_lo(2) * m_dd * (m_d + zn);// + R_lo(1);
 			m_d = m_d * (R_lo(2) * zn + m_d);// + m_d0;
-			R_lo r(norm(zn + m_d));
+			C_lo zme(zn + m_d);
+			R_lo r(norm(zme));
       m_test2 = m_test1;
       m_test1 = r;
 			if (r > R_lo(1e10)){
 				m_escaped = true;
 				m_iters = i;
+				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
+				m_phase -= floor(m_phase);
 				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
 				return;
 			}
@@ -115,12 +122,15 @@ public:
 			C_lo zn(ref[i]);
 			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
 			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
-			R_lo r(norm(zn + m_d));
+			C_lo zme(zn + m_d);
+			R_lo r(norm(zme));
       m_test2 = m_test1;
       m_test1 = r;
 			if (r > R_lo(1e10)){
 				m_escaped = true;
 				m_iters = i;
+				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
+				m_phase -= floor(m_phase);
 				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
 				return;
 			}
@@ -130,6 +140,7 @@ public:
 	int64_t getIters(){return m_iters;}
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
+	double getPhase(){return m_phase;}
 	R_lo getDE(){return m_de;}
 };
 
@@ -423,7 +434,7 @@ std::cerr << "period " << m_period << " radius " << r.toString() << std::endl;
 // d0 is relative to the center of the screen. The SSAs transparently transform the point into their own reference frame when called thanks to their m_shift member variable.
 //---------------------------------------------------------------------------------------------------
 
-static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking){
+static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking){
 	//try the SSAs from the latest (deepest) to the first. if not possible use perturbation until we get near to 0 again then repeat.
 	//ToDo: edit refClass to add another run(inside radius) function that verify if the iterated point returns near 0
 	//ToDo2: we need to test for escapes AFTER the iteration --> edit biPolyClass to compute the "other" bailout.
@@ -484,6 +495,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
           antal = maxiter;
           test1 = 0;
           test2 = 0;
+	  phase = 0;
           de = 0;
           return;
 #if 0			    
@@ -515,6 +527,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	  antal = maxiter;
 	  test1 = 0;
     test2 = 0;
+	  phase = 0;
     de = 0;
 	  return;
 	}
@@ -530,7 +543,8 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	{
 	  antal = p.getIters();
 	  test1 = p.getTest1().todouble();
-	  test2 = p.getTest1().todouble();
+	  test2 = p.getTest2().todouble();
+	  phase = p.getPhase();
     de = p.getDE().todouble();
     return;
 	}
@@ -539,6 +553,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	  antal = maxiter;
 	  test1 = 0;
     test2 = 0;
+	  phase = 0;
     de = 0;
     return;
 	}
@@ -627,8 +642,8 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
     return new NanoMB2_Reference(SSAs, ref);
 }
 
-void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &de, bool interior_checking)
+void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
 {
-  iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, de, interior_checking);
+  iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, phase, de, interior_checking);
   bGlitch = false;
 }

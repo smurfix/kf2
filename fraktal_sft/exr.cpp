@@ -55,6 +55,7 @@ extern int SaveEXR
 , int arrHeight
 , const itercount_array &count
 , const float *trans
+, const float *phase
 , const float *rawdex
 , const float *rawdey
 , const EXRChannels C
@@ -66,6 +67,7 @@ extern int SaveEXR
     uint32_t *n0 = C.N ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     uint32_t *n1 = C.N && (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     float *nf = C.NF ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    float *t = C.T ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     float *dex = C.DEX && rawdex ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     float *dey = C.DEY && rawdey ? new float[size_t(arrWidth) * arrHeight] : nullptr;
     // TODO parallelize
@@ -82,6 +84,7 @@ extern int SaveEXR
           if (n1) n1[e] = 0;
           if (n0) n0[e] = 0;
           if (nf) nf[e] = 0.0f;
+          if (t) t[e] = 0.0f;
           if (dex) dex[e] = 0.0f;
           if (dey) dey[e] = 0.0f;
         }
@@ -91,6 +94,7 @@ extern int SaveEXR
           if (n1) n1[e] = 0xFFffFFffU;
           if (n0) n0[e] = 0xFFffFFffU;
           if (nf) nf[e] = 0.0f;
+          if (t) t[e] = 0.0f;
           if (dex) dex[e] = 0.0f;
           if (dey) dey[e] = 0.0f;
         }
@@ -100,6 +104,7 @@ extern int SaveEXR
           if (n1) n1[e] = (n >> 32) & 0xFFffFFffLL;
           if (n0) n0[e] = n & 0xFFffFFffLL;
           if (nf) nf[e] = 1.0f - trans[k];
+          if (t) t[e] = phase[k];
           if (dex) dex[e] = rawdex[k];
           if (dey) dey[e] = rawdey[k];
         }
@@ -143,6 +148,7 @@ extern int SaveEXR
     else if (n0)
       header.channels().insert("N",  Channel(IMF::UINT));
     if (nf) header.channels().insert("NF", Channel(IMF::FLOAT));
+    if (t) header.channels().insert("T", Channel(IMF::FLOAT));
     if (dex) header.channels().insert("DEX", Channel(IMF::FLOAT));
     if (dey) header.channels().insert("DEY", Channel(IMF::FLOAT));
     OutputFile of(filename.c_str(), header);
@@ -157,7 +163,8 @@ extern int SaveEXR
     }
     else
     {
-      std::cerr << "no rgb" << std::endl;
+      if (C.R || C.G || C.B)
+        std::cerr << "no rgb" << std::endl;
     }
     // [x][y]
     if (n1 && n0)
@@ -168,13 +175,15 @@ extern int SaveEXR
     else if (n0)
       fb.insert("N",  Slice(IMF::UINT,  (char *) n0, sizeof(*n0) * arrHeight, sizeof(*n0) * 1));
     if (nf) fb.insert("NF", Slice(IMF::FLOAT, (char *) nf, sizeof(*nf) * arrHeight, sizeof(*nf) * 1));
+    if (t) fb.insert("T", Slice(IMF::FLOAT, (char *) t, sizeof(*t) * arrHeight, sizeof(*t) * 1));
     if (dex) fb.insert("DEX", Slice(IMF::FLOAT, (char *) dex, sizeof(*dex) * arrHeight, sizeof(*dex) * 1));
     if (dey) fb.insert("DEY", Slice(IMF::FLOAT, (char *) dey, sizeof(*dey) * arrHeight, sizeof(*dey) * 1));
     of.setFrameBuffer(fb);
     of.writePixels(arrHeight);
-    delete[] nf;
     delete[] n0;
     delete[] n1;
+    delete[] nf;
+    delete[] t;
     delete[] dex;
     delete[] dey;
     return 1;
@@ -220,6 +229,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
   uint32_t *N0 = nullptr;
   uint32_t *N1 = nullptr;
   float *NF = nullptr;
+  float *T = nullptr;
   float *DEX = nullptr;
   float *DEY = nullptr;
   try
@@ -263,6 +273,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
     N0 = new uint32_t[width * height];
     N1 = maxiter + bias >= 0xFFffFFffLL ? new uint32_t[width * height] : nullptr;
     NF = new float[width * height];
+    T = new float[width * height];
     DEX = new float[width * height];
     DEY = new float[width * height];
     FrameBuffer fb;
@@ -275,6 +286,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
     else
       fb.insert("N" , Slice(IMF::UINT,  (char *) (&N0[0] - dw.min.x - dw.min.y * width), sizeof(N0[0]) * height, sizeof(N0[0]) * 1, 1, 1, 0));
     fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
+    fb.insert("T", Slice(IMF::FLOAT, (char *) (&T[0] - dw.min.x - dw.min.y * width), sizeof(T[0]) * height, sizeof(T[0]) * 1, 1, 1, 0.0f));
     fb.insert("DEX", Slice(IMF::FLOAT, (char *) (&DEX[0] - dw.min.x - dw.min.y * width), sizeof(DEX[0]) * height, sizeof(DEX[0]) * 1, 1, 1, 0.0f));
     fb.insert("DEY", Slice(IMF::FLOAT, (char *) (&DEY[0] - dw.min.x - dw.min.y * width), sizeof(DEY[0]) * height, sizeof(DEY[0]) * 1, 1, 1, 0.0f));
     file.setFrameBuffer(fb);
@@ -284,6 +296,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
     g_SFT.SetImageSize(width, height);
     itercount_array count = g_SFT.GetArrayCount();
     float *trans = g_SFT.GetArrayTrans();
+    float *t = g_SFT.GetArrayPhase();
     float *dex = g_SFT.GetArrayDEx();
     float *dey = g_SFT.GetArrayDEy();
     // TODO parallelize
@@ -298,6 +311,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           count[i][j] = PIXEL_UNEVALUATED;
           trans[k] = 0.0f;
+          if (t) t[k] = 0.0f;
           if (dex) dex[k] = 0.0f;
           if (dey) dey[k] = 0.0f;
         }
@@ -305,6 +319,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           count[i][j] = maxiter;
           trans[k] = 0.0f;
+          if (t) t[k] = 0.0f;
           if (dex) dex[k] = 0.0f;
           if (dey) dey[k] = 0.0f;
         }
@@ -312,6 +327,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
         {
           count[i][j] = ((N1 ? int64_t(N1[e]) << 32 : 0) | N0[e]) - bias;
           trans[k] = 1.0f - NF[e];
+          if (t) t[k] = T[e];
           if (dex) dex[k] = DEX[e];
           if (dey) dey[k] = DEY[e];
         }
@@ -327,6 +343,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
   delete[] N0;
   delete[] N1;
   delete[] NF;
+  delete[] T;
   delete[] DEX;
   delete[] DEY;
   return retval;

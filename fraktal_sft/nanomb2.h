@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -47,6 +47,7 @@ void NanoMB2_Pixel
   , int64_t &antal
   , double &test1
   , double &test2
+  , double &phase
   , double &de
   , bool interior_checking
   );

@@ -243,6 +243,7 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , g_SFT.GetHeight()
 		  , g_SFT.GetArrayCount()
 		  , g_SFT.GetArrayTrans()
+		  , g_SFT.GetArrayPhase()
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
 		  , g_SFT.GetEXRChannels()
@@ -295,6 +296,7 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , g_SFT.GetHeight()
 		  , g_SFT.GetArrayCount()
 		  , g_SFT.GetArrayTrans()
+		  , g_SFT.GetArrayPhase()
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
 		  , g_SFT.GetEXRChannels()
@@ -1969,6 +1971,7 @@ static int WINAPI EXRChannelsProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
 		SendDlgItemMessage(hWnd, IDC_EXR_B, BM_SETCHECK, e->B, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_N, BM_SETCHECK, e->N, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_NF, BM_SETCHECK, e->NF, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_T, BM_SETCHECK, e->T, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_SETCHECK, e->DEX, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_SETCHECK, e->DEY, 0);
 		return 1;
@@ -1983,6 +1986,7 @@ static int WINAPI EXRChannelsProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
 			e->B = SendDlgItemMessage(hWnd, IDC_EXR_B, BM_GETCHECK, 0, 0);
 			e->N = SendDlgItemMessage(hWnd, IDC_EXR_N, BM_GETCHECK, 0, 0);
 			e->NF = SendDlgItemMessage(hWnd, IDC_EXR_NF, BM_GETCHECK, 0, 0);
+			e->T = SendDlgItemMessage(hWnd, IDC_EXR_T, BM_GETCHECK, 0, 0);
 			e->DEX = SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_GETCHECK, 0, 0);
 			e->DEY = SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_GETCHECK, 0, 0);
 			EndDialog(hWnd,1);
@@ -3798,6 +3802,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONSSHOWITERATIONS){
 		g_SFT.ApplyIterationColors();
+		InvalidateRect(hWnd,NULL,FALSE);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_APPLY_PHASE_COLORS){
+		g_SFT.ApplyPhaseColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SHOWSMOOTHTRANSITIONCOLORS){
