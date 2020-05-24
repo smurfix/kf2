@@ -140,7 +140,7 @@ COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS)
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
-OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP)) formula/formula.1.o formula/formula.2.o formula/formula.3.o formula/formula.4.o formula/formula.5.o formula/formula.6.o formula/formula.7.o formula/formula.8.o formula/formula.9.o formula/formula.a.o
+OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP)) formula/formula.1.o formula/formula.3.o formula/formula.4.o formula/formula.5.o formula/formula.6.o formula/formula.7.o formula/formula.8.o formula/formula.9.o formula/formula.a.o
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
@@ -170,9 +170,6 @@ res.o: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
 
 %.1.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -DPASS1 -o $@ -c $<
-
-%.2.o: %.cpp
-	$(COMPILE) $(COMPILE_FLAGS) -DPASS2 -o $@ -c $<
 
 %.3.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -DPASS3 -o $@ -c $<

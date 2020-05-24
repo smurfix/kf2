@@ -290,28 +290,8 @@ bool reference
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &antal, double &test1, double &test2
-  , double &Xxr, double &Xxi
-  );
-
-// reference with derivatives
-
-template <typename S, typename T>
-bool reference
-  ( const int m_nFractalType, const int m_nPower
-  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
-  , const CFixedFloat &Cr0, const CFixedFloat &Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &antal, double &test1, double &test2
-  , double &Xxr, double &Xxi
-  , S &dr0, S &di0
-  , const S &daa, const S &dab, const S &dba, const S &dbb
   );
 
 // perturbation

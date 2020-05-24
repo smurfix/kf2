@@ -58,17 +58,12 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
   )
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    bool stored = false;
-    double old_absval = 0;
-    double abs_val = 0;
     m_nGlitchIter = m_nMaxIter + 1;
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
@@ -107,30 +102,12 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
       m_nRDone++; \
       Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN); \
       Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN); \
-      old_absval = abs_val; \
-      abs_val = double(Xrd * Xrd + Xid * Xid); \
+      const double abs_val = double(Xrd * Xrd + Xid * Xid); \
       const double Xz = abs_val * glitch; \
       m_db_dxr[i] = Xrd; \
       m_db_dxi[i] = Xid; \
       m_db_z[i] = Xz; \
-      if (abs_val &gt;= 4) \
-      { \
-        if (terminate == 4 &amp;&amp; !stored) \
-        { \
-          stored = true; \
-          antal = i; \
-          test1 = abs_val; \
-          test2 = old_absval; \
-        } \
-      } \
       if (abs_val &gt;= terminate){ \
-        if (terminate &gt; 4 &amp;&amp; !stored) \
-        { \
-          stored = true; \
-          antal = i; \
-          test1 = abs_val; \
-          test2 = old_absval; \
-        } \
         if (nMaxIter == m_nMaxIter){ \
           nMaxIter = i + 3; \
           if (nMaxIter &gt; m_nMaxIter) \
@@ -172,8 +149,6 @@ LOOP  }
     mpfr_clear(Xin);
     mpfr_clear(Ar);
     mpfr_clear(Ai);
-    Xxr0 = double(Xrd);
-    Xxi0 = double(Xid);
     return true;
   }
   return false;
@@ -189,10 +164,8 @@ bool reference
   , const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
   )
 {
   switch (m_nFractalType)
@@ -211,10 +184,8 @@ bool reference
             , Cr, Ci
             , g_SeedR, g_SeedI
             , g_FactorAR, g_FactorAI
-            , terminate, g_real, g_imag, p
+            , terminate
             , m_bGlitchLowTolerance
-            , antal, test1, test2
-            , Xxr0, Xxi0
             );
       </xsl:for-each>
       }
@@ -231,10 +202,8 @@ template bool reference&lt;double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
   );
 template bool reference&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -243,10 +212,8 @@ template bool reference&lt;long double&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
   );
 template bool reference&lt;floatexp&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -255,330 +222,8 @@ template bool reference&lt;floatexp&gt;
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
+  , const double terminate
   , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  );
-
-#endif
-
-#ifdef PASS2 // reference with derivatives
-
-<xsl:for-each select="formulas/group/formula">
-
-template &lt;typename S, typename T&gt;
-bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
-  ( const int m_nFractalType, const int m_nPower
-  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , S &amp;dr0, S &amp;di0
-  , const S &amp;daa, const S &amp;dab, const S &amp;dba, const S &amp;dbb
-  )
-{
-  (void) dr0; // -Wunused-parameter
-  (void) di0; // -Wunused-parameter
-  (void) daa; // -Wunused-parameter
-  (void) dab; // -Wunused-parameter
-  (void) dba; // -Wunused-parameter
-  (void) dbb; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
-  {
-    bool stored = false;
-    double old_absval = 0;
-    double abs_val = 0;
-    m_nGlitchIter = m_nMaxIter + 1;
-    int64_t nMaxIter = m_nMaxIter;
-    int64_t i;
-    double glitch = <xsl:value-of select="@glitch" />;
-    if (m_bGlitchLowTolerance) {
-      glitch = sqrt(glitch);
-    }
-    mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
-    mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
-    mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
-    mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
-    mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
-    T Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN);
-    T Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN);
-    mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
-    mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
-    mpfr_t Xrn; mpfr_init2(Xrn, bits);
-    mpfr_t Xin; mpfr_init2(Xin, bits);
-    mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
-    mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
-<xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    S dr = dr0, di = di0;
-    S drn = 0, din = 0;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-    S dxa = daa, dxb = dab, dya = dba, dyb = dbb;
-    S dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
-</xsl:when>
-</xsl:choose>
-<xsl:choose>
-<xsl:when test="reference/@t='C'">
-    complex&lt;CFixedFloat&gt; C, A, X, Xn;
-    mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
-    mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
-    mpfr_set(A.m_r.m_f.backend().data(), Ar, MPFR_RNDN);
-    mpfr_set(A.m_i.m_f.backend().data(), Ai, MPFR_RNDN);
-</xsl:when>
-</xsl:choose>
-
-#define LOOP \
-<xsl:choose><xsl:when test="derivative/@t='R' or derivative/@t='C'"> \
-    dr = drn; di = din; \
-</xsl:when><xsl:when test="derivative/@t='M'"> \
-    dxa = dxan; dxb = dxbn; dya = dyan, dyb = dybn; \
-</xsl:when></xsl:choose> \
-      mpfr_set(Xr, Xrn, MPFR_RNDN); \
-      mpfr_set(Xi, Xin, MPFR_RNDN); \
-      mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
-      mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
-      m_nRDone++; \
-      Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN); \
-      Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN); \
-      old_absval = abs_val; \
-      abs_val = double(Xrd * Xrd + Xid * Xid); \
-      const double Xz = abs_val * glitch; \
-      m_db_dxr[i] = Xrd; \
-      m_db_dxi[i] = Xid; \
-      m_db_z[i] = Xz; \
-      if (abs_val &gt;= 4) \
-      { \
-        if (terminate == 4 &amp;&amp; !stored) \
-        { \
-          stored = true; \
-          antal = i; \
-          test1 = abs_val; \
-          test2 = old_absval; \
-        } \
-      } \
-      if (abs_val &gt;= terminate){ \
-        if (terminate &gt; 4 &amp;&amp; !stored) \
-        { \
-          stored = true; \
-          antal = i; \
-          test1 = abs_val; \
-          test2 = old_absval; \
-        } \
-        if (nMaxIter == m_nMaxIter){ \
-          nMaxIter = i + 3; \
-          if (nMaxIter &gt; m_nMaxIter) \
-            nMaxIter = m_nMaxIter; \
-          m_nGlitchIter = nMaxIter; \
-        } \
-      }
-
-<xsl:choose>
-<xsl:when test="reference/@t='C'">
-@rd   {
-        const T Xxr = Xrd; (void) Xxr;
-        const T Xxi = Xid; (void) Xxi;
-        const complex&lt;T&gt; Xx(Xxr, Xxi), A(g_FactorAR, g_FactorAI);
-<xsl:choose>
-<xsl:when test="derivative/@t='C'">
-        const complex&lt;S&gt; d(dr, di), d0(daa, dba); <!-- FIXME matrix derivatives -->
-        complex&lt;S&gt; dn(0.0, 0.0);
-        <xsl:value-of select="derivative" />
-        drn = dn.m_r; din = dn.m_i;
-</xsl:when>
-<xsl:when test="derivative/@t='R' or derivative/@t='M'">
-        <xsl:value-of select="derivative" />
-</xsl:when>
-</xsl:choose>
-      }
-for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
-      {
-        mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
-        mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
-        {
-          <xsl:value-of select="reference" />
-          DLOOP
-        }
-        mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
-        mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
-LOOP  }
-#undef DLOOP
-</xsl:when>
-<xsl:when test="reference/@t='R'">
-@rd   {
-        const T Xxr = Xrd; (void) Xxr;
-        const T Xxi = Xid; (void) Xxi;
-<xsl:choose>
-<xsl:when test="derivative/@t='C'">
-        const complex&lt;S&gt; Xx(Xxr, Xxi), A(g_FactorAR, g_FactorAI);
-        const complex&lt;T&gt; d(dr, di);
-        const complex&lt;S&gt; d0(daa, dba); <!-- FIXME matrix derivatives -->
-        complex&lt;S&gt; dn(0.0, 0.0);
-        <xsl:value-of select="derivative" />
-        drn = dn.m_r; din = dn.m_i;
-</xsl:when>
-<xsl:when test="derivative/@t='R' or derivative/@t='M'">
-        <xsl:value-of select="derivative" />
-</xsl:when>
-</xsl:choose>
-      }
-@rr   {
-        <xsl:value-of select="reference" />
-      }
-</xsl:when>
-</xsl:choose>
-
-#undef LOOP
-    mpfr_clear(Cr);
-    mpfr_clear(Ci);
-    mpfr_clear(Xr);
-    mpfr_clear(Xi);
-    mpfr_clear(Xr2);
-    mpfr_clear(Xi2);
-    mpfr_clear(Xrn);
-    mpfr_clear(Xin);
-    mpfr_clear(Ar);
-    mpfr_clear(Ai);
-    Xxr0 = double(Xrd);
-    Xxi0 = double(Xid);
-<xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    dr0 = dr; di0 = di;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-    dr0 = (Xrd * dxa + Xid * dya) / sqrt(test1);
-    di0 = (Xrd * dxb + Xid * dyb) / sqrt(test1);
-</xsl:when>
-</xsl:choose>
-    return true;
-  }
-  return false;
-}
-
-</xsl:for-each>
-
-template &lt;typename S, typename T&gt;
-bool reference
-  ( const int m_nFractalType, const int m_nPower
-  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , S &amp;dr, S &amp;di
-  , const S &amp;daa, const S &amp;dab, const S &amp;dba, const S &amp;dbb
-  )
-{
-  switch (m_nFractalType)
-  {
-  <xsl:for-each select="formulas/group">
-    // <xsl:value-of select="@name" />
-    case <xsl:value-of select="@type" />:
-      switch (m_nPower)
-      {
-      <xsl:for-each select="formula">
-        case <xsl:value-of select="@power" />:
-          return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
-            ( m_nFractalType, m_nPower
-            , m_db_dxr, m_db_dxi, m_db_z
-            , m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter
-            , Cr, Ci
-            , g_SeedR, g_SeedI
-            , g_FactorAR, g_FactorAI
-            , terminate, g_real, g_imag, p
-            , m_bGlitchLowTolerance
-            , antal, test1, test2
-            , Xxr0, Xxi0
-            , dr, di
-            , daa, dab, dba, dbb
-            );
-      </xsl:for-each>
-      }
-      break;
-  </xsl:for-each>
-  }
-  return false;
-}
-
-template bool reference&lt;double, double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , double *m_db_dxr, double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , double &amp;dr0, double &amp;di0
-  , const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb
-  );
-template bool reference&lt;long double, double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , double *m_db_dxr, double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , long double &amp;dr0, long double &amp;di0
-  , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
-  );
-template bool reference&lt;long double, long double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , long double *m_db_dxr, long double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , long double &amp;dr0, long double &amp;di0
-  , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
-  );
-template bool reference&lt;floatexp, long double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , long double *m_db_dxr, long double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , floatexp &amp;dr0, floatexp &amp;di0
-  , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
-  );
-template bool reference&lt;floatexp, floatexp&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , floatexp *m_db_dxr, floatexp *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate, const double g_real, const double g_imag, const double p
-  , const bool m_bGlitchLowTolerance
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2
-  , double &amp;Xxr0, double &amp;Xxi0
-  , floatexp &amp;dr0, floatexp &amp;di0
-  , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
   );
 
 #endif

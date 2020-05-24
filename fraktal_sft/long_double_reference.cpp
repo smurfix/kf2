@@ -42,11 +42,7 @@ struct mcthread_common
 	long double *m_ldxr, *m_ldxi;
 	double *m_db_z, *terminate, *glitch_threshold;
 	int64_t *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
-	int64_t *antal;
-	double *test1;
-	double *test2;
 	volatile bool *stop;
-	long double dr, di;
 };
 
 struct mcthread
@@ -60,16 +56,8 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-	int64_t antal = 0;
-	double test1 = 0;
-	double test2 = 0;
-	bool stored = false;
-	double old_absval = 0;
-	double abs_val = 0;
 
 	mcthread_common *p = p0->common;
-	long double dr = p->dr;
-	long double di = p->di;
 	const double glitch_threshold = *p->glitch_threshold;
 	int64_t i = 0;
 	switch (p0->nType)
@@ -111,31 +99,9 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				{
 					const long double lr = p->m_ldxr[i-1];
 					const long double li = p->m_ldxi[i-1];
-					long double drn = 2 * (lr * dr - li * di) + 1;
-					long double din = 2 * (lr * di + li * dr);
-					dr = drn;
-					di = din;
-					old_absval = abs_val;
-					abs_val = lr * lr + li * li;
+					const long double abs_val = lr * lr + li * li;
 					p->m_db_z[i-1] = abs_val * glitch_threshold;
-					if (abs_val >= 4)
-					{
-						if (*p->terminate == 4 && !stored)
-						{
-							stored = true;
-							antal = i;
-							test1 = abs_val;
-							test2 = old_absval;
-						}
-					}
 					if (abs_val >= *p->terminate){
-						if (*p->terminate > 4 && !stored)
-						{
-							stored = true;
-							antal = i;
-							test1 = abs_val;
-							test2 = old_absval;
-						}
 						if (*p->nMaxIter == *p->m_nMaxIter)
 						{
 							*p->nMaxIter = i-1 + 3;
@@ -165,31 +131,9 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		{
 			const long double lr = p->m_ldxr[i-1];
 			const long double li = p->m_ldxi[i-1];
-			long double drn = 2 * (lr * dr - li * di) + 1;
-			long double din = 2 * (lr * di + li * dr);
-			dr = drn;
-			di = din;
-			old_absval = abs_val;
-			abs_val = lr * lr + li * li;
+			const long double abs_val = lr * lr + li * li;
 			p->m_db_z[i-1] = abs_val * glitch_threshold;
-			if (abs_val >= 4)
-			{
-				if (*p->terminate == 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-			}
 			if (abs_val >= *p->terminate){
-				if (*p->terminate > 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
 				if (*p->nMaxIter == *p->m_nMaxIter)
 				{
 					*p->nMaxIter = i-1 + 3;
@@ -200,8 +144,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			}
 			(*p->m_nRDone)++;
 		}
-		p->dr = dr;
-		p->di = di;
 		const long double xr = mpfr_get_ld(p->xr, MPFR_RNDN);
 		const long double xi = mpfr_get_ld(p->xi, MPFR_RNDN);
 		for (; i < *p->nMaxIter && !*p->stop; i++)
@@ -209,9 +151,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			p->m_ldxr[i] = xr;
 			p->m_ldxi[i] = xi;
 		}
-		*p->antal = antal;
-		*p->test1 = test1;
-		*p->test2 = test2;
 	}
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(p0->hDone);
@@ -221,7 +160,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 
 void CFraktalSFT::CalculateReferenceLDBL()
 {
-	const bool derivatives = GetDerivatives();
 	Precision prec(m_rref.m_f.precision());
 
 	int64_t i;
@@ -235,19 +173,7 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		delete[] m_db_z;
 	m_db_z = new double [m_nMaxIter];
 
-	int64_t antal = 0;
-	double test1 = 0;
-	double test2 = 0;
-	double phase = 0;
-	double xxr = 0, xxi = 0;
-
-	long double dr = 1, di = 0;
-	floatexp ldr = 1, ldi = 0;
-
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	const double nBailout = GetBailoutRadius();
-	const double p = GetBailoutNorm();
-	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int64_t nMaxIter = m_nMaxIter;
 
@@ -293,11 +219,6 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		co.nMaxIter = &nMaxIter;
 		co.m_nRDone = &m_nRDone;
 		co.stop = &m_bStop;
-		co.antal = &antal;
-		co.test1 = &test1;
-		co.test2 = &test2;
-		co.dr = dr;
-		co.di = di;
 		// spawn threads
 		for (i = 0; i < 3; i++)
 		{
@@ -325,21 +246,11 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		mpfr_clear(co.si);
 		mpfr_clear(co.cr);
 		mpfr_clear(co.ci);
-		dr = co.dr;
-		di = co.di;
-		long double pixel_spacing = m_lPixelSpacing;
-		dr *= pixel_spacing;
-		di *= pixel_spacing;
-		ldr = dr;
-		ldi = di;
 
 	}
 	else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives, option to disable derivatives
 	{
 
-		bool stored = false;
-		double old_absval = 0;
-		double abs_val = 0;
 		CFixedFloat xr = g_SeedR, xi = g_SeedI;
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)
@@ -349,39 +260,14 @@ void CFraktalSFT::CalculateReferenceLDBL()
 		}
 		if (threashold>.5)
 			threashold = .5;
-		complex<long double> d(1.0, 0.0);
 		for (i = 0; i<nMaxIter && !m_bStop; i++){
 			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
-			floatexp xrf; xrf = xr;
-			floatexp xif; xif = xi;
-			complex<long double> x(xrf.toLongDouble(), xif.toLongDouble());
-			d = m_nPower * d * (x ^ (m_nPower - 1)) + 1;
-			xr = Xn.m_r;
-			xi = Xn.m_i;
 			m_ldxr[i] = mpfr_get_ld(xr.m_f.backend().data(), MPFR_RNDN);
 			m_ldxi[i] = mpfr_get_ld(xi.m_f.backend().data(), MPFR_RNDN);
-			old_absval = abs_val;
-			abs_val = m_ldxr[i] * m_ldxr[i] + m_ldxi[i] * m_ldxi[i];
+			const long double abs_val = m_ldxr[i] * m_ldxr[i] + m_ldxi[i] * m_ldxi[i];
 			m_db_z[i] = abs_val*threashold;
-			if (abs_val >= 4)
-			{
-				if (terminate == 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
-			}
 			if (abs_val >= terminate){
-				if (terminate > 4 && !stored)
-				{
-					stored = true;
-					antal = i;
-					test1 = abs_val;
-					test2 = old_absval;
-				}
 				if (nMaxIter == m_nMaxIter){
 					nMaxIter = i + 3;
 					if (nMaxIter>m_nMaxIter)
@@ -391,47 +277,16 @@ void CFraktalSFT::CalculateReferenceLDBL()
 			}
 			m_nRDone++;
 		}
-		dr = d.m_r;
-		di = d.m_i;
-		long double pixel_spacing = m_lPixelSpacing;
-		dr *= pixel_spacing;
-		di *= pixel_spacing;
-		ldr = dr;
-		ldi = di;
 
 	}
-	else if (m_nScalingOffset && scaling_supported(m_nFractalType, m_nPower, derivatives))
+	else if (m_nScalingOffsetL && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 	{
-
-		floatexp _x, _y, daa, dab, dba, dbb;
-		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
-		ldr *= m_fPixelSpacing;
-		ldi *= m_fPixelSpacing;
-		bool ok = derivatives
-		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, ldr, ldi, daa, dab, dba, dbb)
-		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
-		  ;
+		bool ok = reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, GetGlitchLowTolerance());
 		assert(ok && "reference_scaled_long_double");
-
   }
   else
   {
-
-		floatexp _x, _y, daa, dab, dba, dbb;
-		GetPixelCoordinates(g_nAddRefX, g_nAddRefY, _x, _y, daa, dab, dba, dbb);
-		long double ldaa = daa.toLongDouble();
-		long double ldab = dab.toLongDouble();
-		long double ldba = dba.toLongDouble();
-		long double ldbb = dbb.toLongDouble();
-		dr *= m_lPixelSpacing;
-		di *= m_lPixelSpacing;
-		bool ok = derivatives
-		  ? reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi, dr, di, ldaa, ldab, ldba, ldbb)
-		  : reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, g_real, g_imag, p, GetGlitchLowTolerance(), antal, test1, test2, xxr, xxi)
-		  ;
+		bool ok = reference(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, GetGlitchLowTolerance());
     assert(ok && "reference_long_double");
-		ldr = dr;
-		ldi = di;
-
 	}
 }
