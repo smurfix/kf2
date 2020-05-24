@@ -246,6 +246,8 @@ Feedback:
       - Mandelbrot power 3 rescaled perturbation: 7.5% faster
       - "find glitch center using argmin|z|" is now parallelized
         (suggested by gerrit)
+      - "find glitch center" (using original method) memory (de)allocation
+        floated out of inner loop (slowness reported by gerrit)
 
     - enhancements
 
@@ -277,7 +279,7 @@ Feedback:
       - new Flat colouring mode for when disabling Smooth is not enough
         (Linear smooth method is recommended; Log can give seams)
       - "Random" method for choosing new references among glitched pixels,
-        is sometimes better than both the "Original" and "argmin|z|" methods
+        is sometimes better/worse than the "Original" and "argmin|z|" methods
         (suggested by gerrit)
 
     - fixes
