@@ -48,8 +48,12 @@ void NanoMB2_Pixel
   , double &test1
   , double &test2
   , double &phase
-  , double &de
+  , complex<double> &de
   , bool interior_checking
+  , double g_real
+  , double g_imag
+  , double pval
+  , double nBailout2
   );
 
 #endif

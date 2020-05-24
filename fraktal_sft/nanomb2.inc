@@ -70,15 +70,17 @@ class perturbationClassD{
   R_lo m_test1;
   R_lo m_test2;
 	double m_phase;
-	R_lo m_de;
+	C_lo m_de;
 public:
 
 	perturbationClassD(C_lo d0, C_lo d, C_lo dd, N si, N n0): m_d0(d0), m_d(d), m_dd(dd), m_si(si), m_n0(n0), m_escaped(false), m_iters(0), m_test1(0), m_test2(0), m_phase(0), m_de(0) {}
-	
+
 	//Experimental: Usually, after series approximation delta_0 (m_d0 here) have no effect.
 	//              Here we do a first loop where we add delta_0 then, when delta_0 is too small,
 	//             a second loop is performed where delta_0 is not used anymore. (idea from Pauldelbrot)
 	// It works! ToDo: ...
+#if 0
+	// FIXME add p-norm bailout stuff
 	void run1(const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing){
 		N si = m_si, i = m_n0;
 		for( ; si < maxsi && i < maxiter; si++, i++){
@@ -95,7 +97,7 @@ public:
 				m_iters = i;
 				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
 				m_phase -= floor(m_phase);
-				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
+				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
 				return;
 			}
 		}
@@ -112,26 +114,34 @@ public:
 				m_iters = i;
 				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
 				m_phase -= floor(m_phase);
-				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
+				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
 				return;
 			}
 		}
 	}
-	void run(const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing){
+#endif
+
+	void run(const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, double g_real, double g_imag, double pval, double nBailout2){
+		const bool no_g = g_real == 1.0 && g_imag == 1.0 && pval == 2.0;
 		for(N si = m_si, i = m_n0 ; si < maxsi && i < maxiter; si++, i++){
 			C_lo zn(ref[i]);
 			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
 			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
 			C_lo zme(zn + m_d);
-			R_lo r(norm(zme));
-      m_test2 = m_test1;
-      m_test1 = r;
-			if (r > R_lo(1e10)){
+			R_lo r2(norm(zme));
+			m_test2 = m_test1;
+			m_test1 = r2;
+			// TODO perturbation glitch detection goes here?
+			if (! no_g)
+			{
+				m_test1 = pnorm(g_real, g_imag, pval, zme.m_r, zme.m_i);
+			}
+			if (m_test1 > nBailout2){
 				m_escaped = true;
 				m_iters = i;
 				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
 				m_phase -= floor(m_phase);
-				m_de = sqrt(r) * log(r) / abs(m_dd * pixel_spacing);
+				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
 				return;
 			}
 		}
@@ -141,7 +151,7 @@ public:
 	R_lo getTest1(){return m_test1;}
 	R_lo getTest2(){return m_test2;}
 	double getPhase(){return m_phase;}
-	R_lo getDE(){return m_de;}
+	C_lo getDE(){return m_de;}
 };
 
 //--------------------------------------------------------------------------------------------
@@ -434,7 +444,7 @@ std::cerr << "period " << m_period << " radius " << r.toString() << std::endl;
 // d0 is relative to the center of the screen. The SSAs transparently transform the point into their own reference frame when called thanks to their m_shift member variable.
 //---------------------------------------------------------------------------------------------------
 
-static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking){
+static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const refClass &ref, N maxsi, N maxiter, R_lo pixel_spacing, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double nBailout2){
 	//try the SSAs from the latest (deepest) to the first. if not possible use perturbation until we get near to 0 again then repeat.
 	//ToDo: edit refClass to add another run(inside radius) function that verify if the iterated point returns near 0
 	//ToDo2: we need to test for escapes AFTER the iteration --> edit biPolyClass to compute the "other" bailout.
@@ -537,7 +547,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	//               One can use perturbation without adding delta_c. Some other optimizations may become possible. (from comment by Pauldelbrot @fractalforums.com)
 	d -= ref[i]; //put d in reference orbit's local frame
 	perturbationClassD p(d0,d,dd,si,i);//We use original d0 because the reference orbit was computed there.
-	p.run(ref,maxsi,maxiter, pixel_spacing);
+	p.run(ref,maxsi,maxiter, pixel_spacing, g_real, g_imag, pval, nBailout2);
 	
 	if(p.haveEscaped())
 	{
@@ -545,7 +555,7 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	  test1 = p.getTest1().todouble();
 	  test2 = p.getTest2().todouble();
 	  phase = p.getPhase();
-    de = p.getDE().todouble();
+	  de = complex<double>(p.getDE().m_r.todouble(), p.getDE().m_i.todouble());
     return;
 	}
 	else
@@ -642,8 +652,8 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxp
     return new NanoMB2_Reference(SSAs, ref);
 }
 
-void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, double &de, bool interior_checking)
+void NanoMB2_Pixel(const NanoMB2_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxsi, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double nBailout2)
 {
-  iteratePtDE1( dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, phase, de, interior_checking);
+  iteratePtDE1(dc, ctx->SSAs, ctx->ref, maxsi, maxiters, pixel_spacing, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, pval, nBailout2);
   bGlitch = false;
 }

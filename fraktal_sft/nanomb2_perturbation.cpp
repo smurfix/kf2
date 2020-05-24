@@ -22,8 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 void CFraktalSFT::MandelCalcNANOMB2()
 {
-	const double nBailout = GetBailoutRadius();
 	bool interior_checking = GetInteriorChecking();
+	const double nBailout = GetBailoutRadius();
+	const double p = GetBailoutNorm();
+	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+
 	m_bIterChanged = TRUE;
 	int x, y, w, h;
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -48,11 +51,12 @@ void CFraktalSFT::MandelCalcNANOMB2()
 		complex<floatexp> dc(D0r, D0i);
 		bool bGlitch = false;
 		int64_t antal = 0;
-		double test1 = 0, test2 = 0, phase = 0, de = 0;
+		double test1 = 0, test2 = 0, phase = 0;
+		complex<double> de = 0;
 
 		int64_t maxsi = m_nMaxIter; // FIXME
 		if (m_NanoMB2Ref)
-			NanoMB2_Pixel(m_NanoMB2Ref, dc, m_fPixelSpacing, maxsi, m_nMaxIter, bGlitch, antal, test1, test2, phase, de, interior_checking);
+			NanoMB2_Pixel(m_NanoMB2Ref, dc, m_fPixelSpacing, maxsi, m_nMaxIter, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, p, nBailout2);
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
 		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
