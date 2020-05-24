@@ -2435,16 +2435,12 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 #undef KF_RERENDER_ONLY_ALL_GLITCHES
 
 #define SMOOTH_TO 7
-int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone)
+int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize)
 {
 	int x, y;
 	int nAreaC=0;
 	int nTarget = m_nPixels[nXStart][nYStart];
 
-	int nQSize = m_nX*m_nY;
-	if(nQSize>230400)
-		nQSize=230400;
-	POINT *pQ = new POINT[nQSize];
 	nQSize--;
 	int nQ=1;
 	pQ[nQ-1].x = nXStart;
@@ -2553,7 +2549,6 @@ int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqS
 			}
 		}
 	}
-	delete [] pQ;
 	return nAreaC;
 }
 
@@ -2785,12 +2780,17 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	int nHeight = m_nY;
 	if(m_bMirrored)
 		nHeight=(nHeight+1)/2;
+
+	int nQSize = m_nX*m_nY;
+	if(nQSize>230400)
+		nQSize=230400;
+	POINT *pQ = new POINT[nQSize];
 	for(x=0;x<m_nX;x++){
 		for(y=0;y<nHeight;y++){
 			int nDone = - (x*m_nY+y);
 			if(Node[x][y]>0 && GET_TRANS_GLITCH(m_nTrans[x][y]) && Pixels[x][y]!=m_nMaxIter){
 				itercount_array invalid(0, 0, nullptr, nullptr);
-				int nDist = GetArea(Node,x,y,1,invalid,nDone);
+				int nDist = GetArea(Node,x,y,1,invalid,nDone, pQ, nQSize);
 				if(nDistance<nDist){
 					nDistance=nDist;
 					rx=x;
@@ -2799,6 +2799,9 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			}
 		}
 	}
+	delete[] pQ;
+	pQ = nullptr;
+
 	// now (rx,ry) is a point in the largest glitch of size (nDistance)
 	// or (nDistance == -1) for no glitches
 

@@ -417,7 +417,7 @@ class CFraktalSFT
 	void RenderFractalOpenCL();
 	void RenderFractalOpenCLEXP();
 #endif
-	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone);
+	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize);
 
 	void LoadTexture();
 	void SetTexture(int nIndex, int x, int y, srgb &s);
