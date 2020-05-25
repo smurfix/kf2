@@ -231,6 +231,10 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 			g_SFT.SetHalfColour(true);
 			g_SFT.ApplyColors();
 		}
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = g_SFT.GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - g_SFT.GetThreadsReserveCore();
+		if (nParallel < 1 || ! g_SFT.GetEXRParallel()) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -247,6 +251,7 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
 		  , g_SFT.GetEXRChannels()
+		  , nParallel
 		  );
 		if (allocate)
 		{
@@ -284,6 +289,10 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 			g_SFT.SetHalfColour(true);
 			g_SFT.ApplyColors();
 		}
+		SYSTEM_INFO sysinfo;
+		GetSystemInfo(&sysinfo);
+		int nParallel = g_SFT.GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - g_SFT.GetThreadsReserveCore();
+		if (nParallel < 1 || ! g_SFT.GetEXRParallel()) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -300,6 +309,7 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , g_SFT.GetArrayDEx()
 		  , g_SFT.GetArrayDEy()
 		  , g_SFT.GetEXRChannels()
+		  , nParallel
 		  );
 		if (allocate)
 		{
@@ -645,6 +655,12 @@ static void UpdateThreadedReference(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateEXRParallel(HWND hWnd)
+{
+	bool b = g_SFT.GetEXRParallel();
+	CheckMenuItem(GetMenu(hWnd),ID_EXR_PARALLEL,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateSIMDVectorSize(HWND hWnd)
 {
 	int z = g_SFT.GetSIMDVectorSize();
@@ -707,6 +723,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateHalfColour(hWnd);
 	UpdateSaveOverwrites(hWnd);
 	UpdateThreadedReference(hWnd);
+	UpdateEXRParallel(hWnd);
 	UpdateSIMDVectorSize(hWnd);
 	UpdateSIMDChunkSize(hWnd);
 	UpdateApproxTerms(hWnd);
@@ -4309,6 +4326,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_THREADED_REFERENCE){
 		g_SFT.SetThreadedReference(!g_SFT.GetThreadedReference());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(g_SFT.GetThreadedReference()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_EXR_PARALLEL){
+		g_SFT.SetEXRParallel(! g_SFT.GetEXRParallel());
+		UpdateEXRParallel(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_1){ g_SFT.SetSIMDVectorSize(1); UpdateSIMDVectorSize(hWnd); }
 	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_2){ g_SFT.SetSIMDVectorSize(2); UpdateSIMDVectorSize(hWnd); }

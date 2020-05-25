@@ -59,17 +59,19 @@ extern int SaveEXR
 , const float *rawdex
 , const float *rawdey
 , const EXRChannels C
+, int threads
 )
 {
   try
   {
+    setGlobalThreadCount(threads);
     // prepare arrays with proper format
     uint32_t *n0 = C.N ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     uint32_t *n1 = C.N && (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     float *nf = C.NF ? new float[size_t(arrWidth) * arrHeight] : nullptr;
-    float *t = C.T ? new float[size_t(arrWidth) * arrHeight] : nullptr;
-    float *dex = C.DEX && rawdex ? new float[size_t(arrWidth) * arrHeight] : nullptr;
-    float *dey = C.DEY && rawdey ? new float[size_t(arrWidth) * arrHeight] : nullptr;
+    const float *t = C.T ? phase : nullptr;
+    const float *dex = C.DEX ? rawdex : nullptr;
+    const float *dey = C.DEY ? rawdey : nullptr;
     // TODO parallelize
     for (int i = 0; i < arrWidth; ++i)
     {
@@ -84,9 +86,6 @@ extern int SaveEXR
           if (n1) n1[e] = 0;
           if (n0) n0[e] = 0;
           if (nf) nf[e] = 0.0f;
-          if (t) t[e] = 0.0f;
-          if (dex) dex[e] = 0.0f;
-          if (dey) dey[e] = 0.0f;
         }
         else if (count[i][j] == maxiter)
         {
@@ -94,19 +93,13 @@ extern int SaveEXR
           if (n1) n1[e] = 0xFFffFFffU;
           if (n0) n0[e] = 0xFFffFFffU;
           if (nf) nf[e] = 0.0f;
-          if (t) t[e] = 0.0f;
-          if (dex) dex[e] = 0.0f;
-          if (dey) dey[e] = 0.0f;
         }
         else
         {
           int64_t n = count[i][j] + BIAS;
           if (n1) n1[e] = (n >> 32) & 0xFFffFFffLL;
           if (n0) n0[e] = n & 0xFFffFFffLL;
-          if (nf) nf[e] = 1.0f - trans[k];
-          if (t) t[e] = phase[k];
-          if (dex) dex[e] = rawdex[k];
-          if (dey) dey[e] = rawdey[k];
+          if (nf) nf[e] = 1.0f - trans[k]; // FIXME this is in (0..1] instead of [0..1)
         }
       }
     }
@@ -183,9 +176,6 @@ extern int SaveEXR
     delete[] n0;
     delete[] n1;
     delete[] nf;
-    delete[] t;
-    delete[] dex;
-    delete[] dey;
     return 1;
   }
   catch (...)
@@ -223,7 +213,7 @@ extern std::string ReadEXRComment(const std::string &filename)
   return "";
 }
 
-extern bool ReadEXRMapFile(const std::string &filename)
+extern bool ReadEXRMapFile(const std::string &filename, int threads)
 {
   bool retval = false;
   uint32_t *N0 = nullptr;
@@ -234,6 +224,7 @@ extern bool ReadEXRMapFile(const std::string &filename)
   float *DEY = nullptr;
   try
   {
+    setGlobalThreadCount(threads);
     InputFile file(filename.c_str());
     int64_t maxiter = INT_MAX - 1 - BIAS;
     int64_t bias = BIAS;
@@ -269,13 +260,19 @@ extern bool ReadEXRMapFile(const std::string &filename)
     Box2i dw = h.dataWindow();
     size_t width = dw.max.x - dw.min.x + 1;
     size_t height = dw.max.y - dw.min.y + 1;
-    // prepare arrays with proper format
-    N0 = new uint32_t[width * height];
-    N1 = maxiter + bias >= 0xFFffFFffLL ? new uint32_t[width * height] : nullptr;
-    NF = new float[width * height];
-    T = new float[width * height];
-    DEX = new float[width * height];
-    DEY = new float[width * height];
+
+    // prepare KF arrays
+    g_SFT.SetIterations(maxiter);
+    g_SFT.SetImageSize(width, height);
+    // rely on internal memory layout of itercount_array for efficiency
+    itercount_array count = g_SFT.GetArrayCount();
+    N0 = count.get_lsb_array();
+    N1 = count.get_msb_array(); // check what happens re: maxiter + bias >= 0xFFffFFffLL ?
+    NF = g_SFT.GetArrayTrans();
+    T = g_SFT.GetArrayPhase();
+    DEX = g_SFT.GetArrayDEx();
+    DEY = g_SFT.GetArrayDEy();
+
     FrameBuffer fb;
     // [x][y]
     if (N1)
@@ -285,51 +282,41 @@ extern bool ReadEXRMapFile(const std::string &filename)
     }
     else
       fb.insert("N" , Slice(IMF::UINT,  (char *) (&N0[0] - dw.min.x - dw.min.y * width), sizeof(N0[0]) * height, sizeof(N0[0]) * 1, 1, 1, 0));
-    fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
-    fb.insert("T", Slice(IMF::FLOAT, (char *) (&T[0] - dw.min.x - dw.min.y * width), sizeof(T[0]) * height, sizeof(T[0]) * 1, 1, 1, 0.0f));
-    fb.insert("DEX", Slice(IMF::FLOAT, (char *) (&DEX[0] - dw.min.x - dw.min.y * width), sizeof(DEX[0]) * height, sizeof(DEX[0]) * 1, 1, 1, 0.0f));
-    fb.insert("DEY", Slice(IMF::FLOAT, (char *) (&DEY[0] - dw.min.x - dw.min.y * width), sizeof(DEY[0]) * height, sizeof(DEY[0]) * 1, 1, 1, 0.0f));
+    if (NF) fb.insert("NF", Slice(IMF::FLOAT, (char *) (&NF[0] - dw.min.x - dw.min.y * width), sizeof(NF[0]) * height, sizeof(NF[0]) * 1, 1, 1, 0.0f));
+    if (T) fb.insert("T", Slice(IMF::FLOAT, (char *) (&T[0] - dw.min.x - dw.min.y * width), sizeof(T[0]) * height, sizeof(T[0]) * 1, 1, 1, 0.0f));
+    if (DEX) fb.insert("DEX", Slice(IMF::FLOAT, (char *) (&DEX[0] - dw.min.x - dw.min.y * width), sizeof(DEX[0]) * height, sizeof(DEX[0]) * 1, 1, 1, 0.0f));
+    if (DEY) fb.insert("DEY", Slice(IMF::FLOAT, (char *) (&DEY[0] - dw.min.x - dw.min.y * width), sizeof(DEY[0]) * height, sizeof(DEY[0]) * 1, 1, 1, 0.0f));
+
     file.setFrameBuffer(fb);
     file.readPixels(dw.min.y, dw.max.y);
-    // copy to KF arrays
-    g_SFT.SetIterations(maxiter);
-    g_SFT.SetImageSize(width, height);
-    itercount_array count = g_SFT.GetArrayCount();
-    float *trans = g_SFT.GetArrayTrans();
-    float *t = g_SFT.GetArrayPhase();
-    float *dex = g_SFT.GetArrayDEx();
-    float *dey = g_SFT.GetArrayDEy();
+
     // TODO parallelize
     for (size_t i = 0; i < width; ++i)
     {
       for (size_t j = 0; j < height; ++j)
       {
         // [x][y], don't flip vertically!
-        size_t e = j + height * i;
         size_t k = j + height * i;
-        if ((N1 ? N1[e] == 0 : true) && N0[e] == 0 && NF[e] == 0.0f)
+        if ((N1 ? N1[k] == 0 : true) && N0[k] == 0 && (NF ? NF[k] == 0.0f : true))
         {
           count[i][j] = PIXEL_UNEVALUATED;
-          trans[k] = 0.0f;
-          if (t) t[k] = 0.0f;
-          if (dex) dex[k] = 0.0f;
-          if (dey) dey[k] = 0.0f;
+          if (NF) NF[k] = 0.0f;
+          if (T) T[k] = 0.0f;
+          if (DEX) DEX[k] = 0.0f;
+          if (DEY) DEY[k] = 0.0f;
         }
-        else if ((N1 ? N1[e] == 0xFFffFFffU : true) && N0[e] == 0xFFffFFffU)
+        else if ((N1 ? N1[k] == 0xFFffFFffU : true) && N0[k] == 0xFFffFFffU)
         {
           count[i][j] = maxiter;
-          trans[k] = 0.0f;
-          if (t) t[k] = 0.0f;
-          if (dex) dex[k] = 0.0f;
-          if (dey) dey[k] = 0.0f;
+          if (NF) NF[k] = 0.0f;
+          if (T) T[k] = 0.0f;
+          if (DEX) DEX[k] = 0.0f;
+          if (DEY) DEY[k] = 0.0f;
         }
         else
         {
-          count[i][j] = ((N1 ? int64_t(N1[e]) << 32 : 0) | N0[e]) - bias;
-          trans[k] = 1.0f - NF[e];
-          if (t) t[k] = T[e];
-          if (dex) dex[k] = DEX[e];
-          if (dey) dey[k] = DEY[e];
+          count[i][j] = ((N1 ? int64_t(N1[k]) << 32 : 0) | N0[k]) - bias;
+          NF[k] = 1.0f - NF[k]; // FIXME this is in (0..1] instead of [0..1)
         }
       }
     }
@@ -340,11 +327,5 @@ extern bool ReadEXRMapFile(const std::string &filename)
   {
     retval = false;
   }
-  delete[] N0;
-  delete[] N1;
-  delete[] NF;
-  delete[] T;
-  delete[] DEX;
-  delete[] DEY;
   return retval;
 }

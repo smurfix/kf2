@@ -88,6 +88,7 @@ private:
   bool m_UseOpenCL;
   int64_t m_OpenCLPlatform;
   int64_t m_EXRChannels;
+  bool m_EXRParallel;
 
 public:
 
@@ -143,6 +144,7 @@ public:
   , m_UseOpenCL(false)
   , m_OpenCLPlatform(0)
   , m_EXRChannels(~0)
+  , m_EXRParallel(true)
   { };
 
   bool FromText(const std::string &text);
@@ -329,6 +331,9 @@ public:
 
   inline EXRChannels GetEXRChannels() const { return unpack_exr_channels(m_EXRChannels); };
   inline void SetEXRChannels(const EXRChannels n) { m_EXRChannels = pack_exr_channels(n); };
+
+  inline bool   GetEXRParallel() const { return m_EXRParallel; };
+  inline void   SetEXRParallel(bool b) { m_EXRParallel = b; };
 
 };
 

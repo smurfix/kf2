@@ -102,6 +102,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
   INT(EXRChannels)
+  BOOL(EXRParallel)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -167,6 +168,7 @@ std::string Settings::ToText() const
   BOOL(UseOpenCL)
   INT(OpenCLPlatform)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
+  BOOL(EXRParallel)
 #undef DOUBLE
 #undef INT
 #undef BOOL

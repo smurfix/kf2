@@ -106,6 +106,9 @@ public:
   {
     return lsb;
   }
+  // for EXR IO, to avoid allocating another 4 or 8 bytes per pixel
+  inline uint32_t *get_lsb_array() { return lsb; };
+  inline uint32_t *get_msb_array() { return msb; };
 };
 
 #endif

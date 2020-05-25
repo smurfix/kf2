@@ -332,6 +332,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_APPLY_PHASE_COLORS 40148
 #define ID_USE_RANDOM_AS_GLITCH_CENTER 40149
 #define ID_USE_ORIGINAL_AS_GLITCH_CENTER 40150
+#define ID_EXR_PARALLEL 40151
+
 // OpenCL
 #ifdef KF_OPENCL
 #define IDD_DIALOG_OPENCL         150

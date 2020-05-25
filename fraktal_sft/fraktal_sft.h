@@ -664,6 +664,7 @@ public:
   BOOL(OpenCLPlatform)
   inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };
   inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };
+  BOOL(EXRParallel)
 #undef DOUBLE
 #undef INT
 #undef BOOL

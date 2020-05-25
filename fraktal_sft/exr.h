@@ -86,10 +86,11 @@ extern int SaveEXR
 , const float *dex
 , const float *dey
 , const EXRChannels channels
+, int threads
 );
 
 extern std::string ReadEXRComment(const std::string &filename);
 
-extern bool ReadEXRMapFile(const std::string &filename);
+extern bool ReadEXRMapFile(const std::string &filename, int threads);
 
 #endif

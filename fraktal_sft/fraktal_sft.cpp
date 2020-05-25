@@ -2063,7 +2063,11 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 
 bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
 {
-	return ReadEXRMapFile(szfile);
+	SYSTEM_INFO sysinfo;
+	GetSystemInfo(&sysinfo);
+	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+	if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
+	return ReadEXRMapFile(szfile, nParallel);
 }
 
 BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
