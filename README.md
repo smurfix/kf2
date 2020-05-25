@@ -70,6 +70,8 @@ Feedback:
 
 - KF needs up to ~40 bytes per reference iteration (depending on number type)
 
+- KF cannot currently make use of more than 64 CPU threads
+
 
 ## Known Bugs
 
@@ -267,7 +269,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.10** (????-??-??)
+- **kf-2.14.10** (2020-05-25)
 
     - speed boosts
 
