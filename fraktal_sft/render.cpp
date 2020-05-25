@@ -208,6 +208,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 
 void CFraktalSFT::RenderFractal()
 {
+	m_bIsRendering = true;
+
 	m_C = cos(g_Degree);
 	m_S = sin(g_Degree);
 
@@ -248,11 +250,13 @@ void CFraktalSFT::RenderFractal()
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
+		m_bIsRendering = false;
 		return;
 	}
 	else if (GetUseNanoMB2() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB2();
+		m_bIsRendering = false;
 		return;
 	}
 	else if (m_nZoom>=g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
@@ -282,6 +286,7 @@ void CFraktalSFT::RenderFractal()
 		{
 			RenderFractalLDBL();
 		}
+		m_bIsRendering = false;
 		return;
 	}
 	else if (m_nZoom>=g_nLDBL){
@@ -302,6 +307,7 @@ void CFraktalSFT::RenderFractal()
 			m_ldxi = NULL;
 		}
 		RenderFractalEXP();
+		m_bIsRendering = false;
 		return;
 	}
 	if (m_ldxr){
@@ -447,6 +453,8 @@ void CFraktalSFT::RenderFractal()
 			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
+
+	m_bIsRendering = false;
 }
 
 void CFraktalSFT::RenderFractalLDBL()

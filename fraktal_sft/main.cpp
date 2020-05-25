@@ -2962,7 +2962,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		BeginPaint(hWnd,&ps);
 		SetStretchBltMode(ps.hdc,HALFTONE);
 		HDC dcBmp = CreateCompatibleDC(ps.hdc);
-		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetShrink());
+		// disable "Default" + "Best" shrinking when rendering is in progress
+		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetIsRendering() ? 0 : g_SFT.GetShrink());
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		if(g_bShowInflection){
 			POINT p;

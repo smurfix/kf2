@@ -234,6 +234,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nIterDiv = 0.1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
+	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	GenerateColors(128, 1);
@@ -2293,7 +2294,7 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 	if (m_nX == nWidth && m_nY == nHeight)
 		return ::SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
 	else{
-		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, GetShrink());
+		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, 2); // always use high quality shrinking when saving
 		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
 		return nRet;

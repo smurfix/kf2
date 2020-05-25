@@ -432,6 +432,7 @@ class CFraktalSFT
 	std::vector<std::string> m_undo;
 	std::vector<std::string> m_redo;
 
+	bool m_bIsRendering;
 public:
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
@@ -686,6 +687,7 @@ public:
   half *GetArrayHalfColour() { return m_imageHalf; };
   size_t GetArrayHalfColourStride() { return m_row; };
 	void ReinitializeBitmap();
+	inline bool GetIsRendering() { return m_bIsRendering; };
 };
 
 struct TH_PARAMS
