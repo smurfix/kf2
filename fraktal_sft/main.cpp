@@ -2699,11 +2699,17 @@ static long OpenFile(HWND hWnd, bool &ret)
 					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
-					char szTitle[1024];
-					snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
 					if (hWnd)
 					{
+						char szTitle[1024];
+						snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
 						SetWindowText(hWnd,szTitle);
+					}
+					if (g_hwColors)
+					{
+						char szTitle[1024];
+						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(g_szFile).c_str());
+						SetWindowText(g_hwColors,szTitle);
 					}
 					if (g_SFT.GetDifferences() == Differences_Analytic && !g_SFT.GetDerivatives())
 					{
