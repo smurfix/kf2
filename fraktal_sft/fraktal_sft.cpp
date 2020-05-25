@@ -221,6 +221,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nBailoutNormCustom = 2;
 	m_nColorMethod = ColorMethod_DistanceLog;
 	m_nDifferences = Differences_Analytic;
+	m_nPhaseColorStrength = 0;
 
 	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
 
@@ -974,6 +975,10 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 			nHSV.v = nB;
 			srgb nRGB = hsv2rgb(nHSV);
 			if (m_bBlend){
+				if (m_nPhaseColorStrength && m_nPhase)
+					iter += m_nPhaseColorStrength / 100 * 1024 * m_nPhase[x][y];
+				nIter = (int64_t)floor(iter);
+				offs = 1 - (iter - (double)nIter);
 				double nR, nG, nB;
 				if (m_bTrans && offs){
 					double g1 = (1 - offs);
@@ -1003,6 +1008,10 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 			}
 		}
 		else{
+			if (m_nPhaseColorStrength && m_nPhase)
+				iter += m_nPhaseColorStrength / 100 * 1024 * m_nPhase[x][y];
+			nIter = (int64_t)floor(iter);
+			offs = 1 - (iter - (double)nIter);
 			if (m_bTrans && offs){
 				double g1 = (1 - offs);
 				int col = ((nIter % 1024) + 1024) % 1024;
@@ -3262,6 +3271,14 @@ void CFraktalSFT::SetColorOffset(int nColorOffset)
 int CFraktalSFT::GetColorOffset()
 {
 	return m_nColorOffset;
+}
+void CFraktalSFT::SetPhaseColorStrength(double strength)
+{
+	m_nPhaseColorStrength = strength;
+}
+double CFraktalSFT::GetPhaseColorStrength()
+{
+	return m_nPhaseColorStrength;
 }
 void CFraktalSFT::ErasePixel(int x, int y)
 {

@@ -64,6 +64,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendDlgItemMessage(hWnd,IDC_CHECK8,BM_SETCHECK,bTexture,0);
 		SetDlgItemFloat(hWnd,IDC_EDIT26,nPower);
 		SetDlgItemInt(hWnd,IDC_EDIT27,nRatio*100,FALSE);
+		SetDlgItemFloat(hWnd, IDC_COLOR_PHASE_STRENGTH, g_SFT.GetPhaseColorStrength());
 		if(!g_pWaves){
 			HWND hwnds[2]={GetDlgItem(hWnd,IDC_EDIT23),GetDlgItem(hWnd,IDC_EDIT25)};
 			g_pWaves = new CListBoxEdit(GetDlgItem(hWnd,IDC_BUTTON26), GetDlgItem(hWnd,IDC_BUTTON27), GetDlgItem(hWnd,IDC_BUTTON28), GetDlgItem(hWnd,IDC_EDIT24), GetDlgItem(hWnd,IDC_LIST6),hwnds, 2);
@@ -179,6 +180,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ScreenToClient(hWnd,(LPPOINT)&g_rShow);
 			DestroyWindow(hw);
 		}
+		SetDlgItemFloat(hWnd, IDC_COLOR_PHASE_STRENGTH, g_SFT.GetPhaseColorStrength());
 		SendDlgItemMessage(hWnd,IDC_COLOR_TRANSITION_FLAT,BM_SETCHECK,g_SFT.GetFlat(),0);
 		SendDlgItemMessage(hWnd,IDC_CHECK2,BM_SETCHECK,g_SFT.GetTransition(),0);
 		SendDlgItemMessage(hWnd,IDC_CHECK3,BM_SETCHECK,g_SFT.GetITransition(),0);
@@ -352,6 +354,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SetDlgItemInt(hWnd,IDC_EDIT12,g_SFT.GetColorOffset(),FALSE);
 			g_SFT.SetColorMethod(SendDlgItemMessage(hWnd,IDC_COMBO1,CB_GETCURSEL,0,0));
 			g_SFT.SetDifferences(SendDlgItemMessage(hWnd,IDC_DIFFERENCES,CB_GETCURSEL,0,0));
+			g_SFT.SetPhaseColorStrength(GetDlgItemFloat(hWnd, IDC_COLOR_PHASE_STRENGTH));
 			g_SFT.SetFlat(SendDlgItemMessage(hWnd,IDC_COLOR_TRANSITION_FLAT,BM_GETCHECK,0,0));
 			g_SFT.SetTransition(SendDlgItemMessage(hWnd,IDC_CHECK2,BM_GETCHECK,0,0));
 			g_SFT.SetITransition(SendDlgItemMessage(hWnd,IDC_CHECK3,BM_GETCHECK,0,0));
@@ -398,7 +401,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
 		}
-		else if(wParam==IDC_COLOR_TRANSITION_FLAT || wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
+		else if(wParam==IDC_COLOR_TRANSITION_FLAT || wParam==IDC_COLOR_PHASE_STRENGTH || wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 		{
 			g_AutoUpdate++;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
@@ -1137,6 +1140,8 @@ extern const char *ColorToolTip(int nID)
 		return "Double by repeating the Key Colors";
 	case IDC_CHECK1:
 		return "Move the cursor over the fractal to select the Key Color in the list.\nWill only work if color offset is zero";
+	case IDC_COLOR_PHASE_STRENGTH:
+		return "Adjust colors based on final iterate phase angle";
 	case IDC_COLOR_TRANSITION_FLAT:
 		return "Make colors flat";
 	case IDC_CHECK2:

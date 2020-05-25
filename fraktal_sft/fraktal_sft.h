@@ -325,6 +325,7 @@ class CFraktalSFT
 	ColorMethod m_nColorMethod;
 	Differences m_nDifferences;
 	int m_nColorOffset;
+	double m_nPhaseColorStrength;
 	BOOL m_bIterChanged;
 	int64_t m_nMinI, m_nMaxI;
 
@@ -541,6 +542,8 @@ public:
 	Differences GetDifferences();
 	void SetColorOffset(int nColorOffset);
 	int GetColorOffset();
+	void SetPhaseColorStrength(double nPhaseColorStrength);
+	double GetPhaseColorStrength();
 	void ErasePixel(int x, int y);
 
 	void StoreLocation();

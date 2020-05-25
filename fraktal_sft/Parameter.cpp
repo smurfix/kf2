@@ -156,6 +156,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 	else
 		m_nColorOffset = 0;
+	nID = stParams.FindString(0, "ColorPhaseStrength");
+	if (nID != -1){
+		m_nPhaseColorStrength = atof(stParams[nID][1]);
+	}
+	else
+		m_nPhaseColorStrength = 0;
 
 	if (! bNoLocation)
 	{
@@ -481,6 +487,7 @@ std::string CFraktalSFT::ToText()
 	INT("ColorMethod", GetColorMethod())
 	INT("Differences", GetDifferences())
 	INT("ColorOffset", GetColorOffset()) // FIXME DOUBLE
+	DOUBLE("ColorPhaseStrength", GetPhaseColorStrength())
 
 	DOUBLE("Rotate", g_Degree) // FIXME global
 
