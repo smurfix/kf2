@@ -738,6 +738,9 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		else if (method == ColorMethod_ATan){
 			iter = atan(iter);
 		}
+		else if (method == ColorMethod_FourthRoot){
+			iter = sqrt(sqrt(fmax(0, iter)));
+		}
 		else if (method == ColorMethod_Stretched){
 			int64_t nMin, nMax;
 			GetIterations(nMin, nMax,NULL,NULL,TRUE);
@@ -3241,7 +3244,7 @@ Differences CFraktalSFT::GetDifferences()
 void CFraktalSFT::SetColorMethod(int nColorMethod)
 {
   if (nColorMethod < 0) nColorMethod = 0;
-  if (nColorMethod > 10) nColorMethod = 0;
+  if (nColorMethod > 11) nColorMethod = 0;
 	m_nColorMethod = ColorMethod(nColorMethod);
 }
 ColorMethod CFraktalSFT::GetColorMethod()

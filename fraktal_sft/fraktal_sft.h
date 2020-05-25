@@ -222,7 +222,8 @@ enum ColorMethod
 	ColorMethod_DistanceLog = 7,
 	ColorMethod_DistanceSqrt = 8,
 	ColorMethod_LogLog = 9,
-	ColorMethod_ATan = 10
+	ColorMethod_ATan = 10,
+	ColorMethod_FourthRoot = 11
 };
 
 enum Differences
