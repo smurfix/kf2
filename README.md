@@ -6,6 +6,10 @@ As the orginal upstream author Karl Runmo says:
 > programs, for FREE? One hour or one minute? Three months or one day?
 > Try Kalles Fraktaler!
 
+It works by using perturbation techniques and series approximation, to
+allow faster lower precision number types to be used for pixel iterations,
+based on a high precision reference.
+
 I (Claude Heiland-Allen) forked the code and swapped out the custom arbitrary
 precision floating point code for highly optimized libraries, making it
 even faster.  Cross-compiled to Windows from Linux MINGW64.  Now with many other
@@ -41,11 +45,30 @@ Feedback:
 
   - Use the mouse scroll wheel to zoom.
 
-  - Choose different fractal formulas in the iterations dialog (Ctrl-I).
+  - Choose different fractal formulas in the formula dialog (Ctrl-F).
+
+  - Choose different bailout conditions in the bailout dialog (Ctrl-B).
 
   - Choose different colours in the colouring dialog (Ctrl-C).
 
   - Zoom deeper more quickly with Newton-Raphson zooming (Ctrl-D).
+
+
+## Limits
+
+- Windows limits bitmap images to 2 giga-bytes (~715 M-pixel)
+
+- Windows limits longest bitmap dimension to 64 kilo-pixels
+
+- KF limits iteration count to 9 exa-iterations
+
+- KF limits periods to 2 giga-iterations
+
+- MPFR limits precision to 2 giga-bits (~646 million base-10 digits)
+
+- KF needs up to ~50 bytes per pixel (typically half that for common uses)
+
+- KF needs up to ~40 bytes per reference iteration (depending on number type)
 
 
 ## Known Bugs
@@ -56,6 +79,14 @@ Feedback:
   the mouse cursor)
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
+- setting window size too big (eg width 12800) makes it disappear while KF
+  is still running (in Wine on Linux/XFCE
+- increasing window size when window is near the top can make the title bar go
+  off screen.  workaround for Windows 10: Alt+Space+M, or Shift+RightMouse on
+  program icon in the task bar and select Move; then use cursor keys to move
+  the window; press RightMouse to finish.  workaround for Linux/XFCE: hold Alt
+  and drag the window with LeftMouse button (from any point inside it).
+  (reported by saka)
 - resizing window during examine zoom sequence auto solve glitches leads to
   corruption of the zoom sequence data
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
@@ -79,13 +110,12 @@ Feedback:
   (workaround is to disable series approximation)
 - fractal type out of range (e.g. parameter from newer KF) is silently reset
   to Mandelbrot
-- power 5 is considered out of range for Burning Ship when loading KFR
 - "resume zoom sequence" re-uses last set zoom count limit
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
-  workaround is to disable auto-iterations)
+  workaround is to disable auto-iterations
 - there is still a race conditions in guessing (doesn't wait for previous
   progressive interlacing pass to be 100% done before the next one starts)
 - newton-raphson zoom preset depths are bad for formulas with power other than 2
@@ -102,6 +132,9 @@ Feedback:
 - navigation with scroll wheel and -/+ keys is hardcoded to factor of 2 instead
   of using the zoom size set in the View menu
 - NR zoom doesn't work well in skewed locations
+- changing image size in settings files can give unintentionally stretched
+  images unless you also change the window size settings, and the window size
+  settings are weird (workaround: use the GUI to configure this)
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
 - nanomb2 RadiusScale can only be changed by hand-editing .kfs Settings files
 - nanomb1/2 number type fixed to floatexp (long double or double would be faster)
@@ -110,10 +143,8 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
-- tooltip implementation broken on multiple monitors / virtual desktops.
+- tooltip implementation broken on multiple monitors / virtual desktops
 - help button in file browser does nothing
-- colors dialog title filename does not reflect loading KFR files
-  (only last loaded/saved KFP files, which may be out of date)
 - may be difficult to build the source at the moment (dependency on 'et')
 
 
@@ -126,9 +157,9 @@ Feedback:
   bailout norm power can be customized;
   bailout real/imag factors can be fractional and/or negative;
   the smoothing method is decoupled from escape radius;
-  there is a new phase channel (`T` in EXR);
+  there is a new phase channel (`T` in EXR), with "phase strength" colour control;
   the texture information is saved and loaded from parameters;
-  the texture mode can be changed between image/finalZ/distance
+  new fourth root transfer function (color method 11)
 
 - **In versions `2.14.9` and above**, the new formula `z^2 exp(2 a / z) + c`
   is not available in earlier versions.
@@ -248,6 +279,9 @@ Feedback:
         (suggested by gerrit)
       - "find glitch center" (using original method) memory (de)allocation
         floated out of inner loop (slowness reported by gerrit)
+      - OpenEXR usage is now optionally parallelized (enabled by default)
+        (disabling reduces memory consumption and total work performed,
+        but usually increases wall-clock time significantly)
 
     - enhancements
 
@@ -264,7 +298,7 @@ Feedback:
       - "Save KFR" option for Store Zoom Out Sequence, also `--save-kfr`
         command line flag (suggested by Fluoroantimonic_Acid)
         (note that metadata is already saved in all formats apart from KFB)
-      - "Save KFR" is fast if no images will be saved (suggested by saka)
+      - "Save KFR" is fast if no images will be saved
         (currently only fast in command line mode, and auto-iterations does
         not work because no images are rendered to be analysed)
       - split up Iterations dialog into Formula, Bailout and Information,
@@ -281,6 +315,14 @@ Feedback:
       - "Random" method for choosing new references among glitched pixels,
         is sometimes better/worse than the "Original" and "argmin|z|" methods
         (suggested by gerrit)
+      - Colors dialog has filename of last loaded file in its title
+        (suggested by gerrit)
+      - Fourth Root color method (iteration count transfer function)
+        (ported from Mandel Machine, suggested by FractalAlex)
+      - new phase channel (`T` in EXR) based on argument angle of final
+        iterate
+      - "Phase Strength" colouring control uses new phase channel
+        ("chrome effect" colouring suggested by FractalAlex)
 
     - fixes
 
@@ -303,8 +345,27 @@ Feedback:
         (reported by saka)
       - add prepare-msys.sh to release bundle (reported by PieMan597)
       - fixed -Wnarrowing warnings
+      - fixed loading of power setting for fractal types 1-4 (e.g. power 5
+        burning ship now loads correctly) (bug found thanks to FractalAlex)
       - fixed texture option in colouring settings (broken for years)
         (reported by FractalAlex)
+      - simplified by enforcing "reference pixel is never glitched"
+        in a different way than duplicating pixel iterations in the
+        reference code
+      - NanoMB1+2 support directional DE
+      - NanoMB1 iteration count was off-by-one compared to the regular way
+      - EXR input and output uses much less memory as it no longer needs
+        to copy so many of the data arrays; overhead for output is now
+        8 bytes per pixel (12 bytes for more than 4G iteration count images)
+        plus 6 bytes per pixel if RGB is used (tip: enabling the half colour
+        buffer preallocates this and saves an extra colouring pass)
+      - "Fast" shrinking is used while rendering is still ongoing (prevents
+        denial of service when updates are queued faster than they can be
+        handled)
+      - "Best" shrinking is always used when saving images
+      - image size adjuster uses aspect ratio from window, instead of the
+        current image size (prevents weird heights after setting width to
+        odd values like 463) (reported by saka)
 
     - library upgrades
 
@@ -959,6 +1020,7 @@ Feedback:
 - command line: print total runtime (suggested by gerrit)
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
+- window and image size presets (suggested by saka)
 
 ### Calculations
 
@@ -969,6 +1031,8 @@ Feedback:
 - only store reference orbit after series approximation
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
+- enhanced glitch detection methods for all formulas (knighty + gerrit)
+- "find center of glitch" cycle between multiple selected methods
 
 ### Newton-Raphson Zooming
 
@@ -1004,12 +1068,15 @@ Feedback:
 - rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
 - colour cycling (suggested by blob)
-- show .kfp filename in colour dialog (suggested by gerrit)
 - more flexible colouring with lighting/layers/etc (suggested by Fraktalist)
 - import gradients from various formats (.ugr/.gradient, .map, .xml (flam3))
   inspired by Mandel Meute + padleywood's gradient convert tool:
   <https://fractalforums.org/f/11/t/2934>
-
+- exterior tile texturing using smooth iteration count and phase
+- bailout mode that combines the best of linear and log (for exterior tiling)
+- color phase offset control
+- orbit traps
+- stripe average
 
 ## Getting The Code
 
@@ -1308,7 +1375,7 @@ Kalles Fraktaler 2 +
 
 Copyright (C) 2013-2017 Karl Runmo
 
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -1701,10 +1768,10 @@ Software license.
 
     Turns the Auto solve glitches function on or off
 
-  - **Use argmin|Z| as glitch center**
+  - **Reference selection method.**
 
-    Use alternative method for finding center of glitches.  May be faster/slower
-    depending on location.
+    Chooose alternative methods for finding center of glitches.
+    May be faster/slower depending on location.
 
   - **Solve glitch with near pixel method**
 
@@ -1807,13 +1874,6 @@ Software license.
     Use always the double mantissa/integer exponent data type. This probably
     only make the render slower
 
-  - **Multi-threaded reference calcs**
-
-    Use multiple threads when calculating reference orbits
-    (available for long double and floatexp only).
-    Speed and CPU efficiency may differ when toggling this flag;
-    evaluate the optimal choice for your location and system.
-
   - **Use NanoMB1 (experimental)**
 
     For power 2 Mandelbrot only.
@@ -1880,12 +1940,6 @@ Software license.
     is the same.  This speeds up rendering of interior regions, but some
     colouring can lead to visible artifacts in the exterior.
 
-  - **Half-float image buffer**
-
-    Pre-allocate 16bit image buffer for EXR export.  Otherwise it is only
-    allocated when needed.  May speed up EXR export if this is checked.
-    If not using EXR, leave this unchecked.
-
   - **'Save' overwrites existing file**
 
     When this is checked, Save (Ctrl-S) overwrites the current file without
@@ -1916,6 +1970,25 @@ Software license.
     after rolling back to before the last chunk.  This means some iterations are
     repeated, but the speedup from doing escape checks less frequently may
     overcome this issue.
+
+  - **Half-float image buffer**
+
+    Pre-allocate 16bit image buffer for EXR export.  Otherwise it is only
+    allocated when needed.  May speed up EXR export if this is checked.
+    If not using EXR, leave this unchecked.
+
+  - **Multi-threaded EXR input/output**
+
+    Use multiple threads in EXR input/output.  Speed and CPU efficiency
+    (as well as memory usage) may differ when toggling this flag;
+    evaluate the optimal choice for your image size and system.
+
+  - **Multi-threaded reference calcs**
+
+    Use multiple threads when calculating reference orbits
+    (available for long double and floatexp only).
+    Speed and CPU efficiency may differ when toggling this flag;
+    evaluate the optimal choice for your location and system.
 
   - **Threads per CPU**
 
@@ -2508,7 +2581,7 @@ Use `--log info` to disable the status updates, use `--log warn` to output only
 important messages.  The default is `--log status`.
 
 With `-z` you can specify how many frames to render, or `-1` to zoom all the
-way out.  In zoom out mode the PNG, JPEG, and KFB filenames should contain a
+way out.  In zoom out mode the output save filenames should contain a
 printf flag for an integer, for example `image-%08d.png` will have 8 decimal
 digits padded with leading 0. This is filled by the frame number, which always
 starts from 0.  Zooming is by the zoom size in the settings file.
@@ -2789,7 +2862,7 @@ Here are the channels and metadata that KF currently supports:
     `float T` in `[0.0 .. 1.0)`
 
     It is desirable that this aligns with `NF` to give 2D exterior grid
-    cell coordinates, currently this works only with `Linear` smoothing.
+    cell coordinates, currently KF aligns only with `Linear` smoothing.
 
 - directional DE (when derivatives have been calculated)
 
