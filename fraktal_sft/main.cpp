@@ -1070,7 +1070,7 @@ static int WINAPI JpegProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(LOWORD(wParam)==IDC_EDIT1 && HIWORD(wParam)==EN_CHANGE){
 			//int nHeight = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0)*(double)g_SFT.GetRatioY()/(double)g_SFT.GetRatioX();
-			int nHeight = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0)*(double)g_SFT.GetHeight()/(double)g_SFT.GetWidth();
+			int nHeight = round(GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0)*(double)g_SFT.GetWindowHeight()/(double)g_SFT.GetWindowWidth());
 			SetDlgItemInt(hWnd,IDC_EDIT3,nHeight,0);
 		}
 	}
