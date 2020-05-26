@@ -105,7 +105,7 @@ extern INT_PTR WINAPI InformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM l
     return 1;
   }
   else if(uMsg==WM_COMMAND){
-    if(wParam==IDOK){
+    if(wParam==IDOK || wParam==IDCANCEL){
       ExitToolTip(hWnd);
       EndDialog(hWnd, 1);
     }
