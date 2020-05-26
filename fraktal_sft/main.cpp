@@ -4481,7 +4481,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam=='D' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_SPECIAL_NEWTON,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='I' && HIWORD(GetKeyState(VK_CONTROL)))
-		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ITERATIONS,0);
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_INFORMATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='E' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_REUSEREFERENCE,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='Q' && HIWORD(GetKeyState(VK_CONTROL)))
