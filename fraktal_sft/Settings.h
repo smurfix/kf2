@@ -89,6 +89,7 @@ private:
   int64_t m_OpenCLPlatform;
   int64_t m_EXRChannels;
   bool m_EXRParallel;
+  bool m_SaveNewtonProgress;
 
 public:
 
@@ -145,6 +146,7 @@ public:
   , m_OpenCLPlatform(0)
   , m_EXRChannels(~0)
   , m_EXRParallel(true)
+  , m_SaveNewtonProgress(false)
   { };
 
   bool FromText(const std::string &text);
@@ -334,6 +336,9 @@ public:
 
   inline bool   GetEXRParallel() const { return m_EXRParallel; };
   inline void   SetEXRParallel(bool b) { m_EXRParallel = b; };
+
+  inline bool   GetSaveNewtonProgress() const { return m_SaveNewtonProgress; };
+  inline void   SetSaveNewtonProgress(bool b) { m_SaveNewtonProgress = b; };
 
 };
 

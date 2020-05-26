@@ -712,7 +712,9 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 
 bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const std::string &im, const std::string &zoom, int64_t period)
 {
-	bool overwrite = false; // FIXME
+	if (! g_SFT.GetSaveNewtonProgress())
+		return true;
+	bool overwrite = true; // FIXME
 	CStringTable stSave;
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Re");
@@ -749,7 +751,7 @@ bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_o
   std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();
   char extension[100];
   snprintf(extension, sizeof(extension) - 1, "newton-%04d.kfr", step);
-  return SaveNewtonBackup(replace_path_extension(g_szFile, extension), re, im, zoom, period);
+  return SaveNewtonBackup(g_szFile == "" ? extension : replace_path_extension(g_szFile, extension), re, im, zoom, period);
 }
 
 static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int64_t period, int maxsteps,int &steps,const flyttyp &radius,HWND hWnd) {
@@ -1160,6 +1162,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_AUTOSKEW,BM_SETCHECK,1,0);
 		if (g_bUseBallPeriod)
 			SendDlgItemMessage(hWnd,IDC_BALL_PERIOD,BM_SETCHECK,1,0);
+		SendDlgItemMessage(hWnd, IDC_NEWTON_PROGRESS, BM_SETCHECK, g_SFT.GetSaveNewtonProgress() ? 1 : 0,0);
 		std::string z = g_SFT.GetZoom();
 		SetDlgItemText(hWnd, IDC_EDIT4, z.c_str());
 		std::ostringstream s;
@@ -1237,6 +1240,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else if(SendDlgItemMessage(hWnd,IDC_RADIO5,BM_GETCHECK,0,0))
 				g_nMinibrotPos=4;
 			g_bUseBallPeriod = SendDlgItemMessage(hWnd,IDC_BALL_PERIOD,BM_GETCHECK,0,0);
+			g_SFT.SetSaveNewtonProgress(SendDlgItemMessage(hWnd, IDC_NEWTON_PROGRESS, BM_GETCHECK, 0, 0));
 			DWORD dw;
 			g_bNewtonStop=FALSE;
 			g_bNewtonExit=FALSE;

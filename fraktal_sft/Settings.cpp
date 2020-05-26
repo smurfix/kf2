@@ -103,6 +103,7 @@ bool Settings::FromText(const std::string &text)
   INT(OpenCLPlatform)
   INT(EXRChannels)
   BOOL(EXRParallel)
+  BOOL(SaveNewtonProgress)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -169,6 +170,7 @@ std::string Settings::ToText() const
   INT(OpenCLPlatform)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
   BOOL(EXRParallel)
+  BOOL(SaveNewtonProgress)
 #undef DOUBLE
 #undef INT
 #undef BOOL
