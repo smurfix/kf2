@@ -979,6 +979,8 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 					iter += m_nPhaseColorStrength / 100 * 1024 * m_nPhase[x][y];
 				nIter = (int64_t)floor(iter);
 				offs = 1 - (iter - (double)nIter);
+				if (m_bITrans)
+					offs = 1 - offs;
 				double nR, nG, nB;
 				if (m_bTrans && offs){
 					double g1 = (1 - offs);
@@ -1012,6 +1014,8 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 				iter += m_nPhaseColorStrength / 100 * 1024 * m_nPhase[x][y];
 			nIter = (int64_t)floor(iter);
 			offs = 1 - (iter - (double)nIter);
+			if (m_bITrans)
+				offs = 1 - offs;
 			if (m_bTrans && offs){
 				double g1 = (1 - offs);
 				int col = ((nIter % 1024) + 1024) % 1024;
