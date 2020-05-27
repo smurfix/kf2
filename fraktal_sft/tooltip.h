@@ -17,11 +17,11 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#ifndef KF_MAIN_POSITION_H
-#define KF_MAIN_POSITION_H 1
+#ifndef KF_TOOLTIP_H
+#define KF_TOOLTIP_H 1
 
 #include <windows.h>
 
-extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
+HWND CreateToolTip(int toolID, HWND hDlg, const char *pszText);
 
 #endif

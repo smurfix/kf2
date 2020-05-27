@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_bailout.h"
 #include "fraktal_sft.h"
 #include "resource.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 
 static void SetDlgItemInt64(HWND hWnd, int widget, int64_t value)
 {
@@ -203,13 +203,27 @@ static void RefreshBailoutNormCustom(HWND hWnd)
   g_SFT.SetBailoutNormCustom(GetDlgItemFloat64(hWnd, IDC_BAILOUT_NORM_CUSTOM));
 }
 
+static std::vector<HWND> tooltips;
+
 extern INT_PTR WINAPI BailoutProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
   (void) lParam;
   if(uMsg==WM_INITDIALOG){
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-    InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,7);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+    T(IDC_BAILOUT_ITERATIONS, "Maximum number of iterations.")
+    T(IDC_BAILOUT_SMOOTHMETHOD, "Smoothing method.\nLog is better for high radius.\nLinear is better for low radius.\n")
+    T(IDC_BAILOUT_RADIUS_PRESET, "Preset escape radius value for iterations.\nLow setting is lowest possible for Mandelbrot and varies by power.")
+    T(IDC_BAILOUT_RADIUS_CUSTOM, "Custom escape radius value for iterations.\nOnly used when Custom setting is selected above.")
+    T(IDC_BAILOUT_RE, "Factor for real part when checking bailout.\n")
+    T(IDC_BAILOUT_IM, "Factor for imaginary part when checking bailout.\n")
+    T(IDC_BAILOUT_NORM_PRESET, "Preset norm power value when checking bailout.\n")
+    T(IDC_BAILOUT_NORM_CUSTOM, "Custom norm power value when checking bailout.\nOnly used when Custom setting is selected above.")
+    T(IDOK, "Apply and close")
+    T(IDCANCEL, "Close and undo")
+#undef T
 
     SendDlgItemMessage(hWnd, IDC_BAILOUT_SMOOTHMETHOD, CB_ADDSTRING, 0, (LPARAM) "Log");
     SendDlgItemMessage(hWnd, IDC_BAILOUT_SMOOTHMETHOD, CB_ADDSTRING, 0, (LPARAM) "Linear");
@@ -235,54 +249,30 @@ extern INT_PTR WINAPI BailoutProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     return 1;
   }
   else if(uMsg==WM_COMMAND){
-    if(wParam==IDOK){
-      g_SFT.UndoStore();
-      g_bExamineDirty=TRUE;
-      RefreshIterations(hWnd);
-      RefreshSmoothMethod(hWnd);
-      RefreshRadiusPreset(hWnd);
-      RefreshRadiusCustom(hWnd);
-      RefreshBailoutRe(hWnd);
-      RefreshBailoutIm(hWnd);
-      RefreshBailoutNormPreset(hWnd);
-      RefreshBailoutNormCustom(hWnd);
-      ExitToolTip(hWnd);
-      EndDialog(hWnd, 1);
-    }
-    else if(wParam==IDCANCEL){
-      ExitToolTip(hWnd);
-      EndDialog(hWnd,0);
+    if (wParam == IDOK || wParam == IDCANCEL)
+    {
+      int retval = 0;
+      if (wParam == IDOK)
+      {
+        g_SFT.UndoStore();
+        g_bExamineDirty=TRUE;
+        RefreshIterations(hWnd);
+        RefreshSmoothMethod(hWnd);
+        RefreshRadiusPreset(hWnd);
+        RefreshRadiusCustom(hWnd);
+        RefreshBailoutRe(hWnd);
+        RefreshBailoutIm(hWnd);
+        RefreshBailoutNormPreset(hWnd);
+        RefreshBailoutNormCustom(hWnd);
+        retval = 1;
+      }
+      for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
+      EndDialog(hWnd, retval);
     }
   }
   return 0;
-}
-
-extern const char *BailoutToolTip(int nID)
-{
-  switch(nID){
-  case IDC_BAILOUT_ITERATIONS:
-    return "Maximum number of iterations.";
-  case IDC_BAILOUT_SMOOTHMETHOD:
-    return "Smoothing method.\nLog is better for high radius.\nLinear is better for low radius.\n";
-  case IDC_BAILOUT_RADIUS_PRESET:
-    return "Preset escape radius value for iterations.\nLow setting is lowest possible for Mandelbrot and varies by power.";
-  case IDC_BAILOUT_RADIUS_CUSTOM:
-    return "Custom escape radius value for iterations.\nOnly used when Custom setting is selected above.";
-  case IDC_BAILOUT_RE:
-    return "Factor for real part when checking bailout.\n";
-  case IDC_BAILOUT_IM:
-    return "Factor for imaginary part when checking bailout.\n";
-  case IDC_BAILOUT_NORM_PRESET:
-    return "Preset norm power value when checking bailout.\n";
-  case IDC_BAILOUT_NORM_CUSTOM:
-    return "Custom norm power value when checking bailout.\nOnly used when Custom setting is selected above.";
-  case IDOK:
-    return "Apply and close";
-  case IDCANCEL:
-    return "Close and undo";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }

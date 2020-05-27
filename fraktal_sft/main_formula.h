@@ -23,6 +23,5 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 
 extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-extern const char *FormulaToolTip(int nID);
 
 #endif

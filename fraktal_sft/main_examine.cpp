@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_examine.h"
 #include "fraktal_sft.h"
 #include "resource.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 #include "../common/StringVector.h"
 #include "../common/FolderBrowser.h"
 
@@ -66,13 +66,33 @@ extern bool Examine(HWND hWnd)
 	return true;
 }
 
+static std::vector<HWND> tooltips;
+
 extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,4);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+		T(IDC_RADIO1, "Add Reference\nclick in the view to add additional references")
+		T(IDC_RADIO2, "Set main reference.\nThe whole image will be rendered")
+		T(IDC_RADIO3, "Erase specific parts of the view by clicking\nAfter erased add references in the erased areas")
+		T(IDC_BUTTON1, "Save eventual changes and go to previous Key Frame")
+		T(IDOK, "Save eventual changes and go to next Key Frame")
+		T(IDC_BUTTON5, "Save eventual changes and go to previous Key Frame\nThe current frame will be applied on the center of the previous frame")
+		T(IDC_BUTTON2, "Undo all changes on current Key Frame")
+		T(IDC_EDIT1, "Current Key Frame index")
+		T(IDC_BUTTON3, "Jump to specified Key Frame index")
+		T(IDCANCEL, "Close this dialog")
+		T(IDC_EDIT2, "Show if current Key Frame is changed")
+		T(IDC_EDIT3, "Status of reading/saving current Key Frame")
+		T(IDC_BUTTON4, "Automatically solve glitches in Key Frames\nThe Key Frames will be browsed backwards\nand stop on the first frame\nStart this function preferable from the last frame")
+		T(IDC_EDIT4, "Shows status of automatically glitch solving")
+		T(IDC_EDITMAXREFS, "Choose maximum number of references to add per frame when solving glitches")
+#undef T
+
 		g_nPrevAutoGlitchNP=g_SFT.GetSolveGlitchNear();
 		g_SFT.SetSolveGlitchNear(false);
 		CheckMenuItem(GetMenu(GetParent(hWnd)),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
@@ -118,6 +138,11 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND){
 		if(wParam==IDCANCEL){
+			for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
 			DestroyWindow(hWnd);
 			g_hwExamine=NULL;
 			g_SFT.SetSolveGlitchNear(g_nPrevAutoGlitchNP);
@@ -294,44 +319,4 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 		SendMessage(hWnd,WM_TIMER,2,0);
 	}
 	return 0;
-}
-
-extern const char *ExamineToolTip(int nID)
-{
-	switch(nID){
-	case IDC_RADIO1:
-		return "Add Reference\nclick in the view to add additional references";
-	case IDC_RADIO2:
-		return "Set main reference.\nThe whole image will be rendered";
-	case IDC_RADIO3:
-		return "Erase specific parts of the view by clicking\nAfter erased add references in the erased areas";
-	case IDC_BUTTON1:
-		return "Save eventual changes and go to previous Key Frame";
-	case IDOK:
-		return "Save eventual changes and go to next Key Frame";
-	case IDC_BUTTON5:
-		return "Save eventual changes and go to previous Key Frame\nThe current frame will be applied on the center of the previous frame";
-	case IDC_BUTTON2:
-		return "Undo all changes on current Key Frame";
-	case IDC_EDIT1:
-		return "Current Key Frame index";
-	case IDC_BUTTON3:
-		return "Jump to specified Key Frame index";
-	case IDCANCEL:
-		return "Close this dialog";
-	case IDC_EDIT2:
-		return "Show if current Key Frame is changed";
-	case IDC_EDIT3:
-		return "Status of reading/saving current Key Frame";
-	case IDC_BUTTON4:
-		return "Automatically solve glitches in Key Frames\nThe Key Frames will be browsed backwards\nand stop on the first frame\nStart this function preferable from the last frame";
-	case IDC_EDIT4:
-		return "Shows status of automatically glitch solving";
-	case IDC_EDITMAXREFS:
-		return "Choose maximum number of references to add per frame when solving glitches";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }

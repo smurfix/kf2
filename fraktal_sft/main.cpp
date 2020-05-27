@@ -40,7 +40,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/StringVector.h"
 #include "../common/FolderBrowser.h"
 #include "listbox.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 #include "resource.h"
 #include "fraktal_sft.h"
 #include "newton.h"
@@ -374,79 +374,6 @@ static void DisableUnsafeMenus(HWND hWnd, bool disable=true)
 {
 	return EnableUnsafeMenus(hWnd, !disable);
 }
-
-const char *GetToolText_const(int nID,LPARAM lParam)
-{
-	if(lParam==0){
-		return const_cast<char *>(ColorToolTip(nID));
-	}
-	else if(lParam==1){
-		return const_cast<char *>(InformationToolTip(nID));
-	}
-	else if(lParam==2){
-		return const_cast<char *>(PositionToolTip(nID));
-	}
-	else if(lParam==3){
-		switch(nID){
-		case IDC_EDIT1:
-		case IDC_SPIN1:
-			return "Stretch in percent";
-		case IDC_EDIT2:
-		case IDC_SPIN2:
-			return "Rotation in degrees";
-		case IDC_BUTTON1:
-			return "Reset to default values";
-		case IDC_CHECK1:
-			return "When this button is clicked, it will stay down\nWhile down, add 4 points in the Fractal view\nthese points will be connected 2 and 2 by lines\nThe program will automatically attempt to\nmake the angle perpendicular";
-		case IDOK:
-			return "Apply and close";
-		case IDCANCEL:
-			return "Close and undo";
-		}
-	}
-	else if(lParam==4){
-		return const_cast<char *>(ExamineToolTip(nID));
-	}
-	else if(lParam==5){
-		switch (nID)
-		{
-			case IDC_STOREZOOM_KFB: return "Save KFB map files for each frame";
-			case IDC_STOREZOOM_KFR: return "Save KFR parameter files for each frame";
-			case IDC_STOREZOOM_EXR: return "Save EXR image + map files for each frame";
-			case IDC_STOREZOOM_TIF: return "Save TIF image files for each frame";
-			case IDC_STOREZOOM_PNG: return "Save PNG image files for each frame";
-			case IDC_STOREZOOM_JPG: return "Save JPEG image files for each frame";
-			case IDC_STOREZOOM_COUNTAUTO: return "Render only a limited number of frames";
-			case IDC_STOREZOOM_COUNT: return "Render this many frames (if above is checked)";
-			case IDOK: return "Apply and close";
-			case IDCANCEL: return "Close and undo";
-		}
-	}
-	else if(lParam==6){
-		return const_cast<char *>(FormulaToolTip(nID));
-	}
-	else if(lParam==7){
-		return const_cast<char *>(BailoutToolTip(nID));
-	}
-	else if(lParam==8){
-		return const_cast<char *>(PTSATuningToolTip(nID));
-	}
-	static char szTmp[1024];
-	wsprintf(szTmp,"nID=%d, lParam=%d",nID,lParam);
-	return szTmp;
-#if 0
-#ifdef KF_OPENCL
-		case IDC_COMBO_OPENCL_DEVICE:
-			return "Select the OpenCL device to use for per-pixel iteration calculations";
-#endif
-#endif
-}
-
-extern char *GetToolText(int nID, LPARAM lParam)
-{
-	return const_cast<char *>(GetToolText_const(nID, lParam));
-}
-
 
 // settings update
 
@@ -2237,10 +2164,22 @@ double g_nTestDegree;
 double g_nTestRatio;
 static int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	static std::vector<HWND> tooltips;
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,3);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+#define T2(idc1,idc2,str) T(idc1, str) T(idc2, str)
+		T2(IDC_EDIT1, IDC_SPIN1,  "Stretch in percent")
+		T2(IDC_EDIT2, IDC_SPIN2, "Rotation in degrees")
+		T(IDC_BUTTON1, "Reset to default values")
+		T(IDC_CHECK1, "When this button is clicked, it will stay down\nWhile down, add 4 points in the Fractal view\nthese points will be connected 2 and 2 by lines\nThe program will automatically attempt to\nmake the angle perpendicular")
+		T(IDOK, "Apply and close")
+		T(IDCANCEL, "Close and undo")
+#undef T2
+#undef T
+
 		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(10000,1));
 		SetDlgItemFloat(hWnd,IDC_EDIT1,g_nSkewStretch);
@@ -2261,6 +2200,14 @@ static int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		return 1;
 	}
 	if(uMsg==WM_COMMAND){
+		if (wParam == IDOK || wParam == IDCANCEL)
+		{
+			for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
+    }
 		if(wParam==IDOK)
 			EndDialog(hWnd,1);
 		else if(wParam==IDCANCEL)
@@ -2594,7 +2541,6 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
 
 			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) "(none)");
 			for (int i = 0; i < cldevices.size(); ++i)
@@ -2626,12 +2572,10 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (wParam == IDOK)
 			{
 				g_SFT.SetOpenCLDeviceIndex(SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1);
-				ExitToolTip(hWnd);
 				EndDialog(hWnd, 0);
 			}
 			else if(wParam == IDCANCEL)
 			{
-				ExitToolTip(hWnd);
 				EndDialog(hWnd, 0);
 			}
 			break;
@@ -2790,6 +2734,7 @@ static long OpenSettings(HWND hWnd, bool &ret)
 
 static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
+	static std::vector<HWND> tooltips;
 	(void) lParam;
 	switch (uMsg)
 	{
@@ -2797,32 +2742,49 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 		{
 			SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-			InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,5);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+			T(IDC_STOREZOOM_KFB, "Save KFB map files for each frame")
+			T(IDC_STOREZOOM_KFR, "Save KFR parameter files for each frame")
+			T(IDC_STOREZOOM_EXR, "Save EXR image + map files for each frame")
+			T(IDC_STOREZOOM_TIF, "Save TIF image files for each frame")
+			T(IDC_STOREZOOM_PNG, "Save PNG image files for each frame")
+			T(IDC_STOREZOOM_JPG, "Save JPEG image files for each frame")
+			T(IDC_STOREZOOM_COUNTAUTO, "Render only a limited number of frames")
+			T(IDC_STOREZOOM_COUNT, "Render this many frames (if above is checked)")
+			T(IDOK, "Apply and close")
+			T(IDCANCEL, "Close and undo")
+#undef T
+
 		  break;
 		}
 		case WM_COMMAND:
 		{
-			if (wParam == IDOK)
+			if (wParam == IDOK || wParam == IDCANCEL)
 			{
-				g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
-				g_bStoreZoomKfr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFR, BM_GETCHECK, 0, 0) != 0;
-				g_bStoreZoomExr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_EXR, BM_GETCHECK, 0, 0) != 0;
-				g_bStoreZoomTif = SendDlgItemMessage(hWnd, IDC_STOREZOOM_TIF, BM_GETCHECK, 0, 0) != 0;
-				g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
-				g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
-				g_nStoreZoomCount = 0;
-				g_nStoreZoomLimit = GetDlgItemInt(hWnd, IDC_STOREZOOM_COUNT, NULL, FALSE);
-				if (g_nStoreZoomLimit <= 0 || !SendDlgItemMessage(hWnd, IDC_STOREZOOM_COUNTAUTO, BM_GETCHECK, 0, 0))
+				int retval = 0;
+				if (wParam == IDOK)
 				{
-					g_nStoreZoomLimit = 0;
+					g_bStoreZoomMap = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFB, BM_GETCHECK, 0, 0) != 0;
+					g_bStoreZoomKfr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_KFR, BM_GETCHECK, 0, 0) != 0;
+					g_bStoreZoomExr = SendDlgItemMessage(hWnd, IDC_STOREZOOM_EXR, BM_GETCHECK, 0, 0) != 0;
+					g_bStoreZoomTif = SendDlgItemMessage(hWnd, IDC_STOREZOOM_TIF, BM_GETCHECK, 0, 0) != 0;
+					g_bStoreZoomPng = SendDlgItemMessage(hWnd, IDC_STOREZOOM_PNG, BM_GETCHECK, 0, 0) != 0;
+					g_bStoreZoomJpg = SendDlgItemMessage(hWnd, IDC_STOREZOOM_JPG, BM_GETCHECK, 0, 0) != 0;
+					g_nStoreZoomCount = 0;
+					g_nStoreZoomLimit = GetDlgItemInt(hWnd, IDC_STOREZOOM_COUNT, NULL, FALSE);
+					if (g_nStoreZoomLimit <= 0 || !SendDlgItemMessage(hWnd, IDC_STOREZOOM_COUNTAUTO, BM_GETCHECK, 0, 0))
+					{
+						g_nStoreZoomLimit = 0;
+					}
+					retval = g_bStoreZoomMap || g_bStoreZoomExr || g_bStoreZoomTif || g_bStoreZoomPng || g_bStoreZoomJpg;
 				}
-				ExitToolTip(hWnd);
-				EndDialog(hWnd, g_bStoreZoomMap || g_bStoreZoomExr || g_bStoreZoomTif || g_bStoreZoomPng || g_bStoreZoomJpg);
-			}
-			else if(wParam == IDCANCEL)
-			{
-				ExitToolTip(hWnd);
-				EndDialog(hWnd, 0);
+			  for (auto tooltip : tooltips)
+				{
+					DestroyWindow(tooltip);
+				}
+				tooltips.clear();
+				EndDialog(hWnd, retval);
 			}
 			break;
 		}

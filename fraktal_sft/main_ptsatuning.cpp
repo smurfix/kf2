@@ -21,7 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_bailout.h"
 #include "fraktal_sft.h"
 #include "resource.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
+
+static std::vector<HWND> tooltips;
 
 extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -29,7 +31,16 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
   if(uMsg==WM_INITDIALOG){
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-    InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,8);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+    T(IDC_PTSATUNING_GLITCHTOLERANCE, "Use low tolerance for glitch detection.\nMay be slower but more accurate.")
+    T(IDC_PTSATUNING_MAXREFERENCES, "Maximum number of references for glitch correction.\nHard upper limit is 10000.")
+    T(IDC_PTSATUNING_APPROXTOLERANCE, "Use low tolerance for series approximation.\nMay be slower but more accurate.")
+    T(IDC_PTSATUNING_APPROXAUTO, "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.")
+    T(IDC_PTSATUNING_APPROXTERMS, "Number of terms for series approximation.\nOnly used when automatic mode is disabled.")
+    T(IDOK, "Apply and close")
+    T(IDCANCEL, "Close and undo")
+#undef T
 
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, BM_SETCHECK, g_SFT.GetGlitchLowTolerance() ? 1 : 0, 0);
     SetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, g_SFT.GetMaxReferences(), FALSE);
@@ -40,47 +51,27 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     return 1;
   }
   else if(uMsg==WM_COMMAND){
-    if(wParam==IDOK){
-      g_SFT.UndoStore();
-      g_bExamineDirty=TRUE;
-
-      g_SFT.SetGlitchLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, BM_GETCHECK, 0, 0));
-      g_SFT.SetMaxReferences(GetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, NULL, FALSE));
-      g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_GETCHECK, 0, 0));
-      g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
-      g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_GETCHECK, 0, 0));
-
-      ExitToolTip(hWnd);
-      EndDialog(hWnd, 1);
-    }
-    else if(wParam==IDCANCEL){
-      ExitToolTip(hWnd);
-      EndDialog(hWnd,0);
+    if (wParam == IDOK || wParam == IDCANCEL)
+    {
+      int retval = 0;
+      if (wParam == IDOK)
+      {
+        g_SFT.UndoStore();
+        g_bExamineDirty=TRUE;
+        g_SFT.SetGlitchLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, BM_GETCHECK, 0, 0));
+        g_SFT.SetMaxReferences(GetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, NULL, FALSE));
+        g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_GETCHECK, 0, 0));
+        g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
+        g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_GETCHECK, 0, 0));
+        retval = 1;
+      }
+      for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
+      EndDialog(hWnd, retval);
     }
   }
   return 0;
-}
-
-extern const char *PTSATuningToolTip(int nID)
-{
-  switch(nID){
-  case IDC_PTSATUNING_GLITCHTOLERANCE:
-    return "Use low tolerance for glitch detection.\nMay be slower but more accurate.";
-  case IDC_PTSATUNING_MAXREFERENCES:
-    return "Maximum number of references for glitch correction.\nHard upper limit is 10000.";
-  case IDC_PTSATUNING_APPROXTOLERANCE:
-    return "Use low tolerance for series approximation.\nMay be slower but more accurate.";
-  case IDC_PTSATUNING_APPROXAUTO:
-    return "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.";
-  case IDC_PTSATUNING_APPROXTERMS:
-    return "Number of terms for series approximation.\nOnly used when automatic mode is disabled.";
-  case IDOK:
-    return "Apply and close";
-  case IDCANCEL:
-    return "Close and undo";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }

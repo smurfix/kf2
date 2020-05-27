@@ -63,7 +63,8 @@ fraktal_sft/png.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/scale_bitmap.cpp \
 fraktal_sft/Settings.cpp \
-fraktal_sft/tiff.cpp
+fraktal_sft/tiff.cpp \
+fraktal_sft/tooltip.cpp
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
@@ -96,14 +97,14 @@ fraktal_sft/png.h \
 fraktal_sft/resource.h \
 fraktal_sft/scale_bitmap.h \
 fraktal_sft/Settings.h \
-fraktal_sft/tiff.h
+fraktal_sft/tiff.h \
+fraktal_sft/tooltip.h
 
 COMMON_SOURCES_CPP = \
 common/FolderBrowser.cpp \
 common/getimage.cpp \
 common/parallell.cpp \
 common/StringVector.cpp \
-common/tooltip.cpp \
 common/bitmap.cpp \
 common/matrix.cpp
 
@@ -112,7 +113,6 @@ common/FolderBrowser.h \
 common/getimage.h \
 common/parallell.h \
 common/StringVector.h \
-common/tooltip.h \
 common/bitmap.h \
 common/matrix.h
 

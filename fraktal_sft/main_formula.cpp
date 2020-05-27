@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "resource.h"
 #include "../formula/formula.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 
 static void UpdatePower(HWND hWnd)
 {
@@ -170,13 +170,29 @@ static void RefreshDerivatives(HWND hWnd)
 	g_SFT.SetDerivatives(SendDlgItemMessage(hWnd,IDC_FORMULA_DERIVATIVES,BM_GETCHECK,0,0) ? 1 : 0);
 }
 
+static std::vector<HWND> tooltips;
+
 extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
   (void) lParam;
   if(uMsg==WM_INITDIALOG){
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-    InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,6);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+    T(IDC_FORMULA_TYPE, "List of type of Mandelbrot based Fractals\nSome of them have additional Power options")
+    T(IDC_FORMULA_POWER, "Power of Mandelbrot function")
+    T(IDC_FORMULA_SEED_RE, "Real seed value (0 is standard)")
+    T(IDC_FORMULA_SEED_IM, "Imaginary seed value (0 is standard)")
+    T(IDC_FORMULA_FACTOR_A_RE, "Real 'a' value (for TheRedshiftRider formulas)")
+    T(IDC_FORMULA_FACTOR_A_IM, "Imaginary 'a' value (for TheRedshiftRider formulas)")
+    T(IDC_FORMULA_DERIVATIVES, "Select checkbox to compute derivatives\nRequired for analytic DE")
+    T(IDC_FORMULA_JITTER_SEED, "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter")
+    T(IDC_FORMULA_JITTER_SCALE, "Pixel jitter amount\nDefault 1.0")
+    T(IDC_FORMULA_JITTER_GAUSSIAN, "Select checkbox to use Gaussian jitter\nUncheck for uniform")
+    T(IDOK, "Apply and close")
+    T(IDCANCEL, "Close and undo")
+#undef T
 
     combo5_addstrings(hWnd, IDC_FORMULA_TYPE);
     SIZE sc;
@@ -207,25 +223,30 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     return 1;
   }
   else if(uMsg==WM_COMMAND){
-    if(wParam==IDOK){
-      g_SFT.UndoStore();
-      g_bExamineDirty=TRUE;
-      RefreshSeedR(hWnd);
-      RefreshSeedI(hWnd);
-      RefreshFactorAR(hWnd);
-      RefreshFactorAI(hWnd);
-      RefreshFractalType(hWnd);
-      RefreshPower(hWnd);
-      RefreshDerivatives(hWnd);
-      RefreshJitterSeed(hWnd);
-      RefreshJitterScale(hWnd);
-      RefreshJitterShape(hWnd);
-      ExitToolTip(hWnd);
-      EndDialog(hWnd, 1);
-    }
-    else if(wParam==IDCANCEL){
-      ExitToolTip(hWnd);
-      EndDialog(hWnd,0);
+    if (wParam == IDOK || wParam == IDCANCEL)
+    {
+      int retval = 0;
+      if (wParam == IDOK){
+        g_SFT.UndoStore();
+        g_bExamineDirty=TRUE;
+        RefreshSeedR(hWnd);
+        RefreshSeedI(hWnd);
+        RefreshFactorAR(hWnd);
+        RefreshFactorAI(hWnd);
+        RefreshFractalType(hWnd);
+        RefreshPower(hWnd);
+        RefreshDerivatives(hWnd);
+        RefreshJitterSeed(hWnd);
+        RefreshJitterScale(hWnd);
+        RefreshJitterShape(hWnd);
+        retval = 1;
+      }
+      for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
+      EndDialog(hWnd, retval);
     }
     else if(HIWORD(wParam)==CBN_SELCHANGE && LOWORD(wParam)==IDC_FORMULA_TYPE){
       int nType = RefreshFractalType(hWnd, false);
@@ -235,38 +256,4 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     }
   }
   return 0;
-}
-
-extern const char *FormulaToolTip(int nID)
-{
-  switch(nID){
-  case IDC_FORMULA_TYPE:
-    return "List of type of Mandelbrot based Fractals\nSome of them have additional Power options";
-  case IDC_FORMULA_POWER:
-    return "Power of Mandelbrot function";
-  case IDC_FORMULA_SEED_RE:
-    return "Real seed value (0 is standard)";
-  case IDC_FORMULA_SEED_IM:
-    return "Imaginary seed value (0 is standard)";
-  case IDC_FORMULA_FACTOR_A_RE:
-    return "Real 'a' value (for TheRedshiftRider formulas)";
-  case IDC_FORMULA_FACTOR_A_IM:
-    return "Imaginary 'a' value (for TheRedshiftRider formulas)";
-  case IDC_FORMULA_DERIVATIVES:
-    return "Select checkbox to compute derivatives\nRequired for analytic DE";
-  case IDC_FORMULA_JITTER_SEED:
-    return "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter";
-  case IDC_FORMULA_JITTER_SCALE:
-    return "Pixel jitter amount\nDefault 1.0";
-  case IDC_FORMULA_JITTER_GAUSSIAN:
-    return "Select checkbox to use Gaussian jitter\nUncheck for uniform";
-  case IDOK:
-    return "Apply and close";
-  case IDCANCEL:
-    return "Close and undo";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }

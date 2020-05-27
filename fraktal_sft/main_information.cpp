@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_information.h"
 #include "fraktal_sft.h"
 #include "resource.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 
 static int g_nPrevCalc = -1;
 
@@ -80,6 +80,8 @@ static void UpdateCalculations(HWND hWnd, int nCalc, int nType)
   SetDlgItemText(hWnd,IDC_INFORMATION_CALCULATIONS,szCalc);
 }
 
+static std::vector<HWND> tooltips;
+
 extern INT_PTR WINAPI InformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
   (void) lParam;
@@ -87,7 +89,15 @@ extern INT_PTR WINAPI InformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM l
     if(uMsg==WM_INITDIALOG){
       SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
       SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-      InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,1);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+      T(IDC_INFORMATION_MIN_ITERS, "Minimum number of iteration in current view")
+      T(IDC_INFORMATION_MAX_ITERS, "Maximum number of iteration in current view")
+      T(IDC_INFORMATION_APPROX_ITERS, "Iterations skipped by Series Approximation")
+      T(IDC_INFORMATION_APPROX_TERMS, "Terms for Series approximation.\nMore terms usually yield more skipped iterations and faster rendering,\nhowever is more time consuming to be processed")
+      T(IDC_INFORMATION_CALCULATIONS, "Display number of calculations performed")
+#undef T
+
       SetTimer(hWnd,0,1000,NULL);
     }
     int64_t nMin, nMax;
@@ -106,31 +116,14 @@ extern INT_PTR WINAPI InformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM l
   }
   else if(uMsg==WM_COMMAND){
     if(wParam==IDOK || wParam==IDCANCEL){
-      ExitToolTip(hWnd);
+      for (auto tooltip : tooltips)
+      {
+        DestroyWindow(tooltip);
+      }
+      tooltips.clear();
       EndDialog(hWnd, 1);
     }
   }
   return 0;
 }
 
-extern const char *InformationToolTip(int nID)
-{
-  switch(nID){
-  case IDC_INFORMATION_MIN_ITERS:
-    return "Minimum number of iteration in current view";
-  case IDC_INFORMATION_MAX_ITERS:
-    return "Maximum number of iteration in current view";
-  case IDC_INFORMATION_APPROX_ITERS:
-    return "Iterations skipped by Series Approximation";
-  case IDC_INFORMATION_APPROX_TERMS:
-    return "Terms for Series approximation.\nMore terms usually yield more skipped iterations and faster rendering,\nhowever is more time consuming to be processed";
-  case IDC_INFORMATION_CALCULATIONS:
-    return "Display number of calculations performed";
-  case IDOK:
-    return "Close";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
-}

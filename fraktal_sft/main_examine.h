@@ -24,7 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 extern bool Examine(HWND hWnd);
 extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-extern const char *ExamineToolTip(int nID);
 
 #endif
 

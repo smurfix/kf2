@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "resource.h"
 #include "newton.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 
 static void FixNumber(char *sz)
 {
@@ -41,13 +41,26 @@ static void FixNumber(char *sz)
 	sz[b]=0;
 }
 
+static std::vector<HWND> tooltips;
+
 extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	(void) lParam;
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,2);
+
+#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+		T(IDC_EDIT1, "Real value")
+		T(IDC_EDIT3, "Imaginary value")
+		T(IDC_EDIT4, "Zoom value")
+		T(IDC_EDIT2, "Display minimum iteration value of current location")
+		T(IDC_EDIT5, "Display maximum iteration value of current location")
+		T(IDC_LOCATION_PERIOD, "Display period of last Newton zoom, sets limit for NanoMB2")
+		T(IDOK, "Apply and close")
+		T(IDCANCEL, "Close and undo")
+#undef T
+
 		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
 		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,0,0);
     std::string re = g_SFT.GetRe();
@@ -68,6 +81,9 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		return 1;
 	}
 	else if(uMsg==WM_COMMAND){
+	    if (wParam == IDOK || wParam == IDCANCEL)
+	    {
+		int retval = 0;
 		if(wParam==IDOK){
 			g_SFT.UndoStore();
 			int n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT1));
@@ -91,39 +107,15 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			delete [] szI;
 			delete [] szZ;
 			delete [] szP;
-			ExitToolTip(hWnd);
-			EndDialog(hWnd,1);
+			retval = 1;
 		}
-		else if(wParam==IDCANCEL){
-			ExitToolTip(hWnd);
-			EndDialog(hWnd,0);
+		for (auto tooltip : tooltips)
+		{
+			DestroyWindow(tooltip);
 		}
+		tooltips.clear();
+		EndDialog(hWnd, retval);
+	    }
 	}
 	return 0;
-}
-
-extern const char *PositionToolTip(int nID)
-{
-  switch(nID){
-  case IDC_EDIT1:
-    return "Real value";
-  case IDC_EDIT3:
-    return "Imaginary value";
-  case IDC_EDIT4:
-    return "Zoom value";
-  case IDC_EDIT2:
-    return "Display minimum iteration value of current location";
-  case IDC_EDIT5:
-    return "Display maximum iteration value of current location";
-  case IDC_LOCATION_PERIOD:
-    return "Display period of last Newton zoom, sets limit for NanoMB2";
-  case IDOK:
-    return "Apply and close";
-  case IDCANCEL:
-    return "Close and undo";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }

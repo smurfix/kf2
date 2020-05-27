@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_color.h"
 #include "fraktal_sft.h"
 #include "resource.h"
-#include "../common/tooltip.h"
+#include "tooltip.h"
 #include "../common/FolderBrowser.h"
 #include "../common/StringVector.h"
 #include "../common/getimage.h"
@@ -51,7 +51,80 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	{
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		InitToolTip(hWnd,GetModuleHandle(NULL),GetToolText,0);
+
+// this dialog is never destoyed, but hidden and reshown
+// this means we don't need to store the tooltip windows
+// because they will be deleted at program exit (I hope)
+// also hopefully WM_INITDIALOG will be called only once
+#define T(idc,str) CreateToolTip(idc, hWnd, str);
+#define T2(idc1,idc2,str) T(idc1, str) T(idc2, str)
+		T2(IDC_EDIT1, IDC_SPIN1, "Number of Key Colors\nThese colors will be spread out on the 1024 color palette\nInteger value")
+	  T2(IDC_EDIT3, IDC_SPIN2, "Division of iteration mapping\nThis value can be a float value but not negative")
+	  T2(IDC_EDIT12, IDC_SPIN5, "Color offset\nOffset the colors in the palette,\nvalid values are 0-1024")
+	  T(IDC_EDIT2, "Seed value for making a random palette")
+		T(IDC_BUTTON2, "Generate the given number of key colors\nfrom the seed value")
+		T(IDC_BUTTON13, "Generate the given number of key colors\nfrom a random seed value")
+		T(IDC_BUTTON12, "Generate RGB key colors\nfrom the given values")
+		T(IDC_BUTTON14, "Generate RGB key colors\nfrom random values")
+		T(IDC_BUTTON1, "Save the current palette")
+		T(IDC_BUTTON5, "Open a previously saved palette")
+		T(IDC_CHECK4, "Apply 3D-like shadows based on changes in iteration values")
+		T2(IDC_EDIT20, IDC_SPIN6, "Slope shadow depth")
+		T2(IDC_EDIT21, IDC_SPIN7, "Slope shadow strength")
+		T2(IDC_EDIT22, IDC_SPIN8, "Slope shadow angle (0-360)")
+		T(IDC_BUTTON22, "Select an image from which colors will be fetched")
+		T(IDC_BUTTON6, "Double the number of Key Colors\nby spreading out the current colors")
+		T(IDC_BUTTON7, "Expand the number of Key Colors to 1024\nby spreading out the current colors")
+		T(IDC_BUTTON10, "Double by repeating the Key Colors")
+		T(IDC_CHECK1, "Move the cursor over the fractal to select the Key Color in the list.\nWill only work if color offset is zero")
+		T(IDC_COLOR_PHASE_STRENGTH, "Adjust colors based on final iterate phase angle")
+		T(IDC_COLOR_TRANSITION_FLAT, "Make colors flat")
+		T(IDC_CHECK2, "Make colors smooth")
+		T(IDC_CHECK3, "Inverse color transition")
+		T(IDC_COMBO1, "Color method. Available methods are\nStandard: Standard iteration band coloring\nSquare root: Iterations are squared before colors are appplied\nCubic root: Cube root is applied before colors\nLogarithm: Logarithm is applied before colors\nStretched: The palette is stretched over min-max iteration values\nDistance (Linear): Distance Estimation with linear transfer (2.11.1 compatible)\nDE+Standard: hybrid mode\nDistance (Logarithm) DE with log transfer\nDistance (Square Root) DE with sqrt transfer (2.11.1+gmp.DATE compatible)")
+		T(IDC_DIFFERENCES, "Derivative differencing calculation method for distance colouring")
+		T(IDC_RADIO4, "Colors are merged on distinct steps")
+		T(IDC_RADIO5, "Colors are merged by sine function with given period length")
+		T2(IDC_EDIT9, IDC_SPIN3, "Length of period")
+		T2(IDC_EDIT10, IDC_SPIN4, "Rate in percent of merged color")
+		T(IDC_BUTTON8, "Select the color to be merged, which will be applied when OK is clicked in the color dialog")
+		T(IDC_LIST1, "List of Key Colors.\nEach Key Color can be edited by double click.\nAdditional functions are available by right click on a Key Color")
+		T(IDC_CHECK6, "Activate sine waves on HSB coloring")
+		T(IDC_CHECK7, "Blend Infinite Colors and the Color Palette")
+		T(IDC_COMBO4, "Select type of wave:\nHue, Saturation or Brightness")
+		T(IDC_EDIT23, "Period length of the wave")
+		T(IDC_BUTTON29, "Change the period wave to the nearest higher prime value")
+		T(IDC_BUTTON30, "Fill the palette with the colors from infinte waves")
+		T(IDC_BUTTON26, "Add a new wave with the given values")
+		T(IDC_BUTTON27, "Update the selected wave")
+		T(IDC_BUTTON28, "Remove the selected wave")
+		T(IDC_EDIT11, "Period lenght of Red color")
+		T(IDC_EDIT14, "Period lenght of Green color")
+		T(IDC_EDIT16, "Period lenght of Blue color")
+		T(IDC_EDIT18, "Period lenght of Black and White color")
+		T(IDC_BUTTON16, "Change the period wave to the nearest higher prime value for Red color")
+		T(IDC_BUTTON19, "Change the period wave to the nearest higher prime value for Green color")
+		T(IDC_BUTTON20, "Change the period wave to the nearest higher prime value for Blue color")
+		T(IDC_BUTTON21, "Change the period wave to the nearest higher prime value for Black and White color")
+		T(IDC_EDIT13, "Change the start position of the wave of Red color")
+		T(IDC_EDIT15, "Change the start position of the wave of Green color")
+		T(IDC_EDIT17, "Change the start position of the wave of Blue color")
+		T(IDC_EDIT19, "Change the start position of the wave of Black and White color")
+		T(IDC_LIST6, "List of Infinite Waves")
+		T(IDC_BUTTON17, "Apply more contrast on the palette")
+		T(IDC_BUTTON18, "Apply less contrast on the palette")
+		T(IDC_AUTOCOLOUR, "Automatically apply palette on change")
+		T(IDOK, "Apply current palette")
+		T(IDCLOSE, "Close the dialog and undo all changes")
+		T(IDCANCEL, "Close the dialog")
+		T(1051, "Enable texture")
+		T(1052, "Texture depth")
+		T(1053, "Texture strength/ratio")
+		T(1054, "Browse for image")
+		T(1055, "Texture image")
+#undef T2
+#undef T
+
 		SendDlgItemMessage(hWnd, IDC_AUTOCOLOUR, BM_SETCHECK, g_AutoColour, 0);
 		DragAcceptFiles(hWnd, TRUE);
 	}
@@ -1091,150 +1164,4 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_AutoUpdate--;
 	}
 	return 0;
-}
-
-extern const char *ColorToolTip(int nID)
-{
-	switch(nID){
-	case IDC_EDIT1:
-	case IDC_SPIN1:
-		return "Number of Key Colors\nThese colors will be spread out on the 1024 color palette\nInteger value";
-	case IDC_EDIT3:
-	case IDC_SPIN2:
-		return "Division of iteration mapping\nThis value can be a float value but not negative";
-	case IDC_EDIT12:
-	case IDC_SPIN5:
-		return "Color offset\nOffset the colors in the palette,\nvalid values are 0-1024";
-	case IDC_EDIT2:
-		return "Seed value for making a random palette";
-	case IDC_BUTTON2:
-		return "Generate the given number of key colors\nfrom the seed value";
-	case IDC_BUTTON13:
-		return "Generate the given number of key colors\nfrom a random seed value";
-	case IDC_BUTTON12:
-		return "Generate RGB key colors\nfrom the given values";
-	case IDC_BUTTON14:
-		return "Generate RGB key colors\nfrom random values";
-	case IDC_BUTTON1:
-		return "Save the current palette";
-	case IDC_BUTTON5:
-		return "Open a previously saved palette";
-	case IDC_CHECK4:
-		return "Apply 3D-like shadows based on changes in iteration values";
-	case IDC_EDIT20:
-	case IDC_SPIN6:
-		return "Slope shadow depth";
-	case IDC_EDIT21:
-	case IDC_SPIN7:
-		return "Slope shadow strength";
-	case IDC_EDIT22:
-	case IDC_SPIN8:
-		return "Slope shadow angle (0-360)";
-	case IDC_BUTTON22:
-		return "Select an image from which colors will be fetched";
-	case IDC_BUTTON6:
-		return "Double the number of Key Colors\nby spreading out the current colors";
-	case IDC_BUTTON7:
-		return "Expand the number of Key Colors to 1024\nby spreading out the current colors";
-	case IDC_BUTTON10:
-		return "Double by repeating the Key Colors";
-	case IDC_CHECK1:
-		return "Move the cursor over the fractal to select the Key Color in the list.\nWill only work if color offset is zero";
-	case IDC_COLOR_PHASE_STRENGTH:
-		return "Adjust colors based on final iterate phase angle";
-	case IDC_COLOR_TRANSITION_FLAT:
-		return "Make colors flat";
-	case IDC_CHECK2:
-		return "Make colors smooth";
-	case IDC_CHECK3:
-		return "Inverse color transition";
-	case IDC_COMBO1:
-		return "Color method. Available methods are\nStandard: Standard iteration band coloring\nSquare root: Iterations are squared before colors are appplied\nCubic root: Cube root is applied before colors\nLogarithm: Logarithm is applied before colors\nStretched: The palette is stretched over min-max iteration values\nDistance (Linear): Distance Estimation with linear transfer (2.11.1 compatible)\nDE+Standard: hybrid mode\nDistance (Logarithm) DE with log transfer\nDistance (Square Root) DE with sqrt transfer (2.11.1+gmp.DATE compatible)";
-	case IDC_DIFFERENCES:
-		return "Derivative differencing calculation method for distance colouring";
-	case IDC_RADIO4:
-		return "Colors are merged on distinct steps";
-	case IDC_RADIO5:
-		return "Colors are merged by sine function with given period length";
-	case IDC_EDIT9:
-	case IDC_SPIN3:
-		return "Length of period";
-	case IDC_EDIT10:
-	case IDC_SPIN4:
-		return "Rate in percent of merged color";
-	case IDC_BUTTON8:
-		return "Select the color to be merged, which will be applied when OK is clicked in the color dialog";
-	case IDC_LIST1:
-		return "List of Key Colors.\nEach Key Color can be edited by double click.\nAdditional functions are available by right click on a Key Color";
-	case IDC_CHECK6:
-		return "Activate sine waves on HSB coloring";
-	case IDC_CHECK7:
-		return "Blend Infinite Colors and the Color Palette";
-	case IDC_COMBO4:
-		return "Select type of wave:\nHue, Saturation or Brightness";
-	case IDC_EDIT23:
-		return "Period length of the wave";
-	case IDC_BUTTON29:
-		return "Change the period wave to the nearest higher prime value";
-	case IDC_BUTTON30:
-		return "Fill the palette with the colors from infinte waves";
-	case IDC_BUTTON26:
-		return "Add a new wave with the given values";
-	case IDC_BUTTON27:
-		return "Update the selected wave";
-	case IDC_BUTTON28:
-		return "Remove the selected wave";
-	case IDC_EDIT11:
-		return "Period lenght of Red color";
-	case IDC_EDIT14:
-		return "Period lenght of Green color";
-	case IDC_EDIT16:
-		return "Period lenght of Blue color";
-	case IDC_EDIT18:
-		return "Period lenght of Black and White color";
-	case IDC_BUTTON16:
-		return "Change the period wave to the nearest higher prime value for Red color";
-	case IDC_BUTTON19:
-		return "Change the period wave to the nearest higher prime value for Green color";
-	case IDC_BUTTON20:
-		return "Change the period wave to the nearest higher prime value for Blue color";
-	case IDC_BUTTON21:
-		return "Change the period wave to the nearest higher prime value for Black and White color";
-	case IDC_EDIT13:
-		return "Change the start position of the wave of Red color";
-	case IDC_EDIT15:
-		return "Change the start position of the wave of Green color";
-	case IDC_EDIT17:
-		return "Change the start position of the wave of Blue color";
-	case IDC_EDIT19:
-		return "Change the start position of the wave of Black and White color";
-	case IDC_LIST6:
-		return "List of Infinite Waves";
-	case IDC_BUTTON17:
-		return "Apply more contrast on the palette";
-	case IDC_BUTTON18:
-		return "Apply less contrast on the palette";
-	case IDC_AUTOCOLOUR:
-		return "Automatically apply palette on change";
-	case IDOK:
-		return "Apply current palette";
-	case IDCLOSE:
-		return "Close the dialog and undo all changes";
-	case IDCANCEL:
-		return "Close the dialog";
-	case 1051:
-		return "Enable texture";
-	case 1052:
-		return "Texture depth";
-	case 1053:
-		return "Texture strength/ratio";
-	case 1054:
-		return "Browse for image";
-	case 1055:
-		return "Texture image";
-  default:
-    static char tooltip[100];
-    snprintf(tooltip, 100, "%d", nID);
-    return tooltip;
-  }
 }
