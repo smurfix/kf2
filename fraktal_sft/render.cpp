@@ -103,10 +103,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	m_bStop = FALSE;
 	if (hWnd)
 		m_hWnd = hWnd;
-	m_nX = nX;
-	m_nY = nY;
-	SetImageWidth(nX);
-	SetImageHeight(nY);
+	if (! (m_nX == nX && m_nY == nY))
+		SetImageSize(nX, nY);
 	m_nMaxIter = nMaxIter;
 	m_nRDone = m_nDone = m_nGuessed = 0;
 	if (bResetOldGlitch)

@@ -2775,12 +2775,12 @@ static long OpenSettings(HWND hWnd, bool &ret)
 					std::cerr << "CL: " << g_SFT.GetOpenCLPlatform() << std::endl;
 					g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
 #endif
+					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
+					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
 					if (hWnd)
 						UpdateMenusFromSettings(hWnd);
 					if (hWnd)
 						UpdateWindowSize(hWnd);
-					g_SFT.SetImageSize(g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
-					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
 					if (hWnd)
 						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 					ret = false;
