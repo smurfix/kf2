@@ -204,6 +204,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_PTSATUNING_APPROXAUTO       1234
 #define IDC_PTSATUNING_APPROXTERMS      1235
 
+// "Custom Zoom Size" dialog
+#define IDD_ZOOMSIZE                    124
+#define IDC_ZOOMSIZE_VALUE              1241
+
 // menus
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002

@@ -1909,7 +1909,6 @@ static int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 	if(uMsg==WM_INITDIALOG){
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		SetDlgItemText(hWnd,IDC_LABEL,"Zoom size(float value)");
 		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
 		return 1;
 	}
@@ -1918,7 +1917,7 @@ static int WINAPI CustomZoomSize(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			EndDialog(hWnd,0);
 		else if(wParam==IDOK){
 			char *szTmp = (char*)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-			GetDlgItemText(hWnd,IDC_EDIT1,szTmp,25);
+			GetDlgItemText(hWnd,IDC_ZOOMSIZE_VALUE,szTmp,25);
 			EndDialog(hWnd,1);
 		}
 	}
@@ -4687,7 +4686,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetZoomSize(128);
 			else if(wParam==ID_ZOOMSIZE_CUSTOM){
 				char szTmp[25];
-				if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG9),hWnd,(DLGPROC)CustomZoomSize,(LPARAM)szTmp)){
+				if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_ZOOMSIZE),hWnd,(DLGPROC)CustomZoomSize,(LPARAM)szTmp)){
 					g_SFT.SetZoomSize(atof(szTmp));
 					if(!g_SFT.GetZoomSize())
 						g_SFT.SetZoomSize(2);
