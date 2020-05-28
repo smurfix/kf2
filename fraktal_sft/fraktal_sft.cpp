@@ -235,6 +235,8 @@ CFraktalSFT::CFraktalSFT()
 	m_nIterDiv = 0.1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
+	m_UseHybridFormula = false;
+
 	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;

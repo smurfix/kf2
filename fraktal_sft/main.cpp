@@ -4431,8 +4431,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SKEW,0);
-	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)))
+	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SHOWINFLECTION,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
+		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_HYBRID,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_SHIFT))){
 		POINT p;
 		GetCursorPos(&p);
@@ -4641,6 +4643,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_ACTIONS_FORMULA){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
+			if(n > 0){
+				SetTimer(hWnd,0,500,NULL);
+				g_SFT.Stop();
+				g_bAnim=false;
+				g_SFT.UndoStore();
+				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			}
+		}
+		else if(wParam==ID_ACTIONS_HYBRID){
+			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_HYBRID),hWnd,HybridProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
 				g_SFT.Stop();

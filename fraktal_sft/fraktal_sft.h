@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/matrix.h"
 #include "itercount_array.h"
 #include "colour.h"
+#include "hybrid.h"
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
@@ -393,6 +394,8 @@ class CFraktalSFT
 
 	SeriesType GetApproximationType()
 	{
+		if (GetUseHybridFormula())
+			return SeriesType_None;
 		if (m_nFractalType == 0)
 			return SeriesType_Complex;
 		if (m_nFractalType == 1 && m_nPower == 2)
@@ -435,6 +438,8 @@ class CFraktalSFT
 	std::vector<std::string> m_redo;
 
 	bool m_bIsRendering;
+	bool m_UseHybridFormula;
+	hybrid_formula m_HybridFormula;
 public:
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
@@ -693,6 +698,19 @@ public:
   size_t GetArrayHalfColourStride() { return m_row; };
 	void ReinitializeBitmap();
 	inline bool GetIsRendering() { return m_bIsRendering; };
+	inline bool GetUseHybridFormula() const { return m_UseHybridFormula; };
+	inline void SetUseHybridFormula(bool b)
+	{
+		m_UseHybridFormula = b;
+	}
+	const hybrid_formula &GetHybridFormula() const
+	{
+		return m_HybridFormula;
+	};
+	void SetHybridFormula(const hybrid_formula &h)
+	{
+		m_HybridFormula = h;
+	};
 };
 
 struct TH_PARAMS

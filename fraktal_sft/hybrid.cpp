@@ -1,0 +1,443 @@
+/*
+Kalles Fraktaler 2
+Copyright (C) 2020 Claude Heiland-Allen
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Affero General Public License as
+published by the Free Software Foundation, either version 3 of the
+License, or (at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Affero General Public License for more details.
+
+You should have received a copy of the GNU Affero General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+*/
+
+#include <windows.h>
+
+#include <cstdlib>
+#include <iomanip>
+#include <sstream>
+#include <string>
+#include <vector>
+
+#include "fraktal_sft.h"
+#include "hybrid.h"
+#include "main.h"
+#include "resource.h"
+#include "tooltip.h"
+
+std::vector<std::string> split(std::string s, char sep)
+{
+  std::vector<std::string> r;
+  while (true)
+  {
+    std::size_t ix = s.find(sep);
+    r.push_back(s.substr(0, ix));
+    if (ix == std::string::npos)
+    {
+      break;
+    }
+    else
+    {
+      s = s.substr(ix + 1);
+    }
+  }
+  return r;
+}
+
+extern std::string to_string(const hybrid_operator &h)
+{
+  std::ostringstream o;
+  o << (h.abs_x ? 1 : 0) << ',';
+  o << (h.abs_y ? 1 : 0) << ',';
+  o << (h.neg_x ? 1 : 0) << ',';
+  o << (h.neg_y ? 1 : 0) << ',';
+  o << h.pow << ',';
+  o << std::setprecision(17) << h.mul_re << ',';
+  o << std::setprecision(17) << h.mul_im;
+  return o.str();
+}
+
+extern std::string to_string(const hybrid_combine &h)
+{
+  std::ostringstream o;
+  o << int(h);
+  return o.str();
+}
+
+extern std::string to_string(const hybrid_line &h)
+{
+  std::ostringstream o;
+  o << to_string(h.one) << ';';
+  o << to_string(h.two) << ';';
+  o << to_string(h.mode);
+  return o.str();
+}
+
+extern std::string to_string(const hybrid_stanza &h)
+{
+  std::ostringstream o;
+  for (size_t i = 0; i < h.size(); ++i)
+  {
+    if (i)
+    {
+      o << '|';
+    }
+    o << to_string(h[i]);
+  }
+  return o.str();
+}
+
+extern std::string to_string(const hybrid_formula &h)
+{
+  std::ostringstream o;
+  for (size_t i = 0; i < h.size(); ++i)
+  {
+    if (i)
+    {
+      o << '/';
+    }
+    o << to_string(h[i]);
+  }
+  return o.str();
+}
+
+extern hybrid_operator hybrid_operator_from_string(const std::string &s)
+{
+  hybrid_operator r = { false, false, false, false, 0, 0.0, 0.0 };
+  std::vector<std::string> v = split(s, ',');
+  if (v.size() > 0) r.abs_x = std::stoi(v[0]);
+  if (v.size() > 1) r.abs_y = std::stoi(v[1]);
+  if (v.size() > 2) r.neg_x = std::stoi(v[2]);
+  if (v.size() > 3) r.neg_y = std::stoi(v[3]);
+  if (v.size() > 4) r.pow = std::stoi(v[4]);
+  if (v.size() > 5) r.mul_re = std::stof(v[5]);
+  if (v.size() > 6) r.mul_im = std::stof(v[6]);
+  return r;
+}
+
+extern hybrid_combine hybrid_combine_from_string(const std::string &s)
+{
+  hybrid_combine r = hybrid_combine_add;
+  switch (std::stoi(s))
+  {
+    case 0: r = hybrid_combine_add; break;
+    case 1: r = hybrid_combine_sub; break;
+    case 2: r = hybrid_combine_mul; break;
+    case 3: r = hybrid_combine_div; break;
+  }
+  return r;
+}
+
+extern hybrid_line hybrid_line_from_string(const std::string &s)
+{
+  hybrid_line r;
+  std::vector<std::string> v = split(s, ';');
+  if (v.size() > 0) r.one = hybrid_operator_from_string(v[0]);
+  if (v.size() > 1) r.two = hybrid_operator_from_string(v[1]);
+  if (v.size() > 2) r.mode = hybrid_combine_from_string(v[2]);
+  return r;
+}
+
+extern hybrid_stanza hybrid_stanza_from_string(const std::string &s)
+{
+  hybrid_stanza r;
+  std::vector<std::string> v = split(s, '|');
+  for (auto l : v)
+  {
+    r.push_back(hybrid_line_from_string(l));
+  }
+  return r;
+}
+
+extern hybrid_formula hybrid_formula_from_string(const std::string &s)
+{
+  hybrid_formula r;
+  std::vector<std::string> v = split(s, '/');
+  for (auto l : v)
+  {
+    r.push_back(hybrid_stanza_from_string(l));
+  }
+  return r;
+}
+
+static std::vector<HWND> tooltips;
+
+extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+  switch (uMsg)
+  {
+    case WM_INITDIALOG:
+    {
+      SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+      SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+
+      // set widgets according to formula
+      hybrid_formula h = g_SFT.GetHybridFormula();
+      bool a1 = h.size() > 0 && h[0].size() > 0;
+      bool b1 = h.size() > 0 && h[0].size() > 1;
+      bool a2 = h.size() > 1 && h[1].size() > 0;
+      bool b2 = h.size() > 1 && h[1].size() > 1;
+      hybrid_operator a11  = a1 ? h[0][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a12  = a1 ? h[0][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a1op = a1 ? h[0][0].mode : hybrid_combine_add;
+      hybrid_operator b11  = b1 ? h[0][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b12  = b1 ? h[0][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b1op = b1 ? h[0][1].mode : hybrid_combine_add;
+      hybrid_operator a21  = a2 ? h[1][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a22  = a2 ? h[1][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a2op = a2 ? h[1][0].mode : hybrid_combine_add;
+      hybrid_operator b21  = b2 ? h[1][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b22  = b2 ? h[1][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b2op = b2 ? h[1][1].mode : hybrid_combine_add;
+#define E(idc, enable) EnableWindow(GetDlgItem(hWnd, idc), true);
+#define T(idc, str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+#define B(idc, enable, value, str) T(idc, str) SendDlgItemMessage(hWnd, idc, BM_SETCHECK, value, 0); E(idc, enable)
+#define N(idc, enable, value, str) T(idc, str) SetDlgItemInt(hWnd, idc, value, 0); E(idc, enable)
+#define R(idc, enable, value, str) T(idc, str) SetDlgItemFloat(hWnd, idc, value); E(idc, enable)
+#define O(idc, enable, value, str) \
+  T(idc, str) \
+  SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "+"); \
+  SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "-"); \
+  SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "*"); \
+  SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "/"); \
+  SendDlgItemMessage(hWnd, idc, CB_SETCURSEL, value, 0); \
+  E(idc, enable)
+      B(IDC_HYBRID_1_ACTIVE, true, h.size() > 0, "Group 1")
+      B(IDC_HYBRID_1A_ABSX1, a1, a11.abs_x, "Abs X")
+      B(IDC_HYBRID_1A_ABSY1, a1, a11.abs_y, "Abs Y")
+      B(IDC_HYBRID_1A_NEGX1, a1, a11.neg_x, "Neg X")
+      B(IDC_HYBRID_1A_NEGY1, a1, a11.neg_y, "Neg Y")
+      N(IDC_HYBRID_1A_POW1, a1, a11.pow, "Power")
+      R(IDC_HYBRID_1A_ARE1, a1, a11.mul_re, "A Real")
+      R(IDC_HYBRID_1A_AIM1, a1, a11.mul_im, "A Imag")
+      O(IDC_HYBRID_1A_OP, a1, a1op, "Operator")
+      B(IDC_HYBRID_1A_ABSX2, a1, a12.abs_x, "Abs X")
+      B(IDC_HYBRID_1A_ABSY2, a1, a12.abs_y, "Abs Y")
+      B(IDC_HYBRID_1A_NEGX2, a1, a12.neg_x, "Neg X")
+      B(IDC_HYBRID_1A_NEGY2, a1, a12.neg_y, "Neg Y")
+      N(IDC_HYBRID_1A_POW2, a1, a12.pow, "Power")
+      R(IDC_HYBRID_1A_ARE2, a1, a12.mul_re, "A Real")
+      R(IDC_HYBRID_1A_AIM2, a1, a12.mul_im, "A Imag")
+      B(IDC_HYBRID_1A_ACTIVE, true, a1, "Step 1")
+      B(IDC_HYBRID_1B_ABSX1, b1, b11.abs_x, "Abs X")
+      B(IDC_HYBRID_1B_ABSY1, b1, b11.abs_y, "Abs Y")
+      B(IDC_HYBRID_1B_NEGX1, b1, b11.neg_x, "Neg X")
+      B(IDC_HYBRID_1B_NEGY1, b1, b11.neg_y, "Neg Y")
+      N(IDC_HYBRID_1B_POW1, b1, b11.pow, "Power")
+      R(IDC_HYBRID_1B_ARE1, b1, b11.mul_re, "A Real")
+      R(IDC_HYBRID_1B_AIM1, b1, b11.mul_im, "A Imag")
+      O(IDC_HYBRID_1B_OP, b1, b1op, "Operator")
+      B(IDC_HYBRID_1B_ABSX2, b1, b12.abs_x, "Abs X")
+      B(IDC_HYBRID_1B_ABSY2, b1, b12.abs_y, "Abs Y")
+      B(IDC_HYBRID_1B_NEGX2, b1, b12.neg_x, "Neg X")
+      B(IDC_HYBRID_1B_NEGY2, b1, b12.neg_y, "Neg Y")
+      N(IDC_HYBRID_1B_POW2, b1, b12.pow, "Power")
+      R(IDC_HYBRID_1B_ARE2, b1, b12.mul_re, "A Real")
+      R(IDC_HYBRID_1B_AIM2, b1, b12.mul_im, "A Imag")
+      B(IDC_HYBRID_1B_ACTIVE, true, b1, "Step 2")
+      B(IDC_HYBRID_2_ACTIVE, true, h.size() > 1, "Group 2")
+      B(IDC_HYBRID_2A_ABSX1, a2, a21.abs_x, "Abs X")
+      B(IDC_HYBRID_2A_ABSY1, a2, a21.abs_y, "Abs Y")
+      B(IDC_HYBRID_2A_NEGX1, a2, a21.neg_x, "Neg X")
+      B(IDC_HYBRID_2A_NEGY1, a2, a21.neg_y, "Neg Y")
+      N(IDC_HYBRID_2A_POW1, a2, a21.pow, "Power")
+      R(IDC_HYBRID_2A_ARE1, a2, a21.mul_re, "A Real")
+      R(IDC_HYBRID_2A_AIM1, a2, a21.mul_im, "A Imag")
+      O(IDC_HYBRID_2A_OP, a2, a2op, "Operator")
+      B(IDC_HYBRID_2A_ABSX2, a2, a22.abs_x, "Abs X")
+      B(IDC_HYBRID_2A_ABSY2, a2, a22.abs_y, "Abs Y")
+      B(IDC_HYBRID_2A_NEGX2, a2, a22.neg_x, "Neg X")
+      B(IDC_HYBRID_2A_NEGY2, a2, a22.neg_y, "Neg Y")
+      N(IDC_HYBRID_2A_POW2, a2, a22.pow, "Power")
+      R(IDC_HYBRID_2A_ARE2, a2, a22.mul_re, "A Real")
+      R(IDC_HYBRID_2A_AIM2, a2, a22.mul_im, "A Imag")
+      B(IDC_HYBRID_2A_ACTIVE, true, a2, "Step 1")
+      B(IDC_HYBRID_2B_ABSX1, b2, b21.abs_x, "Abs X")
+      B(IDC_HYBRID_2B_ABSY1, b2, b21.abs_y, "Abs Y")
+      B(IDC_HYBRID_2B_NEGX1, b2, b21.neg_x, "Neg X")
+      B(IDC_HYBRID_2B_NEGY1, b2, b21.neg_y, "Neg Y")
+      N(IDC_HYBRID_2B_POW1, b2, b21.pow, "Power")
+      R(IDC_HYBRID_2B_ARE1, b2, b21.mul_re, "A Real")
+      R(IDC_HYBRID_2B_AIM1, b2, b21.mul_im, "A Imag")
+      O(IDC_HYBRID_2B_OP, b2, b2op, "Operator")
+      B(IDC_HYBRID_2B_ABSX2, b2, b22.abs_x, "Abs X")
+      B(IDC_HYBRID_2B_ABSY2, b2, b22.abs_y, "Abs Y")
+      B(IDC_HYBRID_2B_NEGX2, b2, b22.neg_x, "Neg X")
+      B(IDC_HYBRID_2B_NEGY2, b2, b22.neg_y, "Neg Y")
+      N(IDC_HYBRID_2B_POW2, b2, b22.pow, "Power")
+      R(IDC_HYBRID_2B_ARE2, b2, b22.mul_re, "A Real")
+      R(IDC_HYBRID_2B_AIM2, b2, b22.mul_im, "A Imag")
+      B(IDC_HYBRID_2B_ACTIVE, true, b2, "Step 2")
+#undef B
+#undef N
+#undef R
+#undef O
+#undef T
+#undef E
+      return 1;
+    }
+    break;
+    case WM_COMMAND:
+    {
+      if (wParam == IDOK || wParam == IDCANCEL)
+      {
+        int retval = 0;
+        if (wParam == IDOK)
+        {
+          g_SFT.UndoStore();
+          g_bExamineDirty=TRUE;
+
+          // copy formula from UI
+#define B(idc, f) f = SendDlgItemMessage(hWnd, idc, BM_GETCHECK, 0, 0);
+#define N(idc, f) f = GetDlgItemInt(hWnd, idc, 0, 0);
+#define R(idc, f) f = GetDlgItemFloat(hWnd, idc);
+#define O(idc, f) f = SendDlgItemMessage(hWnd, idc, CB_GETCURSEL, 0, 0);
+          bool group1 = false;
+          bool group2 = false;
+          bool a1 = false;
+          bool b1 = false;
+          bool a2 = false;
+          bool b2 = false;
+          hybrid_operator a11 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a12 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b11 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b12 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a21 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a22 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b21 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b22 = { false, false, false, false, 0, 0.0, 0.0 };
+          int a1op = 0;
+          int b1op = 0;
+          int a2op = 0;
+          int b2op = 0;
+          B(IDC_HYBRID_1_ACTIVE, group1)
+          B(IDC_HYBRID_1A_ABSX1, a11.abs_x)
+          B(IDC_HYBRID_1A_ABSY1, a11.abs_y)
+          B(IDC_HYBRID_1A_NEGX1, a11.neg_x)
+          B(IDC_HYBRID_1A_NEGY1, a11.neg_y)
+          N(IDC_HYBRID_1A_POW1, a11.pow)
+          R(IDC_HYBRID_1A_ARE1, a11.mul_re)
+          R(IDC_HYBRID_1A_AIM1, a11.mul_im)
+          O(IDC_HYBRID_1A_OP, a1op)
+          B(IDC_HYBRID_1A_ABSX2, a12.abs_x)
+          B(IDC_HYBRID_1A_ABSY2, a12.abs_y)
+          B(IDC_HYBRID_1A_NEGX2, a12.neg_x)
+          B(IDC_HYBRID_1A_NEGY2, a12.neg_y)
+          N(IDC_HYBRID_1A_POW2, a12.pow)
+          R(IDC_HYBRID_1A_ARE2, a12.mul_re)
+          R(IDC_HYBRID_1A_AIM2, a12.mul_im)
+          B(IDC_HYBRID_1A_ACTIVE, a1)
+          B(IDC_HYBRID_1B_ABSX1, b11.abs_x)
+          B(IDC_HYBRID_1B_ABSY1, b11.abs_y)
+          B(IDC_HYBRID_1B_NEGX1, b11.neg_x)
+          B(IDC_HYBRID_1B_NEGY1, b11.neg_y)
+          N(IDC_HYBRID_1B_POW1, b11.pow)
+          R(IDC_HYBRID_1B_ARE1, b11.mul_re)
+          R(IDC_HYBRID_1B_AIM1, b11.mul_im)
+          O(IDC_HYBRID_1B_OP, b1op)
+          B(IDC_HYBRID_1B_ABSX2, b12.abs_x)
+          B(IDC_HYBRID_1B_ABSY2, b12.abs_y)
+          B(IDC_HYBRID_1B_NEGX2, b12.neg_x)
+          B(IDC_HYBRID_1B_NEGY2, b12.neg_y)
+          N(IDC_HYBRID_1B_POW2, b12.pow)
+          R(IDC_HYBRID_1B_ARE2, b12.mul_re)
+          R(IDC_HYBRID_1B_AIM2, b12.mul_im)
+          B(IDC_HYBRID_1B_ACTIVE, b1)
+          B(IDC_HYBRID_2_ACTIVE, group2)
+          B(IDC_HYBRID_2A_ABSX1, a21.abs_x)
+          B(IDC_HYBRID_2A_ABSY1, a21.abs_y)
+          B(IDC_HYBRID_2A_NEGX1, a21.neg_x)
+          B(IDC_HYBRID_2A_NEGY1, a21.neg_y)
+          N(IDC_HYBRID_2A_POW1, a21.pow)
+          R(IDC_HYBRID_2A_ARE1, a21.mul_re)
+          R(IDC_HYBRID_2A_AIM1, a21.mul_im)
+          O(IDC_HYBRID_2A_OP, a2op)
+          B(IDC_HYBRID_2A_ABSX2, a22.abs_x)
+          B(IDC_HYBRID_2A_ABSY2, a22.abs_y)
+          B(IDC_HYBRID_2A_NEGX2, a22.neg_x)
+          B(IDC_HYBRID_2A_NEGY2, a22.neg_y)
+          N(IDC_HYBRID_2A_POW2, a22.pow)
+          R(IDC_HYBRID_2A_ARE2, a22.mul_re)
+          R(IDC_HYBRID_2A_AIM2, a22.mul_im)
+          B(IDC_HYBRID_2A_ACTIVE, a2)
+          B(IDC_HYBRID_2B_ABSX1, b21.abs_x)
+          B(IDC_HYBRID_2B_ABSY1, b21.abs_y)
+          B(IDC_HYBRID_2B_NEGX1, b21.neg_x)
+          B(IDC_HYBRID_2B_NEGY1, b21.neg_y)
+          N(IDC_HYBRID_2B_POW1, b21.pow)
+          R(IDC_HYBRID_2B_ARE1, b21.mul_re)
+          R(IDC_HYBRID_2B_AIM1, b21.mul_im)
+          O(IDC_HYBRID_2B_OP, b2op)
+          B(IDC_HYBRID_2B_ABSX2, b22.abs_x)
+          B(IDC_HYBRID_2B_ABSY2, b22.abs_y)
+          B(IDC_HYBRID_2B_NEGX2, b22.neg_x)
+          B(IDC_HYBRID_2B_NEGY2, b22.neg_y)
+          N(IDC_HYBRID_2B_POW2, b22.pow)
+          R(IDC_HYBRID_2B_ARE2, b22.mul_re)
+          R(IDC_HYBRID_2B_AIM2, b22.mul_im)
+          B(IDC_HYBRID_2B_ACTIVE, b2)
+#undef B
+#undef R
+#undef N
+#undef O
+          hybrid_formula h;
+          if (group1)
+          {
+            hybrid_stanza s;
+            if (a1)
+            {
+              hybrid_line l = { a11, a12, hybrid_combine(a1op) };
+              s.push_back(l);
+            }
+            if (b1)
+            {
+              hybrid_line l = { b11, b12, hybrid_combine(b1op) };
+              s.push_back(l);
+            }
+            if (s.size() > 0)
+            {
+              h.push_back(s);
+            }
+          }
+          if (group2)
+          {
+            hybrid_stanza s;
+            if (a2)
+            {
+              hybrid_line l = { a21, a22, hybrid_combine(a2op) };
+              s.push_back(l);
+            }
+            if (b2)
+            {
+              hybrid_line l = { b21, b22, hybrid_combine(b2op) };
+              s.push_back(l);
+            }
+            if (s.size() > 0)
+            {
+              h.push_back(s);
+            }
+          }
+          retval = h.size() > 0;
+          if (retval)
+          {
+            g_SFT.SetHybridFormula(h);
+            g_SFT.SetUseHybridFormula(true);
+          }
+        }
+        for (auto tooltip : tooltips)
+        {
+          DestroyWindow(tooltip);
+        }
+        tooltips.clear();
+        EndDialog(hWnd, retval);
+      }
+    }
+    break;
+  }
+  return 0;
+}

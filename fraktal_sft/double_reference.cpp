@@ -54,7 +54,12 @@ void CFraktalSFT::CalculateReference()
 	m_nGlitchIter = m_nMaxIter + 1;
 	int64_t nMaxIter = m_nMaxIter;
 
-	if (m_nFractalType == 0 && m_nPower > 10)
+	if (GetUseHybridFormula())
+	{
+		bool ok = reference(GetHybridFormula(), m_db_dxr, m_db_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
+		assert(ok && "reference_double_hybrid");
+	}
+	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 		double threashold = 0.0001;
 		for (i = 7; i <= m_nPower; i += 2)

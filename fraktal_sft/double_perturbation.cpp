@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "complex.h"
 #include "../formula/formula.h"
+#include "hybrid.h"
 
 void CFraktalSFT::MandelCalc()
 {
@@ -40,7 +41,7 @@ void CFraktalSFT::MandelCalc()
   const int64_t chunksize = GetSIMDChunkSize();
   const int vectorsize = GetSIMDVectorSize();
   const bool derivatives = GetDerivatives();
-  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && vectorsize > 1;
+  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1;
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -79,7 +80,13 @@ void CFraktalSFT::MandelCalc()
     dr = TDDnr.todouble();
     di = TDDni.todouble();
 
-    if (m_nFractalType == 0 && m_nPower > 10)
+    if (GetUseHybridFormula())
+    {
+      bool ok
+        = perturbation(GetHybridFormula(), m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
+      assert(ok && "perturbation_double_hybrid");
+    }
+    else if (m_nFractalType == 0 && m_nPower > 10)
     {
       if (derivatives)
       {

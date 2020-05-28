@@ -78,6 +78,10 @@ static inline R pnorm(const double g_real, const double g_imag, const double p, 
   return abs(g_real * pow(abs(x), p) + g_imag * pow(abs(y), p));
 }
 
+using std::isinf;
+using std::copysign;
+using std::isnan;
+
 #define I(T) inline T infnan_to_zero(const T &a) { return isinf(a) ? copysign(1e30, a) : isnan(a) ? 0 : a; }
 I(float)
 I(double)

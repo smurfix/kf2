@@ -41,6 +41,7 @@ fraktal_sft/floatexp_perturbation.cpp \
 fraktal_sft/floatexp_reference.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/gradient.cpp \
+fraktal_sft/hybrid.cpp \
 fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/long_double_perturbation.cpp \
@@ -77,6 +78,7 @@ fraktal_sft/exr.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
 fraktal_sft/gradient.h \
+fraktal_sft/hybrid.h \
 fraktal_sft/itercount_array.h \
 fraktal_sft/jpeg.h \
 fraktal_sft/listbox.h \
