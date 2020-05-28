@@ -366,6 +366,7 @@ static void EnableUnsafeMenus(HWND hWnd, bool enable=true)
 	M(ID_ACTIONS_THREADS_2);
 	M(ID_ACTIONS_THREADS_4);
 	M(ID_ACTIONS_THREADS_RESERVE_CORE);
+	M(ID_FILE_RESUMEZOOMSEQUENCE);
 #undef M
 	DrawMenuBar(hWnd);
 }
@@ -1251,6 +1252,19 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomExr=0;
+	File = replace_path_filename(g_szFile, "*_*.kfr");
+	hFind = FindFirstFile(File.c_str(),&fd);
+	int countKfr = 0;
+	if(hFind!=INVALID_HANDLE_VALUE){
+		g_bStoreZoomKfr=1;
+		do{
+			countKfr++;
+		}while(FindNextFile(hFind,&fd));
+		FindClose(hFind);
+	}
+	else
+		g_bStoreZoomKfr=0;
+
 	File = replace_path_filename(g_szFile, "*_*.kfb");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1258,14 +1272,6 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomMap=0;
-	File = replace_path_filename(g_szFile, "*_*.kfr");
-	hFind = FindFirstFile(File.c_str(),&fd);
-	if(hFind!=INVALID_HANDLE_VALUE){
-		g_bStoreZoomKfr=1;
-	}
-	else
-		g_bStoreZoomKfr=0;
-
 	std::vector<std::string> stExamine;
 	int countMap = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1278,14 +1284,15 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	std::sort(stExamine.begin(), stExamine.end());
 	std::reverse(stExamine.begin(), stExamine.end());
+	bool bShouldAutoIterations = false;
 	BOOL bRecoveryFile=FALSE;
-
 	File = replace_path_filename(g_szFile, "recovery.kfb");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		FindClose(hFind);
 		g_SFT.OpenMapB(File);
 		bRecoveryFile=TRUE;
+		bShouldAutoIterations = true;
 	}
 	else{
 		File = replace_path_filename(g_szFile, "last.kfb");
@@ -1294,12 +1301,15 @@ static int ResumeZoomSequence(HWND hWnd)
 			FindClose(hFind);
 			g_SFT.OpenMapB(File);
 			bRecoveryFile=FALSE;
+			bShouldAutoIterations = true;
 		}
 		else{
 			if(stExamine.size())
+			{
 				g_SFT.OpenMapB(stExamine[0]);
-			else
-				return MessageBox(hWnd,"Could not browse kfb files","Error",MB_OK|MB_ICONSTOP);
+				bRecoveryFile=FALSE;
+				bShouldAutoIterations = true;
+			}
 		}
 	}
 
@@ -1308,6 +1318,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	              : countTif ? countTif
 	              : countPng ? countPng
 	              : countJpg ? countJpg
+	              : countKfr ? countKfr
 	              : stExamine.size();
 	if(zoomCount){
 		CDecNumber A = CDecNumber(g_SFT.GetZoom())/(CDecNumber(g_SFT.GetZoomSize())^(zoomCount-(bRecoveryFile?0:1)));
@@ -1323,7 +1334,10 @@ static int ResumeZoomSequence(HWND hWnd)
 	g_JpegParams.nHeight = g_SFT.GetHeight();
 	g_JpegParams.nQuality = 100;
 	//g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-	AutoIterations();
+	if (bShouldAutoIterations)
+	{
+		AutoIterations();
+	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE);
