@@ -113,6 +113,8 @@ Feedback:
 - fractal type out of range (e.g. parameter from newer KF) is silently reset
   to Mandelbrot
 - "resume zoom sequence" re-uses last set zoom count limit
+- "resume zoom sequence" sometimes uses wrong image size (depending on settings
+  and whether there are `last.kfb`, `recovery.kfb`, `*_*.kfb`)
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
@@ -268,6 +270,24 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.10.1** (2020-06-??)
+
+    - fixes
+
+      - location dialog is smaller (by popular request)
+      - inverse colour transition (reported by FractalAlex)
+      - information dialog shortcut (reported by gerrit)
+      - information dialog close (reported by gerrit)
+      - information dialog OK button (reported by gerrit)
+      - Newton progress backup autosave can be disabled (reported by gerrit)
+      - can again set custom max references and series approximation terms
+        (in new Perturbation and Series Approximation Tuning dialog)
+        (reported by gerrit)
+      - crash when loading default settings with non-standard image size
+      - replaced custom buggy tooltip code with standard Windows controls
+      - resume zoom sequence works with no recovery.kfb (reported by Azula)
+      - crash when invoking resume zoom sequence while rendering in progress
 
 - **kf-2.14.10** (2020-05-25)
 
