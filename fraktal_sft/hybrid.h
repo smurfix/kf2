@@ -235,7 +235,7 @@ inline bool perturbation(const hybrid_formula &h, const R *X, const R *Y, const 
     }
     complex<R> Z(Xr, Xi);
     complex<R> z(xr, xi);
-    z = hybrid_pf(h[(antal + 1) % h.size()], Z, z, c);
+    z = hybrid_pf(h[(antal + 1) % h.size()], Z, z, c); // FIXME should be - 1 ? 
     xr = z.m_r;
     xi = z.m_i;
   }

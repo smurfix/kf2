@@ -182,6 +182,10 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       bool b1 = h.size() > 0 && h[0].size() > 1;
       bool a2 = h.size() > 1 && h[1].size() > 0;
       bool b2 = h.size() > 1 && h[1].size() > 1;
+      bool a3 = h.size() > 2 && h[2].size() > 0;
+      bool b3 = h.size() > 2 && h[2].size() > 1;
+      bool a4 = h.size() > 3 && h[3].size() > 0;
+      bool b4 = h.size() > 3 && h[3].size() > 1;
       hybrid_operator a11  = a1 ? h[0][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
       hybrid_operator a12  = a1 ? h[0][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
       hybrid_combine a1op = a1 ? h[0][0].mode : hybrid_combine_add;
@@ -194,6 +198,18 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       hybrid_operator b21  = b2 ? h[1][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
       hybrid_operator b22  = b2 ? h[1][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
       hybrid_combine b2op = b2 ? h[1][1].mode : hybrid_combine_add;
+      hybrid_operator a31  = a3 ? h[2][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a32  = a3 ? h[2][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a3op = a3 ? h[2][0].mode : hybrid_combine_add;
+      hybrid_operator b31  = b3 ? h[2][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b32  = b3 ? h[2][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b3op = b3 ? h[2][1].mode : hybrid_combine_add;
+      hybrid_operator a41  = a4 ? h[3][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a42  = a4 ? h[3][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a4op = a4 ? h[3][0].mode : hybrid_combine_add;
+      hybrid_operator b41  = b4 ? h[3][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b42  = b4 ? h[3][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b4op = b4 ? h[3][1].mode : hybrid_combine_add;
 #define E(idc, enable) EnableWindow(GetDlgItem(hWnd, idc), true);
 #define T(idc, str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
 #define B(idc, enable, value, str) T(idc, str) SendDlgItemMessage(hWnd, idc, BM_SETCHECK, value, 0); E(idc, enable)
@@ -207,6 +223,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
   SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "/"); \
   SendDlgItemMessage(hWnd, idc, CB_SETCURSEL, value, 0); \
   E(idc, enable)
+
       B(IDC_HYBRID_1_ACTIVE, true, h.size() > 0, "Group 1")
       B(IDC_HYBRID_1A_ABSX1, a1, a11.abs_x, "Abs X")
       B(IDC_HYBRID_1A_ABSY1, a1, a11.abs_y, "Abs Y")
@@ -240,6 +257,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_1B_ARE2, b1, b12.mul_re, "A Real")
       R(IDC_HYBRID_1B_AIM2, b1, b12.mul_im, "A Imag")
       B(IDC_HYBRID_1B_ACTIVE, true, b1, "Step 2")
+
       B(IDC_HYBRID_2_ACTIVE, true, h.size() > 1, "Group 2")
       B(IDC_HYBRID_2A_ABSX1, a2, a21.abs_x, "Abs X")
       B(IDC_HYBRID_2A_ABSY1, a2, a21.abs_y, "Abs Y")
@@ -273,6 +291,75 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_2B_ARE2, b2, b22.mul_re, "A Real")
       R(IDC_HYBRID_2B_AIM2, b2, b22.mul_im, "A Imag")
       B(IDC_HYBRID_2B_ACTIVE, true, b2, "Step 2")
+
+      B(IDC_HYBRID_3_ACTIVE, true, h.size() > 2, "Group 3")
+      B(IDC_HYBRID_3A_ABSX1, a3, a31.abs_x, "Abs X")
+      B(IDC_HYBRID_3A_ABSY1, a3, a31.abs_y, "Abs Y")
+      B(IDC_HYBRID_3A_NEGX1, a3, a31.neg_x, "Neg X")
+      B(IDC_HYBRID_3A_NEGY1, a3, a31.neg_y, "Neg Y")
+      N(IDC_HYBRID_3A_POW1, a3, a31.pow, "Power")
+      R(IDC_HYBRID_3A_ARE1, a3, a31.mul_re, "A Real")
+      R(IDC_HYBRID_3A_AIM1, a3, a31.mul_im, "A Imag")
+      O(IDC_HYBRID_3A_OP, a3, a3op, "Operator")
+      B(IDC_HYBRID_3A_ABSX2, a3, a32.abs_x, "Abs X")
+      B(IDC_HYBRID_3A_ABSY2, a3, a32.abs_y, "Abs Y")
+      B(IDC_HYBRID_3A_NEGX2, a3, a32.neg_x, "Neg X")
+      B(IDC_HYBRID_3A_NEGY2, a3, a32.neg_y, "Neg Y")
+      N(IDC_HYBRID_3A_POW2, a3, a32.pow, "Power")
+      R(IDC_HYBRID_3A_ARE2, a3, a32.mul_re, "A Real")
+      R(IDC_HYBRID_3A_AIM2, a3, a32.mul_im, "A Imag")
+      B(IDC_HYBRID_3A_ACTIVE, true, a3, "Step 1")
+      B(IDC_HYBRID_3B_ABSX1, b3, b31.abs_x, "Abs X")
+      B(IDC_HYBRID_3B_ABSY1, b3, b31.abs_y, "Abs Y")
+      B(IDC_HYBRID_3B_NEGX1, b3, b31.neg_x, "Neg X")
+      B(IDC_HYBRID_3B_NEGY1, b3, b31.neg_y, "Neg Y")
+      N(IDC_HYBRID_3B_POW1, b3, b31.pow, "Power")
+      R(IDC_HYBRID_3B_ARE1, b3, b31.mul_re, "A Real")
+      R(IDC_HYBRID_3B_AIM1, b3, b31.mul_im, "A Imag")
+      O(IDC_HYBRID_3B_OP, b3, b3op, "Operator")
+      B(IDC_HYBRID_3B_ABSX2, b3, b32.abs_x, "Abs X")
+      B(IDC_HYBRID_3B_ABSY2, b3, b32.abs_y, "Abs Y")
+      B(IDC_HYBRID_3B_NEGX2, b3, b32.neg_x, "Neg X")
+      B(IDC_HYBRID_3B_NEGY2, b3, b32.neg_y, "Neg Y")
+      N(IDC_HYBRID_3B_POW2, b3, b32.pow, "Power")
+      R(IDC_HYBRID_3B_ARE2, b3, b32.mul_re, "A Real")
+      R(IDC_HYBRID_3B_AIM2, b3, b32.mul_im, "A Imag")
+      B(IDC_HYBRID_3B_ACTIVE, true, b3, "Step 2")
+
+      B(IDC_HYBRID_4_ACTIVE, true, h.size() > 3, "Group 4")
+      B(IDC_HYBRID_4A_ABSX1, a4, a41.abs_x, "Abs X")
+      B(IDC_HYBRID_4A_ABSY1, a4, a41.abs_y, "Abs Y")
+      B(IDC_HYBRID_4A_NEGX1, a4, a41.neg_x, "Neg X")
+      B(IDC_HYBRID_4A_NEGY1, a4, a41.neg_y, "Neg Y")
+      N(IDC_HYBRID_4A_POW1, a4, a41.pow, "Power")
+      R(IDC_HYBRID_4A_ARE1, a4, a41.mul_re, "A Real")
+      R(IDC_HYBRID_4A_AIM1, a4, a41.mul_im, "A Imag")
+      O(IDC_HYBRID_4A_OP, a4, a4op, "Operator")
+      B(IDC_HYBRID_4A_ABSX2, a4, a42.abs_x, "Abs X")
+      B(IDC_HYBRID_4A_ABSY2, a4, a42.abs_y, "Abs Y")
+      B(IDC_HYBRID_4A_NEGX2, a4, a42.neg_x, "Neg X")
+      B(IDC_HYBRID_4A_NEGY2, a4, a42.neg_y, "Neg Y")
+      N(IDC_HYBRID_4A_POW2, a4, a42.pow, "Power")
+      R(IDC_HYBRID_4A_ARE2, a4, a42.mul_re, "A Real")
+      R(IDC_HYBRID_4A_AIM2, a4, a42.mul_im, "A Imag")
+      B(IDC_HYBRID_4A_ACTIVE, true, a4, "Step 1")
+      B(IDC_HYBRID_4B_ABSX1, b4, b41.abs_x, "Abs X")
+      B(IDC_HYBRID_4B_ABSY1, b4, b41.abs_y, "Abs Y")
+      B(IDC_HYBRID_4B_NEGX1, b4, b41.neg_x, "Neg X")
+      B(IDC_HYBRID_4B_NEGY1, b4, b41.neg_y, "Neg Y")
+      N(IDC_HYBRID_4B_POW1, b4, b41.pow, "Power")
+      R(IDC_HYBRID_4B_ARE1, b4, b41.mul_re, "A Real")
+      R(IDC_HYBRID_4B_AIM1, b4, b41.mul_im, "A Imag")
+      O(IDC_HYBRID_4B_OP, b4, b4op, "Operator")
+      B(IDC_HYBRID_4B_ABSX2, b4, b42.abs_x, "Abs X")
+      B(IDC_HYBRID_4B_ABSY2, b4, b42.abs_y, "Abs Y")
+      B(IDC_HYBRID_4B_NEGX2, b4, b42.neg_x, "Neg X")
+      B(IDC_HYBRID_4B_NEGY2, b4, b42.neg_y, "Neg Y")
+      N(IDC_HYBRID_4B_POW2, b4, b42.pow, "Power")
+      R(IDC_HYBRID_4B_ARE2, b4, b42.mul_re, "A Real")
+      R(IDC_HYBRID_4B_AIM2, b4, b42.mul_im, "A Imag")
+      B(IDC_HYBRID_4B_ACTIVE, true, b4, "Step 2")
+
 #undef B
 #undef N
 #undef R
@@ -299,10 +386,16 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 #define O(idc, f) f = SendDlgItemMessage(hWnd, idc, CB_GETCURSEL, 0, 0);
           bool group1 = false;
           bool group2 = false;
+          bool group3 = false;
+          bool group4 = false;
           bool a1 = false;
           bool b1 = false;
           bool a2 = false;
           bool b2 = false;
+          bool a3 = false;
+          bool b3 = false;
+          bool a4 = false;
+          bool b4 = false;
           hybrid_operator a11 = { false, false, false, false, 0, 0.0, 0.0 };
           hybrid_operator a12 = { false, false, false, false, 0, 0.0, 0.0 };
           hybrid_operator b11 = { false, false, false, false, 0, 0.0, 0.0 };
@@ -311,10 +404,23 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           hybrid_operator a22 = { false, false, false, false, 0, 0.0, 0.0 };
           hybrid_operator b21 = { false, false, false, false, 0, 0.0, 0.0 };
           hybrid_operator b22 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a31 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a32 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b31 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b32 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a41 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator a42 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b41 = { false, false, false, false, 0, 0.0, 0.0 };
+          hybrid_operator b42 = { false, false, false, false, 0, 0.0, 0.0 };
           int a1op = 0;
           int b1op = 0;
           int a2op = 0;
           int b2op = 0;
+          int a3op = 0;
+          int b3op = 0;
+          int a4op = 0;
+          int b4op = 0;
+
           B(IDC_HYBRID_1_ACTIVE, group1)
           B(IDC_HYBRID_1A_ABSX1, a11.abs_x)
           B(IDC_HYBRID_1A_ABSY1, a11.abs_y)
@@ -348,6 +454,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_1B_ARE2, b12.mul_re)
           R(IDC_HYBRID_1B_AIM2, b12.mul_im)
           B(IDC_HYBRID_1B_ACTIVE, b1)
+
           B(IDC_HYBRID_2_ACTIVE, group2)
           B(IDC_HYBRID_2A_ABSX1, a21.abs_x)
           B(IDC_HYBRID_2A_ABSY1, a21.abs_y)
@@ -381,11 +488,81 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_2B_ARE2, b22.mul_re)
           R(IDC_HYBRID_2B_AIM2, b22.mul_im)
           B(IDC_HYBRID_2B_ACTIVE, b2)
+
+          B(IDC_HYBRID_3_ACTIVE, group3)
+          B(IDC_HYBRID_3A_ABSX1, a31.abs_x)
+          B(IDC_HYBRID_3A_ABSY1, a31.abs_y)
+          B(IDC_HYBRID_3A_NEGX1, a31.neg_x)
+          B(IDC_HYBRID_3A_NEGY1, a31.neg_y)
+          N(IDC_HYBRID_3A_POW1, a31.pow)
+          R(IDC_HYBRID_3A_ARE1, a31.mul_re)
+          R(IDC_HYBRID_3A_AIM1, a31.mul_im)
+          O(IDC_HYBRID_3A_OP, a3op)
+          B(IDC_HYBRID_3A_ABSX2, a32.abs_x)
+          B(IDC_HYBRID_3A_ABSY2, a32.abs_y)
+          B(IDC_HYBRID_3A_NEGX2, a32.neg_x)
+          B(IDC_HYBRID_3A_NEGY2, a32.neg_y)
+          N(IDC_HYBRID_3A_POW2, a32.pow)
+          R(IDC_HYBRID_3A_ARE2, a32.mul_re)
+          R(IDC_HYBRID_3A_AIM2, a32.mul_im)
+          B(IDC_HYBRID_3A_ACTIVE, a3)
+          B(IDC_HYBRID_3B_ABSX1, b31.abs_x)
+          B(IDC_HYBRID_3B_ABSY1, b31.abs_y)
+          B(IDC_HYBRID_3B_NEGX1, b31.neg_x)
+          B(IDC_HYBRID_3B_NEGY1, b31.neg_y)
+          N(IDC_HYBRID_3B_POW1, b31.pow)
+          R(IDC_HYBRID_3B_ARE1, b31.mul_re)
+          R(IDC_HYBRID_3B_AIM1, b31.mul_im)
+          O(IDC_HYBRID_3B_OP, b3op)
+          B(IDC_HYBRID_3B_ABSX2, b32.abs_x)
+          B(IDC_HYBRID_3B_ABSY2, b32.abs_y)
+          B(IDC_HYBRID_3B_NEGX2, b32.neg_x)
+          B(IDC_HYBRID_3B_NEGY2, b32.neg_y)
+          N(IDC_HYBRID_3B_POW2, b32.pow)
+          R(IDC_HYBRID_3B_ARE2, b32.mul_re)
+          R(IDC_HYBRID_3B_AIM2, b32.mul_im)
+          B(IDC_HYBRID_3B_ACTIVE, b3)
+
+          B(IDC_HYBRID_4_ACTIVE, group4)
+          B(IDC_HYBRID_4A_ABSX1, a41.abs_x)
+          B(IDC_HYBRID_4A_ABSY1, a41.abs_y)
+          B(IDC_HYBRID_4A_NEGX1, a41.neg_x)
+          B(IDC_HYBRID_4A_NEGY1, a41.neg_y)
+          N(IDC_HYBRID_4A_POW1, a41.pow)
+          R(IDC_HYBRID_4A_ARE1, a41.mul_re)
+          R(IDC_HYBRID_4A_AIM1, a41.mul_im)
+          O(IDC_HYBRID_4A_OP, a4op)
+          B(IDC_HYBRID_4A_ABSX2, a42.abs_x)
+          B(IDC_HYBRID_4A_ABSY2, a42.abs_y)
+          B(IDC_HYBRID_4A_NEGX2, a42.neg_x)
+          B(IDC_HYBRID_4A_NEGY2, a42.neg_y)
+          N(IDC_HYBRID_4A_POW2, a42.pow)
+          R(IDC_HYBRID_4A_ARE2, a42.mul_re)
+          R(IDC_HYBRID_4A_AIM2, a42.mul_im)
+          B(IDC_HYBRID_4A_ACTIVE, a4)
+          B(IDC_HYBRID_4B_ABSX1, b41.abs_x)
+          B(IDC_HYBRID_4B_ABSY1, b41.abs_y)
+          B(IDC_HYBRID_4B_NEGX1, b41.neg_x)
+          B(IDC_HYBRID_4B_NEGY1, b41.neg_y)
+          N(IDC_HYBRID_4B_POW1, b41.pow)
+          R(IDC_HYBRID_4B_ARE1, b41.mul_re)
+          R(IDC_HYBRID_4B_AIM1, b41.mul_im)
+          O(IDC_HYBRID_4B_OP, b4op)
+          B(IDC_HYBRID_4B_ABSX2, b42.abs_x)
+          B(IDC_HYBRID_4B_ABSY2, b42.abs_y)
+          B(IDC_HYBRID_4B_NEGX2, b42.neg_x)
+          B(IDC_HYBRID_4B_NEGY2, b42.neg_y)
+          N(IDC_HYBRID_4B_POW2, b42.pow)
+          R(IDC_HYBRID_4B_ARE2, b42.mul_re)
+          R(IDC_HYBRID_4B_AIM2, b42.mul_im)
+          B(IDC_HYBRID_4B_ACTIVE, b4)
+
 #undef B
 #undef R
 #undef N
 #undef O
           hybrid_formula h;
+
           if (group1)
           {
             hybrid_stanza s;
@@ -404,6 +581,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
               h.push_back(s);
             }
           }
+
           if (group2)
           {
             hybrid_stanza s;
@@ -422,6 +600,45 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
               h.push_back(s);
             }
           }
+
+          if (group3)
+          {
+            hybrid_stanza s;
+            if (a3)
+            {
+              hybrid_line l = { a31, a32, hybrid_combine(a3op) };
+              s.push_back(l);
+            }
+            if (b3)
+            {
+              hybrid_line l = { b31, b32, hybrid_combine(b3op) };
+              s.push_back(l);
+            }
+            if (s.size() > 0)
+            {
+              h.push_back(s);
+            }
+          }
+
+          if (group4)
+          {
+            hybrid_stanza s;
+            if (a4)
+            {
+              hybrid_line l = { a41, a42, hybrid_combine(a4op) };
+              s.push_back(l);
+            }
+            if (b4)
+            {
+              hybrid_line l = { b41, b42, hybrid_combine(b4op) };
+              s.push_back(l);
+            }
+            if (s.size() > 0)
+            {
+              h.push_back(s);
+            }
+          }
+
           retval = h.size() > 0;
           if (retval)
           {
