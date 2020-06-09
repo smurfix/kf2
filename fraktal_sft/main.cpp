@@ -1450,63 +1450,7 @@ static HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 }
 double g_length=0;
 double g_degree=0;
-HBITMAP g_bmSaveZoomBuff=NULL;
-SIZE g_scSaveZoomBuff;
-static void SaveZoomImg(const std::string &szFile, const std::string &comment)
-{
-	HBITMAP bmSave;
-	HDC hDC = GetDC(NULL);
-	HDC dcBmp = CreateCompatibleDC(hDC);
-	HBITMAP bmBmp = g_SFT.GetBitmap();
-	HBITMAP bmOldBmp = (HBITMAP)SelectObject(dcBmp,bmBmp);
-	BITMAP bm;
-	GetObject(bmBmp,sizeof(BITMAP),&bm);
 
-	SIZE scNextZoom = {LONG(g_scSaveZoomBuff.cx*g_SFT.GetZoomSize()),LONG(g_scSaveZoomBuff.cy*g_SFT.GetZoomSize())};
-	if(!g_bmSaveZoomBuff){
-		scNextZoom.cx = g_scSaveZoomBuff.cx = bm.bmWidth;
-		scNextZoom.cy = g_scSaveZoomBuff.cy = bm.bmHeight;
-	}
-	BOOL bScaled=FALSE;
-	if(scNextZoom.cx/bm.bmWidth>2){
-		scNextZoom.cx = bm.bmWidth;
-		scNextZoom.cy = bm.bmHeight;
-		bScaled=TRUE;
-	}
-
-	HBITMAP bmTmp = create_bitmap(hDC,scNextZoom.cx,scNextZoom.cy);
-	HDC dcSaveZoom = CreateCompatibleDC(hDC);
-	HBITMAP dcOldSaveZoom = (HBITMAP)SelectObject(dcSaveZoom,g_bmSaveZoomBuff);
-	HDC dcTmp = CreateCompatibleDC(hDC);
-	HBITMAP bmOldTmp = (HBITMAP)SelectObject(dcTmp,bmTmp);
-	SetStretchBltMode(dcTmp,HALFTONE);
-	StretchBlt(dcTmp,0,0,scNextZoom.cx,scNextZoom.cy,dcBmp,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
-
-	if(g_bmSaveZoomBuff){
-		SIZE offs={LONG((scNextZoom.cx - scNextZoom.cx/g_SFT.GetZoomSize())/2),LONG((scNextZoom.cy - scNextZoom.cy/g_SFT.GetZoomSize())/2)};
-		if(bScaled)
-			StretchBlt(dcTmp,offs.cx,offs.cy,scNextZoom.cx-2*offs.cx,scNextZoom.cy-2*offs.cy,
-				dcSaveZoom,0,0,g_scSaveZoomBuff.cx,g_scSaveZoomBuff.cy,SRCCOPY);
-		else
-			BitBlt(dcTmp,offs.cx,offs.cy,scNextZoom.cx-2*offs.cx,scNextZoom.cy-2*offs.cy,
-				dcSaveZoom,0,0,SRCCOPY);
-	}
-	SelectObject(dcSaveZoom,dcOldSaveZoom);
-	DeleteDC(dcSaveZoom);
-	SelectObject(dcTmp,bmOldTmp);
-	DeleteDC(dcTmp);
-	SelectObject(dcBmp,bmOldBmp);
-	DeleteDC(dcBmp);
-	DeleteObject(g_bmSaveZoomBuff);
-	ReleaseDC(NULL,hDC);
-	g_bmSaveZoomBuff = bmTmp;
-	bmSave = ShrinkBitmap2(bmTmp,bm.bmWidth,bm.bmHeight);
-	SaveImage(szFile,bmSave,100,comment);
-	//SaveJpg(szFile,bmTmp,99);
-	DeleteObject(bmSave);
-	g_scSaveZoomBuff.cx = scNextZoom.cx;
-	g_scSaveZoomBuff.cy = scNextZoom.cy;
-}
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
@@ -1604,35 +1548,23 @@ nPos=12;
 		if(g_bStoreZoom){
 nPos=13;
 			std::string szZ = g_SFT.ToZoom();
-			if(g_bStoreZoomJpg){
+			if(!g_bAnimateEachFrame && g_bStoreZoomJpg){
 				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
-				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(File, "KF2");
-				else
-					g_SFT.SaveJpg(File,100);
+				g_SFT.SaveJpg(File,100);
 			}
-			if(g_bStoreZoomPng){
+			if(!g_bAnimateEachFrame && g_bStoreZoomPng){
 				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
-				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(File, "KF2");
-				else
-					g_SFT.SaveJpg(File,-1);
+				g_SFT.SaveJpg(File,-1);
 			}
-			if(g_bStoreZoomTif){
+			if(!g_bAnimateEachFrame && g_bStoreZoomTif){
 				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "tif"));
-				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(File, "KF2");
-				else
-					g_SFT.SaveJpg(File,-2);
+				g_SFT.SaveJpg(File,-2);
 			}
-			if(g_bStoreZoomExr){
+			if(!g_bAnimateEachFrame && g_bStoreZoomExr){
 				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "exr"));
-				if(g_SFT.GetZoomSize()<2 && !g_bAnimateEachFrame)
-					SaveZoomImg(File, "KF2");
-				else
-					g_SFT.SaveJpg(File,-3);
+				g_SFT.SaveJpg(File,-3);
 			}
-			if(g_bStoreZoomKfr){
+			if(!g_bAnimateEachFrame && g_bStoreZoomKfr){
 				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfr"));
 				g_SFT.SaveFile(File, true);
 			}
@@ -1661,8 +1593,6 @@ nPos=14;
 			}
 			if(0.0 == szZd || (g_nStoreZoomLimit && g_nStoreZoomCount >= g_nStoreZoomLimit)){
 				g_bStoreZoom=FALSE;
-				DeleteObject(g_bmSaveZoomBuff);
-				g_bmSaveZoomBuff=NULL;
 			}
 			else{
 				AutoIterations();
@@ -2996,8 +2926,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 
 		InvalidateRect(hWnd,NULL,FALSE);
 		UpdateWindow(hWnd);
@@ -3467,8 +3395,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		SetTimer(hWnd,0,500,NULL);
 		RECT r;
 		GetClientRect(hWnd,&r);
@@ -3520,8 +3446,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 	}
 
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_COPY) || (uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))))
@@ -3567,8 +3491,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bAnim=false;
 					g_bFindMinibrot=FALSE;
 					g_bStoreZoom=FALSE;
-					DeleteObject(g_bmSaveZoomBuff);
-					g_bmSaveZoomBuff=NULL;
 					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 	}
@@ -3602,8 +3524,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 							g_bAnim=false;
 							g_bFindMinibrot=FALSE;
 							g_bStoreZoom=FALSE;
-							DeleteObject(g_bmSaveZoomBuff);
-							g_bmSaveZoomBuff=NULL;
 							PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 						}
 					}
@@ -3635,8 +3555,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAddMainReference=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		while(g_bAnim){
 			Sleep(3);
 		}
@@ -3699,8 +3617,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAddMainReference=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		while(g_bAnim){
 			Sleep(3);
 		}
@@ -3992,8 +3908,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -4009,8 +3923,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -4031,8 +3943,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		DeleteObject(g_bmSaveZoomBuff);
-		g_bmSaveZoomBuff=NULL;
 		SYSTEMTIME st;
 		GetLocalTime(&st);
 		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
@@ -4489,8 +4399,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
 			g_bFindMinibrot=FALSE;
 			g_bStoreZoom=FALSE;
-			DeleteObject(g_bmSaveZoomBuff);
-			g_bmSaveZoomBuff=NULL;
 			PostMessage(hWnd,WM_USER+299,wParam,lParam);
 		}
 	}
@@ -4972,8 +4880,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.UndoStore();
 			g_bAnim=false;
 			g_bStoreZoom=FALSE;
-			DeleteObject(g_bmSaveZoomBuff);
-			g_bmSaveZoomBuff=NULL;
 			int x, y;
 			if(g_bFindMinibrotCount && g_bFindMinibrotCount==g_bFindMinibrotPos){
 				int64_t nMin,nMax;
