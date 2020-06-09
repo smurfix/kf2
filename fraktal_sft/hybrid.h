@@ -50,17 +50,108 @@ struct hybrid_line
   hybrid_combine mode;
 };
 
+enum hybrid_moebius
+{
+  hybrid_moebius_none = 0,
+  hybrid_moebius_left = 1,
+  hybrid_moebius_right = 2,
+  hybrid_moebius_both = 3
+};
+
+template <typename R>
+inline complex<R> moebius_f(complex<R> z, hybrid_moebius mode, double distance)
+{
+  if (mode & hybrid_moebius_left)
+  {
+    if (z.m_r < -distance) z = complex<R>(z.m_r + 2 * distance, -z.m_i);
+  }
+  if (mode & hybrid_moebius_right)
+  {
+    if (z.m_r > distance) z = complex<R>(z.m_r - 2 * distance, -z.m_i);
+  }
+  return z;
+}
+
+// moebius_f(Z + z) - moebius_f(Z) evaluated without catastrophic cancellation
+template <typename R>
+inline complex<R> moebius_pf(const complex<R> &Z, complex<R> z, hybrid_moebius mode, double distance, bool &glitch)
+{
+  if (mode == hybrid_moebius_none) { return z; }
+  const R& X = Z.m_r;
+  const R& Y = Z.m_i;
+  R x = z.m_r;
+  R y = z.m_i;
+  const R a = distance;
+  const R Xx = X + x;
+  switch (mode)
+  {
+    case hybrid_moebius_none:
+      assert(! "reachable");
+      break;
+    case hybrid_moebius_left:
+      if (X <= -a)
+      {
+        if (Xx <= -a) { y = -y; }
+        else { x -= 2 * a; y += 2 * Y; glitch = true; }
+      }
+      else
+      {
+        if (Xx <= -a) { x += 2 * a; y = -(2 * Y + y); glitch = true; }
+        else { }
+      }
+      break;
+    case hybrid_moebius_right:
+      if (X < a)
+      {
+        if (Xx < a) { }
+        else { x -= 2 * a; y = -(2 * Y + y); glitch = true; }
+      }
+      else
+      {
+        if (Xx < a) { x += 2 * a; y += 2 * Y; glitch = true; }
+        else { y = -y; }
+      }
+      break;
+    case hybrid_moebius_both:
+      if (X <= -a)
+      {
+        if (Xx <= -a) { y = -y; }
+        else if (Xx < a) { x -= 2 * a; y += 2 * Y; glitch = true; }
+        else { x -= 4 * a; y = -y; }
+      }
+      else if (X < a)
+      {
+        if (Xx <= -a) { x += 2 * a; y = -(2 * Y + y); glitch = true; }
+        else if (Xx < a) { }
+        else { x -= 2 * a; y = -(2 * Y + y); glitch = true; }
+      }
+      else
+      {
+        if (Xx <= -a) { x += 4 * a; y = -y; }
+        else if (Xx < a) { x += 2 * a; y += 2 * Y; glitch = true; }
+        else { y = -y; }
+      }
+      break;
+  }
+  return complex<R>(x, y);
+}
+
 typedef std::vector<hybrid_line> hybrid_stanza;
 
-typedef std::vector<hybrid_stanza> hybrid_formula;
+struct hybrid_formula
+{
+  hybrid_moebius moebius_mode;
+  double moebius_radius;
+  std::vector<hybrid_stanza> stanzas;
+};
 
 static inline bool valid(const hybrid_formula &h)
 {
-  if (h.size() == 0)
+  if (h.stanzas.size() == 0)
   {
     return false;
   }
-  for (auto s : h)
+  for (auto s : h.stanzas)
   {
     if (s.size() == 0)
     {
@@ -118,13 +209,13 @@ inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
 }
 
 template <typename R>
-inline complex<R> hybrid_f(const hybrid_stanza &h, complex<R> Z, const complex<R> &C)
+inline complex<R> hybrid_f(const hybrid_stanza &h, complex<R> Z, const complex<R> &C, hybrid_moebius mode, double dist)
 {
   for (auto l : h)
   {
     Z = hybrid_f(l, Z);
   }
-  return Z + C;
+  return moebius_f(Z + C, mode, dist);
 }
 
 template <typename R>
@@ -181,20 +272,20 @@ inline complex<R> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const com
 }
 
 template <typename R>
-inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, complex<R> z, const complex<R> &c)
+inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, const complex<R> &C, complex<R> z, const complex<R> &c, hybrid_moebius mode, double dist, bool &glitch)
 {
   for (auto l : h)
   {
     z = hybrid_pf(l, Z, z);
     Z = hybrid_f(l, Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
   }
-  return z + c;
+  return moebius_pf(Z + C, z + c, mode, dist, glitch); // FIXME check if this accurate enough?  cannot use stored orbit as it will be already wrapped
 }
 
 template <typename R>
-inline bool perturbation(const hybrid_formula &h, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0)
+inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0)
 {
-  if (h.size() == 0)
+  if (h.stanzas.size() == 0)
   {
     return false;
   }
@@ -203,6 +294,7 @@ inline bool perturbation(const hybrid_formula &h, const R *X, const R *Y, const 
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
+  const complex<R> C(Cx, Cy);
   const complex<R> c(cr0, ci0);
   R xr = xr0;
   R xi = xi0;
@@ -235,7 +327,14 @@ inline bool perturbation(const hybrid_formula &h, const R *X, const R *Y, const 
     }
     complex<R> Z(Xr, Xi);
     complex<R> z(xr, xi);
-    z = hybrid_pf(h[(antal + 1) % h.size()], Z, z, c); // FIXME should be - 1 ? 
+    bool glitch = false;
+    z = hybrid_pf(h.stanzas[(antal + 1) % h.stanzas.size()], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
+    if (false && glitch)
+    {
+      bGlitch = true;
+      if (! bNoGlitchDetection)
+        break;
+    }
     xr = z.m_r;
     xi = z.m_i;
   }
@@ -273,7 +372,7 @@ inline bool reference
     mpfr_set_d(X.m_i.m_f.backend().data(), g_SeedI, MPFR_RNDN);
     for (i = 0; i < nMaxIter && !m_bStop; ++i)
     {
-      X = hybrid_f(h[i % h.size()], X, C); // formula
+      X = hybrid_f(h.stanzas[i % h.stanzas.size()], X, C, h.moebius_mode, h.moebius_radius); // formula
       m_nRDone++;
       R Xrd = R(mpfr_get_fe(X.m_r.m_f.backend().data())); // FIXME mpfr_get()
       R Xid = R(mpfr_get_fe(X.m_i.m_f.backend().data())); // FIXME mpfr_get()

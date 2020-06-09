@@ -342,6 +342,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_HYBRID_4B_ARE2   1414
 #define IDC_HYBRID_4B_AIM2   1415
 #define IDC_HYBRID_4B_ACTIVE 1416
+#define IDC_HYBRID_MOEBIUS_LEFT   1417
+#define IDC_HYBRID_MOEBIUS_RIGHT  1418
+#define IDC_HYBRID_MOEBIUS_RADIUS 1419
 
 // menus
 #define ID_ACTIONS_SETTINGS             40001

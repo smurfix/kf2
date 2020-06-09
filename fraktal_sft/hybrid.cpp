@@ -95,13 +95,12 @@ extern std::string to_string(const hybrid_stanza &h)
 extern std::string to_string(const hybrid_formula &h)
 {
   std::ostringstream o;
-  for (size_t i = 0; i < h.size(); ++i)
+  o << int(h.moebius_mode) << '/';
+  o << h.moebius_radius; // no '/'
+  for (size_t i = 0; i < h.stanzas.size(); ++i)
   {
-    if (i)
-    {
-      o << '/';
-    }
-    o << to_string(h[i]);
+    o << '/';
+    o << to_string(h.stanzas[i]);
   }
   return o.str();
 }
@@ -158,9 +157,27 @@ extern hybrid_formula hybrid_formula_from_string(const std::string &s)
 {
   hybrid_formula r;
   std::vector<std::string> v = split(s, '/');
+  int k = 0;
   for (auto l : v)
   {
-    r.push_back(hybrid_stanza_from_string(l));
+    if (k == 0)
+    {
+      int mode = std::stoi(l);
+      if (! (0 <= mode && mode <= 3))
+      {
+        mode = 0;
+      }
+      r.moebius_mode = hybrid_moebius(mode);
+    }
+    else if (k == 1)
+    {
+      r.moebius_radius = std::stof(l);
+    }
+    else
+    {
+      r.stanzas.push_back(hybrid_stanza_from_string(l));
+    }
+    k++;
   }
   return r;
 }
@@ -177,7 +194,8 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
       // set widgets according to formula
-      hybrid_formula h = g_SFT.GetHybridFormula();
+      hybrid_formula h0 = g_SFT.GetHybridFormula();
+      std::vector<hybrid_stanza> h = h0.stanzas;
       bool a1 = h.size() > 0 && h[0].size() > 0;
       bool b1 = h.size() > 0 && h[0].size() > 1;
       bool a2 = h.size() > 1 && h[1].size() > 0;
@@ -360,6 +378,9 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_4B_AIM2, b4, b42.mul_im, "A Imag")
       B(IDC_HYBRID_4B_ACTIVE, true, b4, "Step 2")
 
+      B(IDC_HYBRID_MOEBIUS_LEFT, true, !!(h0.moebius_mode & hybrid_moebius_left), "Moebius Left")
+      B(IDC_HYBRID_MOEBIUS_RIGHT, true, !!(h0.moebius_mode & hybrid_moebius_right), "Moebius Right")
+      R(IDC_HYBRID_MOEBIUS_RADIUS, true, h0.moebius_radius, "Moebius Radius")
 #undef B
 #undef N
 #undef R
@@ -420,6 +441,9 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           int b3op = 0;
           int a4op = 0;
           int b4op = 0;
+          bool ml = false;
+          bool mr = false;
+          double md = 1;
 
           B(IDC_HYBRID_1_ACTIVE, group1)
           B(IDC_HYBRID_1A_ABSX1, a11.abs_x)
@@ -557,11 +581,20 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_4B_AIM2, b42.mul_im)
           B(IDC_HYBRID_4B_ACTIVE, b4)
 
+          B(IDC_HYBRID_MOEBIUS_LEFT, ml)
+          B(IDC_HYBRID_MOEBIUS_RIGHT, mr)
+          R(IDC_HYBRID_MOEBIUS_RADIUS, md)
 #undef B
 #undef R
 #undef N
 #undef O
           hybrid_formula h;
+
+          int moebius_mode = 0;
+          if (ml) moebius_mode += int(hybrid_moebius_left);
+          if (mr) moebius_mode += int(hybrid_moebius_right);
+          h.moebius_mode = hybrid_moebius(moebius_mode);
+          h.moebius_radius = md;
 
           if (group1)
           {
@@ -578,7 +611,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
             if (s.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
@@ -597,7 +630,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
             if (s.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
@@ -616,7 +649,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
             if (s.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
@@ -635,11 +668,11 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
             if (s.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
-          retval = h.size() > 0;
+          retval = h.stanzas.size() > 0;
           if (retval)
           {
             g_SFT.SetHybridFormula(h);

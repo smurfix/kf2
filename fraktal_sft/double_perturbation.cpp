@@ -33,6 +33,8 @@ void CFraktalSFT::MandelCalc()
   const double nBailout = GetBailoutRadius();
   const double p = GetBailoutNorm();
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+  const double Cx = m_rref.ToDouble();
+  const double Cy = m_iref.ToDouble();
 
   // vectorization
   double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216, phase16, dr16, di16, daa16, dab16, dba16, dbb16;
@@ -83,7 +85,7 @@ void CFraktalSFT::MandelCalc()
     if (GetUseHybridFormula())
     {
       bool ok
-        = perturbation(GetHybridFormula(), m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
+        = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
       assert(ok && "perturbation_double_hybrid");
     }
     else if (m_nFractalType == 0 && m_nPower > 10)
