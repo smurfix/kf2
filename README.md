@@ -94,7 +94,6 @@ Feedback:
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
-- zoom size 1.2 sequence JPEGs have "boxes" while KFB is ok (reported by saka)
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
@@ -270,6 +269,17 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.10.2** (2020-??-??)
+
+    - fixes
+
+      - store zoom out sequence was saving JPEG contents in PNG filenames
+        sometimes
+      - store zoom out sequence was forcing some kind of center reuse even
+        when not requested (reported by saka and Azula)
+      - store zoom out sequence was sometimes not saving metadata in image
+        files correctly
 
 - **kf-2.14.10.1** (2020-06-01)
 
