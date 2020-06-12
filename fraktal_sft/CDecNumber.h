@@ -113,6 +113,10 @@ public:
   {
 		return int(m_dec);
 	};
+  explicit inline operator double() const
+  {
+	return mpfr_get_d(m_dec.backend().data(), MPFR_RNDN);
+  };
 };
 
 inline CDecNumber operator-(const CDecNumber &a)
@@ -125,6 +129,12 @@ inline CDecNumber operator+(const CDecNumber &a, const CDecNumber &b)
 {
 	Precision p(std::max(decNumber::default_precision(), std::max(a.m_dec.precision(), b.m_dec.precision())));
 	return CDecNumber(a.m_dec + b.m_dec);
+}
+
+inline CDecNumber operator+(const CDecNumber &a, double b)
+{
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
+	return CDecNumber(a.m_dec + b);
 }
 
 inline CDecNumber operator-(const CDecNumber &a, const CDecNumber &b)
@@ -191,6 +201,27 @@ inline CDecNumber sqrt(const CDecNumber &a)
 	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
 	using std::sqrt;
 	return CDecNumber(sqrt(a.m_dec));
+}
+
+inline CDecNumber abs(const CDecNumber &a)
+{
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
+	using std::abs;
+	return CDecNumber(abs(a.m_dec));
+}
+
+inline CDecNumber log(const CDecNumber &a)
+{
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
+	using std::log;
+	return CDecNumber(log(a.m_dec));
+}
+
+inline CDecNumber exp(const CDecNumber &a)
+{
+	Precision p(std::max(decNumber::default_precision(), a.m_dec.precision()));
+	using std::exp;
+	return CDecNumber(exp(a.m_dec));
 }
 
 #endif
