@@ -74,6 +74,7 @@ fraktal_sft/check_for_update.h \
 fraktal_sft/cmdline.h \
 fraktal_sft/colour.h \
 fraktal_sft/complex.h \
+fraktal_sft/dual.h \
 fraktal_sft/exr.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
