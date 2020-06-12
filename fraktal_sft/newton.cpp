@@ -31,6 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/barrier.h"
 #include "../common/StringVector.h"
 #include "newton.h"
+#include "hybrid.h"
 #include <iostream>
 #include <string>
 
@@ -904,6 +905,20 @@ static int WINAPI ThNewton(HWND hWnd)
 		int64_t maxperiod = INT_MAX; // FIXME
 		g_period= ball_period_do(center,radius,maxperiod,steps,hWnd);
 	  }
+	  else if (g_SFT.GetUseHybridFormula())
+	  {
+		  flyttyp r = flyttyp(4) / radius;
+		  // fork progress updater
+		  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+		  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThPeriodProgress, (LPVOID) &progress, 0, NULL);
+		  CloseHandle(hThread);
+		  g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_skew[0], &running, &progress.counters[0]);
+		  // join progress updater
+		  progress.running = false;
+		  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+		  CloseHandle(progress.hDone);
+		  if (g_period < 0) g_period = 0;
+	  }
 	  else
 	  {
 		if (f)
@@ -949,6 +964,26 @@ static int WINAPI ThNewton(HWND hWnd)
 		  int maxsteps = INT_MAX; // FIXME
 		  test = m_d_nucleus(&c,center,g_period,maxsteps,steps,radius,hWnd);
 		}
+		else if (g_SFT.GetUseHybridFormula())
+		{
+		    // fork progress updater
+		    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+		    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThNewtonProgress, (LPVOID) &progress, 0, NULL);
+		    CloseHandle(hThread);
+		    // c = center; // seems to copy precision too, so do it low-level...
+		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
+		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
+		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
+		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_period, c.m_r, c.m_i, epsilon2, &running, &progress.counters[0]) ? 0 : 1;
+		    flyttyp r = flyttyp(4) / radius;
+		    if (! (cabs2(c - center) < r * r))
+		      test = 1;
+		    steps = 1;
+		    // join progress updater
+		    progress.running = false;
+		    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+		    CloseHandle(progress.hDone);
+		}
 		else
 		{
 		  if (f)
@@ -985,6 +1020,19 @@ static int WINAPI ThNewton(HWND hWnd)
 			  complex<floatexp> size = m_d_size(c,g_period,hWnd);
 			  floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
 			  mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
+			}
+			else if (g_SFT.GetUseHybridFormula())
+			{
+			    // fork progress updater
+			    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
+			    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSizeProgress, (LPVOID) &progress, 0, NULL);
+			    CloseHandle(hThread);
+			    hybrid_size(g_SFT.GetHybridFormula(), g_period, c.m_r, c.m_i, msize, &g_skew[0], &running, &progress.counters[0]);
+			    // join progress updater
+			    progress.running = false;
+			    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+			    CloseHandle(progress.hDone);
+			    msize = flyttyp(.25) / msize;
 			}
 			else
 			{

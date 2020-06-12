@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main.h"
 #include "resource.h"
 #include "tooltip.h"
+#include "dual.h"
 
 std::vector<std::string> split(std::string s, char sep)
 {
@@ -690,4 +691,218 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
     break;
   }
   return 0;
+}
+
+extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile int *running, int *progress)
+{
+  Precision prec(std::max(cr0.m_dec.precision(), ci0.m_dec.precision()));
+  using N = int;
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  CDecNumber cr = cr0;
+  CDecNumber ci = ci0;
+  double lepsilon2 = double(log(epsilon2)); // FIXME slow? precision?
+  double ldelta0 = 0;
+  double ldelta1 = 0;
+  int eta = 0;
+  bool converged = false;
+  for (N j = 0; j < maxsteps && *running && ! converged; ++j)
+  {
+    progress[0] = eta;
+    progress[1] = j;
+    progress[2] = period;
+    progress[3] = 0;
+    R cx(cr); cx.dx[0] = 1;
+    R cy(ci); cy.dx[1] = 1;
+    C c(cx, cy);
+    C z(0, 0);
+    // iteration
+    for (N i = 0; i < period && *running; ++i)
+    {
+      progress[3] = i;
+      z = hybrid_f(h.stanzas[i % h.stanzas.size()], z, c, h.moebius_mode, h.moebius_radius);
+    }
+    if (*running)
+    {
+      const CDecNumber &x = z.m_r.x;
+      const CDecNumber &y = z.m_i.x;
+      const CDecNumber &dxa = z.m_r.dx[0];
+      const CDecNumber &dxb = z.m_r.dx[1];
+      const CDecNumber &dya = z.m_i.dx[0];
+      const CDecNumber &dyb = z.m_i.dx[1];
+      // Newton step
+      CDecNumber det = dxa * dyb - dxb * dya;
+      CDecNumber u = -( dyb * x - dxb * y) / det;
+      CDecNumber v = -(-dya * x + dxa * y) / det;
+      cr = cr + u;
+      ci = ci + v;
+      // check convergence
+      CDecNumber delta = u * u + v * v; // FIXME slow? precision?
+      converged = delta < epsilon2;
+      ldelta0 = ldelta1;
+      ldelta1 = double(log(delta)); // FIXME slow? precision?
+      eta = ceil(log2((lepsilon2 - ldelta0) / (ldelta1 - ldelta0)));
+    }
+  }
+  if (converged)
+  {
+    cr0 = cr;
+    ci0 = ci;
+    return true;
+  }
+  return false;
+}
+
+extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile int *running, int *progress)
+{
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  R cx(A); cx.dx[0] = 1;
+  R cy(B); cy.dx[1] = 1;
+  C c(cx, cy);
+  C z(0, 0);
+  // K^{-1}
+  double ai = K[0];
+  double aj = K[1];
+  double bi = K[2];
+  double bj = K[3];
+  double detK = ai * bj - aj * bi;
+  double ai1 =  bj / detK;
+  double aj1 = -bi / detK;
+  double bi1 = -aj / detK;
+  double bj1 =  ai / detK;
+  double z2 = 0;
+  double r2 = 1e50;
+  bool p = true;
+  int i = 0;
+  while (i < N && z2 < r2 && p && *running)
+  {
+    progress[0] = N;
+    progress[1] = i;
+    // formula
+    z = hybrid_f(h.stanzas[i % h.stanzas.size()], z, c, h.moebius_mode, h.moebius_radius);
+    const CDecNumber &x = z.m_r.x;
+    const CDecNumber &y = z.m_i.x;
+    const CDecNumber &xa = z.m_r.dx[0];
+    const CDecNumber &xb = z.m_r.dx[1];
+    const CDecNumber &ya = z.m_i.dx[0];
+    const CDecNumber &yb = z.m_i.dx[1];
+    // J^{-1}
+    const CDecNumber detJ = xa * yb - xb * ya;
+    const CDecNumber xa1 =  yb / detJ;
+    const CDecNumber xb1 = -ya / detJ;
+    const CDecNumber ya1 = -xb / detJ;
+    const CDecNumber yb1 =  xa / detJ;
+    // (u0 v0) = J^{-1} * (x y)
+    const CDecNumber u0 = xa1 * x + xb1 * y;
+    const CDecNumber v0 = ya1 * x + yb1 * y;
+    // (u1 v1) = s^{-1} K^{-1} * (u0 v0)
+    const CDecNumber u1 = (ai1 * u0 + aj1 * v0) / S;
+    const CDecNumber v1 = (bi1 * u0 + bj1 * v0) / S;
+    double u2 = double(u1);
+    double v2 = double(v1);
+    double uv = u2 * u2 + v2 * v2;
+    p = 1 <= uv;
+    ++i;
+    double xf = double(x);
+    double yf = double(y);
+    z2 = xf * xf + yf * yf;
+  }
+  if (i == N || r2 <= z2 || p || ! *running)
+  {
+    i = -1;
+  }
+  return i;
+}
+
+extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile int *running, int *progress)
+{
+  // compute average degree
+  // the degree of each stanza is the *lowest* non-linear power
+  double degree = 0;
+  double count = 0;
+  for (auto s : h.stanzas)
+  {
+    double degs = 1;
+    for (auto l : s)
+    {
+      double deg = 1.0/0.0;
+      double deg1 = l.one.pow;
+      double deg2 = l.two.pow;
+      switch (l.mode)
+      {
+        case hybrid_combine_add:
+        case hybrid_combine_sub:
+          if (deg1 > 1 && (l.one.mul_re != 0 || l.one.mul_im != 0))
+            deg = std::min(deg, deg1);
+          if (deg2 > 1 && (l.two.mul_re != 0 || l.two.mul_im != 0))
+            deg = std::min(deg, deg2);
+          break;
+        case hybrid_combine_mul:
+          deg = deg1 + deg2;
+          break;
+        case hybrid_combine_div:
+          deg = deg1 - deg2;
+          break;
+      }
+      degs *= deg;
+    }
+    degree += log(degs);
+    count += 1;
+  }
+  degree = exp(degree / count);
+  double deg = degree / (degree - 1);
+  if (isnan(deg) || isinf(deg)) deg = 0;
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  // FIXME check if this init and formula below is equivalent to the et version...
+  R x(A); x.dx[0] = 1;
+  R y(B); y.dx[1] = 1;
+  C z(x, y);
+  C c(A, B);
+  CDecNumber bxa = 1;
+  CDecNumber bxb = 0;
+  CDecNumber bya = 0;
+  CDecNumber byb = 1;
+  int j = 1;
+  while (j < period && *running)
+  {
+    progress[0] = period;
+    progress[1] = j;
+    // formula
+    z = hybrid_f(h.stanzas[j % h.stanzas.size()], z, c, h.moebius_mode, h.moebius_radius);
+    const CDecNumber &lxa = z.m_r.dx[0];
+    const CDecNumber &lxb = z.m_r.dx[1];
+    const CDecNumber &lya = z.m_i.dx[0];
+    const CDecNumber &lyb = z.m_i.dx[1];
+    // step b
+    const CDecNumber det = lxa * lyb - lxb * lya;
+    bxa = bxa + lyb / det;
+    bxb = bxb - lxb / det;
+    bya = bya - lya / det;
+    byb = byb + lxa / det;
+    ++j;
+  }
+  // l^d b
+  if (*running)
+  {
+    const CDecNumber &lxa = z.m_r.dx[0];
+    const CDecNumber &lxb = z.m_r.dx[1];
+    const CDecNumber &lya = z.m_i.dx[0];
+    const CDecNumber &lyb = z.m_i.dx[1];
+    const CDecNumber l = sqrt(abs(lxa * lyb - lxb * lya));
+    const CDecNumber beta = sqrt(abs(bxa * byb - bxb * bya));
+    const CDecNumber llb = exp(log(l) * deg) * beta;
+    S = 1 / llb;
+    byb =   byb / beta;
+    bxb = - bxb / beta;
+    bya = - bya / beta;
+    bxa =   bxa / beta;
+    K[0] = double(byb);
+    K[1] = double(bxb);
+    K[2] = double(bya);
+    K[3] = double(bxa);
+    return true;
+  }
+  return false;
 }
