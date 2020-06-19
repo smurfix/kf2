@@ -3860,14 +3860,17 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	dual<2, double> v0(j + dj); v0.dx[1] = 1;
 	if (GetExponentialMap())
 	{
-		dual<2, double> re = -0.6931471805599453 * v0 / double(m_nY); // log 2
-		dual<2, double> im = 6.283185307179586 * u0 / double(m_nX); // 2 pi
+		double re = -0.6931471805599453 * v0.x / double(m_nY); // log 2
+		double im = 6.283185307179586 * u0.x / double(m_nX); // 2 pi
 		double R = 0.5 * std::hypot(m_nX, m_nY);
-		dual<2, double> r = exp(re);
-		dual<2, double> c = cos(im);
-		dual<2, double> s = sin(im);
-		u0 = R * r * c;
-		v0 = R * r * s;
+		double r = exp(re);
+		double c = cos(im);
+		double s = sin(im);
+		u0.x = R * r * c;
+		v0.x = R * r * s;
+		double d = std::exp2((j + dj) / m_nY);
+		u0.dx[0] *= d;
+		v0.dx[1] *= d;
 	}
 	else
 	{
