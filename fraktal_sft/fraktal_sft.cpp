@@ -2377,18 +2377,10 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 	int **Pixels = m_nPixels;
 #endif
 	if (m_nZoom >= g_nRefZero){
-		double mr = m_nX / 2;
-		double mi = m_nY / 2;
-		double ratio = (((double)m_nY/(double)m_nX)/(360.0/640.0)) * ((double)360 / (double)m_scRatio.cy);
-		//double ratio = ((double)m_nX*((double)m_nY/(double)m_nX)) / (double)m_scRatio.cy;
-		//double ratio = ((double)360/(double)m_nY) * ((double)m_scRatio.cx*((double)m_scRatio.cy/(double)m_scRatio.cx)) / (double)m_scRatio.cy;
-		//double ratio = ((double)360/(double)m_nY) * (double)m_nX*((double)m_nY/(double)m_nX) / (double)m_scRatio.cy;
-		double xpos = (nXPos - mr)*ratio + mr;
-		double dbD0r = mr + m_C*(xpos - mr) + m_S*(nYPos - mi);
-		double dbD0i = mi - m_S*(xpos - mr) + m_C*(nYPos - mi);
-		dbD0r = (dbD0r - mr) / ratio + mr;
-		m_rref = (CFixedFloat)dbD0r*(m_rstop - m_rstart)*(CFixedFloat)((double)1 / m_nX) + m_rstart;
-		m_iref = (CFixedFloat)dbD0i*(m_istop - m_istart)*(CFixedFloat)((double)1 / m_nY) + m_istart;
+		floatexp dbD0r, dbD0i;
+		GetPixelCoordinates(nXPos, nYPos, dbD0r, dbD0i);
+		m_rref = m_rref + CFixedFloat(dbD0r);
+		m_iref = m_iref + CFixedFloat(dbD0i);
 		g_nAddRefX = nXPos;
 		g_nAddRefY = nYPos;
 	}
