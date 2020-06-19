@@ -401,8 +401,8 @@ void CFraktalSFT::MandelCalc()
         : perturbation(m_nFractalType, m_nPower, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
         ;
       assert(ok && "perturbation_double");
-      complex<double> z(Dr16[k], Di16[k]);
-      complex<double> dc(dr16[k], di16[k]);
+      complex<double> z(Dr, Di);
+      complex<double> dc(dr, di);
       complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
       InterlockedIncrement((LPLONG)&m_nDone);
