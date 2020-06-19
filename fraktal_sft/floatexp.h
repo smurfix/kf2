@@ -403,6 +403,12 @@ public:
 		else
 			mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
 	}
+	inline explicit operator CFixedFloat() const
+	{
+		CFixedFloat a;
+		ToFixedFloat(a);
+		return a;
+	}
 
 	inline floatexp setLongDouble(long double a)
 	{
