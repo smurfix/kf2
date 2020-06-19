@@ -3577,23 +3577,29 @@ void CPixels::Init(int width, int height, bool interactive)
 	int step = 1 << 7;
 	int ix = 0;
 	int begin = ix;
+	int w = interactive ? step : 1;
+	int h = interactive ? step : 1;
 	for (int y = 0; y < height; y += step)
 		for (int x = 0; x < width; x += step)
-			pixels[ix++] = CPixel(x, y, step, step);
+			pixels[ix++] = CPixel(x, y, w, h);
 	int end = ix;
 	if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
   for (; step > 1; step >>= 1)
   {
 		begin = ix;
+		int w = interactive ? step >> 1 : 1;
+		int h = interactive ? step : 1;
 		for (int y = 0;  y < height;  y += step)
 			for (int x = step >> 1; x < width; x += step)
-				pixels[ix++] = CPixel(x, y, step >> 1, step);
+				pixels[ix++] = CPixel(x, y, w, h);
 		end = ix;
 		if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
 		begin = ix;
+		w = interactive ? step >> 1 : 1;
+		h = interactive ? step >> 1 : 1;
 		for (int y = step >> 1; y < height; y += step)
 			for (int x = 0; x < width; x += step >> 1)
-				pixels[ix++] = CPixel(x, y, step >> 1, step >> 1);
+				pixels[ix++] = CPixel(x, y, w, h);
 		end = ix;
 		if (interactive) std::sort(&pixels[begin], &pixels[end], cmp);
   }
