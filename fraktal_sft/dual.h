@@ -28,7 +28,8 @@ struct dual
   {
     // no init;
   }
-  dual(const T &a)
+  template <typename S>
+  dual(const S &a)
   : x(a)
   {
     for (int d = 0; d < D; ++d)
@@ -36,12 +37,13 @@ struct dual
       dx[d] = 0;
     }
   }
-  dual(double a)
-  : x(a)
+  template <typename S>
+  dual(const dual<D, S> &a)
+  : x(a.x)
   {
     for (int d = 0; d < D; ++d)
     {
-      dx[d] = 0;
+      dx[d] = a.dx[d];
     }
   }
 };
@@ -58,11 +60,46 @@ dual<D, T> operator+(const dual<D, T> &a, const dual<D, T> &b)
   return r;
 }
 
-template <int D, typename T>
-dual<D, T> operator+(const dual<D, T> &a, double b)
+template <int D, typename T, typename S>
+dual<D, T> operator+(const dual<D, T> &a, const S &b)
 {
   dual<D, T> r;
   r.x = a.x + b;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d];
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> operator+(const S &a, const dual<D, T> &b)
+{
+  dual<D, T> r;
+  r.x = a + b.x;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = b.dx[d];
+  }
+  return r;
+}
+template <int D, typename T, typename S>
+dual<D, T> operator-(const S &a, const dual<D, T> &b)
+{
+  dual<D, T> r;
+  r.x = a - b.x;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = -b.dx[d];
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> operator-(const dual<D, T> &a, const S &b)
+{
+  dual<D, T> r;
+  r.x = a.x - b;
   for (int d = 0; d < D; ++d)
   {
     r.dx[d] = a.dx[d];
@@ -83,7 +120,7 @@ dual<D, T> operator-(const dual<D, T> &a, const dual<D, T> &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator-(const dual<D, T> &a, double b)
+dual<D, T> operator-(const dual<D, T> &a, const T &b)
 {
   dual<D, T> r;
   r.x = a.x - b;
@@ -131,14 +168,50 @@ dual<D, T> operator/(const dual<D, T> &a, const dual<D, T> &b)
   return r;
 }
 
-template <int D, typename T>
-bool operator<(const dual<D, T> &a, double b)
+template <int D, typename T, typename S>
+dual<D, T> operator*(const S &a, const dual<D, T> &b)
+{
+  dual<D, T> r;
+  r.x = a * b.x;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a * b.dx[d];
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> operator*(const dual<D, T> &a, const S &b)
+{
+  dual<D, T> r;
+  r.x = a.x * b;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d] * b;
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> operator/(const dual<D, T> &a, const S &b)
+{
+  dual<D, T> r;
+  r.x = a.x / b;
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d] / b;
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+bool operator<(const dual<D, T> &a, const S &b)
 {
   return a.x < b;
 }
 
-template <int D, typename T>
-bool operator>(const dual<D, T> &a, double b)
+template <int D, typename T, typename S>
+bool operator>(const dual<D, T> &a, const S &b)
 {
   return a.x > b;
 }
@@ -147,6 +220,55 @@ template <int D, typename T>
 dual<D, T> abs(const dual<D, T> &a)
 {
   return a.x < 0 ? -a : a;
+}
+
+template <int D, typename T>
+dual<D, T> exp(const dual<D, T> &a)
+{
+  using std::exp;
+  dual<D,T> r;
+  r.x = exp(a.x);
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d] * r.x;
+  }
+  return r;
+}
+
+template <int D, typename T>
+dual<D, T> cos(const dual<D, T> &a)
+{
+  using std::cos;
+  using std::sin;
+  dual<D,T> r;
+  r.x = cos(a.x);
+  const T s = -sin(a.x);
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d] * s;
+  }
+  return r;
+}
+
+template <int D, typename T>
+dual<D, T> sin(const dual<D, T> &a)
+{
+  using std::cos;
+  using std::sin;
+  dual<D,T> r;
+  r.x = sin(a.x);
+  const T c = cos(a.x);
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = a.dx[d] * c;
+  }
+  return r;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> &operator-=(dual<D, T> &me, const S &you)
+{
+  return me = me - you;
 }
 
 #endif
