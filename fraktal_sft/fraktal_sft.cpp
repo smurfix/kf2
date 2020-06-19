@@ -3645,14 +3645,22 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 				// never consider the pixel of the reference to be glitched
 				bGlitch = false;
 			}
+			double de_multiplier = 1;
+			if (GetExponentialMap())
+			{
+				double dx, dy;
+				GetPixelOffset(x, y, dx, dy);
+				double v = (y + dy) / m_nY;
+				de_multiplier = std::exp2(v);
+			}
 
 			m_nPixels[x][y] = antal;
 			if (m_nPhase)
 				m_nPhase[x][y] = phase;
 			if (m_nDEx)
-				m_nDEx[x][y] = de.m_r;
+				m_nDEx[x][y] = de.m_r * de_multiplier;
 			if (m_nDEy)
-				m_nDEy[x][y] = de.m_i;
+				m_nDEy[x][y] = de.m_i * de_multiplier;
 
 			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt)){
 				double p = GetBailoutNorm();
