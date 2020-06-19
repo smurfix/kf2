@@ -426,6 +426,12 @@ static void UpdateArbitrarySize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateExponentialMap(HWND hWnd)
+{
+	bool b = g_SFT.GetExponentialMap();
+	CheckMenuItem(GetMenu(hWnd),ID_EXPONENTIAL_MAP,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateReuseReference(HWND hWnd)
 {
 	bool b = g_SFT.GetReuseReference();
@@ -599,6 +605,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateThreadsReserveCore(hWnd);
 	UpdateAnimateZoom(hWnd);
 	UpdateArbitrarySize(hWnd);
+	UpdateExponentialMap(hWnd);
 	UpdateReuseReference(hWnd);
 	UpdateAutoSolveGlitches(hWnd);
 	UpdateSolveGlitchNear(hWnd);
@@ -3707,6 +3714,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.SetArbitrarySize(! g_SFT.GetArbitrarySize());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_EXPONENTIAL_MAP){
+		g_SFT.SetExponentialMap(! g_SFT.GetExponentialMap());
+		UpdateExponentialMap(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_NEWTON){
 		g_bNewton=!g_bNewton;

@@ -104,6 +104,7 @@ bool Settings::FromText(const std::string &text)
   INT(EXRChannels)
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
+  BOOL(ExponentialMap)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -171,6 +172,7 @@ std::string Settings::ToText() const
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
+  BOOL(ExponentialMap)
 #undef DOUBLE
 #undef INT
 #undef BOOL

@@ -90,6 +90,7 @@ private:
   int64_t m_EXRChannels;
   bool m_EXRParallel;
   bool m_SaveNewtonProgress;
+  bool m_ExponentialMap;
 
 public:
 
@@ -147,6 +148,7 @@ public:
   , m_EXRChannels(~0)
   , m_EXRParallel(true)
   , m_SaveNewtonProgress(false)
+  , m_ExponentialMap(false)
   { };
 
   bool FromText(const std::string &text);
@@ -339,6 +341,9 @@ public:
 
   inline bool   GetSaveNewtonProgress() const { return m_SaveNewtonProgress; };
   inline void   SetSaveNewtonProgress(bool b) { m_SaveNewtonProgress = b; };
+
+  inline bool   GetExponentialMap() const { return m_ExponentialMap; };
+  inline void   SetExponentialMap(bool b) { m_ExponentialMap = b; };
 
 };
 

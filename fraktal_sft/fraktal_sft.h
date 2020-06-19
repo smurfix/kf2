@@ -676,6 +676,7 @@ public:
   inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
+  BOOL(ExponentialMap)
 #undef DOUBLE
 #undef INT
 #undef BOOL

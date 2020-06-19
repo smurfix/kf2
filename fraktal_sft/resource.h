@@ -472,6 +472,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_USE_ORIGINAL_AS_GLITCH_CENTER 40150
 #define ID_EXR_PARALLEL 40151
 #define ID_ACTIONS_HYBRID 40152
+#define ID_EXPONENTIAL_MAP 40153
 
 // OpenCL
 #ifdef KF_OPENCL
