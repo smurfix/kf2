@@ -53,6 +53,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "gradient.h"
 #include "newton.h"
 #include "scale_bitmap.h"
+#include "dual.h"
 
 double g_real=1;
 double g_imag=1;
@@ -3820,8 +3821,26 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	double di = 0;
 	double dj = 0;
 	GetPixelOffset(i, j, di, dj);
-	floatexp u = (i - m_nX/2 + di) * m_pixel_step_x;
-	floatexp v = (j - m_nY/2 + dj) * m_pixel_step_y;
+	double u0 = i + di;
+	double v0 = j + dj;
+	if (GetExponentialMap())
+	{
+		double re = -0.6931471805599453 * v0 / m_nY; // log 2
+		double im = 6.283185307179586 * u0 / m_nX; // 2 pi
+		double R = 0.5 * std::hypot(m_nX, m_nY);
+		double r = std::exp(re);
+		double c = std::cos(im);
+		double s = std::sin(im);
+		u0 = R * r * c;
+		v0 = R * r * s;
+	}
+	else
+	{
+		u0 -= m_nX / 2;
+		v0 -= m_nY / 2;
+	}
+	floatexp u = u0 * m_pixel_step_x;
+	floatexp v = v0 * m_pixel_step_y;
 	x = m_pixel_center_x + m_C * u + m_S * v;
 	y = m_pixel_center_y - m_S * u + m_C * v;
 }
@@ -3831,12 +3850,32 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	double di = 0;
 	double dj = 0;
 	GetPixelOffset(i, j, di, dj);
-	floatexp u = (i - m_nX/2 + di) * m_pixel_step_x;
-	floatexp v = (j - m_nY/2 + dj) * m_pixel_step_y;
-	x = m_pixel_center_x + m_C * u + m_S * v;
-	y = m_pixel_center_y - m_S * u + m_C * v;
-	daa =  m_C * m_pixel_step_x;
-	dab =  m_S * m_pixel_step_y;
-	dba = -m_S * m_pixel_step_x;
-	dbb =  m_C * m_pixel_step_y;
+	dual<2, double> u0(i + di); u0.dx[0] = 1;
+	dual<2, double> v0(j + dj); v0.dx[1] = 1;
+	if (GetExponentialMap())
+	{
+		dual<2, double> re = -0.6931471805599453 * v0 / double(m_nY); // log 2
+		dual<2, double> im = 6.283185307179586 * u0 / double(m_nX); // 2 pi
+		double R = 0.5 * std::hypot(m_nX, m_nY);
+		dual<2, double> r = exp(re);
+		dual<2, double> c = cos(im);
+		dual<2, double> s = sin(im);
+		u0 = R * r * c;
+		v0 = R * r * s;
+	}
+	else
+	{
+		u0 -= m_nX / 2;
+		v0 -= m_nY / 2;
+	}
+	dual<2, floatexp> u = dual<2, floatexp>(u0) * m_pixel_step_x;
+	dual<2, floatexp> v = dual<2, floatexp>(v0) * m_pixel_step_y;
+	dual<2, floatexp> x0 = m_pixel_center_x + m_C * u + m_S * v;
+	dual<2, floatexp> y0 = m_pixel_center_y - m_S * u + m_C * v;
+	x = x0.x;
+	y = y0.x;
+	daa = x0.dx[0];
+	dab = x0.dx[1];
+	dba = y0.dx[0];
+	dbb = y0.dx[1];
 }
