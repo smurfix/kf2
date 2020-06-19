@@ -53,21 +53,35 @@ void CFraktalSFT::CalculateApproximation(int nType)
 
 	POINT *p = new POINT[nProbe];
 	int k = 0;
-	for (int j = 0; j < nProbeY; ++j)
+	if (GetExponentialMap())
 	{
-		int y = m_rApprox.top + j * (m_rApprox.bottom - m_rApprox.top) / (nProbeY - 1);
-		if (y < m_rApprox.top) y = m_rApprox.top;
-		if (y >= m_rApprox.bottom) y = m_rApprox.bottom - 1;
-		for (int i = 0; i < nProbeX; ++i)
+		// probe points equally spaced along top edge
+		for (int i = 0; i < nProbe; ++i)
 		{
-			if (i == nProbeX/2 && j == nProbeY/2)
-				continue;
-			int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeX - 1);
-			if (x < m_rApprox.left) x = m_rApprox.left;
-			if (x >= m_rApprox.right) x = m_rApprox.right - 1;
-			p[k].x = x;
-			p[k].y = y;
+			p[k].x = i * (m_nX / nProbe);
+			p[k].y = 0;
 			++k;
+		}
+	}
+	else
+	{
+		// probe points equally spaced across image
+		for (int j = 0; j < nProbeY; ++j)
+		{
+			int y = m_rApprox.top + j * (m_rApprox.bottom - m_rApprox.top) / (nProbeY - 1);
+			if (y < m_rApprox.top) y = m_rApprox.top;
+			if (y >= m_rApprox.bottom) y = m_rApprox.bottom - 1;
+			for (int i = 0; i < nProbeX; ++i)
+			{
+				if (i == nProbeX/2 && j == nProbeY/2)
+					continue;
+				int x = m_rApprox.left + i * (m_rApprox.right - m_rApprox.left) / (nProbeX - 1);
+				if (x < m_rApprox.left) x = m_rApprox.left;
+				if (x >= m_rApprox.right) x = m_rApprox.right - 1;
+				p[k].x = x;
+				p[k].y = y;
+				++k;
+			}
 		}
 	}
 	assert(k == nProbe);
