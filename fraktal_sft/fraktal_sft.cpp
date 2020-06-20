@@ -1039,6 +1039,14 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		SetTexture(nIndex,x,y,s);
 	if (m_bSlopes){
 		double diffx, diffy;
+		double zoom_adjust = 0;
+		if (false && GetExponentialMap())
+		{
+			double dx, dy;
+			GetPixelOffset(x, y, dx, dy);
+			double v = (y + dy) / m_nY;
+			zoom_adjust = v;
+		}
 		if (m_nDifferences == Differences_Analytic)
 		{
 			complex<float> de(m_nDEx[x][y], m_nDEy[x][y]);
@@ -1087,7 +1095,7 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
 		double p1 = fmax(1, (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y]);
 		diff = (p1 + diff) / p1;
-		diff = pow(diff, (double)m_nSlopePower*(double)(m_nZoom*1.75 + 1)*(double)m_nX / (double)640);
+		diff = pow(diff, (double)m_nSlopePower*(double)((m_nZoom + zoom_adjust)*1.75 + 1)*(double)m_nX / (double)640);
 		if (diff>1){
 			diff = (atan(diff) - pi / 4) / (pi / 4);
 			diff = diff*(double)m_nSlopeRatio / 100;;
