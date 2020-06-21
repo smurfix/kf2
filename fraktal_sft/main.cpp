@@ -2528,7 +2528,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 }
 #endif
 
-static long OpenFile(HWND hWnd, bool &ret)
+static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 {
 				g_SFT.UndoStore();
 				g_SFT.Stop();
@@ -2536,7 +2536,7 @@ static long OpenFile(HWND hWnd, bool &ret)
 				if(!g_SFT.OpenFile(g_szFile))
 				{
 					ret = true;
-					if (hWnd)
+					if (hWnd && warn)
 						return MessageBox(hWnd,"Invalid parameter file","Error",MB_OK|MB_ICONSTOP);
 					else
 						return 0;
@@ -2645,14 +2645,14 @@ static long OpenMap(HWND hWnd, bool &ret, const std::string &szFile)
 	return 0;
 }
 
-static long OpenSettings(HWND hWnd, bool &ret)
+static long OpenSettings(HWND hWnd, bool &ret, bool warn = true)
 {
 				g_SFT.Stop();
 				g_bAnim=false;
 				if(!g_SFT.OpenSettings(g_szSettingsFile))
 				{
 					ret = true;
-					if (hWnd)
+					if (hWnd && warn)
 						return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
 					else
 						return 0;
@@ -2673,6 +2673,46 @@ static long OpenSettings(HWND hWnd, bool &ret)
 					ret = false;
 					return 0;
 				}
+}
+
+static void open_default_settings(HWND hWnd)
+{
+	// load default settings next to EXE file
+	{
+	  char exe[1024];
+	  int len = GetModuleFileName(NULL, exe, 1024);
+		if (0 < len && len < 1024)
+		{
+			std::string default_settings(exe);
+			g_szSettingsFile = replace_path_extension(default_settings, "kfs");
+			bool ret;
+			OpenSettings(hWnd, ret, false);
+			if (! ret)
+			{
+				output_log_message(Info, "loaded default settings " << g_szSettingsFile);
+			}
+		}
+	}
+}
+
+static void open_default_location(HWND hWnd)
+{
+	// load default location next to EXE file
+	{
+	  char exe[1024];
+	  int len = GetModuleFileName(NULL, exe, 1024);
+		if (0 < len && len < 1024)
+		{
+			std::string default_location(exe);
+			g_szFile = replace_path_extension(default_location, "kfr");
+			bool ret;
+			OpenFile(hWnd, ret, false);
+			if (! ret)
+			{
+				output_log_message(Info, "loaded default location " << g_szFile);
+			}
+		}
+	}
 }
 
 static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
@@ -2791,12 +2831,20 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::cerr << "loading settings: " << g_szSettingsFile << std::endl;
 			OpenSettings(hWnd, ret);
 		}
+		else
+		{
+			open_default_settings(hWnd);
+		}
 		if (g_args->bLoadLocation)
 		{
 			bool ret;
 			g_szFile = g_args->sLoadLocation;
 			std::cerr << "loading location: " << g_szFile << std::endl;
 			OpenFile(hWnd, ret);
+		}
+		else
+		{
+			open_default_location(hWnd);
 		}
 		g_bSaveJpeg = g_args->bSaveJPG;
 		g_bSaveTif = g_args->bSaveTIF;
@@ -5266,23 +5314,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	cldevices = initialize_opencl();
 #endif
 
-	// load default settings next to EXE file
-	{
-	  char exe[1024];
-	  int len = GetModuleFileName(NULL, exe, 1024);
-		if (0 < len && len < 1024)
-		{
-			std::string default_settings(exe);
-			g_szSettingsFile = replace_path_extension(default_settings, "kfs");
-			bool ret;
-			OpenSettings(nullptr, ret);
-			if (! ret)
-			{
-				output_log_message(Info, "loaded default settings " << g_szSettingsFile);
-			}
-		}
-	}
-
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
@@ -5331,6 +5362,10 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				output_log_message(Error, "loading settings " << g_szSettingsFile << " FAILED");
 				return 1;
 			}
+		}
+		else
+		{
+			open_default_settings(nullptr);
 		}
 		if (g_args->bLoadLocation)
 		{
