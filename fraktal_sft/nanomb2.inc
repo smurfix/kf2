@@ -125,8 +125,6 @@ public:
 		const bool no_g = g_real == 1.0 && g_imag == 1.0 && pval == 2.0;
 		for(N si = m_si, i = m_n0 ; si < maxsi && i < maxiter; si++, i++){
 			C_lo zn(ref[i]);
-			m_dd = R_lo(2) * m_dd * (m_d + zn) + R_lo(1);
-			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
 			C_lo zme(zn + m_d);
 			R_lo r2(norm(zme));
 			m_test2 = m_test1;
@@ -144,6 +142,8 @@ public:
 				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
 				return;
 			}
+			m_dd = R_lo(2) * m_dd * zme + R_lo(1);
+			m_d = m_d * (R_lo(2) * zn + m_d) + m_d0;
 		}
 	}
 	bool haveEscaped(){return m_escaped;}
