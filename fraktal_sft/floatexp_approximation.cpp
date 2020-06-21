@@ -23,6 +23,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
+	if (GetNoApprox() || GetApproximationType() == SeriesType_None || m_nZoom < g_nRefZero)
+	{
+		m_nMaxApproximation = 0;
+		return;
+	}
 	bool isC = GetApproximationType() == SeriesType_Complex;
 	bool isR = GetApproximationType() == SeriesType_Real;
 	const double nBailout = 2; // FIXME hardcoded
@@ -124,11 +129,6 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				m_APs->s[i][j] = 0;
 				m_APs->t[i][j] = 0;
 			}
-
-	if (GetApproximationType() == SeriesType_None || m_nZoom<g_nRefZero){
-		m_nMaxApproximation = 0;
-		return;
-	}
 
 	floatexp xr;
 	floatexp xi;
@@ -474,8 +474,6 @@ void CFraktalSFT::CalculateApproximation(int nType)
 */
 	}
 
-	if (GetNoApprox())
-		m_nMaxApproximation = 0;
 	if (isC)
 	{
 		delete[] APr;
