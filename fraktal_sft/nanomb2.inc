@@ -139,7 +139,7 @@ public:
 				m_iters = i;
 				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;
 				m_phase -= floor(m_phase);
-				m_de = abs(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
+				m_de = /*abs*/(zme) * log(abs(zme)) / (m_dd * pixel_spacing);
 				return;
 			}
 			m_dd = R_lo(2) * m_dd * zme + R_lo(1);
