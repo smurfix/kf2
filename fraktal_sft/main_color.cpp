@@ -217,11 +217,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetNumOfColors(),FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT2,g_SFT.GetSeed(),FALSE);
-		sprintf(szTmp,"%f",g_SFT.GetIterDiv());
-		int e = strlen(szTmp);
-		while(e && szTmp[e-1]=='0')
-			e--;
-		szTmp[e]=0;
+		snprintf(szTmp,256,"%.18g",g_SFT.GetIterDiv());
 		SetDlgItemText(hWnd,IDC_EDIT3,szTmp);
 		SetDlgItemInt(hWnd,IDC_EDIT12,g_SFT.GetColorOffset(),FALSE);
 		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(1024,2));
