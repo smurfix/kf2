@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -331,8 +331,8 @@ void CFraktalSFT::RenderFractal()
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
 				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = m_nX / 2;
-				g_nAddRefY = m_nY / 2;
+				g_nAddRefX = -1;
+				g_nAddRefY = -1;
 			}
 			else{
 				m_rref = 0;
@@ -464,8 +464,8 @@ void CFraktalSFT::RenderFractalLDBL()
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
 				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = m_nX / 2;
-				g_nAddRefY = m_nY / 2;
+				g_nAddRefX = -1;
+				g_nAddRefY = -1;
 			}
 			else{
 				m_rref = 0;
@@ -558,8 +558,8 @@ void CFraktalSFT::RenderFractalEXP()
 			if (m_nZoom >= g_nRefZero){
 				m_rref = (m_rstop + m_rstart)*.5;
 				m_iref = (m_istop + m_istart)*.5;
-				g_nAddRefX = m_nX / 2;
-				g_nAddRefY = m_nY / 2;
+				g_nAddRefX = -1;
+				g_nAddRefY = -1;
 			}
 			else{
 				m_rref = 0;
@@ -660,8 +660,8 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	{
 		m_rref = (m_rstop + m_rstart)*.5;
 		m_iref = (m_istop + m_istart)*.5;
-		g_nAddRefX = m_nX / 2;
-		g_nAddRefY = m_nY / 2;
+		g_nAddRefX = -1;
+		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		CalculateReferenceNANOMB1();
 	}
@@ -736,8 +736,8 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	{
 		m_rref = (m_rstop + m_rstart)*.5;
 		m_iref = (m_istop + m_istart)*.5;
-		g_nAddRefX = m_nX / 2;
-		g_nAddRefY = m_nY / 2;
+		g_nAddRefX = -1;
+		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		CalculateReferenceNANOMB2();
 	}
