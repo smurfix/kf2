@@ -2236,7 +2236,7 @@ static int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					if(nDegree<0)
 						nDegree=-nDegree;
 					char szDegree[130];
-					sprintf(szDegree,"Degree: %.2f, Ratio: %.2f",nDegree,distance1/distance2);
+					snprintf(szDegree,130, "Degree: %.2g, Ratio: %.2g",nDegree,distance1/distance2);
 					TextOut(hDC,0,0,szDegree,strlen(szDegree));
 					g_nTestDegree = nDegree;
 					g_nTestRatio = distance1/distance2;
@@ -3097,7 +3097,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int i = g_SFT.GetIterationOnPoint(x,y);
 		if(i != PIXEL_UNEVALUATED){
 			snprintf(szI+strlen(szI),100,"%d",i);
-			snprintf(szI+strlen(szI),100," <%d,%d> S:%f",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
+			snprintf(szI+strlen(szI),100," <%d,%d> S:%.6f",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
 			SendMessage(g_hwStatus,SB_SETTEXT,2,(LPARAM)szI);
 		}
 	}
