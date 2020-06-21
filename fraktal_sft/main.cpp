@@ -4520,7 +4520,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_scSize.cy = g_scSize.cy*xRatio;
 			xRatio = (double)g_SFT.GetRatioY()/(double)g_scSize.cy;
 			g_SFT.SetRatio(cr.right,cr.bottom*xRatio);
-			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
 		GetClientRect(hWnd,&cr);
 		g_scSize.cx = cr.right;
