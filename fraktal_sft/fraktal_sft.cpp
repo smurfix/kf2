@@ -1092,25 +1092,25 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
 		diffy = (p1 - p2) / h;
 	  }
+
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
-		double p1 = fmax(1, (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y]);
-		diff = (p1 + diff) / p1;
-		diff = pow(diff, (double)m_nSlopePower*(double)((m_nZoom + zoom_adjust)*1.75 + 1)*(double)m_nX / (double)640);
-		if (diff>1){
-			diff = (atan(diff) - pi / 4) / (pi / 4);
+		diff *= m_nSlopePower * double(m_nX) / 640;
+		if (diff >= 0){
+			diff = atan(diff) / (pi / 2);
 			diff = diff*(double)m_nSlopeRatio / 100;;
 			s.r = (1 - diff)*s.r;
 			s.g = (1 - diff)*s.g;
 			s.b = (1 - diff)*s.b;
 		}
 		else{
-			diff = 1 / diff;
-			diff = (atan(diff) - pi / 4) / (pi / 4);
+			diff = -diff;
+			diff = atan(diff) / (pi / 2);
 			diff = diff*(double)m_nSlopeRatio / 100;;
 			s.r = (1 - diff)*s.r + diff;
 			s.g = (1 - diff)*s.g + diff;
 			s.b = (1 - diff)*s.b + diff;
 		}
+
 	}
 	lrgb l;
 	if (m_imageHalf)
