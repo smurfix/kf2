@@ -216,6 +216,42 @@ bool operator>(const dual<D, T> &a, const S &b)
   return a.x > b;
 }
 
+template <int D, typename T, typename S>
+bool operator<=(const dual<D, T> &a, const S &b)
+{
+  return a.x <= b;
+}
+
+template <int D, typename T, typename S>
+bool operator>=(const dual<D, T> &a, const S &b)
+{
+  return a.x >= b;
+}
+
+template <int D, typename T>
+bool operator<=(const dual<D, T> &a, const dual<D, T> &b)
+{
+  return a.x <= b.x;
+}
+
+template <int D, typename T>
+bool operator>=(const dual<D, T> &a, const dual<D, T> &b)
+{
+  return a.x >= b.x;
+}
+
+template <int D, typename T>
+bool operator<(const dual<D, T> &a, const dual<D, T> &b)
+{
+  return a.x < b.x;
+}
+
+template <int D, typename T>
+bool operator>(const dual<D, T> &a, const dual<D, T> &b)
+{
+  return a.x > b.x;
+}
+
 template <int D, typename T>
 dual<D, T> abs(const dual<D, T> &a)
 {
@@ -269,6 +305,20 @@ template <int D, typename T, typename S>
 dual<D, T> &operator-=(dual<D, T> &me, const S &you)
 {
   return me = me - you;
+}
+
+template <int D, typename T, typename S>
+dual<D, T> &operator+=(dual<D, T> &me, const S &you)
+{
+  return me = me + you;
+}
+
+template <int D, typename T>
+dual<D, T> diffabs(const dual<D, T> &c, const dual<D, T> &d)
+{
+  const dual<D, T> cd = c + d;
+  const dual<D, T> c2d = 2 * c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
 }
 
 #endif
