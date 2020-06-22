@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <vector>
 
 #include "complex.h"
+#include "dual.h"
 
 struct hybrid_operator
 {
@@ -327,6 +328,71 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     }
     complex<R> Z(Xr, Xi);
     complex<R> z(xr, xi);
+    bool glitch = false;
+    z = hybrid_pf(h.stanzas[(antal + 1) % h.stanzas.size()], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
+    if (false && glitch)
+    {
+      bGlitch = true;
+      if (! bNoGlitchDetection)
+        break;
+    }
+    xr = z.m_r;
+    xi = z.m_i;
+  }
+  antal0 = antal;
+  test10 = test1;
+  test20 = test2;
+  phase0 = phase;
+  xr0 = Xxr;
+  xi0 = Xxi;
+  return true;
+}
+
+template <typename R>
+inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0)
+{
+  if (h.stanzas.size() == 0)
+  {
+    return false;
+  }
+  const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
+  int64_t antal = antal0;
+  double test1 = test10;
+  double test2 = test20;
+  double phase = phase0;
+  const complex<dual<2, R>> C(Cx, Cy);
+  const complex<dual<2, R>> c(cr0, ci0);
+  dual<2, R> xr = xr0;
+  dual<2, R> xi = xi0;
+  dual<2, R> Xxr = 0;
+  dual<2, R> Xxi = 0;
+  for (; antal < nMaxIter; ++antal)
+  {
+    const R Xr = X[antal];
+    const R Xi = Y[antal];
+    const double Xz = G[antal];
+    Xxr = Xr + xr;
+    Xxi = Xi + xi;
+    test2 = test1;
+    test1 = double(Xxr.x * Xxr.x + Xxi.x * Xxi.x);
+    if (test1 < Xz)
+    {
+      bGlitch = true;
+      if (! bNoGlitchDetection)
+        break;
+    }
+    if (! no_g)
+    {
+      test1 = double(pnorm(g_real, g_imag, p, Xxr.x, Xxi.x));
+    }
+    if (test1 > nBailout2)
+    {
+      phase = std::atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
+      phase -= std::floor(phase);
+      break;
+    }
+    complex<dual<2, R>> Z(Xr, Xi);
+    complex<dual<2, R>> z(xr, xi);
     bool glitch = false;
     z = hybrid_pf(h.stanzas[(antal + 1) % h.stanzas.size()], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
     if (false && glitch)

@@ -35,6 +35,8 @@ void CFraktalSFT::MandelCalc()
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
   const double Cx = m_rref.ToDouble();
   const double Cy = m_iref.ToDouble();
+  const double s = 1.0 / std::stof(GetZoom());
+  const mat2 sTK = s * GetTransformMatrix();
 
   // vectorization
   double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216, phase16, dr16, di16, daa16, dab16, dba16, dbb16;
@@ -84,9 +86,30 @@ void CFraktalSFT::MandelCalc()
 
     if (GetUseHybridFormula())
     {
-      bool ok
-        = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
-      assert(ok && "perturbation_double_hybrid");
+      complex<double> de = 0;
+      if (derivatives)
+      {
+        dual<2, double> dDr = Dr; dDr.dx[0] = 1; dDr.dx[1] = 0;
+        dual<2, double> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
+        dual<2, double> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
+        dual<2, double> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i);
+        assert(ok && "perturbation_double_dual_hybrid");
+        vec2 u(dDr.x, dDi.x);
+        mat2 J = { dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1] };
+        complex<double> v(u[0], u[1]);
+        complex<double> num = abs(v) * log(abs(v));
+        vec2 den = normalize(u) * (transpose(J) * sTK);
+        de = num / complex<double>(den[0], den[1]);
+      }
+      else
+      {
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
+        assert(ok && "perturbation_double_hybrid");
+      }
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+      InterlockedIncrement((LPLONG)&m_nDone);
+      OutputPixelData(x, y, w, h, bGlitch);
     }
     else if (m_nFractalType == 0 && m_nPower > 10)
     {
@@ -361,12 +384,15 @@ void CFraktalSFT::MandelCalc()
     }
     else
     {
-      complex<double> z(Dr, Di);
-      complex<double> dc(dr, di);
-      complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
-      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
-      InterlockedIncrement((LPLONG)&m_nDone);
-      OutputPixelData(x, y, w, h, bGlitch);
+      if (! GetUseHybridFormula())
+      {
+        complex<double> z(Dr, Di);
+        complex<double> dc(dr, di);
+        complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
+        OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+        InterlockedIncrement((LPLONG)&m_nDone);
+        OutputPixelData(x, y, w, h, bGlitch);
+      }
     }
   }
   if (vectorized)
