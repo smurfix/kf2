@@ -66,6 +66,8 @@ void CFraktalSFT::MandelCalcEXP()
   const double p = GetBailoutNorm();
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 	const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
+	const floatexp s = m_fPixelSpacing;
+	const mat2 TK = GetTransformMatrix();
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
@@ -86,24 +88,24 @@ void CFraktalSFT::MandelCalcEXP()
 		floatexp dba = 0;
 		floatexp dbb = 1;
 		GetPixelCoordinates(x, y, D0r, D0i, daa, dab, dba, dbb);
+		daa = 1; dab = 0; dba = 0; dbb = 1;
 
 		floatexp Dr;
 		floatexp Di;
 		floatexp dxa1, dxb1, dya1, dyb1;
 		DoApproximation(antal, D0r, D0i, Dr, Di, dxa1, dxb1, dya1, dyb1);
-		floatexp dr = dxa1;
-		floatexp di = dya1;
 
+		complex<double> de = 0;
 		double test1 = 0, test2 = 0, phase = 0;
     bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
 		bool bGlitch = FALSE;
 		int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-    if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+		if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
 			if (derivatives)
 			{
-			complex<floatexp> d(dr, di);
+			complex<floatexp> d(dxa1, dya1);
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
 					yr = m_dxr[antal] + Dr;
@@ -149,8 +151,11 @@ void CFraktalSFT::MandelCalcEXP()
 		    phase = atan2(double(yi), double(yr)) / M_PI / 2;
 		    phase -= floor(phase);
 		  }
-			dr = d.m_r * m_fPixelSpacing;
-			di = d.m_i * m_fPixelSpacing;
+				dxa1 = d.m_r;
+				dxb1 = -d.m_i;
+				dya1 = d.m_i;
+				dyb1 = d.m_r;
+				de = compute_de(yr, yi, dxa1, dxb1, dya1, dyb1, s, TK);
 			} else {
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
@@ -197,27 +202,25 @@ void CFraktalSFT::MandelCalcEXP()
 		    phase -= floor(phase);
 		  }
 			}
-		}
-    else
-    {
 
-			dr *= m_fPixelSpacing;
-			di *= m_fPixelSpacing;
-			bool ok = GetDerivatives()
-			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dr, di, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
+		}
+		else
+		{
+
+			bool ok = derivatives
+			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dxa1, dxb1, dya1, dyb1, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
 			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
 			  ;
 			assert(ok && "perturbation_floatexp()");
+			de = derivatives
+			  ? compute_de(Dr, Di, dxa1, dxb1, dya1, dyb1, s, TK)
+			  : 0
+			  ;
 
 		}
 
-    complex<double> z((double(Dr)), (double(Di)));
-    complex<double> dc((double(dr)), (double(di)));
-    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
-
 		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
-
 		InterlockedIncrement((LPLONG)&m_nDone);
-    OutputPixelData(x, y, w, h, bGlitch);
+		OutputPixelData(x, y, w, h, bGlitch);
 	}
 }

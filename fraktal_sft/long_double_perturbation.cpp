@@ -119,14 +119,15 @@ static int Perturbation_Var(int64_t antal,const long double *dxr,const long doub
 void CFraktalSFT::MandelCalcLDBL()
 {
   m_bIterChanged = TRUE;
-  long double dr = 0, di = 0;
-  floatexp ldr = 0, ldi = 0;
   int64_t antal;
   int x, y, w, h;
   bool derivatives = GetDerivatives();
 	const double nBailout = GetBailoutRadius();
 	const double p = GetBailoutNorm();
 	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+  const long double s = m_lPixelSpacing;
+  const floatexp fs = m_fPixelSpacing;
+  const mat2 TK = GetTransformMatrix();
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -146,14 +147,14 @@ void CFraktalSFT::MandelCalcLDBL()
     floatexp dba0 = 0;
     floatexp dbb0 = 1;
     GetPixelCoordinates(x, y, D0r, D0i, daa0, dab0, dba0, dbb0);
+    daa0 = 1; dab0 = 0; dba0 = 0; dbb0 = 1;
 
     floatexp TDnr;
     floatexp TDni;
     floatexp dxa1, dxb1, dya1, dyb1;
     DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
-    floatexp TDDnr = dxa1;
-    floatexp TDDni = dya1;
 
+    complex<double> de = 0;
     double test1 = 0, test2 = 0, phase = 0;
     bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
     bool bGlitch = false;
@@ -162,56 +163,70 @@ void CFraktalSFT::MandelCalcLDBL()
     long double dbD0i = D0i.toLongDouble();
     long double Dr = TDnr.toLongDouble();
     long double Di = TDni.toLongDouble();
-    dr = TDDnr.toLongDouble();
-    di = TDDni.toLongDouble();
+    long double Jxa = dxa1.toLongDouble();
+    long double Jxb = dxb1.toLongDouble();
+    long double Jya = dya1.toLongDouble();
+    long double Jyb = dyb1.toLongDouble();
 
     if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
     { // FIXME check this is still ok around long double vs scaled double zoom threshold e600
+
+      long double dr = Jxa;
+      long double di = Jya;
       antal = derivatives
 	? Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, phase, nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, dr, di, bNoGlitchDetection, g_real, g_imag, p)
 	: Perturbation_Var(antal, m_ldxr, m_ldxi, Dr, Di, dbD0r, dbD0i, test1, test2, phase, nBailout2, nMaxIter, m_db_z, bGlitch, m_nPower, m_pnExpConsts, bNoGlitchDetection, g_real, g_imag, p)
 	;
-      long double pixel_spacing = m_lPixelSpacing;
-      dr *= pixel_spacing;
-      di *= pixel_spacing;
-      ldr = dr;
-      ldi = di;
+      Jxa = dr;
+      Jxb = -di;
+      Jya = di;
+      Jyb = dr;
+      de = derivatives
+        ? compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK)
+        : 0
+        ;
+
     }
     else if (m_nScalingOffsetL)
     {
+
       Dr = TDnr.toLongDouble(m_nScalingOffsetL);
       Di = TDni.toLongDouble(m_nScalingOffsetL);
       dbD0r = D0r.toLongDouble(m_nScalingOffsetL);
       dbD0i = D0i.toLongDouble(m_nScalingOffsetL);
-      ldr = TDDnr;
-      ldi = TDDni;
-      ldr *= m_fPixelSpacing;
-      ldi *= m_fPixelSpacing;
+      floatexp fJxa = dxa1;
+      floatexp fJxb = dxb1;
+      floatexp fJya = dya1;
+      floatexp fJyb = dyb1;
       bool ok = derivatives
-	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, ldr, ldi, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, fJxa, fJxb, fJya, fJyb, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
 	;
       assert(ok && "perturbation_long_double_scaled");
+      de = derivatives
+        ? compute_de(floatexp(Dr), floatexp(Di), fJxa, fJxb, fJya, fJyb, fs, TK)
+        : 0
+        ;
+
     }
     else
     {
+
       long double daa = daa0.toLongDouble();
       long double dab = dab0.toLongDouble();
       long double dba = dba0.toLongDouble();
       long double dbb = dbb0.toLongDouble();
-      dr *= m_lPixelSpacing;
-      di *= m_lPixelSpacing;
       bool ok = derivatives
-	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, dr, di, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
 	;
       assert(ok && "perturbation_long_double");
-      ldr = dr;
-      ldi = di;
+      de = derivatives
+        ? compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK)
+        : 0
+        ;
+
     }
-    complex<double> z((double(Dr)), (double(Di)));
-    complex<double> dc((double(ldr)), (double(ldi)));
-    complex<double> de = derivatives ? abs(z) * log(abs(z)) / dc : 0;
     OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
     InterlockedIncrement((LPLONG)&m_nDone);
     OutputPixelData(x, y, w, h, bGlitch);

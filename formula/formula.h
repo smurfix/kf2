@@ -324,7 +324,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
-  , T &dr, T &di
+  , T &Jxa, T &Jxb, T &Jya, T &Jyb
   , const T &e, const T &h
   , const T &daa, const T &dab, const T &dba, const T &dbb
   );
@@ -356,7 +356,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
-  , doubleN &dr, doubleN &di
+  , doubleN &Jxa, doubleN &Jxb, doubleN &Jya, doubleN &Jyb
   , const double e, const double h
   , const doubleN &daa, const doubleN &dab, const doubleN &dba, const doubleN &dbb
   , const int64_t chunksize
@@ -405,7 +405,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , Z &xr0, Z &xi0
   , const Z &cr, const Z &ci
-  , D &dr0, D &di0
+  , D &Jxa, D &Jxb, D &Jya, D &Jyb
   , const D &e, const D &h
   , const D &daa, const D &dab, const D &dba, const D &dbb
   , const Z &s, const Z &S

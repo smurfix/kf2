@@ -415,13 +415,15 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
-  , T &amp;dr0, T &amp;di0
+  , T &amp;Jxa0, T &amp;Jxb0, T &amp;Jya0, T &amp;Jyb0
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
   )
 {
-  (void) dr0; // -Wunused-parameter
-  (void) di0; // -Wunused-parameter
+  (void) Jxa0; // -Wunused-parameter
+  (void) Jxb0; // -Wunused-parameter
+  (void) Jya0; // -Wunused-parameter
+  (void) Jyb0; // -Wunused-parameter
   (void) h; // -Wunused-parameter
   (void) e; // -Wunused-parameter
   (void) daa; // -Wunused-parameter
@@ -445,14 +447,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     double phase = phase0;
     T xr = xr0;
     T xi = xi0;
-    (void) dr0; // -Wunused-parameter
-    (void) di0; // -Wunused-parameter
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-    T dr = dr0, di = di0;
+    T dr = Jxa0, di = Jya0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    T dxa = dr0, dxb = -di0, dya = di0, dyb = dr0;
+    T dxa = Jxa0, dxb = Jxb0, dya = Jya0, dyb = Jyb0;
 </xsl:when>
 </xsl:choose>
     T Xxr = 0;
@@ -574,12 +574,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     xi0 = Xxi;
 <xsl:choose>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    dr0 = dr; di0 = di;
+    Jxa0 = dr; Jxb0 = -di; Jya0 = di; Jyb0 = dr;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    T sqrttest1 = sqrt(Xxr * Xxr + Xxi * Xxi);
-    dr0 = (Xxr * dxa + Xxi * dya) / sqrttest1;
-    di0 = (Xxr * dxb + Xxi * dyb) / sqrttest1;
+    Jxa0 = dxa; Jxb0 = dxb; Jya0 = dya; Jyb0 = dyb;
 </xsl:when>
 </xsl:choose>
     return true;
@@ -599,7 +597,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , T &amp;xr, T &amp;xi
   , const T &amp;cr, const T &amp;ci
-  , T &amp;dr, T &amp;di
+  , T &amp;Jxa, T &amp;Jxb, T &amp;Jya, T &amp;Jyb
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
   )
@@ -622,7 +620,7 @@ bool perturbation
             , g_FactorAR, g_FactorAI
             , xr, xi
             , cr, ci
-            , dr, di
+            , Jxa, Jxb, Jya, Jyb
             , e, h
             , daa, dab, dba, dbb
             );
@@ -643,7 +641,7 @@ template bool perturbation&lt;double&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr0, double &amp;xi0
   , const double &amp;cr, const double &amp;ci
-  , double &amp;dr0, double &amp;di0
+  , double &amp;Jxa0, double &amp;Jxb0, double &amp;Jya0, double &amp;Jyb0
   , const double &amp;e, const double &amp;h
   , const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb
   );
@@ -656,7 +654,7 @@ template bool perturbation&lt;long double&gt;
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr0, long double &amp;xi0
   , const long double &amp;cr, const long double &amp;ci
-  , long double &amp;dr0, long double &amp;di0
+  , long double &amp;Jxa0, long double &amp;Jxb0, long double &amp;Jya0, long double &amp;Jyb0
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
   );
@@ -669,7 +667,7 @@ template bool perturbation&lt;floatexp&gt;
   , const double g_FactorAR, const double g_FactorAI
   , floatexp &amp;xr0, floatexp &amp;xi0
   , const floatexp &amp;cr, const floatexp &amp;ci
-  , floatexp &amp;dr0, floatexp &amp;di0
+  , floatexp &amp;Jxa0, floatexp &amp;Jxb0, floatexp &amp;Jya0, floatexp &amp;Jyb0
   , const floatexp &amp;e, const floatexp &amp;h
   , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
   );
@@ -967,14 +965,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr00, doubleN &amp;xi00
   , const doubleN &amp;cr0, const doubleN &amp;ci0
-  , doubleN &amp;dr00, doubleN &amp;di00
+  , doubleN &amp;Jxa0, doubleN &amp;Jxb0, doubleN &amp;Jya0, doubleN &amp;Jyb0
   , const double e, const double h
   , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
   , const int64_t chunksize
   )
 {
-  (void) dr00; // -Wunused-parameter
-  (void) di00; // -Wunused-parameter
+  (void) Jxa0; // -Wunused-parameter
+  (void) Jxb0; // -Wunused-parameter
+  (void) Jya0; // -Wunused-parameter
+  (void) Jyb0; // -Wunused-parameter
   (void) h; // -Wunused-parameter
   (void) e; // -Wunused-parameter
   (void) daa0; // -Wunused-parameter
@@ -990,8 +990,6 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     (void) Ar; // -Wunused-variable
     (void) Ai; // -Wunused-variable
     (void) A; // -Wunused-variable
-    (void) dr00; // -Wunused-parameter
-    (void) di00; // -Wunused-parameter
     doubleN test1 = test10;
     doubleN test2 = test20;
     doubleN phase = phase0;
@@ -1002,10 +1000,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     intN bBailed = test1 &gt; m_nBailout2;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-    doubleN dr0 = dr00, di0 = di00;
+    doubleN dr0 = Jxa0, di0 = Jya0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    doubleN dxa0 = dr00, dxb0 = -di00, dya0 = di00, dyb0 = dr00;
+    doubleN dxa0 = Jxa0, dxb0 = Jxb0, dya0 = Jya0, dyb0 = Jyb0;
 </xsl:when>
 </xsl:choose>
     // vectorized loop
@@ -1272,12 +1270,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       xi00[k] = Xxi;
 <xsl:choose>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    dr00[k] = dr0[k]; di00[k] = di0[k];
+    Jxa0[k] = dr0[k];
+    Jxb0[k] = -di0[k];
+    Jya0[k] = di0[k];
+    Jyb0[k] = dr0[k];
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    double sqrttest1k = sqrt(Xxr * Xxr + Xxi * Xxi);
-    dr00[k] = (Xxr * dxa0[k] + Xxi * dya0[k]) / sqrttest1k;
-    di00[k] = (Xxr * dxb0[k] + Xxi * dyb0[k]) / sqrttest1k;
+    Jxa0[k] = dxa0[k];
+    Jxb0[k] = dxb0[k];
+    Jya0[k] = dya0[k];
+    Jyb0[k] = dyb0[k];
 </xsl:when>
 </xsl:choose>
     }
@@ -1304,7 +1306,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , doubleN &amp;xr0, doubleN &amp;xi0
   , const doubleN &amp;cr0, const doubleN &amp;ci0
-  , doubleN &amp;dr00, doubleN &amp;di00
+  , doubleN &amp;Jxa0, doubleN &amp;Jxb0, doubleN &amp;Jya0, doubleN &amp;Jyb0
   , const double e, const double h
   , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
   , const int64_t chunk_size
@@ -1328,7 +1330,7 @@ bool perturbation
             , g_FactorAR, g_FactorAI
             , xr0, xi0
             , cr0, ci0
-            , dr00, di00
+            , Jxa0, Jxb0, Jya0, Jyb0
             , e, h
             , daa0, dab0, dba0, dbb0
             , chunk_size
@@ -1351,7 +1353,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double2 &amp;xr0, double2 &amp;xi0
   , const double2 &amp;cr0, const double2 &amp;ci0
-  , double2 &amp;dr00, double2 &amp;di00
+  , double2 &amp;Jxa0, double2 &amp;Jxb0, double2 &amp;Jya0, double2 &amp;Jyb0
   , const double e, const double h
   , const double2 &amp;daa0, const double2 &amp;dab0, const double2 &amp;dba0, const double2 &amp;dbb0
   , const int64_t chunk_size
@@ -1368,7 +1370,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double4 &amp;xr0, double4 &amp;xi0
   , const double4 &amp;cr0, const double4 &amp;ci0
-  , double4 &amp;dr00, double4 &amp;di00
+  , double4 &amp;Jxa0, double4 &amp;Jxb0, double4 &amp;Jya0, double4 &amp;Jyb0
   , const double e, const double h
   , const double4 &amp;daa0, const double4 &amp;dab0, const double4 &amp;dba0, const double4 &amp;dbb0
   , const int64_t chunk_size
@@ -1385,7 +1387,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double8 &amp;xr0, double8 &amp;xi0
   , const double8 &amp;cr0, const double8 &amp;ci0
-  , double8 &amp;dr00, double8 &amp;di00
+  , double8 &amp;Jxa0, double8 &amp;Jxb0, double8 &amp;Jya0, double8 &amp;Jyb0
   , const double e, const double h
   , const double8 &amp;daa0, const double8 &amp;dab0, const double8 &amp;dba0, const double8 &amp;dbb0
   , const int64_t chunk_sizes
@@ -1402,7 +1404,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double16 &amp;xr0, double16 &amp;xi0
   , const double16 &amp;cr0, const double16 &amp;ci0
-  , double16 &amp;dr00, double16 &amp;di00
+  , double16 &amp;Jxa0, double16 &amp;Jxb0, double16 &amp;Jya0, double16 &amp;Jyb0
   , const double e, const double h
   , const double16 &amp;daa0, const double16 &amp;dab0, const double16 &amp;dba0, const double16 &amp;dbb0
   , const int64_t chunk_size
@@ -1826,14 +1828,16 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double g_FactorAR, const double g_FactorAI
   , Z &amp;xr0, Z &amp;xi0
   , const Z &amp;cr, const Z &amp;ci
-  , D &amp;dr0, D &amp;di0
+  , D &amp;Jxa0, D &amp;Jxb0, D &amp;Jya0, D &amp;Jyb0
   , const D &amp;e, const D &amp;h
   , const D &amp;daa, const D &amp;dab, const D &amp;dba, const D &amp;dbb
   , const Z &amp;s, const Z &amp;S
   )
 {
-  (void) dr0; // -Wunused-parameter
-  (void) di0; // -Wunused-parameter
+  (void) Jxa0; // -Wunused-parameter
+  (void) Jxb0; // -Wunused-parameter
+  (void) Jya0; // -Wunused-parameter
+  (void) Jyb0; // -Wunused-parameter
   (void) h; // -Wunused-parameter
   (void) e; // -Wunused-parameter
   (void) daa; // -Wunused-parameter
@@ -1857,14 +1861,12 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     double phase = phase0;
     Z xr = xr0;
     Z xi = xi0;
-    (void) dr0; // -Wunused-parameter
-    (void) di0; // -Wunused-parameter
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-    D dr = dr0, di = di0;
+    D dr = Jxa0, di = Jya0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    D dxa = dr0, dxb = -di0, dya = di0, dyb = dr0;
+    D dxa = Jxa0, dxb = Jxb0, dya = Jya0, dyb = Jyb0;
 </xsl:when>
 </xsl:choose>
     Z Xxr = 0;
@@ -1978,12 +1980,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     xi0 = Xxi;
 <xsl:choose>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    dr0 = dr; di0 = di;
+    Jxa0 = dr; Jxb0 = -di; Jya0 = di; Jyb0 = dr;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    Z t = 1 / sqrt(Xxr * Xxr + Xxi * Xxi);
-    dr0 = Xxr * t * dxa + Xxi * t * dya;
-    di0 = Xxr * t * dxb + Xxi * t * dyb;
+    Jxa0 = dxa; Jxb0 = dxb; Jya0 = dya; Jyb0 = dyb;
 </xsl:when>
 </xsl:choose>
     return true;
@@ -2003,7 +2003,7 @@ bool perturbation
   , const double g_FactorAR, const double g_FactorAI
   , Z &amp;xr, Z &amp;xi
   , const Z &amp;cr, const Z &amp;ci
-  , D &amp;dr, D &amp;di
+  , D &amp;Jxa0, D &amp;Jxb0, D &amp;Jya0, D &amp;Jyb0
   , const D &amp;e, const D &amp;h
   , const D &amp;daa, const D &amp;dab, const D &amp;dba, const D &amp;dbb
   , const Z &amp;s, const Z &amp;S
@@ -2020,7 +2020,7 @@ bool perturbation
       , g_FactorAR, g_FactorAI
       , xr, xi
       , cr, ci
-      , dr, di
+      , Jxa0, Jxb0, Jya0, Jyb0
       , e, h
       , daa, dab, dba, dbb
       , s, S
@@ -2038,7 +2038,7 @@ template bool perturbation&lt;long double, double&gt;
   , const double g_FactorAR, const double g_FactorAI
   , double &amp;xr0, double &amp;xi0
   , const double &amp;cr, const double &amp;ci
-  , long double &amp;dr0, long double &amp;di0
+  , long double &amp;Jxa0, long double &amp;Jxb0, long double &amp;Jya0, long double &amp;Jyb0
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
   , const double &amp;s, const double &amp;S
@@ -2052,7 +2052,7 @@ template bool perturbation&lt;floatexp, long double&gt;
   , const double g_FactorAR, const double g_FactorAI
   , long double &amp;xr0, long double &amp;xi0
   , const long double &amp;cr, const long double &amp;ci
-  , floatexp &amp;dr0, floatexp &amp;di0
+  , floatexp &amp;Jxa0, floatexp &amp;Jxb0, floatexp &amp;Jya0, floatexp &amp;Jyb0
   , const floatexp &amp;e, const floatexp &amp;h
   , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
   , const long double &amp;s, const long double &amp;S
