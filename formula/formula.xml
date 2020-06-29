@@ -272,11 +272,11 @@ v2
     <formula power="2" glitch="0.0000001">
       <reference t="R">
         Xrn = abs(Xr2 - Xi2) + Cr;
-        Xin = Ci - 2 * abs(Xr * Xi);
+        Xin = 2 * abs(Xr * Xi) + Ci;
       </reference>
       <perturbation t="R">
         xrn = diffabs(Xr * Xr - Xi * Xi, 2 * Xr * xr + xr * xr - 2 * Xi * xi - xi * xi) + cr;
-        xin = ci - 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi);
+        xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
       </perturbation>
       <derivative t='M'>
         dxan = ((2 * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dya * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + daa));
