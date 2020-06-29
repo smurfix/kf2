@@ -681,7 +681,6 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 	s.b = s.b * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+2] / 255.0;
 }
 
-static inline double sqr(double x) { return x * x; }
 static inline double hypot2(double x, double y) { return x * x + y * y; }
 static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
@@ -1039,14 +1038,6 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		SetTexture(nIndex,x,y,s);
 	if (m_bSlopes){
 		double diffx, diffy;
-		double zoom_adjust = 0;
-		if (false && GetExponentialMap())
-		{
-			double dx, dy;
-			GetPixelOffset(x, y, dx, dy);
-			double v = (y + dy) / m_nY;
-			zoom_adjust = v;
-		}
 		if (m_nDifferences == Differences_Analytic)
 		{
 			complex<float> de(m_nDEx[x][y], m_nDEy[x][y]);
