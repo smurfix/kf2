@@ -137,6 +137,70 @@ inline complex<R> moebius_pf(const complex<R> &Z, complex<R> z, hybrid_moebius m
   return complex<R>(x, y);
 }
 
+// moebius_f(Z + z) - moebius_f(Z) evaluated without catastrophic cancellation
+template <typename R>
+inline complex<dual<2,R>> moebius_pf(const complex<R> &Z, complex<dual<2,R>> z, hybrid_moebius mode, double distance, bool &glitch)
+{
+  if (mode == hybrid_moebius_none) { return z; }
+  const R& X = Z.m_r;
+  const R& Y = Z.m_i;
+  dual<2,R> x = z.m_r;
+  dual<2,R> y = z.m_i;
+  const R a = distance;
+  const R Xx = X + x.x;
+  switch (mode)
+  {
+    case hybrid_moebius_none:
+      assert(! "reachable");
+      break;
+    case hybrid_moebius_left:
+      if (X <= -a)
+      {
+        if (Xx <= -a) { y = -y; }
+        else { x -= 2 * a; y += 2 * Y; glitch = true; }
+      }
+      else
+      {
+        if (Xx <= -a) { x += 2 * a; y = -(2 * Y + y); glitch = true; }
+        else { }
+      }
+      break;
+    case hybrid_moebius_right:
+      if (X < a)
+      {
+        if (Xx < a) { }
+        else { x -= 2 * a; y = -(2 * Y + y); glitch = true; }
+      }
+      else
+      {
+        if (Xx < a) { x += 2 * a; y += 2 * Y; glitch = true; }
+        else { y = -y; }
+      }
+      break;
+    case hybrid_moebius_both:
+      if (X <= -a)
+      {
+        if (Xx <= -a) { y = -y; }
+        else if (Xx < a) { x -= 2 * a; y += 2 * Y; glitch = true; }
+        else { x -= 4 * a; y = -y; }
+      }
+      else if (X < a)
+      {
+        if (Xx <= -a) { x += 2 * a; y = -(2 * Y + y); glitch = true; }
+        else if (Xx < a) { }
+        else { x -= 2 * a; y = -(2 * Y + y); glitch = true; }
+      }
+      else
+      {
+        if (Xx <= -a) { x += 4 * a; y = -y; }
+        else if (Xx < a) { x += 2 * a; y += 2 * Y; glitch = true; }
+        else { y = -y; }
+      }
+      break;
+  }
+  return complex<dual<2,R>>(x, y);
+}
+
 typedef std::vector<hybrid_line> hybrid_stanza;
 
 struct hybrid_formula
