@@ -24,12 +24,16 @@ struct dual
 {
   T x;
   T dx[D];
-  dual()
+  inline dual() noexcept
+  : x(0)
   {
-    // no init;
+    for (int d = 0; d < D; ++d)
+    {
+      dx[d] = 0;
+    }
   }
   template <typename S>
-  dual(const S &a)
+  inline dual(const S &a) noexcept
   : x(a)
   {
     for (int d = 0; d < D; ++d)
@@ -38,7 +42,7 @@ struct dual
     }
   }
   template <typename S>
-  dual(const dual<D, S> &a)
+  inline dual(const dual<D, S> &a) noexcept
   : x(a.x)
   {
     for (int d = 0; d < D; ++d)
@@ -49,7 +53,7 @@ struct dual
 };
 
 template <int D, typename T>
-dual<D, T> operator+(const dual<D, T> &a, const dual<D, T> &b)
+inline dual<D, T> operator+(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x + b.x;
@@ -61,7 +65,7 @@ dual<D, T> operator+(const dual<D, T> &a, const dual<D, T> &b)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator+(const dual<D, T> &a, const S &b)
+inline dual<D, T> operator+(const dual<D, T> &a, const S &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x + b;
@@ -73,7 +77,7 @@ dual<D, T> operator+(const dual<D, T> &a, const S &b)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator+(const S &a, const dual<D, T> &b)
+inline dual<D, T> operator+(const S &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a + b.x;
@@ -84,7 +88,7 @@ dual<D, T> operator+(const S &a, const dual<D, T> &b)
   return r;
 }
 template <int D, typename T, typename S>
-dual<D, T> operator-(const S &a, const dual<D, T> &b)
+dual<D, T> operator-(const S &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a - b.x;
@@ -96,7 +100,7 @@ dual<D, T> operator-(const S &a, const dual<D, T> &b)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator-(const dual<D, T> &a, const S &b)
+inline dual<D, T> operator-(const dual<D, T> &a, const S &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x - b;
@@ -108,7 +112,7 @@ dual<D, T> operator-(const dual<D, T> &a, const S &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator-(const dual<D, T> &a, const dual<D, T> &b)
+inline dual<D, T> operator-(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x - b.x;
@@ -120,7 +124,7 @@ dual<D, T> operator-(const dual<D, T> &a, const dual<D, T> &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator-(const dual<D, T> &a, const T &b)
+inline dual<D, T> operator-(const dual<D, T> &a, const T &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x - b;
@@ -132,7 +136,7 @@ dual<D, T> operator-(const dual<D, T> &a, const T &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator-(const dual<D, T> &b)
+inline dual<D, T> operator-(const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = - b.x;
@@ -144,7 +148,7 @@ dual<D, T> operator-(const dual<D, T> &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator*(const dual<D, T> &a, const dual<D, T> &b)
+inline dual<D, T> operator*(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x * b.x;
@@ -181,7 +185,7 @@ inline dual<D, T> operator/(const dual<D, T> &a, const dual<D, T> &b) noexcept
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator*(const S &a, const dual<D, T> &b)
+inline dual<D, T> operator*(const S &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a * b.x;
@@ -193,7 +197,7 @@ dual<D, T> operator*(const S &a, const dual<D, T> &b)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator*(const dual<D, T> &a, const S &b)
+inline dual<D, T> operator*(const dual<D, T> &a, const S &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x * b;
@@ -205,7 +209,7 @@ dual<D, T> operator*(const dual<D, T> &a, const S &b)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> operator/(const dual<D, T> &a, const S &b)
+inline dual<D, T> operator/(const dual<D, T> &a, const S &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x / b;
@@ -217,61 +221,61 @@ dual<D, T> operator/(const dual<D, T> &a, const S &b)
 }
 
 template <int D, typename T, typename S>
-bool operator<(const dual<D, T> &a, const S &b)
+inline bool operator<(const dual<D, T> &a, const S &b) noexcept
 {
   return a.x < b;
 }
 
 template <int D, typename T, typename S>
-bool operator>(const dual<D, T> &a, const S &b)
+inline bool operator>(const dual<D, T> &a, const S &b) noexcept
 {
   return a.x > b;
 }
 
 template <int D, typename T, typename S>
-bool operator<=(const dual<D, T> &a, const S &b)
+inline bool operator<=(const dual<D, T> &a, const S &b) noexcept
 {
   return a.x <= b;
 }
 
 template <int D, typename T, typename S>
-bool operator>=(const dual<D, T> &a, const S &b)
+inline bool operator>=(const dual<D, T> &a, const S &b) noexcept
 {
   return a.x >= b;
 }
 
 template <int D, typename T>
-bool operator<=(const dual<D, T> &a, const dual<D, T> &b)
+inline bool operator<=(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   return a.x <= b.x;
 }
 
 template <int D, typename T>
-bool operator>=(const dual<D, T> &a, const dual<D, T> &b)
+inline bool operator>=(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   return a.x >= b.x;
 }
 
 template <int D, typename T>
-bool operator<(const dual<D, T> &a, const dual<D, T> &b)
+inline bool operator<(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   return a.x < b.x;
 }
 
 template <int D, typename T>
-bool operator>(const dual<D, T> &a, const dual<D, T> &b)
+inline bool operator>(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   return a.x > b.x;
 }
 
 template <int D, typename T>
-dual<D, T> abs(const dual<D, T> &a)
+inline dual<D, T> abs(const dual<D, T> &a) noexcept
 {
   return a.x < 0 ? -a : a;
 }
 
 template <int D, typename T>
-dual<D, T> exp(const dual<D, T> &a)
+inline dual<D, T> exp(const dual<D, T> &a) noexcept
 {
   using std::exp;
   dual<D,T> r;
@@ -284,7 +288,7 @@ dual<D, T> exp(const dual<D, T> &a)
 }
 
 template <int D, typename T>
-dual<D, T> cos(const dual<D, T> &a)
+inline dual<D, T> cos(const dual<D, T> &a) noexcept
 {
   using std::cos;
   using std::sin;
@@ -299,7 +303,7 @@ dual<D, T> cos(const dual<D, T> &a)
 }
 
 template <int D, typename T>
-dual<D, T> sin(const dual<D, T> &a)
+inline dual<D, T> sin(const dual<D, T> &a) noexcept
 {
   using std::cos;
   using std::sin;
@@ -314,21 +318,29 @@ dual<D, T> sin(const dual<D, T> &a)
 }
 
 template <int D, typename T, typename S>
-dual<D, T> &operator-=(dual<D, T> &me, const S &you)
+inline dual<D, T> &operator-=(dual<D, T> &me, const S &you) noexcept
 {
   return me = me - you;
 }
 
 template <int D, typename T, typename S>
-dual<D, T> &operator+=(dual<D, T> &me, const S &you)
+inline dual<D, T> &operator+=(dual<D, T> &me, const S &you) noexcept
 {
   return me = me + you;
 }
 
 template <int D, typename T>
-dual<D, T> diffabs(const dual<D, T> &c, const dual<D, T> &d)
+inline dual<D, T> diffabs(const T &c, const dual<D, T> &d) noexcept
 {
-  const dual<D, T> cd = c + d;
+  const T cd = c + d.x;
+  const dual<D, T> c2d = 2 * c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
+}
+
+template <int D, typename T>
+inline dual<D, T> diffabs(const dual<D, T> &c, const dual<D, T> &d) noexcept
+{
+  const T cd = c + d.x;
   const dual<D, T> c2d = 2 * c + d;
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
 }

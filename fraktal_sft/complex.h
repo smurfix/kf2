@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "../formula/formula.h"
 #include "floatexp.h"
+#include "dual.h"
 
 #include <algorithm>
 
@@ -29,33 +30,33 @@ template <class tt> class complex
 {
 public:
 	tt m_r, m_i;
-	inline complex()
+	inline complex() noexcept
 	: m_r(0)
 	, m_i(0)
 	{
 	}
-	inline complex(const tt &r, const tt &i)
+	inline complex(const tt &r, const tt &i) noexcept
 	: m_r(r)
 	, m_i(i)
 	{
 	}
-	inline complex(const int &r) : m_r(r), m_i(0) { }
-	inline complex(const int64_t &r) : m_r(r), m_i(0) { }
-	inline complex(const float &r) : m_r(r), m_i(0) { }
-	inline complex(const double &r) : m_r(r), m_i(0) { }
-	inline complex(const long double &r) : m_r(r), m_i(0) { }
-	inline complex(const floatexp &r) : m_r(r), m_i(0) { }
-	inline complex(const complex<double> &a)
+	inline complex(const int &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const int64_t &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const float &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const double &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const long double &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const floatexp &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const complex<double> &a) noexcept
 	: m_r(a.m_r)
 	, m_i(a.m_i)
 	{
 	}
-	inline complex(const complex<long double> &a)
+	inline complex(const complex<long double> &a) noexcept
 	: m_r(a.m_r)
 	, m_i(a.m_i)
 	{
 	}
-	inline complex(const complex<floatexp> &a)
+	inline complex(const complex<floatexp> &a) noexcept
 	: m_r(a.m_r)
 	, m_i(a.m_i)
 	{
@@ -64,160 +65,142 @@ public:
 	{
 		return complex<floatexp>(floatexp(m_r), floatexp(m_i));
 	}
-	inline complex &operator =(const complex &a)
+	inline complex &operator =(const complex &a) noexcept
 	{
 		m_r = a.m_r;
 		m_i = a.m_i;
 		return *this;
 	}
-	inline complex operator *(const complex &a) const
+	inline complex operator *(const complex &a) const noexcept
 	{
-		complex<tt> r;
-		r.m_r = m_r*a.m_r - m_i*a.m_i;
-		r.m_i = m_r*a.m_i + m_i*a.m_r;
-		return r;
+		return complex<tt>(m_r*a.m_r - m_i*a.m_i, m_r*a.m_i + m_i*a.m_r);
 	}
-	inline complex &operator *=(const complex &a)
+	inline complex &operator *=(const complex &a) noexcept
 	{
 		return *this = *this * a;
 	}
-	inline complex operator +(const int &a) const
+	inline complex operator +(const int &a) const noexcept
 	{
-		complex<tt> r;
-		r.m_r = m_r + a;
-		r.m_i = m_i;
-		return r;
+		return complex<tt>(m_r + a, m_i);
 	}
-	inline complex operator +(const complex &a) const
+	inline complex operator +(const complex &a) const noexcept
 	{
-		complex<tt> r;
-		r.m_r = m_r + a.m_r; 
-		r.m_i = m_i + a.m_i;
-		return r;
+		return complex<tt>(m_r + a.m_r, m_i + a.m_i);
 	}
-	inline complex operator -(const complex &a) const
+	inline complex operator -(const complex &a) const noexcept
 	{
-		complex<tt> r;
-		r.m_r = m_r - a.m_r; 
-		r.m_i = m_i - a.m_i;
-		return r;
+		return complex<tt>(m_r - a.m_r, m_i - a.m_i);
 	}
-	inline complex &operator +=(const complex &a)
+	inline complex &operator +=(const complex &a) noexcept
 	{
 		m_r += a.m_r; 
 		m_i += a.m_i;
 		return *this;
 	}
-	inline complex &operator -=(const complex &a)
+	inline complex &operator -=(const complex &a) noexcept
 	{
 		m_r -= a.m_r; 
 		m_i -= a.m_i;
 		return *this;
 	}
-	inline complex operator ^(int exp) const
+	inline complex operator ^(int exp) const noexcept
 	{
 		return pow(*this, exp);
 	}
-	inline complex &operator /=(const complex &b)
+	inline complex &operator /=(const complex &b) noexcept
 	{
 		return *this = *this / b;
 	}
 };
 
 template <class tt>
-inline complex<tt> operator*(int a, const complex<tt> &b)
+inline complex<tt> operator*(int a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
 template <class tt>
-inline complex<tt> operator*(const complex<tt> &b, int a)
+inline complex<tt> operator*(const complex<tt> &b, int a) noexcept
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
 template <class tt>
-inline complex<tt> operator*(const tt &a, const complex<tt> &b)
+inline complex<tt> operator*(const tt &a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a * b.m_r, a * b.m_i);
 }
 
 template <class tt>
-inline complex<tt> operator/(const complex<tt> &a, const tt &b)
+inline complex<tt> operator/(const complex<tt> &a, const tt &b) noexcept
 {
 	return complex<tt>(a.m_r / b, a.m_i / b);
 }
 
 template <class tt>
-inline complex<tt> operator/(const complex<tt> &a, const complex<tt> &b)
+inline complex<tt> operator/(const complex<tt> &a, const complex<tt> &b) noexcept
 {
 	tt div = (b.m_r*b.m_r + b.m_i*b.m_i);
 	return complex<tt>(a.m_r*b.m_r + a.m_i*b.m_i, a.m_i*b.m_r - a.m_r*b.m_i)/div;
 }
 
 template <class tt>
-inline complex<tt> operator/(const tt &a, const complex<tt> &b)
+inline complex<tt> operator/(const tt &a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a) / b;
 }
 
 template <class tt>
-inline complex<tt> operator/(const int &a, const complex<tt> &b)
+inline complex<tt> operator/(const int &a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a) / b;
 }
 
 template <class tt>
-inline complex<tt> operator/(const complex<tt> &a, const int &b)
+inline complex<tt> operator/(const complex<tt> &a, const int &b) noexcept
 {
 	return complex<tt>(a.m_r / b, a.m_i / b);
 }
 
-template <typename ss, typename tt>
-inline complex<tt> operator*(const complex<ss> &a, const complex<tt> &b)
-{
-	return complex<tt>(a) * b;
-}
-
 template <class tt>
-inline complex<tt> operator-(int a, const complex<tt> &b)
+inline complex<tt> operator-(int a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a - b.m_r, -b.m_i);
 }
 
 template <class tt>
-inline complex<tt> operator+(int a, const complex<tt> &b)
+inline complex<tt> operator+(int a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a + b.m_r, b.m_i);
 }
 
 template <class tt>
-inline complex<tt> operator-(const complex<tt> &b, int a)
+inline complex<tt> operator-(const complex<tt> &b, int a) noexcept
 {
 	return complex<tt>(b.m_r - a, b.m_i);
 }
 
 
 template <class tt>
-inline complex<tt> operator-(const complex<tt> &b)
+inline complex<tt> operator-(const complex<tt> &b) noexcept
 {
 	return complex<tt>(-b.m_r, -b.m_i);
 }
 
 template <class tt>
-inline tt norm(const complex<tt> &a)
+inline tt norm(const complex<tt> &a) noexcept
 {
 	return a.m_r * a.m_r + a.m_i * a.m_i;
 }
 
 template <class tt>
-inline tt abs(const complex<tt> &a)
+inline tt abs(const complex<tt> &a) noexcept
 {
 	return sqrt(norm(a));
 }
 
 template <class tt>
-inline complex<tt> sqrt(const complex<tt> &a)
+inline complex<tt> sqrt(const complex<tt> &a) noexcept
 {
 	using std::sqrt;
 	using std::max;
@@ -226,34 +209,58 @@ inline complex<tt> sqrt(const complex<tt> &a)
 }
 
 template <typename tt>
-inline complex<tt> cinfnan_to_zero(const complex<tt> &a)
+inline complex<tt> cinfnan_to_zero(const complex<tt> &a) noexcept
 {
 	return complex<tt>(infnan_to_zero(a.m_r), infnan_to_zero(a.m_i));
 }
 
 template <class tt>
-inline complex<tt> exp(const complex<tt> &a)
+inline complex<tt> exp(const complex<tt> &a) noexcept
 {
 	return cinfnan_to_zero(exp(a.m_r) * complex<tt>(cos(a.m_i), sin(a.m_i)));
 }
 
 template <class tt>
-inline tt cosm1(const tt &x)
+inline tt cosm1(const tt &x) noexcept
 {
 	tt s(sin(x / 2));
 	return -2 * s * s;
 }
 
 template <class tt>
-inline complex<tt> expm1(const complex<tt> &a)
+inline complex<tt> expm1(const complex<tt> &a) noexcept
 {
 	return cinfnan_to_zero(complex<tt>(expm1(a.m_r) * cos(a.m_i) + cosm1(a.m_i), exp(a.m_r) * sin(a.m_i)));
 }
 
 template <class tt>
-inline complex<tt> sinh(const complex<tt> &a)
+inline complex<tt> sinh(const complex<tt> &a) noexcept
 {
 	return (expm1(a) - expm1(-a)) / 2;
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator+(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r + b.m_r, a.m_i + b.m_i);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator-(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r - b.m_r, a.m_i - b.m_i);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator*(const complex<dual<D, R>> &a, const complex<R> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator*(const complex<R> &a, const complex<dual<D, R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
 }
 
 template <typename R>
