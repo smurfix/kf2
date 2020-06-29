@@ -149,6 +149,8 @@ Feedback:
 - tooltip implementation broken on multiple monitors / virtual desktops
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
+- setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
+- glitches with higher power hybrids (reported by FractalAlex)
 
 
 ## Differences From Upstream 2.11.1
