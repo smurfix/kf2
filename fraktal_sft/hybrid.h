@@ -243,9 +243,9 @@ inline complex<R> hybrid_f(const hybrid_operator &h, const complex<R> &Z)
 {
   using std::abs;
   using std::pow;
-  complex<R> a(h.mul_re, h.mul_im);
   if (h.pow == 0)
   {
+    complex<R> a(h.mul_re, h.mul_im);
     return a;
   }
   R x = Z.m_r;
@@ -255,13 +255,25 @@ inline complex<R> hybrid_f(const hybrid_operator &h, const complex<R> &Z)
   if (h.neg_x) x = -x;
   if (h.neg_y) y = -y;
   complex<R> W(x, y);
-  return a * pow(W, h.pow);
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    return pow(W, h.pow);
+  }
+  else
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a * pow(W, h.pow);
+  }
 }
 
 template <typename R>
 inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
 {
   complex<R> one = hybrid_f(h.one, Z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    return one;
+  }
   complex<R> two = hybrid_f(h.two, Z);
   switch (h.mode)
   {
@@ -276,11 +288,69 @@ inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
 template <typename R>
 inline complex<R> hybrid_f(const hybrid_stanza &h, complex<R> Z, const complex<R> &C, hybrid_moebius mode, double dist)
 {
-  for (auto l : h)
+  const int k = h.size();
+  for (int i = 0; i < k; ++i)
   {
-    Z = hybrid_f(l, Z);
+    Z = hybrid_f(h[i], Z);
   }
   return moebius_f(Z + C, mode, dist);
+}
+
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf(const hybrid_operator &h, const complex<R> &Z, const complex<dual<2, R>> &z)
+{
+  using std::pow;
+  if (h.pow == 0)
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a;
+  }
+  R X = Z.m_r;
+  R Y = Z.m_i;
+  dual<2, R> x = z.m_r;
+  dual<2, R> y = z.m_i;
+  complex<dual<2, R>> W = Z + z;
+  complex<R> B = Z;
+  if (h.abs_x)
+  {
+    x = diffabs(X, x);
+    W.m_r = abs(W.m_r);
+    B.m_r = abs(B.m_r);
+  }
+  if (h.abs_y)
+  {
+    y = diffabs(Y, y);
+    W.m_i = abs(W.m_i);
+    B.m_i = abs(B.m_i);
+  }
+  if (h.neg_x)
+  {
+    x = -x;
+    W.m_r = -W.m_r;
+    B.m_r = -B.m_r;
+  }
+  if (h.neg_y)
+  {
+    y = -y;
+    W.m_i = -W.m_i;
+    B.m_i = -B.m_i;
+  }
+  complex<dual<2, R>> P(x, y);
+  complex<dual<2, R>> S = 0;
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+    S += pow(W, i) * pow(B, j); // FIXME cache reference with powers? or for SIMD?
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    return P * S;
+  }
+  else
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a * P * S;
+  }
 }
 
 template <typename R>
@@ -295,32 +365,73 @@ inline complex<R> hybrid_pf(const hybrid_operator &h, const complex<R> &Z, const
   R Y = Z.m_i;
   R x = z.m_r;
   R y = z.m_i;
-  if (h.abs_x) x = diffabs(X, x);
-  if (h.abs_y) y = diffabs(Y, y);
-  if (h.neg_x) x = -x;
-  if (h.neg_y) y = -y;
-  complex<R> P(x, y);
   complex<R> W = Z + z;
-  if (h.abs_x) W.m_r = abs(W.m_r);
-  if (h.abs_y) W.m_i = abs(W.m_i);
-  if (h.neg_x) W.m_r = -W.m_r;
-  if (h.neg_y) W.m_i = -W.m_i;
   complex<R> B = Z;
-  if (h.abs_x) B.m_r = abs(B.m_r);
-  if (h.abs_y) B.m_i = abs(B.m_i);
-  if (h.neg_x) B.m_r = -B.m_r;
-  if (h.neg_y) B.m_i = -B.m_i;
+  if (h.abs_x)
+  {
+    x = diffabs(X, x);
+    W.m_r = abs(W.m_r);
+    B.m_r = abs(B.m_r);
+  }
+  if (h.abs_y)
+  {
+    y = diffabs(Y, y);
+    W.m_i = abs(W.m_i);
+    B.m_i = abs(B.m_i);
+  }
+  if (h.neg_x)
+  {
+    x = -x;
+    W.m_r = -W.m_r;
+    B.m_r = -B.m_r;
+  }
+  if (h.neg_y)
+  {
+    y = -y;
+    W.m_i = -W.m_i;
+    B.m_i = -B.m_i;
+  }
+  complex<R> P(x, y);
   complex<R> S = 0;
   for (int i = 0; i <= h.pow - 1; ++i)
   {
     int j = h.pow - 1 - i;
     S += pow(W, i) * pow(B, j); // FIXME cache reference with powers? or for SIMD?
   }
-  return a * P * S;
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    return P * S;
+  }
+  else
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a * P * S;
+  }
 }
 
 template <typename R>
 inline complex<R> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const complex<R> &z)
+{
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    return hybrid_pf(h.one, Z, z);
+  }
+  switch (h.mode)
+  {
+    case hybrid_combine_add: return hybrid_pf(h.one, Z, z) + hybrid_pf(h.two, Z, z);
+    case hybrid_combine_sub: return hybrid_pf(h.one, Z, z) - hybrid_pf(h.two, Z, z);
+    case hybrid_combine_mul: return hybrid_pf(h.one, Z, z) * hybrid_f(h.two, Z + z) + hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z);
+    case hybrid_combine_div:
+    {
+      complex<R> B = hybrid_f(h.two, Z);
+      return (hybrid_pf(h.one, Z, z) * B - hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z)) / (B * hybrid_f(h.two, Z + z));
+    }
+  }
+  return 0;
+}
+
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const complex<dual<2,R>> &z)
 {
   switch (h.mode)
   {
@@ -339,10 +450,23 @@ inline complex<R> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const com
 template <typename R>
 inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, const complex<R> &C, complex<R> z, const complex<R> &c, hybrid_moebius mode, double dist, bool &glitch)
 {
-  for (auto l : h)
+  const int k  = h.size();
+  for (int i = 0; i < k; ++i)
   {
-    z = hybrid_pf(l, Z, z);
-    Z = hybrid_f(l, Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    z = hybrid_pf(h[i], Z, z);
+    Z = hybrid_f(h[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+  }
+  return moebius_pf(Z + C, z + c, mode, dist, glitch); // FIXME check if this accurate enough?  cannot use stored orbit as it will be already wrapped
+}
+
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf(const hybrid_stanza &h, complex<R> Z, const complex<R> &C, complex<dual<2,R>> z, const complex<dual<2,R>> &c, hybrid_moebius mode, double dist, bool &glitch)
+{
+  const int k  = h.size();
+  for (int i = 0; i < k; ++i)
+  {
+    z = hybrid_pf(h[i], Z, z);
+    Z = hybrid_f(h[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
   }
   return moebius_pf(Z + C, z + c, mode, dist, glitch); // FIXME check if this accurate enough?  cannot use stored orbit as it will be already wrapped
 }
@@ -350,10 +474,29 @@ inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, const complex<
 template <typename R>
 inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0)
 {
-  if (h.stanzas.size() == 0)
+  const int k = h.stanzas.size();
+  if (k == 0)
   {
     return false;
   }
+  const bool simple1 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].size() == 1 &&
+    h.stanzas[0][0].mode == hybrid_combine_add &&
+    h.stanzas[0][0].two.mul_re == 0 &&
+    h.stanzas[0][0].two.mul_im == 0;
+  const bool simple2 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].size() == 2 &&
+    h.stanzas[0][0].mode == hybrid_combine_add &&
+    h.stanzas[0][0].two.mul_re == 0 &&
+    h.stanzas[0][0].two.mul_im == 0 &&
+    h.stanzas[0][1].mode == hybrid_combine_add &&
+    h.stanzas[0][1].two.mul_re == 0 &&
+    h.stanzas[0][1].two.mul_im == 0;
+  hybrid_operator op1 = {0}, op2 = {0};
+  if (h.stanzas[0].size() > 0) op1 = h.stanzas[0][0].one;
+  if (h.stanzas[0].size() > 1) op2 = h.stanzas[0][1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
   double test1 = test10;
@@ -392,13 +535,24 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     }
     complex<R> Z(Xr, Xi);
     complex<R> z(xr, xi);
-    bool glitch = false;
-    z = hybrid_pf(h.stanzas[(antal + 1) % h.stanzas.size()], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
-    if (false && glitch)
+    if (simple1)
     {
-      bGlitch = true;
-      if (! bNoGlitchDetection)
-        break;
+      z = hybrid_pf(op1, Z, z) + c;
+    }
+    else if (simple2)
+    {
+      z = hybrid_pf(op2, hybrid_f(op1, Z), hybrid_pf(op1, Z, z)) + c;
+    }
+    else
+    {
+      bool glitch = false;
+      z = hybrid_pf(h.stanzas[(antal + 1) % k], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
+      if (false && glitch)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+          break;
+      }
     }
     xr = z.m_r;
     xi = z.m_i;
@@ -415,16 +569,35 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
 template <typename R>
 inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0)
 {
-  if (h.stanzas.size() == 0)
+  const int k = h.stanzas.size();
+  if (k == 0)
   {
     return false;
   }
+  const bool simple1 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].size() == 1 &&
+    h.stanzas[0][0].mode == hybrid_combine_add &&
+    h.stanzas[0][0].two.mul_re == 0 &&
+    h.stanzas[0][0].two.mul_im == 0;
+  const bool simple2 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].size() == 2 &&
+    h.stanzas[0][0].mode == hybrid_combine_add &&
+    h.stanzas[0][0].two.mul_re == 0 &&
+    h.stanzas[0][0].two.mul_im == 0 &&
+    h.stanzas[0][1].mode == hybrid_combine_add &&
+    h.stanzas[0][1].two.mul_re == 0 &&
+    h.stanzas[0][1].two.mul_im == 0;
+  hybrid_operator op1 = {0}, op2 = {0};
+  if (h.stanzas[0].size() > 0) op1 = h.stanzas[0][0].one;
+  if (h.stanzas[0].size() > 1) op2 = h.stanzas[0][1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
-  const complex<dual<2, R>> C(Cx, Cy);
+  const complex<R> C(Cx, Cy);
   const complex<dual<2, R>> c(cr0, ci0);
   dual<2, R> xr = xr0;
   dual<2, R> xi = xi0;
@@ -435,35 +608,61 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     const R Xr = X[antal];
     const R Xi = Y[antal];
     const double Xz = G[antal];
-    Xxr = Xr + xr;
-    Xxi = Xi + xi;
+    const R Xxr1 = Xr + xr.x;
+    const R Xxi1 = Xi + xi.x;
     test2 = test1;
-    test1 = double(Xxr.x * Xxr.x + Xxi.x * Xxi.x);
+    test1 = double(Xxr1 * Xxr1 + Xxi1 * Xxi1);
     if (test1 < Xz)
     {
       bGlitch = true;
       if (! bNoGlitchDetection)
+      {
+        Xxr = Xr + xr;
+        Xxi = Xi + xi;
         break;
+      }
     }
     if (! no_g)
     {
-      test1 = double(pnorm(g_real, g_imag, p, Xxr.x, Xxi.x));
+      test1 = double(pnorm(g_real, g_imag, p, Xxr1, Xxi1));
     }
     if (test1 > nBailout2)
     {
-      phase = std::atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
+      phase = std::atan2(double(Xxi1), double(Xxr1)) / M_PI / 2;
       phase -= std::floor(phase);
+      Xxr = Xr + xr;
+      Xxi = Xi + xi;
       break;
     }
-    complex<dual<2, R>> Z(Xr, Xi);
+    complex<R> Z(Xr, Xi);
     complex<dual<2, R>> z(xr, xi);
-    bool glitch = false;
-    z = hybrid_pf(h.stanzas[(antal + 1) % h.stanzas.size()], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
-    if (false && glitch)
+    if (simple1)
     {
-      bGlitch = true;
-      if (! bNoGlitchDetection)
-        break;
+      z = hybrid_pf(op1, Z, z) + c;
+    }
+    else if (simple2)
+    {
+      z = hybrid_pf(op2, hybrid_f(op1, Z), hybrid_pf(op1, Z, z)) + c;
+    }
+    else
+    {
+      bool glitch = false;
+      z = hybrid_pf(h.stanzas[(antal + 1) % k], Z, C, z, c, h.moebius_mode, h.moebius_radius, glitch); // FIXME should it be - 1 ?
+      if (false && glitch)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+        {
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          break;
+        }
+      }
+    }
+    if (antal == nMaxIter - 1)
+    {
+      Xxr = Xr + xr;
+      Xxi = Xi + xi;
     }
     xr = z.m_r;
     xi = z.m_i;
