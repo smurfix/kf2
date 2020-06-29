@@ -156,7 +156,19 @@ dual<D, T> operator*(const dual<D, T> &a, const dual<D, T> &b)
 }
 
 template <int D, typename T>
-dual<D, T> operator/(const dual<D, T> &a, const dual<D, T> &b)
+inline dual<D, T> sqr(const dual<D, T> &a) noexcept
+{
+  dual<D, T> r;
+  r.x = sqr(a.x);
+  for (int d = 0; d < D; ++d)
+  {
+    r.dx[d] = 2 * a.dx[d] * a.x;
+  }
+  return r;
+}
+
+template <int D, typename T>
+inline dual<D, T> operator/(const dual<D, T> &a, const dual<D, T> &b) noexcept
 {
   dual<D, T> r;
   r.x = a.x * b.x;

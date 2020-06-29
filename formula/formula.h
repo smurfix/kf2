@@ -129,6 +129,7 @@ static inline int2 isinf(const double2 &a) { int2 r = { isinf(a[0]), isinf(a[1])
 static inline double2 infnan_to_zero(const double2 &a) { double2 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]) }; return r; }
 static inline double2 pow(const double2 &a, const double p) { using std::pow; double2 r = { pow(a[0], p), pow(a[1], p) }; return r; }
 static inline double2 max(const double2 &a, const double2 &b) { return double2(a.v > b.v ? a.v : b.v); }
+static inline double2 sqr(const double2 &a) { return a * a; }
 
 typedef int64_t int4 __attribute__ ((vector_size (32)));
 typedef double vdouble4 __attribute__ ((vector_size (32)));
@@ -171,6 +172,7 @@ static inline int4 isinf(const double4 &a) { int4 r = { isinf(a[0]), isinf(a[1])
 static inline double4 infnan_to_zero(const double4 &a) { double4 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]) }; return r; }
 static inline double4 pow(const double4 &a, const double p) { using std::pow; double4 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p) }; return r; }
 static inline double4 max(const double4 &a, const double4 &b) { return double4(a.v > b.v ? a.v : b.v); }
+static inline double4 sqr(const double4 &a) { return a * a; }
 
 typedef int64_t int8 __attribute__ ((vector_size (64)));
 typedef double vdouble8 __attribute__ ((vector_size (64)));
@@ -213,6 +215,7 @@ static inline int8 isinf(const double8 &a) { int8 r = { isinf(a[0]), isinf(a[1])
 static inline double8 infnan_to_zero(const double8 &a) { double8 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]) }; return r; }
 static inline double8 pow(const double8 &a, const double p) { using std::pow; double8 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p), pow(a[4], p), pow(a[5], p), pow(a[6], p), pow(a[7], p) }; return r; }
 static inline double8 max(const double8 &a, const double8 &b) { return double8(a.v > b.v ? a.v : b.v); }
+static inline double8 sqr(const double8 &a) { return a * a; }
 
 typedef int64_t int16 __attribute__ ((vector_size (128)));
 typedef double vdouble16 __attribute__ ((vector_size (128)));
@@ -255,6 +258,7 @@ static inline int16 isinf(const double16 &a) { int16 r = { isinf(a[0]), isinf(a[
 static inline double16 infnan_to_zero(const double16 &a) { double16 r = { infnan_to_zero(a[0]), infnan_to_zero(a[1]), infnan_to_zero(a[2]), infnan_to_zero(a[3]), infnan_to_zero(a[4]), infnan_to_zero(a[5]), infnan_to_zero(a[6]), infnan_to_zero(a[7]), infnan_to_zero(a[8]), infnan_to_zero(a[9]), infnan_to_zero(a[10]), infnan_to_zero(a[11]), infnan_to_zero(a[12]), infnan_to_zero(a[13]), infnan_to_zero(a[14]), infnan_to_zero(a[15]) }; return r; }
 static inline double16 pow(const double16 &a, const double p) { using std::pow; double16 r = { pow(a[0], p), pow(a[1], p), pow(a[2], p), pow(a[3], p), pow(a[4], p), pow(a[5], p), pow(a[6], p), pow(a[7], p), pow(a[8], p), pow(a[9], p), pow(a[10], p), pow(a[11], p), pow(a[12], p), pow(a[13], p), pow(a[14], p), pow(a[15], p) }; return r; }
 static inline double16 max(const double16 &a, const double16 &b) { return double16(a.v > b.v ? a.v : b.v); }
+static inline double16 sqr(const double16 &a) { return a * a; }
 
 #define F2(F) static inline double2 F(const double2 &x) { return double2(F(x[0]), F(x[1])); }
 F2(sin)

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2020 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -560,18 +560,47 @@ inline floatexp log2(floatexp a)
 	return floatexp(std::log2(a.val) + a.exp);
 }
 
-template <typename T> T pow(T x, uint64_t n)
+inline double sqr(double a) noexcept
 {
-  if (n == 0) return T(1);
-  T y(1);
-  while (n > 1)
-  {
-    if (n & 1)
-      y *= x;
-    x *= x;
-    n >>= 1;
+	return a * a;
+}
+
+inline long double sqr(long double a) noexcept
+{
+	return a * a;
+}
+
+inline floatexp sqr(floatexp a) noexcept
+{
+	return a * a;
+}
+
+template <typename T> T pow(T x, uint64_t n) noexcept
+{
+	switch (n)
+	{
+		case 0: return T(1);
+		case 1: return x;
+		case 2: return sqr(x);
+		case 3: return x * sqr(x);
+		case 4: return sqr(sqr(x));
+		case 5: return x * sqr(sqr(x));
+		case 6: return sqr(x * sqr(x));
+		case 7: return x * sqr(x * sqr(x));
+		case 8: return sqr(sqr(sqr(x)));
+		default:
+		{
+		  T y(1);
+		  while (n > 1)
+		  {
+		    if (n & 1)
+		      y *= x;
+		    x = sqr(x);
+		    n >>= 1;
+			}
+		  return x * y;
+		}
 	}
-  return x * y;
 }
 
 inline bool isnan(const floatexp &a)
