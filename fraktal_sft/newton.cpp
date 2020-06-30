@@ -900,12 +900,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		uprec *= 3;
 	}
 	else{
-	  if (type == 0 && power == 2)
-	  {
-		int64_t maxperiod = INT_MAX; // FIXME
-		g_period= ball_period_do(center,radius,maxperiod,steps,hWnd);
-	  }
-	  else if (g_SFT.GetUseHybridFormula())
+	  if (g_SFT.GetUseHybridFormula())
 	  {
 		  flyttyp r = flyttyp(4) / radius;
 		  // fork progress updater
@@ -919,7 +914,12 @@ static int WINAPI ThNewton(HWND hWnd)
 		  CloseHandle(progress.hDone);
 		  if (g_period < 0) g_period = 0;
 	  }
-	  else
+	  else if (type == 0 && power == 2)
+	  {
+		int64_t maxperiod = INT_MAX; // FIXME
+		g_period= ball_period_do(center,radius,maxperiod,steps,hWnd);
+	  }
+	  else 
 	  {
 		if (f)
 		{
@@ -959,12 +959,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		complex<flyttyp> c;
 		int test = 1;
-		if (type == 0 && power == 2)
-		{
-		  int maxsteps = INT_MAX; // FIXME
-		  test = m_d_nucleus(&c,center,g_period,maxsteps,steps,radius,hWnd);
-		}
-		else if (g_SFT.GetUseHybridFormula())
+		if (g_SFT.GetUseHybridFormula())
 		{
 		    // fork progress updater
 		    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
@@ -983,6 +978,11 @@ static int WINAPI ThNewton(HWND hWnd)
 		    progress.running = false;
 		    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 		    CloseHandle(progress.hDone);
+		}
+		else if (type == 0 && power == 2)
+		{
+		  int maxsteps = INT_MAX; // FIXME
+		  test = m_d_nucleus(&c,center,g_period,maxsteps,steps,radius,hWnd);
 		}
 		else
 		{
@@ -1015,13 +1015,7 @@ static int WINAPI ThNewton(HWND hWnd)
 
 			Precision prec3(exp + 6);
 			flyttyp msize = 0;
-			if (type == 0 && power == 2)
-			{
-			  complex<floatexp> size = m_d_size(c,g_period,hWnd);
-			  floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
-			  mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
-			}
-			else if (g_SFT.GetUseHybridFormula())
+			if (g_SFT.GetUseHybridFormula())
 			{
 			    // fork progress updater
 			    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL) };
@@ -1033,6 +1027,12 @@ static int WINAPI ThNewton(HWND hWnd)
 			    WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 			    CloseHandle(progress.hDone);
 			    msize = flyttyp(.25) / msize;
+			}
+			else if (type == 0 && power == 2)
+			{
+			  complex<floatexp> size = m_d_size(c,g_period,hWnd);
+			  floatexp msizefe = floatexp(.25)/sqrt(cabs2(size));
+			  mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
 			}
 			else
 			{
