@@ -287,6 +287,19 @@ Feedback:
       - fix typos causing last few pixels to be corrupt in SIMD
       - remove annoying dialogs about derivatives (requested by gerrit)
 
+    - library upgrades
+
+      - upgrade to boost 1.73.0
+      - upgrade to mpfr 4.1.0
+      - upgrade to tiff 4.1.0
+      - upgrade to glm 0.9.9.8
+      - upgrade to openexr 2.4.2
+
+    - library non-upgrades
+
+      - don't upgrade to pixman 0.40.0
+        (<https://gitlab.freedesktop.org/pixman/pixman/-/issues/43>)
+
 - **kf-2.14.10.1** (2020-06-01)
 
     - fixes

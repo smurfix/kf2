@@ -4979,7 +4979,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"Precision: %d bits (%d decimal digits)\n"
 				"\nLibraries:\n"
 				"- JPEG 6b2 <https://jpegclub.org/support>\n"
-				"- TIFF 4.0.10 <https://www.simplesystems.org/libtiff/>\n"
+				"- TIFF 4.1.0 <http://www.simplesystems.org/libtiff/>\n"
 				"- PNG %s <https://libpng.org>\n"
 				"- ZLIB %s <https://zlib.net>\n"
 				"- GMP %d.%d.%d <https://gmplib.org>\n"
