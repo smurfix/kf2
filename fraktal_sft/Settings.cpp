@@ -94,6 +94,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(SaveOverwrites)
   BOOL(ThreadedReference)
   INT(SIMDVectorSize)
+  SetSIMDVectorSize(GetSIMDVectorSize()); // validate to prevent assert fail in perturbation
   INT(SIMDChunkSize)
   int m_UseArgMinAbsZAsGlitchCenter = 0;
   INT(UseArgMinAbsZAsGlitchCenter)
