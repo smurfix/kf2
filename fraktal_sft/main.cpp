@@ -2564,50 +2564,12 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 					}
 					if (g_SFT.GetDifferences() == Differences_Analytic && !g_SFT.GetDerivatives())
 					{
-						if (hWnd)
-						{
-							if (IDOK == MessageBox(hWnd,
-								"This parameter file requests analytic DE colouring,\n"
-								"but derivative calculations are disabled.\n"
-								"Derivative calculations are needed for analytic DE.\n"
-								"You may switch to non-analytic DE in the Colors dialog.\n"
-								"You may control derivatives in the Formula dialog.\n"
-								"\n"
-								"Enable derivatives calculation now?",
-								"Kalle's Fraktaler",
-								MB_OKCANCEL))
-							{
-								g_SFT.SetDerivatives(true);
-							}
-						}
-						else
-						{
-							output_log_message(Warn, "automatically enabling derivatives for analytic DE");
-							g_SFT.SetDerivatives(true);
-						}
+						output_log_message(Warn, "automatically enabling derivatives for analytic DE");
+						g_SFT.SetDerivatives(true);
 					}
 					else if (g_SFT.GetDifferences() != Differences_Analytic && g_SFT.GetDerivatives())
 					{
-						if (hWnd)
-						{
-							if (IDOK == MessageBox(hWnd,
-								"Derivatives calculations are enabled, but\n"
-								"this parameter file does not request analytic DE colouring.\n"
-								"Derivatives calculations are slower but are needed for analytic DE,\n"
-								"if you wish to switch to it in the Colors dialog.\n"
-								"You may control derivatives in the Iterations dialog.\n"
-								"\n"
-								"Disable derivatives calculation now?",
-								"Kalle's Fraktaler",
-								MB_OKCANCEL))
-							{
-								g_SFT.SetDerivatives(false);
-							}
-						}
-						else
-						{
-							output_log_message(Warn, "derivatives are enabled but no analytic DE requested (slow)");
-						}
+						output_log_message(Warn, "derivatives are enabled but no analytic DE requested (possibly slow)");
 					}
 					if (hWnd)
 					{
