@@ -135,9 +135,6 @@ Feedback:
 - navigation with scroll wheel and -/+ keys is hardcoded to factor of 2 instead
   of using the zoom size set in the View menu
 - NR zoom doesn't work well in skewed locations
-- changing image size in settings files can give unintentionally stretched
-  images unless you also change the window size settings, and the window size
-  settings are weird (workaround: use the GUI to configure this)
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
 - nanomb2 RadiusScale can only be changed by hand-editing .kfs Settings files
 - nanomb1/2 number type fixed to floatexp (long double or double would be faster)
@@ -146,10 +143,8 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
-- tooltip implementation broken on multiple monitors / virtual desktops
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
-- setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
 
 
 ## Differences From Upstream 2.11.1
@@ -281,6 +276,16 @@ Feedback:
         when not requested (reported by saka and Azula)
       - store zoom out sequence was sometimes not saving metadata in image
         files correctly
+      - setting bad SIMD vector size in KFS could crash (reported by FractalAlex)
+      - setting window size/image size from KFS should be better behaved now
+      - refactor default loading (now it loads default location kf.kfr from
+        next to EXE, as well as default settings kf.kfs; defaults are only
+        loaded when respective command line options are not given)
+      - don't recalculate fractal when changing window size (reported by FK68)
+      - fix buffer overflow crash in iterdiv -> string for GUI,
+        also fix loss of precision (reported by FK68)
+      - fix typos causing last few pixels to be corrupt in SIMD
+      - remove annoying dialogs about derivatives (requested by gerrit)
 
 - **kf-2.14.10.1** (2020-06-01)
 
