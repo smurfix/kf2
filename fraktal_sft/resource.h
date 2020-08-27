@@ -345,6 +345,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_HYBRID_MOEBIUS_LEFT   1417
 #define IDC_HYBRID_MOEBIUS_RIGHT  1418
 #define IDC_HYBRID_MOEBIUS_RADIUS 1419
+#define IDC_HYBRID_LOOP_START 1420
 
 // menus
 #define ID_ACTIONS_SETTINGS             40001

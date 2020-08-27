@@ -82,13 +82,11 @@ extern std::string to_string(const hybrid_line &h)
 extern std::string to_string(const hybrid_stanza &h)
 {
   std::ostringstream o;
-  for (size_t i = 0; i < h.size(); ++i)
+  o << h.repeats;
+  for (size_t i = 0; i < h.lines.size(); ++i)
   {
-    if (i)
-    {
-      o << '|';
-    }
-    o << to_string(h[i]);
+    o << '|';
+    o << to_string(h.lines[i]);
   }
   return o.str();
 }
@@ -96,10 +94,11 @@ extern std::string to_string(const hybrid_stanza &h)
 extern std::string to_string(const hybrid_formula &h)
 {
   std::ostringstream o;
-  for (size_t i = 0; i < h.size(); ++i)
+  o << h.loop_start;
+  for (size_t i = 0; i < h.stanzas.size(); ++i)
   {
-    if (i) o << '/';
-    o << to_string(h[i]);
+    o << '/';
+    o << to_string(h.stanzas[i]);
   }
   return o.str();
 }
@@ -145,9 +144,14 @@ extern hybrid_stanza hybrid_stanza_from_string(const std::string &s)
 {
   hybrid_stanza r;
   std::vector<std::string> v = split(s, '|');
-  for (auto l : v)
+  r.repeats = 0;
+  if (v.size() > 0)
   {
-    r.push_back(hybrid_line_from_string(l));
+    r.repeats = std::stoi(v[0]);
+  }
+  for (int l = 1; l < (ssize_t) v.size(); ++l)
+  {
+    r.lines.push_back(hybrid_line_from_string(v[l]));
   }
   return r;
 }
@@ -156,9 +160,14 @@ extern hybrid_formula hybrid_formula_from_string(const std::string &s)
 {
   hybrid_formula r;
   std::vector<std::string> v = split(s, '/');
-  for (auto l : v)
+  r.loop_start = 0;
+  if (v.size() > 0)
   {
-    r.push_back(hybrid_stanza_from_string(l));
+    r.loop_start = std::stoi(v[0]);
+  }
+  for (int l = 1; l < (ssize_t) v.size(); ++l)
+  {
+    r.stanzas.push_back(hybrid_stanza_from_string(v[l]));
   }
   return r;
 }
@@ -175,40 +184,40 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
       // set widgets according to formula
-      hybrid_formula h0 = g_SFT.GetHybridFormula();
-      std::vector<hybrid_stanza> h = h0;
-      bool a1 = h.size() > 0 && h[0].size() > 0;
-      bool b1 = h.size() > 0 && h[0].size() > 1;
-      bool a2 = h.size() > 1 && h[1].size() > 0;
-      bool b2 = h.size() > 1 && h[1].size() > 1;
-      bool a3 = h.size() > 2 && h[2].size() > 0;
-      bool b3 = h.size() > 2 && h[2].size() > 1;
-      bool a4 = h.size() > 3 && h[3].size() > 0;
-      bool b4 = h.size() > 3 && h[3].size() > 1;
-      hybrid_operator a11  = a1 ? h[0][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator a12  = a1 ? h[0][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine a1op = a1 ? h[0][0].mode : hybrid_combine_add;
-      hybrid_operator b11  = b1 ? h[0][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator b12  = b1 ? h[0][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine b1op = b1 ? h[0][1].mode : hybrid_combine_add;
-      hybrid_operator a21  = a2 ? h[1][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator a22  = a2 ? h[1][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine a2op = a2 ? h[1][0].mode : hybrid_combine_add;
-      hybrid_operator b21  = b2 ? h[1][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator b22  = b2 ? h[1][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine b2op = b2 ? h[1][1].mode : hybrid_combine_add;
-      hybrid_operator a31  = a3 ? h[2][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator a32  = a3 ? h[2][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine a3op = a3 ? h[2][0].mode : hybrid_combine_add;
-      hybrid_operator b31  = b3 ? h[2][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator b32  = b3 ? h[2][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine b3op = b3 ? h[2][1].mode : hybrid_combine_add;
-      hybrid_operator a41  = a4 ? h[3][0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator a42  = a4 ? h[3][0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine a4op = a4 ? h[3][0].mode : hybrid_combine_add;
-      hybrid_operator b41  = b4 ? h[3][1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
-      hybrid_operator b42  = b4 ? h[3][1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
-      hybrid_combine b4op = b4 ? h[3][1].mode : hybrid_combine_add;
+      const hybrid_formula h = g_SFT.GetHybridFormula();
+      int loop_start = h.loop_start;
+      bool a1 = h.stanzas.size() > 0 && h.stanzas[0].lines.size() > 0;
+      bool b1 = h.stanzas.size() > 0 && h.stanzas[0].lines.size() > 1;
+      bool a2 = h.stanzas.size() > 1 && h.stanzas[1].lines.size() > 0;
+      bool b2 = h.stanzas.size() > 1 && h.stanzas[1].lines.size() > 1;
+      bool a3 = h.stanzas.size() > 2 && h.stanzas[2].lines.size() > 0;
+      bool b3 = h.stanzas.size() > 2 && h.stanzas[2].lines.size() > 1;
+      bool a4 = h.stanzas.size() > 3 && h.stanzas[3].lines.size() > 0;
+      bool b4 = h.stanzas.size() > 3 && h.stanzas[3].lines.size() > 1;
+      hybrid_operator a11 = a1 ? h.stanzas[0].lines[0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a12 = a1 ? h.stanzas[0].lines[0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a1op = a1 ? h.stanzas[0].lines[0].mode : hybrid_combine_add;
+      hybrid_operator b11 = b1 ? h.stanzas[0].lines[1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b12 = b1 ? h.stanzas[0].lines[1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b1op = b1 ? h.stanzas[0].lines[1].mode : hybrid_combine_add;
+      hybrid_operator a21 = a2 ? h.stanzas[1].lines[0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a22 = a2 ? h.stanzas[1].lines[0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a2op = a2 ? h.stanzas[1].lines[0].mode : hybrid_combine_add;
+      hybrid_operator b21 = b2 ? h.stanzas[1].lines[1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b22 = b2 ? h.stanzas[1].lines[1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b2op = b2 ? h.stanzas[1].lines[1].mode : hybrid_combine_add;
+      hybrid_operator a31 = a3 ? h.stanzas[2].lines[0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a32 = a3 ? h.stanzas[2].lines[0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a3op = a3 ? h.stanzas[2].lines[0].mode : hybrid_combine_add;
+      hybrid_operator b31 = b3 ? h.stanzas[2].lines[1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b32 = b3 ? h.stanzas[2].lines[1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b3op = b3 ? h.stanzas[2].lines[1].mode : hybrid_combine_add;
+      hybrid_operator a41 = a4 ? h.stanzas[3].lines[0].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator a42 = a4 ? h.stanzas[3].lines[0].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine a4op = a4 ? h.stanzas[3].lines[0].mode : hybrid_combine_add;
+      hybrid_operator b41 = b4 ? h.stanzas[3].lines[1].one : (hybrid_operator){ false, false, false, false, 2, 1.0, 0.0 };
+      hybrid_operator b42 = b4 ? h.stanzas[3].lines[1].two : (hybrid_operator){ false, false, false, false, 0, 0.0, 0.0 };
+      hybrid_combine b4op = b4 ? h.stanzas[3].lines[1].mode : hybrid_combine_add;
 #define E(idc, enable) EnableWindow(GetDlgItem(hWnd, idc), true);
 #define T(idc, str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
 #define B(idc, enable, value, str) T(idc, str) SendDlgItemMessage(hWnd, idc, BM_SETCHECK, value, 0); E(idc, enable)
@@ -223,7 +232,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
   SendDlgItemMessage(hWnd, idc, CB_SETCURSEL, value, 0); \
   E(idc, enable)
 
-      B(IDC_HYBRID_1_ACTIVE, true, h.size() > 0, "Group 1")
+      N(IDC_HYBRID_1_ACTIVE, true, h.stanzas.size() > 0 ? h.stanzas[0].repeats : 1, "Repeats")
       B(IDC_HYBRID_1A_ABSX1, a1, a11.abs_x, "Abs X")
       B(IDC_HYBRID_1A_ABSY1, a1, a11.abs_y, "Abs Y")
       B(IDC_HYBRID_1A_NEGX1, a1, a11.neg_x, "Neg X")
@@ -257,7 +266,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_1B_AIM2, b1, b12.mul_im, "A Imag")
       B(IDC_HYBRID_1B_ACTIVE, true, b1, "Step 2")
 
-      B(IDC_HYBRID_2_ACTIVE, true, h.size() > 1, "Group 2")
+      N(IDC_HYBRID_2_ACTIVE, true, h.stanzas.size() > 1 ? h.stanzas[1].repeats : 0, "Repeats")
       B(IDC_HYBRID_2A_ABSX1, a2, a21.abs_x, "Abs X")
       B(IDC_HYBRID_2A_ABSY1, a2, a21.abs_y, "Abs Y")
       B(IDC_HYBRID_2A_NEGX1, a2, a21.neg_x, "Neg X")
@@ -291,7 +300,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_2B_AIM2, b2, b22.mul_im, "A Imag")
       B(IDC_HYBRID_2B_ACTIVE, true, b2, "Step 2")
 
-      B(IDC_HYBRID_3_ACTIVE, true, h.size() > 2, "Group 3")
+      N(IDC_HYBRID_3_ACTIVE, true, h.stanzas.size() > 2 ? h.stanzas[2].repeats : 0, "Repeats")
       B(IDC_HYBRID_3A_ABSX1, a3, a31.abs_x, "Abs X")
       B(IDC_HYBRID_3A_ABSY1, a3, a31.abs_y, "Abs Y")
       B(IDC_HYBRID_3A_NEGX1, a3, a31.neg_x, "Neg X")
@@ -325,7 +334,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_3B_AIM2, b3, b32.mul_im, "A Imag")
       B(IDC_HYBRID_3B_ACTIVE, true, b3, "Step 2")
 
-      B(IDC_HYBRID_4_ACTIVE, true, h.size() > 3, "Group 4")
+      N(IDC_HYBRID_4_ACTIVE, true, h.stanzas.size() > 3 ? h.stanzas[3].repeats : 0, "Repeats")
       B(IDC_HYBRID_4A_ABSX1, a4, a41.abs_x, "Abs X")
       B(IDC_HYBRID_4A_ABSY1, a4, a41.abs_y, "Abs Y")
       B(IDC_HYBRID_4A_NEGX1, a4, a41.neg_x, "Neg X")
@@ -359,6 +368,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_4B_AIM2, b4, b42.mul_im, "A Imag")
       B(IDC_HYBRID_4B_ACTIVE, true, b4, "Step 2")
 
+      N(IDC_HYBRID_LOOP_START, true, loop_start, "Loop Start")
 #undef B
 #undef N
 #undef R
@@ -383,10 +393,11 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 #define N(idc, f) f = GetDlgItemInt(hWnd, idc, 0, 0);
 #define R(idc, f) f = GetDlgItemFloat(hWnd, idc);
 #define O(idc, f) f = SendDlgItemMessage(hWnd, idc, CB_GETCURSEL, 0, 0);
-          bool group1 = false;
-          bool group2 = false;
-          bool group3 = false;
-          bool group4 = false;
+          int loop_start = 0;
+          int group1 = 0;
+          int group2 = 0;
+          int group3 = 0;
+          int group4 = 0;
           bool a1 = false;
           bool b1 = false;
           bool a2 = false;
@@ -420,7 +431,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           int a4op = 0;
           int b4op = 0;
 
-          B(IDC_HYBRID_1_ACTIVE, group1)
+          N(IDC_HYBRID_1_ACTIVE, group1)
           B(IDC_HYBRID_1A_ABSX1, a11.abs_x)
           B(IDC_HYBRID_1A_ABSY1, a11.abs_y)
           B(IDC_HYBRID_1A_NEGX1, a11.neg_x)
@@ -454,7 +465,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_1B_AIM2, b12.mul_im)
           B(IDC_HYBRID_1B_ACTIVE, b1)
 
-          B(IDC_HYBRID_2_ACTIVE, group2)
+          N(IDC_HYBRID_2_ACTIVE, group2)
           B(IDC_HYBRID_2A_ABSX1, a21.abs_x)
           B(IDC_HYBRID_2A_ABSY1, a21.abs_y)
           B(IDC_HYBRID_2A_NEGX1, a21.neg_x)
@@ -488,7 +499,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_2B_AIM2, b22.mul_im)
           B(IDC_HYBRID_2B_ACTIVE, b2)
 
-          B(IDC_HYBRID_3_ACTIVE, group3)
+          N(IDC_HYBRID_3_ACTIVE, group3)
           B(IDC_HYBRID_3A_ABSX1, a31.abs_x)
           B(IDC_HYBRID_3A_ABSY1, a31.abs_y)
           B(IDC_HYBRID_3A_NEGX1, a31.neg_x)
@@ -522,7 +533,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_3B_AIM2, b32.mul_im)
           B(IDC_HYBRID_3B_ACTIVE, b3)
 
-          B(IDC_HYBRID_4_ACTIVE, group4)
+          N(IDC_HYBRID_4_ACTIVE, group4)
           B(IDC_HYBRID_4A_ABSX1, a41.abs_x)
           B(IDC_HYBRID_4A_ABSY1, a41.abs_y)
           B(IDC_HYBRID_4A_NEGX1, a41.neg_x)
@@ -556,89 +567,95 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_4B_AIM2, b42.mul_im)
           B(IDC_HYBRID_4B_ACTIVE, b4)
 
+          N(IDC_HYBRID_LOOP_START, loop_start)
 #undef B
 #undef R
 #undef N
 #undef O
           hybrid_formula h;
+          h.loop_start = loop_start;
 
-          if (group1)
+          if (group1 > 0)
           {
             hybrid_stanza s;
+            s.repeats = group1;
             if (a1)
             {
               hybrid_line l = { a11, a12, hybrid_combine(a1op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
             if (b1)
             {
               hybrid_line l = { b11, b12, hybrid_combine(b1op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
-            if (s.size() > 0)
+            if (s.lines.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
-          if (group2)
+          if (group2 > 0)
           {
             hybrid_stanza s;
+            s.repeats = group2;
             if (a2)
             {
               hybrid_line l = { a21, a22, hybrid_combine(a2op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
             if (b2)
             {
               hybrid_line l = { b21, b22, hybrid_combine(b2op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
-            if (s.size() > 0)
+            if (s.lines.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
-          if (group3)
+          if (group3 > 0)
           {
             hybrid_stanza s;
+            s.repeats = group3;
             if (a3)
             {
               hybrid_line l = { a31, a32, hybrid_combine(a3op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
             if (b3)
             {
               hybrid_line l = { b31, b32, hybrid_combine(b3op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
-            if (s.size() > 0)
+            if (s.lines.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
-          if (group4)
+          if (group4 > 0)
           {
             hybrid_stanza s;
+            s.repeats = group4;
             if (a4)
             {
               hybrid_line l = { a41, a42, hybrid_combine(a4op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
             if (b4)
             {
               hybrid_line l = { b41, b42, hybrid_combine(b4op) };
-              s.push_back(l);
+              s.lines.push_back(l);
             }
-            if (s.size() > 0)
+            if (s.lines.size() > 0)
             {
-              h.push_back(s);
+              h.stanzas.push_back(s);
             }
           }
 
-          retval = h.size() > 0;
+          retval = valid(h);
           if (retval)
           {
             g_SFT.SetHybridFormula(h);
@@ -682,10 +699,20 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
     C c(cx, cy);
     C z(0, 0);
     // iteration
+    int count = 0;
+    int stanza = 0;
     for (N i = 0; i < period && *running; ++i)
     {
       progress[3] = i;
-      z = hybrid_f(h[i % h.size()], z, c);
+      z = hybrid_f(h.stanzas[stanza], z, c);
+      if (++count >= h.stanzas[stanza].repeats)
+      {
+        count = 0;
+        if (++stanza >= (ssize_t) h.stanzas.size())
+        {
+          stanza = h.loop_start;
+        }
+      }
     }
     if (*running)
     {
@@ -740,12 +767,22 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
   double r2 = 1e50;
   bool p = true;
   int i = 0;
+  int count = 0;
+  int stanza = 0;
   while (i < N && z2 < r2 && p && *running)
   {
     progress[0] = N;
     progress[1] = i;
     // formula
-    z = hybrid_f(h[i % h.size()], z, c);
+    z = hybrid_f(h.stanzas[stanza], z, c);
+    if (++count >= (ssize_t) h.stanzas[stanza].repeats)
+    {
+      count = 0;
+      if (++stanza >= (ssize_t) h.stanzas.size())
+      {
+        stanza = h.loop_start;
+      }
+    }
     const CDecNumber &x = z.m_r.x;
     const CDecNumber &y = z.m_i.x;
     const CDecNumber &xa = z.m_r.dx[0];
@@ -783,13 +820,39 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
 extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile int *running, int *progress)
 {
   // compute average degree
-  // the degree of each stanza is the *lowest* non-linear power
   double degree = 0;
-  double count = 0;
-  for (auto s : h)
+  double ndegree = 0;
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  // FIXME check if this init and formula below is equivalent to the et version...
+  R x(A); x.dx[0] = 1;
+  R y(B); y.dx[1] = 1;
+  C z(x, y);
+  C c(A, B);
+  CDecNumber bxa = 1;
+  CDecNumber bxb = 0;
+  CDecNumber bya = 0;
+  CDecNumber byb = 1;
+  int j = 1;
+  int count = 0;
+  int stanza = 0;
+  while (j < period && *running)
   {
+    progress[0] = period;
+    progress[1] = j;
+    // formula
+    if (++count >= h.stanzas[stanza].repeats) // FIXME should this be after formula?
+    {
+      count = 0;
+      if (++stanza >= (ssize_t) h.stanzas.size())
+      {
+        stanza = h.loop_start;
+      }
+    }
+    z = hybrid_f(h.stanzas[stanza], z, c);
+    // the degree of each stanza is the *lowest* non-linear power
     double degs = 1;
-    for (auto l : s)
+    for (auto l : h.stanzas[stanza].lines)
     {
       double deg = 1.0/0.0;
       double deg1 = l.one.pow;
@@ -813,29 +876,7 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
       degs *= deg;
     }
     degree += log(degs);
-    count += 1;
-  }
-  degree = exp(degree / count);
-  double deg = degree / (degree - 1);
-  if (isnan(deg) || isinf(deg)) deg = 0;
-  using R = dual<2, CDecNumber>;
-  using C = complex<R>;
-  // FIXME check if this init and formula below is equivalent to the et version...
-  R x(A); x.dx[0] = 1;
-  R y(B); y.dx[1] = 1;
-  C z(x, y);
-  C c(A, B);
-  CDecNumber bxa = 1;
-  CDecNumber bxb = 0;
-  CDecNumber bya = 0;
-  CDecNumber byb = 1;
-  int j = 1;
-  while (j < period && *running)
-  {
-    progress[0] = period;
-    progress[1] = j;
-    // formula
-    z = hybrid_f(h[j % h.size()], z, c);
+    ndegree += 1;
     const CDecNumber &lxa = z.m_r.dx[0];
     const CDecNumber &lxb = z.m_r.dx[1];
     const CDecNumber &lya = z.m_i.dx[0];
@@ -848,6 +889,9 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
     byb = byb + lxa / det;
     ++j;
   }
+  degree = exp(degree / ndegree);
+  double deg = degree / (degree - 1);
+  if (isnan(deg) || isinf(deg)) deg = 0;
   // l^d b
   if (*running)
   {

@@ -51,18 +51,39 @@ struct hybrid_line
   hybrid_combine mode;
 };
 
-typedef std::vector<hybrid_line> hybrid_stanza;
-typedef std::vector<hybrid_stanza> hybrid_formula;
+struct hybrid_stanza
+{
+  std::vector<hybrid_line> lines;
+  int repeats;
+};
+
+struct hybrid_formula
+{
+  std::vector<hybrid_stanza> stanzas;
+  int loop_start;
+};
 
 static inline bool valid(const hybrid_formula &h)
 {
-  if (h.size() == 0)
+  if (h.loop_start < 0)
   {
     return false;
   }
-  for (auto s : h)
+  if ((ssize_t) h.stanzas.size() <= h.loop_start)
   {
-    if (s.size() == 0)
+    return false;
+  }
+  if (h.stanzas.size() <= 0)
+  {
+    return false;
+  }
+  for (auto s : h.stanzas)
+  {
+    if (s.repeats <= 0)
+    {
+      return false;
+    }
+    if (s.lines.size() <= 0)
     {
       return false;
     }
@@ -132,10 +153,10 @@ inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
 template <typename R>
 inline complex<R> hybrid_f(const hybrid_stanza &h, complex<R> Z, const complex<R> &C)
 {
-  const int k = h.size();
+  const int k = h.lines.size();
   for (int i = 0; i < k; ++i)
   {
-    Z = hybrid_f(h[i], Z);
+    Z = hybrid_f(h.lines[i], Z);
   }
   return Z + C;
 }
@@ -294,11 +315,11 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_line &h, const complex<R> &Z, c
 template <typename R>
 inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, complex<R> z, const complex<R> &c)
 {
-  const int k  = h.size();
+  const int k = h.lines.size();
   for (int i = 0; i < k; ++i)
   {
-    z = hybrid_pf(h[i], Z, z);
-    Z = hybrid_f(h[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    z = hybrid_pf(h.lines[i], Z, z);
+    Z = hybrid_f(h.lines[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
   }
   return z + c;
 }
@@ -306,11 +327,11 @@ inline complex<R> hybrid_pf(const hybrid_stanza &h, complex<R> Z, complex<R> z, 
 template <typename R>
 inline complex<dual<2,R>> hybrid_pf(const hybrid_stanza &h, complex<R> Z, complex<dual<2,R>> z, const complex<dual<2,R>> &c)
 {
-  const int k  = h.size();
+  const int k = h.lines.size();
   for (int i = 0; i < k; ++i)
   {
-    z = hybrid_pf(h[i], Z, z);
-    Z = hybrid_f(h[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    z = hybrid_pf(h.lines[i], Z, z);
+    Z = hybrid_f(h.lines[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
   }
   return z + c;
 }
@@ -318,29 +339,29 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_stanza &h, complex<R> Z, comple
 template <typename R>
 inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0)
 {
-  const int k = h.size();
+  const int k = h.stanzas.size();
   if (k == 0)
   {
     return false;
   }
   const bool simple1 =
-    h.size() == 1 &&
-    h[0].size() == 1 &&
-    h[0][0].mode == hybrid_combine_add &&
-    h[0][0].two.mul_re == 0 &&
-    h[0][0].two.mul_im == 0;
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 1 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0;
   const bool simple2 =
-    h.size() == 1 &&
-    h[0].size() == 2 &&
-    h[0][0].mode == hybrid_combine_add &&
-    h[0][0].two.mul_re == 0 &&
-    h[0][0].two.mul_im == 0 &&
-    h[0][1].mode == hybrid_combine_add &&
-    h[0][1].two.mul_re == 0 &&
-    h[0][1].two.mul_im == 0;
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 2 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0 &&
+    h.stanzas[0].lines[1].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[1].two.mul_re == 0 &&
+    h.stanzas[0].lines[1].two.mul_im == 0;
   hybrid_operator op1 = {0}, op2 = {0};
-  if (h[0].size() > 0) op1 = h[0][0].one;
-  if (h[0].size() > 1) op2 = h[0][1].one;
+  if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
+  if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
   double test1 = test10;
@@ -352,6 +373,8 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   R xi = xi0;
   R Xxr = 0;
   R Xxi = 0;
+  int count = 0;
+  int stanza = 0;
   for (; antal < nMaxIter; ++antal)
   {
     const R Xr = X[antal];
@@ -389,14 +412,15 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     }
     else
     {
-      bool glitch = false;
-      z = hybrid_pf(h[(antal + 1) % k], Z, z, c);
-      if (false && glitch)
+      if (++count >= h.stanzas[stanza].repeats)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
-          break;
+        count = 0;
+        if (++stanza >= (ssize_t) h.stanzas.size())
+        {
+          stanza = h.loop_start;
+        }
       }
+      z = hybrid_pf(h.stanzas[stanza], Z, z, c);
     }
     xr = z.m_r;
     xi = z.m_i;
@@ -413,29 +437,29 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
 template <typename R>
 inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0)
 {
-  const int k = h.size();
+  const int k = h.stanzas.size();
   if (k == 0)
   {
     return false;
   }
   const bool simple1 =
-    h.size() == 1 &&
-    h[0].size() == 1 &&
-    h[0][0].mode == hybrid_combine_add &&
-    h[0][0].two.mul_re == 0 &&
-    h[0][0].two.mul_im == 0;
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 1 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0;
   const bool simple2 =
-    h.size() == 1 &&
-    h[0].size() == 2 &&
-    h[0][0].mode == hybrid_combine_add &&
-    h[0][0].two.mul_re == 0 &&
-    h[0][0].two.mul_im == 0 &&
-    h[0][1].mode == hybrid_combine_add &&
-    h[0][1].two.mul_re == 0 &&
-    h[0][1].two.mul_im == 0;
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 2 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0 &&
+    h.stanzas[0].lines[1].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[1].two.mul_re == 0 &&
+    h.stanzas[0].lines[1].two.mul_im == 0;
   hybrid_operator op1 = {0}, op2 = {0};
-  if (h[0].size() > 0) op1 = h[0][0].one;
-  if (h[0].size() > 1) op2 = h[0][1].one;
+  if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
+  if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
   double test1 = test10;
@@ -447,6 +471,8 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   dual<2, R> xi = xi0;
   dual<2, R> Xxr = 0;
   dual<2, R> Xxi = 0;
+  int count = 0;
+  int stanza = 0;
   for (; antal < nMaxIter; ++antal)
   {
     const R Xr = X[antal];
@@ -490,18 +516,15 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     }
     else
     {
-      bool glitch = false;
-      z = hybrid_pf(h[(antal + 1) % k], Z, z, c);
-      if (false && glitch)
+      if (++count >= h.stanzas[stanza].repeats)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
+        count = 0;
+        if (++stanza >= (ssize_t) h.stanzas.size())
         {
-          Xxr = Xr + xr;
-          Xxi = Xi + xi;
-          break;
+          stanza = h.loop_start;
         }
       }
+      z = hybrid_pf(h.stanzas[stanza], Z, z, c);
     }
     if (antal == nMaxIter - 1)
     {
@@ -543,9 +566,19 @@ inline bool reference
     mpfr_set(C.m_i.m_f.backend().data(), Ci0.m_f.backend().data(), MPFR_RNDN);
     mpfr_set_d(X.m_r.m_f.backend().data(), g_SeedR, MPFR_RNDN);
     mpfr_set_d(X.m_i.m_f.backend().data(), g_SeedI, MPFR_RNDN);
+    int count = 0;
+    int stanza = 0;
     for (i = 0; i < nMaxIter && !m_bStop; ++i)
     {
-      X = hybrid_f(h[i % h.size()], X, C); // formula
+      X = hybrid_f(h.stanzas[stanza], X, C); // formula
+      if (++count >= h.stanzas[stanza].repeats)
+      {
+        count = 0;
+        if (++stanza >= (ssize_t) h.stanzas.size())
+        {
+          stanza = h.loop_start;
+        }
+      }
       m_nRDone++;
       R Xrd = R(mpfr_get_fe(X.m_r.m_f.backend().data())); // FIXME mpfr_get()
       R Xid = R(mpfr_get_fe(X.m_i.m_f.backend().data())); // FIXME mpfr_get()
