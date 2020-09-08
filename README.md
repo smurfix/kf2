@@ -82,7 +82,7 @@ Feedback:
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
 - setting window size too big (eg width 12800) makes it disappear while KF
-  is still running (in Wine on Linux/XFCE
+  is still running (in Wine on Linux/XFCE)
 - increasing window size when window is near the top can make the title bar go
   off screen.  workaround for Windows 10: Alt+Space+M, or Shift+RightMouse on
   program icon in the task bar and select Move; then use cursor keys to move
@@ -97,10 +97,6 @@ Feedback:
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
-- crash when zooming too quickly near interior black regions (reported by
-  Foxxie) "usually near the elephant valley area or seahorse valley area of
-  minibrots, happens worse the faster you zoom, usually if you try to zoom at
-  the skinniest part very quickly"
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - with glitch center found by argmin|z|, endless references with little progress
@@ -115,7 +111,6 @@ Feedback:
 - "resume zoom sequence" sometimes uses wrong image size (depending on settings
   and whether there are `last.kfb`, `recovery.kfb`, `*_*.kfb`)
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
-- speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
   workaround is to disable auto-iterations
@@ -135,9 +130,6 @@ Feedback:
 - navigation with scroll wheel and -/+ keys is hardcoded to factor of 2 instead
   of using the zoom size set in the View menu
 - NR zoom doesn't work well in skewed locations
-- changing image size in settings files can give unintentionally stretched
-  images unless you also change the window size settings, and the window size
-  settings are weird (workaround: use the GUI to configure this)
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs Settings files
 - nanomb2 RadiusScale can only be changed by hand-editing .kfs Settings files
 - nanomb1/2 number type fixed to floatexp (long double or double would be faster)
@@ -146,7 +138,6 @@ Feedback:
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - kf-tile.exe doesn't support skew yet
-- tooltip implementation broken on multiple monitors / virtual desktops
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
 - setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
@@ -272,7 +263,29 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.10.2** (2020-??-??)
+- **kf-2.14.10.3** (????-??-??)
+
+    - fixes
+
+      - assertion failure loading some formulas (reported by panzerboy)
+      - bailout iteration count is reset to 1000 when zooming in quickly
+        after toggling fullscreen (reported by FK68)
+      - guessing exterior gives poor quality images
+        (reported by PrinceOfCreation)
+      - crash when zooming too quickly near interior black regions
+        (reported by Foxxie)
+        (may have already been fixed in an earlier version)
+      - speckles when rendering zoom out sequence
+        (may have already been fixed in an earlier version)
+
+    - library upgrades
+
+      - upgrade to boost 1.74.0
+      - upgrade to openexr 2.5.3
+      - upgrade compiler to g++-mingw-w64 10.1.0-3+23
+        (Debian Bullseye/testing) and rebuild everything
+
+- **kf-2.14.10.2** (2020-07-12)
 
     - fixes
 
@@ -282,6 +295,29 @@ Feedback:
         when not requested (reported by saka and Azula)
       - store zoom out sequence was sometimes not saving metadata in image
         files correctly
+      - setting bad SIMD vector size in KFS could crash (reported by FractalAlex)
+      - setting window size/image size from KFS should be better behaved now
+      - refactor default loading (now it loads default location kf.kfr from
+        next to EXE, as well as default settings kf.kfs; defaults are only
+        loaded when respective command line options are not given)
+      - don't recalculate fractal when changing window size (reported by FK68)
+      - fix buffer overflow crash in iterdiv -> string for GUI,
+        also fix loss of precision (reported by FK68)
+      - fix typos causing last few pixels to be corrupt in SIMD
+      - remove annoying dialogs about derivatives (requested by gerrit)
+
+    - library upgrades
+
+      - upgrade to boost 1.73.0
+      - upgrade to mpfr 4.1.0
+      - upgrade to tiff 4.1.0
+      - upgrade to glm 0.9.9.8
+      - upgrade to openexr 2.4.2
+
+    - library non-upgrades
+
+      - don't upgrade to pixman 0.40.0
+        (<https://gitlab.freedesktop.org/pixman/pixman/-/issues/43>)
 
 - **kf-2.14.10.1** (2020-06-01)
 
@@ -1054,7 +1090,7 @@ Feedback:
 - command line: print total runtime (suggested by gerrit)
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
-- window and image size presets (suggested by saka)
+- window and image size presets (suggested by saka and lycium)
 
 ### Calculations
 
@@ -1111,6 +1147,8 @@ Feedback:
 - color phase offset control
 - orbit traps
 - stripe average
+- refactor transfer functions so iterdiv is scaled sensibly (suggested by FK68)
+
 
 ## Getting The Code
 

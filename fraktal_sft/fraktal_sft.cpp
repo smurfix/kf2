@@ -3727,6 +3727,8 @@ bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 	     m_nPixels[x0][y0] != PIXEL_UNEVALUATED &&
 	     m_nPixels[x0][y0] == m_nPixels[x1][y1] &&
 	     GET_TRANS_GLITCH(m_nTrans[x0][y0]) == GET_TRANS_GLITCH(m_nTrans[x1][y1]) &&
+	     // only guess glitches or interior, not escaped exterior
+	     ( GET_TRANS_GLITCH(m_nTrans[x0][y0]) || (m_nPixels[x0][y0] >= m_nMaxIter) ) &&
 	      // never guess reference, in case we guess it to be glitched
 	      // (prevent possible infinite loop in next reference selection)
 	     x != g_nAddRefX && y != g_nAddRefY

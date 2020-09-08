@@ -27,21 +27,21 @@ cp -avft ~/win64/src *.patch
 cp -avft ~/win32/src *.patch
 # download
 cd ~/win64/src
-wget -c https://dl.bintray.com/boostorg/release/1.72.0/source/boost_1_72_0.7z
+wget -c https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.7z
 wget -c https://gmplib.org/download/gmp/gmp-6.2.0.tar.lz
-wget -c https://www.mpfr.org/mpfr-current/mpfr-4.0.2.tar.xz
-wget -c https://www.mpfr.org/mpfr-current/allpatches
+wget -c https://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.xz
+#wget -c https://www.mpfr.org/mpfr-current/allpatches
 wget -c https://zlib.net/zlib-1.2.11.tar.xz
 wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
 wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
-wget -c https://download.osgeo.org/libtiff/tiff-4.0.10.tar.gz
+wget -c https://download.osgeo.org/libtiff/tiff-4.1.0.tar.gz
 wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
 wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
-wget -c https://github.com/g-truc/glm/releases/download/0.9.9.7/glm-0.9.9.7.7z
-wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.4.1.tar.gz -O openexr-2.4.1.tar.gz
+wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
+wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.3.tar.gz -O openexr-2.5.3.tar.gz
 git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
 git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
-cp -avft ~/win32/src *z allpatches mingw-std-threads clew
+cp -avft ~/win32/src *z mingw-std-threads clew # allpatches
 elif [ "x$1" = "x64" ]
 then
 # gmp 64
@@ -56,7 +56,7 @@ make check
 cd ~/win64/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
-patch -N -Z -p1 < ../allpatches
+#patch -N -Z -p1 < ../allpatches
 ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win64 --with-gmp-build=../gmp-6.2.0 --enable-static --disable-shared
 make -j $NCPUS
 make install
@@ -148,7 +148,7 @@ make check
 cd ~/win32/src
 tar xf mpfr-*.tar.xz
 cd mpfr-*/
-patch -N -Z -p1 < ../allpatches
+#patch -N -Z -p1 < ../allpatches
 ./configure --host=i686-w64-mingw32 --prefix=$HOME/win32 --with-gmp-build=../gmp-6.2.0 --enable-static --disable-shared
 make -j $NCPUS
 make install
