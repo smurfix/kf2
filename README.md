@@ -83,10 +83,6 @@ Feedback:
   fails - also need to check huge sizes) (reported by gerrit)
 - setting window size too big (eg width 12800) makes it disappear while KF
   is still running (in Wine on Linux/XFCE)
-- assertion failure loading some formulas (reported by panzerboy)
-- imprecision and possible crash in iterdiv in color dialog (reported by FK68)
-- bailout iteration count is reset to 1000 when zooming in quickly
-  after toggling fullscreen (reported by FK68)
 - increasing window size when window is near the top can make the title bar go
   off screen.  workaround for Windows 10: Alt+Space+M, or Shift+RightMouse on
   program icon in the task bar and select Move; then use cursor keys to move
@@ -101,10 +97,6 @@ Feedback:
 - with "reuse reference", corrupt image at transition between number types
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
-- crash when zooming too quickly near interior black regions (reported by
-  Foxxie) "usually near the elephant valley area or seahorse valley area of
-  minibrots, happens worse the faster you zoom, usually if you try to zoom at
-  the skinniest part very quickly"
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH)
 - with glitch center found by argmin|z|, endless references with little progress
@@ -119,7 +111,6 @@ Feedback:
 - "resume zoom sequence" sometimes uses wrong image size (depending on settings
   and whether there are `last.kfb`, `recovery.kfb`, `*_*.kfb`)
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
-- speckles when rendering zoom out sequence
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
   workaround is to disable auto-iterations
@@ -269,6 +260,28 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.10.3** (????-??-??)
+
+    - fixes
+
+      - assertion failure loading some formulas (reported by panzerboy)
+      - bailout iteration count is reset to 1000 when zooming in quickly
+        after toggling fullscreen (reported by FK68)
+      - guessing exterior gives poor quality images
+        (reported by PrinceOfCreation)
+      - crash when zooming too quickly near interior black regions
+        (reported by Foxxie)
+        (may have already been fixed in an earlier version)
+      - speckles when rendering zoom out sequence
+        (may have already been fixed in an earlier version)
+
+    - library upgrades
+
+      - upgrade to boost 1.74.0
+      - upgrade to openexr 2.5.3
+      - upgrade compiler to g++-mingw-w64 10.1.0-3+23
+        (Debian Bullseye/testing) and rebuild everything
 
 - **kf-2.14.10.2** (2020-07-12)
 
