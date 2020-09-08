@@ -82,7 +82,11 @@ Feedback:
 - out of memory conditions cause crashes (for example, if bitmap creation
   fails - also need to check huge sizes) (reported by gerrit)
 - setting window size too big (eg width 12800) makes it disappear while KF
-  is still running (in Wine on Linux/XFCE
+  is still running (in Wine on Linux/XFCE)
+- assertion failure loading some formulas (reported by panzerboy)
+- imprecision and possible crash in iterdiv in color dialog (reported by FK68)
+- bailout iteration count is reset to 1000 when zooming in quickly
+  after toggling fullscreen (reported by FK68)
 - increasing window size when window is near the top can make the title bar go
   off screen.  workaround for Windows 10: Alt+Space+M, or Shift+RightMouse on
   program icon in the task bar and select Move; then use cursor keys to move
@@ -1071,7 +1075,7 @@ Feedback:
 - command line: print total runtime (suggested by gerrit)
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
-- window and image size presets (suggested by saka)
+- window and image size presets (suggested by saka and lycium)
 
 ### Calculations
 
@@ -1128,6 +1132,8 @@ Feedback:
 - color phase offset control
 - orbit traps
 - stripe average
+- refactor transfer functions so iterdiv is scaled sensibly (suggested by FK68)
+
 
 ## Getting The Code
 
