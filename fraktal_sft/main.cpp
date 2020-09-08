@@ -1191,7 +1191,9 @@ static void AutoIterations()
 		if (nMax == PIXEL_UNEVALUATED)
 			return;
 		if(nMax<g_SFT.GetIterations()/3)
-			g_SFT.SetIterations(nMax*3>1000?nMax*3:1000);
+			// above sanity check sometimes fails?
+			if (nMax * 3 > 1000)
+				g_SFT.SetIterations(nMax * 3);
 	}
 }
 
