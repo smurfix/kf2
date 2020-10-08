@@ -17,7 +17,7 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 set -e
 NCPUS="$(( $(nproc) * 2 ))"
-export CPPFLAGS=-D__USE_MINGW_ANSI_STDIO
+export CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1"
 export LDFLAGS="-static-libgcc -static-libstdc++"
 if [ "x$1" = "xdl" ]
 then
