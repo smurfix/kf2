@@ -1103,6 +1103,7 @@ Feedback:
 - refine minibrot using boundary shrinking (calculate edges only)
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
 - "find center of glitch" cycle between multiple selected methods
+- "Hidden Mandelbrot" formula (suggested by FractalAlex and gerrit)
 
 ### Newton-Raphson Zooming
 
@@ -1148,6 +1149,7 @@ Feedback:
 - orbit traps
 - stripe average
 - refactor transfer functions so iterdiv is scaled sensibly (suggested by FK68)
+- exponential smoothing colouring algorithm (suggested by FractalAlex)
 
 
 ## Getting The Code
