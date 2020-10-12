@@ -68,6 +68,9 @@ void CFraktalSFT::MandelCalcEXP()
 	const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
 	const floatexp s = m_fPixelSpacing;
 	const mat2 TK = GetTransformMatrix();
+	const floatexp Cx = floatexp(m_rref);
+	const floatexp Cy = floatexp(m_iref);
+
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
@@ -101,7 +104,31 @@ void CFraktalSFT::MandelCalcEXP()
 		bool bGlitch = FALSE;
 		int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
 
-		if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+		if (GetUseHybridFormula())
+		{
+
+			int power = 1;
+			if (derivatives)
+			{
+				dual<2, floatexp> dDr = Dr; dDr.dx[0] = 1; dDr.dx[1] = 0;
+				dual<2, floatexp> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
+				dual<2, floatexp> ddbD0r = D0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
+				dual<2, floatexp> ddbD0i = D0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
+				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power);
+				assert(ok && "perturbation_floatexp_dual_hybrid");
+				de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
+			}
+			else
+			{
+				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, D0r, D0i, power);
+				assert(ok && "perturbation_floatexp_hybrid");
+			}
+			OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
+			InterlockedIncrement((LPLONG)&m_nDone);
+			OutputPixelData(x, y, w, h, bGlitch);
+
+		}
+		else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
 			if (derivatives)
 			{

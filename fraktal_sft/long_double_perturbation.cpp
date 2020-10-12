@@ -128,6 +128,8 @@ void CFraktalSFT::MandelCalcLDBL()
   const long double s = m_lPixelSpacing;
   const floatexp fs = m_fPixelSpacing;
   const mat2 TK = GetTransformMatrix();
+  const long double Cx = m_rref.ToLongDouble();
+  const long double Cy = m_iref.ToLongDouble();
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -168,7 +170,31 @@ void CFraktalSFT::MandelCalcLDBL()
     long double Jya = dya1.toLongDouble();
     long double Jyb = dyb1.toLongDouble();
 
-    if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
+    if (GetUseHybridFormula())
+    {
+
+      int power = 1;
+      if (derivatives)
+      {
+        dual<2, long double> dDr = Dr; dDr.dx[0] = 1; dDr.dx[1] = 0;
+        dual<2, long double> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
+        dual<2, long double> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
+        dual<2, long double> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power);
+        assert(ok && "perturbation_long_double_dual_hybrid");
+        de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
+      }
+      else
+      {
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i, power);
+        assert(ok && "perturbation_long_double_hybrid");
+      }
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
+      InterlockedIncrement((LPLONG)&m_nDone);
+      OutputPixelData(x, y, w, h, bGlitch);
+
+    }
+    else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
     { // FIXME check this is still ok around long double vs scaled double zoom threshold e600
 
       long double dr = Jxa;

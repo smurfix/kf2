@@ -176,7 +176,12 @@ void CFraktalSFT::CalculateReferenceEXP()
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
 	int64_t nMaxIter = m_nMaxIter;
-	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()) // FIXME matrix derivatives, option to disable derivatives
+	if (GetUseHybridFormula())
+	{
+		bool ok = reference(GetHybridFormula(), m_dxr, m_dxi, m_db_z, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
+		assert(ok && "reference_long_double_hybrid");
+	}
+	else if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference()) // FIXME matrix derivatives, option to disable derivatives
 	{
 		double glitch_threshold = 0.0000001;
 		if (GetGlitchLowTolerance()) {
