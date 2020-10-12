@@ -219,7 +219,7 @@ void CFraktalSFT::MandelCalcEXP()
 
 		}
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);
 	}

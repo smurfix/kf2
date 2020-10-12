@@ -184,7 +184,10 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
       // set widgets according to formula
       const hybrid_formula h = g_SFT.GetHybridFormula();
-      int loop_start = h.loop_start;
+      bool loop_start_1 = h.loop_start == 0;
+      bool loop_start_2 = h.loop_start == 1;
+      bool loop_start_3 = h.loop_start == 2;
+      bool loop_start_4 = h.loop_start == 3;
       bool a1 = h.stanzas.size() > 0 && h.stanzas[0].lines.size() > 0;
       bool b1 = h.stanzas.size() > 0 && h.stanzas[0].lines.size() > 1;
       bool a2 = h.stanzas.size() > 1 && h.stanzas[1].lines.size() > 0;
@@ -366,7 +369,10 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       R(IDC_HYBRID_4B_AIM2, b4, b42.mul_im, "A Imag")
       B(IDC_HYBRID_4B_ACTIVE, true, b4, "Step 2")
 
-      N(IDC_HYBRID_LOOP_START, true, loop_start, "Loop Start")
+      B(IDC_HYBRID_LOOP_START_1, true, loop_start_1, "Start Loop")
+      B(IDC_HYBRID_LOOP_START_2, true, loop_start_2, "Start Loop")
+      B(IDC_HYBRID_LOOP_START_3, true, loop_start_3, "Start Loop")
+      B(IDC_HYBRID_LOOP_START_4, true, loop_start_4, "Start Loop")
 #undef B
 #undef N
 #undef R
@@ -391,7 +397,10 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 #define N(idc, f) f = GetDlgItemInt(hWnd, idc, 0, 0);
 #define R(idc, f) f = GetDlgItemFloat(hWnd, idc);
 #define O(idc, f) f = SendDlgItemMessage(hWnd, idc, CB_GETCURSEL, 0, 0);
-          int loop_start = 0;
+          bool loop_start_1 = false;
+          bool loop_start_2 = false;
+          bool loop_start_3 = false;
+          bool loop_start_4 = false;
           int group1 = 0;
           int group2 = 0;
           int group3 = 0;
@@ -565,13 +574,16 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           R(IDC_HYBRID_4B_AIM2, b42.mul_im)
           B(IDC_HYBRID_4B_ACTIVE, b4)
 
-          N(IDC_HYBRID_LOOP_START, loop_start)
+          B(IDC_HYBRID_LOOP_START_1, loop_start_1)
+          B(IDC_HYBRID_LOOP_START_2, loop_start_2)
+          B(IDC_HYBRID_LOOP_START_3, loop_start_3)
+          B(IDC_HYBRID_LOOP_START_4, loop_start_4)
 #undef B
 #undef R
 #undef N
 #undef O
           hybrid_formula h;
-          h.loop_start = loop_start;
+          h.loop_start = loop_start_1 ? 0 : loop_start_2 ? 1 : loop_start_3 ? 2 : loop_start_4 ? 3 : 0;
 
           if (group1 > 0)
           {

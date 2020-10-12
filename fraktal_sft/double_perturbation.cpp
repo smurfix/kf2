@@ -89,22 +89,23 @@ void CFraktalSFT::MandelCalc()
     if (GetUseHybridFormula())
     {
 
+      int power = 1;
       if (derivatives)
       {
         dual<2, double> dDr = Dr; dDr.dx[0] = 1; dDr.dx[1] = 0;
         dual<2, double> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
         dual<2, double> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
         dual<2, double> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
-        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i);
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power);
         assert(ok && "perturbation_double_dual_hybrid");
         de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
       }
       else
       {
-        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i);
+        bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_db_dxr, m_db_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i, power);
         assert(ok && "perturbation_double_hybrid");
       }
-      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
       InterlockedIncrement((LPLONG)&m_nDone);
       OutputPixelData(x, y, w, h, bGlitch);
 
@@ -379,7 +380,7 @@ void CFraktalSFT::MandelCalc()
         for (k = 0; k < vectorsize; ++k)
         {
           de = compute_de(Dr16[k], Di16[k], Jxa16[k], Jxb16[k], Jya16[k], Jyb16[k], s, TK);
-          OutputIterationData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k], antal16[k], test116[k], test216[k], phase16[k], nBailout, de);
+          OutputIterationData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k], antal16[k], test116[k], test216[k], phase16[k], nBailout, de, m_nPower);
           InterlockedIncrement((LPLONG)&m_nDone);
           OutputPixelData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k]);
         }
@@ -390,7 +391,7 @@ void CFraktalSFT::MandelCalc()
     {
       if (! GetUseHybridFormula())
       {
-        OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+        OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
         InterlockedIncrement((LPLONG)&m_nDone);
         OutputPixelData(x, y, w, h, bGlitch);
       }
@@ -431,7 +432,7 @@ void CFraktalSFT::MandelCalc()
         ;
       assert(ok && "perturbation_double");
       complex<double> de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
-      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
       InterlockedIncrement((LPLONG)&m_nDone);
       OutputPixelData(x, y, w, h, bGlitch);
     }

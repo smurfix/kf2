@@ -57,7 +57,7 @@ void CFraktalSFT::MandelCalcNANOMB1()
 			NanoMB1_Pixel(m_NanoMB1Ref, dc, m_fPixelSpacing, m_nMaxIter, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, p, nBailout2);
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
-		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de);
+		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
 		InterlockedIncrement((LPLONG)&m_nDone);
 		OutputPixelData(x, y, w, h, bGlitch);
 	}

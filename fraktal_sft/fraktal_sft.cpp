@@ -3623,7 +3623,7 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de, int power)
 {
 		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 		if (antal == m_nGlitchIter)
@@ -3672,7 +3672,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 			}
 
 			else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Log){
-				double t = log(log(sqrt(test1))) / log((double)m_nPower);
+				double t = log(log(sqrt(test1)) / log(GetBailoutRadius())) / log((double) power);
 				if (!ISFLOATOK(t))
 					t = 0;
 				int64_t i = floor(t);

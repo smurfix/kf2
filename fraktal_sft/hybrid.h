@@ -324,8 +324,41 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_stanza &h, complex<R> Z, comple
   return z + c;
 }
 
+static inline int hybrid_power_inf(const hybrid_operator &h)
+{
+  if (h.mul_re == 0 && h.mul_im == 0)
+  {
+    return 1;
+  }
+  return h.pow;
+}
+
+static inline int hybrid_power_inf(const hybrid_line &h)
+{
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    case hybrid_combine_sub:
+      return std::max(hybrid_power_inf(h.one), hybrid_power_inf(h.two));
+    case hybrid_combine_mul:
+      return hybrid_power_inf(h.one) * hybrid_power_inf(h.two);
+  }
+  return 1;
+}
+
+static inline int hybrid_power_inf(const hybrid_stanza &h)
+{
+  int power = 1;
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    power *= hybrid_power_inf(h.lines[i]);
+  }
+  return power;
+}
+
 template <typename R>
-inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0)
+inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -413,6 +446,7 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     xr = z.m_r;
     xi = z.m_i;
   }
+  power = hybrid_power_inf(h.stanzas[stanza]);
   antal0 = antal;
   test10 = test1;
   test20 = test2;
@@ -423,7 +457,7 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
 }
 
 template <typename R>
-inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0)
+inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -522,6 +556,7 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
     xr = z.m_r;
     xi = z.m_i;
   }
+  power = hybrid_power_inf(h.stanzas[stanza]);
   antal0 = antal;
   test10 = test1;
   test20 = test2;
