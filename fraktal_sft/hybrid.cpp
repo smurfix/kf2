@@ -125,7 +125,6 @@ extern hybrid_combine hybrid_combine_from_string(const std::string &s)
     case 0: r = hybrid_combine_add; break;
     case 1: r = hybrid_combine_sub; break;
     case 2: r = hybrid_combine_mul; break;
-    case 3: r = hybrid_combine_div; break;
   }
   return r;
 }
@@ -228,7 +227,6 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
   SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "+"); \
   SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "-"); \
   SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "*"); \
-  SendDlgItemMessage(hWnd, idc, CB_ADDSTRING, 0, (LPARAM) "/"); \
   SendDlgItemMessage(hWnd, idc, CB_SETCURSEL, value, 0); \
   E(idc, enable)
 
@@ -868,9 +866,6 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
           break;
         case hybrid_combine_mul:
           deg = deg1 + deg2;
-          break;
-        case hybrid_combine_div:
-          deg = deg1 - deg2;
           break;
       }
       degs *= deg;
