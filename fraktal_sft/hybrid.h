@@ -357,6 +357,17 @@ static inline int hybrid_power_inf(const hybrid_stanza &h)
   return power;
 }
 
+static inline int hybrid_power_inf(const hybrid_formula &h)
+{
+  int power = 1;
+  const int k = h.stanzas.size();
+  for (int i = 0; i < k; ++i)
+  {
+    power = std::max(power, hybrid_power_inf(h.stanzas[i]));
+  }
+  return power;
+}
+
 template <typename R>
 inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const R *X, const R *Y, const double *G, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power)
 {
@@ -580,7 +591,9 @@ inline bool reference
     m_nGlitchIter = m_nMaxIter + 1;
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
-    double glitch = 1e-6;
+    int power = hybrid_power_inf(h);
+    double glitches[] = { 1e-7, 1e-6, 1e-5, 1e-4, 1e-4, 1e-3, 1e-3, 1e-2 };
+    double glitch = glitches[std::min(std::max(0, power - 2), 7)];
     if (m_bGlitchLowTolerance) {
       glitch = std::sqrt(glitch);
     }
