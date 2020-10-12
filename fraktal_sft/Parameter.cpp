@@ -339,38 +339,6 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		g_period = 0;
 	}
 
-	if (! bNoLocation)
-	{
-	bool ld = GetLongDoubleAlways();
-	bool fe = GetFloatExpAlways();
-	if (scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-	{
-		if (m_nPower == 2)
-		{
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-			g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
-		}
-		if (m_nPower == 3)
-		{
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
-			g_nEXP = FLOATEXP_THRESHOLD_POWER_3;
-		}
-	}
-	else
-	{
-		g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-		g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-	}
-	if (ld)
-	{
-		g_nLDBL = 3;
-	}
-	if (fe)
-	{
-		g_nEXP = 2;
-	}
-	}
-
 	int nC = stParams.FindString(0, "Colors");
   if (nC != -1)
   {
@@ -452,6 +420,38 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 	{
 		SetUseHybridFormula(false);
+	}
+
+	if (! bNoLocation)
+	{
+	bool ld = GetLongDoubleAlways();
+	bool fe = GetFloatExpAlways();
+	if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	{
+		if (m_nPower == 2)
+		{
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
+			g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
+		}
+		if (m_nPower == 3)
+		{
+			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
+			g_nEXP = FLOATEXP_THRESHOLD_POWER_3;
+		}
+	}
+	else
+	{
+		g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+		g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
+	}
+	if (ld)
+	{
+		g_nLDBL = 3;
+	}
+	if (fe)
+	{
+		g_nEXP = 2;
+	}
 	}
 
 	if (! bNoLocation)

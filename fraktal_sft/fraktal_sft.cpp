@@ -64,8 +64,8 @@ double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
-int g_nLDBL = 600;
-int g_nEXP = 9800;
+int g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
+int g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
 int g_nRefZero = 3;
 #define APPROX_GRID 19
 #define TERM4
@@ -3242,9 +3242,9 @@ void CFraktalSFT::SetPower(int nPower)
 //	if (m_nFractalType>4 && m_nPower>3)
 //		m_nPower = 3;
 	if (g_nLDBL>100){
-		if (m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+		if (! GetUseHybridFormula() && m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-		else if (m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+		else if (! GetUseHybridFormula() && m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
 		else
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
@@ -3387,9 +3387,9 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 		m_nPower = 2;
 
 	if (g_nLDBL>100){
-		if (m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+		if (! GetUseHybridFormula() && m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-		else if (m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+		else if (! GetUseHybridFormula() && m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
 		else
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
