@@ -3730,6 +3730,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_EXPONENTIAL_MAP){
 		g_SFT.SetExponentialMap(! g_SFT.GetExponentialMap());
 		UpdateExponentialMap(hWnd);
+		SendMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_NEWTON){
 		g_bNewton=!g_bNewton;
