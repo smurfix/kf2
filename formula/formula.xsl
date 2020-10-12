@@ -2073,6 +2073,7 @@ bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool 
 
 void combo5_addstrings(HWND hWnd, const int IDC_COMBO5)
 {
+  SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"(Hybrid)");
   <xsl:for-each select="formulas/group">
     SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"<xsl:value-of select="@name" />"); // <xsl:value-of select="@type" />
   </xsl:for-each>

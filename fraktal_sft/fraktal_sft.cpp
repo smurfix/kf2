@@ -237,6 +237,21 @@ CFraktalSFT::CFraktalSFT()
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
 	m_UseHybridFormula = false;
+	{
+		// Mandelbrot power 2
+		hybrid_line l =
+			{ { false, false, false, false, 2, 1.0, 0.0 }
+			, { false, false, false, false, 2, 0.0, 0.0 }
+			, hybrid_combine_add
+			};
+	        hybrid_stanza s;
+		s.lines.push_back(l);
+		s.repeats = 1;
+		hybrid_formula h;
+		h.stanzas.push_back(s);
+		h.loop_start = 0;
+		m_HybridFormula = h;
+	}
 
 	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
@@ -1458,13 +1473,13 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_db_z,
 	  antal,
 	  m_nMaxIter,
-	 
+
 	  // formula selection
 	  0,
 	  m_nFractalType,
 	  m_nPower,
 	  GetDerivatives(),
-	
+
 	  // output arrays
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
@@ -1535,13 +1550,13 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_db_z,
 	  antal,
 	  m_nMaxIter,
-	 
+
 	  // formula selection
 	  2,
 	  m_nFractalType,
 	  m_nPower,
 	  GetDerivatives(),
-	
+
 	  // output arrays
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
@@ -2616,7 +2631,7 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 							}
 							if (m_nDEx) sum_de_x += m_nDEx[x2][y2];
 							if (m_nDEy) sum_de_y += m_nDEy[x2][y2];
-							
+
 						}
 						if (neighbour_glitched)
 						{

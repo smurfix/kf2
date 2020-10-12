@@ -43,22 +43,45 @@ static int RefreshPower(HWND hWnd, bool refresh = true)
   return i;
 }
 
-static void UpdateFractalType(HWND hWnd, int i = -1, int p = -1)
+static void UpdateFractalType(HWND hWnd, int i = -2, int p = -1)
 {
-  if (i < 0) i = g_SFT.GetFractalType();
+  if (i < -1)
+  {
+    i = g_SFT.GetFractalType();
+    if (g_SFT.GetUseHybridFormula()) i = -1;
+  }
   if (p < 0) p = g_SFT.GetPower();
-  SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETCURSEL,i,0);
-  i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0);
-  p = validate_power_for_fractal_type(i, p);
-  update_power_dropdown_for_fractal_type(hWnd, IDC_FORMULA_POWER, i, p);
-  g_SFT.SetFractalType(i);
-  g_SFT.SetPower(p);
+  SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETCURSEL,i + 1,0);
+  i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0) - 1;
+  if (0 <= i)
+  {
+    p = validate_power_for_fractal_type(i, p);
+    update_power_dropdown_for_fractal_type(hWnd, IDC_FORMULA_POWER, i, p);
+    g_SFT.SetUseHybridFormula(false);
+    g_SFT.SetFractalType(i);
+    g_SFT.SetPower(p);
+  }
+  else
+  {
+    g_SFT.SetUseHybridFormula(true);
+  }
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
 {
-  int i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0);
-  if (refresh) g_SFT.SetFractalType(i);
+  int i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0) - 1;
+  if (refresh)
+  {
+    if (0 <= i)
+    {
+      g_SFT.SetUseHybridFormula(false);
+      g_SFT.SetFractalType(i);
+    }
+    else
+    {
+      g_SFT.SetUseHybridFormula(true);
+    }
+  }
   return i;
 }
 
