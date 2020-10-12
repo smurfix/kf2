@@ -427,6 +427,33 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	i = stParams.FindString(0, "TextureFile");
 	if (i != -1) m_szTexture = stParams[i][1];
 
+	i = stParams.FindString(0, "UseHybridFormula");
+	if (i != -1 && atoi(stParams[i][1]))
+	{
+		i = stParams.FindString(0, "HybridFormula");
+		if (i != -1)
+		{
+			hybrid_formula h = hybrid_formula_from_string(stParams[i][1]);
+			if (valid(h))
+			{
+				SetHybridFormula(h);
+				SetUseHybridFormula(true);
+			}
+			else
+			{
+				SetUseHybridFormula(false);
+			}
+		}
+		else
+		{
+			SetUseHybridFormula(false);
+		}
+	}
+	else
+	{
+		SetUseHybridFormula(false);
+	}
+
 	if (! bNoLocation)
 	{
 		if (nIterations != -1) m_nMaxIter = atoll(stParams[nIterations][1]);
@@ -571,6 +598,12 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("TexturePower", m_nImgPower)
 	INT("TextureRatio", m_nImgRatio)
 	STRING("TextureFile", m_szTexture)
+
+	if (GetUseHybridFormula())
+	{
+		INT("UseHybridFormula", 1)
+		STRING("HybridFormula", to_string(GetHybridFormula()).c_str())
+	}
 
 	INT("Version", kfr_version_number)
 
