@@ -3742,9 +3742,9 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	}
 	floatexp u = u0 * m_pixel_scale;
 	floatexp v = v0 * m_pixel_scale;
-	mat2 m = GetTransformMatrix(); // FIXME check transpose
-	x = m_pixel_center_x + m[0][0] * u + m[1][0] * v;
-	y = m_pixel_center_y + m[0][1] * u + m[1][1] * v;
+	mat2 m = GetTransformMatrix();
+	x = m_pixel_center_x + m[0][0] * u + m[0][1] * v;
+	y = m_pixel_center_y + m[1][0] * u + m[1][1] * v;
 }
 
 void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y, floatexp &daa, floatexp &dab, floatexp &dba, floatexp &dbb) const
@@ -3775,9 +3775,9 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	}
 	dual<2, floatexp> u = dual<2, floatexp>(u0) * m_pixel_scale;
 	dual<2, floatexp> v = dual<2, floatexp>(v0) * m_pixel_scale;
-	mat2 m = GetTransformMatrix(); // FIXME check transpose
-	dual<2, floatexp> x0 = m_pixel_center_x + m[0][0] * u + m[1][0] * v;
-	dual<2, floatexp> y0 = m_pixel_center_y + m[0][1] * u + m[1][1] * v;
+	mat2 m = GetTransformMatrix();
+	dual<2, floatexp> x0 = m_pixel_center_x + m[0][0] * u + m[0][1] * v;
+	dual<2, floatexp> y0 = m_pixel_center_y + m[1][0] * u + m[1][1] * v;
 	x = x0.x;
 	y = y0.x;
 	daa = x0.dx[0];

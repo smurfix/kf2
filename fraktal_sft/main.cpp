@@ -69,6 +69,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_formula.h"
 #include "main_position.h"
 #include "main_ptsatuning.h"
+#include "main_transformation.h"
 #include "cmdline.h"
 #include <iostream>
 #include <sstream>
@@ -83,6 +84,31 @@ extern double g_SeedR;
 extern double g_SeedI;
 extern double g_FactorAR;
 extern double g_FactorAI;
+
+// interactive transformation editing
+
+HWND g_hwTransformationDialog = nullptr;
+bool g_bTransformationDialogIsOpen = false;
+static polar2 g_transformation_delta = polar2(1, 0, 1, 0);
+
+enum RotateMode
+{
+	RotateMode_Idle = 0,
+	RotateMode_Start = 1,
+	RotateMode_Started = 2
+};
+static RotateMode g_bRotate = RotateMode_Idle;
+static double g_transformation_rotate_start = 0;
+
+enum StretchMode
+{
+	StretchMode_Idle = 0,
+	StretchMode_Start = 1,
+	StretchMode_Started = 2
+};
+static StretchMode g_bStretch = StretchMode_Idle;
+static double g_transformation_stretch_angle_start = 0;
+static double g_transformation_stretch_radius_start = 0;
 
 //#define PARAM_ANIMATION
 
@@ -112,7 +138,6 @@ extern int g_nEXP;
 #define GWL_USERDATA -21
 #endif
 
-extern double g_Degree;
 extern double g_real;
 extern double g_imag;
 extern int g_bAutoGlitch;
@@ -123,12 +148,10 @@ CFraktalSFT g_SFT;
 
 bool g_bAddMainReference=false;
 int g_bAutoGlitch = 1;
-BOOL g_bRotate=FALSE;
+
 BOOL g_bMove=FALSE;
 BOOL g_bShowInflection=FALSE;
-BOOL g_bShowSkew=FALSE;
-double g_nSkewStretch;
-double g_nSkewRotate;
+
 double g_StartDegree=0;
 BOOL bXSign=FALSE;
 double g_MoveDegree=0;
@@ -1360,15 +1383,6 @@ static int ResumeZoomSequence(HWND hWnd)
 	return 0;
 }
 int g_nHandleDone=0;
-int g_bSkewAnimation=0;
-double g_dbSkewToRatio=0;
-double g_dbSkewToAnim=0;
-double g_dbSkewRatio=0;
-double g_dbSkewAnim=0;
-double g_dbRotateRatio=0;
-double g_dbRotateStart=0;
-double g_dbRotateAnim=0;
-int g_nSkewFrames=300;
 
 static double CompareBitmaps(HBITMAP bm1, HBITMAP bm2)
 {
@@ -1605,51 +1619,6 @@ nPos=14;
 			}
 			else{
 				AutoIterations();
-
-#if 0
-				if(g_bSkewAnimation){
-					if(g_bSkewAnimation==1){
-						g_bSkewAnimation=2;
-						g_dbSkewAnim = g_SFT.GetRatioY();
-
-						g_dbSkewAnim = 100*g_SFT.GetRatioY()/360;
-						SIZE size;
-						size.cx = g_SFT.GetWidth();
-						size.cy = g_SFT.GetHeight();
-						double xRatio = 640.0/size.cx;
-						size.cx = 640;
-						size.cy = size.cy*xRatio;
-						xRatio = (double)360/(double)size.cy;
-						g_dbSkewAnim*=xRatio;
-
-						g_dbSkewRatio = pow(10,log10((double)100/g_dbSkewAnim)/(double)g_nSkewFrames);
-						g_dbSkewAnim = g_SFT.GetRatioY();
-						//g_dbSkewRatio = ((double)360*g_dbSkewToRatio/100-(double)g_dbSkewAnim)/(double)(g_nSkewFrames-1);
-						g_dbRotateRatio = (pi*g_dbSkewToAnim/180-g_Degree)/g_nSkewFrames;
-						/*g_dbRotateStart = g_Degree;
-						g_dbRotateAnim = (g_Degree<0?-g_Degree:g_Degree)+1;
-						g_dbRotateRatio = pow(10,log10(g_dbRotateAnim)/(double)g_nSkewFrames);
-						g_dbRotateAnim=g_dbRotateRatio;*/
-					}
-					g_dbSkewAnim*=g_dbSkewRatio;
-					//g_dbSkewAnim+=g_dbSkewRatio;
-					g_Degree+=g_dbRotateRatio;
-					/*if(g_Degree>0)
-						g_Degree = g_dbRotateStart-(g_dbRotateAnim-1);
-					else
-						g_Degree = g_dbRotateStart+(g_dbRotateAnim-1);
-						*/
-					g_dbRotateAnim *= g_dbRotateRatio;
-					g_nSkewFrames--;
-					if(g_nSkewFrames==0)
-						return 0;
-					g_SFT.SetRatio(640,g_dbSkewAnim);
-					DisableUnsafeMenus(hWnd);
-					g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-					SetTimer(hWnd,0,500,NULL);
-				}
-				else
-#endif
 				{
 //					if(g_bAnimateEachFrame)
 //						g_Degree+=0.01;
@@ -1896,593 +1865,6 @@ static int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			EndDialog(hWnd,0);
 		else if(wParam==IDOK)
 			EndDialog(hWnd,GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0));
-	}
-	return 0;
-}
-static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
-{
-	HDC hDC = GetDC(NULL);
-	BYTE *lpBits=NULL;
-	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
-	int row;
-	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
-	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
-	bmi.biBitCount = 24;
-	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
-	bmi.biSizeImage=row*bmi.biHeight;
-	BYTE *lpOrgBits = new BYTE[bmi.biSizeImage];
-	GetDIBits(hDC,bmBkg,0,bmi.biHeight,lpOrgBits,
-			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
-	lpBits = new BYTE[bmi.biSizeImage];
-	memset(lpBits,0,bmi.biSizeImage);
-	int x, y;
-	double diagonal = sqrt((double)(bmi.biWidth*bmi.biWidth/4+bmi.biHeight*bmi.biHeight/4));
-	complex<double> z0(pm.x, pm.y);
-	int power = g_SFT.GetPower();
-	for(x=0;x<bmi.biWidth;x++){
-		for(y=0;y<bmi.biHeight;y++){
-			complex<double> z(x, y);
-			z -= z0;
-			z /= diagonal;
-			z = z ^ power;
-			z *= diagonal;
-			z += z0;
-			int dx = z.m_r;
-			int dy = z.m_i;
-			if(dx<=-1 || dy<=-1 || dx>=bmi.biWidth || dy>=bmi.biHeight)
-				continue;
-			int nIndex = x*3 + (bmi.biHeight-1-y)*row;
-			int nDIndex = dx*3 + (bmi.biHeight-1-dy)*row;
-			lpBits[nIndex]=lpOrgBits[nDIndex];
-			lpBits[nIndex+1]=lpOrgBits[nDIndex+1];
-			lpBits[nIndex+2]=lpOrgBits[nDIndex+2];
-
-		}
-	}
-	SetDIBits(hDC,bmBkg,0,bmi.biHeight,lpBits,
-			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
-	ReleaseDC(NULL,hDC);
-	delete lpOrgBits;
-	delete lpBits;
-}
-static void RotateImage(HBITMAP bmBkg,HBITMAP bmBkgDraw,POINT pm,double nDegree)
-{
-
-	double s = sin(nDegree);
-	double c = cos(nDegree);
-	HDC hDC = GetDC(NULL);
-	BYTE *lpBits=NULL;
-	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
-	int row;
-	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
-	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
-	bmi.biBitCount = 24;
-	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
-	bmi.biSizeImage=row*bmi.biHeight;
-	BYTE *lpOrgBits = new BYTE[bmi.biSizeImage];
-	GetDIBits(hDC,bmBkg,0,bmi.biHeight,lpOrgBits,
-			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
-
-	BITMAPINFOHEADER bmiDraw={sizeof(BITMAPINFOHEADER)};
-	GetDIBits(hDC,bmBkgDraw,0,0,NULL,(LPBITMAPINFO)&bmiDraw,DIB_RGB_COLORS);
-	bmiDraw.biCompression=bmiDraw.biClrUsed=bmiDraw.biClrImportant=0;
-	bmiDraw.biBitCount = 24;
-	int rowDraw = ((((bmiDraw.biWidth*(DWORD)bmiDraw.biBitCount)+31)&~31) >> 3);
-	bmiDraw.biSizeImage=rowDraw*bmiDraw.biHeight;
-	lpBits = new BYTE[bmiDraw.biSizeImage];
-	memset(lpBits,50,bmiDraw.biSizeImage);
-
-	POINT p1, p2;
-	for(p1.y=0;p1.y<bmiDraw.biHeight;p1.y++){
-		for(p1.x=0;p1.x<bmiDraw.biWidth;p1.x++){
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw] = lpOrgBits[0];
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+1] = lpOrgBits[1];
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+2] = lpOrgBits[2];
-
-			p2 = p1;
-
-			double dx = (double)pm.x + (double)(p2.x-pm.x)*c
-				+ (double)(p2.y-pm.y)*s;
-			double dy = (double)pm.y + (double)(p2.y-pm.y)*c
-				- (double)(p2.x-pm.x)*s;
-			if(dx<=-1 || dy<=-1)
-				continue;
-			if(dx<0)
-				dx=0;
-			if(dy<0)
-				dy=0;
-			p2.x = (int)dx;
-			p2.y = (int)dy;
-			if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight)
-				continue;
-			int R, Rx, Ry, Rz, G, Gx, Gy, Gz, B, Bx, By, Bz;
-			double X, Xn, Y, Yn, Z, Zn;
-			Xn = dx - (int)dx;
-			X = 1 - Xn;
-			Yn = dy - (int)dy;
-			Y = 1 - Yn;
-			Zn = (Xn+Yn)/2;
-			Z = 1 - Zn;
-			R = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-			G = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-			B = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
-			p2.x++;
-			if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
-				Rx = R;
-				Gx = G;
-				Bx = B;
-			}
-			else{
-				Rx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-				Gx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-				Bx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
-			}
-			p2.x--;
-			p2.y++;
-			if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
-				Ry = R;
-				Gy = G;
-				By = B;
-			}
-			else{
-				Ry = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-				Gy = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-				By = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
-			}
-			p2.x++;
-			if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
-				Rz = R;
-				Gz = G;
-				Bz = B;
-			}
-			else{
-				Rz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-				Gz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-				Bz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
-			}
-
-			R = (int)(((double)R*X + (double)Rx*Xn + (double)R*Y + (double)Ry*Yn + (double)R*Z + (double)Rz*Zn)/3);
-			G = (int)(((double)G*X + (double)Gx*Xn + (double)G*Y + (double)Gy*Yn + (double)G*Z + (double)Gz*Zn)/3);
-			B = (int)(((double)B*X + (double)Bx*Xn + (double)B*Y + (double)By*Yn + (double)B*Z + (double)Bz*Zn)/3);
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw] = R;
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+1] = G;
-			lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+2] = B;
-
-//			memcpy(&lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw],&lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row],3);
-		}
-	}
-	SetDIBits(hDC,bmBkgDraw,0,bmiDraw.biHeight,lpBits,
-			(LPBITMAPINFO)&bmiDraw,DIB_RGB_COLORS);
-	delete lpBits;
-	delete lpOrgBits;
-	ReleaseDC(NULL,hDC);
-}
-static void SkewImage(HBITMAP bmBmp)
-{
-	HDC hDC = GetDC(NULL);
-	BITMAP bm;
-	GetObject(bmBmp,sizeof(BITMAP),&bm);
-	HBITMAP bmNew = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
-	POINT pm = {bm.bmWidth/2,bm.bmHeight/2};
-	double r=pi*(double)g_nSkewRotate/180;
-	RotateImage(bmBmp,bmNew,pm,r);
-
-	int nWidth = g_nSkewStretch*bm.bmWidth/100;
-	HDC dcNew = CreateCompatibleDC(hDC);
-	HBITMAP bmOldNew = (HBITMAP)SelectObject(dcNew,bmNew);
-	HDC dcBmp = CreateCompatibleDC(hDC);
-	HBITMAP bmOldBmp = (HBITMAP)SelectObject(dcBmp,bmBmp);
-	SetStretchBltMode(dcBmp,HALFTONE);
-
-	RECT rc = {0,0,bm.bmWidth,bm.bmHeight};
-	FillRect(dcBmp,&rc,(HBRUSH)GetStockObject(BLACK_BRUSH));
-	StretchBlt(dcBmp,(bm.bmWidth-nWidth)/2,0,nWidth,bm.bmHeight,dcNew,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
-	SelectObject(dcNew,bmOldNew);
-	SelectObject(dcBmp,bmOldBmp);
-	DeleteDC(dcNew);
-	DeleteDC(dcBmp);
-	DeleteObject(bmNew);
-	ReleaseDC(NULL,hDC);
-}
-static void UnSkewImage(HBITMAP bmBmp)
-{
-	HDC hDC = GetDC(NULL);
-	BITMAP bm;
-	GetObject(bmBmp,sizeof(BITMAP),&bm);
-	HBITMAP bmNew = create_bitmap(hDC,bm.bmWidth,bm.bmHeight);
-
-	int nWidth = (10000/g_nSkewStretch)*bm.bmWidth/100;
-	HDC dcNew = CreateCompatibleDC(hDC);
-	HBITMAP bmOldNew = (HBITMAP)SelectObject(dcNew,bmNew);
-	HDC dcBmp = CreateCompatibleDC(hDC);
-	HBITMAP bmOldBmp = (HBITMAP)SelectObject(dcBmp,bmBmp);
-	SetStretchBltMode(dcNew,HALFTONE);
-
-	RECT rc = {0,0,bm.bmWidth,bm.bmHeight};
-	FillRect(dcNew,&rc,(HBRUSH)GetStockObject(BLACK_BRUSH));
-	StretchBlt(dcNew,(bm.bmWidth-nWidth)/2,0,nWidth,bm.bmHeight,dcBmp,0,0,bm.bmWidth,bm.bmHeight,SRCCOPY);
-	SelectObject(dcNew,bmOldNew);
-	SelectObject(dcBmp,bmOldBmp);
-	DeleteDC(dcNew);
-	DeleteDC(dcBmp);
-	POINT pm = {bm.bmWidth/2,bm.bmHeight/2};
-	double r=-pi*(double)g_nSkewRotate/180;
-	RotateImage(bmNew,bmBmp,pm,r);
-
-	DeleteObject(bmNew);
-	ReleaseDC(NULL,hDC);
-}
-BOOL g_DialogInit=0;
-POINT g_Cross[4];
-int g_nCrossPos=0;
-double g_nTestDegree;
-double g_nTestRatio;
-static int WINAPI SkewProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
-{
-	static std::vector<HWND> tooltips;
-	if(uMsg==WM_INITDIALOG){
-		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
-		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-
-#define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-#define T2(idc1,idc2,str) T(idc1, str) T(idc2, str)
-		T2(IDC_EDIT1, IDC_SPIN1,  "Stretch in percent")
-		T2(IDC_EDIT2, IDC_SPIN2, "Rotation in degrees")
-		T(IDC_BUTTON1, "Reset to default values")
-		T(IDC_CHECK1, "When this button is clicked, it will stay down\nWhile down, add 4 points in the Fractal view\nthese points will be connected 2 and 2 by lines\nThe program will automatically attempt to\nmake the angle perpendicular")
-		T(IDOK, "Apply and close")
-		T(IDCANCEL, "Close and undo")
-#undef T2
-#undef T
-
-		SetWindowLongPtr(hWnd,GWLP_USERDATA,lParam);
-		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(10000,1));
-		SetDlgItemFloat(hWnd,IDC_EDIT1,g_nSkewStretch);
-		SendDlgItemMessage(hWnd,IDC_SPIN2,UDM_SETRANGE,0,MAKELONG(360,-360));
-		SetDlgItemFloat(hWnd,IDC_EDIT2,g_nSkewRotate);
-		g_DialogInit=1;
-		g_nCrossPos=0;
-		return 1;
-	}
-	if(uMsg==WM_NOTIFY){
-		LPNMUPDOWN lpnmud = (LPNMUPDOWN) lParam;
-		if(lpnmud->hdr.code!=UDN_DELTAPOS)
-			return 0;
-		if(lpnmud->hdr.idFrom==IDC_SPIN1)
-			SetDlgItemFloat(hWnd,IDC_EDIT1,GetDlgItemFloat(hWnd,IDC_EDIT1)+lpnmud->iDelta);
-		else if(lpnmud->hdr.idFrom==IDC_SPIN2)
-			SetDlgItemFloat(hWnd,IDC_EDIT2,GetDlgItemFloat(hWnd,IDC_EDIT2)+lpnmud->iDelta);
-		return 1;
-	}
-	if(uMsg==WM_COMMAND){
-		if (wParam == IDOK || wParam == IDCANCEL)
-		{
-			for (auto tooltip : tooltips)
-      {
-        DestroyWindow(tooltip);
-      }
-      tooltips.clear();
-    }
-		if(wParam==IDOK)
-			EndDialog(hWnd,1);
-		else if(wParam==IDCANCEL)
-			EndDialog(hWnd,0);
-		else if(wParam==IDC_BUTTON1){
-			SetDlgItemInt(hWnd,IDC_EDIT1,100,FALSE);
-			SetDlgItemInt(hWnd,IDC_EDIT2,0,TRUE);
-		}
-		else if(wParam==IDC_CHECK1){
-			if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
-				g_nCrossPos=0;
-				SetCapture(hWnd);
-			}
-			else
-				ReleaseCapture();
-		}
-		else if(g_DialogInit){
-			g_nSkewStretch = GetDlgItemFloat(hWnd,IDC_EDIT1);
-			g_nSkewRotate = GetDlgItemFloat(hWnd,IDC_EDIT2);
-			HWND hwParent = (HWND)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-			if(hwParent){
-				InvalidateRect(hwParent,NULL,FALSE);
-				UpdateWindow(hwParent);
-				RECT rC;
-				GetClientRect(hwParent,&rC);
-				POINT pm;
-				pm.x = rC.right/2;
-				pm.y = rC.bottom/2;
-
-				HDC hDC = GetDC(hwParent);
-				HPEN pn = CreatePen(0,2,RGB(0,0,255));
-				HPEN pnOld = (HPEN)SelectObject(hDC,pn);
-				int i;
-				double nDegree = -pi*(double)g_nSkewRotate/(double)180;
-				double s = sin(nDegree);
-				double c = cos(nDegree);
-				double nStrecth = (double)g_nSkewStretch/(double)100;
-				POINT p[4];
-				for(i=0;i<g_nCrossPos;i++){
-					POINT pt = g_Cross[i];
-					p[i].x = (double)pm.x + (double)(pt.x-pm.x)*c
-						+ (double)(pt.y-pm.y)*s;
-					p[i].y = (double)pm.y + (double)(pt.y-pm.y)*c
-						- (double)(pt.x-pm.x)*s;
-					p[i].x = (p[i].x-pm.x)*nStrecth + pm.x;
-
-					MoveToEx(hDC,p[i].x-2,p[i].y-2,NULL);
-					LineTo(hDC,p[i].x+2,p[i].y+2);
-					MoveToEx(hDC,p[i].x+2,p[i].y-2,NULL);
-					LineTo(hDC,p[i].x-2,p[i].y+2);
-					if(i%2==1){
-						POINT pt = g_Cross[i-1];
-						p[i-1].x = (double)pm.x + (double)(pt.x-pm.x)*c
-							+ (double)(pt.y-pm.y)*s;
-						p[i-1].y = (double)pm.y + (double)(pt.y-pm.y)*c
-							- (double)(pt.x-pm.x)*s;
-						p[i-1].x = (p[i-1].x-pm.x)*nStrecth + pm.x;
-						MoveToEx(hDC,p[i-1].x,p[i-1].y,NULL);
-						LineTo(hDC,p[i].x,p[i].y);
-					}
-				}
-				if(g_nCrossPos==4){
-					double b1 =  (double)(p[0].y - p[1].y) / (double)(p[0].x - p[1].x==0?1:p[0].x - p[1].x);
-					double b2 =  (double)(p[2].y - p[3].y) / (double)(p[2].x - p[3].x==0?1:p[2].x - p[3].x);
-					double a1 = p[0].y - b1*p[0].x;
-					double a2 = p[2].y - b2*p[2].x;
-					POINT pM;
-					pM.x = - (a1 - a2) / (b1 - b2) + .5;
-					pM.y = a1 + b1*pM.x + .5;
-
-					double distance1 = sqrt((double)(p[0].x-p[1].x)*(p[0].x-p[1].x) + (double)(p[0].y-p[1].y)*(p[0].y-p[1].y));
-					double distance2 = sqrt((double)(p[2].x-p[3].x)*(p[2].x-p[3].x) + (double)(p[2].y-p[3].y)*(p[2].y-p[3].y));
-
-					double ratio = (double)(p[0].y-pM.y)/(double)(p[0].x-pM.x);
-					double nDegree1 = atan(ratio);
-					if((p[0].x-pM.x>=0 && p[0].y-pM.y<0) || (p[0].x-pM.x<0 && p[0].y-pM.y>0))
-						nDegree1+=pi;
-					ratio = (double)(p[2].y-pM.y)/(double)(p[2].x-pM.x);
-					double nDegree2 = atan(ratio);
-					if((p[2].x-pM.x>=0 && p[2].y-pM.y<0) || (p[2].x-pM.x<0 && p[2].y-pM.y>0))
-						nDegree2+=pi;
-					double nDegree = 180*(nDegree1-nDegree2)/pi;
-					if(nDegree<0)
-						nDegree=-nDegree;
-					char szDegree[130];
-					snprintf(szDegree,130, "Degree: %.2g, Ratio: %.2g",nDegree,distance1/distance2);
-					TextOut(hDC,0,0,szDegree,strlen(szDegree));
-					g_nTestDegree = nDegree;
-					g_nTestRatio = distance1/distance2;
-				}
-
-				SelectObject(hDC,pnOld);
-				DeleteObject(pn);
-				ReleaseDC(hwParent,hDC);
-			}
-		}
-	}
-	else if(uMsg==WM_TIMER){
-		SkewProc(hWnd,WM_COMMAND,0,0);
-		double nTestDegree = g_nTestDegree;
-#ifdef _TEST_RATIO
-		double nTestRatio = g_nTestRatio;
-#endif
-		double nSkewStretch = GetDlgItemFloat(hWnd,IDC_EDIT1);
-		double nSkewRotate = GetDlgItemFloat(hWnd,IDC_EDIT2);
-		double nTestStretch = nSkewStretch;
-		double nTestRotate = nSkewRotate;
-		double nBestStretch = nSkewStretch;
-		double nBestRotate = nSkewRotate;
-		double nStretchOffs = nTestStretch/40;
-		double nRotateOffs = .2;
-		int bSet=0;
-		if(nStretchOffs==0)
-			nStretchOffs=1;
-		BOOL bSetValue=0;
-
-		if(g_nTestDegree>85 && g_nTestDegree<95){
-			nStretchOffs/=2;
-			nRotateOffs/=2;
-		}
-		if(g_nTestDegree>89 && g_nTestDegree<91){
-			nStretchOffs/=2;
-			nRotateOffs/=2;
-		}
-
-		nTestStretch-=nStretchOffs;
-		SetDlgItemFloat(hWnd,IDC_EDIT1,nTestStretch);
-		SkewProc(hWnd,WM_COMMAND,0,0);
-
-		bSet=0;
-		if(nTestDegree<90 && g_nTestDegree<90 && g_nTestDegree>nTestDegree)
-			bSet=1;
-		if(nTestDegree>90 && g_nTestDegree>90 && g_nTestDegree<nTestDegree)
-			bSet=1;
-#ifdef _TEST_RATIO
-		if(nTestRatio<1 && g_nTestRatio>nTestRatio)
-			bSet++;
-		if(nTestRatio>1 && g_nTestRatio<nTestRatio)
-			bSet++;
-#endif
-		if(bSet){
-			bSetValue=TRUE;
-			nTestDegree = g_nTestDegree;
-			nBestStretch = nTestStretch;
-			nBestRotate = nTestRotate;
-		}
-
-		nTestRotate-=nRotateOffs;
-		SetDlgItemFloat(hWnd,IDC_EDIT2,nTestRotate);
-		SkewProc(hWnd,WM_COMMAND,0,0);
-		bSet=0;
-		if(nTestDegree<90 && g_nTestDegree<90 && g_nTestDegree>nTestDegree)
-			bSet=1;
-		if(nTestDegree>90 && g_nTestDegree>90 && g_nTestDegree<nTestDegree)
-			bSet=1;
-#ifdef _TEST_RATIO
-		if(nTestRatio<1 && g_nTestRatio>nTestRatio)
-			bSet++;
-		if(nTestRatio>1 && g_nTestRatio<nTestRatio)
-			bSet++;
-#endif
-		if(bSet){
-			bSetValue=TRUE;
-			nTestDegree = g_nTestDegree;
-			nBestStretch = nTestStretch;
-			nBestRotate = nTestRotate;
-		}
-
-		nTestStretch+=2*nStretchOffs;
-		SetDlgItemFloat(hWnd,IDC_EDIT1,nTestStretch);
-		SkewProc(hWnd,WM_COMMAND,0,0);
-		bSet=0;
-		if(nTestDegree<90 && g_nTestDegree<90 && g_nTestDegree>nTestDegree)
-			bSet=1;
-		if(nTestDegree>90 && g_nTestDegree>90 && g_nTestDegree<nTestDegree)
-			bSet=1;
-#ifdef _TEST_RATIO
-		if(nTestRatio<1 && g_nTestRatio>nTestRatio)
-			bSet++;
-		if(nTestRatio>1 && g_nTestRatio<nTestRatio)
-			bSet++;
-#endif
-		if(bSet){
-			bSetValue=TRUE;
-			nTestDegree = g_nTestDegree;
-			nBestStretch = nTestStretch;
-			nBestRotate = nTestRotate;
-		}
-
-		nTestRotate+=2*nRotateOffs;
-		SetDlgItemFloat(hWnd,IDC_EDIT2,nTestRotate);
-		SkewProc(hWnd,WM_COMMAND,0,0);
-		bSet=0;
-		if(nTestDegree<90 && g_nTestDegree<90 && g_nTestDegree>nTestDegree)
-			bSet=1;
-		if(nTestDegree>90 && g_nTestDegree>90 && g_nTestDegree<nTestDegree)
-			bSet=1;
-#ifdef _TEST_RATIO
-		if(nTestRatio<1 && g_nTestRatio>nTestRatio)
-			bSet++;
-		if(nTestRatio>1 && g_nTestRatio<nTestRatio)
-			bSet++;
-#endif
-		if(bSet){
-			bSetValue=TRUE;
-			nTestDegree = g_nTestDegree;
-			nBestStretch = nTestStretch;
-			nBestRotate = nTestRotate;
-		}
-
-		if(bSetValue){
-			SetDlgItemFloat(hWnd,IDC_EDIT1,nBestStretch);
-			SetDlgItemFloat(hWnd,IDC_EDIT2,nBestRotate);
-			SkewProc(hWnd,WM_COMMAND,0,0);
-		}
-		else{
-			SetDlgItemFloat(hWnd,IDC_EDIT1,nSkewStretch);
-			SetDlgItemFloat(hWnd,IDC_EDIT2,nSkewRotate);
-			KillTimer(hWnd,0);
-			SetDlgItemText(hWnd,IDC_CHECK1,"Help lines");
-		}
-		if(g_nTestDegree>89.5 && g_nTestDegree<91.5){
-			KillTimer(hWnd,0);
-			SetDlgItemText(hWnd,IDC_CHECK1,"Help lines");
-		}
-	}
-	else if(uMsg==WM_CAPTURECHANGED && SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
-		SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,0,0);
-	}
-	else if(uMsg==WM_LBUTTONDOWN && SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
-		HWND hwParent = (HWND)GetWindowLongPtr(hWnd,GWLP_USERDATA);
-		g_Cross[g_nCrossPos].x = (short)LOWORD(lParam);
-		g_Cross[g_nCrossPos].y = (short)HIWORD(lParam);
-		ClientToScreen(hWnd,&g_Cross[g_nCrossPos]);
-		ScreenToClient(hwParent,&g_Cross[g_nCrossPos]);
-
-		HDC hDC = GetDC(hwParent);
-		HPEN pn = CreatePen(0,2,RGB(0,0,255));
-		HPEN pnOld = (HPEN)SelectObject(hDC,pn);
-		MoveToEx(hDC,g_Cross[g_nCrossPos].x-2,g_Cross[g_nCrossPos].y-2,NULL);
-		LineTo(hDC,g_Cross[g_nCrossPos].x+2,g_Cross[g_nCrossPos].y+2);
-		MoveToEx(hDC,g_Cross[g_nCrossPos].x+2,g_Cross[g_nCrossPos].y-2,NULL);
-		LineTo(hDC,g_Cross[g_nCrossPos].x-2,g_Cross[g_nCrossPos].y+2);
-		if(g_nCrossPos%2==1){
-			MoveToEx(hDC,g_Cross[g_nCrossPos-1].x,g_Cross[g_nCrossPos-1].y,NULL);
-			LineTo(hDC,g_Cross[g_nCrossPos].x,g_Cross[g_nCrossPos].y);
-		}
-
-		g_nCrossPos++;
-		if(g_nCrossPos==4){
-			SendDlgItemMessage(hWnd,IDC_CHECK1,BM_SETCHECK,0,0);
-			ReleaseCapture();
-			POINT pM;
-
-			double b1 =  (double)(g_Cross[0].y - g_Cross[1].y) / (double)(g_Cross[0].x - g_Cross[1].x);
-			double b2 =  (double)(g_Cross[2].y - g_Cross[3].y) / (double)(g_Cross[2].x - g_Cross[3].x);
-			double a1 = g_Cross[0].y - b1*g_Cross[0].x;
-			double a2 = g_Cross[2].y - b2*g_Cross[2].x;
-
-			pM.x = - (a1 - a2) / (b1 - b2) + .5;
-			pM.y = a1 + b1*pM.x + .5;
-
-			SelectObject(hDC,pnOld);
-			DeleteObject(pn);
-			pn = CreatePen(0,2,RGB(255,0,0));
-			pnOld = (HPEN)SelectObject(hDC,pn);
-			MoveToEx(hDC,pM.x-2,pM.y-2,NULL);
-			LineTo(hDC,pM.x+2,pM.y+2);
-			MoveToEx(hDC,pM.x+2,pM.y-2,NULL);
-			LineTo(hDC,pM.x-2,pM.y+2);
-
-			double nStrecth = (double)g_nSkewStretch/(double)100;
-			double nDegree = pi*(double)g_nSkewRotate/(double)180;
-			double s = sin(nDegree);
-			double c = cos(nDegree);
-			RECT rC;
-			GetClientRect(hwParent,&rC);
-			POINT pm;
-			pm.x = rC.right/2;
-			pm.y = rC.bottom/2;
-			int i;
-			for(i=0;i<g_nCrossPos;i++){
-				POINT pt = g_Cross[i];
-				pt.x = (pt.x-pm.x)/nStrecth + pm.x;
-				g_Cross[i].x = (double)pm.x + (double)(pt.x-pm.x)*c
-					+ (double)(pt.y-pm.y)*s;
-				g_Cross[i].y = (double)pm.y + (double)(pt.y-pm.y)*c
-					- (double)(pt.x-pm.x)*s;
-			}
-			SetTimer(hWnd,0,100,NULL);
-			SetDlgItemText(hWnd,IDC_CHECK1,"Working");
-		}
-		SelectObject(hDC,pnOld);
-		DeleteObject(pn);
-		ReleaseDC(hwParent,hDC);
-	}
-	return 0;
-}
-static int WINAPI SkewAnimateProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
-{
-	(void) lParam;
-	if(uMsg==WM_INITDIALOG){
-		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
-		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
-		SetDlgItemText(hWnd,IDC_EDIT1,"400");
-		SetDlgItemText(hWnd,IDC_EDIT3,"100");
-		SetDlgItemText(hWnd,IDC_EDIT4,"0");
-		return 1;
-	}
-	if(uMsg==WM_COMMAND){
-		if(wParam==IDCANCEL)
-			EndDialog(hWnd,0);
-		else if(wParam==IDOK){
-			g_nSkewFrames = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,FALSE);
-			if(g_nSkewFrames<1)
-				g_nSkewFrames=1;
-			g_dbSkewToRatio = GetDlgItemFloat(hWnd,IDC_EDIT3);
-			g_dbSkewToAnim = GetDlgItemFloat(hWnd,IDC_EDIT4);
-			EndDialog(hWnd,1);
-		}
 	}
 	return 0;
 }
@@ -2749,6 +2131,53 @@ static long WINAPI StoreZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 	return 0;
 }
 
+// show inflection (not really rotation)
+static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
+{
+	HDC hDC = GetDC(NULL);
+	BYTE *lpBits=NULL;
+	BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};
+	int row;
+	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
+	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
+	bmi.biBitCount = 24;
+	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
+	bmi.biSizeImage=row*bmi.biHeight;
+	BYTE *lpOrgBits = new BYTE[bmi.biSizeImage];
+	GetDIBits(hDC,bmBkg,0,bmi.biHeight,lpOrgBits,
+			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
+	lpBits = new BYTE[bmi.biSizeImage];
+	memset(lpBits,0,bmi.biSizeImage);
+	int x, y;
+	double diagonal = sqrt((double)(bmi.biWidth*bmi.biWidth/4+bmi.biHeight*bmi.biHeight/4));
+	complex<double> z0(pm.x, pm.y);
+	int power = g_SFT.GetPower();
+	for(x=0;x<bmi.biWidth;x++){
+		for(y=0;y<bmi.biHeight;y++){
+			complex<double> z(x, y);
+			z -= z0;
+			z /= diagonal;
+			z = z ^ power;
+			z *= diagonal;
+			z += z0;
+			int dx = z.m_r;
+			int dy = z.m_i;
+			if(dx<=-1 || dy<=-1 || dx>=bmi.biWidth || dy>=bmi.biHeight)
+				continue;
+			int nIndex = x*3 + (bmi.biHeight-1-y)*row;
+			int nDIndex = dx*3 + (bmi.biHeight-1-dy)*row;
+			lpBits[nIndex]=lpOrgBits[nDIndex];
+			lpBits[nIndex+1]=lpOrgBits[nDIndex+1];
+			lpBits[nIndex+2]=lpOrgBits[nDIndex+2];
+		}
+	}
+	SetDIBits(hDC,bmBkg,0,bmi.biHeight,lpBits,
+			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
+	ReleaseDC(NULL,hDC);
+	delete[] lpOrgBits;
+	delete[] lpBits;
+}
+
 static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
@@ -2867,10 +2296,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ScreenToClient(hWnd,&p);
 			RotateImageAroundPoint(bmBmp,p);
 		}
-		else if(g_bShowSkew){
-			SelectObject(dcBmp,bmOld);
-			SkewImage(bmBmp);
-			bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
+		else if (g_bTransformationDialogIsOpen)
+		{
+			SelectObject(dcBmp, bmOld);
+			TransformImage(bmBmp);
+			bmOld = (HBITMAP) SelectObject(dcBmp, bmBmp);
 		}
 		StretchBlt(ps.hdc,0,0,rc.right,rc.bottom,dcBmp,0,0,width,height,SRCCOPY);
 		SelectObject(dcBmp,bmOld);
@@ -2888,6 +2318,29 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetCapture(hWnd);
 		return 0;
 	}
+	else if (uMsg == WM_RBUTTONDOWN && g_bTransformationDialogIsOpen)
+	{
+		g_SFT.Stop();
+		g_bAnim=false;
+		RECT r;
+		GetClientRect(hWnd,&r);
+		RECT sr;
+		GetWindowRect(g_hwStatus,&sr);
+		sr.bottom-=sr.top;
+		r.bottom-=sr.bottom;
+		POINT pm={r.right/2,r.bottom/2};
+		POINT p;
+		GetCursorPos(&p);
+		ScreenToClient(hWnd,&p);
+		double dx = p.x - pm.x;
+		double dy = p.y - pm.y;
+		g_transformation_stretch_angle_start = std::atan2(dy, dx);
+		g_transformation_stretch_radius_start = std::hypot(dx, dy);
+		g_transformation_delta = polar2(1, 0, 1, 0);
+		g_bStretch = StretchMode_Started;
+		SetCapture(hWnd);
+		return 0;
+	}
 	else if(uMsg==WM_LBUTTONDOWN){
 		if(g_bNewton){
 			static RECT r;
@@ -2901,18 +2354,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(g_hwNewton,WM_USER+1,0,(LPARAM)&r);
 			return 0;
 		}
-		if(!HIWORD(GetKeyState(VK_CONTROL)) && !g_bRotate && !g_bFindMinibrot && g_SFT.GetAnimateZoom() && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
-			while(g_bAnim){
-				Sleep(3);
-			}
-			g_SFT.Stop();
-			g_bMove=TRUE;
-			SetCapture(hWnd);
-			g_pSelect.x = (short)LOWORD(lParam);
-			g_pSelect.y = (short)HIWORD(lParam);
-			return 0;
-		}
-		if(g_bRotate){
+		if (g_bTransformationDialogIsOpen)
+		{
 			g_SFT.Stop();
 			g_bAnim=false;
 			RECT r;
@@ -2925,15 +2368,21 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(hWnd,&p);
-			double ratio = (double)(p.y-pm.y)/(double)(p.x-pm.x);
-			g_StartDegree = atan(ratio);
-			if(p.x-pm.x>0)
-				bXSign=TRUE;
-			else
-				bXSign=FALSE;
-			g_MoveDegree = 0;
-			g_bRotate=2;
+			g_transformation_rotate_start = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+			g_transformation_delta = polar2(1, 0, 1, 0);
+			g_bRotate = RotateMode_Started;
 			SetCapture(hWnd);
+			return 0;
+		}
+		if(!HIWORD(GetKeyState(VK_CONTROL)) && (g_bRotate == RotateMode_Idle && g_bStretch == StretchMode_Idle) && !g_bFindMinibrot && g_SFT.GetAnimateZoom() && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
+			while(g_bAnim){
+				Sleep(3);
+			}
+			g_SFT.Stop();
+			g_bMove=TRUE;
+			SetCapture(hWnd);
+			g_pSelect.x = (short)LOWORD(lParam);
+			g_pSelect.y = (short)HIWORD(lParam);
 			return 0;
 		}
 		if(g_bWaitRead)
@@ -3047,9 +2496,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			ReleaseDC(hWnd,hDC);
 			return 0;
 		}
-		if(g_bRotate){
+		if(g_bRotate != RotateMode_Idle){
 			SetCursor(LoadCursor(GetModuleHandle(NULL),MAKEINTRESOURCE(IDC_CURSOR1)));
-			if(g_bRotate==2){
+			if(g_bRotate == RotateMode_Started){
 				HDC hDC = GetDC(hWnd);
 				RECT r;
 				GetClientRect(hWnd,&r);
@@ -3058,26 +2507,40 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sr.bottom-=sr.top;
 				r.bottom-=sr.bottom;
 				POINT pm={r.right/2,r.bottom/2};
-				HBITMAP bmBmp = create_bitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
-				double ratio = (double)(p.y-pm.y)/(double)(p.x-pm.x);
-				g_MoveDegree = atan(ratio);
-				if((p.x-pm.x>0 && !bXSign) || (p.x-pm.x<0 && bXSign))
-					g_MoveDegree+=pi;
-				g_MoveDegree -= g_StartDegree;
-				pm.x = g_SFT.GetWidth()/2;
-				pm.y = g_SFT.GetHeight()/2;
-				RotateImage(g_SFT.GetBitmap(),bmBmp,pm,g_MoveDegree);
-				HDC dcBmp = CreateCompatibleDC(hDC);
-				HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
-				SetStretchBltMode(hDC,HALFTONE);
-				StretchBlt(hDC,0,0,r.right,r.bottom,dcBmp,0,0,g_SFT.GetWidth(),g_SFT.GetHeight(),SRCCOPY);
-				SelectObject(dcBmp,bmOld);
-				DeleteObject(dcBmp);
-				DeleteObject(bmBmp);
-				ReleaseDC(hWnd,hDC);
+				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
+				TransformRefresh(g_transformation_delta);
+				TransformBlit(hDC, r.right, r.bottom);
+				ReleaseDC(hWnd, hDC);
+			}
+			return 0;
+		}
+		if(g_bStretch != StretchMode_Idle){
+			SetCursor(LoadCursor(GetModuleHandle(NULL),MAKEINTRESOURCE(IDC_CURSOR1)));
+			if(g_bStretch == StretchMode_Started){
+				HDC hDC = GetDC(hWnd);
+				RECT r;
+				GetClientRect(hWnd,&r);
+				RECT sr;
+				GetWindowRect(g_hwStatus,&sr);
+				sr.bottom-=sr.top;
+				r.bottom-=sr.bottom;
+				POINT pm={r.right/2,r.bottom/2};
+				POINT p;
+				GetCursorPos(&p);
+				ScreenToClient(hWnd,&p);
+				double dx = p.x - pm.x;
+				double dy = p.y - pm.y;
+				double angle = std::atan2(dy, dx);
+				double radius = std::hypot(dx, dy);
+				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
+				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
+				TransformRefresh(g_transformation_delta);
+				TransformBlit(hDC, r.right, r.bottom);
+				ReleaseDC(hWnd, hDC);
 			}
 			return 0;
 		}
@@ -3169,10 +2632,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetTimer(hWnd,0,500,NULL);
 		return 0;
 	}
-	else if(uMsg==WM_LBUTTONUP && g_bRotate){
+	else if(uMsg==WM_LBUTTONUP && g_bRotate != RotateMode_Idle){
 		ReleaseCapture();
-		g_bRotate=FALSE;
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ROTATE,MF_BYCOMMAND|(g_bRotate?MF_CHECKED:MF_UNCHECKED));
+		g_bRotate = RotateMode_Idle;
 
 				HDC hDC = GetDC(hWnd);
 				RECT r;
@@ -3182,43 +2644,45 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				sr.bottom-=sr.top;
 				r.bottom-=sr.bottom;
 				POINT pm={r.right/2,r.bottom/2};
-				HBITMAP bmBmp = create_bitmap(hDC,g_SFT.GetWidth(),g_SFT.GetHeight());
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
-				double ratio = (double)(p.y-pm.y)/(double)(p.x-pm.x);
-				g_MoveDegree = atan(ratio);
-				if((p.x-pm.x>0 && !bXSign) || (p.x-pm.x<0 && bXSign))
-					g_MoveDegree+=pi;
-				g_MoveDegree -= g_StartDegree;
-				pm.x = g_SFT.GetWidth()/2;
-				pm.y = g_SFT.GetHeight()/2;
-				RotateImage(g_SFT.GetBitmap(),bmBmp,pm,g_MoveDegree);
-				HDC dcBmp = CreateCompatibleDC(hDC);
-				HDC dcSft = CreateCompatibleDC(hDC);
-				HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
-				HBITMAP bmOldSft = (HBITMAP)SelectObject(dcSft,g_SFT.GetBitmap());
-				SetStretchBltMode(hDC,HALFTONE);
-				SetStretchBltMode(dcSft,HALFTONE);
-				StretchBlt(hDC,0,0,r.right,r.bottom,dcBmp,0,0,g_SFT.GetWidth(),g_SFT.GetHeight(),SRCCOPY);
-				BitBlt(dcSft,0,0,g_SFT.GetWidth(),g_SFT.GetHeight(),dcBmp,0,0,SRCCOPY);
-				SelectObject(dcBmp,bmOld);
-				DeleteObject(dcBmp);
-				DeleteObject(bmBmp);
-				SelectObject(dcSft,bmOldSft);
-				g_SFT.UpdateBitmap();
-				DeleteObject(dcSft);
-				ReleaseDC(hWnd,hDC);
+				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
+				TransformRefresh(g_transformation_delta);
+				TransformBlit(hDC, r.right, r.bottom);
+				ReleaseDC(hWnd, hDC);
 
-		g_Degree += g_MoveDegree;
-		SYSTEMTIME st;
-		GetLocalTime(&st);
-		SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
-		SetTimer(hWnd,0,500,NULL);
-//		std::cerr << "WM_LBUTTONUP && g_bRotate" << std::endl;
-		g_SFT.UndoStore();
-		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+		TransformApply(g_transformation_delta);
+		g_transformation_delta = polar2(1, 0, 1, 0);
+	}
+	else if (uMsg == WM_RBUTTONUP && g_bStretch != StretchMode_Idle){
+		ReleaseCapture();
+		g_bStretch = StretchMode_Idle;
+
+				HDC hDC = GetDC(hWnd);
+				RECT r;
+				GetClientRect(hWnd,&r);
+				RECT sr;
+				GetWindowRect(g_hwStatus,&sr);
+				sr.bottom-=sr.top;
+				r.bottom-=sr.bottom;
+				POINT pm={r.right/2,r.bottom/2};
+				POINT p;
+				GetCursorPos(&p);
+				ScreenToClient(hWnd,&p);
+				double dx = p.x - pm.x;
+				double dy = p.y - pm.y;
+				double angle = std::atan2(dy, dx);
+				double radius = std::hypot(dx, dy);
+				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
+				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
+				TransformRefresh(g_transformation_delta);
+				TransformBlit(hDC, r.right, r.bottom);
+				ReleaseDC(hWnd, hDC);
+
+		TransformApply(g_transformation_delta);
+		g_transformation_delta = polar2(1, 0, 1, 0);
 	}
 	else if(g_bTrackSelect==1 && (uMsg==WM_CAPTURECHANGED || uMsg==WM_RBUTTONUP || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE))){
 		g_bTrackSelect=FALSE;
@@ -3281,8 +2745,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(!g_bWaitRead && g_bSelect && ((uMsg==WM_KEYDOWN && wParam==VK_ESCAPE) || uMsg==WM_LBUTTONUP || uMsg==WM_CAPTURECHANGED)){
 		g_bSelect=FALSE;
 		ReleaseCapture();
-		if(g_bRotate){
-			g_bRotate=FALSE;
+		if(g_bRotate != RotateMode_Idle){
+			g_bRotate = RotateMode_Idle;
 			return 0;
 		}
 		RECT rc;
@@ -3783,18 +3247,27 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetShowCrossHair(!g_SFT.GetShowCrossHair());
 		UpdateShowCrossHair(hWnd);
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_ROTATE){
-		g_bRotate=!g_bRotate;
-		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ROTATE,MF_BYCOMMAND|(g_bRotate?MF_CHECKED:MF_UNCHECKED));
+
+	else if (uMsg == WM_COMMAND && wParam == ID_TRANSFORMATION)
+	{
+		g_bTransformationDialogIsOpen = ! g_bTransformationDialogIsOpen;
+		CheckMenuItem(GetMenu(hWnd), ID_TRANSFORMATION, MF_BYCOMMAND | (g_bTransformationDialogIsOpen ? MF_CHECKED : MF_UNCHECKED));
+		if (g_hwTransformationDialog)
+		{
+			DestroyWindow(g_hwTransformationDialog);
+			g_hwTransformationDialog = nullptr;
+		}
+		if (g_bTransformationDialogIsOpen)
+		{
+			g_hwTransformationDialog = CreateDialog(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_TRANSFORMATION), hWnd, (DLGPROC) TransformationProc);
+			ShowWindow(g_hwTransformationDialog, SW_SHOW);
+		}
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_RESETROTATION){
+	else if(uMsg==WM_COMMAND && wParam==ID_RESET_TRANSFORMATION){
 		g_SFT.Stop();
-		g_bAnim=false;
-		g_Degree=0;
-		SetTimer(hWnd,0,500,NULL);
 		g_SFT.UndoStore();
-		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+		g_SFT.SetTransformPolar(polar2(1, 0, 1, 0));
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
 		if(g_SFT.GetMirror()==1)
@@ -4298,9 +3771,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam=='M' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDMINIBROT,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
-		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO,0);
+		PostMessage(hWnd,WM_COMMAND,ID_RESET_TRANSFORMATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='K' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
-		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SKEW,0);
+		PostMessage(hWnd,WM_COMMAND,ID_TRANSFORMATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SHOWINFLECTION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
@@ -4325,13 +3798,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 	}
 #endif
-	else if((uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL)) &&  HIWORD(GetKeyState(VK_SHIFT))) || (uMsg==WM_COMMAND && wParam==ID_SPECIAL_SKEWANIMATION)){
-		g_bSkewAnimation=!g_bSkewAnimation;
-		if(g_bSkewAnimation)
-			g_bSkewAnimation=DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG11),hWnd,(DLGPROC)SkewAnimateProc,(LPARAM)0);
-		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SKEWANIMATION,MF_BYCOMMAND|(g_bSkewAnimation?MF_CHECKED:MF_UNCHECKED));
-		return 0;
-	}
 	else if(uMsg==WM_KEYDOWN && wParam=='B' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_BAILOUT,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='J' && HIWORD(GetKeyState(VK_CONTROL)))
@@ -4341,9 +3807,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_KEYDOWN && wParam=='R' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ADDREFERENCE,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
-		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_RESETROTATION,0);
+		PostMessage(hWnd,WM_COMMAND,ID_RESET_TRANSFORMATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='T' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
-		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_ROTATE,0);
+		PostMessage(hWnd,WM_COMMAND,ID_TRANSFORMATION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)) &&   HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_FINDCENTEROFGLITCH,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='F' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))

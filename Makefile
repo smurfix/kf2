@@ -54,6 +54,7 @@ fraktal_sft/main_formula.cpp \
 fraktal_sft/main_information.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/main_ptsatuning.cpp \
+fraktal_sft/main_transformation.cpp \
 fraktal_sft/nanomb1_perturbation.cpp \
 fraktal_sft/nanomb1_reference.cpp \
 fraktal_sft/nanomb2_perturbation.cpp \
@@ -91,6 +92,7 @@ fraktal_sft/main_formula.h \
 fraktal_sft/main_information.h \
 fraktal_sft/main_position.h \
 fraktal_sft/main_ptsatuning.h \
+fraktal_sft/main_transformation.h \
 fraktal_sft/nanomb1.h \
 fraktal_sft/nanomb1.inc \
 fraktal_sft/nanomb2.h \

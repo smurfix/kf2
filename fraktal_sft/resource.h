@@ -34,8 +34,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDD_DIALOG8                     110
 #define IDD_DIALOG9                     112
 #define IDC_CURSOR1                     113
-#define IDD_DIALOG10                    114
-#define IDD_DIALOG11                    115
 #define IDD_DIALOG12                    116
 #define IDD_STOREZOOM                   117
 #define IDD_DIALOG_EXR                  118
@@ -350,6 +348,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_HYBRID_LOOP_START_3 1422
 #define IDC_HYBRID_LOOP_START_4 1423
 
+// "Transformation" dialog
+#define IDD_TRANSFORMATION 126
+#define IDC_TRANSFORMATION_ROTATEANGLE 1450
+#define IDC_TRANSFORMATION_STRETCHANGLE 1451
+#define IDC_TRANSFORMATION_STRETCHAMOUNT 1452
+
 // menus
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -403,15 +407,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_SPECIAL_USEFLOATEXPALWAYS    40061
 #define ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS 40062
 #define ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1 40064
-#define ID_ACTIONS_ROTATE               40066
-#define ID_ACTIONS_RESETROTATION        40067
 #define ID_ACTIONS_SHOWINFLECTION       40068
-#define ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO 40069
-#define ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO 40070
-#define ID_ACTIONS_SKEW                 40071
 #define ID_ACTIONS_ANIMATEZOOM          40072
 #define ID_SPECIAL_ARBITRARYSIZE        40073
-#define ID_SPECIAL_SKEWANIMATION        40074
 #define ID_SPECIAL_SHOWGLITCHES         40075
 #define ID_ZOOMSIZE_CUSTOM              40076
 #define ID_SPECIAL_NEWTON               40077
@@ -477,6 +475,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_EXR_PARALLEL 40151
 #define ID_ACTIONS_HYBRID 40152
 #define ID_EXPONENTIAL_MAP 40153
+#define ID_TRANSFORMATION 40154
+#define ID_RESET_TRANSFORMATION 40155
 
 // OpenCL
 #ifdef KF_OPENCL
