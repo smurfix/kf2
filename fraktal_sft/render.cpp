@@ -186,7 +186,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	ReleaseDC(NULL, hDC);
 	ReleaseMutex(m_hMutex);
 
-	CFixedFloat pixel_spacing = (m_istop - m_istart) / m_nY;
+	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = pixel_spacing;
 	m_dPixelSpacing = m_fPixelSpacing.todouble();
 	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
@@ -208,28 +208,8 @@ void CFraktalSFT::RenderFractal()
 {
 	m_bIsRendering = true;
 
-	m_C = cos(g_Degree);
-	m_S = sin(g_Degree);
-
-	CFixedFloat div = m_istop - m_istart;
-
-	int nZeroes = 0;
-	std::string sszZoom = m_istop.ToText();
-	const char *szZoom = sszZoom.c_str();
-	if (*szZoom == '-')
-		szZoom++;
-	if (*szZoom == '0'){
-		szZoom++;
-		if (*szZoom == '.'){
-			szZoom++;
-			while (*szZoom == '0'){
-				nZeroes++;
-				szZoom++;
-			}
-		}
-	}
-
 	{
+		CFixedFloat div = m_ZoomRadius * 2;
 		Precision q(LOW_PRECISION);
 		FixedFloat f(div.m_f);
 		f.precision(LOW_PRECISION);
@@ -329,8 +309,8 @@ void CFraktalSFT::RenderFractal()
 	if (!GetReuseReference() || !m_db_dxr || m_nZoom<g_nRefZero){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
+				m_rref = m_CenterRe;
+				m_iref = m_CenterIm;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
@@ -350,12 +330,9 @@ void CFraktalSFT::RenderFractal()
 		CalculateReference();
 	}
 
-	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-	m_pixel_step_x = step;
-	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
-	step = (m_istop - m_istart)*(1 / (double)m_nY);
-	m_pixel_step_y = step;
-	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+	m_pixel_center_x = m_CenterRe - m_rref;
+	m_pixel_center_y = m_CenterIm - m_iref;
+	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
@@ -462,8 +439,8 @@ void CFraktalSFT::RenderFractalLDBL()
 	if (!GetReuseReference() || !m_ldxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
+				m_rref = m_CenterRe;
+				m_iref = m_CenterIm;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
@@ -483,12 +460,9 @@ void CFraktalSFT::RenderFractalLDBL()
 		CalculateReferenceLDBL();
 	}
 
-	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-	m_pixel_step_x = step;
-	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
-	step = (m_istop - m_istart)*(1 / (double)m_nY);
-	m_pixel_step_y = step;
-	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+	m_pixel_center_x = m_CenterRe - m_rref;
+	m_pixel_center_y = m_CenterIm - m_iref;
+	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
@@ -556,8 +530,8 @@ void CFraktalSFT::RenderFractalEXP()
 	if (!GetReuseReference() || !m_dxr){
 		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
 			if (m_nZoom >= g_nRefZero){
-				m_rref = (m_rstop + m_rstart)*.5;
-				m_iref = (m_istop + m_istart)*.5;
+				m_rref = m_CenterRe;
+				m_iref = m_CenterIm;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
@@ -572,12 +546,9 @@ void CFraktalSFT::RenderFractalEXP()
 	}
 	int i;
 
-	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-	m_pixel_step_x = step;
-	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
-	step = (m_istop - m_istart)*(1 / (double)m_nY);
-	m_pixel_step_y = step;
-	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+	m_pixel_center_x = m_CenterRe - m_rref;
+	m_pixel_center_y = m_CenterIm - m_iref;
+	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
@@ -658,20 +629,17 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	if (! GetReuseReference() || ! m_NanoMB1Ref || g_bJustDidNewton)
 	{
-		m_rref = (m_rstop + m_rstart)*.5;
-		m_iref = (m_istop + m_istart)*.5;
+		m_rref = m_CenterRe;
+		m_iref = m_CenterIm;
 		g_nAddRefX = -1;
 		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		CalculateReferenceNANOMB1();
 	}
 	int i;
-	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-	m_pixel_step_x = step;
-	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
-	step = (m_istop - m_istart)*(1 / (double)m_nY);
-	m_pixel_step_y = step;
-	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+	m_pixel_center_x = m_CenterRe - m_rref;
+	m_pixel_center_y = m_CenterIm - m_iref;
+	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
@@ -734,20 +702,17 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	if (! GetReuseReference() || ! m_NanoMB2Ref || g_bJustDidNewton)
 	{
-		m_rref = (m_rstop + m_rstart)*.5;
-		m_iref = (m_istop + m_istart)*.5;
+		m_rref = m_CenterRe;
+		m_iref = m_CenterIm;
 		g_nAddRefX = -1;
 		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		CalculateReferenceNANOMB2();
 	}
 	int i;
-	CFixedFloat step = (m_rstop - m_rstart)*(1 / (double)m_nX);
-	m_pixel_step_x = step;
-	m_pixel_center_x = m_rstart + (m_nX/2) * step - m_rref;
-	step = (m_istop - m_istart)*(1 / (double)m_nY);
-	m_pixel_step_y = step;
-	m_pixel_center_y = m_istart + (m_nY/2) * step - m_iref;
+	m_pixel_center_x = m_CenterRe - m_rref;
+	m_pixel_center_y = m_CenterIm - m_iref;
+	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;

@@ -239,8 +239,6 @@ enum Differences
 	Differences_Analytic = 7
 };
 
-extern double g_Degree;
-
 enum SeriesType
 {
 	SeriesType_None = 0,
@@ -276,7 +274,7 @@ class CFraktalSFT
 	BOOL m_bBlend;
 	HANDLE m_hMutex;
 	CPixels m_P;
-	CFixedFloat m_rstart, m_istart, m_rstop, m_istop, m_rref, m_iref;
+	CFixedFloat m_CenterRe, m_CenterIm, m_ZoomRadius, m_rref, m_iref;
 	double m_dPixelSpacing;
 	long double m_lPixelSpacing;
 	floatexp m_fPixelSpacing;
@@ -307,9 +305,8 @@ class CFraktalSFT
 	int m_nPrevPower;
 	int *m_pnExpConsts;
 	int m_nMaxOldGlitches;
-	double m_C, m_S;
-	struct SIZE_F { double cx; double cy; };
-	SIZE_F m_scRatio;
+	polar2 m_TransformPolar;
+	mat2 m_TransformMatrix;
 	BOOL m_bNoPostWhenDone;
 	BOOL m_bSlopes;
 	int m_nSlopePower;
@@ -351,8 +348,7 @@ class CFraktalSFT
 	double *m_db_dxi;
 	double *m_db_z;
 
-	floatexp m_pixel_step_x, m_pixel_step_y;
-	floatexp m_pixel_center_x, m_pixel_center_y;
+	floatexp m_pixel_center_x, m_pixel_center_y, m_pixel_scale;
 
 	half *m_imageHalf; // for EXR export
 	BYTE *m_lpBits;
@@ -456,7 +452,7 @@ public:
 
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
-	void SetPosition(const CFixedFloat &rstart, const CFixedFloat &rstop, const CFixedFloat &istart, const CFixedFloat &istop, int nX, int nY);
+	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	std::string ToZoom();
 	void SetImageSize(int nx, int ny);
@@ -568,10 +564,6 @@ public:
 
 	int GetExponent();
 
-	double GetRatioX();
-	double GetRatioY();
-	void SetRatio(double x, double y);
-
 	BOOL GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle);
 	void SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int nSlopeAngle);
 
@@ -594,21 +586,10 @@ public:
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
 	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
 
-	inline void SetTransformPolar(const polar2 &P)
-	{
-		using std::sqrt;
-		g_Degree = -P.stretch_angle;
-		SetRatio(m_nX, m_nY / (P.stretch_factor * P.stretch_factor));
-		// FIXME need to scale image by P.scale * P.stretch_factor
-		// FIXME kf does not support rotation after skew...
-	}
-	inline void SetTransformMatrix(const mat2 &M) { SetTransformPolar(polar_decomposition(M)); }
-	inline mat2 GetTransformMatrix() const
-	{
-		double ratio = (((double)m_nY/(double)m_nX)/(360.0/640.0)) * ((double)360 / (double)m_scRatio.cy);
-		double k = sqrt(std::abs(ratio));
-		return polar_composition(polar2(1.0, -g_Degree, k, g_Degree));
-	}
+	void SetTransformPolar(const polar2 &P);
+	polar2 GetTransformPolar() const;
+	void SetTransformMatrix(const mat2 &M);
+	mat2 GetTransformMatrix() const;
 
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \

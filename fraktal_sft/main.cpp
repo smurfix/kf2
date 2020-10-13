@@ -1606,6 +1606,7 @@ nPos=14;
 			else{
 				AutoIterations();
 
+#if 0
 				if(g_bSkewAnimation){
 					if(g_bSkewAnimation==1){
 						g_bSkewAnimation=2;
@@ -1647,7 +1648,9 @@ nPos=14;
 					g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 					SetTimer(hWnd,0,500,NULL);
 				}
-				else{
+				else
+#endif
+				{
 //					if(g_bAnimateEachFrame)
 //						g_Degree+=0.01;
 					bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
@@ -2777,7 +2780,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowBottom(wr.bottom);
 		UpdateWindowSize(hWnd);
 
-		g_SFT.SetPosition((CFixedFloat)-2,(CFixedFloat)2,(CFixedFloat)-2,(CFixedFloat)2,640,360);
+		g_SFT.SetPosition(0, 0, 2, 640, 360);
 		SetTimer(hWnd,0,500,NULL);
 		SYSTEMTIME st;
 		GetLocalTime(&st);
@@ -3568,7 +3571,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 
-	else if(uMsg==WM_KEYDOWN && wParam==187){
+	else if(uMsg==WM_KEYDOWN && wParam==187){ // +
 		lParam=9;
 		g_bAddReference=FALSE;
 		g_bAddMainReference=false;
@@ -3592,9 +3595,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_LBUTTONUP,0,MAKELONG(p.x,p.y));
 			return 0;
 		}
+		POINT q = p;
 		if(lParam==9){
-			p.x=rc.right/2 + (p.x-rc.right/2)/2;
-			p.y=rc.bottom/2 + (p.y-rc.bottom/2)/2;
+			q.x=rc.right/2 + (q.x-rc.right/2)/2;
+			q.y=rc.bottom/2 + (q.y-rc.bottom/2)/2;
 		}
 		AutoIterations();
 		g_pSelect.x = -g_SFT.GetWidth()/2;
@@ -3606,7 +3610,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 		pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
 		pAnim->hWnd = hWnd;
-		pAnim->pOffs = p;
+		pAnim->pOffs = q;
 		pAnim->bZoomOut = FALSE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
@@ -3630,7 +3634,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
 	}
-	else if(uMsg==WM_KEYDOWN && wParam==189){
+	else if(uMsg==WM_KEYDOWN && wParam==189){ // -
 		lParam=9;
 		g_bAddReference=FALSE;
 		g_bAddMainReference=false;
@@ -3654,9 +3658,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			PostMessage(hWnd,WM_RBUTTONUP,0,MAKELONG(p.x,p.y));
 			return 0;
 		}
+		POINT q = p;
 		if(lParam==9){
-			p.x=rc.right/2 - (p.x-rc.right/2);
-			p.y=rc.bottom/2 - (p.y-rc.bottom/2);
+			q.x=rc.right/2 - (q.x-rc.right/2);
+			q.y=rc.bottom/2 - (q.y-rc.bottom/2);
 		}
 
 		g_pSelect.x = -g_SFT.GetWidth()/2;
@@ -3668,7 +3673,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 		pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
 		pAnim->hWnd = hWnd;
-		pAnim->pOffs = p;
+		pAnim->pOffs = q;
 		pAnim->bZoomOut = TRUE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
@@ -3718,7 +3723,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_ARBITRARYSIZE){
 		if(g_SFT.GetArbitrarySize()){
-			g_SFT.SetRatio(640,360);
 			g_SFT.SetArbitrarySize(false);
 			SendMessage(hWnd,WM_SIZE,0,0);
 			g_SFT.SetArbitrarySize(true);
@@ -3761,56 +3765,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 #endif
 
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SKEW){
-		g_bShowSkew=TRUE;
-		g_DialogInit=0;
-		SYSTEMTIME st;
-
-		g_SFT.Stop();
-		g_nSkewStretch = 100*g_SFT.GetRatioY()/360;
-		SIZE size;
-		size.cx = g_SFT.GetWidth();
-		size.cy = g_SFT.GetHeight();
-		double xRatio = 640.0/size.cx;
-		size.cx = 640;
-		size.cy = size.cy*xRatio;
-		xRatio = (double)360/(double)size.cy;
-		g_nSkewStretch*=xRatio;
-
-		g_nSkewRotate = 180*g_Degree/pi;
-		HBITMAP bmBmp = g_SFT.GetBitmap();
-		UnSkewImage(bmBmp);
-		g_SFT.UpdateBitmap();
-
-		if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG10),hWnd,(DLGPROC)SkewProc,(LPARAM)hWnd)){
-			g_bShowSkew=FALSE;
-
-			SIZE size;
-			size.cx = g_SFT.GetWidth();
-			size.cy = g_SFT.GetHeight();
-			double xRatio = 640.0/size.cx;
-			size.cx = 640;
-			size.cy = size.cy*xRatio;
-			xRatio = (double)size.cy/(double)360;
-			g_nSkewStretch*=xRatio;
-
-			g_SFT.SetRatio(640,360*g_nSkewStretch/100);
-			g_Degree = pi*(double)(g_nSkewRotate)/180;
-			GetLocalTime(&st);
-			SystemTimeToFileTime(&st,(LPFILETIME)&g_nTStart);
-			g_SFT.UpdateBitmap();
-			g_SFT.UndoStore();
-			DisableUnsafeMenus(hWnd);
-			g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-			SetTimer(hWnd,0,500,NULL);
-		}
-		else{
-			g_bShowSkew=FALSE;
-			g_SFT.ApplyColors();
-			InvalidateRect(hWnd,NULL,FALSE);
-		}
-
-	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SHOWINFLECTION){
 		g_bShowInflection=!g_bShowInflection;
 		g_nInflection=0;
@@ -3848,24 +3802,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			g_SFT.SetMirror(1);
 		UpdateMirror(hWnd);
-	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_SETRATIO){
-		g_JpegParams.nWidth = g_SFT.GetRatioX();
-		g_JpegParams.nHeight = g_SFT.GetRatioY();
-		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,2))
-			return 0;
-		g_SFT.UndoStore();
-		g_SFT.SetRatio(g_JpegParams.nWidth,g_JpegParams.nHeight);
-		SetTimer(hWnd,0,500,NULL);
-		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
-	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_RESETRATIO){
-		g_SFT.UndoStore();
-		g_SFT.SetRatio(640,360);
-		SetTimer(hWnd,0,500,NULL);
-		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
 		std::string file = "";
@@ -4530,26 +4466,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_EXITSIZEMOVE && g_SFT.GetArbitrarySize() && !g_bFirstDone){
 		g_bResizing=FALSE;
-		RECT cr;
-		GetClientRect(hWnd,&cr);
-		if(cr.right!=g_scSize.cx || cr.bottom!=g_scSize.cy){
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			cr.bottom-=sr.bottom;
-			g_scSize.cy-=sr.bottom;
-			double xRatio = 640.0/cr.right;
-			cr.right = 640;
-			cr.bottom = cr.bottom*xRatio;
-			xRatio = 640.0/g_scSize.cx;
-			g_scSize.cx = 640;
-			g_scSize.cy = g_scSize.cy*xRatio;
-			xRatio = (double)g_SFT.GetRatioY()/(double)g_scSize.cy;
-			g_SFT.SetRatio(cr.right,cr.bottom*xRatio);
-		}
-		GetClientRect(hWnd,&cr);
-		g_scSize.cx = cr.right;
-		g_scSize.cy = cr.bottom;
 	}
 	else if((uMsg==WM_USER+199 || uMsg==WM_TIMER) && !g_bMove){
 		return HandleDoneSEH(hWnd,uMsg,wParam,lParam);

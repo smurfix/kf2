@@ -103,32 +103,6 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 		m_nIterDiv = atof(stParams[nID][1]);
 
-	if (! bNoLocation)
-	{
-	nID = stParams.FindString(0, "Rotate");
-	if (nID == -1)
-		g_Degree = 0;
-	else
-		g_Degree = atof(stParams[nID][1]);
-	}
-
-	if (! bNoLocation)
-	{
-	nID = stParams.FindString(0, "Ratio");
-	if (nID == -1)
-		m_scRatio.cy = 360;
-	else
-		m_scRatio.cy = atof(stParams[nID][1]);
-	SIZE size;
-	size.cx = GetImageWidth();
-	size.cy = GetImageHeight();
-	double xRatio = 640.0/size.cx;
-	size.cx = 640;
-	size.cy = size.cy*xRatio;
-	xRatio = (double)size.cy/(double)360;
-	m_scRatio.cy*=xRatio;
-	}
-
 	nID = stParams.FindString(0, "ColorMethod");
 	if (nID != -1){
 		int m = atoi(stParams[nID][1]);
@@ -512,21 +486,6 @@ std::string CFraktalSFT::ToText()
 	INT("Differences", GetDifferences())
 	INT("ColorOffset", GetColorOffset()) // FIXME DOUBLE
 	DOUBLE("ColorPhaseStrength", GetPhaseColorStrength())
-
-	DOUBLE("Rotate", g_Degree) // FIXME global
-
-	{
-		double nRatio = m_scRatio.cy;
-		SIZE size;
-		size.cx = m_nX;
-		size.cy = m_nY;
-		double xRatio = 640.0/size.cx;
-		size.cx = 640;
-		size.cy = size.cy*xRatio;
-		xRatio = (double)360/(double)size.cy;
-		nRatio*=xRatio;
-		DOUBLE("Ratio", nRatio) // FIXME complicated...
-	}
 
 	{
 		CStringTable stColors;
