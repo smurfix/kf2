@@ -27,7 +27,7 @@ mat2 polar_composition(const polar2 &P)
   using std::sin;
   using glm::transpose;
   const double r = P.rotate;
-  const double a = P.stretch_angle;
+  const double a = -P.stretch_angle;
   const mat2 R( cos(r), -sin(r), sin(r), cos(r) );
   const mat2 S( P.stretch_factor, 0, 0, 1/P.stretch_factor );
   const mat2 T( cos(a), -sin(a), sin(a), cos(a) );
@@ -96,6 +96,7 @@ polar2 polar_decomposition(const mat2 &M)
       }
       return polar2(scale, rotate, stretch_factor, stretch_angle);
     }
+    return polar2(scale, rotate, 1, 0);
   }
   return polar2();
 }
