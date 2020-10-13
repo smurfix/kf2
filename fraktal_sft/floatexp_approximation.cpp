@@ -48,13 +48,10 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	int nProbe = nProbeX * nProbeY - 1;
 	floatexp _1 = 1;
 	floatexp _3 = 3;
-	CFixedFloat cr, ci;
 	floatexp *dbTr = new floatexp[nProbe];
 	floatexp *dbTi = new floatexp[nProbe];
 	floatexp *dbTr0 = new floatexp[nProbe];
 	floatexp *dbTi0 = new floatexp[nProbe];
-	cr = m_rstart;
-	ci = m_istart;
 
 	POINT *p = new POINT[nProbe];
 	int k = 0;
