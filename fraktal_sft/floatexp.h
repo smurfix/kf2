@@ -398,10 +398,22 @@ public:
 	inline void ToFixedFloat(CFixedFloat &a) const noexcept
 	{
 		a = val;
-		if (exp >= 0)
-			mpfr_mul_2ui(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
+		if (exp > int64_t(UINT_MAX))
+		{
+			a = 1.0 / 0.0;
+		}
+		else if (exp < -int64_t(UINT_MAX))
+		{
+			a = 0.0;
+		}
 		else
-			mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
+		{
+			a = val;
+			if (exp >= 0)
+				mpfr_mul_2ui(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
+			else
+				mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
+		}
 	}
 	inline explicit operator CFixedFloat() const noexcept
 	{
