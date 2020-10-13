@@ -53,6 +53,8 @@ Feedback:
 
   - Zoom deeper more quickly with Newton-Raphson zooming (Ctrl-D).
 
+  - Design your own hybrid fractal formula (Ctrl-H).
+
 
 ## Limits
 
@@ -141,12 +143,22 @@ Feedback:
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
 - setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
-- glitches with higher power hybrids (reported by FractalAlex)
+- seams/bands with mixed power hybrids and numerical DE/slope
+  (workaround: use analytic DE/slope with derivatives)
 
 
 ## Differences From Upstream 2.11.1
 
 ### Incompatible Changes
+
+- **In versions `2.15.1` and above**,
+  slope colouring is different;
+  output is different with smooth method log
+  (iteration count is offset by `-log(log(BailoutRadius))/log(Power)`);
+  Buffalo power 2 is different;
+  rotation and skew are different;
+  hybrid formulas are new;
+  exponential map is new.
 
 - **In versions `2.14.10` and above**,
   new controls for custom bailout escape radius;
@@ -262,6 +274,21 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.15.1** (????-??-??)
+
+    - hybrid formula editor (design your own fractal formula)
+    - exponential map coordinate transformation
+      (useful for export to *zoomasm* for efficient video assembly)
+    - rotation and skew transformations are rewritten to be more flexible
+      (but old skewed/rotated KFR locations will not load correctly)
+    - the bitrotten skew animation feature is removed
+    - flip imaginary part of Buffalo power 2
+      (to match other powers; derivative was flipped already)
+    - slope implementation rewritten (appearance is different but it
+      is now independent of zoom level and iteration count)
+    - smooth (log) iteration count is offset so dwell bands match up
+      with the phase channel
 
 - **kf-2.14.10.3** (2020-10-08)
 
@@ -1559,6 +1586,7 @@ Software license.
         Saves the current location in a EXR image file (`*.exr`).
         The iteration data is also saved in the file by default.
         The location and settings are saved in the file metadata.
+        This is the recommended format for saving iteration data.
 
       - **Set EXR save channels**
         Choose which channels to save in EXR image files.
@@ -1566,8 +1594,10 @@ Software license.
         line rendering.
 
       - **KFB**
-        Saves the iteration data in a map file (`*.kfb`). This file can be used by
-        the KeyFramMovie program.  **The location and settings are not saved.**
+        Saves the iteration data in a map file (`*.kfb`).
+        These files can be used by some third party programs.
+        This file format is no longer recommended: use EXR instead.
+        **The location and settings are not saved.**
 
     Saved image dimensions can be smaller than the calculated image size set in
     the settings.  The image will be downscaled according to the shrink quality
@@ -1654,6 +1684,10 @@ Software license.
 
     Adjust fractal type and power etc.  See below.
 
+  - **Hybrid Formula...**
+
+    Design your own hybrid fractal formula.  See below.
+
   - **Bailout...**
 
     Adjust iteration limit and escape radius, etc.  See below
@@ -1723,37 +1757,25 @@ Software license.
 
     (I don't know what this does?)
 
-  - **Rotate**
+  - **Transformation**
 
-    Activate rotation, drag to rotate the image
+    Activate transformation dialog.
+    Left mouse drag to rotate the image.
+    Right mouse drag to skew the image.
+    Automatic skew is available via the Newton-Raphson zooming dialog.
 
-  - **Reset rotation**
+  - **Reset Transformation**
 
-    Clear any rotation
+    Clear any rotation and skew.
 
-  - **Skew**
+  - **Exponential Map**
 
-    Opens the Skew dialog which allows to "un-skew" locations that are skewed.
+    Apply exponential map coordinate transform.  For best (more conformal)
+    results use a wide aspect ratio (9:1 works well, window size 1152x128).
 
-    Automatic unskew is available via the Newton-Raphson zooming dialog.
-
-  - **Set Ratio**
-
-    Enables changing the ratio between height and width of the background image
-    in order to enable stretching locations. Combinated with rotation, an
-    almost infinite skewing ability is enabled, useful when exploring the
-    hidden treasures of the new Fractals!  (This is another name for skew.)
-
-  - **Reset Ratio**
-
-    Reset skew ratio to default
-
-  - **Skew animation**
-
-    Activates or deactivas skew animation. If activated, a popup allows you to
-    specify end skew parameters and number of frames. The fractal will be
-    rendered frame by frame, and can be combined with frame by frame rendering
-    in KeyFrameMovieMaker or MMY3D
+    You can store exponential map zoom out sequences (set zoom size to 2)
+    and combine them into a movie with the *zoomasm* zoom video assembler.
+    This is much more efficient than storing flat keyframes.
 
   - **Shrink quality**
 
@@ -2011,8 +2033,7 @@ Software license.
   - **Use guessing**
 
     Enable interpolation of neighbouring pixel data when the iteration count
-    is the same.  This speeds up rendering of interior regions, but some
-    colouring can lead to visible artifacts in the exterior.
+    is the same.  This speeds up rendering of interior regions and glitches.
 
   - **'Save' overwrites existing file**
 
@@ -2092,6 +2113,7 @@ At the very top right:
     This also functions as a lock mechanism, preventing accidental zooming
     while a long render is taking place.
 
+
 ## Formula dialog
 
   - Fractal type: Mandelbrot, Burning Ship, etc
@@ -2117,6 +2139,45 @@ At the very top right:
 
   - Gaussian jitter is probably best left disabled (uniform jitter looks
     better).
+
+
+## Hybrid Formula dialog
+
+  - There are up to 4 formula groups you can enable.
+    Enable them with a positive number of **Repeats** at the top right.
+
+    Groups are executed in a loop, apart from a prefix which is executed
+    only once.  The **Start Loop** radio buttons on the right let you
+    choose where the loop starts.
+
+  - Each group has up to 2 lines.
+    Don't forget to enable with the checkbox at the right.
+    Enabled groups *must* have their first line enabled.
+
+    Lines are executed in sequence, with the `+ C` part of the formula
+    happening at the end of all the lines.
+
+  - Each line has two operators which can be combined with `+`, `-`, or `*`.
+
+  - Each operator has controls (from left to right):
+
+    - Abs X
+    - Abs Y
+    - Neg X
+    - Neg Y
+    - Power
+    - A Real
+    - A Imag
+
+    Setting all of them gives `(-|x| + -|y| i)^p * (a_r + a_i i)`.
+
+  - The **OK** button first validates the dialog, if it doesn't pass
+    validation it has the same effect as the **Cancel** button.  This
+    is not ideal...
+
+  - Hybrid formulas are significantly slower (about 5x) than the built
+    in formulas for the same formula, so use the built in ones if you
+    can.
 
 
 ## Bailout dialog
@@ -2701,6 +2762,15 @@ including Windows program binary.
 exrtact is a suite of small command-line programs for manipulating EXR
 files.  Of particular note is `exrtactile` for tile assembly (see above).
 
+### zoomasm
+
+<https://mathr.co.uk/zoomasm>
+
+*zoomasm* is a zoom video assembler for turning exponential map EXR
+keyframe sequences into movies.  It has a timeline system in which
+you can set zoom depth at specific times, for example to synchronize
+with a soundtrack.
+
 ### kf-extras
 
 <https://code.mathr.co.uk/kf-extras/blob/HEAD:/README>
@@ -2714,19 +2784,6 @@ statistics, to-exr, to-mmit) as well as a bash script to generate a zoom
 video (which needs the mightymandel zoom assembler below).  The programs
 use a small library to abstract the KFB and PPM reading and writing, which
 can be used as a basis for your own programs.
-
-### zoom-tools zoom-interpolator
-
-<https://mathr.co.uk/zoom>
-
-zoom-tools is a suite of small command-line programs for turning EXR zoom
-sequences into zoom videos.  It has filters for input keyframes and output
-video frames, allowing video files to be encoded without needing so much
-temporary disk space.
-
-There is also an experimental OpenGL version that allows colouring with a
-fragment shader, which should be significantly faster and more flexible (if
-you don't mind a bit of coding).
 
 ### After Effects zoom tools
 
@@ -2866,6 +2923,17 @@ ffmpeg to encode `-pix_fmt yuv420p` for some codecs.
     usage: zoom iwidth iheight iframes olength \
       [ofps [oshutter [header [inverse]]]] < stream.raw > stream.y4m
 
+### zoom-tools zoom-interpolator
+
+<https://mathr.co.uk/zoom>
+
+zoom-tools is a suite of small command-line programs for turning EXR zoom
+sequences into zoom videos.  It has filters for input keyframes and output
+video frames, allowing video files to be encoded without needing so much
+temporary disk space.
+
+zoom-tools has been obsoleted by *zoomasm*.
+
 ### "book" zoom interpolator
 
 The mightymandel zoom interpolator is better in every way (it is based on
@@ -2936,7 +3004,8 @@ Here are the channels and metadata that KF currently supports:
     `float T` in `[0.0 .. 1.0)`
 
     It is desirable that this aligns with `NF` to give 2D exterior grid
-    cell coordinates, currently KF aligns only with `Linear` smoothing.
+    cell coordinates, KF versions before 2.15 align only with `Linear`
+    smoothing.
 
 - directional DE (when derivatives have been calculated)
 
