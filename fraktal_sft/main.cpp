@@ -1376,8 +1376,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 	{
-		bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
-		g_SFT.Zoom(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_SFT.GetZoomSize(),g_JpegParams.nWidth,g_JpegParams.nHeight,bReuseCenter/* TRUE */ /* !g_bAutoGlitch */);
+		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 	}
 	SetTimer(hWnd,0,500,NULL);
 	return 0;
@@ -1623,7 +1622,16 @@ nPos=14;
 //					if(g_bAnimateEachFrame)
 //						g_Degree+=0.01;
 					bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
-					g_SFT.Zoom(g_SFT.GetZoomSize()==1?-g_JpegParams.nWidth/2:g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_SFT.GetZoomSize(),g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame && bReuseCenter);
+					if (g_SFT.GetZoomSize() == 1)
+					{
+						// scrolling left
+						g_SFT.Zoom(-g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_SFT.GetZoomSize(),g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame && bReuseCenter);
+					}
+					else
+					{
+						// zooming out
+						g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
+					}
 				}
 				SetTimer(hWnd,0,500,NULL);
 				return 0;
@@ -3024,14 +3032,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	{
 		// page up = zoom in
 		g_SFT.UndoStore();
-		g_SFT.Zoom(g_SFT.GetWidth()/2,g_SFT.GetHeight()/2, 1*g_SFT.GetZoomSize(), g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(1.0 * g_SFT.GetZoomSize());
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_NEXT)
 	{
 		// page down = zoom out
 		g_SFT.UndoStore();
-		g_SFT.Zoom(g_SFT.GetWidth()/2,g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 
@@ -4632,7 +4640,7 @@ static bool render_frame(int frame, bool onlyKFR)
 		{
 			AutoIterations();
 		}
-		g_SFT.Zoom(g_SFT.GetWidth()/2, g_SFT.GetHeight()/2, 1/g_SFT.GetZoomSize(), g_SFT.GetWidth(), g_SFT.GetHeight(), FALSE, false);
+		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 		if (! onlyKFR)
 		{
 			g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);

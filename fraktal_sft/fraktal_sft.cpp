@@ -1608,6 +1608,20 @@ void CFraktalSFT::Stop(BOOL bNoPostWhenDone)
 	m_bNoPostWhenDone=0;
 }
 
+void CFraktalSFT::Zoom(double nZoomSize)
+{
+	Stop(TRUE);
+	m_bAddReference = FALSE;
+	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
+		m_bNoGlitchDetection = FALSE;
+	else
+		m_bNoGlitchDetection = TRUE;
+
+	m_ZoomRadius /= nZoomSize;
+
+	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
+}
+
 void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender)
 {
 	Stop(TRUE);
