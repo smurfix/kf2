@@ -22,6 +22,11 @@ double d_abs(const double a)
   return a < 0.0 ? -a : a;
 }
 
+double d_sgn(const double a)
+{
+  return a < 0.0 ? -1.0 : 1.0;
+}
+
 double d_imul(const int a, const double b)
 {
   return a * b;
@@ -113,6 +118,11 @@ floatexp fe_abs(const floatexp f)
 {
   floatexp fe = { d_abs(f.val), f.exp };
   return fe;
+}
+
+floatexp fe_sgn(const floatexp f)
+{
+  return fe_floatexp(d_sgn(f.val), 0);
 }
 
 floatexp fe_neg(const floatexp f)
@@ -529,6 +539,11 @@ softfloat sf_neg(const softfloat a)
   return o;
 }
 
+softfloat sf_sgn(const softfloat a)
+{
+  return sf_sign_bit(a) ? sf_neg(sf_one()) : sf_one();
+}
+
 softfloat sf_sqr(const softfloat a)
 {
   if (sf_biased_exponent(a) >= ((0x7FFFFFFFU >> 1) + (SF_EXPONENT_BIAS >> 1)))
@@ -620,6 +635,11 @@ softfloat sf_muli(const softfloat a, const int b)
 softfloat sf_imul(const int a, const softfloat b)
 {
   return sf_mul(sf_from_float(a), b);
+}
+
+softfloat sf_mul_2si(const softfloat a, const int b)
+{
+  return sf_mul(a, sf_from_float(1 << b)); // FIXME
 }
 
 softfloat sf_add_a_gt_b_gt_0(const softfloat a, const softfloat b)
@@ -843,6 +863,41 @@ softfloat sf_add(const softfloat a, const softfloat b)
 softfloat sf_sub(const softfloat a, const softfloat b)
 {
   return sf_add(a, sf_neg(b));
+}
+
+int sf_cmp(const softfloat a, const softfloat b)
+{
+  return ((int)sf_gt(a, b)) - ((int)sf_lt(a, b));
+}
+
+softfloat sf_diffabs(const softfloat c, const softfloat d)
+{
+  int s = sf_cmp(c, sf_zero());
+  if (s > 0)
+  {
+    int t = sf_cmp(sf_add(c, d), sf_zero());
+    if (t >= 0)
+    {
+      return d;
+    }
+    else
+    {
+      return sf_neg(sf_add(d, sf_mul_2si(c, 1)));
+    }
+  }
+  else if (s < 0)
+  {
+    int t = sf_cmp(sf_add(c, d), sf_zero());
+    if (t > 0)
+    {
+      return sf_add(d, sf_mul_2si(c, 1));
+    }
+    else
+    {
+      return sf_neg(d);
+    }
+  }
+  return sf_abs(d);
 }
 
 typedef struct
