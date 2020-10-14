@@ -296,5 +296,5 @@ const std::string usage =
 const std::string version = "2.15~git1";
 
 // bump these when changing what is saved in KFR/KFS
-const int kfr_version_number = 2;
-const int kfs_version_number = 2;
+const int kfr_version_number = 2150100;
+const int kfs_version_number = 2150100;
