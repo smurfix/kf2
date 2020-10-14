@@ -1402,10 +1402,13 @@ void CFraktalSFT::RenderFractalOpenCL()
 	{
 		antal = m_nMaxApproximation - 1;
 	}
-	std::cerr << antal << std::endl;
 	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
 	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
 	size_t stride_offset = 0;
+	const double nBailout = GetBailoutRadius();
+	const double p = GetBailoutNorm();
+	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+	mat2 transform = GetTransformMatrix();
 	cl->run
   (
 	  // for pixel -> parameter mapping
@@ -1414,19 +1417,20 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  GetJitterSeed(),
 	  GetJitterShape(),
 	  GetJitterScale(),
-	  m_pixel_step_x,
-	  m_pixel_step_y,
 	  m_pixel_center_x,
 	  m_pixel_center_y,
-	  m_C,
-	  m_S,
+	  m_pixel_scale,
+	  transform[0][0],
+	  transform[0][1],
+	  transform[1][0],
+	  transform[1][1],
 	  // for result -> output mapping
 	  stride_y,
 	  stride_x,
 	  stride_offset,
 	  // for iteration control
-	  m_nBailout,
-	  m_nBailout2,
+	  nBailout,
+	  nBailout2,
 	  log(m_nPower),
 	  m_nGlitchIter,
 	  m_nMaxIter,
@@ -1483,6 +1487,10 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
 	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
 	size_t stride_offset = 0;
+	const double nBailout = GetBailoutRadius();
+	const double p = GetBailoutNorm();
+	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+	mat2 transform = GetTransformMatrix();
 	cl->run
   (
 	  // for pixel -> parameter mapping
@@ -1491,19 +1499,20 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  GetJitterSeed(),
 	  GetJitterShape(),
 	  GetJitterScale(),
-	  m_pixel_step_x,
-	  m_pixel_step_y,
 	  m_pixel_center_x,
 	  m_pixel_center_y,
-	  m_C,
-	  m_S,
+	  m_pixel_scale,
+	  transform[0][0],
+	  transform[0][1],
+	  transform[1][0],
+	  transform[1][1],
 	  // for result -> output mapping
 	  stride_y,
 	  stride_x,
 	  stride_offset,
 	  // for iteration control
-	  m_nBailout,
-	  m_nBailout2,
+	  nBailout,
+	  nBailout2,
 	  log(m_nPower),
 	  m_nGlitchIter,
 	  m_nMaxIter,
@@ -3428,7 +3437,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 			clid = -1;
 			SetUseOpenCL(false);
 		}
-		if (0 <= i && i < cldevices.size())
+		if (0 <= i && i < (int) cldevices.size())
 		{
 			clid = i;
 			cl = new OpenCL(cldevices[i].pid, cldevices[i].did);

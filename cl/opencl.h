@@ -29,12 +29,13 @@ typedef struct __attribute__((packed))
   uint32_t JitterSeed;
   int32_t JitterShape;
   double JitterScale;
-  floatexp m_pixel_step_x;
-  floatexp m_pixel_step_y;
   floatexp m_pixel_center_x;
   floatexp m_pixel_center_y;
-  double m_C;
-  double m_S;
+  floatexp m_pixel_scale;
+  double transform00;
+  double transform01;
+  double transform10;
+  double transform11;
   // for result -> output mapping
   int64_t stride_y;
   int64_t stride_x;
@@ -105,6 +106,7 @@ private:
   size_t n1_bytes;  cl_mem n1;
   size_t n0_bytes;  cl_mem n0;
   size_t nf_bytes;  cl_mem nf;
+  size_t phase_bytes;cl_mem phase;
   size_t dex_bytes; cl_mem dex;
   size_t dey_bytes; cl_mem dey;
 
@@ -129,12 +131,13 @@ public:
     uint32_t JitterSeed,
     int32_t JitterShape,
     double JitterScale,
-    floatexp m_pixel_step_x,
-    floatexp m_pixel_step_y,
     floatexp m_pixel_center_x,
     floatexp m_pixel_center_y,
-    double m_C,
-    double m_S,
+    floatexp m_pixel_scale,
+    double transform00,
+    double transform01,
+    double transform10,
+    double transform11,
     // for result -> output mapping
     int64_t stride_y,
     int64_t stride_x,
@@ -182,6 +185,7 @@ public:
     uint32_t *n1_p,
     uint32_t *n0_p,
     float *nf_p,
+    float *phase_p,
     float *dex_p,
     float *dey_p
   );

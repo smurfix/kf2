@@ -1089,12 +1089,13 @@ typedef struct __attribute__((packed))
   uint JitterSeed;
   int JitterShape;
   double JitterScale;
-  floatexp m_pixel_step_x;
-  floatexp m_pixel_step_y;
   floatexp m_pixel_center_x;
   floatexp m_pixel_center_y;
-  double m_C;
-  double m_S;
+  floatexp m_pixel_scale;
+  double transform00;
+  double transform01;
+  double transform10;
+  double transform11;
   // for result -> output mapping
   long stride_y;
   long stride_x;
@@ -1203,10 +1204,12 @@ void GetPixelCoordinates
   double di = 0;
   double dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  floatexp u = fe_muld(g->m_pixel_step_x, i - g->m_nX/2 + di);
-  floatexp v = fe_muld(g->m_pixel_step_y, j - g->m_nY/2 + dj);
-  *x = fe_add(g->m_pixel_center_x, fe_add(fe_muld(u, g->m_C), fe_muld(v, g->m_S)));
-  *y = fe_sub(g->m_pixel_center_y, fe_sub(fe_muld(u, g->m_S), fe_muld(v, g->m_C)));
+  double u = i - g->m_nX/2 + di;
+  double v = j - g->m_nY/2 + dj;
+  double p = g->transform00 * u + g->transform01 * v;
+  double q = g->transform10 * u + g->transform11 * v;
+  *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
+  *y = fe_add(g->m_pixel_center_y, fe_muld(g->m_pixel_scale, q));
 }
 
 void GetPixelCoordinatesM
@@ -1224,14 +1227,16 @@ void GetPixelCoordinatesM
   double di = 0;
   double dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  floatexp u = fe_muld(g->m_pixel_step_x, i - g->m_nX/2 + di);
-  floatexp v = fe_muld(g->m_pixel_step_y, j - g->m_nY/2 + dj);
-  *x = fe_add(g->m_pixel_center_x, fe_add(fe_muld(u, g->m_C), fe_muld(v, g->m_S)));
-  *y = fe_sub(g->m_pixel_center_y, fe_sub(fe_muld(u, g->m_S), fe_muld(v, g->m_C)));
-  *daa = fe_muld(g->m_pixel_step_x,  g->m_C);
-  *dab = fe_muld(g->m_pixel_step_y,  g->m_S);
-  *dba = fe_muld(g->m_pixel_step_x, -g->m_S);
-  *dbb = fe_muld(g->m_pixel_step_y,  g->m_C);
+  double u = i - g->m_nX/2 + di;
+  double v = j - g->m_nY/2 + dj;
+  double p = g->transform00 * u + g->transform01 * v;
+  double q = g->transform10 * u + g->transform11 * v;
+  *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
+  *y = fe_add(g->m_pixel_center_y, fe_muld(g->m_pixel_scale, q));
+  *daa = fe_muld(g->m_pixel_scale, g->transform00);
+  *dab = fe_muld(g->m_pixel_scale, g->transform01);
+  *dba = fe_muld(g->m_pixel_scale, g->transform10);
+  *dbb = fe_muld(g->m_pixel_scale, g->transform11);
 }
 
 void DoApproximationD
@@ -1464,6 +1469,7 @@ __kernel void perturbation_double
 , __global       uint   *n1  // iteration count msb, may be null
 , __global       uint   *n0  // iteration count lsb
 , __global       float  *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
 , __global       float  *dex // directional de x, may be null
 , __global       float  *dey // directional de y, may be null
 )
@@ -1621,6 +1627,7 @@ __kernel void perturbation_floatexp
 , __global       uint     *n1  // iteration count msb, may be null
 , __global       uint     *n0  // iteration count lsb
 , __global       float    *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
 , __global       float    *dex // directional de x, may be null
 , __global       float    *dey // directional de y, may be null
 )
@@ -1766,6 +1773,7 @@ __kernel void perturbation_softfloat
 , __global       uint      *n1  // iteration count msb, may be null
 , __global       uint      *n0  // iteration count lsb
 , __global       float     *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
 , __global       float     *dex // directional de x, may be null
 , __global       float     *dey // directional de y, may be null
 )

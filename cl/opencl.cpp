@@ -77,7 +77,11 @@ std::vector<cldevice> initialize_opencl()
 
   cl_platform_id platform_id[64];
   cl_uint platform_ids;
-  E(clGetPlatformIDs(64, &platform_id[0], &platform_ids));
+  int err = clGetPlatformIDs(64, &platform_id[0], &platform_ids);
+  if (err != CL_SUCCESS)
+  {
+    return devices;
+  }
   char buf[1024];
   for (cl_uint i = 0; i < platform_ids; ++i) {
     buf[0] = 0;
@@ -114,6 +118,7 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
 , n1_bytes(0), n1(0)
 , n0_bytes(0), n0(0)
 , nf_bytes(0), nf(0)
+, phase_bytes(0), phase(0)
 , dex_bytes(0), dex(0)
 , dey_bytes(0), dey(0)
 {
@@ -285,12 +290,13 @@ void OpenCL::run
   uint32_t JitterSeed,
   int32_t JitterShape,
   double JitterScale,
-  floatexp m_pixel_step_x,
-  floatexp m_pixel_step_y,
   floatexp m_pixel_center_x,
   floatexp m_pixel_center_y,
-  double m_C,
-  double m_S,
+  floatexp m_pixel_scale,
+  double transform00,
+  double transform01,
+  double transform10,
+  double transform11,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,
@@ -338,6 +344,7 @@ void OpenCL::run
   uint32_t *n1_p,
   uint32_t *n0_p,
   float *nf_p,
+  float *phase_p,
   float *dex_p,
   float *dey_p
 )
@@ -354,12 +361,13 @@ void OpenCL::run
       JitterSeed,
       JitterShape,
       JitterScale,
-      m_pixel_step_x,
-      m_pixel_step_y,
       m_pixel_center_x,
       m_pixel_center_y,
-      m_C,
-      m_S,
+      m_pixel_scale,
+      transform00,
+      transform01,
+      transform10,
+      transform11,
       stride_y,
       stride_x,
       stride_offset,
@@ -489,6 +497,31 @@ void OpenCL::run
       }
     }
   
+    if (phase_p)
+    {
+      size_t bytes = sizeof(float) * m_nX * m_nY;
+      if (phase_bytes != bytes)
+      {
+        if (phase_bytes)
+        {
+          clReleaseMemObject(phase);
+        }
+        phase_bytes = bytes;
+        if (phase_bytes)
+        {
+          phase = clCreateBuffer(context, CL_MEM_READ_WRITE, bytes, nullptr, &err); if (! phase) { E(err); }
+        }
+      }
+    }
+    else
+    {
+      if (phase_bytes)
+      {
+        clReleaseMemObject(phase);
+        phase_bytes = 0;
+      }
+    }
+
     if (dex_p)
     {
       size_t bytes = sizeof(float) * m_nX * m_nY;
@@ -545,13 +578,14 @@ void OpenCL::run
   if (n1_p)  E(clEnqueueWriteBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  0, 0, 0));
   if (n0_p)  E(clEnqueueWriteBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  0, 0, 0));
   if (nf_p)  E(clEnqueueWriteBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  0, 0, 0));
+  if (phase_p)E(clEnqueueWriteBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,0,0,0));
   if (dex_p) E(clEnqueueWriteBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 0, 0, 0));
   if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
   
   // compile formula or retrieve kernel from cache
   cl_event formula_executed;
   clformula *formula = nullptr;
-  for (int i = 0; i < formulas.size(); ++i)
+  for (int i = 0; i < (int) formulas.size(); ++i)
   {
     if (   formulas[i].type == type
         && formulas[i].fractalType == m_nFractalType
@@ -602,9 +636,10 @@ void OpenCL::run
   E(clSetKernelArg(formula->kernel, 4, sizeof(cl_mem), n1_p  ? &n1  : nullptr));
   E(clSetKernelArg(formula->kernel, 5, sizeof(cl_mem), n0_p  ? &n0  : nullptr));
   E(clSetKernelArg(formula->kernel, 6, sizeof(cl_mem), nf_p  ? &nf  : nullptr));
-  E(clSetKernelArg(formula->kernel, 7, sizeof(cl_mem), dex_p ? &dex : nullptr));
-  E(clSetKernelArg(formula->kernel, 8, sizeof(cl_mem), dey_p ? &dey : nullptr));
-  size_t global[2] = { m_nY, m_nX };
+  E(clSetKernelArg(formula->kernel, 7, sizeof(cl_mem), phase_p?&phase:nullptr));
+  E(clSetKernelArg(formula->kernel, 8, sizeof(cl_mem), dex_p ? &dex : nullptr));
+  E(clSetKernelArg(formula->kernel, 9, sizeof(cl_mem), dey_p ? &dey : nullptr));
+  size_t global[2] = { (size_t) m_nY, (size_t) m_nX };
   cl_event uploaded[4] =
     { config_uploaded
     , refx_uploaded
@@ -618,6 +653,7 @@ void OpenCL::run
   if (n1_p)  E(clEnqueueReadBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  1, &formula_executed, 0));
   if (n0_p)  E(clEnqueueReadBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  1, &formula_executed, 0));
   if (nf_p)  E(clEnqueueReadBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  1, &formula_executed, 0));
+  if (phase_p)E(clEnqueueReadBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,1,&formula_executed,0));
   if (dex_p) E(clEnqueueReadBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 1, &formula_executed, 0));
   if (dey_p) E(clEnqueueReadBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 1, &formula_executed, 0));
 
@@ -636,12 +672,13 @@ template void OpenCL::run<double>(
   uint32_t JitterSeed,
   int32_t JitterShape,
   double JitterScale,
-  floatexp m_pixel_step_x,
-  floatexp m_pixel_step_y,
   floatexp m_pixel_center_x,
   floatexp m_pixel_center_y,
-  double m_C,
-  double m_S,
+  floatexp m_pixel_scale,
+  double transform00,
+  double transform01,
+  double transform10,
+  double transform11,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,
@@ -689,6 +726,7 @@ template void OpenCL::run<double>(
   uint32_t *n1_p,
   uint32_t *n0_p,
   float *nf_p,
+  float *phase_p,
   float *dex_p,
   float *dey_p
 );
@@ -700,12 +738,13 @@ template void OpenCL::run<floatexp>(
   uint32_t JitterSeed,
   int32_t JitterShape,
   double JitterScale,
-  floatexp m_pixel_step_x,
-  floatexp m_pixel_step_y,
   floatexp m_pixel_center_x,
   floatexp m_pixel_center_y,
-  double m_C,
-  double m_S,
+  floatexp m_pixel_scale,
+  double transform00,
+  double transform01,
+  double transform10,
+  double transform11,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,
@@ -753,6 +792,7 @@ template void OpenCL::run<floatexp>(
   uint32_t *n1_p,
   uint32_t *n0_p,
   float *nf_p,
+  float *phase_p,
   float *dex_p,
   float *dey_p
 );
