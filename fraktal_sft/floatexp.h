@@ -33,11 +33,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // avoiding overflow in + and other functions. it is the exponent for 0.0
 #define EXP_MIN (-0x80000000000000LL)
 
-class floatexp
+struct floatexp
 {
 public:
+	floatexp() = default; // POD
+	floatexp(const floatexp &a) = default; // POD
+	floatexp(floatexp &&a) = default; // POD
+	floatexp &operator=(const floatexp &a) = default; // POD
+	floatexp &operator=(floatexp &&a) = default; // POD
+	~floatexp() = default; // POD;
+
 	double val;
 	int64_t exp;
+
 	inline void align() noexcept
 	{
 		if (val != 0)
@@ -86,11 +94,7 @@ public:
 		newval = u.d;
 		return newval;
 	}
-	inline floatexp() noexcept
-	{
-		val = 0;
-		exp = EXP_MIN;
-	}
+
 	inline floatexp(int a) noexcept
 	{
 		initFromDouble(a);
@@ -119,14 +123,9 @@ public:
 	{
 		initFromLongDouble(a);
 	}
-	inline floatexp &operator =(const floatexp &a) noexcept
-	{
-		val=a.val;
-		exp=a.exp;
-		return *this;
-	}
+
 	inline floatexp &operator =(int a) noexcept
-	{	
+	{
 		initFromDouble((double)a);
 		return *this;
 	}
@@ -497,7 +496,7 @@ public:
 		  << d10 << 'E' << e10;
 		return os.str();
 	}
-};
+} __attribute__((packed));
 
 inline std::ostream& operator<<(std::ostream& a, const floatexp& b) noexcept
 {
