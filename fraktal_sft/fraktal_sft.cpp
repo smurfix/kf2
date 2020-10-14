@@ -1743,14 +1743,16 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		{
 		  g = 1.0 / 0.0;
 		}
+		m_CenterRe.m_f.precision(digits10);
+		m_CenterIm.m_f.precision(digits10);
+		m_rref.m_f.precision(digits10);
+		m_iref.m_f.precision(digits10);
 		CFixedFloat re0 = m_CenterRe;
 		CFixedFloat im0 = m_CenterIm;
 		CFixedFloat re1 = m_rref + CFixedFloat(a);
 		CFixedFloat im1 = m_iref + CFixedFloat(b);
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
-		m_CenterRe.m_f.precision(digits10);
-		m_CenterIm.m_f.precision(digits10);
 		SetPosition(re, im, radius, nWidth, nHeight);
 	}
 //	if (bReuseCenter && m_nZoom>g_nRefZero && !m_bReuseRef)
@@ -3754,11 +3756,9 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 		u0 -= m_nX / 2;
 		v0 -= m_nY / 2;
 	}
-	floatexp u = u0 * m_pixel_scale;
-	floatexp v = v0 * m_pixel_scale;
 	mat2 m = GetTransformMatrix();
-	x = m_pixel_center_x + m[0][0] * u + m[0][1] * v;
-	y = m_pixel_center_y + m[1][0] * u + m[1][1] * v;
+	x = m_pixel_center_x + m_pixel_scale * (m[0][0] * u0 + m[0][1] * v0);
+	y = m_pixel_center_y + m_pixel_scale * (m[1][0] * u0 + m[1][1] * v0);
 }
 
 void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y, floatexp &daa, floatexp &dab, floatexp &dba, floatexp &dbb) const
@@ -3787,11 +3787,9 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 		u0 -= m_nX / 2;
 		v0 -= m_nY / 2;
 	}
-	dual<2, floatexp> u = dual<2, floatexp>(u0) * m_pixel_scale;
-	dual<2, floatexp> v = dual<2, floatexp>(v0) * m_pixel_scale;
 	mat2 m = GetTransformMatrix();
-	dual<2, floatexp> x0 = m_pixel_center_x + m[0][0] * u + m[0][1] * v;
-	dual<2, floatexp> y0 = m_pixel_center_y + m[1][0] * u + m[1][1] * v;
+	dual<2, floatexp> x0 = m_pixel_center_x + m_pixel_scale * dual<2, floatexp>(m[0][0] * u0 + m[0][1] * v0);
+	dual<2, floatexp> y0 = m_pixel_center_y + m_pixel_scale * dual<2, floatexp>(m[1][0] * u0 + m[1][1] * v0);
 	x = x0.x;
 	y = y0.x;
 	daa = x0.dx[0];
