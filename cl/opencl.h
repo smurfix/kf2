@@ -11,7 +11,6 @@
 struct SeriesR2;
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
-#define clew_STATIC
 #include "clew.h"
 
 extern std::string perturbation_opencl
