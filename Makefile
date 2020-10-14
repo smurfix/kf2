@@ -216,7 +216,7 @@ preprocessor: preprocessor.hs
 
 cl/opencl.o: cl/opencl.cpp cl/opencl.h
 
-cl/formula.o: cl/formula.cpp cl/common_cl.c cl/softfloat_cl.c cl/double_pre_cl.c cl/double_post_cl.c cl/double_post_rc_cl.c cl/double_post_m_cl.c cl/floatexp_pre_cl.c cl/floatexp_post_cl.c cl/floatexp_post_rc_cl.c cl/floatexp_post_m_cl.c cl/softfloat_pre_cl.c cl/softfloat_post_cl.c cl/softfloat_post_rc_cl.c cl/softfloat_post_m_cl.c
+cl/formula.o: cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_post_cl.c cl/double_post_rc_cl.c cl/double_post_m_cl.c cl/floatexp_pre_cl.c cl/floatexp_post_cl.c cl/floatexp_post_rc_cl.c cl/floatexp_post_m_cl.c cl/softfloat_pre_cl.c cl/softfloat_post_cl.c cl/softfloat_post_rc_cl.c cl/softfloat_post_m_cl.c
 
 %.pdf: %.md
 	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < $< -o $@
