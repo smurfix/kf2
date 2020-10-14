@@ -139,7 +139,6 @@ Feedback:
 - nanomb2 currently disables glitch detection and correction
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
-- kf-tile.exe doesn't support skew yet
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
 - setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
@@ -282,6 +281,7 @@ Feedback:
       (useful for export to *zoomasm* for efficient video assembly)
     - rotation and skew transformations are rewritten to be more flexible
       (but old skewed/rotated KFR locations will not load correctly)
+    - `kf-tile.exe` tool supports the new rotation and skew transformations
     - the bitrotten skew animation feature is removed
     - flip imaginary part of Buffalo power 2
       (to match other powers; derivative was flipped already)
@@ -2750,8 +2750,17 @@ Then run (syntax for Bash shell):
     exrtactile.exe input 10 0 output.exr  # for side-by-side tiles
     exrtactile.exe input 10 1 output.exr  # for stratified tiles
 
+You can append one argument at the end of the `kf-tile.exe` command:
+
+  - `--auto`: use stratified tiling if sensible, otherwise adjacent
+  - `--adjacent`: force using side-by-side tiles (may have seams between
+    tiles)
+  - `--stratify`: force using stratified tiles (may have artifacts if
+    numerical differencing is used for DE and/or slopes)
+
 The EXR tile assembler is available at <https://mathr.co.uk/exrtact>
 including Windows program binary.
+
 
 ## Third-party Software
 

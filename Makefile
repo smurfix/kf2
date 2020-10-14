@@ -163,8 +163,8 @@ clean:
 kf.exe: $(OBJECTS)
 	$(LINK) -o kf.exe $(OBJECTS) $(LINK_FLAGS) $(LIBS)
 
-kf-tile.exe: utils/kf-tile.o
-	$(LINK) -o kf-tile.exe utils/kf-tile.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
+kf-tile.exe: utils/kf-tile.o common/matrix.o
+	$(LINK) -o kf-tile.exe utils/kf-tile.o common/matrix.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
 
 res.o: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
 	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o $(FLAGS_WINDRES)
