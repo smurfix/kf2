@@ -100,6 +100,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	if (counter > 0)
 		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
 #endif
+	m_bRunning = TRUE;
 	m_bStop = FALSE;
 	if (hWnd)
 		m_hWnd = hWnd;
@@ -191,13 +192,12 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	m_dPixelSpacing = m_fPixelSpacing.todouble();
 	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
 
-	if (bNoThread){
+	if (bNoThread || cl){
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
 		ThRenderFractal(this);
 	}
 	else{
-		m_bRunning = TRUE;
 		DWORD dw;
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
 		CloseHandle(hThread);
