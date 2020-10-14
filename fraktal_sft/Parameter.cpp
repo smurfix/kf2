@@ -29,6 +29,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
 
+static const double deg = 360 / 6.283185307179586;
+
 BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 {
 	std::string data;
@@ -369,6 +371,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	i = stParams.FindString(0, "TextureFile");
 	if (i != -1) m_szTexture = stParams[i][1];
 
+	if (! bNoLocation)
+	{
 	i = stParams.FindString(0, "UseHybridFormula");
 	if (i != -1 && atoi(stParams[i][1]))
 	{
@@ -394,6 +398,30 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	else
 	{
 		SetUseHybridFormula(false);
+	}
+	}
+
+	if (! bNoLocation)
+	{
+	double RotateAngle = 0;
+	double StretchAngle = 0;
+	double StretchAmount = 0;
+	i = stParams.FindString(0, "RotateAngle");
+	if (i != -1)
+	{
+		RotateAngle = atof(stParams[i][1]);
+	}
+	i = stParams.FindString(0, "StretchAngle");
+	if (i != -1)
+	{
+		StretchAngle = atof(stParams[i][1]);
+	}
+	i = stParams.FindString(0, "StretchAmount");
+	if (i != -1)
+	{
+		StretchAmount = atof(stParams[i][1]);
+	}
+	SetTransformPolar(polar2(1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
 	}
 
 	if (! bNoLocation)
@@ -558,11 +586,18 @@ std::string CFraktalSFT::ToText()
 	INT("TextureRatio", m_nImgRatio)
 	STRING("TextureFile", m_szTexture)
 
+	// KFR version >= 3
 	if (GetUseHybridFormula())
 	{
 		INT("UseHybridFormula", 1)
 		STRING("HybridFormula", to_string(GetHybridFormula()).c_str())
 	}
+
+	// KFR version >= 3
+	polar2 P = GetTransformPolar();
+	DOUBLE("RotateAngle", P.rotate * deg)
+	DOUBLE("StretchAngle", P.stretch_angle * deg)
+	DOUBLE("StretchAmount", std::log2(P.stretch_factor))
 
 	INT("Version", kfr_version_number)
 
