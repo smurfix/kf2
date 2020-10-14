@@ -1397,6 +1397,7 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 
 void CFraktalSFT::RenderFractalOpenCL()
 {
+	m_bIterChanged = TRUE;
 	int64_t antal = 0;
 	if (m_nMaxApproximation)
 	{
@@ -1471,14 +1472,15 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
 	  &m_nTrans[0][0],
-	  &m_nPhase[0][0],
-	  &m_nDEx[0][0],
-	  &m_nDEy[0][0]
+	  m_nPhase ? &m_nPhase[0][0] : nullptr,
+	  m_nDEx ? &m_nDEx[0][0] : nullptr,
+	  m_nDEy ? &m_nDEy[0][0] : nullptr
   );
 }
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
 {
+	m_bIterChanged = TRUE;
 	int64_t antal = 0;
 	if (m_nMaxApproximation)
 	{
