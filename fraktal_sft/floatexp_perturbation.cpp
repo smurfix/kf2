@@ -56,10 +56,10 @@ floatexp lb_abs_exp(const floatexp &c, const floatexp &d)
 void CFraktalSFT::MandelCalcEXP()
 {
 	m_bIterChanged = TRUE;
-	floatexp Dnr, Dni, yr, yi;
+	floatexp yr, yi;
 	int64_t antal;
 	int x, y, w, h;
-	floatexp real(g_real), imag(g_imag), _abs_val;
+	floatexp real(g_real), imag(g_imag);
 	floatexp epsilon(m_epsilon);
 	const bool derivatives = GetDerivatives();
   const double nBailout = GetBailoutRadius();
