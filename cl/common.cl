@@ -1330,8 +1330,8 @@ void DoApproximationD
     *antal = g->m_nMaxApproximation - 1;
     *oTDnr = TDnr;
     *oTDni = TDni;
-    *oTDDnr = TDnr;
-    *oTDDni = TDni;
+    *oTDDnr = TDDnr;
+    *oTDDni = TDDni;
   }
   else
   {
