@@ -1,7 +1,7 @@
 #!/bin/sh
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2019 Claude Heiland-Allen
+# Copyright (C) 2017-2020 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -24,22 +24,22 @@ then
 	exit 1
 fi
 
-make clean
+make OPENCL=1 clean
 
 SRC="${VERSION}-src"
 mkdir "${SRC}"
-make formula/formula.cpp
+make OPENCL=1 formula/formula.cpp
 cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk 64+.mk native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
 cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
-make -j 32 SYSTEM=64
-strip kf.exe
-strip kf-tile.exe
+make -j 32 SYSTEM=64 OPENCL=1
 cp -avi kf.exe "${BIN}/kf.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.exe"
+strip "${BIN}/kf.exe"
+strip "${BIN}/kf-tile.exe"
 
 make README.pdf
 make LICENSE.pdf
