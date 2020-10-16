@@ -9,7 +9,7 @@ void perturbation_floatexp_loop
   const floatexp zero = fe_floatexp(0.0, 0);
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
-  bool no_g = g->g_real == 1.0 && g->g_imag == 1.0;
+  bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;
   floatexp xr = l->xr;
@@ -40,19 +40,16 @@ void perturbation_floatexp_loop
     Xxr = fe_add(Xr, xr);
     Xxi = fe_add(Xi, xi);
     test2 = test1;
-    if (no_g)
-    {
-      test1 = fe_double(fe_add(fe_sqr(Xxr), fe_sqr(Xxi)));
-    }
-    else
-    {
-      test1 = fe_double(fe_add(fe_dmul(g->g_real, fe_sqr(Xxr)), fe_dmul(g->g_imag, fe_sqr(Xxi))));
-    }
+    test1 = fe_double(fe_add(fe_sqr(Xxr), fe_sqr(Xxi)));
     if (test1 < Xz)
     {
       l->bGlitch = true;
       if (! g->m_bNoGlitchDetection)
         break;
+    }
+    if (! no_g)
+    {
+      test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
     }
     if (test1 > g->m_nBailout2)
     {

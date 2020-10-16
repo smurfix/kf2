@@ -1407,8 +1407,8 @@ void CFraktalSFT::RenderFractalOpenCL()
 	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
 	size_t stride_offset = 0;
 	const double nBailout = GetBailoutRadius();
-	const double p = GetBailoutNorm();
-	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+	const double norm_p = GetBailoutNorm();
+	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
 	cl->run
   (
@@ -1442,6 +1442,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_nSmoothMethod,
 	  g_real,
 	  g_imag,
+	  norm_p,
 	  g_FactorAR,
 	  g_FactorAI,
 	  m_epsilon,
@@ -1490,8 +1491,8 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
 	size_t stride_offset = 0;
 	const double nBailout = GetBailoutRadius();
-	const double p = GetBailoutNorm();
-	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+	const double norm_p = GetBailoutNorm();
+	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
 	cl->run
   (
@@ -1525,6 +1526,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_nSmoothMethod,
 	  g_real,
 	  g_imag,
+	  norm_p,
 	  g_FactorAR,
 	  g_FactorAI,
 	  m_epsilon,

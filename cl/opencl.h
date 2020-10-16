@@ -53,6 +53,7 @@ typedef struct __attribute__((packed))
   int16_t m_nSmoothMethod;
   double g_real;
   double g_imag;
+  double norm_p;
   double g_FactorAR;
   double g_FactorAI;
   double m_epsilon;
@@ -154,6 +155,7 @@ public:
     int16_t m_nSmoothMethod,
     double g_real,
     double g_imag,
+    double norm_p,
     double g_FactorAR,
     double g_FactorAI,
     double m_epsilon,

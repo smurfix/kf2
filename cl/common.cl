@@ -1169,6 +1169,7 @@ typedef struct __attribute__((packed))
   short m_nSmoothMethod;
   double g_real;
   double g_imag;
+  double norm_p;
   double g_FactorAR;
   double g_FactorAI;
   double m_epsilon;
@@ -1963,4 +1964,21 @@ __kernel void perturbation_softfloat
       }
     }
   }
+}
+
+double pnorm(double g_real, double g_imag, double p, double x, double y)
+{
+  if (g_real == 1.0 && g_imag == 1.0 && p == 2.0)
+  {
+    return x * x + y * y;
+  }
+  if (p == 1.0)
+  {
+    return fabs(g_real * fabs(x) + g_imag * fabs(y));
+  }
+  if (p == 1.0/0.0)
+  {
+    return fabs(max(g_real * fabs(x), g_imag * fabs(y)));
+  }
+  return fabs(g_real * pow(fabs(x), p) + g_imag * pow(fabs(y), p));
 }

@@ -8,7 +8,7 @@ void perturbation_double_loop
 {
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
-  bool no_g = g->g_real == 1.0 && g->g_imag == 1.0;
+  bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   const double cr = l->cr;
   const double ci = l->ci;
   double xr = l->xr;
@@ -39,19 +39,16 @@ void perturbation_double_loop
     Xxr = Xr + xr;
     Xxi = Xi + xi;
     test2 = test1;
-    if (no_g)
-    {
-      test1 = Xxr * Xxr + Xxi * Xxi;
-    }
-    else
-    {
-      test1 = g->g_real * Xxr * Xxr + g->g_imag * Xxi * Xxi;
-    }
+    test1 = Xxr * Xxr + Xxi * Xxi;
     if (test1 < Xz)
     {
       l->bGlitch = true;
       if (! g->m_bNoGlitchDetection)
         break;
+    }
+    if (! no_g)
+    {
+      test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxr, Xxi);
     }
     if (test1 > g->m_nBailout2)
     {
