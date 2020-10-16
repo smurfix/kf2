@@ -43,7 +43,7 @@ void CFraktalSFT::MandelCalc()
   int16 antal16, bGlitch16, bNoGlitchDetection16, x16, y16, w16, h16;
   int k = 0;
   const int64_t chunksize = GetSIMDChunkSize();
-  const int vectorsize = GetSIMDVectorSize();
+  const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
   const bool derivatives = GetDerivatives();
   const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1;
 
