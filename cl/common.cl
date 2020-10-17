@@ -653,7 +653,7 @@ softfloat sf_add_a_gt_b_gt_0(const softfloat a, const softfloat b)
   assert(sf_sign_bit(a) == sf_sign_bit(b));
   ulong mantissa = ma + (mb >> (ea - eb));
   uint biased_e = ea;
-  if (!! (mantissa & 0x100000000LLU))
+  if (!! (mantissa & 0x100000000LU))
   {
     biased_e += 1;
     mantissa >>= 1;
@@ -1203,7 +1203,7 @@ double dither(uint x, uint y, uint c)
   return
     burtle_hash(x +
     burtle_hash(y +
-    burtle_hash(c))) / (double) (0x100000000LL);
+    burtle_hash(c))) / (double) (0x100000000L);
 }
 
 void GetPixelOffset
@@ -1485,7 +1485,7 @@ void DoApproximation
 }
 #endif
 
-#define PIXEL_UNEVALUATED (-2147483648LL)
+#define PIXEL_UNEVALUATED (-2147483648L)
 #define ISFLOATOK(x) ((! isnan(x)) && (! isinf(x)))
 #define SET_TRANS_GLITCH(x) (-1.0)
 
