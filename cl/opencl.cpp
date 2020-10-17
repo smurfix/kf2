@@ -3,6 +3,7 @@
 #include <assert.h>
 #include <math.h>
 #include <string.h>
+#include <cstring>
 
 #include "../fraktal_sft/fraktal_sft.h"
 
@@ -99,8 +100,18 @@ std::vector<cldevice> initialize_opencl()
       buf[0] = 0;
       E(clGetDeviceInfo(device_id[j], CL_DEVICE_NAME, 1024, &buf[0], 0));
       std::string dname(buf);
-      cldevice d = { platform_id[i], device_id[j], dname, vendor, version };
-      devices.push_back(d);
+      buf[0] = 0;
+      cl_uint dvecsize = 0;
+      cl_int status = clGetDeviceInfo(device_id[j], CL_DEVICE_PREFERRED_VECTOR_WIDTH_DOUBLE, sizeof(dvecsize), &dvecsize, 0);
+      if (status != CL_SUCCESS)
+      {
+        dvecsize = 0;
+      }
+      if (dvecsize > 0) // TODO support devices that don't support double precision?
+      {
+        cldevice d = { platform_id[i], device_id[j], dname, vendor, version, dvecsize > 0 };
+        devices.push_back(d);
+      }
     }
   }
   return devices;

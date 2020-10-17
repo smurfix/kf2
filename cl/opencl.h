@@ -77,6 +77,7 @@ struct cldevice
   std::string name;
   std::string vendor;
   std::string version;
+  bool supports_double;
 };
 
 struct clformula
