@@ -276,6 +276,8 @@ Feedback:
 
 - **kf-2.15.1** (????-??-??)
 
+    - OpenCL support for perturbation iterations (requires double precision
+      support on device: CPUs should work, some GPUs might not)
     - hybrid formula editor (design your own fractal formula)
     - exponential map coordinate transformation
       (useful for export to *zoomasm* for efficient video assembly)
@@ -2106,6 +2108,17 @@ Software license.
 
     Note: changing this during rendering could lead to crashes, so the menu
     is disabled during rendering to prevent that.
+
+  - **OpenCL**
+
+    Select which device to use for OpenCL, or "(none)" to use the regular old
+    implementation on CPU.  Currently OpenCL is used for perturbation
+    iterations only, and needs a device with double precision (fp64) support.
+    On some operating systems you might need to adjust GPU timeout behaviour
+    if the calculations take too long and are interrupted.
+
+    OpenCL may or may not be faster, depending on device, location, etc.
+
 
 ## About
 
