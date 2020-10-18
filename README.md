@@ -1173,10 +1173,15 @@ Feedback:
 - exterior tile texturing using smooth iteration count and phase
 - bailout mode that combines the best of linear and log (for exterior tiling)
 - color phase offset control
-- orbit traps
-- stripe average
+- orbit traps (eg atom domain, cellular colouring, dancing points, ...)
+- stripe average (and triangle inequality average)
 - refactor transfer functions so iterdiv is scaled sensibly (suggested by FK68)
 - exponential smoothing colouring algorithm (suggested by FractalAlex)
+  (implementation described by Ron Barnett at
+  <https://user.xmission.com/pub/lists/fractdev/archive/fractdev.200003>)
+- entropy colouring (post-processing effect) (suggested by FractalAlex,
+  matlab/octave implementation by gerrit at
+  <https://fractalforums.org/f/28/t/368/msg1884#msg1884>)
 
 
 ## Getting The Code
