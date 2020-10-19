@@ -27,54 +27,52 @@ extern std::string perturbation_opencl
 
 typedef struct __attribute__((packed))
 {
-  size_t BYTES;
+  cl_long BYTES;
   // for pixel -> parameter mapping
-  int32_t m_nX;
-  int32_t m_nY;
-  uint32_t JitterSeed;
-  int32_t JitterShape;
-  double JitterScale;
+  cl_int m_nX;
+  cl_int m_nY;
+  cl_uint JitterSeed;
+  cl_int JitterShape;
+  cl_double JitterScale;
   floatexp m_pixel_center_x;
   floatexp m_pixel_center_y;
   floatexp m_pixel_scale;
-  double transform00;
-  double transform01;
-  double transform10;
-  double transform11;
+  cl_double transform00;
+  cl_double transform01;
+  cl_double transform10;
+  cl_double transform11;
   // for result -> output mapping
-  int64_t stride_y;
-  int64_t stride_x;
-  int64_t stride_offset;
+  cl_long stride_y;
+  cl_long stride_x;
+  cl_long stride_offset;
   // for iteration control
-  double m_nBailout;
-  double m_nBailout2;
-  double log_m_nBailout;
-  double log_m_nPower;
-  int64_t m_nGlitchIter;
-  int64_t m_nMaxIter;
-  int64_t nMaxIter;
-  int64_t nMinIter;
-  int16_t m_bNoGlitchDetection;
-  int16_t derivatives;
-  int16_t m_bAddReference;
-  int16_t m_nSmoothMethod;
-  double g_real;
-  double g_imag;
-  double norm_p;
-  double g_FactorAR;
-  double g_FactorAI;
-  double m_epsilon;
+  cl_double m_nBailout;
+  cl_double m_nBailout2;
+  cl_double log_m_nBailout;
+  cl_double log_m_nPower;
+  cl_long m_nGlitchIter;
+  cl_long m_nMaxIter;
+  cl_long nMaxIter;
+  cl_long nMinIter;
+  cl_short m_bNoGlitchDetection;
+  cl_short derivatives;
+  cl_short m_bAddReference;
+  cl_short m_nSmoothMethod;
+  cl_double g_real;
+  cl_double g_imag;
+  cl_double norm_p;
+  cl_double g_FactorAR;
+  cl_double g_FactorAI;
+  cl_double m_epsilon;
   // for series approximation
-  double m_dPixelSpacing;
-  floatexp m_fPixelSpacing;
-  int64_t m_nMaxApproximation;
-  int32_t m_nApproxTerms;
-  int32_t approximation_type;
+  cl_long m_nMaxApproximation;
+  cl_int m_nApproxTerms;
+  cl_int approximation_type;
   // for hybrid
-  int16_t hybrid_loop_start;
-  int16_t hybrid_nstanzas;
-  int32_t hybrid_repeats[MAX_HYBRID_STANZAS];
-  double hybrid_log_powers[MAX_HYBRID_STANZAS];
+  cl_short hybrid_loop_start;
+  cl_short hybrid_nstanzas;
+  cl_int hybrid_repeats[MAX_HYBRID_STANZAS];
+  cl_double hybrid_log_powers[MAX_HYBRID_STANZAS];
   // 130kB data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];
@@ -176,8 +174,6 @@ public:
     double g_FactorAI,
     double m_epsilon,
     // for series approximation
-    double m_dPixelSpacing,
-    floatexp m_fPixelSpacing,
     int64_t m_nMaxApproximation,
     int32_t m_nApproxTerms,
     int32_t approximation_type,

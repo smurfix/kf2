@@ -7,6 +7,4 @@
   l->test2 = test2;
   l->xr = Xxr;
   l->xi = Xxi;
-  l->dr = zero;
-  l->di = zero;
 }

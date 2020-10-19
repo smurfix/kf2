@@ -331,8 +331,6 @@ void OpenCL::run
   double g_FactorAI,
   double m_epsilon,
   // for series approximation
-  double m_dPixelSpacing,
-  floatexp m_fPixelSpacing,
   int64_t m_nMaxApproximation,
   int32_t m_nApproxTerms,
   int32_t approximation_type,
@@ -405,8 +403,6 @@ void OpenCL::run
       g_FactorAR,
       g_FactorAI,
       m_epsilon,
-      m_dPixelSpacing,
-      m_fPixelSpacing,
       m_nMaxApproximation,
       m_nApproxTerms,
       approximation_type,
@@ -658,7 +654,7 @@ void OpenCL::run
     if (! program) { E(err); }
     // FIXME synchronous program building, async would be better
     std::ostringstream options;
-    options << "-Werror -D DERIVATIVES=" << (derivatives ? 1 : 0)
+    options << "-D DERIVATIVES=" << (derivatives ? 1 : 0)
             << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
             << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
@@ -752,8 +748,6 @@ template void OpenCL::run<double>(
   double g_FactorAI,
   double m_epsilon,
   // for series approximation
-  double m_dPixelSpacing,
-  floatexp m_fPixelSpacing,
   int64_t m_nMaxApproximation,
   int32_t m_nApproxTerms,
   int32_t approximation_type,
@@ -823,8 +817,6 @@ template void OpenCL::run<floatexp>(
   double g_FactorAI,
   double m_epsilon,
   // for series approximation
-  double m_dPixelSpacing,
-  floatexp m_fPixelSpacing,
   int64_t m_nMaxApproximation,
   int32_t m_nApproxTerms,
   int32_t approximation_type,

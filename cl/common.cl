@@ -93,7 +93,7 @@ typedef struct
   long exp;
 } floatexp;
 
-double fe_double(floatexp f)
+double fe_double(const floatexp f)
 {
   if (f.exp < -1020)
   {
@@ -103,13 +103,16 @@ double fe_double(floatexp f)
   {
     return f.val / 0.0;
   }
-  return as_double((as_long(f.val) & 0x800FFFFFFFFFFFFFL) | ((f.exp + 1023) << 52));
+  return ldexp(f.val, f.exp);
+//  return as_double((as_long(f.val) & 0x800FFFFFFFFFFFFFL) | ((f.exp + 1023) << 52));
 }
 
 floatexp fe_floatexp(const double val, const long exp)
 {
-  long f_exp = ((as_long(val) & 0x7FF0000000000000L) >> 52) - 1023;
-  double f_val = as_double((as_long(val) & 0x800FFFFFFFFFFFFFL) | 0x3FF0000000000000L);
+  int f_exp = 0;
+  double f_val = frexp(val, &f_exp);
+  //long f_exp = ((as_long(val) & 0x7FF0000000000000L) >> 52) - 1023;
+  //double f_val = as_double((as_long(val) & 0x800FFFFFFFFFFFFFL) | 0x3FF0000000000000L);
   floatexp fe = { f_val, f_exp + exp };
   return fe;
 }
@@ -575,7 +578,7 @@ softfloat sf_sqr(const softfloat a)
     softfloat o = { biased_e, mantissa };
     return o;
   }
-} 
+}
 
 softfloat sf_mul(const softfloat a, const softfloat b)
 {
@@ -1383,16 +1386,18 @@ typedef struct
   double ci;
   double xr;
   double xi;
-  double dr;
-  double di;
   double daa;
   double dab;
   double dba;
   double dbb;
+  double dxa;
+  double dxb;
+  double dya;
+  double dyb;
   double test1;
   double test2;
   long antal;
-  int bGlitch;
+  long bGlitch;
   double log_m_nPower;
 } p_status_d;
 
@@ -1402,16 +1407,18 @@ typedef struct
   floatexp ci;
   floatexp xr;
   floatexp xi;
-  floatexp dr;
-  floatexp di;
   floatexp daa;
   floatexp dab;
   floatexp dba;
   floatexp dbb;
+  floatexp dxa;
+  floatexp dxb;
+  floatexp dya;
+  floatexp dyb;
   double test1;
   double test2;
   long antal;
-  int bGlitch;
+  long bGlitch;
   double log_m_nPower;
 } p_status_fe;
 
@@ -1421,16 +1428,18 @@ typedef struct
   softfloat ci;
   softfloat xr;
   softfloat xi;
-  softfloat dr;
-  softfloat di;
   softfloat daa;
   softfloat dab;
   softfloat dba;
   softfloat dbb;
+  softfloat dxa;
+  softfloat dxb;
+  softfloat dya;
+  softfloat dyb;
   softfloat test1;
   softfloat test2;
   long antal;
-  int bGlitch;
+  long bGlitch;
   softfloat log_m_nPower;
 } p_status_sf;
 
@@ -1475,8 +1484,6 @@ typedef struct __attribute__((packed))
   double g_FactorAI;
   double m_epsilon;
   // for series approximation
-  double m_dPixelSpacing;
-  floatexp m_fPixelSpacing;
   long m_nMaxApproximation;
   int m_nApproxTerms;
   int approximation_type;
@@ -1795,6 +1802,87 @@ void DoApproximation
 #define ISFLOATOK(x) ((! isnan(x)) && (! isinf(x)))
 #define SET_TRANS_GLITCH(x) (-1.0)
 
+typedef struct
+{
+  double v[2];
+} vec2;
+
+vec2 v_normalize(const vec2 a)
+{
+  double l = sqrt(a.v[0] * a.v[0] + a.v[1] * a.v[1]);
+  if (! (l != 0.0))
+  {
+    l = 1.0;
+  }
+  vec2 r = { a.v[0] / l, a.v[1] / l };
+  return r;
+}
+
+typedef struct
+{
+  double m[2][2];
+} mat2;
+
+vec2 vm_mul(const vec2 v, const mat2 m)
+{
+  vec2 r =
+    { v.v[0] * m.m[0][0] + v.v[1] * m.m[0][1]
+    , v.v[0] * m.m[1][0] + v.v[1] * m.m[1][1]
+    };
+  return r;
+}
+
+mat2 m_transpose(const mat2 m)
+{
+  mat2 r = { m.m[0][0], m.m[1][0], m.m[0][1], m.m[1][1] };
+  return r;
+}
+
+mat2 mm_mul(const mat2 a, const mat2 b)
+{
+  mat2 r = { 0.0, 0.0, 0.0, 0.0 };
+  for (int i = 0; i < 2; ++i)
+  for (int j = 0; j < 2; ++j)
+  for (int k = 0; k < 2; ++k)
+  {
+    r.m[i][j] += a.m[i][k] * b.m[k][j];
+  }
+  return r;
+}
+
+dcomplex d_compute_de(double Dr, double Di, double Jxa, double Jxb, double Jya, double Jyb, double s, const mat2 TK)
+{
+  vec2 u = { Dr, Di };
+  mat2 J = { Jxa * s, Jxb * s, Jya * s, Jyb * s };
+  dcomplex v = { u.v[0], u.v[1] };
+  double num = dc_abs(v) * log(dc_abs(v));
+  vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
+  dcomplex den = { denv.v[0], denv.v[1] };
+  return dc_ddiv(num, den);
+}
+
+dcomplex fe_compute_de(floatexp Dr, floatexp Di, floatexp Jxa, floatexp Jxb, floatexp Jya, floatexp Jyb, floatexp s, const mat2 TK)
+{
+  vec2 u = { fe_double(Dr), fe_double(Di) };
+  mat2 J = { fe_double(fe_mul(Jxa, s)), fe_double(fe_mul(Jxb, s)), fe_double(fe_mul(Jya, s)), fe_double(fe_mul(Jyb, s)) };
+  dcomplex v = { u.v[0], u.v[1] };
+  double num = dc_abs(v) * log(dc_abs(v));
+  vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
+  dcomplex den = { denv.v[0], denv.v[1] };
+  return dc_ddiv(num, den);
+}
+
+dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb, softfloat Jya, softfloat Jyb, softfloat s, const mat2 TK)
+{
+  vec2 u = { sf_to_double(Dr), sf_to_double(Di) };
+  mat2 J = { sf_to_double(sf_mul(Jxa, s)), sf_to_double(sf_mul(Jxb, s)), sf_to_double(sf_mul(Jya, s)), sf_to_double(sf_mul(Jyb, s)) };
+  dcomplex v = { u.v[0], u.v[1] };
+  double num = dc_abs(v) * log(dc_abs(v));
+  vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
+  dcomplex den = { denv.v[0], denv.v[1] };
+  return dc_ddiv(num, den);
+}
+
 // forward declaration, defined per formula
 void perturbation_double_loop
 ( __global const p_config   *g
@@ -1879,62 +1967,48 @@ __kernel void perturbation_double
     floatexp dba0 = zero;
     floatexp dbb0 = one;
     GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+
     long antal;
     floatexp TDnr;
     floatexp TDni;
     floatexp dxa1, dxb1, dya1, dyb1;
     DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
-    floatexp TDDnr = dxa1;
-    floatexp TDDni = dya1;
-    double test1 = 0, test2 = 0;
-    bool bGlitch = false;
-    double dbD0r = fe_double(D0r);
-    double dbD0i = fe_double(D0i);
-    double Dr = fe_double(TDnr);
-    double Di = fe_double(TDni);
-    double daa = fe_double(daa0);
-    double dab = fe_double(dab0);
-    double dba = fe_double(dba0);
-    double dbb = fe_double(dbb0);
-    double dr = fe_double(TDDnr);
-    double di = fe_double(TDDni);
-    dr *= g->m_dPixelSpacing;
-    di *= g->m_dPixelSpacing;
     // in
     p_status_d l =
-      { dbD0r
-      , dbD0i
-      , Dr
-      , Di
-      , dr
-      , di
-      , daa
-      , dab
-      , dba
-      , dbb
-      , test1
-      , test2
+      { fe_double(D0r)
+      , fe_double(D0i)
+      , fe_double(TDnr)
+      , fe_double(TDni)
+      , fe_double(daa0)
+      , fe_double(dab0)
+      , fe_double(dba0)
+      , fe_double(dbb0)
+      , fe_double(dxa1)
+      , fe_double(dxb1)
+      , fe_double(dya1)
+      , fe_double(dyb1)
+      , 0
+      , 0
       , antal
-      , bGlitch
+      , false
       , g->log_m_nPower
       };
     // core per pixel calculation
     perturbation_double_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
     // out
-    Dr = l.xr;
-    Di = l.xi;
-    dr = l.dr;
-    di = l.di;
-    test1 = l.test1;
-    test2 = l.test2;
+    double Dr = l.xr;
+    double Di = l.xi;
+    double test1 = l.test1;
+    double test2 = l.test2;
     antal = l.antal;
-    bGlitch = l.bGlitch;
+    long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
     if (g->derivatives)
     {
-      dcomplex z = { Dr, Di };
-      dcomplex dc = { dr, di };
-      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+      const double s = fe_double(g->m_pixel_scale);
+      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      de = d_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
     if (antal == g->m_nGlitchIter)
@@ -2040,31 +2114,31 @@ __kernel void perturbation_floatexp
     floatexp dba0 = zero;
     floatexp dbb0 = one;
     GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+
     long antal;
     floatexp TDnr;
     floatexp TDni;
     floatexp dxa1, dxb1, dya1, dyb1;
     DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
-    floatexp TDDnr = dxa1;
-    floatexp TDDni = dya1;
-    double test1 = 0, test2 = 0;
-    bool bGlitch = false;
     // in
     p_status_fe l =
       { D0r
       , D0i
       , TDnr
       , TDni
-      , fe_mul(TDDnr, g->m_fPixelSpacing)
-      , fe_mul(TDDni, g->m_fPixelSpacing)
       , daa0
       , dab0
       , dba0
       , dbb0
-      , test1
-      , test2
+      , dxa1
+      , dxb1
+      , dya1
+      , dyb1
+      , 0
+      , 0
       , antal
-      , bGlitch
+      , false
       , g->log_m_nPower
       };
     // core per pixel calculation
@@ -2072,18 +2146,16 @@ __kernel void perturbation_floatexp
     // out
     floatexp Dr = l.xr;
     floatexp Di = l.xi;
-    floatexp dr = l.dr;
-    floatexp di = l.di;
-    test1 = l.test1;
-    test2 = l.test2;
+    double test1 = l.test1;
+    double test2 = l.test2;
     antal = l.antal;
-    bGlitch = l.bGlitch;
+    long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
     if (g->derivatives)
     {
-      dcomplex z = { fe_double(Dr), fe_double(Di) };
-      dcomplex dc = { fe_double(dr), fe_double(di) };
-      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+      const floatexp s = g->m_pixel_scale;
+      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
     if (antal == g->m_nGlitchIter)
@@ -2189,31 +2261,31 @@ __kernel void perturbation_softfloat
     floatexp dba0 = zero;
     floatexp dbb0 = one;
     GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
+    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+
     long antal;
     floatexp TDnr;
     floatexp TDni;
     floatexp dxa1, dxb1, dya1, dyb1;
     DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
-    floatexp TDDnr = dxa1;
-    floatexp TDDni = dya1;
-    double test1 = 0.0, test2 = 0.0;
-    bool bGlitch = false;
     // in
     p_status_sf l =
       { sf_from_floatexp(D0r)
       , sf_from_floatexp(D0i)
       , sf_from_floatexp(TDnr)
       , sf_from_floatexp(TDni)
-      , sf_from_floatexp(fe_mul(TDDnr, g->m_fPixelSpacing))
-      , sf_from_floatexp(fe_mul(TDDni, g->m_fPixelSpacing))
       , sf_from_floatexp(daa0)
       , sf_from_floatexp(dab0)
       , sf_from_floatexp(dba0)
       , sf_from_floatexp(dbb0)
-      , sf_from_double(test1)
-      , sf_from_double(test2)
+      , sf_from_floatexp(dxa1)
+      , sf_from_floatexp(dxb1)
+      , sf_from_floatexp(dxa1)
+      , sf_from_floatexp(dxb1)
+      , sf_from_double(0.0)
+      , sf_from_double(0.0)
       , antal
-      , bGlitch
+      , false
       , sf_from_double(g->log_m_nPower)
       };
     // core per pixel calculation
@@ -2221,18 +2293,16 @@ __kernel void perturbation_softfloat
     // out
     softfloat Dr = l.xr;
     softfloat Di = l.xi;
-    softfloat dr = l.dr;
-    softfloat di = l.di;
-    test1 = sf_to_double(l.test1);
-    test2 = sf_to_double(l.test2);
+    double test1 = sf_to_double(l.test1);
+    double test2 = sf_to_double(l.test2);
     antal = l.antal;
-    bGlitch = l.bGlitch;
+    long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
     if (g->derivatives)
     {
-      dcomplex z = { sf_to_double(Dr), sf_to_double(Di) };
-      dcomplex dc = { sf_to_double(dr), sf_to_double(di) };
-      de = dc_ddiv(dc_abs(z) * log(dc_abs(z)), dc);
+      const softfloat s = sf_from_floatexp(g->m_pixel_scale);
+      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      de = sf_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
     if (antal == g->m_nGlitchIter)

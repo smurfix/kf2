@@ -9,6 +9,9 @@
   l->test2 = test2;
   l->xr = Xxr;
   l->xi = Xxi;
-  l->dr = dr;
-  l->di = di;
+  // Cauchy-Riemann
+  l->dxa = dr;
+  l->dxb = -di;
+  l->dya = di;
+  l->dyb = dr;
 }

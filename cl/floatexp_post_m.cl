@@ -11,6 +11,8 @@
   l->test2 = test2;
   l->xr = Xxr;
   l->xi = Xxi;
-  l->dr = fe_floatexp(fe_double(fe_add(fe_mul(Xxr, dxa), fe_mul(Xxi, dya))) / sqrt(test1), 0);
-  l->di = fe_floatexp(fe_double(fe_add(fe_mul(Xxr, dxb), fe_mul(Xxi, dyb))) / sqrt(test1), 0);
+  l->dxa = dxa;
+  l->dxb = dxb;
+  l->dya = dya;
+  l->dyb = dyb;
 }

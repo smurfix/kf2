@@ -15,17 +15,17 @@ void perturbation_softfloat_loop
   softfloat xr = l->xr;
   softfloat xi = l->xi;
   // type C derivatives
-  softfloat dr = l->dr;
-  softfloat di = l->di;
+  softfloat dr = l->dxa;
+  softfloat di = l->dya;
   // type M derivatives
   softfloat daa = l->daa;
   softfloat dab = l->dab;
   softfloat dba = l->dba;
   softfloat dbb = l->dbb;
-  softfloat dxa = dr;
-  softfloat dxb = sf_neg(di);
-  softfloat dya = di;
-  softfloat dyb = dr;
+  softfloat dxa = l->dxa;
+  softfloat dxb = l->dxb;
+  softfloat dya = l->dya;
+  softfloat dyb = l->dyb;
   softfloat g_real = sf_from_double(g->g_real);
   softfloat g_imag = sf_from_double(g->g_imag);
   softfloat m_nBailout2 = sf_from_double(g->m_nBailout2);

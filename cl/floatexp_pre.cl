@@ -15,17 +15,17 @@ void perturbation_floatexp_loop
   floatexp xr = l->xr;
   floatexp xi = l->xi;
   // type C derivatives
-  floatexp dr = l->dr;
-  floatexp di = l->di;
+  floatexp dr = l->dxa;
+  floatexp di = l->dya;
   // type M derivatives
   floatexp daa = l->daa;
   floatexp dab = l->dab;
   floatexp dba = l->dba;
   floatexp dbb = l->dbb;
-  floatexp dxa = dr;
-  floatexp dxb = fe_neg(di);
-  floatexp dya = di;
-  floatexp dyb = dr;
+  floatexp dxa = l->dxa;
+  floatexp dxb = l->dxb;
+  floatexp dya = l->dya;
+  floatexp dyb = l->dyb;
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;

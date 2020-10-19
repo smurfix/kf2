@@ -1344,7 +1344,7 @@ std::string hybrid_pf_opencl_double_dual(const hybrid_stanza &h, const std::stri
     o << "    " << Z << " = Znext;\n";
     o << "  }\n";
   }
-  o << "  " << ret << " =  dualdc_adddc(" << z << ", " << c << ");\n";
+  o << "  " << ret << " = dualdc_add(" << z << ", " << c << ");\n";
   o << "}\n";
   return o.str();
 }
@@ -1365,11 +1365,13 @@ extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bo
   o << "    dcomplex Xd = { Xr, Xi };\n";
   if (derivatives)
   {
+  o << "    dualdcomplex cd = { { cr, 1.0, 0.0 }, { ci, 0.0, 1.0 } };\n";
   o << "    dualdcomplex xd = { { xr, dxa, dxb }, { xi, dya, dyb } };\n";
   o << "    dualdcomplex xdn = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
   }
   else
   {
+  o << "    dcomplex cd = { cr, ci };\n";
   o << "    dcomplex xd = { xr, xi };\n";
   o << "    dcomplex xdn = { 0.0, 0.0 };\n";
   }
@@ -1381,11 +1383,11 @@ extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bo
   o << "      {\n";
   if (derivatives)
   {
-  o << hybrid_pf_opencl_double_dual(h.stanzas[stanza], "xdn", "Xd", "xd", "c");
+  o << hybrid_pf_opencl_double_dual(h.stanzas[stanza], "xdn", "Xd", "xd", "cd");
   }
   else
   {
-  o << hybrid_pf_opencl_double(h.stanzas[stanza], "xdn", "Xd", "xd", "c");
+  o << hybrid_pf_opencl_double(h.stanzas[stanza], "xdn", "Xd", "xd", "cd");
   }
   o << "        break;\n";
   o << "      }\n";

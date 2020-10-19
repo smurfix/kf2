@@ -1448,8 +1448,6 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  g_FactorAI,
 	  m_epsilon,
 	  // for series approximation
-	  m_dPixelSpacing,
-	  m_fPixelSpacing,
 	  m_nMaxApproximation,
 	  GetApproxTerms(),
 	  GetApproximationType(),
@@ -1536,8 +1534,6 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  g_FactorAI,
 	  m_epsilon,
 	  // for series approximation
-	  m_dPixelSpacing,
-	  m_fPixelSpacing,
 	  m_nMaxApproximation,
 	  GetApproxTerms(),
 	  GetApproximationType(),

@@ -11,6 +11,8 @@
   l->test2 = test2;
   l->xr = Xxr;
   l->xi = Xxi;
-  l->dr = (Xxr * dxa + Xxi * dya) / sqrt(test1);
-  l->di = (Xxr * dxb + Xxi * dyb) / sqrt(test1);
+  l->dxa = dxa;
+  l->dxb = dxb;
+  l->dya = dya;
+  l->dyb = dyb;
 }

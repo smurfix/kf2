@@ -15,17 +15,17 @@ void perturbation_double_loop
   double xr = l->xr;
   double xi = l->xi;
   // type C derivatives
-  double dr = l->dr;
-  double di = l->di;
+  double dr = l->dxa;
+  double di = l->dya;
   // type M derivatives
   double daa = l->daa;
   double dab = l->dab;
   double dba = l->dba;
   double dbb = l->dbb;
-  double dxa = dr;
-  double dxb = -di;
-  double dya = di;
-  double dyb = dr;
+  double dxa = l->dxa;
+  double dxb = l->dxb;
+  double dya = l->dya;
+  double dyb = l->dyb;
   // hybrids
   int count = 0;
   int stanza = 0;
