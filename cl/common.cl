@@ -1256,6 +1256,121 @@ sfcomplex sfc_pow(const sfcomplex a, const int b)
   return r;
 }
 
+
+typedef struct
+{
+  duald re;
+  duald im;
+} dualdcomplex;
+
+double dualdc_norm(const dualdcomplex a)
+{
+  return a.re.x * a.re.x + a.im.x * a.im.x;
+}
+
+double dualdc_abs(const dualdcomplex a)
+{
+  return sqrt(dualdc_norm(a));
+}
+
+dualdcomplex dualdc_conj(const dualdcomplex a)
+{
+  dualdcomplex r = { a.re, duald_neg(a.im) };
+  return r;
+}
+
+dualdcomplex dualdc_neg(const dualdcomplex a)
+{
+  dualdcomplex dc = { duald_neg(a.re), duald_neg(a.im) };
+  return dc;
+}
+
+dualdcomplex dualdc_add(const dualdcomplex a, const dualdcomplex b)
+{
+  dualdcomplex dc = { duald_add(a.re, b.re), duald_add(a.im, b.im) };
+  return dc;
+}
+
+dualdcomplex dualdc_dcadd(const dcomplex a, const dualdcomplex b)
+{
+  dualdcomplex dc = { duald_dadd(a.re, b.re), duald_dadd(a.im, b.im) };
+  return dc;
+}
+
+dualdcomplex dualdc_sub(const dualdcomplex a, const dualdcomplex b)
+{
+  dualdcomplex dc = { duald_sub(a.re, b.re), duald_sub(a.im, b.im) };
+  return dc;
+}
+
+dualdcomplex dualdc_dmul(const double a, const dualdcomplex b)
+{
+  dualdcomplex dc = { duald_dmul(a, b.re), duald_dmul(a, b.im) };
+  return dc;
+}
+
+dualdcomplex dualdc_muld(const dualdcomplex a, const double b)
+{
+  dualdcomplex dc = { duald_muld(a.re, b), duald_muld(a.im, b) };
+  return dc;
+}
+
+dualdcomplex dualdc_mul(const dualdcomplex a, const dualdcomplex b)
+{
+  dualdcomplex dc =
+    { duald_sub(duald_mul(a.re, b.re), duald_mul(a.im, b.im))
+    , duald_add(duald_mul(a.re, b.im), duald_mul(a.im, b.re))
+    };
+  return dc;
+}
+
+dualdcomplex dualdc_dcmul(const dcomplex a, const dualdcomplex b)
+{
+  dualdcomplex dc =
+    { duald_sub(duald_dmul(a.re, b.re), duald_dmul(a.im, b.im))
+    , duald_add(duald_dmul(a.re, b.im), duald_dmul(a.im, b.re))
+    };
+  return dc;
+}
+
+dualdcomplex dualdc_muldc(const dualdcomplex a, const dcomplex b)
+{
+  dualdcomplex dc =
+    { duald_sub(duald_muld(a.re, b.re), duald_muld(a.im, b.im))
+    , duald_add(duald_muld(a.re, b.im), duald_muld(a.im, b.re))
+    };
+  return dc;
+}
+
+#if 0
+dualdcomplex dualdc_ddiv(const double a, const dualdcomplex b) // FIXME verify
+{
+  double b2 = dualdc_norm(b);
+  dualdcomplex dc =
+    { duald_divd(duald_dmul(a, b.re), b2)
+    , duald_divd(duald_dmul(-a, b.im), b2)
+    };
+  return dc;
+}
+
+dualdcomplex dualdc_div(const dualdcomplex a, const dualdcomplex b) // FIXME verify
+{
+  double b2 = dualdc_norm(b);
+  dualdcomplex dc = dualdc_divd(dualdc_mul(a, dualdc_conj(b)), b2);
+  return dc;
+}
+#endif
+
+dualdcomplex dualdc_pow(const dualdcomplex a, const int b)
+{
+  dualdcomplex r = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
+  for (int i = 0; i < b; ++i)
+  {
+    r = dualdc_mul(r, a);
+  }
+  return r;
+}
+
 typedef struct
 {
   double cr;
