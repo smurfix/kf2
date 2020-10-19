@@ -42,6 +42,7 @@ typedef struct __attribute__((packed))
   // for iteration control
   double m_nBailout;
   double m_nBailout2;
+  double log_m_nBailout;
   double log_m_nPower;
   int64_t m_nGlitchIter;
   int64_t m_nMaxIter;
@@ -146,6 +147,7 @@ public:
     // for iteration control
     double m_nBailout,
     double m_nBailout2,
+    double log_m_nBailout,
     double log_m_nPower,
     int64_t m_nGlitchIter,
     int64_t m_nMaxIter,

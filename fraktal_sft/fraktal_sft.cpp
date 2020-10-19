@@ -1432,6 +1432,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  // for iteration control
 	  nBailout,
 	  nBailout2,
+	  log(nBailout),
 	  log(m_nPower),
 	  m_nGlitchIter,
 	  m_nMaxIter,
@@ -1516,6 +1517,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  // for iteration control
 	  nBailout,
 	  nBailout2,
+	  log(nBailout),
 	  log(m_nPower),
 	  m_nGlitchIter,
 	  m_nMaxIter,

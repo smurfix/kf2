@@ -315,6 +315,7 @@ void OpenCL::run
   // for iteration control
   double m_nBailout,
   double m_nBailout2,
+  double log_m_nBailout,
   double log_m_nPower,
   int64_t m_nGlitchIter,
   int64_t m_nMaxIter,
@@ -385,6 +386,7 @@ void OpenCL::run
       stride_offset,
       m_nBailout,
       m_nBailout2,
+      log(m_nBailout),
       log_m_nPower,
       m_nGlitchIter,
       m_nMaxIter,
@@ -699,6 +701,7 @@ template void OpenCL::run<double>(
   // for iteration control
   double m_nBailout,
   double m_nBailout2,
+  double log_m_nBailout,
   double log_m_nPower,
   int64_t m_nGlitchIter,
   int64_t m_nMaxIter,
@@ -766,6 +769,7 @@ template void OpenCL::run<floatexp>(
   // for iteration control
   double m_nBailout,
   double m_nBailout2,
+  double log_m_nBailout,
   double log_m_nPower,
   int64_t m_nGlitchIter,
   int64_t m_nMaxIter,

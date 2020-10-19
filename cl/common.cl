@@ -1387,6 +1387,7 @@ typedef struct
   double test2;
   long antal;
   int bGlitch;
+  double log_m_nPower;
 } p_status_d;
 
 typedef struct
@@ -1405,6 +1406,7 @@ typedef struct
   double test2;
   long antal;
   int bGlitch;
+  double log_m_nPower;
 } p_status_fe;
 
 typedef struct
@@ -1423,6 +1425,7 @@ typedef struct
   softfloat test2;
   long antal;
   int bGlitch;
+  softfloat log_m_nPower;
 } p_status_sf;
 
 
@@ -1449,6 +1452,7 @@ typedef struct __attribute__((packed))
   // for iteration control
   double m_nBailout;
   double m_nBailout2;
+  double log_m_nBailout;
   double log_m_nPower;
   long m_nGlitchIter;
   long m_nMaxIter;
@@ -1901,6 +1905,7 @@ __kernel void perturbation_double
       , test2
       , antal
       , bGlitch
+      , g->log_m_nPower
       };
     // core per pixel calculation
     perturbation_double_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
@@ -1935,11 +1940,13 @@ __kernel void perturbation_double
       if (n0) n0[ix] = antal;
       if (dex) dex[ix] = de.re;
       if (dey) dey[ix] = de.im;
-      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
-        double div = sqrt(test1) - sqrt(test2);
+      if (!bGlitch && g->m_nSmoothMethod == 1){
+        double p = g->norm_p;
+        if (! (p < 1.0 / 0.0)) p = 1;
+        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
-          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
+          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
         }
         else
         {
@@ -1947,7 +1954,7 @@ __kernel void perturbation_double
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -2047,6 +2054,7 @@ __kernel void perturbation_floatexp
       , test2
       , antal
       , bGlitch
+      , g->log_m_nPower
       };
     // core per pixel calculation
     perturbation_floatexp_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
@@ -2081,11 +2089,13 @@ __kernel void perturbation_floatexp
       if (n0) n0[ix] = antal;
       if (dex) dex[ix] = de.re;
       if (dey) dey[ix] = de.im;
-      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
-        double div = sqrt(test1) - sqrt(test2);
+      if (!bGlitch && g->m_nSmoothMethod == 1){
+        double p = g->norm_p;
+        if (! (p < 1.0 / 0.0)) p = 1;
+        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
-          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
+          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
         }
         else
         {
@@ -2093,7 +2103,7 @@ __kernel void perturbation_floatexp
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -2193,6 +2203,7 @@ __kernel void perturbation_softfloat
       , sf_from_double(test2)
       , antal
       , bGlitch
+      , sf_from_double(g->log_m_nPower)
       };
     // core per pixel calculation
     perturbation_softfloat_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
@@ -2227,11 +2238,13 @@ __kernel void perturbation_softfloat
       if (n0) n0[ix] = antal;
       if (dex) dex[ix] = de.re;
       if (dey) dey[ix] = de.im;
-      if (!bGlitch && (g->m_nSmoothMethod == 1 || g->m_nSmoothMethod == 2)){
-        double div = sqrt(test1) - sqrt(test2);
+      if (!bGlitch && g->m_nSmoothMethod == 1){
+        double p = g->norm_p;
+        if (! (p < 1.0 / 0.0)) p = 1;
+        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
-          if (nf) nf[ix] = (sqrt(test1) - g->m_nBailout) / div;
+          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
         }
         else
         {
@@ -2239,7 +2252,7 @@ __kernel void perturbation_softfloat
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1))) / g->log_m_nPower;
+        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / sf_to_double(l.log_m_nPower);
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
