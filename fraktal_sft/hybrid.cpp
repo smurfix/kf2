@@ -1344,7 +1344,7 @@ std::string hybrid_pf_opencl_double_dual(const hybrid_stanza &h, const std::stri
     o << "    " << Z << " = Znext;\n";
     o << "  }\n";
   }
-  o << "  " << ret << " =  dualdc_add(" << z << ", " << c << ");\n";
+  o << "  " << ret << " =  dualdc_adddc(" << z << ", " << c << ");\n";
   o << "}\n";
   return o.str();
 }
@@ -1361,6 +1361,7 @@ extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bo
   o << "        stanza = g->hybrid_loop_start;\n";
   o << "      }\n";
   o << "    }\n";
+  o << "    l->log_m_nPower = g->hybrid_log_powers[stanza];\n";
   o << "    dcomplex Xd = { Xr, Xi };\n";
   if (derivatives)
   {

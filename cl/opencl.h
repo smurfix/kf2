@@ -74,7 +74,7 @@ typedef struct __attribute__((packed))
   int16_t hybrid_loop_start;
   int16_t hybrid_nstanzas;
   int32_t hybrid_repeats[MAX_HYBRID_STANZAS];
-  int32_t hybrid_powers[MAX_HYBRID_STANZAS];
+  double hybrid_log_powers[MAX_HYBRID_STANZAS];
   // 130kB data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];

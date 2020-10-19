@@ -1297,6 +1297,12 @@ dualdcomplex dualdc_dcadd(const dcomplex a, const dualdcomplex b)
   return dc;
 }
 
+dualdcomplex dualdc_adddc(const dualdcomplex a, const dcomplex b)
+{
+  dualdcomplex dc = { duald_addd(a.re, b.re), duald_addd(a.im, b.im) };
+  return dc;
+}
+
 dualdcomplex dualdc_sub(const dualdcomplex a, const dualdcomplex b)
 {
   dualdcomplex dc = { duald_sub(a.re, b.re), duald_sub(a.im, b.im) };
@@ -1478,7 +1484,7 @@ typedef struct __attribute__((packed))
   short hybrid_loop_start;
   short hybrid_nstanzas;
   int hybrid_repeats[MAX_HYBRID_STANZAS];
-  int hybrid_log_powers[MAX_HYBRID_STANZAS];
+  double hybrid_log_powers[MAX_HYBRID_STANZAS];
   // 130kB data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];

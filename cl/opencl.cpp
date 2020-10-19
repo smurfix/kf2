@@ -419,12 +419,12 @@ void OpenCL::run
     if (i < (int) hybrid.stanzas.size())
     {
       configdata.hybrid_repeats[i] = hybrid.stanzas[i].repeats;
-      configdata.hybrid_powers[i] = hybrid_power_inf(hybrid.stanzas[i]);
+      configdata.hybrid_log_powers[i] = log(hybrid_power_inf(hybrid.stanzas[i]));
     }
     else
     {
       configdata.hybrid_repeats[i] = 0;
-      configdata.hybrid_powers[i] = 0;
+      configdata.hybrid_log_powers[i] = 0;
     }
   }
   const floatexp zero(0);
