@@ -902,6 +902,182 @@ softfloat sf_diffabs(const softfloat c, const softfloat d)
 
 typedef struct
 {
+  double x;
+  double dx[2];
+} duald;
+
+duald duald_add(duald a, duald b)
+{
+  duald r = { a.x + b.x, a.dx[0] + b.dx[0], a.dx[1] + b.dx[1] };
+  return r;
+}
+
+duald duald_dadd(double a, duald b)
+{
+  duald r = { a + b.x, b.dx[0], b.dx[1] };
+  return r;
+}
+
+duald duald_addd(duald a, double b)
+{
+  duald r = { a.x + b, a.dx[0], a.dx[1] };
+  return r;
+}
+
+duald duald_sub(duald a, duald b)
+{
+  duald r = { a.x -b.x, a.dx[0] - b.dx[0], a.dx[1] - b.dx[1] };
+  return r;
+}
+
+duald duald_dsub(double a, duald b)
+{
+  duald r = { a - b.x, -b.dx[0], -b.dx[1] };
+  return r;
+}
+
+duald duald_subd(duald a, double b)
+{
+  duald r = { a.x - b, a.dx[0], a.dx[1] };
+  return r;
+}
+
+duald duald_mul(duald a, duald b)
+{
+  duald r = { a.x * b.x, a.dx[0] * b.x + a.x * b.dx[0], a.dx[1] * b.x + a.x * b.dx[1] };
+  return r;
+}
+
+duald duald_dmul(double a, duald b)
+{
+  duald r = { a * b.x, a * b.dx[0], a * b.dx[1] };
+  return r;
+}
+
+duald duald_muld(duald a, double b)
+{
+  duald r = { a.x * b, a.dx[0] * b, a.dx[1] * b };
+  return r;
+}
+
+duald duald_sqr(duald a)
+{
+  duald r = { a.x * a.x, 2.0 * a.dx[0] * a.x, 2.0 * a.dx[1] * a.x };
+  return r;
+}
+
+duald duald_div(duald a, duald b)
+{
+  duald r;
+  r.x = a.x * b.x;
+  double den = 1.0 / (b.x * b.x);
+  r.dx[0] = (a.dx[0] * b.x - a.x * b.dx[0]) * den;
+  r.dx[1] = (a.dx[1] * b.x - a.x * b.dx[1]) * den;
+  return r;
+}
+
+duald duald_divd(duald a, double b)
+{
+  duald r = { a.x / b, a.dx[0] / b, a.dx[1] / b };
+  return r;
+}
+
+bool duald_lt(duald a, duald b)
+{
+  return a.x < b.x;
+}
+
+bool duald_ltd(duald a, double b)
+{
+  return a.x < b;
+}
+
+bool duald_gt(duald a, duald b)
+{
+  return a.x > b.x;
+}
+
+bool duald_gtd(duald a, double b)
+{
+  return a.x > b;
+}
+
+bool duald_le(duald a, duald b)
+{
+  return a.x <= b.x;
+}
+
+bool duald_led(duald a, double b)
+{
+  return a.x <= b;
+}
+
+bool duald_ge(duald a, duald b)
+{
+  return a.x >= b.x;
+}
+
+bool duald_ged(duald a, double b)
+{
+  return a.x >= b;
+}
+
+duald duald_neg(duald a)
+{
+  duald r = { -a.x, -a.dx[0], -a.dx[1] };
+  return r;
+}
+
+duald duald_abs(duald a)
+{
+  return a.x < 0.0 ? duald_neg(a) : a;
+}
+
+duald duald_exp(duald a)
+{
+  duald r;
+  r.x = exp(a.x);
+  r.dx[0] = a.dx[0] * r.x;
+  r.dx[1] = a.dx[1] * r.x;
+  return r;
+}
+
+duald duald_cos(duald a)
+{
+  duald r;
+  r.x = cos(a.x);
+  double s = -sin(a.x);
+  r.dx[0] = a.dx[0] * s;
+  r.dx[1] = a.dx[1] * s;
+  return r;
+}
+
+duald duald_sin(duald a)
+{
+  duald r;
+  r.x = sin(a.x);
+  double c = cos(a.x);
+  r.dx[0] = a.dx[0] * c;
+  r.dx[1] = a.dx[1] * c;
+  return r;
+}
+
+duald duald_ddiffabs(double c, duald d)
+{
+  const double cd = c + d.x;
+  const duald c2d = duald_dadd(2 * c, d);
+  return c >= 0.0 ? cd >= 0.0 ? d : duald_neg(c2d) : cd > 0.0 ? c2d : duald_neg(d);
+}
+
+duald duald_diffabs(duald c, duald d)
+{
+  const double cd = c.x + d.x;
+  const duald c2d = duald_add(duald_dmul(2, c), d);
+  return c.x >= 0.0 ? cd >= 0.0 ? d : duald_neg(c2d) : cd > 0.0 ? c2d : duald_neg(d);
+}
+
+typedef struct
+{
   double re;
   double im;
 } dcomplex;
