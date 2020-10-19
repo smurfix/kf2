@@ -1845,7 +1845,7 @@ mat2 mm_mul(const mat2 a, const mat2 b)
   for (int j = 0; j < 2; ++j)
   for (int k = 0; k < 2; ++k)
   {
-    r.m[i][j] += a.m[i][k] * b.m[k][j];
+    r.m[i][j] += a.m[k][j] * b.m[i][k];
   }
   return r;
 }
