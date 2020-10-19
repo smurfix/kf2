@@ -25,6 +25,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "dual.h"
 
+// FIXME TODO check that input from KFR files does not exceed this
+#define MAX_HYBRID_STANZAS 4
+
 struct hybrid_operator
 {
   bool abs_x;
@@ -35,6 +38,17 @@ struct hybrid_operator
   double mul_re;
   double mul_im;
 };
+inline bool operator==(const hybrid_operator &a, const hybrid_operator &b)
+{
+  return
+    a.abs_x == b.abs_x &&
+    a.abs_y == b.abs_y &&
+    a.neg_x == b.neg_x &&
+    a.neg_y == b.neg_y &&
+    a.pow == b.pow &&
+    a.mul_re == b.mul_re &&
+    a.mul_im == b.mul_im ;
+}
 
 enum hybrid_combine
 {
@@ -49,18 +63,37 @@ struct hybrid_line
   hybrid_operator two;
   hybrid_combine mode;
 };
+inline bool operator==(const hybrid_line &a, const hybrid_line &b)
+{
+  return
+    a.one == b.one &&
+    a.two == b.two &&
+    a.mode == b.mode ;
+}
 
 struct hybrid_stanza
 {
   std::vector<hybrid_line> lines;
   int repeats;
 };
+inline bool operator==(const hybrid_stanza &a, const hybrid_stanza &b)
+{
+  return
+    a.lines == b.lines &&
+    a.repeats == b.repeats ;
+}
 
 struct hybrid_formula
 {
   std::vector<hybrid_stanza> stanzas;
   int loop_start;
 };
+inline bool operator==(const hybrid_formula &a, const hybrid_formula &b)
+{
+  return
+    a.stanzas == b.stanzas &&
+    a.loop_start == b.loop_start ;
+}
 
 static inline bool valid(const hybrid_formula &h)
 {
@@ -640,5 +673,8 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile int *running, int *progress);
 extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile int *running, int *progress);
 extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile int *running, int *progress);
+
+extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bool derivatives);
+//extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives);
 
 #endif

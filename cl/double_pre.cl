@@ -11,6 +11,7 @@ void perturbation_double_loop
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   const double cr = l->cr;
   const double ci = l->ci;
+  const dcomplex c = {cr, ci};
   double xr = l->xr;
   double xi = l->xi;
   // type C derivatives
@@ -25,6 +26,9 @@ void perturbation_double_loop
   double dxb = -di;
   double dya = di;
   double dyb = dr;
+  // hybrids
+  int count = 0;
+  int stanza = 0;
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;
@@ -58,7 +62,7 @@ void perturbation_double_loop
     double xrn = 0;
     double xin = 0;
     dcomplex xn = {0, 0};
-    const dcomplex d = {dr, di}, d0 = {daa, dba}; // FIXME matrix derivatives
+    const dcomplex d = {dr, di}, d0 = {daa, dba};
     double drn = 0, din = 0;
     dcomplex dn = {0, 0};
     double dxan = 0, dxbn = 0, dyan = 0, dybn = 0;

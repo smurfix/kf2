@@ -339,19 +339,22 @@ void OpenCL::run
   floatexp *APr,
   floatexp *APi,
   SeriesR2 *APs,
- 
+
   // reference orbit
   const T *rx,
   const T *ry,
   const double *rz,
   size_t roffset,
   size_t rcount,
- 
+
   // formula selection
   int type,
   int m_nFractalType,
   int m_nPower,
   int16_t derivatives,
+
+  bool UseHybrid,
+  const hybrid_formula &hybrid,
 
   // output arrays
   uint32_t *n1_p,
@@ -406,9 +409,24 @@ void OpenCL::run
       m_fPixelSpacing,
       m_nMaxApproximation,
       m_nApproxTerms,
-      approximation_type
+      approximation_type,
+      (int16_t) hybrid.loop_start,
+      (int16_t) hybrid.stanzas.size()
       // arrays go here
     };
+  for (int i = 0; i < MAX_HYBRID_STANZAS; ++i)
+  {
+    if (i < (int) hybrid.stanzas.size())
+    {
+      configdata.hybrid_repeats[i] = hybrid.stanzas[i].repeats;
+      configdata.hybrid_powers[i] = hybrid_power_inf(hybrid.stanzas[i]);
+    }
+    else
+    {
+      configdata.hybrid_repeats[i] = 0;
+      configdata.hybrid_powers[i] = 0;
+    }
+  }
   const floatexp zero(0);
   for (int i = 0; i < MAX_APPROX_TERMS + 1; ++i)
   {
@@ -461,7 +479,7 @@ void OpenCL::run
         n1_bytes = 0;
       }
     }
-  
+
     if (n0_p)
     {
       size_t bytes = sizeof(uint32_t) * m_nX * m_nY;
@@ -486,7 +504,7 @@ void OpenCL::run
         n0_bytes = 0;
       }
     }
-  
+
     if (nf_p)
     {
       size_t bytes = sizeof(float) * m_nX * m_nY;
@@ -511,7 +529,7 @@ void OpenCL::run
         nf_bytes = 0;
       }
     }
-  
+
     if (phase_p)
     {
       size_t bytes = sizeof(float) * m_nX * m_nY;
@@ -561,7 +579,7 @@ void OpenCL::run
         dex_bytes = 0;
       }
     }
-  
+
     if (dey_p)
     {
       size_t bytes = sizeof(float) * m_nX * m_nY;
@@ -596,25 +614,41 @@ void OpenCL::run
   if (phase_p)E(clEnqueueWriteBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,0,0,0));
   if (dex_p) E(clEnqueueWriteBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 0, 0, 0));
   if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
-  
+
   // compile formula or retrieve kernel from cache
   cl_event formula_executed;
   clformula *formula = nullptr;
   for (int i = 0; i < (int) formulas.size(); ++i)
   {
-    if (   formulas[i].type == type
+    if ( ( ! UseHybrid
+        && ! formulas[i].useHybrid
+        && formulas[i].type == type
         && formulas[i].fractalType == m_nFractalType
         && formulas[i].power == m_nPower
         && formulas[i].derivatives == derivatives
-       )
+       ) || ( UseHybrid
+        && formulas[i].useHybrid
+        && formulas[i].type == type
+        && formulas[i].hybrid == hybrid
+        && formulas[i].derivatives == derivatives
+       ) )
     {
       formula = &formulas[i];
+      break;
     }
   }
   if (formula == nullptr)
   {
+    std::string source;
     // build program
-    std::string source = perturbation_opencl(m_nFractalType, m_nPower, derivatives);
+    if (UseHybrid)
+    {
+      source = perturbation_opencl(hybrid, derivatives);
+    }
+    else
+    {
+      source = perturbation_opencl(m_nFractalType, m_nPower, derivatives);
+    }
     std::string name =
       type == 0 ? "perturbation_double"   :
       type == 2 ? "perturbation_floatexp" :
@@ -625,7 +659,8 @@ void OpenCL::run
     // FIXME synchronous program building, async would be better
     std::ostringstream options;
     options << "-Werror -D DERIVATIVES=" << (derivatives ? 1 : 0)
-            << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS;
+            << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
+            << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
     if (err != CL_SUCCESS) {
       char *buf = (char *) malloc(1000000);
@@ -637,7 +672,7 @@ void OpenCL::run
     }
     cl_kernel kernel = clCreateKernel(program, name.c_str(), &err);
     if (! kernel) { E(err); }
-    clformula newformula = { type, m_nFractalType, m_nPower, derivatives, kernel };
+    clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel };
     formulas.push_back(newformula);
     formula = &formulas[ssize_t(formulas.size()) - 1];
   }
@@ -677,7 +712,7 @@ void OpenCL::run
   clReleaseMemObject(refy);
   clReleaseMemObject(refx);
 
-  unlock();  
+  unlock();
 }
 
 template void OpenCL::run<double>(
@@ -725,19 +760,22 @@ template void OpenCL::run<double>(
   floatexp *APr,
   floatexp *APi,
   SeriesR2 *APs,
- 
+
   // reference orbit
   const double *rx,
   const double *ry,
   const double *rz,
   size_t roffset,
   size_t rcount,
- 
+
   // formula selection
   int type,
   int m_nFractalType,
   int m_nPower,
   int16_t derivatives,
+
+  bool UseHybrid,
+  const hybrid_formula &hybrid,
 
   // output arrays
   uint32_t *n1_p,
@@ -793,19 +831,22 @@ template void OpenCL::run<floatexp>(
   floatexp *APr,
   floatexp *APi,
   SeriesR2 *APs,
- 
+
   // reference orbit
   const floatexp *rx,
   const floatexp *ry,
   const double *rz,
   size_t roffset,
   size_t rcount,
- 
+
   // formula selection
   int type,
   int m_nFractalType,
   int m_nPower,
   int16_t derivatives,
+
+  bool UseHybrid,
+  const hybrid_formula &hybrid,
 
   // output arrays
   uint32_t *n1_p,
@@ -815,5 +856,57 @@ template void OpenCL::run<floatexp>(
   float *dex_p,
   float *dey_p
 );
+
+
+extern const char *perturbation_opencl_common;
+extern const char *perturbation_opencl_double_pre;
+extern const char *perturbation_opencl_double_post;
+extern const char *perturbation_opencl_double_post_m;
+extern const char *perturbation_opencl_floatexp_pre;
+extern const char *perturbation_opencl_floatexp_post;
+extern const char *perturbation_opencl_floatexp_post_m;
+extern const char *perturbation_opencl_softfloat_pre;
+extern const char *perturbation_opencl_softfloat_post;
+extern const char *perturbation_opencl_softfloat_post_m;
+
+extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
+{
+  std::ostringstream o;
+  o << perturbation_opencl_common;
+  // double
+  o << perturbation_opencl_double_pre;
+  o << hybrid_perturbation_double_opencl(h, derivatives);
+  if (derivatives)
+  {
+    o << perturbation_opencl_double_post_m;
+  }
+  else
+  {
+    o << perturbation_opencl_double_post;
+  }
+  // floatexp
+  o << perturbation_opencl_floatexp_pre;
+//  o << hybrid_perturbation_floatexp_opencl(h, derivatives); // FIXME TODO
+  if (derivatives)
+  {
+    o << perturbation_opencl_floatexp_post_m;
+  }
+  else
+  {
+    o << perturbation_opencl_floatexp_post;
+  }
+  // softfloat
+  o << perturbation_opencl_softfloat_pre;
+//  o << hybrid_perturbation_softfloat_opencl(h, derivatives); // FIXME TODO
+  if (derivatives)
+  {
+    o << perturbation_opencl_softfloat_post_m;
+  }
+  else
+  {
+    o << perturbation_opencl_softfloat_post;
+  }
+  return o.str();
+}
 
 #endif

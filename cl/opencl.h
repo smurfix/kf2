@@ -9,6 +9,7 @@
 
 #include "../fraktal_sft/floatexp.h"
 struct SeriesR2;
+#include "../fraktal_sft/hybrid.h"
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS
 #include "clew.h"
@@ -16,6 +17,11 @@ struct SeriesR2;
 extern std::string perturbation_opencl
 ( int m_nFractalType
 , int m_nPower
+, int derivatives
+);
+
+extern std::string perturbation_opencl
+( const hybrid_formula &hybrid
 , int derivatives
 );
 
@@ -64,6 +70,11 @@ typedef struct __attribute__((packed))
   int64_t m_nMaxApproximation;
   int32_t m_nApproxTerms;
   int32_t approximation_type;
+  // for hybrid
+  int16_t hybrid_loop_start;
+  int16_t hybrid_nstanzas;
+  int32_t hybrid_repeats[MAX_HYBRID_STANZAS];
+  int32_t hybrid_powers[MAX_HYBRID_STANZAS];
   // 130kB data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];
@@ -86,6 +97,8 @@ struct clformula
   int type;
   int fractalType;
   int power;
+  bool useHybrid;
+  hybrid_formula hybrid;
   int derivatives;
   cl_kernel kernel;
 };
@@ -184,6 +197,9 @@ public:
     int m_nFractalType,
     int m_nPower,
     int16_t derivatives,
+
+    bool UseHybrid,
+    const hybrid_formula &hybrid,
 
     // output arrays
     uint32_t *n1_p,

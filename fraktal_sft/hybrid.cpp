@@ -922,3 +922,488 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   }
   return false;
 }
+
+extern std::string hybrid_f_opencl_double(const hybrid_operator &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  dcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  B.re = d_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  B.im = d_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  B.re = d_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  B.im = d_neg(B.im);\n";
+  }
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  for (int i = 0; i < h.pow; ++i)
+  {
+  o << "    M = dc_mul(M, B);\n";
+  }
+  o << "    B = M;\n";
+  o << "  }";
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = B;\n";
+  }
+  else
+  {
+    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dc_mul(za, B);\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_f_opencl_double_dual(const hybrid_operator &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ { " << std::scientific << std::setprecision(18) << h.mul_re << ", 0.0, 0.0 }\n";
+    o << ", { " << std::scientific << std::setprecision(18) << h.mul_im << ", 0.0, 0.0 }\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  dualdcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  B.re = duald_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  B.im = duald_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  B.re = duald_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  B.im = duald_neg(B.im);\n";
+  }
+  o << "  {";
+  o << "    dualdcomplex M = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  for (int i = 0; i < h.pow; ++i)
+  {
+  o << "    M = dualdc_mul(M, B);\n";
+  }
+  o << "    B = M;\n";
+  o << "  }";
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = B;\n";
+  }
+  else
+  {
+    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dualdc_dcmul(za, B);\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_pf_opencl_double(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  double zX = " << Z << ".re;\n";
+  o << "  double zY = " << Z << ".im;\n";
+  o << "  double zx = " << z << ".re;\n";
+  o << "  double zy = " << z << ".im;\n";
+  o << "  dcomplex W = dc_add(" << Z << ", " << z << ");\n";
+  o << "  dcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  zx = d_diffabs(zX, zx);\n";
+  o << "  W.re = d_abs(W.re);\n";
+  o << "  B.re = d_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  zy = d_diffabs(zY, zy);\n";
+  o << "  W.im = d_abs(W.im);\n";
+  o << "  B.im = d_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  zx = d_neg(zx);\n";
+  o << "  W.re = d_neg(W.re);\n";
+  o << "  B.re = d_ned(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  zy = d_neg(zy);\n";
+  o << "  W.im = d_neg(W.im);\n";
+  o << "  B.im = d_neg(B.im);\n";
+  }
+  o << "  dcomplex P = { zx, zy };\n";
+  o << "  dcomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex S = { 0.0, 0.0 };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = dc_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ { " << std::scientific << std::setprecision(18) << h.mul_re << ", 0.0, 0.0 }\n";
+    o << ", { " << std::scientific << std::setprecision(18) << h.mul_im << ", 0.0, 0.0 }\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  double X = " << Z << ".re;\n";
+  o << "  double Y = " << Z << ".im;\n";
+  o << "  duald x = " << z << ".re;\n";
+  o << "  duald y = " << z << ".im;\n";
+  o << "  dualdcomplex W = dualdc_dcadd(" << Z << ", " << z << ");\n";
+  o << "  dcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  x = duald_ddiffabs(X, x);\n";
+  o << "  W.re = duald_abs(W.re);\n";
+  o << "  B.re = d_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  y = duald_ddiffabs(Y, y);\n";
+  o << "  W.im = duald_abs(W.im);\n";
+  o << "  B.im = d_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  x = duald_neg(x);\n";
+  o << "  W.re = duald_neg(W.re);\n";
+  o << "  B.re = d_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  y = duald_neg(y);\n";
+  o << "  W.im = duald_neg(W.im);\n";
+  o << "  B.im = d_neg(B.im);\n";
+  }
+  o << "  dualdcomplex P = { x, y };\n";
+  o << "  dualdcomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dualdcomplex M = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dualdc_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dualdcomplex S = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = dualdc_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_f_opencl_double(const hybrid_line &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dcomplex fone;\n";
+  o << hybrid_f_opencl_double(h.one, "fone", Z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = fone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dcomplex ftwo;\n";
+  o << hybrid_f_opencl_double(h.two, "ftwo", Z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dc_add(fone, ftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dc_sub(fone, ftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  " << ret << " = dc_mul(fone, ftwo);\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dcomplex pfone;\n";
+  o << hybrid_pf_opencl_double(h.one, "pfone", Z, z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dcomplex pftwo;\n";
+  o << hybrid_pf_opencl_double(h.two, "pftwo", Z, z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dc_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dc_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  dcomplex Zz = dc_add(" << Z << ", " << z << ");\n";
+      o << "  dcomplex ftwo;\n";
+      o << hybrid_f_opencl_double(h.two, "ftwo", "Zz");
+      o << "  dcomplex fone;\n";
+      o << hybrid_f_opencl_double(h.two, "fone", Z);
+      o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_dual(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dualdcomplex pfone;\n";
+  o << hybrid_pf_opencl_double_dual(h.one, "pfone", Z, z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dualdcomplex pftwo;\n";
+  o << hybrid_pf_opencl_double_dual(h.two, "pftwo", Z, z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dualdc_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dualdc_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  dualdcomplex Zz = dualdc_dcadd(" << Z << ", " << z << ");\n";
+      o << "  dualdcomplex ftwo;\n";
+      o << hybrid_f_opencl_double_dual(h.two, "ftwo", "Zz");
+      o << "  dcomplex fone;\n";
+      o << hybrid_f_opencl_double(h.one, "fone", Z);
+      o << "  " << ret << " = dualdc_add(dualdc_mul(pfone, ftwo), dualdc_dcmul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    dcomplex znext;\n";
+    o << hybrid_pf_opencl_double(h.lines[i], "znext", Z, z);
+    o << "    " << z << " = znext;\n";
+    o << "    dcomplex Znext;\n";
+    o << hybrid_f_opencl_double(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " = dc_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_dual(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    dualdcomplex znext;\n";
+    o << hybrid_pf_opencl_double_dual(h.lines[i], "znext", Z, z);
+    o << "    " << z << " = znext;\n";
+    o << "    dcomplex Znext;\n";
+    o << hybrid_f_opencl_double(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " =  dualdc_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bool derivatives)
+{
+  std::ostringstream o;
+  o << "  {\n";
+  o << "    if (++count >= g->hybrid_repeats[stanza])\n";
+  o << "    {\n";
+  o << "      count = 0;\n";
+  o << "      if (++stanza >= (int) g->hybrid_nstanzas)\n";
+  o << "      {\n";
+  o << "        stanza = g->hybrid_loop_start;\n";
+  o << "      }\n";
+  o << "    }\n";
+  o << "    dcomplex Xd = { Xr, Xi };\n";
+  if (derivatives)
+  {
+  o << "    dualdcomplex xd = { { xr, dxa, dxb }, { xi, dya, dyb } };\n";
+  o << "    dualdcomplex xdn = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  }
+  else
+  {
+  o << "    dcomplex xd = { xr, xi };\n";
+  o << "    dcomplex xdn = { 0.0, 0.0 };\n";
+  }
+  o << "    switch (stanza)\n";
+  o << "    {\n";
+  for (int stanza = 0; stanza < (int) h.stanzas.size(); ++stanza)
+  {
+  o << "      case " << stanza << ":\n";
+  o << "      {\n";
+  if (derivatives)
+  {
+  o << hybrid_pf_opencl_double_dual(h.stanzas[stanza], "xdn", "Xd", "xd", "c");
+  }
+  else
+  {
+  o << hybrid_pf_opencl_double(h.stanzas[stanza], "xdn", "Xd", "xd", "c");
+  }
+  o << "        break;\n";
+  o << "      }\n";
+  }
+  o << "    }\n";
+  if (derivatives)
+  {
+    o << "    xrn = xdn.re.x;\n";
+    o << "    xin = xdn.im.x;\n";
+    o << "    dxan = xdn.re.dx[0];\n";
+    o << "    dxbn = xdn.re.dx[1];\n";
+    o << "    dyan = xdn.im.dx[0];\n";
+    o << "    dybn = xdn.im.dx[1];\n";
+  }
+  else
+  {
+    o << "    xrn = xdn.re;\n";
+    o << "    xin = xdn.im;\n";
+  }
+  o << "  }\n";
+  return o.str();
+}

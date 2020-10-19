@@ -1474,6 +1474,11 @@ typedef struct __attribute__((packed))
   long m_nMaxApproximation;
   int m_nApproxTerms;
   int approximation_type;
+  // for hybrid
+  short hybrid_loop_start;
+  short hybrid_nstanzas;
+  int hybrid_repeats[MAX_HYBRID_STANZAS];
+  int hybrid_log_powers[MAX_HYBRID_STANZAS];
   // 130kB data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];
