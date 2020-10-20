@@ -675,6 +675,6 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
 extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile int *running, int *progress);
 
 extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bool derivatives);
-//extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives);
+extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives);
 
 #endif

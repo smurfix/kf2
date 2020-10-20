@@ -878,7 +878,7 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
   }
   // floatexp
   o << perturbation_opencl_floatexp_pre;
-//  o << hybrid_perturbation_floatexp_opencl(h, derivatives); // FIXME TODO
+  o << hybrid_perturbation_floatexp_opencl(h, derivatives);
   if (derivatives)
   {
     o << perturbation_opencl_floatexp_post_m;

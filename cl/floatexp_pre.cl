@@ -7,6 +7,7 @@ void perturbation_floatexp_loop
 )
 {
   const floatexp zero = fe_floatexp(0.0, 0);
+  const floatexp one = fe_floatexp(1.0, 0);
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
@@ -26,6 +27,9 @@ void perturbation_floatexp_loop
   floatexp dxb = l->dxb;
   floatexp dya = l->dya;
   floatexp dyb = l->dyb;
+  // hybrids
+  int count = 0;
+  int stanza = 0;
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;

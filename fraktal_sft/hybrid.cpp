@@ -923,6 +923,8 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   return false;
 }
 
+// double opencl
+
 extern std::string hybrid_f_opencl_double(const hybrid_operator &h, const std::string &ret, const std::string &Z)
 {
   std::ostringstream o;
@@ -1388,6 +1390,505 @@ extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bo
   else
   {
   o << hybrid_pf_opencl_double(h.stanzas[stanza], "xdn", "Xd", "xd", "cd");
+  }
+  o << "        break;\n";
+  o << "      }\n";
+  }
+  o << "    }\n";
+  if (derivatives)
+  {
+    o << "    xrn = xdn.re.x;\n";
+    o << "    xin = xdn.im.x;\n";
+    o << "    dxan = xdn.re.dx[0];\n";
+    o << "    dxbn = xdn.re.dx[1];\n";
+    o << "    dyan = xdn.im.dx[0];\n";
+    o << "    dybn = xdn.im.dx[1];\n";
+  }
+  else
+  {
+    o << "    xrn = xdn.re;\n";
+    o << "    xin = xdn.im;\n";
+  }
+  o << "  }\n";
+  return o.str();
+}
+
+// floatexp opencl
+
+extern std::string hybrid_f_opencl_floatexp(const hybrid_operator &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0)\n";
+    o << ", fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0)\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  fecomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  B.re = fe_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  B.im = fe_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  B.re = fe_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  B.im = fe_neg(B.im);\n";
+  }
+  o << "  {";
+  o << "    fecomplex M = { one, zero };\n";
+  for (int i = 0; i < h.pow; ++i)
+  {
+  o << "    M = fec_mul(M, B);\n";
+  }
+  o << "    B = M;\n";
+  o << "  }";
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = B;\n";
+  }
+  else
+  {
+    o << "  dcomplex za =\n";
+    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "};\n";
+    o << "  " << ret << " = fec_dcmul(za, B);\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_f_opencl_floatexp_dual(const hybrid_operator &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0), zero, zero }\n";
+    o << ", { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0), zero, zero }\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  dualfecomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  B.re = dualfe_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  B.im = dualfe_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  B.re = dualfe_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  B.im = dualfe_neg(B.im);\n";
+  }
+  o << "  {";
+  o << "    dualfecomplex M = { { one, zero, zero }, { zero, zero, zero } };\n";
+  for (int i = 0; i < h.pow; ++i)
+  {
+  o << "    M = dualfec_mul(M, B);\n";
+  }
+  o << "    B = M;\n";
+  o << "  }";
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = B;\n";
+  }
+  else
+  {
+    o << "  dcomplex za =\n";
+    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "};\n";
+    o << "  " << ret << " = dualfec_dcmul(za, B);\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_pf_opencl_floatexp(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0)\n";
+    o << ", fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0)\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  floatexp zX = " << Z << ".re;\n";
+  o << "  floatexp zY = " << Z << ".im;\n";
+  o << "  floatexp zx = " << z << ".re;\n";
+  o << "  floatexp zy = " << z << ".im;\n";
+  o << "  fecomplex W = fec_add(" << Z << ", " << z << ");\n";
+  o << "  fecomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  zx = fe_diffabs(zX, zx);\n";
+  o << "  W.re = fe_abs(W.re);\n";
+  o << "  B.re = fe_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  zy = fe_diffabs(zY, zy);\n";
+  o << "  W.im = fe_abs(W.im);\n";
+  o << "  B.im = fe_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  zx = fe_neg(zx);\n";
+  o << "  W.re = fe_neg(W.re);\n";
+  o << "  B.re = fe_ned(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  zy = fe_neg(zy);\n";
+  o << "  W.im = fe_neg(W.im);\n";
+  o << "  B.im = fe_neg(B.im);\n";
+  }
+  o << "  fecomplex P = { zx, zy };\n";
+  o << "  fecomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    fecomplex M = { one, zero };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = fec_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  fecomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    fecomplex M = { one, zero };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = fec_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  fecomplex S = { zero, zero };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = fec_add(S, fec_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = fec_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex za =\n";
+    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "};\n";
+    o << "  " << ret << " = fec_dcmul(za, fec_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_pf_opencl_floatexp_dual(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " =\n";
+    o << "{ { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0), zero, zero }\n";
+    o << ", { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0), zero, zero }\n";
+    o << "};\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  floatexp X = " << Z << ".re;\n";
+  o << "  floatexp Y = " << Z << ".im;\n";
+  o << "  dualfe x = " << z << ".re;\n";
+  o << "  dualfe y = " << z << ".im;\n";
+  o << "  dualfecomplex W = dualfec_fecadd(" << Z << ", " << z << ");\n";
+  o << "  fecomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  x = dualfe_fediffabs(X, x);\n";
+  o << "  W.re = dualfe_abs(W.re);\n";
+  o << "  B.re = fe_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  y = dualfe_fediffabs(Y, y);\n";
+  o << "  W.im = dualfe_abs(W.im);\n";
+  o << "  B.im = fe_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  x = dualfe_neg(x);\n";
+  o << "  W.re = dualfe_neg(W.re);\n";
+  o << "  B.re = fe_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  y = dualfe_neg(y);\n";
+  o << "  W.im = dualfe_neg(W.im);\n";
+  o << "  B.im = fe_neg(B.im);\n";
+  }
+  o << "  dualfecomplex P = { x, y };\n";
+  o << "  dualfecomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dualfecomplex M = { { one, zero, zero }, { zero, zero, zero } };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dualfec_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  fecomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    fecomplex M = { one, zero };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = fec_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dualfecomplex S = { { zero, zero, zero }, { zero, zero, zero } };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = dualfec_add(S, dualfec_mulfec(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = dualfec_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dualfec_dcmul(a, dualfec_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_f_opencl_floatexp(const hybrid_line &h, const std::string &ret, const std::string &Z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  fecomplex fone;\n";
+  o << hybrid_f_opencl_floatexp(h.one, "fone", Z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = fone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  fecomplex ftwo;\n";
+  o << hybrid_f_opencl_floatexp(h.two, "ftwo", Z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = fec_add(fone, ftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = fec_sub(fone, ftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  " << ret << " = fec_mul(fone, ftwo);\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_floatexp(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  fecomplex pfone;\n";
+  o << hybrid_pf_opencl_floatexp(h.one, "pfone", Z, z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  feomplex pftwo;\n";
+  o << hybrid_pf_opencl_floatexp(h.two, "pftwo", Z, z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = fec_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = fec_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  fecomplex Zz = fec_add(" << Z << ", " << z << ");\n";
+      o << "  fecomplex ftwo;\n";
+      o << hybrid_f_opencl_floatexp(h.two, "ftwo", "Zz");
+      o << "  fecomplex fone;\n";
+      o << hybrid_f_opencl_floatexp(h.two, "fone", Z);
+      o << "  " << ret << " = fec_add(fec_mul(pfone, ftwo), fec_mul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_floatexp_dual(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dualfecomplex pfone;\n";
+  o << hybrid_pf_opencl_floatexp_dual(h.one, "pfone", Z, z);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dualfecomplex pftwo;\n";
+  o << hybrid_pf_opencl_floatexp_dual(h.two, "pftwo", Z, z);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dualfec_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dualfec_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  dualfecomplex Zz = dualfec_fecadd(" << Z << ", " << z << ");\n";
+      o << "  dualfecomplex ftwo;\n";
+      o << hybrid_f_opencl_floatexp_dual(h.two, "ftwo", "Zz");
+      o << "  fecomplex fone;\n";
+      o << hybrid_f_opencl_floatexp(h.one, "fone", Z);
+      o << "  " << ret << " = dualfec_add(dualfec_mul(pfone, ftwo), dualfec_fecmul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_floatexp(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    fecomplex znext;\n";
+    o << hybrid_pf_opencl_floatexp(h.lines[i], "znext", Z, z);
+    o << "    " << z << " = znext;\n";
+    o << "    fecomplex Znext;\n";
+    o << hybrid_f_opencl_floatexp(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " = fec_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_floatexp_dual(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    dualfecomplex znext;\n";
+    o << hybrid_pf_opencl_floatexp_dual(h.lines[i], "znext", Z, z);
+    o << "    " << z << " = znext;\n";
+    o << "    fecomplex Znext;\n";
+    o << hybrid_f_opencl_floatexp(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " = dualfec_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives)
+{
+  std::ostringstream o;
+  o << "  {\n";
+  o << "    if (++count >= g->hybrid_repeats[stanza])\n";
+  o << "    {\n";
+  o << "      count = 0;\n";
+  o << "      if (++stanza >= (int) g->hybrid_nstanzas)\n";
+  o << "      {\n";
+  o << "        stanza = g->hybrid_loop_start;\n";
+  o << "      }\n";
+  o << "    }\n";
+  o << "    l->log_m_nPower = g->hybrid_log_powers[stanza];\n";
+  o << "    fecomplex Xd = { Xr, Xi };\n";
+  if (derivatives)
+  {
+  o << "    dualfecomplex cd = { { cr, one, zero }, { ci, zero, one } };\n";
+  o << "    dualfecomplex xd = { { xr, dxa, dxb }, { xi, dya, dyb } };\n";
+  o << "    dualfecomplex xdn = { { zero, zero, zero }, { zero, zero, zero } };\n";
+  }
+  else
+  {
+  o << "    fecomplex cd = { cr, ci };\n";
+  o << "    fecomplex xd = { xr, xi };\n";
+  o << "    fecomplex xdn = { zero, zero };\n";
+  }
+  o << "    switch (stanza)\n";
+  o << "    {\n";
+  for (int stanza = 0; stanza < (int) h.stanzas.size(); ++stanza)
+  {
+  o << "      case " << stanza << ":\n";
+  o << "      {\n";
+  if (derivatives)
+  {
+  o << hybrid_pf_opencl_floatexp_dual(h.stanzas[stanza], "xdn", "Xd", "xd", "cd");
+  }
+  else
+  {
+  o << hybrid_pf_opencl_floatexp(h.stanzas[stanza], "xdn", "Xd", "xd", "cd");
   }
   o << "        break;\n";
   o << "      }\n";
