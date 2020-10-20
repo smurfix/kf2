@@ -1,7 +1,7 @@
 #!/bin/bash
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2018 Claude Heiland-Allen
+# Copyright (C) 2017-2020 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -17,19 +17,21 @@
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 out="${HOSTNAME}-$(../kf.exe --version | tr -d '\r')"
 mkdir -p "${out}"
-for low in fast best
+for ocl in 0 1
 do
   for loc in 1e14 1e50 5e113 5e227 4e533 1e1086
   do
-    echo >> "${out}/${loc}_${low}.log" "# dimension refcount realsecs usersecs syssecs peakrsskb"
-    for dim in 1 2 4 8 16 32 64 128 256 512 1024 2048 4096
+    echo >> "${out}/${loc}_${ocl}.log" "# dimension refcount realsecs usersecs syssecs peakrsskb"
+    for dim in 256 1024 4096
     do
-      sed "s/^ImageWidth: .*\r$/ImageWidth: $dim\r/" < "${low}.kfs" |
-      sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" > "${out}/${loc}_${low}_${dim}.kfs"
-      echo "START ${loc} ${low} ${dim}"
-      /usr/bin/time --append --output "${out}/${loc}_${low}.log" --format="${dim} 0 %e %U %S %M" \
-        ../kf.exe --log info -s "${out}/${loc}_${low}_${dim}.kfs" -l "${loc}.kfr" -p "${out}/${loc}_${low}_${dim}.png"
-      echo "END   ${loc} ${low} ${dim}"
+      cat "fast.kfs" |
+      sed "s/^UseOpenCL: .*\r$/UseOpenCL: $ocl\r/" |
+      sed "s/^ImageWidth: .*\r$/ImageWidth: $dim\r/" |
+      sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" > "${out}/${loc}_${ocl}_${dim}.kfs"
+      echo "START ${loc} ${ocl} ${dim}"
+      /usr/bin/time --append --output "${out}/${loc}_${ocl}.log" --format="${dim} 0 %e %U %S %M" \
+        ../kf.exe --log info -s "${out}/${loc}_${ocl}_${dim}.kfs" -l "${loc}.kfr" -p "${out}/${loc}_${ocl}_${dim}.png"
+      echo "END   ${loc} ${ocl} ${dim}"
     done
   done
 done 2>&1 | ts | tee -a "${out}/benchmark.log"
