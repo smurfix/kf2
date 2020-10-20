@@ -331,7 +331,7 @@ public:
   inline void   SetUseOpenCL(bool b) { m_UseOpenCL = b; };
 
   inline int64_t GetOpenCLPlatform() const { return m_OpenCLPlatform; };
-  inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = 0 < n ? n : 1; };
+  inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = n; };
 
   inline EXRChannels GetEXRChannels() const { return unpack_exr_channels(m_EXRChannels); };
   inline void SetEXRChannels(const EXRChannels n) { m_EXRChannels = pack_exr_channels(n); };
