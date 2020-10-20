@@ -972,7 +972,7 @@ duald duald_sqr(duald a)
 duald duald_div(duald a, duald b)
 {
   duald r;
-  r.x = a.x * b.x;
+  r.x = a.x / b.x;
   double den = 1.0 / (b.x * b.x);
   r.dx[0] = (a.dx[0] * b.x - a.x * b.dx[0]) * den;
   r.dx[1] = (a.dx[1] * b.x - a.x * b.dx[1]) * den;
