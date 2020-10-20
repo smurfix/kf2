@@ -2024,7 +2024,6 @@ static long OpenSettings(HWND hWnd, bool &ret, bool warn = true)
 				}
 				else{
 #ifdef KF_OPENCL
-					std::cerr << "CL: " << g_SFT.GetOpenCLPlatform() << std::endl;
 					g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
 #endif
 					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
