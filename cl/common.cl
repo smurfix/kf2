@@ -1578,6 +1578,160 @@ dualdcomplex dualdc_pow(const dualdcomplex a, const int b)
   return r;
 }
 
+
+typedef struct
+{
+  dualfe re;
+  dualfe im;
+} dualfecomplex;
+
+floatexp dualfec_norm(const dualfecomplex a)
+{
+  return fe_add(fe_sqr(a.re.x), fe_sqr(a.im.x));
+}
+#if 0
+double dualdc_abs(const dualdcomplex a)
+{
+  return sqrt(dualdc_norm(a));
+}
+#endif
+dualfecomplex dualfec_conj(const dualfecomplex a)
+{
+  dualfecomplex r = { a.re, dualfe_neg(a.im) };
+  return r;
+}
+
+dualfecomplex dualfec_neg(const dualfecomplex a)
+{
+  dualfecomplex dc = { dualfe_neg(a.re), dualfe_neg(a.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_add(const dualfecomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc = { dualfe_add(a.re, b.re), dualfe_add(a.im, b.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_fecadd(const fecomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc = { dualfe_feadd(a.re, b.re), dualfe_feadd(a.im, b.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_addfec(const dualfecomplex a, const fecomplex b)
+{
+  dualfecomplex dc = { dualfe_addfe(a.re, b.re), dualfe_addfe(a.im, b.im) };
+  return dc;
+}
+
+#if 0
+dualfecomplex dualfec_dcadd(const dcomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc = { dualfe_dadd(a.re, b.re), dualfe_dadd(a.im, b.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_adddc(const dualfecomplex a, const dcomplex b)
+{
+  dualfecomplex dc = { dualfe_addd(a.re, b.re), dualfe_addd(a.im, b.im) };
+  return dc;
+}
+#endif
+
+dualfecomplex dualfec_sub(const dualfecomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc = { dualfe_sub(a.re, b.re), dualfe_sub(a.im, b.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_dmul(const double a, const dualfecomplex b)
+{
+  dualfecomplex dc = { dualfe_dmul(a, b.re), dualfe_dmul(a, b.im) };
+  return dc;
+}
+
+dualfecomplex dualfec_muld(const dualfecomplex a, const double b)
+{
+  dualfecomplex dc = { dualfe_muld(a.re, b), dualfe_muld(a.im, b) };
+  return dc;
+}
+
+dualfecomplex dualfec_mul(const dualfecomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_mul(a.re, b.re), dualfe_mul(a.im, b.im))
+    , dualfe_add(dualfe_mul(a.re, b.im), dualfe_mul(a.im, b.re))
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_dcmul(const dcomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_dmul(a.re, b.re), dualfe_dmul(a.im, b.im))
+    , dualfe_add(dualfe_dmul(a.re, b.im), dualfe_dmul(a.im, b.re))
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_muldc(const dualfecomplex a, const dcomplex b)
+{
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_muld(a.re, b.re), dualfe_muld(a.im, b.im))
+    , dualfe_add(dualfe_muld(a.re, b.im), dualfe_muld(a.im, b.re))
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_fecmul(const fecomplex a, const dualfecomplex b)
+{
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_femul(a.re, b.re), dualfe_femul(a.im, b.im))
+    , dualfe_add(dualfe_femul(a.re, b.im), dualfe_femul(a.im, b.re))
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_mulfec(const dualfecomplex a, const fecomplex b)
+{
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_mulfe(a.re, b.re), dualfe_mulfe(a.im, b.im))
+    , dualfe_add(dualfe_mulfe(a.re, b.im), dualfe_mulfe(a.im, b.re))
+    };
+  return dc;
+}
+
+#if 0
+dualfecomplex dualfec_ddiv(const double a, const dualfecomplex b) // FIXME verify
+{
+  double b2 = dualfec_norm(b);
+  dualfecomplex dc =
+    { dualfe_divd(dualfe_dmul(a, b.re), b2)
+    , dualfe_divd(dualfe_dmul(-a, b.im), b2)
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_div(const dualfecomplex a, const dualfecomplex b) // FIXME verify
+{
+  double b2 = dualfec_norm(b);
+  dualfecomplex dc = dualfec_divd(dualfec_mul(a, dualfec_conj(b)), b2);
+  return dc;
+}
+#endif
+
+dualfecomplex dualfec_pow(const dualfecomplex a, const int b)
+{
+  dualfecomplex r = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
+  for (int i = 0; i < b; ++i)
+  {
+    r = dualfec_mul(r, a);
+  }
+  return r;
+}
+
+
 typedef struct
 {
   double cr;
