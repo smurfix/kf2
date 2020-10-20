@@ -239,7 +239,7 @@ CFraktalSFT::CFraktalSFT()
 		// Mandelbrot power 2
 		hybrid_line l =
 			{ { false, false, false, false, 2, 1.0, 0.0 }
-			, { false, false, false, false, 2, 0.0, 0.0 }
+			, { false, false, false, false, 0, 0.0, 0.0 }
 			, hybrid_combine_add
 			};
 	        hybrid_stanza s;
