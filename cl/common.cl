@@ -1081,6 +1081,204 @@ duald duald_diffabs(duald c, duald d)
 
 typedef struct
 {
+  floatexp x;
+  floatexp dx[2];
+} dualfe;
+
+dualfe dualfe_add(dualfe a, dualfe b)
+{
+  dualfe r = { fe_add(a.x, b.x), fe_add(a.dx[0], b.dx[0]), fe_add(a.dx[1], b.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_feadd(floatexp a, dualfe b)
+{
+  dualfe r = { fe_add(a, b.x), b.dx[0], b.dx[1] };
+  return r;
+}
+
+dualfe dualfe_addfe(dualfe a, floatexp b)
+{
+  dualfe r = { fe_add(a.x, b), a.dx[0], a.dx[1] };
+  return r;
+}
+
+dualfe dualfe_sub(dualfe a, dualfe b)
+{
+  dualfe r = { fe_sub(a.x, b.x), fe_sub(a.dx[0], b.dx[0]), fe_sub(a.dx[1], b.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_fesub(floatexp a, dualfe b)
+{
+  dualfe r = { fe_sub(a, b.x), fe_neg(b.dx[0]), fe_neg(b.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_subfe(dualfe a, floatexp b)
+{
+  dualfe r = { fe_sub(a.x, b), a.dx[0], a.dx[1] };
+  return r;
+}
+
+dualfe dualfe_mul(dualfe a, dualfe b)
+{
+  dualfe r = { fe_mul(a.x, b.x), fe_add(fe_mul(a.dx[0], b.x), fe_mul(a.x, b.dx[0])), fe_add(fe_mul(a.dx[1], b.x), fe_mul(a.x, b.dx[1])) };
+  return r;
+}
+
+dualfe dualfe_femul(floatexp a, dualfe b)
+{
+  dualfe r = { fe_mul(a, b.x), fe_mul(a, b.dx[0]), fe_mul(a, b.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_mulfe(dualfe a, floatexp b)
+{
+  dualfe r = { fe_mul(a.x, b), fe_mul(a.dx[0], b), fe_mul(a.dx[1], b) };
+  return r;
+}
+
+dualfe dualfe_dmul(double a, dualfe b)
+{
+  dualfe r = { fe_dmul(a, b.x), fe_dmul(a, b.dx[0]), fe_dmul(a, b.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_muld(dualfe a, double b)
+{
+  dualfe r = { fe_muld(a.x, b), fe_muld(a.dx[0], b), fe_muld(a.dx[1], b) };
+  return r;
+}
+
+dualfe dualfe_mul_2si(dualfe a, int b)
+{
+  dualfe r = { fe_mul_2si(a.x, b), fe_mul_2si(a.dx[0], b), fe_mul_2si(a.dx[1], b) };
+  return r;
+}
+
+dualfe dualfe_sqr(dualfe a)
+{
+  dualfe r = { fe_sqr(a.x), fe_mul_2si(fe_mul(a.dx[0], a.x), 1), fe_mul_2si(fe_mul(a.dx[1], a.x), 1) };
+  return r;
+}
+
+dualfe dualfe_div(dualfe a, dualfe b)
+{
+  dualfe r;
+  r.x = fe_div(a.x, b.x);
+  floatexp den = fe_div(fe_floatexp(1.0, 0), fe_sqr(b.x));
+  r.dx[0] = fe_mul(fe_sub(fe_mul(a.dx[0], b.x), fe_mul(a.x, b.dx[0])), den);
+  r.dx[1] = fe_mul(fe_sub(fe_mul(a.dx[1], b.x), fe_mul(a.x, b.dx[1])), den);
+  return r;
+}
+
+dualfe dualfe_divfe(dualfe a, floatexp b)
+{
+  dualfe r = { fe_div(a.x, b), fe_div(a.dx[0], b), fe_div(a.dx[1], b) };
+  return r;
+}
+
+#if 0
+bool duald_lt(duald a, duald b)
+{
+  return a.x < b.x;
+}
+
+bool duald_ltd(duald a, double b)
+{
+  return a.x < b;
+}
+
+bool duald_gt(duald a, duald b)
+{
+  return a.x > b.x;
+}
+
+bool duald_gtd(duald a, double b)
+{
+  return a.x > b;
+}
+
+bool duald_le(duald a, duald b)
+{
+  return a.x <= b.x;
+}
+
+bool duald_led(duald a, double b)
+{
+  return a.x <= b;
+}
+
+bool duald_ge(duald a, duald b)
+{
+  return a.x >= b.x;
+}
+
+bool duald_ged(duald a, double b)
+{
+  return a.x >= b;
+}
+#endif
+
+dualfe dualfe_neg(dualfe a)
+{
+  dualfe r = { fe_neg(a.x), fe_neg(a.dx[0]), fe_neg(a.dx[1]) };
+  return r;
+}
+
+dualfe dualfe_abs(dualfe a)
+{
+  return a.x.val < 0.0 ? dualfe_neg(a) : a;
+}
+
+#if 0
+dualfe dualfe_exp(dualfe a)
+{
+  dualfe r;
+  r.x = fe_exp(a.x);
+  r.dx[0] = fe_mul(a.dx[0], r.x);
+  r.dx[1] = fe_mul(a.dx[1], r.x);
+  return r;
+}
+
+dualfe dualfe_cos(dualfe a)
+{
+  dualfe r;
+  r.x = fe_cos(a.x);
+  floatexp s = fe_neg(fe_sin(a.x));
+  r.dx[0] = fe_mul(a.dx[0], s);
+  r.dx[1] = fe_mul(a.dx[1], s);
+  return r;
+}
+
+dualfe dualfe_sin(dualfe a)
+{
+  dualfe r;
+  r.x = fe_sin(a.x);
+  floatexp c = fe_cos(a.x);
+  r.dx[0] = fe_mul(a.dx[0], c);
+  r.dx[1] = fe_mul(a.dx[1], c);
+  return r;
+}
+#endif
+
+dualfe dualfe_fediffabs(floatexp c, dualfe d)
+{
+  const floatexp cd = fe_add(c, d.x);
+  const dualfe c2d = dualfe_feadd(fe_mul_2si(c, 1), d);
+  return c.val >= 0.0 ? cd.val >= 0.0 ? d : dualfe_neg(c2d) : cd.val > 0.0 ? c2d : dualfe_neg(d);
+}
+
+dualfe dualfe_diffabs(dualfe c, dualfe d)
+{
+  const floatexp cd = fe_add(c.x, d.x);
+  const dualfe c2d = dualfe_add(dualfe_mul_2si(c, 1), d);
+  return c.x.val >= 0.0 ? cd.val >= 0.0 ? d : dualfe_neg(c2d) : cd.val > 0.0 ? c2d : dualfe_neg(d);
+}
+
+typedef struct
+{
   double re;
   double im;
 } dcomplex;
