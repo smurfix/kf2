@@ -31,6 +31,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // PART OF THIS LICENSE. NO USE OF ANY COVERED CODE IS AUTHORIZED HEREUNDER EXCEPT UNDER
 // THIS DISCLAIMER.
 
+
+// for aligned_alloc (C++17)
+#include <cstdlib>
+
 #include "fraktal_sft.h"
 #include "../common/parallell.h"
 #include "../common/StringVector.h"
@@ -139,6 +143,31 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
 {
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
+
+
+// aligned memory (de)allocation
+
+template <typename T>
+T *new_aligned(size_t count)
+{
+	size_t bytes = count * sizeof(T);
+	size_t alignment = 1 << 12;
+	// size must be multiple of alignment
+	bytes += alignment - 1;
+	bytes /= alignment;
+	bytes *= alignment;
+  return static_cast<T *>(std::aligned_alloc(alignment, bytes));
+}
+
+template <typename T>
+void delete_aligned(T *ptr)
+{
+	if (ptr)
+	{
+		std::free(ptr);
+	}
+}
+
 
 void ErrorText()
 {
@@ -1314,40 +1343,40 @@ void CFraktalSFT::DeleteArrays()
 {
 		if (m_nPixels_LSB)
 		{
-			delete[] m_nPixels_LSB;
+			delete_aligned(m_nPixels_LSB);
 			m_nPixels_LSB = nullptr;
 		}
 		if (m_nPixels_MSB)
 		{
-			delete[] m_nPixels_MSB;
+			delete_aligned(m_nPixels_MSB);
 			m_nPixels_MSB = nullptr;
 		}
 		m_nPixels = itercount_array(0, 0, nullptr, nullptr); // invalid
 		if (m_nTrans)
 		{
 			if (m_nTrans[0])
-				delete[] m_nTrans[0];
+				delete_aligned(m_nTrans[0]);
 			delete[] m_nTrans;
 			m_nTrans = NULL;
 		}
 		if (m_nPhase)
 		{
 			if (m_nPhase[0])
-				delete[] m_nPhase[0];
+				delete_aligned(m_nPhase[0]);
 			delete[] m_nPhase;
 			m_nPhase = nullptr;
 		}
 		if (m_nDEx)
 		{
 			if (m_nDEx[0])
-				delete[] m_nDEx[0];
+				delete_aligned(m_nDEx[0]);
 			delete[] m_nDEx;
 			m_nDEx = nullptr;
 		}
 		if (m_nDEy)
 		{
 			if (m_nDEy[0])
-				delete[] m_nDEy[0];
+				delete_aligned(m_nDEy[0]);
 			delete[] m_nDEy;
 			m_nDEy = nullptr;
 		}
@@ -2007,16 +2036,16 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	bool two = GetIterations() >= INT_MAX;
 	if (! m_nPixels_LSB)
 	{
-		m_nPixels_LSB = new uint32_t[m_nX * m_nY];
-		m_nPixels_MSB = two ? new uint32_t[m_nX * m_nY] : nullptr;
+		m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
+		m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
 		m_nTrans = new float*[m_nX];
 		m_nPhase = new float*[m_nX];
 		m_nDEx = new float*[m_nX];
 		m_nDEy = new float*[m_nX];
-		m_nTrans[0] = new float[m_nX * m_nY];
-		m_nPhase[0] = new float[m_nX * m_nY];
-		m_nDEx[0] = new float[m_nX * m_nY];
-		m_nDEy[0] = new float[m_nX * m_nY];
+		m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
+		m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
+		m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
+		m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
 		for (int x = 1; x<m_nX; x++){
 			m_nTrans[x] = m_nTrans[0] + x * m_nY;
 			m_nPhase[x] = m_nPhase[0] + x * m_nY;
