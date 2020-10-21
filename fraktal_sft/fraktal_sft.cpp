@@ -31,11 +31,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // PART OF THIS LICENSE. NO USE OF ANY COVERED CODE IS AUTHORIZED HEREUNDER EXCEPT UNDER
 // THIS DISCLAIMER.
 
-
-// for aligned_alloc (C++17)
-#include <cstdlib>
-
 #include "fraktal_sft.h"
+#include "../common/memory.h"
 #include "../common/parallell.h"
 #include "../common/StringVector.h"
 #include "../common/getimage.h"
@@ -143,31 +140,6 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
 {
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
-
-
-// aligned memory (de)allocation
-
-template <typename T>
-T *new_aligned(size_t count)
-{
-	size_t bytes = count * sizeof(T);
-	size_t alignment = 1 << 12;
-	// size must be multiple of alignment
-	bytes += alignment - 1;
-	bytes /= alignment;
-	bytes *= alignment;
-  return static_cast<T *>(std::aligned_alloc(alignment, bytes));
-}
-
-template <typename T>
-void delete_aligned(T *ptr)
-{
-	if (ptr)
-	{
-		std::free(ptr);
-	}
-}
-
 
 void ErrorText()
 {

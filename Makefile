@@ -119,7 +119,8 @@ common/getimage.h \
 common/parallell.h \
 common/StringVector.h \
 common/bitmap.h \
-common/matrix.h
+common/matrix.h \
+common/memory.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
