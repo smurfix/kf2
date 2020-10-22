@@ -308,6 +308,7 @@ void OpenCL::run
   double transform01,
   double transform10,
   double transform11,
+  bool ExponentialMap,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,
@@ -625,6 +626,7 @@ void OpenCL::run
       transform01,
       transform10,
       transform11,
+      ExponentialMap,
       stride_y,
       stride_x,
       stride_offset,
@@ -774,6 +776,7 @@ template void OpenCL::run<double>(
   double transform01,
   double transform10,
   double transform11,
+  bool ExponentialMap,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,
@@ -847,6 +850,7 @@ template void OpenCL::run<floatexp>(
   double transform01,
   double transform10,
   double transform11,
+  bool ExponentialMap,
   // for result -> output mapping
   int64_t stride_y,
   int64_t stride_x,

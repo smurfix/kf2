@@ -1873,6 +1873,7 @@ typedef struct __attribute__((packed))
   double transform01;
   double transform10;
   double transform11;
+  long ExponentialMap;
   // for result -> output mapping
   long stride_y;
   long stride_x;
@@ -1988,60 +1989,38 @@ void GetPixelCoordinates
 , floatexp *y
 )
 {
+  int w = g->m_nX;
+  int h = g->m_nY;
+  if (g->UseGuessing)
+  {
+    w *= 2;
+    h *= 2;
+  }
   double di = 0;
   double dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  double u, v;
-  if (g->UseGuessing)
+  double u = i + di;
+  double v = j + dj;
+  if (g->ExponentialMap)
   {
-    u = i - g->m_nX + di;
-    v = j - g->m_nY + dj;
+    double re = -0.6931471805599453 * v / h; // log 2
+    double im = 6.283185307179586 * u / w; // 2 pi
+    double R = 0.5 * hypot((double)w, (double)h);
+    double r = exp(re);
+    double c = cos(im);
+    double s = sin(im);
+    u = R * r * c;
+    v = R * r * s;
   }
   else
   {
-    u = i - g->m_nX/2 + di;
-    v = j - g->m_nY/2 + dj;
+    u -= w / 2;
+    v -= h / 2;
   }
   double p = g->transform00 * u + g->transform01 * v;
   double q = g->transform10 * u + g->transform11 * v;
   *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
   *y = fe_add(g->m_pixel_center_y, fe_muld(g->m_pixel_scale, q));
-}
-
-void GetPixelCoordinatesM
-( __global const p_config *g
-, const int i
-, const int j
-, floatexp *x
-, floatexp *y
-, floatexp *daa
-, floatexp *dab
-, floatexp *dba
-, floatexp *dbb
-)
-{
-  double di = 0;
-  double dj = 0;
-  GetPixelOffset(g, i, j, &di, &dj);
-  double u, v;
-  if (g->UseGuessing)
-  {
-    u = i - g->m_nX + di;
-    v = j - g->m_nY + dj;
-  }
-  else
-  {
-    u = i - g->m_nX/2 + di;
-    v = j - g->m_nY/2 + dj;
-  }
-  double p = g->transform00 * u + g->transform01 * v;
-  double q = g->transform10 * u + g->transform11 * v;
-  *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
-  *y = fe_add(g->m_pixel_center_y, fe_muld(g->m_pixel_scale, q));
-  *daa = fe_muld(g->m_pixel_scale, g->transform00);
-  *dab = fe_muld(g->m_pixel_scale, g->transform01);
-  *dba = fe_muld(g->m_pixel_scale, g->transform10);
-  *dbb = fe_muld(g->m_pixel_scale, g->transform11);
 }
 
 void DoApproximationD
@@ -2581,8 +2560,7 @@ __kernel void perturbation_double
     floatexp dab0 = zero;
     floatexp dba0 = zero;
     floatexp dbb0 = one;
-    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
-    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+    GetPixelCoordinates(g, x, y, &D0r, &D0i);
 
     long antal;
     floatexp TDnr;
@@ -2738,8 +2716,7 @@ __kernel void perturbation_floatexp
     floatexp dab0 = zero;
     floatexp dba0 = zero;
     floatexp dbb0 = one;
-    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
-    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+    GetPixelCoordinates(g, x, y, &D0r, &D0i);
 
     long antal;
     floatexp TDnr;
@@ -2897,8 +2874,7 @@ __kernel void perturbation_softfloat
     floatexp dab0 = zero;
     floatexp dba0 = zero;
     floatexp dbb0 = one;
-    GetPixelCoordinatesM(g, x, y, &D0r, &D0i, &daa0, &dab0, &dba0, &dbb0);
-    daa0 = one; dab0 = zero; dba0 = zero; dbb0 = one;
+    GetPixelCoordinates(g, x, y, &D0r, &D0i);
 
     long antal;
     floatexp TDnr;

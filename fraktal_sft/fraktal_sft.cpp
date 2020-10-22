@@ -1426,6 +1426,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  transform[0][1],
 	  transform[1][0],
 	  transform[1][1],
+	  GetExponentialMap(),
 	  // for result -> output mapping
 	  stride_y,
 	  stride_x,
@@ -1516,6 +1517,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  transform[0][1],
 	  transform[1][0],
 	  transform[1][1],
+	  GetExponentialMap(),
 	  // for result -> output mapping
 	  stride_y,
 	  stride_x,

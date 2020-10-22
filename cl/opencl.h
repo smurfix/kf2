@@ -41,6 +41,7 @@ typedef struct __attribute__((packed))
   cl_double transform01;
   cl_double transform10;
   cl_double transform11;
+  cl_long ExponentialMap;
   // for result -> output mapping
   cl_long stride_y;
   cl_long stride_x;
@@ -157,6 +158,7 @@ public:
     double transform01,
     double transform10,
     double transform11,
+    bool ExponentialMap,
     // for result -> output mapping
     int64_t stride_y,
     int64_t stride_x,
