@@ -2204,9 +2204,9 @@ At the very top right:
     validation it has the same effect as the **Cancel** button.  This
     is not ideal...
 
-  - Hybrid formulas are significantly slower (about 5x) than the built
+  - Hybrid formulas are significantly slower (up to 5x) than the built
     in formulas for the same formula, so use the built in ones if you
-    can.
+    can.  Sometimes using OpenCL can reduce the slowdown.
 
 
 ## Bailout dialog
