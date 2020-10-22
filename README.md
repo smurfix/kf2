@@ -144,6 +144,10 @@ Feedback:
 - setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
 - seams/bands with mixed power hybrids and numerical DE/slope
   (workaround: use analytic DE/slope with derivatives)
+- formula `z^2 exp(2 a / z) + c` does not work with OpenCL (causes program
+  exit with errors dumped to stderr re missing complex exp and sinh)
+- guessing with OpenCL on GPU does not give full speedup (e.g. 1.5x faster
+  instead of 4x faster with lots of very high iteration interior)
 
 
 ## Differences From Upstream 2.11.1
@@ -2120,7 +2124,11 @@ Software license.
     On some operating systems you might need to adjust GPU timeout behaviour
     if the calculations take too long and are interrupted.
 
-    OpenCL may or may not be faster, depending on device, location, etc.
+    OpenCL may or may not be faster, depending on device, location, etc.  For
+    zooms between ~1e300 and ~1e4900, the regular old CPU implementation is
+    likely to be significantly faster because OpenCL does not support x87 long
+    double (which has more range compared to double), and thus OpenCL has to
+    use the very much slower floatexp number type.
 
 
 ## About
