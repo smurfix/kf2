@@ -220,6 +220,6 @@ cl/opencl.o: cl/opencl.cpp cl/opencl.h
 cl/formula.o: cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 
 %.pdf: %.md
-	pandoc -f markdown -t latex -V "papersize=a4" -V "geometry=margin=1in" < $< -o $@
+	pandoc -f markdown -t latex -V "toc=true" -V "papersize=a4" -V "geometry=margin=1.2in" < $< -o $@
 
 -include $(DEPENDS)
