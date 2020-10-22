@@ -157,8 +157,8 @@ DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
 all: kf.exe kf-tile.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP) $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
-	rm -f cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_post_cl.c cl/double_post_rc_cl.c cl/double_post_m_cl.c cl/floatexp_pre_cl.c cl/floatexp_post_cl.c cl/floatexp_post_rc_cl.c cl/floatexp_post_m_cl.c
+	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP) $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP)) $(patsubst %.cpp,%.d,$(UTILS_SOURCES_CPP))
+	rm -f cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f preprocessor preprocessor.hi preprocessor.o
 
 kf.exe: $(OBJECTS)
