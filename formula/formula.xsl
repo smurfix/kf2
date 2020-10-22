@@ -270,8 +270,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       const double Xz = m_db_z[antal];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
+      const T Xxr2 = Xxr * Xxr;
+      const T Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr * Xxr + Xxi * Xxi);
+      test1 = double(Xxr2 + Xxi2);
       if (test1 &lt; Xz)
       {
         bGlitch = true;
@@ -450,6 +452,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
     T dr = Jxa0, di = Jya0;
+    const T dr0 = daa, di0 = dba;
+    (void) dr0;
+    (void) di0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
     T dxa = Jxa0, dxb = Jxb0, dya = Jya0, dyb = Jyb0;
@@ -464,13 +469,15 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       const double Xz = m_db_z[antal];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
+      const T Xxr2 = Xxr * Xxr;
+      const T Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr * Xxr + Xxi * Xxi);
+      test1 = double(Xxr2 + Xxi2);
       if (test1 &lt; Xz)
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
+        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr / h, di / h, e, h)) // FIXME matrix derivatives
         {
 </xsl:when>
 </xsl:choose>
@@ -497,10 +504,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      T drn = 0, din = 0;
+      T drn, din;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      T dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
+      T dxan, dxbn, dyan, dybn;
 </xsl:when>
 </xsl:choose>
 
@@ -725,8 +732,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           const double Xz = m_db_z[antal[0] + q];
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
+          const doubleN Xxr2 = Xxr * Xxr;
+          const doubleN Xxi2 = Xxi * Xxi;
           test2 = test1;
-          test1 = Xxr * Xxr + Xxi * Xxi;
+          test1 = Xxr2 + Xxi2;
           bGlitch |= test1 &lt; Xz;
           if (! no_g)
           {
@@ -787,8 +796,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         const double Xz = m_db_z[antal[k]];
         Xxr = Xr + xr0[k];
         Xxi = Xi + xi0[k];
+        const double Xxr2 = Xxr * Xxr;
+        const double Xxi2 = Xxi * Xxi;
         test2[k] = test1[k];
-        test1[k] = Xxr * Xxr + Xxi * Xxi;
+        test1[k] = Xxr2 + Xxi2;
         if (test1[k] &lt; Xz)
         {
           bGlitch[k] = true;
@@ -1000,7 +1011,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     intN bBailed = test1 &gt; m_nBailout2;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-    doubleN dr0 = Jxa0, di0 = Jya0;
+    doubleN dr_0 = Jxa0, di_0 = Jya0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
     doubleN dxa0 = Jxa0, dxb0 = Jxb0, dya0 = Jya0, dyb0 = Jyb0;
@@ -1009,6 +1020,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     // vectorized loop
     if (all(antal == antal[0]))
     {
+      const doubleN dr0 = daa0, di0 = dba0;
+      (void) dr0;
+      (void) di0;
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
         doubleN xr_saved = xr0;
@@ -1018,7 +1032,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         doubleN dxa_saved = dxa0, dxb_saved = dxb0, dya_saved = dya0, dyb_saved = dyb0;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-        doubleN dr_saved = dr0, di_saved = di0;
+        doubleN dr_saved = dr_0, di_saved = di_0;
 </xsl:when>
 </xsl:choose>
         doubleN test1_saved = test1;
@@ -1029,8 +1043,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           const double Xz = m_db_z[antal[0] + q];
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
+          const doubleN Xxr2 = Xxr * Xxr;
+          const doubleN Xxi2 = Xxi * Xxi;
           test2 = test1;
-          test1 = Xxr * Xxr + Xxi * Xxi;
+          test1 = Xxr2 + Xxi2;
           bGlitch |= test1 &lt; Xz;
           if (! no_g)
           {
@@ -1041,7 +1057,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       doubleN xrn, xin;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      doubleN dr = dr0, di = di0;
+      doubleN dr = dr_0, di = di_0;
       doubleN drn, din;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
@@ -1114,7 +1130,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           dxa0 = dxan; dxb0 = dxbn; dya0 = dyan; dyb0 = dybn;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-          dr0 = drn; di0 = din;
+          dr_0 = drn; di_0 = din;
 </xsl:when>
 </xsl:choose>
         }
@@ -1129,7 +1145,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           dxa0 = dxa_saved; dxb0 = dxb_saved; dya0 = dya_saved; dyb0 = dyb_saved;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-          dr0 = dr_saved; di0 = di_saved;
+          dr_0 = dr_saved; di_0 = di_saved;
 </xsl:when>
 </xsl:choose>
           test1 = test1_saved;
@@ -1143,6 +1159,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     const int64_t N = sizeof(doubleN) / sizeof(double);
     for (int64_t k = 0; k &lt; N; ++k)
     {
+      const double dr0 = daa0[k], di0 = dba0[k];
+      (void) dr0;
+      (void) di0;
       double Xxr = 0, Xxi = 0;
       for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
       {
@@ -1153,8 +1172,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         double xr = xr0[k], xi = xi0[k];
         Xxr = Xr + xr;
         Xxi = Xi + xi;
+        const double Xxr2 = Xxr * Xxr;
+        const double Xxi2 = Xxi * Xxi;
         test2[k] = test1[k];
-        test1[k] = Xxr * Xxr + Xxi * Xxi;
+        test1[k] = Xxr2 + Xxi2;
         if (test1[k] &lt; Xz)
         {
 <xsl:choose>
@@ -1196,7 +1217,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       (void) dummyV;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      double dr = dr0[k], di = di0[k];
+      double dr = dr_0[k], di = di_0[k];
       double drn = 0, din = 0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
@@ -1258,7 +1279,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       dxa0[k] = dxan; dxb0[k] = dxbn; dya0[k] = dyan; dyb0[k] = dybn;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-      dr0[k] = drn; di0[k] = din;
+      dr_0[k] = drn; di_0[k] = din;
 </xsl:when>
 </xsl:choose>
 
@@ -1270,10 +1291,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       xi00[k] = Xxi;
 <xsl:choose>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    Jxa0[k] = dr0[k];
-    Jxb0[k] = -di0[k];
-    Jya0[k] = di0[k];
-    Jyb0[k] = dr0[k];
+    Jxa0[k] = dr_0[k];
+    Jxb0[k] = -di_0[k];
+    Jya0[k] = di_0[k];
+    Jyb0[k] = dr_0[k];
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
     Jxa0[k] = dxa0[k];
@@ -1457,8 +1478,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         const double Xz = m_db_z[antal];
         Xxr = Xr + xr0 * s;
         Xxi = Xi + xi0 * s;
+        const T Xxr2 = Xxr * Xxr;
+        const T Xxi2 = Xxi * Xxi;
         test2 = test1;
-        test1 = double(Xxr * Xxr + Xxi * Xxi);
+        test1 = double(Xxr2 + Xxi2);
         if (test1 &lt; Xz)
         {
           bGlitch = true;
@@ -1614,8 +1637,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           const double Xz = m_db_z[antal[0] + q];
           doubleN Xxr = Xr + xr0 * s;
           doubleN Xxi = Xi + xi0 * s;
+          const doubleN Xxr2 = Xxr * Xxr;
+          const doubleN Xxi2 = Xxi * Xxi;
           test2 = test1;
-          test1 = Xxr * Xxr + Xxi * Xxi;
+          test1 = Xxr2 + Xxi2;
           bGlitch |= test1 &lt; Xz;
           if (! no_g)
           {
@@ -1666,8 +1691,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         const double Xz = m_db_z[antal[k]];
         Xxr = Xr + xr0[k] * s;
         Xxi = Xi + xi0[k] * s;
+        const double Xxr2 = Xxr * Xxr;
+        const double Xxi2 = Xxi * Xxi;
         test2[k] = test1[k];
-        test1[k] = Xxr * Xxr + Xxi * Xxi;
+        test1[k] = Xxr2 + Xxi2;
         if (test1[k] &lt; Xz)
         {
           bGlitch[k] = true;
@@ -1864,6 +1891,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
     D dr = Jxa0, di = Jya0;
+    const D dr0 = daa, di0 = dba;
+    (void) dr0;
+    (void) di0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
     D dxa = Jxa0, dxb = Jxb0, dya = Jya0, dyb = Jyb0;
@@ -1878,8 +1908,10 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       const double Xz = m_db_z[antal];
       Xxr = Xr + xr * s;
       Xxi = Xi + xi * s;
+      const Z Xxr2 = Xxr * Xxr;
+      const Z Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr * Xxr + Xxi * Xxi);
+      test1 = double(Xxr2 + Xxi2);
       if (test1 &lt; Xz)
       {
 <xsl:choose>
