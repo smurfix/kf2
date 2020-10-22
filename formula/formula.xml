@@ -58,11 +58,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
         xin = 2 * (Xxr * xi + Xi * xr) + ci;
       </perturbation>
-      <derivative t="M">
-        dxan = ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + daa));
-        dxbn = ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + dab));
-        dyan = ((2 * (Xxi * dxa)) + ((2 * (Xxr * dya)) + dba));
-        dybn = ((2 * (Xxi * dxb)) + ((2 * (Xxr * dyb)) + dbb));
+      <derivative t="R">
+        drn = 2 * (Xxr * dr - Xxi * di) + dr0;
+        din = 2 * (Xxi * dr + Xxr * di) + di0;
       </derivative>
       <scaled t="R">
         xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
@@ -79,11 +77,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         xrn = 3 * ((Xr2 - Xi2) * xr - 2 * Xxr * Xi * xi + Xr * (xr2 - xi2)) + xr * (xr2 - 3 * xi2) + cr;
         xin = 3 * ((Xr2 - Xi2) * xi + 2 * Xr * xr * Xxi + Xi * (xr2 - xi2)) + xi * (3 * xr2 - xi2) + ci;
       </perturbation>
-      <derivative t='M'>
-        dxan = ((3 * (Xxr * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * dxa))) + (( - 6 * (Xxi * (Xxr * dya))) + daa)));
-        dxbn = ((3 * (Xxr * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * dxb))) + (( - 6 * (Xxi * (Xxr * dyb))) + dab)));
-        dyan = ((3 * (Xxr * (Xxr * dya))) + (( - 3 * (Xxi * (Xxi * dya))) + ((6 * (Xxi * (Xxr * dxa))) + dba)));
-        dybn = ((3 * (Xxr * (Xxr * dyb))) + (( - 3 * (Xxi * (Xxi * dyb))) + ((6 * (Xxi * (Xxr * dxb))) + dbb)));
+      <derivative t="R">
+        drn = (3 * (Xxr2 - Xxi2)) * dr - (6 * (Xxi * Xxr)) * di + dr0;
+        din = (3 * (Xxr2 - Xxi2)) * di + (6 * (Xxi * Xxr)) * dr + di0;
       </derivative>
       <scaled t="R">
         xrn = 3 * (Xr2 - Xi2) * xr - 6 * Xr * Xi * xi + 3 * (Xr * (xr2 - xi2) - 2 * Xi * xr * xi) * s + (xr2 - 3 * xi2) * xr * s * s + cr;
@@ -98,11 +94,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = 4 * (X ^ 3) * x + 6 * (X ^ 2) * (x ^ 2) + 4 * X * (x ^ 3) + (x ^ 4) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = ((4 * (Xxi * (Xxi * (Xxi * dya)))) + ((4 * (Xxr * (Xxr * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dya)))) + daa))));
-        dxbn = ((4 * (Xxi * (Xxi * (Xxi * dyb)))) + ((4 * (Xxr * (Xxr * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dyb)))) + dab))));
-        dyan = ((4 * (Xxr * (Xxr * (Xxr * dya)))) + (( - 4 * (Xxi * (Xxi * (Xxi * dxa)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dya)))) + ((12 * (Xxi * (Xxr * (Xxr * dxa)))) + dba))));
-        dybn = ((4 * (Xxr * (Xxr * (Xxr * dyb)))) + (( - 4 * (Xxi * (Xxi * (Xxi * dxb)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dyb)))) + ((12 * (Xxi * (Xxr * (Xxr * dxb)))) + dbb))));
+      <derivative t="C">
+        dn = 4 * d * (Xx ^ 3) + d0;
       </derivative>
     </formula>
 
@@ -113,11 +106,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       <perturbation t="C">
         xn = 5 * (X ^ 4) * x + 10 * (X ^ 3) * (x ^ 2) + 10 * (X ^ 2) * (x ^ 3) + 5 * X * (x ^ 4) + (x ^ 5) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxa))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxa))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dya))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dya))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxa))))) + daa)))));
-        dxbn = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxb))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxb))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dyb))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dyb))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxb))))) + dab)))));
-        dyan = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dya))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dya))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dxa))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dxa))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dya))))) + dba)))));
-        dybn = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dyb))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dyb))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dxb))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dxb))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dyb))))) + dbb)))));
+      <derivative t="C">
+        dn = 5 * d * (Xx ^ 4) + d0;
       </derivative>
     </formula>
 
