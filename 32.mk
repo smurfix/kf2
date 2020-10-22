@@ -1,6 +1,7 @@
 WINPREFIXPLUS ?= $(HOME)/win32
 WINPREFIX ?= $(HOME)/win32
 SIMD ?= 0
+OPENCL ?= 1
 COMPILE ?= i686-w64-mingw32-g++
 LINK ?= i686-w64-mingw32-g++
 WINDRES ?= i686-w64-mingw32-windres

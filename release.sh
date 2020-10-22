@@ -24,18 +24,18 @@ then
 	exit 1
 fi
 
-make OPENCL=1 clean
+make clean
 
 SRC="${VERSION}-src"
 mkdir "${SRC}"
-make OPENCL=1 formula/formula.cpp
+make formula/formula.cpp
 cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk 64+.mk native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
 cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
-make -j 32 SYSTEM=64 OPENCL=1
+make -j 32 SYSTEM=64
 cp -avi kf.exe "${BIN}/kf.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.exe"
 strip "${BIN}/kf.exe"
