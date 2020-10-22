@@ -285,6 +285,9 @@ Feedback:
       (but old skewed/rotated KFR locations will not load correctly)
     - `kf-tile.exe` tool supports the new rotation and skew transformations
     - the bitrotten skew animation feature is removed
+    - a few speed changes in built in formulas (one example, RedShiftRider 4
+      with derivatives is almost 2x faster due to using complex analytic
+      derivatives instead of 2x2 Jacobian matrix derivatives)
     - flip imaginary part of Buffalo power 2
       (to match other powers; derivative was flipped already)
     - slope implementation rewritten (appearance is different but it

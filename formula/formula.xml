@@ -1181,11 +1181,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) + 3 * X2 * x + 3 * X * x2 + x2 * x + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + ((3 * (Xxr * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * dxa))) + (( - 6 * (Xxi * (Xxr * dya))) + daa)))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + ((3 * (Xxr * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * dxb))) + (( - 6 * (Xxi * (Xxr * dyb))) + dab)))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + ((3 * (Xxr * (Xxr * dya))) + (( - 3 * (Xxi * (Xxi * dya))) + ((6 * (Xxi * (Xxr * dxa))) + dba)))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + ((3 * (Xxr * (Xxr * dyb))) + (( - 3 * (Xxi * (Xxi * dyb))) + ((6 * (Xxi * (Xxr * dxb))) + dbb)))))));
+      <derivative t="C">
+        dn = (A * (2 * X) + 3 * X2) * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1198,11 +1195,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) - 3 * X2 * x - 3 * X * x2 - x2 * x + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + (( - 3 * (Xxr * (Xxr * dxa))) + ((3 * (Xxi * (Xxi * dxa))) + ((6 * (Xxi * (Xxr * dya))) + daa)))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + (( - 3 * (Xxr * (Xxr * dxb))) + ((3 * (Xxi * (Xxi * dxb))) + ((6 * (Xxi * (Xxr * dyb))) + dab)))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + (( - 3 * (Xxr * (Xxr * dya))) + ((3 * (Xxi * (Xxi * dya))) + (( - 6 * (Xxi * (Xxr * dxa))) + dba)))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + (( - 3 * (Xxr * (Xxr * dyb))) + ((3 * (Xxi * (Xxi * dyb))) + (( - 6 * (Xxi * (Xxr * dxb))) + dbb)))))));
+      <derivative t="C">
+        dn = (A * (2 * X) - 3 * X2) * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1215,11 +1209,8 @@ v2
       <perturbation t="C">
         xn = 2 * (2 * X * x + x2) - 3 * X2 * x - 3 * X * x2 - x2 * x + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 3 * (Xxr * (Xxr * dxa))) + ((3 * (Xxi * (Xxi * dxa))) + ((4 * (Xxr * dxa)) + (( - 4 * (Xxi * dya)) + ((6 * (Xxi * (Xxr * dya))) + daa)))));
-        dxbn = (( - 3 * (Xxr * (Xxr * dxb))) + ((3 * (Xxi * (Xxi * dxb))) + ((4 * (Xxr * dxb)) + (( - 4 * (Xxi * dyb)) + ((6 * (Xxi * (Xxr * dyb))) + dab)))));
-        dyan = (( - 3 * (Xxr * (Xxr * dya))) + ((3 * (Xxi * (Xxi * dya))) + ((4 * (Xxi * dxa)) + ((4 * (Xxr * dya)) + (( - 6 * (Xxi * (Xxr * dxa))) + dba)))));
-        dybn = (( - 3 * (Xxr * (Xxr * dyb))) + ((3 * (Xxi * (Xxi * dyb))) + ((4 * (Xxi * dxb)) + ((4 * (Xxr * dyb)) + (( - 6 * (Xxi * (Xxr * dxb))) + dbb)))));
+      <derivative t="C">
+        dn = (4 * X - 3 * X2) * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1232,11 +1223,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) + 4 * (X^3) * x + 6 * (X^2) * x2 + 4 * X * x2 * x + (x2^2) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + ((4 * (Xxi * (Xxi * (Xxi * dya)))) + ((4 * (Xxr * (Xxr * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dya)))) + daa))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + ((4 * (Xxi * (Xxi * (Xxi * dyb)))) + ((4 * (Xxr * (Xxr * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dyb)))) + dab))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + ((4 * (Xxr * (Xxr * (Xxr * dya)))) + (( - 4 * (Xxi * (Xxi * (Xxi * dxa)))) + ((12 * (Xxi * (Xxr * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dya)))) + dba))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + ((4 * (Xxr * (Xxr * (Xxr * dyb)))) + (( - 4 * (Xxi * (Xxi * (Xxi * dxb)))) + ((12 * (Xxi * (Xxr * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dyb)))) + dbb))))))));
+      <derivative t="C">
+        dn = (A * 2 + 4 * X2) * X * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1249,11 +1237,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) - 4 * (X^3) * x - 6 * (X^2) * x2 - 4 * X * x2 * x - (x2^2) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + (( - 4 * (Xxi * (Xxi * (Xxi * dya)))) + (( - 4 * (Xxr * (Xxr * (Xxr * dxa)))) + ((12 * (Xxi * (Xxi * (Xxr * dxa)))) + ((12 * (Xxi * (Xxr * (Xxr * dya)))) + daa))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + (( - 4 * (Xxi * (Xxi * (Xxi * dyb)))) + (( - 4 * (Xxr * (Xxr * (Xxr * dxb)))) + ((12 * (Xxi * (Xxi * (Xxr * dxb)))) + ((12 * (Xxi * (Xxr * (Xxr * dyb)))) + dab))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + (( - 4 * (Xxr * (Xxr * (Xxr * dya)))) + ((4 * (Xxi * (Xxi * (Xxi * dxa)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dxa)))) + ((12 * (Xxi * (Xxi * (Xxr * dya)))) + dba))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + (( - 4 * (Xxr * (Xxr * (Xxr * dyb)))) + ((4 * (Xxi * (Xxi * (Xxi * dxb)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dxb)))) + ((12 * (Xxi * (Xxi * (Xxr * dyb)))) + dbb))))))));
+      <derivative t="C">
+        dn = (A * 2 - 4 * X2) * X * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1266,11 +1251,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) + 5 * (X^4) * x + 10 * (X^3) * x2 + 10 * (X^2) * x2 * x + 5 * X * (x2^2) + (x2 * x2 * x) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxa))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxa))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dya))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dya))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxa))))) + daa)))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxb))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxb))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dyb))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dyb))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxb))))) + dab)))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dya))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dya))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dxa))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dxa))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dya))))) + dba)))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dyb))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dyb))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dxb))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dxb))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dyb))))) + dbb)))))))));
+      <derivative t="C">
+        dn = (A * 2 + 5 * X2 * X) * X * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1283,11 +1265,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) - 5 * (X^4) * x - 10 * (X^3) * x2 - 10 * (X^2) * x2 * x - 5 * X * (x2^2) - (x2 * x2 * x) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dxa))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dxa))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dya))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dya))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dxa))))) + daa)))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dxb))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dxb))))) + ((20 * (Xxi * (Xxr * (Xxr * (Xxr * dyb))))) + (( - 20 * (Xxi * (Xxi * (Xxi * (Xxr * dyb))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dxb))))) + dab)))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dya))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dya))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dxa))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dxa))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dya))))) + dba)))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dyb))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dyb))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dxb))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dxb))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dyb))))) + dbb)))))))));
+      <derivative t="C">
+        dn = (A * 2 - 5 * X2 * X) * X * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1300,11 +1279,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + x2) + 6 * (X^5) * x + 15 * (X^4) * x2 + 20 * (X^3) * (x2 * x) + 15 * (X^2) * (x2^2) + 6 * X * (x2 * x2 * x) + (x2^3) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + ((6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dxa)))))) + (( - 6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dya)))))) + (( - 30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dya)))))) + ((30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dxa)))))) + ((60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dya)))))) + (( - 60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dxa)))))) + daa))))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + ((6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dxb)))))) + (( - 6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dyb)))))) + (( - 30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dyb)))))) + ((30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dxb)))))) + ((60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dyb)))))) + (( - 60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dxb)))))) + dab))))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + ((6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dxa)))))) + ((6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dya)))))) + ((30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dya)))))) + ((30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dxa)))))) + (( - 60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dxa)))))) + (( - 60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dya)))))) + dba))))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + ((6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dxb)))))) + ((6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dyb)))))) + ((30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dyb)))))) + ((30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dxb)))))) + (( - 60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dxb)))))) + (( - 60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dyb)))))) + dbb))))))))));
+      <derivative t="C">
+        dn = (A * 2 + 6 * X2 * X2) * X * d + d0;
       </derivative>
     </formula>
   </group>
@@ -1317,11 +1293,8 @@ v2
       <perturbation t="C">
         xn = A * (2 * X * x + (x^2)) - 6 * (X^5) * x - 15 * (X^4) * (x^2) - 20 * (X^3) * (x^3) - 15 * (X^2) * (x^4) - 6 * X * (x^5) - (x^6) + c;
       </perturbation>
-      <derivative t='M'>
-        dxan = (( - 2 * (Xxr * (dya * g_FactorAI))) + ((2 * (Xxr * (dxa * g_FactorAR))) + (( - 2 * (Xxi * (dxa * g_FactorAI))) + (( - 2 * (Xxi * (dya * g_FactorAR))) + (( - 6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dxa)))))) + ((6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dya)))))) + ((30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dya)))))) + (( - 30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dxa)))))) + (( - 60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dya)))))) + ((60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dxa)))))) + daa))))))))));
-        dxbn = (( - 2 * (Xxr * (dyb * g_FactorAI))) + ((2 * (Xxr * (dxb * g_FactorAR))) + (( - 2 * (Xxi * (dxb * g_FactorAI))) + (( - 2 * (Xxi * (dyb * g_FactorAR))) + (( - 6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dxb)))))) + ((6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dyb)))))) + ((30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dyb)))))) + (( - 30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dxb)))))) + (( - 60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dyb)))))) + ((60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dxb)))))) + dab))))))))));
-        dyan = ((2 * (Xxr * (dxa * g_FactorAI))) + ((2 * (Xxr * (dya * g_FactorAR))) + (( - 2 * (Xxi * (dya * g_FactorAI))) + ((2 * (Xxi * (dxa * g_FactorAR))) + (( - 6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dxa)))))) + (( - 6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dya)))))) + (( - 30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dya)))))) + (( - 30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dxa)))))) + ((60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dxa)))))) + ((60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dya)))))) + dba))))))))));
-        dybn = ((2 * (Xxr * (dxb * g_FactorAI))) + ((2 * (Xxr * (dyb * g_FactorAR))) + (( - 2 * (Xxi * (dyb * g_FactorAI))) + ((2 * (Xxi * (dxb * g_FactorAR))) + (( - 6 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxi * dxb)))))) + (( - 6 * (Xxr * (Xxr * (Xxr * (Xxr * (Xxr * dyb)))))) + (( - 30 * (Xxi * (Xxi * (Xxi * (Xxi * (Xxr * dyb)))))) + (( - 30 * (Xxi * (Xxr * (Xxr * (Xxr * (Xxr * dxb)))))) + ((60 * (Xxi * (Xxi * (Xxi * (Xxr * (Xxr * dxb)))))) + ((60 * (Xxi * (Xxi * (Xxr * (Xxr * (Xxr * dyb)))))) + dbb))))))))));
+      <derivative t="C">
+        dn = (A * 2 - 6 * X2 * X2) * X * d + d0;
       </derivative>
     </formula>
   </group>
