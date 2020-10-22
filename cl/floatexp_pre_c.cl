@@ -11,13 +11,11 @@ void perturbation_floatexp_loop
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
-  const floatexp cr = l->cr;
-  const floatexp ci = l->ci;
-  floatexp xr = l->xr;
-  floatexp xi = l->xi;
-  // hybrids
-  int count = 0;
-  int stanza = 0;
+  const fecomplex c = {l->cr, l->ci};
+  fecomplex x = {l->xr, l->xi};
+  // type C derivatives
+  fecomplex d = {l->dxa, l->dya};
+  const fecomplex d0 = {l->daa, l->dba};
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;
@@ -29,8 +27,8 @@ void perturbation_floatexp_loop
     const floatexp Xr = m_db_dxr[antal - g->nMinIter];
     const floatexp Xi = m_db_dxi[antal - g->nMinIter];
     const double   Xz = m_db_z  [antal - g->nMinIter];
-    Xxr = fe_add(Xr, xr);
-    Xxi = fe_add(Xi, xi);
+    Xxr = fe_add(Xr, x.re);
+    Xxi = fe_add(Xi, x.im);
     const floatexp Xxr2 = fe_sqr(Xxr);
     const floatexp Xxi2 = fe_sqr(Xxi);
     test2 = test1;
@@ -49,5 +47,6 @@ void perturbation_floatexp_loop
     {
       break;
     }
-    floatexp xrn, xin;
+    const fecomplex X = {Xr, Xi}, Xx = {Xxr, Xxi};
+    fecomplex xn, dn;
 // continued...

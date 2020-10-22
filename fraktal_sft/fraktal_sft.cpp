@@ -1472,6 +1472,10 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_UseHybridFormula,
 	  m_HybridFormula,
 
+	  GetGuessing(),
+	  g_nAddRefX,
+	  g_nAddRefY,
+
 	  // output arrays
 	  m_nPixels_MSB,
 	  m_nPixels_LSB,
@@ -1557,6 +1561,10 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 
 	  m_UseHybridFormula,
 	  m_HybridFormula,
+
+	  GetGuessing(),
+	  g_nAddRefX,
+	  g_nAddRefY,
 
 	  // output arrays
 	  m_nPixels_MSB,

@@ -7,18 +7,35 @@
 #include &lt;sstream&gt;
 
 #include "common_cl.c"
+
 #include "double_pre_cl.c"
+#include "double_pre_r_cl.c"
+#include "double_pre_c_cl.c"
+#include "double_pre_m_cl.c"
 #include "double_post_cl.c"
-#include "double_post_rc_cl.c"
+#include "double_post_r_cl.c"
+#include "double_post_c_cl.c"
 #include "double_post_m_cl.c"
+
 #include "floatexp_pre_cl.c"
+#include "floatexp_pre_r_cl.c"
+#include "floatexp_pre_c_cl.c"
+#include "floatexp_pre_m_cl.c"
 #include "floatexp_post_cl.c"
-#include "floatexp_post_rc_cl.c"
+#include "floatexp_post_r_cl.c"
+#include "floatexp_post_c_cl.c"
 #include "floatexp_post_m_cl.c"
+
+#if 0
 #include "softfloat_pre_cl.c"
+#include "softfloat_pre_r_cl.c"
+#include "softfloat_pre_c_cl.c"
+#include "softfloat_pre_m_cl.c"
 #include "softfloat_post_cl.c"
-#include "softfloat_post_rc_cl.c"
+#include "softfloat_post_r_cl.c"
+#include "softfloat_post_c_cl.c"
 #include "softfloat_post_m_cl.c"
+#endif
 
 #define STR(s) #s
 
@@ -27,10 +44,15 @@
 static const char *perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0 = STR(
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
+{
+  const dcomplex X = { Xr COMMA Xi } COMMA x = { xr COMMA xi } COMMA Xx = { Xxr COMMA Xxi } COMMA c = { cr COMMA ci };
+  dcomplex xn;
 @cldc {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.re; xin = xn.im;
+  xrn = xn.re;
+  xin = xn.im;
+}
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @cld  {
@@ -53,13 +75,11 @@ static const char *perturbation_opencl_double_<xsl:value-of select="../@type" />
 @cldc {
         <xsl:value-of select="derivative" />
       }
-      drn = dn.re; din = dn.im;
 </xsl:when>
 </xsl:choose>
 @cldc {
         <xsl:value-of select="perturbation" />
       }
-      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 <xsl:choose>
@@ -67,7 +87,6 @@ static const char *perturbation_opencl_double_<xsl:value-of select="../@type" />
 @cldc {
         <xsl:value-of select="derivative" />
       }
-      drn = dn.m_r; din = dn.m_i;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @cld  {
@@ -85,10 +104,15 @@ static const char *perturbation_opencl_double_<xsl:value-of select="../@type" />
 static const char *perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0 = STR(
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
+{
+  const fecomplex X = { Xr COMMA Xi } COMMA x = { xr COMMA xi } COMMA Xx = { Xxr COMMA Xxi } COMMA c = { cr COMMA ci };
+  fecomplex xn;
 @clfec  {
         <xsl:value-of select="perturbation" />
         }
-      xrn = xn.re; xin = xn.im;
+  xrn = xn.re;
+  xin = xn.im;
+}
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @clfe   {
@@ -111,13 +135,11 @@ static const char *perturbation_opencl_floatexp_<xsl:value-of select="../@type" 
 @clfec  {
         <xsl:value-of select="derivative" />
         }
-      drn = dn.re; din = dn.im;
 </xsl:when>
 </xsl:choose>
 @clfec  {
         <xsl:value-of select="perturbation" />
         }
-      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 <xsl:choose>
@@ -125,7 +147,6 @@ static const char *perturbation_opencl_floatexp_<xsl:value-of select="../@type" 
 @clfec  {
         <xsl:value-of select="derivative" />
         }
-      drn = dn.m_r; din = dn.m_i;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @clfe   {
@@ -140,13 +161,13 @@ static const char *perturbation_opencl_floatexp_<xsl:value-of select="../@type" 
 </xsl:choose>
 );
 
+#if 0
 static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0 = STR(
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
 @clsfc  {
         <xsl:value-of select="perturbation" />
         }
-      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 @clsf   {
@@ -155,8 +176,10 @@ static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type"
 </xsl:when>
 </xsl:choose>
 );
+#endif
 </xsl:for-each>
 
+#if 0
 <xsl:for-each select="formulas/group/formula">
 static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1 = STR(
 <xsl:choose>
@@ -171,13 +194,11 @@ static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type"
 @clsfc  {
         <xsl:value-of select="derivative" />
         }
-      drn = dn.re; din = dn.im;
 </xsl:when>
 </xsl:choose>
 @clsfc  {
         <xsl:value-of select="perturbation" />
         }
-      xrn = xn.re; xin = xn.im;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
 <xsl:choose>
@@ -185,7 +206,6 @@ static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type"
 @clsfc  {
         <xsl:value-of select="derivative" />
         }
-      drn = dn.m_r; din = dn.m_i;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @clsf   {
@@ -199,8 +219,8 @@ static const char *perturbation_opencl_softfloat_<xsl:value-of select="../@type"
 </xsl:when>
 </xsl:choose>
 );
-
 </xsl:for-each>
+#endif
 
 static const std::string perturbation_opencl_error = "#error unsupported fractal type and power\n";
 
@@ -218,13 +238,27 @@ extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int der
         {
           std::ostringstream o;
           o &lt;&lt; perturbation_opencl_common;
-          o &lt;&lt; perturbation_opencl_double_pre;
+
           if (derivatives)
           {
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_double_pre_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_double_pre_c;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+            o &lt;&lt; perturbation_opencl_double_pre_m;
+</xsl:when>
+</xsl:choose>
             o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
 <xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_double_post_rc;
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_double_post_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_double_post_c;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
             o &lt;&lt; perturbation_opencl_double_post_m;
@@ -233,16 +267,31 @@ extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int der
           }
           else
           {
+            o &lt;&lt; perturbation_opencl_double_pre;
             o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
             o &lt;&lt; perturbation_opencl_double_post;
           }
-          o &lt;&lt; perturbation_opencl_floatexp_pre;
+
           if (derivatives)
           {
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_floatexp_pre_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_floatexp_pre_c;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+            o &lt;&lt; perturbation_opencl_floatexp_pre_m;
+</xsl:when>
+</xsl:choose>
             o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
 <xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_floatexp_post_rc;
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_floatexp_post_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_floatexp_post_c;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
             o &lt;&lt; perturbation_opencl_floatexp_post_m;
@@ -251,16 +300,32 @@ extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int der
           }
           else
           {
+            o &lt;&lt; perturbation_opencl_floatexp_pre;
             o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
             o &lt;&lt; perturbation_opencl_floatexp_post;
           }
-          o &lt;&lt; perturbation_opencl_softfloat_pre;
+
+#if 0
           if (derivatives)
           {
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_softfloat_pre_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_softfloat_pre_c;
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+            o &lt;&lt; perturbation_opencl_softfloat_pre_m;
+</xsl:when>
+</xsl:choose>
             o &lt;&lt; perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
 <xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_softfloat_post_rc;
+<xsl:when test="derivative/@t='R'">
+            o &lt;&lt; perturbation_opencl_softfloat_post_r;
+</xsl:when>
+<xsl:when test="derivative/@t='C'">
+            o &lt;&lt; perturbation_opencl_softfloat_post_c;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
             o &lt;&lt; perturbation_opencl_softfloat_post_m;
@@ -269,9 +334,12 @@ extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int der
           }
           else
           {
+            o &lt;&lt; perturbation_opencl_softfloat_pre;
             o &lt;&lt; perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
             o &lt;&lt; perturbation_opencl_softfloat_post;
           }
+#endif
+
           return o.str();
         }
       </xsl:for-each>

@@ -68,6 +68,11 @@ typedef struct __attribute__((packed))
   cl_long m_nMaxApproximation;
   cl_int m_nApproxTerms;
   cl_int approximation_type;
+  // for guessing
+  cl_int UseGuessing;
+  cl_int GuessingPass;
+  cl_int g_nAddRefX;
+  cl_int g_nAddRefY;
   // for hybrid
   cl_short hybrid_loop_start;
   cl_short hybrid_nstanzas;
@@ -99,6 +104,7 @@ struct clformula
   hybrid_formula hybrid;
   int derivatives;
   cl_kernel kernel;
+  cl_kernel guessing_kernel;
 };
 
 struct OpenCL
@@ -196,6 +202,10 @@ public:
 
     bool UseHybrid,
     const hybrid_formula &hybrid,
+
+    bool UseGuessing,
+    int g_nAddRefX,
+    int g_nAddRefY,
 
     // output arrays
     uint32_t *n1_p,

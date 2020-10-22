@@ -9,13 +9,15 @@ void perturbation_double_loop
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
+  // type R formulas
   const double cr = l->cr;
   const double ci = l->ci;
   double xr = l->xr;
   double xi = l->xi;
-  // hybrids
-  int count = 0;
-  int stanza = 0;
+  double dr = l->dxa;
+  double di = l->dya;
+  const double dr0 = l->daa;
+  const double di0 = l->dba;
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;
@@ -47,5 +49,5 @@ void perturbation_double_loop
     {
       break;
     }
-    double xrn, xin;
+    double xrn, xin, drn, din;
 // continued...

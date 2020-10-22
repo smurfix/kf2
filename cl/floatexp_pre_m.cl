@@ -15,6 +15,15 @@ void perturbation_floatexp_loop
   const floatexp ci = l->ci;
   floatexp xr = l->xr;
   floatexp xi = l->xi;
+  // type M derivatives
+  floatexp daa = l->daa;
+  floatexp dab = l->dab;
+  floatexp dba = l->dba;
+  floatexp dbb = l->dbb;
+  floatexp dxa = l->dxa;
+  floatexp dxb = l->dxb;
+  floatexp dya = l->dya;
+  floatexp dyb = l->dyb;
   // hybrids
   int count = 0;
   int stanza = 0;
@@ -49,5 +58,5 @@ void perturbation_floatexp_loop
     {
       break;
     }
-    floatexp xrn, xin;
+    floatexp xrn, xin, dxan, dxbn, dyan, dybn;
 // continued...

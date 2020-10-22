@@ -13,6 +13,15 @@ void perturbation_double_loop
   const double ci = l->ci;
   double xr = l->xr;
   double xi = l->xi;
+  // type M derivatives
+  const double daa = l->daa;
+  const double dab = l->dab;
+  const double dba = l->dba;
+  const double dbb = l->dbb;
+  double dxa = l->dxa;
+  double dxb = l->dxb;
+  double dya = l->dya;
+  double dyb = l->dyb;
   // hybrids
   int count = 0;
   int stanza = 0;
@@ -47,5 +56,5 @@ void perturbation_double_loop
     {
       break;
     }
-    double xrn, xin;
+    double xrn, xin, dxan, dxbn, dyan, dybn;
 // continued...

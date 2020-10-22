@@ -15,9 +15,11 @@ void perturbation_floatexp_loop
   const floatexp ci = l->ci;
   floatexp xr = l->xr;
   floatexp xi = l->xi;
-  // hybrids
-  int count = 0;
-  int stanza = 0;
+  // type R derivatives
+  floatexp dr = l->dxa;
+  floatexp di = l->dya;
+  const floatexp dr0 = l->daa;
+  const floatexp di0 = l->dba;
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;
@@ -49,5 +51,5 @@ void perturbation_floatexp_loop
     {
       break;
     }
-    floatexp xrn, xin;
+    floatexp xrn, xin, drn, din;
 // continued...

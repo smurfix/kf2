@@ -354,6 +354,10 @@ void OpenCL::run
   bool UseHybrid,
   const hybrid_formula &hybrid,
 
+  bool UseGuessing,
+  int g_nAddRefX,
+  int g_nAddRefY,
+
   // output arrays
   uint32_t *n1_p,
   uint32_t *n0_p,
@@ -365,77 +369,6 @@ void OpenCL::run
 {
   assert(roffset < rcount);
   lock();
-
-  // upload config
-  p_config configdata =
-    {
-      sizeof(p_config),
-      m_nX,
-      m_nY,
-      JitterSeed,
-      JitterShape,
-      JitterScale,
-      m_pixel_center_x,
-      m_pixel_center_y,
-      m_pixel_scale,
-      transform00,
-      transform01,
-      transform10,
-      transform11,
-      stride_y,
-      stride_x,
-      stride_offset,
-      m_nBailout,
-      m_nBailout2,
-      log(m_nBailout),
-      log_m_nPower,
-      m_nGlitchIter,
-      m_nMaxIter,
-      nMaxIter,
-      nMinIter,
-      m_bNoGlitchDetection,
-      derivatives,
-      m_bAddReference,
-      m_nSmoothMethod,
-      g_real,
-      g_imag,
-      norm_p,
-      g_FactorAR,
-      g_FactorAI,
-      m_epsilon,
-      m_nMaxApproximation,
-      m_nApproxTerms,
-      approximation_type,
-      (int16_t) hybrid.loop_start,
-      (int16_t) hybrid.stanzas.size()
-      // arrays go here
-    };
-  for (int i = 0; i < MAX_HYBRID_STANZAS; ++i)
-  {
-    if (i < (int) hybrid.stanzas.size())
-    {
-      configdata.hybrid_repeats[i] = hybrid.stanzas[i].repeats;
-      configdata.hybrid_log_powers[i] = log(hybrid_power_inf(hybrid.stanzas[i]));
-    }
-    else
-    {
-      configdata.hybrid_repeats[i] = 0;
-      configdata.hybrid_log_powers[i] = 0;
-    }
-  }
-  const floatexp zero(0);
-  for (int i = 0; i < MAX_APPROX_TERMS + 1; ++i)
-  {
-    configdata.m_APr[i] = APr ? APr[i] : zero;
-    configdata.m_APi[i] = APi ? APi[i] : zero;
-    for (int j = 0; j < MAX_APPROX_TERMS + 1; ++j)
-    {
-      configdata.m_APs_s[i][j] = APs ? APs->s[i][j] : zero;
-      configdata.m_APs_t[i][j] = APs ? APs->t[i][j] : zero;
-    }
-  }
-  cl_event config_uploaded;
-  E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata), &configdata, 0, 0, &config_uploaded));
 
   // upload reference
   cl_int err;
@@ -612,7 +545,6 @@ void OpenCL::run
   if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
 
   // compile formula or retrieve kernel from cache
-  cl_event formula_executed;
   clformula *formula = nullptr;
   for (int i = 0; i < (int) formulas.size(); ++i)
   {
@@ -654,7 +586,8 @@ void OpenCL::run
     if (! program) { E(err); }
     // FIXME synchronous program building, async would be better
     std::ostringstream options;
-    options << "-D DERIVATIVES=" << (derivatives ? 1 : 0)
+    options << "-cl-fast-relaxed-math"
+            << " -D DERIVATIVES=" << (derivatives ? 1 : 0)
             << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
             << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
@@ -668,13 +601,92 @@ void OpenCL::run
     }
     cl_kernel kernel = clCreateKernel(program, name.c_str(), &err);
     if (! kernel) { E(err); }
-    clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel };
+    cl_kernel guessing_kernel = clCreateKernel(program, "guessing", &err);
+    if (! guessing_kernel) { E(err); }
+    clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel };
     formulas.push_back(newformula);
     formula = &formulas[ssize_t(formulas.size()) - 1];
   }
   assert(formula);
 
+  // upload config
+  p_config configdata =
+    {
+      sizeof(p_config),
+      UseGuessing ? m_nX / 2 : m_nX,
+      UseGuessing ? m_nY / 2 : m_nY,
+      JitterSeed,
+      JitterShape,
+      JitterScale,
+      m_pixel_center_x,
+      m_pixel_center_y,
+      m_pixel_scale,
+      transform00,
+      transform01,
+      transform10,
+      transform11,
+      stride_y,
+      stride_x,
+      stride_offset,
+      m_nBailout,
+      m_nBailout2,
+      log(m_nBailout),
+      log_m_nPower,
+      m_nGlitchIter,
+      m_nMaxIter,
+      nMaxIter,
+      nMinIter,
+      m_bNoGlitchDetection,
+      derivatives,
+      m_bAddReference,
+      m_nSmoothMethod,
+      g_real,
+      g_imag,
+      norm_p,
+      g_FactorAR,
+      g_FactorAI,
+      m_epsilon,
+      m_nMaxApproximation,
+      m_nApproxTerms,
+      approximation_type,
+      UseGuessing,
+      0,
+      g_nAddRefX,
+      g_nAddRefY,
+      (int16_t) hybrid.loop_start,
+      (int16_t) hybrid.stanzas.size()
+      // arrays go here
+    };
+  for (int i = 0; i < MAX_HYBRID_STANZAS; ++i)
+  {
+    if (i < (int) hybrid.stanzas.size())
+    {
+      configdata.hybrid_repeats[i] = hybrid.stanzas[i].repeats;
+      configdata.hybrid_log_powers[i] = log(hybrid_power_inf(hybrid.stanzas[i]));
+    }
+    else
+    {
+      configdata.hybrid_repeats[i] = 0;
+      configdata.hybrid_log_powers[i] = 0;
+    }
+  }
+  const floatexp zero(0);
+  for (int i = 0; i < MAX_APPROX_TERMS + 1; ++i)
+  {
+    configdata.m_APr[i] = APr ? APr[i] : zero;
+    configdata.m_APi[i] = APi ? APi[i] : zero;
+    for (int j = 0; j < MAX_APPROX_TERMS + 1; ++j)
+    {
+      configdata.m_APs_s[i][j] = APs ? APs->s[i][j] : zero;
+      configdata.m_APs_t[i][j] = APs ? APs->t[i][j] : zero;
+    }
+  }
+
+  cl_event config_uploaded;
+  E(clEnqueueWriteBuffer(commands, config, CL_TRUE, 0, sizeof(configdata), &configdata, 0, 0, &config_uploaded));
+
   // execute formula
+  cl_event formula_executed0;
   E(clSetKernelArg(formula->kernel, 0, sizeof(cl_mem), &config));
   E(clSetKernelArg(formula->kernel, 1, sizeof(cl_mem), &refx));
   E(clSetKernelArg(formula->kernel, 2, sizeof(cl_mem), &refy));
@@ -685,14 +697,51 @@ void OpenCL::run
   E(clSetKernelArg(formula->kernel, 7, sizeof(cl_mem), phase_p?&phase:nullptr));
   E(clSetKernelArg(formula->kernel, 8, sizeof(cl_mem), dex_p ? &dex : nullptr));
   E(clSetKernelArg(formula->kernel, 9, sizeof(cl_mem), dey_p ? &dey : nullptr));
-  size_t global[2] = { (size_t) m_nY, (size_t) m_nX };
+  size_t global[2] = { (size_t) configdata.m_nY, (size_t) configdata.m_nX };
   cl_event uploaded[4] =
     { config_uploaded
     , refx_uploaded
     , refy_uploaded
     , refz_uploaded
     };
-  E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 4, uploaded, &formula_executed));
+  E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 4, uploaded, &formula_executed0));
+
+  // make copies for async uploads
+  p_config configdata0 = configdata;
+  p_config configdata1 = configdata;
+  p_config configdata2 = configdata;
+  p_config configdata3 = configdata;
+  cl_event formula_executed3;
+  if (UseGuessing)
+  {
+    cl_event guessed;
+    // guess at full resolution with 3 more passes at 1/2x2 resolution
+    configdata0.m_nX = m_nX;
+    configdata0.m_nY = m_nY;
+    configdata1.GuessingPass = 1;
+    configdata2.GuessingPass = 2;
+    configdata3.GuessingPass = 3;
+    // do guessing
+    cl_event config_uploaded0, config_uploaded1, config_uploaded2, config_uploaded3, formula_executed1, formula_executed2;
+    E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata0), &configdata0, 1, &formula_executed0, &config_uploaded0));
+    size_t global_guess[2] = { (size_t) configdata0.m_nY, (size_t) configdata0.m_nX };
+    E(clSetKernelArg(formula->guessing_kernel, 0, sizeof(cl_mem), &config));
+    E(clSetKernelArg(formula->guessing_kernel, 1, sizeof(cl_mem), n1_p  ? &n1  : nullptr));
+    E(clSetKernelArg(formula->guessing_kernel, 2, sizeof(cl_mem), n0_p  ? &n0  : nullptr));
+    E(clSetKernelArg(formula->guessing_kernel, 3, sizeof(cl_mem), nf_p  ? &nf  : nullptr));
+    E(clSetKernelArg(formula->guessing_kernel, 4, sizeof(cl_mem), phase_p?&phase:nullptr));
+    E(clSetKernelArg(formula->guessing_kernel, 5, sizeof(cl_mem), dex_p ? &dex : nullptr));
+    E(clSetKernelArg(formula->guessing_kernel, 6, sizeof(cl_mem), dey_p ? &dey : nullptr));
+    E(clEnqueueNDRangeKernel(commands, formula->guessing_kernel, 2, nullptr, global_guess, nullptr, 1, &config_uploaded0, &guessed));
+    // do 3 more passes at 1/2x2 resolution
+    E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata1), &configdata1, 1, &guessed, &config_uploaded1));
+    E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 1, &config_uploaded1, &formula_executed1));
+    E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata2), &configdata2, 1, &formula_executed1, &config_uploaded2));
+    E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 1, &config_uploaded2, &formula_executed2));
+    E(clEnqueueWriteBuffer(commands, config, CL_FALSE, 0, sizeof(configdata3), &configdata3, 1, &formula_executed2, &config_uploaded3));
+    E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 1, &config_uploaded3, &formula_executed3));
+  }
+  cl_event formula_executed = UseGuessing ? formula_executed3 : formula_executed0;
 
   // download results
   // FIXME synchronous, async would be better
@@ -771,6 +820,10 @@ template void OpenCL::run<double>(
   bool UseHybrid,
   const hybrid_formula &hybrid,
 
+  bool UseGuessing,
+  int g_nAddRefX,
+  int g_nAddRefY,
+
   // output arrays
   uint32_t *n1_p,
   uint32_t *n0_p,
@@ -840,6 +893,10 @@ template void OpenCL::run<floatexp>(
   bool UseHybrid,
   const hybrid_formula &hybrid,
 
+  bool UseGuessing,
+  int g_nAddRefX,
+  int g_nAddRefY,
+
   // output arrays
   uint32_t *n1_p,
   uint32_t *n0_p,
@@ -852,21 +909,32 @@ template void OpenCL::run<floatexp>(
 
 extern const char *perturbation_opencl_common;
 extern const char *perturbation_opencl_double_pre;
+extern const char *perturbation_opencl_double_pre_m;
 extern const char *perturbation_opencl_double_post;
 extern const char *perturbation_opencl_double_post_m;
 extern const char *perturbation_opencl_floatexp_pre;
+extern const char *perturbation_opencl_floatexp_pre_m;
 extern const char *perturbation_opencl_floatexp_post;
 extern const char *perturbation_opencl_floatexp_post_m;
+#if 0
 extern const char *perturbation_opencl_softfloat_pre;
 extern const char *perturbation_opencl_softfloat_post;
 extern const char *perturbation_opencl_softfloat_post_m;
+#endif
 
 extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
 {
   std::ostringstream o;
   o << perturbation_opencl_common;
   // double
-  o << perturbation_opencl_double_pre;
+  if (derivatives)
+  {
+    o << perturbation_opencl_double_pre_m;
+  }
+  else
+  {
+    o << perturbation_opencl_double_pre;
+  }
   o << hybrid_perturbation_double_opencl(h, derivatives);
   if (derivatives)
   {
@@ -877,7 +945,14 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
     o << perturbation_opencl_double_post;
   }
   // floatexp
-  o << perturbation_opencl_floatexp_pre;
+  if (derivatives)
+  {
+    o << perturbation_opencl_floatexp_pre_m;
+  }
+  else
+  {
+    o << perturbation_opencl_floatexp_pre;
+  }
   o << hybrid_perturbation_floatexp_opencl(h, derivatives);
   if (derivatives)
   {
@@ -887,6 +962,7 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
   {
     o << perturbation_opencl_floatexp_post;
   }
+#if 0
   // softfloat
   o << perturbation_opencl_softfloat_pre;
 //  o << hybrid_perturbation_softfloat_opencl(h, derivatives); // FIXME TODO
@@ -898,6 +974,7 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
   {
     o << perturbation_opencl_softfloat_post;
   }
+#endif
   return o.str();
 }
 

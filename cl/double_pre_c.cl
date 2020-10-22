@@ -9,13 +9,11 @@ void perturbation_double_loop
   const double Ar = g->g_FactorAR;
   const double Ai = g->g_FactorAI;
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
-  const double cr = l->cr;
-  const double ci = l->ci;
-  double xr = l->xr;
-  double xi = l->xi;
-  // hybrids
-  int count = 0;
-  int stanza = 0;
+  // type C formulas
+  const dcomplex c = {l->cr, l->ci};
+  dcomplex x = {l->xr, l->xi};
+  dcomplex d = {l->dxa, l->dya};
+  const dcomplex d0 = {l->daa, l->dba};
   // conditions
   double test1 = l->test1;
   double test2 = l->test2;
@@ -27,8 +25,8 @@ void perturbation_double_loop
     const double Xr = m_db_dxr[antal - g->nMinIter];
     const double Xi = m_db_dxi[antal - g->nMinIter];
     const double Xz = m_db_z  [antal - g->nMinIter];
-    Xxr = Xr + xr;
-    Xxi = Xi + xi;
+    Xxr = Xr + x.re;
+    Xxi = Xi + x.im;
     const double Xxr2 = Xxr * Xxr;
     const double Xxi2 = Xxi * Xxi;
     test2 = test1;
@@ -47,5 +45,6 @@ void perturbation_double_loop
     {
       break;
     }
-    double xrn, xin;
+    const dcomplex X = {Xr, Xi}, Xx = {Xxr, Xxi};
+    dcomplex xn, dn;
 // continued...

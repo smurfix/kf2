@@ -2,6 +2,8 @@
 
 #define assert(n) do{}while(0)
 
+#define COMMA ,
+
 double d_add(const double a, const double b)
 {
   return a + b;
@@ -282,6 +284,9 @@ floatexp fe_pow(const floatexp a, int b)
   }
   return r;
 }
+
+
+#if 0
 
 typedef struct {
   uint se;
@@ -903,6 +908,8 @@ softfloat sf_diffabs(const softfloat c, const softfloat d)
   return sf_abs(d);
 }
 
+#endif
+
 typedef struct
 {
   double x;
@@ -1329,6 +1336,12 @@ dcomplex dc_mul(const dcomplex a, const dcomplex b)
   return dc;
 }
 
+dcomplex dc_sqr(const dcomplex a)
+{
+  dcomplex dc = { a.re * a.re - a.im * a.im, 2.0 * a.re * a.im };
+  return dc;
+}
+
 dcomplex dc_ddiv(const double a, const dcomplex b)
 {
   double b2 = dc_norm(b);
@@ -1343,14 +1356,33 @@ dcomplex dc_div(const dcomplex a, const dcomplex b)
   return dc;
 }
 
-dcomplex dc_pow(const dcomplex a, const int b)
+dcomplex dc_powi(dcomplex x, int n)
 {
-  dcomplex r = { 1.0, 0.0 };
-  for (int i = 0; i < b; ++i)
+  const dcomplex one = { 1.0, 0.0 };
+  switch (n)
   {
-    r = dc_mul(r, a);
+    case 0: return one;
+    case 1: return x;
+    case 2: return dc_sqr(x);
+    case 3: return dc_mul(x, dc_sqr(x));
+    case 4: return dc_sqr(dc_sqr(x));
+    case 5: return dc_mul(x, dc_sqr(dc_sqr(x)));
+    case 6: return dc_sqr(dc_mul(x, dc_sqr(x)));
+    case 7: return dc_mul(x, dc_sqr(dc_mul(x, dc_sqr(x))));
+    case 8: return dc_sqr(dc_sqr(dc_sqr(x)));
+    default:
+    {
+      dcomplex y = one;
+      while (n > 1)
+      {
+        if (n & 1)
+          y = dc_mul(y, x);
+        x = dc_sqr(x);
+        n >>= 1;
+      }
+      return dc_mul(x, y);
+    }
   }
-  return r;
 }
 
 typedef struct
@@ -1395,15 +1427,42 @@ fecomplex fec_mul(const fecomplex a, const fecomplex b)
   return fec;
 }
 
-fecomplex fec_pow(const fecomplex a, const int b)
+fecomplex fec_sqr(const fecomplex a)
 {
-  fecomplex r = { fe_floatexp(1.0, 0), fe_floatexp(0.0, 0) };
-  for (int i = 0; i < b; ++i)
-  {
-    r = fec_mul(r, a);
-  }
-  return r;
+  fecomplex fec = { fe_sub(fe_sqr(a.re), fe_sqr(a.im)), fe_mul_2si(fe_mul(a.re, a.im), 1) };
+  return fec;
 }
+
+fecomplex fec_powi(fecomplex x, int n)
+{
+  const fecomplex one = { fe_floatexp(1.0, 0), fe_floatexp(0.0, 0) };
+  switch (n)
+  {
+    case 0: return one;
+    case 1: return x;
+    case 2: return fec_sqr(x);
+    case 3: return fec_mul(x, fec_sqr(x));
+    case 4: return fec_sqr(fec_sqr(x));
+    case 5: return fec_mul(x, fec_sqr(fec_sqr(x)));
+    case 6: return fec_sqr(fec_mul(x, fec_sqr(x)));
+    case 7: return fec_mul(x, fec_sqr(fec_mul(x, fec_sqr(x))));
+    case 8: return fec_sqr(fec_sqr(fec_sqr(x)));
+    default:
+    {
+      fecomplex y = one;
+      while (n > 1)
+      {
+        if (n & 1)
+          y = fec_mul(y, x);
+        x = fec_sqr(x);
+        n >>= 1;
+      }
+      return fec_mul(x, y);
+    }
+  }
+}
+
+#if 0
 
 typedef struct
 {
@@ -1457,6 +1516,7 @@ sfcomplex sfc_pow(const sfcomplex a, const int b)
   return r;
 }
 
+#endif
 
 typedef struct
 {
@@ -1774,6 +1834,7 @@ typedef struct
   double log_m_nPower;
 } p_status_fe;
 
+#if 0
 typedef struct
 {
   softfloat cr;
@@ -1794,7 +1855,7 @@ typedef struct
   long bGlitch;
   softfloat log_m_nPower;
 } p_status_sf;
-
+#endif
 
 typedef struct __attribute__((packed))
 {
@@ -1839,6 +1900,11 @@ typedef struct __attribute__((packed))
   long m_nMaxApproximation;
   int m_nApproxTerms;
   int approximation_type;
+  // for guessing
+  int UseGuessing;
+  int GuessingPass;
+  int g_nAddRefX;
+  int g_nAddRefY;
   // for hybrid
   short hybrid_loop_start;
   short hybrid_nstanzas;
@@ -1925,8 +1991,17 @@ void GetPixelCoordinates
   double di = 0;
   double dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  double u = i - g->m_nX/2 + di;
-  double v = j - g->m_nY/2 + dj;
+  double u, v;
+  if (g->UseGuessing)
+  {
+    u = i - g->m_nX + di;
+    v = j - g->m_nY + dj;
+  }
+  else
+  {
+    u = i - g->m_nX/2 + di;
+    v = j - g->m_nY/2 + dj;
+  }
   double p = g->transform00 * u + g->transform01 * v;
   double q = g->transform10 * u + g->transform11 * v;
   *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
@@ -1948,8 +2023,17 @@ void GetPixelCoordinatesM
   double di = 0;
   double dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  double u = i - g->m_nX/2 + di;
-  double v = j - g->m_nY/2 + dj;
+  double u, v;
+  if (g->UseGuessing)
+  {
+    u = i - g->m_nX + di;
+    v = j - g->m_nY + dj;
+  }
+  else
+  {
+    u = i - g->m_nX/2 + di;
+    v = j - g->m_nY/2 + dj;
+  }
   double p = g->transform00 * u + g->transform01 * v;
   double q = g->transform10 * u + g->transform11 * v;
   *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
@@ -2153,6 +2237,7 @@ void DoApproximation
 #define PIXEL_UNEVALUATED (-2147483648L)
 #define ISFLOATOK(x) ((! isnan(x)) && (! isinf(x)))
 #define SET_TRANS_GLITCH(x) (-1.0)
+#define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 typedef struct
 {
@@ -2224,6 +2309,8 @@ dcomplex fe_compute_de(floatexp Dr, floatexp Di, floatexp Jxa, floatexp Jxb, flo
   return dc_ddiv(num, den);
 }
 
+#if 0
+
 dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb, softfloat Jya, softfloat Jyb, softfloat s, const mat2 TK)
 {
   vec2 u = { sf_to_double(Dr), sf_to_double(Di) };
@@ -2234,6 +2321,8 @@ dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb,
   dcomplex den = { denv.v[0], denv.v[1] };
   return dc_ddiv(num, den);
 }
+
+#endif
 
 // forward declaration, defined per formula
 void perturbation_double_loop
@@ -2253,6 +2342,7 @@ void perturbation_floatexp_loop
 ,                p_status_fe *l
 );
 
+#if 0
 // forward declaration, defined per formula
 void perturbation_softfloat_loop
 ( __global const p_config    *g
@@ -2261,6 +2351,161 @@ void perturbation_softfloat_loop
 , __global const softfloat   *m_db_z
 ,                p_status_sf *l
 );
+#endif
+
+// entry point
+__kernel void guessing
+( __global const p_config *g // configuration
+, __global       uint   *n1  // iteration count msb, may be null
+, __global       uint   *n0  // iteration count lsb
+, __global       float  *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
+, __global       float  *dex // directional de x, may be null
+, __global       float  *dey // directional de y, may be null
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  if ((x & 1) == 0 && (y & 1) == 0)
+  {
+    // don't guess top left of 2x2 subquad
+    // it has already been computed
+    return;
+  }
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  if (! g->m_bAddReference)
+  {
+    // the right/lower pixels of the 2x2 subquad have not been computed
+    // yet by any reference; initialize/clear them now, guessing may
+    // overwrite them with new values, otherwise the second pass will
+    // fill them in
+    long n = PIXEL_UNEVALUATED;
+    if (n1)
+    {
+      n1[ix] = n >> 32;
+    }
+    if (n0)
+    {
+      n0[ix] = n;
+    }
+    if (nf)
+    {
+      nf[ix] = 0.0f;
+    }
+    if (phase)
+    {
+      phase[ix] = 0.0f;
+    }
+    if (dex)
+    {
+      dex[ix] = 0.0f;
+    }
+    if (dey)
+    {
+      dey[ix] = 0.0f;
+    }
+  }
+  if (x + 2 > g->m_nX)
+  {
+    // don't guess edge of image (simplicity)
+    return;
+  }
+  if (y + 2 > g->m_nY)
+  {
+    // don't guess edge of image (simplicity)
+    return;
+  }
+  if (x == g->g_nAddRefX && y == g->g_nAddRefY)
+  {
+    // never guess reference, in case it is guessed glitched
+    // prevents infinite loop in glitch correction
+    return;
+  }
+  int x0 = x & ~1;
+  int y0 = y & ~1;
+  long ix0 = y0 * g->stride_y + x0 * g->stride_x + g->stride_offset;
+  long ix1;
+  if ((y & 1) == 0)
+  {
+    ix1 = y0 * g->stride_y + (x0 + 2) * g->stride_x + g->stride_offset;
+  }
+  else if ((x & 1) == 0)
+  {
+    ix1 = (y0 + 2) * g->stride_y + x0 * g->stride_x + g->stride_offset;
+  }
+  else
+  {
+    ix1 = (y0 + 2) * g->stride_y + (x0 + 2) * g->stride_x + g->stride_offset;
+  }
+  // read neighbouring pixels
+  long n_0 = 0;
+  long n_1 = 0;
+  if (n1)
+  {
+    n_0 |= ((long)(int)(n1[ix0])) << 32;
+    n_1 |= ((long)(int)(n1[ix1])) << 32;
+    if (n0)
+    {
+      n_0 |= n0[ix0];
+      n_1 |= n0[ix1];
+    }
+  }
+  else
+  {
+    if (n0)
+    {
+      n_0 = (long)(int)(n0[ix0]); // sign extend
+      n_1 = (long)(int)(n0[ix1]); // sign extend
+    }
+  }
+  float nf_0 = 0.0f;
+  float nf_1 = 0.0f;
+  if (nf)
+  {
+    nf_0 = nf[ix0];
+    nf_1 = nf[ix1];
+  }
+  if ( n_0 == n_1 && n_0 != PIXEL_UNEVALUATED &&
+       GET_TRANS_GLITCH(nf_0) == GET_TRANS_GLITCH(nf_1) &&
+       // only guess glitches or interior, not escaped exterior
+       ( GET_TRANS_GLITCH(nf_0) || (n_0 >= g->m_nMaxIter) )
+     )
+  {
+    // do the guessing
+    long n = n_0;
+    if (n1)
+    {
+      n1[ix] = n >> 32;
+    }
+    if (n0)
+    {
+      n0[ix] = n;
+    }
+    if (nf)
+    {
+      nf[ix] = (nf_0 + nf_1) * 0.5f;
+    }
+    if (phase)
+    {
+      float p0 = phase[ix0] * M_PI * 2;
+      float p1 = phase[ix1] * M_PI * 2;
+      float p = atan2(sin(p0) + sin(p1), cos(p0) + cos(p1)) / M_PI / 2;
+      phase[ix] = p - floor(p);
+    }
+#ifdef KF_GUESS_DE_GEOMETRIC
+#error KF_GUESS_DE_GEOMETRIC not supported in OpenCL
+#endif
+    if (dex)
+    {
+      dex[ix] = (dex[ix0] + dex[ix1]) * 0.5f;
+    }
+    if (dey)
+    {
+      dey[ix] = (dey[ix0] + dey[ix1]) * 0.5f;
+    }
+  }
+}
 
 // entry point
 __kernel void perturbation_double
@@ -2279,6 +2524,19 @@ __kernel void perturbation_double
   if (g->BYTES != sizeof(p_config)) return;
   int y = get_global_id(0);
   int x = get_global_id(1);
+  if (g->UseGuessing)
+  {
+    x *= 2;
+    y *= 2;
+    if ((g->GuessingPass & 1) == 1)
+    {
+      x += 1;
+    }
+    if ((g->GuessingPass & 2) == 2)
+    {
+      y += 1;
+    }
+  }
   long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
   long orig = 0;
   float origf = 0;
@@ -2295,7 +2553,12 @@ __kernel void perturbation_double
   {
     origf = nf[ix];
   }
-  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  bool first = ! g->m_bAddReference;
+  if (g->UseGuessing)
+  {
+    first &= (g->GuessingPass == 0);
+  }
+  if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
@@ -2426,6 +2689,11 @@ __kernel void perturbation_floatexp
   if (g->BYTES != sizeof(p_config)) return;
   int y = get_global_id(0);
   int x = get_global_id(1);
+  if (g->UseGuessing && ((x | y) & 1) == 1)
+  {
+    // don't calculate the right/lower pixels of 2x2 subquads until second pass
+    return;
+  }
   long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
   long orig = 0;
   float origf = 0;
@@ -2442,7 +2710,12 @@ __kernel void perturbation_floatexp
   {
     origf = nf[ix];
   }
-  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  bool first = ! g->m_bAddReference;
+  if (g->UseGuessing)
+  {
+    first &= g->GuessingPass == 0;
+  }
+  if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
@@ -2556,6 +2829,8 @@ __kernel void perturbation_floatexp
   }
 }
 
+#if 0
+
 // entry point
 __kernel void perturbation_softfloat
 ( __global const p_config  *g // configuration including series approximation coefficients
@@ -2573,6 +2848,11 @@ __kernel void perturbation_softfloat
   if (g->BYTES != sizeof(p_config)) return;
   int y = get_global_id(0);
   int x = get_global_id(1);
+  if (g->UseGuessing && ((x | y) & 1) == 1)
+  {
+    // don't calculate the right/lower pixels of 2x2 subquads until second pass
+    return;
+  }
   long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
   long orig = 0;
   float origf = 0;
@@ -2589,7 +2869,12 @@ __kernel void perturbation_softfloat
   {
     origf = nf[ix];
   }
-  if (! g->m_bAddReference || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  bool first = ! g->m_bAddReference;
+  if (g->UseGuessing)
+  {
+    first &= g->GuessingPass == 0;
+  }
+  if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
@@ -2702,6 +2987,8 @@ __kernel void perturbation_softfloat
     }
   }
 }
+
+#endif
 
 double pnorm(double g_real, double g_imag, double p, double x, double y)
 {
