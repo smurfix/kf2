@@ -100,7 +100,7 @@ Feedback:
   (eg e600) (reported by CFJH) - workaround is to render in segments or force
   the number type higher ("use long double always", "use floatexp always")
 - on special locations kf renders endless references and comes to no end
-  (reported by CFJH)
+  (reported by CFJH) (happens also sometimes in exponential map rendering)
 - with glitch center found by argmin|z|, endless references with little progress
   (reported by gerrit, only some locations)
 - scaled long double rendering broken with some locations (reported by CFJH)
@@ -112,6 +112,8 @@ Feedback:
 - "resume zoom sequence" re-uses last set zoom count limit
 - "resume zoom sequence" sometimes uses wrong image size (depending on settings
   and whether there are `last.kfb`, `recovery.kfb`, `*_*.kfb`)
+  (workaround: set image size before resuming sequence, for example by loading
+  the last saved image file with both Open Settings and Open)
 - "examine zoom sequence" doesn't save corrected PNG images during glitch solve
 - black regions when rendering zoom out sequence (maximum iterations are reduced
   too much before spirals appear in next frame) (reported by gerrit)
@@ -148,6 +150,10 @@ Feedback:
   exit with errors dumped to stderr re missing complex exp and sinh)
 - guessing with OpenCL on GPU does not give full speedup (e.g. 1.5x faster
   instead of 4x faster with lots of very high iteration interior)
+- guessing with OpenCL requires both image dimensions to be a multiple of 2
+- rotation+skew transformation dialog opens in the middle of the window
+  obscuring the region of interest
+- if hybrid formula is invalid, Ok button does the same as Cancel
 
 
 ## Differences From Upstream 2.11.1
@@ -1127,6 +1133,7 @@ Feedback:
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
 - window and image size presets (suggested by saka and lycium)
+- presets menu could be populated from a folder of KFS settings files
 
 ### Calculations
 
@@ -1203,8 +1210,8 @@ The latest source code is available from my git repository:
     cd kalles-fraktaler-2
     git checkout master       # for Karl's original upstream
     git checkout claude       # for MINGW build system and bug fixes
-    git checkout kf-2.13      # old stable (bugfixes only)
-    git checkout kf-2.14      # for current development
+    git checkout kf-2.14      # old stable (bugfixes only)
+    git checkout kf-2.15      # for current development
     git tag -l                # list available release tags
 
 You also need `et` to generate the formula code for Newton-Raphson zooming:
@@ -1291,7 +1298,7 @@ you can skip the chroot step and install natively.
         cd ~/win64/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
-        git checkout kf-2.14
+        git checkout kf-2.15
 
 4. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
@@ -1368,6 +1375,14 @@ The working Debian Buster with compiler from Experimental has:
     $ x86_64-w64-mingw32-g++ --version
     x86_64-w64-mingw32-g++ (GCC) 9.2-win32 20190909
     Copyright (C) 2019 Free Software Foundation, Inc.
+    This is free software; see the source for copying conditions.  There is NO
+    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+The working Debian Bullseye (current testing) has:
+
+    $ x86_64-w64-mingw32-g++ --version
+    x86_64-w64-mingw32-g++ (GCC) 10-win32 20200525
+    Copyright (C) 2020 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
@@ -2739,7 +2754,7 @@ quotes, so you might need to double up or quadruple up the backslashes and
 quotes.  Easiest to avoid spaces and keep your files in the current working
 directory...  Example:
 
-    kf.exe -s settings.kfs -l location.kfr -p out.png -j out.jpg -m out.kfb
+    kf.exe -s settings.kfs -l location.kfr -p out.png -j out.jpg -x out.exr
 
 Use `--log info` to disable the status updates, use `--log warn` to output only
 important messages.  The default is `--log status`.
@@ -2753,7 +2768,7 @@ starts from 0.  Zooming is by the zoom size in the settings file.
 New in 2.14.6 is standalone KFB map colouring support with the `-o`/`--load-map`
 flag:
 
-    kf.exe -o map.kfb -c palette.kfp -p out.png
+    kf.exe -o map.exr -c palette.kfp -p out.png
 
 New in 2.14.10 is KFR writing, if no image files need to be rendered it is
 very fast to output a zoom sequence (note: no auto-iterations support in this
