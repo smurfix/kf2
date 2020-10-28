@@ -283,7 +283,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.1** (????-??-??)
+- **kf-2.15.1** (2020-10-28)
 
     - OpenCL support for perturbation iterations (requires double precision
       support on device: CPUs should work, some GPUs might not)
