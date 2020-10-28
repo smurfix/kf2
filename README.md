@@ -152,6 +152,7 @@ Feedback:
   instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
 - if hybrid formula is invalid, Ok button does the same as Cancel
+- OpenCL runs on the main thread making the GUI less responsive
 
 
 ## Differences From Upstream 2.11.1
@@ -1691,6 +1692,7 @@ Software license.
 
     Exit this program
 
+
 ## Fraktal
 
   - **Presets**
@@ -1817,6 +1819,7 @@ Software license.
     Note: this feature is still a bit experimental and subject to change in
     future versions.
 
+
 ## Navigation
 
   - **Newton-Raphson zooming**
@@ -1884,6 +1887,7 @@ Software license.
 
     Display a small window that magnifies the area around the mouse cursor.
     Perfect for precisely picking particular pixels for zooming etc.
+
 
 ## Advanced
 
