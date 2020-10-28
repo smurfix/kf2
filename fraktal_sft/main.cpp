@@ -3268,6 +3268,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (g_bTransformationDialogIsOpen)
 		{
 			g_hwTransformationDialog = CreateDialog(GetModuleHandle(nullptr), MAKEINTRESOURCE(IDD_TRANSFORMATION), hWnd, (DLGPROC) TransformationProc);
+			RECT wr, r;
+			GetWindowRect(hWnd, &wr);
+			GetWindowRect(g_hwTransformationDialog, &r);
+			r.right -= r.left;
+			r.bottom -= r.top;
+			MoveWindow(g_hwTransformationDialog, wr.left - r.right - 3, wr.top, r.right, r.bottom, TRUE);
 			ShowWindow(g_hwTransformationDialog, SW_SHOW);
 		}
 	}

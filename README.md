@@ -101,6 +101,7 @@ Feedback:
   the number type higher ("use long double always", "use floatexp always")
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH) (happens also sometimes in exponential map rendering)
+  (untested workaround may be to adjust glitch center method to random)
 - with glitch center found by argmin|z|, endless references with little progress
   (reported by gerrit, only some locations)
 - scaled long double rendering broken with some locations (reported by CFJH)
@@ -143,7 +144,6 @@ Feedback:
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
-- setting bad SIMD vector size in KFS crashes (reported by FractalAlex)
 - seams/bands with mixed power hybrids and numerical DE/slope
   (workaround: use analytic DE/slope with derivatives)
 - formula `z^2 exp(2 a / z) + c` does not work with OpenCL (causes program
@@ -151,8 +151,6 @@ Feedback:
 - guessing with OpenCL on GPU does not give full speedup (e.g. 1.5x faster
   instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
-- rotation+skew transformation dialog opens in the middle of the window
-  obscuring the region of interest
 - if hybrid formula is invalid, Ok button does the same as Cancel
 
 
@@ -3006,6 +3004,7 @@ Or using git (note: the repository is large):
 Usage:
 
     ./zoom iwidth iheight iframes olength < stream.ppm > stream.y4m
+
 
 ## File Formats
 
