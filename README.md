@@ -283,6 +283,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.1.1** (2020-10-28)
+
+    - fix OpenCL support for NVIDIA GPUs (reported by bezo97)
+    - fix crash in aligned memory (de)allocation (reported by gerrit)
+    - documentation improvements (thanks to FractalAlex)
+
 - **kf-2.15.1** (2020-10-28)
 
     - OpenCL support for perturbation iterations (requires double precision
