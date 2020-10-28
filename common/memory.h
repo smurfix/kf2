@@ -36,7 +36,7 @@ T *new_aligned(size_t count)
 	bytes += alignment - 1;
 	bytes /= alignment;
 	bytes *= alignment;
-  return static_cast<T *>(std::aligned_alloc(alignment, bytes));
+	return static_cast<T *>(std::aligned_alloc(alignment, bytes));
 }
 
 template <typename T>
@@ -52,33 +52,39 @@ void delete_aligned(T *ptr)
 
 // store malloc'd pointer just before the aligned memory pointer
 
+#include <memory>
+// #include <cstdio>
+
 template <typename T>
 T *new_aligned(size_t count)
 {
 	const size_t alignment = 1 << 12;
 	size_t bytes = count * sizeof(T) + sizeof(void *);
 	bytes += 2 * alignment - 1;
-	bytes /= alignment;
-	bytes *= alignment;
-  void *ptr = std::malloc(bytes);
-  if (! ptr)
-  {
-    return nullptr;
-  }
-  uintptr_t p = (uintptr_t) ptr;
-  p += 2 * alignment - 1;
-  p /= alignment;
-  p *= alignment;
-  void **ret = (void **) p;
-  ret[-1] = ptr;
-  return (T *) ret;
+	bytes &= ~(alignment - 1);
+	void *ptr = std::malloc(bytes);
+	if (! ptr)
+	{
+		return nullptr;
+	}
+	void *ptr2 = ((char *) ptr) + sizeof(void *);
+	size_t space = bytes - sizeof(void *);
+	void **ret = (void **) std::align(alignment, count * sizeof(T), ptr2, space);
+	if (! ret)
+	{
+		return nullptr;
+	}
+	ret[-1] = ptr;
+// std::fprintf(stderr, "new_aligned(%p): %p %p %p\n", (void *) (uintptr_t) bytes, ptr, ret, &ret[-1]);
+	return (T *) ret;
 }
 
 template <typename T>
 void delete_aligned(T *ptr)
 {
-  void **ret = (void **) ptr;
-  std::free(ret[-1]);
+	void **ret = (void **) ptr;
+// std::fprintf(stderr, "delete_aligned(): %p %p %p\n", ret[-1], ptr, &ret[-1]);
+	std::free(ret[-1]);
 }
 
 #endif
