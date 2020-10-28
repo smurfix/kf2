@@ -842,6 +842,18 @@ static int WINAPI ThSkew(HWND hWnd)
   HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSkewProgress, (LPVOID) &progress, 0, NULL);
   CloseHandle(hThread);
   int ret = 0;
+  if (g_SFT.GetUseHybridFormula())
+  {
+    if (hybrid_skew(g_SFT.GetHybridFormula(), iters, center.m_r.m_dec, center.m_i.m_dec, g_useDZ, &g_skew[0], &running, &progress.counters[0]))
+    {
+      ret = 2;
+    }
+    else
+    {
+      ret = -2;
+    }
+  }
+  else
   if (f && f->skew && f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_useDZ, &g_skew[0], &running, &progress.counters[0]))
   {
     ret = 2;

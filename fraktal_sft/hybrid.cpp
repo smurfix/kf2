@@ -755,6 +755,86 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
   return false;
 }
 
+extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, volatile int *running, int *progress)
+{
+  Precision prec(std::max(cr.m_dec.precision(), ci.m_dec.precision()));
+  using N = int;
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  int count = 0;
+  int stanza = 0;
+  // FIXME assumes seed is 0+0i and/or first iteration result is C
+  R cx_dc(cr); cx_dc.dx[0] = 1;
+  R cy_dc(ci); cy_dc.dx[1] = 1;
+  C c_dc(cx_dc, cy_dc);
+  C z_dc(c_dc);
+  R cx_dz(cr);
+  R cy_dz(ci);
+  C c_dz(cx_dz, cy_dz);
+  C z_dz(c_dc);
+  for (N j = 0; j < maxiters && *running; ++j)
+  {
+    progress[0] = j;
+    progress[1] = 0;
+    progress[2] = 0;
+    progress[3] = 0;
+    if (++count >= h.stanzas[stanza].repeats)
+    {
+      count = 0;
+      if (++stanza >= (ssize_t) h.stanzas.size())
+      {
+        stanza = h.loop_start;
+      }
+    }
+    if (sqr(z_dc.m_r.x) + sqr(z_dc.m_i.x) > 65536.0)
+    {
+      break;
+    }
+    z_dc = hybrid_f(h.stanzas[stanza], z_dc, c_dc);
+    if (useDZ)
+    {
+      z_dz = hybrid_f(h.stanzas[stanza], z_dz, c_dz);
+    }
+  }
+  if (running)
+  {
+    const CDecNumber &dxa = z_dc.m_r.dx[0];
+    const CDecNumber &dxb = z_dc.m_r.dx[1];
+    const CDecNumber &dya = z_dc.m_i.dx[0];
+    const CDecNumber &dyb = z_dc.m_i.dx[1];
+    CDecNumber sii, sij, sji, sjj;
+    if (useDZ)
+    {
+      const CDecNumber &dxx = z_dz.m_r.dx[0];
+      const CDecNumber &dxy = z_dz.m_r.dx[1];
+      const CDecNumber &dyx = z_dz.m_i.dx[0];
+      const CDecNumber &dyy = z_dz.m_i.dx[1];
+      sii = dyb * dxx - dxb * dyx;
+      sij = dyb * dxy - dxb * dyy;
+      sji = dxa * dyx - dya * dxx;
+      sjj = dxa * dyy - dya * dxy;
+    }
+    else
+    {
+      sii =   dyb;
+      sij = - dxb;
+      sji = - dya;
+      sjj =   dxa;
+    }
+    CDecNumber det = sqrt(abs(sii * sjj - sij * sji));
+    sii = sii / det;
+    sij = sij / det;
+    sji = sji / det;
+    sjj = sjj / det;
+    skew_matrix[0] = double(sii);
+    skew_matrix[1] = double(sij);
+    skew_matrix[2] = double(sji);
+    skew_matrix[3] = double(sjj);
+    return true;
+  }
+  return false;
+}
+
 extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile int *running, int *progress)
 {
   using R = dual<2, CDecNumber>;
