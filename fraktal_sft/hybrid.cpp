@@ -1085,7 +1085,7 @@ extern std::string hybrid_f_opencl_double_dual(const hybrid_operator &h, const s
   o << "  B.im = duald_neg(B.im);\n";
   }
   o << "  {";
-  o << "    dualdcomplex M = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  o << "    dualdcomplex M = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   for (int i = 0; i < h.pow; ++i)
   {
   o << "    M = dualdc_mul(M, B);\n";
@@ -1233,7 +1233,7 @@ extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const 
   o << "  dualdcomplex P = { x, y };\n";
   o << "  dualdcomplex Wp[" << h.pow << "];\n";
   o << "  {";
-  o << "    dualdcomplex M = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  o << "    dualdcomplex M = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   o << "    Wp[0] = M;\n";
   for (int i = 1; i < h.pow; ++i)
   {
@@ -1251,7 +1251,7 @@ extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const 
     o << "    Bp[" << i << "] = M;\n";
   }
   o << "  }";
-  o << "  dualdcomplex S = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  o << "  dualdcomplex S = { { 0.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   for (int i = 0; i <= h.pow - 1; ++i)
   {
     int j = h.pow - 1 - i;
@@ -1447,9 +1447,9 @@ extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bo
   o << "    dcomplex Xd = { Xr, Xi };\n";
   if (derivatives)
   {
-  o << "    dualdcomplex cd = { { cr, 1.0, 0.0 }, { ci, 0.0, 1.0 } };\n";
-  o << "    dualdcomplex xd = { { xr, dxa, dxb }, { xi, dya, dyb } };\n";
-  o << "    dualdcomplex xdn = { { 0.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };\n";
+  o << "    dualdcomplex cd = { { cr, { 1.0, 0.0 } }, { ci, { 0.0, 1.0 } } };\n";
+  o << "    dualdcomplex xd = { { xr, { dxa, dxb } }, { xi, { dya, dyb } } };\n";
+  o << "    dualdcomplex xdn = { { 0.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   }
   else
   {
@@ -1578,7 +1578,7 @@ extern std::string hybrid_f_opencl_floatexp_dual(const hybrid_operator &h, const
   o << "  B.im = dualfe_neg(B.im);\n";
   }
   o << "  {";
-  o << "    dualfecomplex M = { { one, zero, zero }, { zero, zero, zero } };\n";
+  o << "    dualfecomplex M = { { one, { zero, zero } }, { zero, { zero, zero } } };\n";
   for (int i = 0; i < h.pow; ++i)
   {
   o << "    M = dualfec_mul(M, B);\n";
@@ -1732,7 +1732,7 @@ extern std::string hybrid_pf_opencl_floatexp_dual(const hybrid_operator &h, cons
   o << "  dualfecomplex P = { x, y };\n";
   o << "  dualfecomplex Wp[" << h.pow << "];\n";
   o << "  {";
-  o << "    dualfecomplex M = { { one, zero, zero }, { zero, zero, zero } };\n";
+  o << "    dualfecomplex M = { { one, { zero, zero } }, { zero, { zero, zero } } };\n";
   o << "    Wp[0] = M;\n";
   for (int i = 1; i < h.pow; ++i)
   {
@@ -1750,7 +1750,7 @@ extern std::string hybrid_pf_opencl_floatexp_dual(const hybrid_operator &h, cons
     o << "    Bp[" << i << "] = M;\n";
   }
   o << "  }";
-  o << "  dualfecomplex S = { { zero, zero, zero }, { zero, zero, zero } };\n";
+  o << "  dualfecomplex S = { { zero, { zero, zero } }, { zero, { zero, zero } } };\n";
   for (int i = 0; i <= h.pow - 1; ++i)
   {
     int j = h.pow - 1 - i;
@@ -1946,9 +1946,9 @@ extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, 
   o << "    fecomplex Xd = { Xr, Xi };\n";
   if (derivatives)
   {
-  o << "    dualfecomplex cd = { { cr, one, zero }, { ci, zero, one } };\n";
-  o << "    dualfecomplex xd = { { xr, dxa, dxb }, { xi, dya, dyb } };\n";
-  o << "    dualfecomplex xdn = { { zero, zero, zero }, { zero, zero, zero } };\n";
+  o << "    dualfecomplex cd = { { cr, { one, zero } }, { ci, { zero, one } } };\n";
+  o << "    dualfecomplex xd = { { xr, { dxa, dxb } }, { xi, { dya, dyb } } };\n";
+  o << "    dualfecomplex xdn = { { zero, { zero, zero } }, { zero, { zero, zero } } };\n";
   }
   else
   {

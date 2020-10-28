@@ -918,61 +918,61 @@ typedef struct
 
 duald duald_add(duald a, duald b)
 {
-  duald r = { a.x + b.x, a.dx[0] + b.dx[0], a.dx[1] + b.dx[1] };
+  duald r = { a.x + b.x, { a.dx[0] + b.dx[0], a.dx[1] + b.dx[1] } };
   return r;
 }
 
 duald duald_dadd(double a, duald b)
 {
-  duald r = { a + b.x, b.dx[0], b.dx[1] };
+  duald r = { a + b.x, { b.dx[0], b.dx[1] } };
   return r;
 }
 
 duald duald_addd(duald a, double b)
 {
-  duald r = { a.x + b, a.dx[0], a.dx[1] };
+  duald r = { a.x + b, { a.dx[0], a.dx[1] } };
   return r;
 }
 
 duald duald_sub(duald a, duald b)
 {
-  duald r = { a.x -b.x, a.dx[0] - b.dx[0], a.dx[1] - b.dx[1] };
+  duald r = { a.x -b.x, { a.dx[0] - b.dx[0], a.dx[1] - b.dx[1] } };
   return r;
 }
 
 duald duald_dsub(double a, duald b)
 {
-  duald r = { a - b.x, -b.dx[0], -b.dx[1] };
+  duald r = { a - b.x, { -b.dx[0], -b.dx[1] } };
   return r;
 }
 
 duald duald_subd(duald a, double b)
 {
-  duald r = { a.x - b, a.dx[0], a.dx[1] };
+  duald r = { a.x - b, { a.dx[0], a.dx[1] } };
   return r;
 }
 
 duald duald_mul(duald a, duald b)
 {
-  duald r = { a.x * b.x, a.dx[0] * b.x + a.x * b.dx[0], a.dx[1] * b.x + a.x * b.dx[1] };
+  duald r = { a.x * b.x, { a.dx[0] * b.x + a.x * b.dx[0], a.dx[1] * b.x + a.x * b.dx[1] } };
   return r;
 }
 
 duald duald_dmul(double a, duald b)
 {
-  duald r = { a * b.x, a * b.dx[0], a * b.dx[1] };
+  duald r = { a * b.x, { a * b.dx[0], a * b.dx[1] } };
   return r;
 }
 
 duald duald_muld(duald a, double b)
 {
-  duald r = { a.x * b, a.dx[0] * b, a.dx[1] * b };
+  duald r = { a.x * b, { a.dx[0] * b, a.dx[1] * b } };
   return r;
 }
 
 duald duald_sqr(duald a)
 {
-  duald r = { a.x * a.x, 2.0 * a.dx[0] * a.x, 2.0 * a.dx[1] * a.x };
+  duald r = { a.x * a.x, { 2.0 * a.dx[0] * a.x, 2.0 * a.dx[1] * a.x } };
   return r;
 }
 
@@ -988,7 +988,7 @@ duald duald_div(duald a, duald b)
 
 duald duald_divd(duald a, double b)
 {
-  duald r = { a.x / b, a.dx[0] / b, a.dx[1] / b };
+  duald r = { a.x / b, { a.dx[0] / b, a.dx[1] / b } };
   return r;
 }
 
@@ -1034,7 +1034,7 @@ bool duald_ged(duald a, double b)
 
 duald duald_neg(duald a)
 {
-  duald r = { -a.x, -a.dx[0], -a.dx[1] };
+  duald r = { -a.x, { -a.dx[0], -a.dx[1] } };
   return r;
 }
 
@@ -1094,79 +1094,79 @@ typedef struct
 
 dualfe dualfe_add(dualfe a, dualfe b)
 {
-  dualfe r = { fe_add(a.x, b.x), fe_add(a.dx[0], b.dx[0]), fe_add(a.dx[1], b.dx[1]) };
+  dualfe r = { fe_add(a.x, b.x), { fe_add(a.dx[0], b.dx[0]), fe_add(a.dx[1], b.dx[1]) } };
   return r;
 }
 
 dualfe dualfe_feadd(floatexp a, dualfe b)
 {
-  dualfe r = { fe_add(a, b.x), b.dx[0], b.dx[1] };
+  dualfe r = { fe_add(a, b.x), { b.dx[0], b.dx[1] } };
   return r;
 }
 
 dualfe dualfe_addfe(dualfe a, floatexp b)
 {
-  dualfe r = { fe_add(a.x, b), a.dx[0], a.dx[1] };
+  dualfe r = { fe_add(a.x, b), { a.dx[0], a.dx[1] } };
   return r;
 }
 
 dualfe dualfe_sub(dualfe a, dualfe b)
 {
-  dualfe r = { fe_sub(a.x, b.x), fe_sub(a.dx[0], b.dx[0]), fe_sub(a.dx[1], b.dx[1]) };
+  dualfe r = { fe_sub(a.x, b.x), { fe_sub(a.dx[0], b.dx[0]), fe_sub(a.dx[1], b.dx[1]) } };
   return r;
 }
 
 dualfe dualfe_fesub(floatexp a, dualfe b)
 {
-  dualfe r = { fe_sub(a, b.x), fe_neg(b.dx[0]), fe_neg(b.dx[1]) };
+  dualfe r = { fe_sub(a, b.x), { fe_neg(b.dx[0]), fe_neg(b.dx[1]) } };
   return r;
 }
 
 dualfe dualfe_subfe(dualfe a, floatexp b)
 {
-  dualfe r = { fe_sub(a.x, b), a.dx[0], a.dx[1] };
+  dualfe r = { fe_sub(a.x, b), { a.dx[0], a.dx[1] } };
   return r;
 }
 
 dualfe dualfe_mul(dualfe a, dualfe b)
 {
-  dualfe r = { fe_mul(a.x, b.x), fe_add(fe_mul(a.dx[0], b.x), fe_mul(a.x, b.dx[0])), fe_add(fe_mul(a.dx[1], b.x), fe_mul(a.x, b.dx[1])) };
+  dualfe r = { fe_mul(a.x, b.x), { fe_add(fe_mul(a.dx[0], b.x), fe_mul(a.x, b.dx[0])), fe_add(fe_mul(a.dx[1], b.x), fe_mul(a.x, b.dx[1])) } };
   return r;
 }
 
 dualfe dualfe_femul(floatexp a, dualfe b)
 {
-  dualfe r = { fe_mul(a, b.x), fe_mul(a, b.dx[0]), fe_mul(a, b.dx[1]) };
+  dualfe r = { fe_mul(a, b.x), { fe_mul(a, b.dx[0]), fe_mul(a, b.dx[1]) } };
   return r;
 }
 
 dualfe dualfe_mulfe(dualfe a, floatexp b)
 {
-  dualfe r = { fe_mul(a.x, b), fe_mul(a.dx[0], b), fe_mul(a.dx[1], b) };
+  dualfe r = { fe_mul(a.x, b), { fe_mul(a.dx[0], b), fe_mul(a.dx[1], b) } };
   return r;
 }
 
 dualfe dualfe_dmul(double a, dualfe b)
 {
-  dualfe r = { fe_dmul(a, b.x), fe_dmul(a, b.dx[0]), fe_dmul(a, b.dx[1]) };
+  dualfe r = { fe_dmul(a, b.x), { fe_dmul(a, b.dx[0]), fe_dmul(a, b.dx[1]) } };
   return r;
 }
 
 dualfe dualfe_muld(dualfe a, double b)
 {
-  dualfe r = { fe_muld(a.x, b), fe_muld(a.dx[0], b), fe_muld(a.dx[1], b) };
+  dualfe r = { fe_muld(a.x, b), { fe_muld(a.dx[0], b), fe_muld(a.dx[1], b) } };
   return r;
 }
 
 dualfe dualfe_mul_2si(dualfe a, int b)
 {
-  dualfe r = { fe_mul_2si(a.x, b), fe_mul_2si(a.dx[0], b), fe_mul_2si(a.dx[1], b) };
+  dualfe r = { fe_mul_2si(a.x, b), { fe_mul_2si(a.dx[0], b), fe_mul_2si(a.dx[1], b) } };
   return r;
 }
 
 dualfe dualfe_sqr(dualfe a)
 {
-  dualfe r = { fe_sqr(a.x), fe_mul_2si(fe_mul(a.dx[0], a.x), 1), fe_mul_2si(fe_mul(a.dx[1], a.x), 1) };
+  dualfe r = { fe_sqr(a.x), { fe_mul_2si(fe_mul(a.dx[0], a.x), 1), fe_mul_2si(fe_mul(a.dx[1], a.x), 1) } };
   return r;
 }
 
@@ -1182,7 +1182,7 @@ dualfe dualfe_div(dualfe a, dualfe b)
 
 dualfe dualfe_divfe(dualfe a, floatexp b)
 {
-  dualfe r = { fe_div(a.x, b), fe_div(a.dx[0], b), fe_div(a.dx[1], b) };
+  dualfe r = { fe_div(a.x, b), { fe_div(a.dx[0], b), fe_div(a.dx[1], b) } };
   return r;
 }
 
@@ -1230,7 +1230,7 @@ bool duald_ged(duald a, double b)
 
 dualfe dualfe_neg(dualfe a)
 {
-  dualfe r = { fe_neg(a.x), fe_neg(a.dx[0]), fe_neg(a.dx[1]) };
+  dualfe r = { fe_neg(a.x), { fe_neg(a.dx[0]), fe_neg(a.dx[1]) } };
   return r;
 }
 
@@ -1630,7 +1630,7 @@ dualdcomplex dualdc_div(const dualdcomplex a, const dualdcomplex b) // FIXME ver
 
 dualdcomplex dualdc_pow(const dualdcomplex a, const int b)
 {
-  dualdcomplex r = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
+  dualdcomplex r = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };
   for (int i = 0; i < b; ++i)
   {
     r = dualdc_mul(r, a);
@@ -1781,14 +1781,44 @@ dualfecomplex dualfec_div(const dualfecomplex a, const dualfecomplex b) // FIXME
 }
 #endif
 
-dualfecomplex dualfec_pow(const dualfecomplex a, const int b)
+dualfecomplex dualfec_sqr(const dualfecomplex a)
 {
-  dualfecomplex r = { { 1.0, 0.0, 0.0 }, { 0.0, 0.0, 0.0 } };
-  for (int i = 0; i < b; ++i)
+  dualfecomplex dc =
+    { dualfe_sub(dualfe_sqr(a.re), dualfe_sqr(a.im))
+    , dualfe_mul_2si(dualfe_mul(a.re, a.im), 1)
+    };
+  return dc;
+}
+
+dualfecomplex dualfec_powi(dualfecomplex x, int n)
+{
+  const floatexp fone = fe_floatexp(1.0, 0);
+  const floatexp fzero = fe_floatexp(0.0, 0);
+  const dualfecomplex one = { { fone, { fzero, fzero } }, { fzero, { fzero, fzero } } };
+  switch (n)
   {
-    r = dualfec_mul(r, a);
+    case 0: return one;
+    case 1: return x;
+    case 2: return dualfec_sqr(x);
+    case 3: return dualfec_mul(x, dualfec_sqr(x));
+    case 4: return dualfec_sqr(dualfec_sqr(x));
+    case 5: return dualfec_mul(x, dualfec_sqr(dualfec_sqr(x)));
+    case 6: return dualfec_sqr(dualfec_mul(x, dualfec_sqr(x)));
+    case 7: return dualfec_mul(x, dualfec_sqr(dualfec_mul(x, dualfec_sqr(x))));
+    case 8: return dualfec_sqr(dualfec_sqr(dualfec_sqr(x)));
+    default:
+    {
+      dualfecomplex y = one;
+      while (n > 1)
+      {
+        if (n & 1)
+          y = dualfec_mul(y, x);
+        x = dualfec_sqr(x);
+        n >>= 1;
+      }
+      return dualfec_mul(x, y);
+    }
   }
-  return r;
 }
 
 
@@ -2230,7 +2260,7 @@ vec2 v_normalize(const vec2 a)
   {
     l = 1.0;
   }
-  vec2 r = { a.v[0] / l, a.v[1] / l };
+  vec2 r = { { a.v[0] / l, a.v[1] / l } };
   return r;
 }
 
@@ -2242,21 +2272,21 @@ typedef struct
 vec2 vm_mul(const vec2 v, const mat2 m)
 {
   vec2 r =
-    { v.v[0] * m.m[0][0] + v.v[1] * m.m[0][1]
+    { { v.v[0] * m.m[0][0] + v.v[1] * m.m[0][1]
     , v.v[0] * m.m[1][0] + v.v[1] * m.m[1][1]
-    };
+    } };
   return r;
 }
 
 mat2 m_transpose(const mat2 m)
 {
-  mat2 r = { m.m[0][0], m.m[1][0], m.m[0][1], m.m[1][1] };
+  mat2 r = { { { m.m[0][0], m.m[1][0] }, { m.m[0][1], m.m[1][1] } } };
   return r;
 }
 
 mat2 mm_mul(const mat2 a, const mat2 b)
 {
-  mat2 r = { 0.0, 0.0, 0.0, 0.0 };
+  mat2 r = { { { 0.0, 0.0 }, { 0.0, 0.0 } } };
   for (int i = 0; i < 2; ++i)
   for (int j = 0; j < 2; ++j)
   for (int k = 0; k < 2; ++k)
@@ -2268,8 +2298,8 @@ mat2 mm_mul(const mat2 a, const mat2 b)
 
 dcomplex d_compute_de(double Dr, double Di, double Jxa, double Jxb, double Jya, double Jyb, double s, const mat2 TK)
 {
-  vec2 u = { Dr, Di };
-  mat2 J = { Jxa * s, Jxb * s, Jya * s, Jyb * s };
+  vec2 u = { { Dr, Di } };
+  mat2 J = { { { Jxa * s, Jxb * s }, { Jya * s, Jyb * s } } };
   dcomplex v = { u.v[0], u.v[1] };
   double num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
@@ -2279,8 +2309,8 @@ dcomplex d_compute_de(double Dr, double Di, double Jxa, double Jxb, double Jya, 
 
 dcomplex fe_compute_de(floatexp Dr, floatexp Di, floatexp Jxa, floatexp Jxb, floatexp Jya, floatexp Jyb, floatexp s, const mat2 TK)
 {
-  vec2 u = { fe_double(Dr), fe_double(Di) };
-  mat2 J = { fe_double(fe_mul(Jxa, s)), fe_double(fe_mul(Jxb, s)), fe_double(fe_mul(Jya, s)), fe_double(fe_mul(Jyb, s)) };
+  vec2 u = { { fe_double(Dr), fe_double(Di) } };
+  mat2 J = { { { fe_double(fe_mul(Jxa, s)), fe_double(fe_mul(Jxb, s)) }, { fe_double(fe_mul(Jya, s)), fe_double(fe_mul(Jyb, s)) } } };
   dcomplex v = { u.v[0], u.v[1] };
   double num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
@@ -2292,8 +2322,8 @@ dcomplex fe_compute_de(floatexp Dr, floatexp Di, floatexp Jxa, floatexp Jxb, flo
 
 dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb, softfloat Jya, softfloat Jyb, softfloat s, const mat2 TK)
 {
-  vec2 u = { sf_to_double(Dr), sf_to_double(Di) };
-  mat2 J = { sf_to_double(sf_mul(Jxa, s)), sf_to_double(sf_mul(Jxb, s)), sf_to_double(sf_mul(Jya, s)), sf_to_double(sf_mul(Jyb, s)) };
+  vec2 u = { { sf_to_double(Dr), sf_to_double(Di) } };
+  mat2 J = { { { sf_to_double(sf_mul(Jxa, s)), sf_to_double(sf_mul(Jxb, s)) }, { sf_to_double(sf_mul(Jya, s)), sf_to_double(sf_mul(Jyb, s)) } } };
   dcomplex v = { u.v[0], u.v[1] };
   double num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
@@ -2600,7 +2630,7 @@ __kernel void perturbation_double
     if (g->derivatives)
     {
       const double s = fe_double(g->m_pixel_scale);
-      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
       de = d_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
@@ -2756,7 +2786,7 @@ __kernel void perturbation_floatexp
     if (g->derivatives)
     {
       const floatexp s = g->m_pixel_scale;
-      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
       de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
@@ -2914,7 +2944,7 @@ __kernel void perturbation_softfloat
     if (g->derivatives)
     {
       const softfloat s = sf_from_floatexp(g->m_pixel_scale);
-      const mat2 TK = { g->transform00, g->transform01, g->transform10, g->transform11 };
+      const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
       de = sf_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
