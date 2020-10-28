@@ -1764,7 +1764,8 @@ Software license.
 
   - **Arbitrary size**
 
-    (I don't know what this does?)
+    When disabled, the window aspect ratio is locked to 16:9.
+    When enabled, any aspect ratio is possible.
 
   - **Rotate**
 
