@@ -1139,7 +1139,7 @@ extern std::string hybrid_pf_opencl_double(const hybrid_operator &h, const std::
   {
   o << "  zx = d_neg(zx);\n";
   o << "  W.re = d_neg(W.re);\n";
-  o << "  B.re = d_ned(B.re);\n";
+  o << "  B.re = d_neg(B.re);\n";
   }
   if (h.neg_y)
   {
@@ -1635,7 +1635,7 @@ extern std::string hybrid_pf_opencl_floatexp(const hybrid_operator &h, const std
   {
   o << "  zx = fe_neg(zx);\n";
   o << "  W.re = fe_neg(W.re);\n";
-  o << "  B.re = fe_ned(B.re);\n";
+  o << "  B.re = fe_neg(B.re);\n";
   }
   if (h.neg_y)
   {
