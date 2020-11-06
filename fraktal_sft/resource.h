@@ -480,7 +480,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // OpenCL
 #ifdef KF_OPENCL
+
+// OpenCL device selection dialog
 #define IDD_DIALOG_OPENCL         150
 #define IDC_COMBO_OPENCL_DEVICE  1500
 #define ID_SPECIAL_OPENCL       40250
+
+// OpenCL error display dialog
+#define IDD_DIALOG_OPENCL_ERROR   151
+#define IDC_OPENCL_ERROR_SOURCE  1501
+#define IDC_OPENCL_ERROR_LOG     1502
+#define IDC_OPENCL_ERROR_MESSAGE 1503
+#define IDC_OPENCL_ERROR_LINE    1504
+
 #endif

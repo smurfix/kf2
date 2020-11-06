@@ -361,7 +361,6 @@ class CFraktalSFT
 	int m_nGuessed;
 	int64_t m_nRDone;
 	bool m_bStop;
-	HWND m_hWnd;
 	char *m_szPosition;
 	BOOL m_bReuseRef;
 	double m_nScaling;
@@ -446,6 +445,7 @@ public:
 	void MandelCalcLDBL();
 	void MandelCalcNANOMB1();
 	void MandelCalcNANOMB2();
+	HWND m_hWnd;
 
 	CFraktalSFT();
 	~CFraktalSFT();

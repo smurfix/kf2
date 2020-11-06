@@ -1878,6 +1878,73 @@ static int WINAPI StopAtProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 }
 
 #ifdef KF_OPENCL
+
+static std::vector<HWND> errtooltips;
+
+LRESULT CALLBACK OpenCLErrorProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	(void) lParam;
+	if (uMsg == WM_INITDIALOG)
+	{
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+
+#define T(idc,str) errtooltips.push_back(CreateToolTip(idc, hWnd, str));
+		T(IDC_OPENCL_ERROR_SOURCE, "OpenCL C source code (if it failed to compile)")
+		T(IDC_OPENCL_ERROR_LOG, "OpenCL C source code compilation log (if failed)")
+		T(IDC_OPENCL_ERROR_MESSAGE, "OpenCL error message")
+		T(IDC_OPENCL_ERROR_LINE, "Line number of C++ code where the OpenCL error occurred")
+		T(IDOK, "Continue with OpenCL disabled")
+#undef T
+
+		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_SOURCE, EM_SETLIMITTEXT, 0, 0);
+		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_MESSAGE, EM_SETLIMITTEXT, 0, 0);
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_SOURCE,  g_OpenCL_Error_Source.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LOG,     g_OpenCL_Error_Log.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_MESSAGE, g_OpenCL_Error_Message.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LINE,    g_OpenCL_Error_Line.c_str());
+		return 1;
+	}
+else if (uMsg == WM_COMMAND)
+{
+	if (wParam == IDOK)
+	{
+		for (auto tooltip : errtooltips)
+		{
+			DestroyWindow(tooltip);
+		}
+		errtooltips.clear();
+		EndDialog(hWnd, 1);
+	}
+}
+return 0;
+}
+
+static HWND g_hwOpenCLError = 0;
+
+extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
+{
+	if (hWnd)
+	{
+		if(g_hwOpenCLError){
+			DestroyWindow(g_hwOpenCLError);
+			g_hwOpenCLError = NULL;
+		}
+		g_hwOpenCLError = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
+		ShowWindow(g_hwOpenCLError, SW_SHOW);
+	}
+	else
+	{
+		std::cerr << "OpenCL C source:" << std::endl << g_OpenCL_Error_Source << std::endl;
+		std::cerr << "OpenCL build log:" << std::endl << g_OpenCL_Error_Log << std::endl;
+		std::cerr << "OpenCL error '" << g_OpenCL_Error_Message << "' at C++ line " << g_OpenCL_Error_Line << std::endl;
+		if (fatal)
+		{
+			exit(1);
+		}
+	}
+}
+
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   switch(msg)
@@ -1917,7 +1984,15 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 		{
 			if (wParam == IDOK)
 			{
-				g_SFT.SetOpenCLDeviceIndex(SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1);
+				int ix = SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1;
+				try
+				{
+					g_SFT.SetOpenCLDeviceIndex(ix);
+				}
+				catch (OpenCLException &e)
+				{
+					OpenCLErrorDialog(hWnd, false);
+				}
 				EndDialog(hWnd, 0);
 			}
 			else if(wParam == IDCANCEL)
@@ -1929,6 +2004,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	}
 	return 0;
 }
+
 #endif
 
 static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
@@ -2024,7 +2100,14 @@ static long OpenSettings(HWND hWnd, bool &ret, bool warn = true)
 				}
 				else{
 #ifdef KF_OPENCL
-					g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
+					try
+					{
+						g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
+					}
+					catch (OpenCLException &e)
+					{
+						OpenCLErrorDialog(hWnd, hWnd ? false : true);
+					}
 #endif
 					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
 					if (hWnd)
@@ -4694,10 +4777,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	}
 	g_args = &args;
 
-#ifdef KF_OPENCL
-	cldevices = initialize_opencl();
-#endif
-
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
@@ -4714,6 +4793,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		RegisterClass(&wc);
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 		g_SFT.SetWindow(hWnd);
+#ifdef KF_OPENCL
+		cldevices = initialize_opencl(hWnd);
+#endif
 		ShowWindow(hWnd,SW_SHOW);
 
 		MSG msg;
@@ -4735,6 +4817,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	{
 		// prepare
 		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2020 Claude Heiland-Allen");
+#ifdef KF_OPENCL
+		cldevices = initialize_opencl(0);
+#endif
 		if (g_args->bLoadSettings)
 		{
 			bool ret;

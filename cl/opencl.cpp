@@ -4,8 +4,10 @@
 #include <math.h>
 #include <string.h>
 #include <cstring>
+#include <iostream>
 
 #include "../fraktal_sft/fraktal_sft.h"
+#include "../fraktal_sft/main.h"
 
 const char *error_string(int err) {
   switch (err) {
@@ -59,17 +61,28 @@ const char *error_string(int err) {
   }
 }
 
+std::string g_OpenCL_Error_Source = "";
+std::string g_OpenCL_Error_Log = "";
+std::string g_OpenCL_Error_Message = "";
+std::string g_OpenCL_Error_Line = "";
+
 void error_print(int err, int loc) {
   if (err == CL_SUCCESS) { return; }
-  fprintf(stderr, "CL ERROR: %d %s (%d)\n", err, error_string(err), loc);
-  exit(1);
+  g_OpenCL_Error_Message = error_string(err);
+  std::ostringstream s;
+  s << loc;
+  g_OpenCL_Error_Line = s.str();
+  throw OpenCLException();
 }
 
 #define E(err) error_print(err, __LINE__)
 
-std::vector<cldevice> initialize_opencl()
+std::vector<cldevice> initialize_opencl(HWND hWnd)
 {
   std::vector<cldevice> devices;
+  try
+  {
+
   int ok = clewInit();
   if (ok != CLEW_SUCCESS)
   {
@@ -114,6 +127,12 @@ std::vector<cldevice> initialize_opencl()
       }
     }
   }
+
+  }
+  catch (OpenCLException &e)
+  {
+    OpenCLErrorDialog(hWnd, false);
+  }
   return devices;
 }
 
@@ -126,6 +145,9 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
 , program(0)
 , config_bytes(0)
 , config(0)
+, refx_bytes(0), refx(0)
+, refy_bytes(0), refy(0)
+, refz_bytes(0), refz(0)
 , n1_bytes(0), n1(0)
 , n0_bytes(0), n0(0)
 , nf_bytes(0), nf(0)
@@ -133,7 +155,6 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
 , dex_bytes(0), dex(0)
 , dey_bytes(0), dey(0)
 {
-  //memset(this, 0, sizeof(*this));
   mutex = CreateMutex(0,0,0);
   platform_id = platform_id0;
   device_id = device_id0;
@@ -154,9 +175,20 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
 
 OpenCL::~OpenCL()
 {
-  WaitForSingleObject(mutex, INFINITE);
-  // FIXME TODO
-  ReleaseMutex(mutex);
+  lock();
+  if (config) { clReleaseMemObject(config); config = 0; }
+  if (refx) { clReleaseMemObject(refx); refx = 0; }
+  if (refy) { clReleaseMemObject(refy); refy = 0; }
+  if (refz) { clReleaseMemObject(refz); refz = 0; }
+  if (n1) { clReleaseMemObject(n1); n1 = 0; }
+  if (n0) { clReleaseMemObject(n0); n0 = 0; }
+  if (nf) { clReleaseMemObject(nf); nf = 0; }
+  if (phase) { clReleaseMemObject(phase); phase = 0; }
+  if (dex) { clReleaseMemObject(dex); dex = 0; }
+  if (dey) { clReleaseMemObject(dey); dey = 0; }
+  if (commands) { clReleaseCommandQueue(commands); commands = 0; }
+  if (context) { clReleaseContext(context); context = 0; }
+  unlock();
 }
 
 void OpenCL::lock()
@@ -370,18 +402,20 @@ void OpenCL::run
 {
   assert(roffset < rcount);
   lock();
+  try
+  {
 
   // upload reference
   cl_int err;
-  int64_t ref_bytes  = sizeof(rx[0]) * (rcount - roffset);
-  int64_t ref_bytesz = sizeof(rz[0]) * (rcount - roffset);
-  cl_mem refx = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refx) { E(err); }
-  cl_mem refy = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytes,  nullptr, &err); if (! refy) { E(err); }
-  cl_mem refz = clCreateBuffer(context, CL_MEM_READ_ONLY, ref_bytesz, nullptr, &err); if (! refz) { E(err); }
+  refy_bytes = refx_bytes  = sizeof(rx[0]) * (rcount - roffset);
+  refz_bytes = sizeof(rz[0]) * (rcount - roffset);
+  refx = clCreateBuffer(context, CL_MEM_READ_ONLY, refx_bytes, nullptr, &err); if (! refx) { E(err); }
+  refy = clCreateBuffer(context, CL_MEM_READ_ONLY, refy_bytes, nullptr, &err); if (! refy) { E(err); }
+  refz = clCreateBuffer(context, CL_MEM_READ_ONLY, refz_bytes, nullptr, &err); if (! refz) { E(err); }
   cl_event refx_uploaded, refy_uploaded, refz_uploaded;
-  E(clEnqueueWriteBuffer(commands, refx, CL_FALSE, 0, ref_bytes,  &rx[roffset], 0, 0, &refx_uploaded));
-  E(clEnqueueWriteBuffer(commands, refy, CL_FALSE, 0, ref_bytes,  &ry[roffset], 0, 0, &refy_uploaded));
-  E(clEnqueueWriteBuffer(commands, refz, CL_FALSE, 0, ref_bytesz, &rz[roffset], 0, 0, &refz_uploaded));
+  E(clEnqueueWriteBuffer(commands, refx, CL_FALSE, 0, refx_bytes, &rx[roffset], 0, 0, &refx_uploaded));
+  E(clEnqueueWriteBuffer(commands, refy, CL_FALSE, 0, refy_bytes, &ry[roffset], 0, 0, &refy_uploaded));
+  E(clEnqueueWriteBuffer(commands, refz, CL_FALSE, 0, refz_bytes, &rz[roffset], 0, 0, &refz_uploaded));
 
   // reallocate output buffers if necessary
   {
@@ -393,6 +427,7 @@ void OpenCL::run
         if (n1_bytes)
         {
           clReleaseMemObject(n1);
+          n1 = 0;
         }
         n1_bytes = bytes;
         if (n1_bytes)
@@ -406,6 +441,7 @@ void OpenCL::run
       if (n1_bytes)
       {
         clReleaseMemObject(n1);
+        n1 = 0;
         n1_bytes = 0;
       }
     }
@@ -418,6 +454,7 @@ void OpenCL::run
         if (n0_bytes)
         {
           clReleaseMemObject(n0);
+          n0 = 0;
         }
         n0_bytes = bytes;
         if (n0_bytes)
@@ -431,6 +468,7 @@ void OpenCL::run
       if (n0_bytes)
       {
         clReleaseMemObject(n0);
+        n0 = 0;
         n0_bytes = 0;
       }
     }
@@ -443,6 +481,7 @@ void OpenCL::run
         if (nf_bytes)
         {
           clReleaseMemObject(nf);
+          nf = 0;
         }
         nf_bytes = bytes;
         if (nf_bytes)
@@ -456,6 +495,7 @@ void OpenCL::run
       if (nf_bytes)
       {
         clReleaseMemObject(nf);
+        nf = 0;
         nf_bytes = 0;
       }
     }
@@ -468,6 +508,7 @@ void OpenCL::run
         if (phase_bytes)
         {
           clReleaseMemObject(phase);
+          phase = 0;
         }
         phase_bytes = bytes;
         if (phase_bytes)
@@ -481,6 +522,7 @@ void OpenCL::run
       if (phase_bytes)
       {
         clReleaseMemObject(phase);
+        phase = 0;
         phase_bytes = 0;
       }
     }
@@ -493,6 +535,7 @@ void OpenCL::run
         if (dex_bytes)
         {
           clReleaseMemObject(dex);
+          dex = 0;
         }
         dex_bytes = bytes;
         if (dex_bytes)
@@ -506,6 +549,7 @@ void OpenCL::run
       if (dex_bytes)
       {
         clReleaseMemObject(dex);
+        dex = 0;
         dex_bytes = 0;
       }
     }
@@ -518,6 +562,7 @@ void OpenCL::run
         if (dey_bytes)
         {
           clReleaseMemObject(dey);
+          dey = 0;
         }
         dey_bytes = bytes;
         if (dey_bytes)
@@ -531,6 +576,7 @@ void OpenCL::run
       if (dey_bytes)
       {
         clReleaseMemObject(dey);
+        dey = 0;
         dey_bytes = 0;
       }
     }
@@ -592,11 +638,13 @@ void OpenCL::run
             << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
             << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
+    g_OpenCL_Error_Source = source;
+    g_OpenCL_Error_Log = "";
     if (err != CL_SUCCESS) {
       char *buf = (char *) malloc(1000000);
       buf[0] = 0;
       E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
-      fprintf(stderr, "source:\n%s\nbuild failed:\n%s\n", source.c_str(), buf);
+      g_OpenCL_Error_Log = buf;
       free(buf);
       E(err);
     }
@@ -756,9 +804,18 @@ void OpenCL::run
 
   // clean up reference
   clReleaseMemObject(refz);
+  refz = 0;
   clReleaseMemObject(refy);
+  refy = 0;
   clReleaseMemObject(refx);
+  refx = 0;
 
+  }
+  catch (OpenCLException &e)
+  {
+    unlock();
+    throw;
+  }
   unlock();
 }
 

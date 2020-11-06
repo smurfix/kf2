@@ -22,22 +22,28 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/StringVector.h"
 #include "../common/bitmap.h"
 #include "../common/parallell.h"
+#include "main.h"
 
 #include <cstring>
 
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
-#ifndef _DEBUG
 	try{
-#endif
 		p->RenderFractal();
-#ifndef _DEBUG
 	}
-	catch (...) {
+#ifdef KF_OPENCL
+	catch (OpenCLException &e)
+	{
+		p->m_bRunning = false;
+		p->SetOpenCLDeviceIndex(-1);
+		OpenCLErrorDialog(p->m_hWnd, p->m_hWnd ? false : true);
+	}
+#endif
+	catch (...)
+	{
 		p->m_bRunning=FALSE;
 //MessageBox(GetActiveWindow(),"Krash - 2","Krash",MB_OK);
 	}
-#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }

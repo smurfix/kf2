@@ -122,6 +122,11 @@ private:
   size_t config_bytes;
   cl_mem config;
 
+  // reference (r)
+  size_t refx_bytes; cl_mem refx;
+  size_t refy_bytes; cl_mem refy;
+  size_t refz_bytes; cl_mem refz;
+
   // pixel data (rw)
   size_t n1_bytes;  cl_mem n1;
   size_t n0_bytes;  cl_mem n0;
@@ -219,7 +224,20 @@ public:
   );
 };
 
-std::vector<cldevice> initialize_opencl();
+std::vector<cldevice> initialize_opencl(HWND hWnd);
+
+class OpenCLException : public std::exception
+{
+  virtual const char* what() const noexcept
+  {
+    return "OpenCL Error";
+  }
+};
+
+extern std::string g_OpenCL_Error_Source;
+extern std::string g_OpenCL_Error_Log;
+extern std::string g_OpenCL_Error_Message;
+extern std::string g_OpenCL_Error_Line;
 
 #endif
 #endif
