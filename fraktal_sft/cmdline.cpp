@@ -293,7 +293,7 @@ const std::string usage =
 "    -h, -H, -?, --help              show this help\n"
 ;
 
-const std::string version = "2.15.1.1";
+const std::string version = "2.15.1.2";
 
 // bump these when changing what is saved in KFR/KFS
 const int kfr_version_number = 2150100;

@@ -146,8 +146,8 @@ Feedback:
 - may be difficult to build the source at the moment (dependency on 'et')
 - seams/bands with mixed power hybrids and numerical DE/slope
   (workaround: use analytic DE/slope with derivatives)
-- formula `z^2 exp(2 a / z) + c` does not work with OpenCL (causes program
-  exit with errors dumped to stderr re missing complex exp and sinh)
+- formula `z^2 exp(2 a / z) + c` does not work with OpenCL (causes
+  error dump re missing complex exp and sinh)
 - guessing with OpenCL on GPU does not give full speedup (e.g. 1.5x faster
   instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
@@ -282,6 +282,11 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.15.1.2** (2020-11-08)
+
+    - refactor OpenCL error handling to display errors in the GUI without exiting
+    - OpenCL hybrids: fix breaking typo in neg x (reported by Microfractal)
 
 - **kf-2.15.1.1** (2020-10-28)
 
