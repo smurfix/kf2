@@ -198,7 +198,7 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_operator &h, const complex<R> &
   using std::pow;
   if (h.pow == 0)
   {
-    complex<R> a(h.mul_re, h.mul_im);
+    complex<R> a(R(0), R(0));
     return a;
   }
   R X = Z.m_r;
@@ -255,7 +255,7 @@ inline complex<R> hybrid_pf(const hybrid_operator &h, const complex<R> &Z, const
   complex<R> a(h.mul_re, h.mul_im);
   if (h.pow == 0)
   {
-    return a;
+    return complex<R>(R(0), R(0));
   }
   R X = Z.m_r;
   R Y = Z.m_i;

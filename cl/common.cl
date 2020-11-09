@@ -916,6 +916,12 @@ typedef struct
   double dx[2];
 } duald;
 
+duald dd(const double a, const double b, const double c)
+{
+  duald r = { a, { b, c } };
+  return r;
+}
+
 duald duald_add(duald a, duald b)
 {
   duald r = { a.x + b.x, { a.dx[0] + b.dx[0], a.dx[1] + b.dx[1] } };
@@ -1091,6 +1097,12 @@ typedef struct
   floatexp x;
   floatexp dx[2];
 } dualfe;
+
+dualfe dfe(const floatexp a, const floatexp b, const floatexp c)
+{
+  dualfe r = { a, { b, c } };
+  return r;
+}
 
 dualfe dualfe_add(dualfe a, dualfe b)
 {
@@ -1290,6 +1302,12 @@ typedef struct
   double im;
 } dcomplex;
 
+dcomplex dc(const double a, const double b)
+{
+  dcomplex d = { a, b };
+  return d;
+}
+
 double dc_norm(const dcomplex a)
 {
   return a.re * a.re + a.im * a.im;
@@ -1390,6 +1408,12 @@ typedef struct
   floatexp re;
   floatexp im;
 } fecomplex;
+
+fecomplex fec(const floatexp a, const floatexp b)
+{
+  fecomplex f = { a, b };
+  return f;
+}
 
 fecomplex fec_neg(const fecomplex a)
 {
@@ -1524,6 +1548,12 @@ typedef struct
   duald im;
 } dualdcomplex;
 
+dualdcomplex ddc(const duald a, const duald b)
+{
+  dualdcomplex r = { a, b };
+  return r;
+}
+
 double dualdc_norm(const dualdcomplex a)
 {
   return a.re.x * a.re.x + a.im.x * a.im.x;
@@ -1644,6 +1674,12 @@ typedef struct
   dualfe re;
   dualfe im;
 } dualfecomplex;
+
+dualfecomplex dfec(const dualfe a, const dualfe b)
+{
+  dualfecomplex r = { a, b };
+  return r;
+}
 
 floatexp dualfec_norm(const dualfecomplex a)
 {

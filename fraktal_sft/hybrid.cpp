@@ -1010,10 +1010,10 @@ extern std::string hybrid_f_opencl_double(const hybrid_operator &h, const std::s
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
-    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
-    o << "};\n";
+    o << ret << " = dc\n";
+    o << "  ( " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
+    o << "  , " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
+    o << "  );\n";
     return o.str();
   }
   o << "{\n";
@@ -1060,10 +1060,10 @@ extern std::string hybrid_f_opencl_double_dual(const hybrid_operator &h, const s
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ { " << std::scientific << std::setprecision(18) << h.mul_re << ", 0.0, 0.0 }\n";
-    o << ", { " << std::scientific << std::setprecision(18) << h.mul_im << ", 0.0, 0.0 }\n";
-    o << "};\n";
+    o << ret << " = ddc\n";
+    o << "  ( dd( " << std::scientific << std::setprecision(18) << h.mul_re << ", 0.0, 0.0 )\n";
+    o << "  , dd( " << std::scientific << std::setprecision(18) << h.mul_im << ", 0.0, 0.0 )\n";
+    o << "  );\n";
     return o.str();
   }
   o << "{\n";
@@ -1110,10 +1110,7 @@ extern std::string hybrid_pf_opencl_double(const hybrid_operator &h, const std::
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
-    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
-    o << "};\n";
+    o << ret << " = dc(0.0, 0.0);\n";
     return o.str();
   }
   o << "{\n";
@@ -1193,10 +1190,7 @@ extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const 
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ { " << std::scientific << std::setprecision(18) << h.mul_re << ", 0.0, 0.0 }\n";
-    o << ", { " << std::scientific << std::setprecision(18) << h.mul_im << ", 0.0, 0.0 }\n";
-    o << "};\n";
+    o << ret << " = ddc(dd(0.0,0.0,0.0),dd(0.0,0.0,0.0))\n";
     return o.str();
   }
   o << "{\n";
@@ -1500,10 +1494,10 @@ extern std::string hybrid_f_opencl_floatexp(const hybrid_operator &h, const std:
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0)\n";
-    o << ", fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0)\n";
-    o << "};\n";
+    o << ret << " = fec\n";
+    o << "  ( fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0)\n";
+    o << "  , fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0)\n";
+    o << "  );\n";
     return o.str();
   }
   o << "{\n";
@@ -1553,10 +1547,10 @@ extern std::string hybrid_f_opencl_floatexp_dual(const hybrid_operator &h, const
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0), zero, zero }\n";
-    o << ", { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0), zero, zero }\n";
-    o << "};\n";
+    o << ret << " = dfec(\n";
+    o << "  ( dfe( fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0), zero, zero )\n";
+    o << "  , dfe( fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0), zero, zero )\n";
+    o << "  );\n";
     return o.str();
   }
   o << "{\n";
@@ -1606,10 +1600,7 @@ extern std::string hybrid_pf_opencl_floatexp(const hybrid_operator &h, const std
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0)\n";
-    o << ", fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0)\n";
-    o << "};\n";
+    o << ret << " = fec(zero, zero);\n";
     return o.str();
   }
   o << "{\n";
@@ -1692,10 +1683,10 @@ extern std::string hybrid_pf_opencl_floatexp_dual(const hybrid_operator &h, cons
   std::ostringstream o;
   if (h.pow == 0)
   {
-    o << ret << " =\n";
-    o << "{ { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_re << ", 0), zero, zero }\n";
-    o << ", { fe_floatexp(" << std::scientific << std::setprecision(18) << h.mul_im << ", 0), zero, zero }\n";
-    o << "};\n";
+    o << ret << " = dfec\n";
+    o << "  ( dfe( zero, zero, zero )\n";
+    o << "  , dfe( zero, zero, zero )\n";
+    o << "  );\n";
     return o.str();
   }
   o << "{\n";
@@ -1818,7 +1809,7 @@ std::string hybrid_pf_opencl_floatexp(const hybrid_line &h, const std::string &r
   o << "}\n";
     return o.str();
   }
-  o << "  feomplex pftwo;\n";
+  o << "  fecomplex pftwo;\n";
   o << hybrid_pf_opencl_floatexp(h.two, "pftwo", Z, z);
   switch (h.mode)
   {
