@@ -4491,7 +4491,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				"- MPFR %s <https://mpfr.org>\n"
 				"- GSL %s <https://www.gnu.org/software/gsl>\n"
 				"- PIXMAN %s <https://pixman.org>\n"
-				"- MINGW-STD-THREADS <https://github.com/meganz/mingw-std-threads>\n"
 				"- ILMBASE %s <https://openexr.com>\n"
 				"- OPENEXR %s <https://openexr.com>\n"
 				"- GLM %d.%d.%d.%d <https://glm.g-truc.net>\n"
