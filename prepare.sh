@@ -18,7 +18,7 @@
 set -e
 NCPUS="$(( $(nproc) * 2 ))"
 export CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501"
-export LDFLAGS="-static-libgcc -static-libstdc++"
+export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic"
 if [ "x$1" = "xdl" ]
 then
 mkdir -p ~/win64/src
