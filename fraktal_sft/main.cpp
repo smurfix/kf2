@@ -4503,7 +4503,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
         "- MINGW/G++ %d.%d.%d <https://gcc.gnu.org/>\n"
 #endif
 				"\nThanks to:\n"
-				" - K.I.Martin for applying Perturbation and Series Approximation on the Mandelbrot set and sharing theory and source code!\n"
+				" - K.I.Martin for applying Perturbation and Series Approximation on\n"
+				"   the Mandelbrot set and sharing theory and source code!\n"
 				" - Pauldelbrot for reliable glitch detection method\n"
 				" - Botond Kósa and knighty for extensions of Series Approximation\n"
 				" - laser blaster for Burning ship formula\n"
