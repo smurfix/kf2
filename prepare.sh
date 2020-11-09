@@ -37,9 +37,8 @@ wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
 wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
 wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
 wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.3.tar.gz -O openexr-2.5.3.tar.gz
-git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
 git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
-cp -avft ~/win32/src *z mingw-std-threads clew # allpatches
+cp -avft ~/win32/src *z clew # allpatches
 elif [ "x$1" = "x64" ]
 then
 # gmp 64
@@ -116,10 +115,6 @@ cd ~/win64/src
 cd ~/win64/include
 rm -f glm
 ln -s ../src/glm*/glm/
-# mingw-std-threads 64
-cd ~/win64/include
-rm -f mingw-std-threads
-ln -s ../src/mingw-std-threads
 # openexr 64
 cd ~/win64/src
 tar xf openexr-*.tar.gz
@@ -207,10 +202,6 @@ cd ~/win32/src
 cd ~/win32/include
 rm -f glm
 ln -s ../src/glm*/glm/
-# mingw-std-threads 32
-cd ~/win32/include
-rm -f mingw-std-threads
-ln -s ../src/mingw-std-threads
 # openexr 32
 cd ~/win32/src
 tar xf openexr-*.tar.gz
