@@ -93,6 +93,7 @@ cd gsl-*/
 ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win64
 make -j $NCPUS
 make install
+rm -f gsl-histogram
 ln -s gsl-histogram.exe gsl-histogram # hack for test suite
 make check
 # pixman 64
@@ -180,6 +181,7 @@ cd gsl-*/
 ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win32
 make -j $NCPUS
 make install
+rm -f gsl-histogram
 ln -s gsl-histogram.exe gsl-histogram # hack for test suite
 make -k check || echo "expected 2 FAILs (multifit_nlinear, multilarge_nlinear)"
 # pixman 32
