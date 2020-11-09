@@ -24,25 +24,38 @@ then
 	exit 1
 fi
 
-make clean
+NCPUS="$(( $(nproc) * 2 ))"
 
 SRC="${VERSION}-src"
 mkdir "${SRC}"
-make formula/formula.cpp
+
+make clean
+make formula/formula.cpp cl/formula.cpp
 cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk 64+.mk native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
 cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
-make -j 32 SYSTEM=64
-strip kf.exe
-strip kf-tile.exe
-cp -avi kf.exe "${BIN}/kf.exe"
-cp -avi kf-tile.exe "${BIN}/kf-tile.exe"
+make clean
+make formula/formula.cpp cl/formula.cpp
+make -j "${NCPUS}" SYSTEM=32
+cp -avi kf.exe "${BIN}/kf.32.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.32.exe"
+strip "${BIN}/kf.32.exe"
+strip "${BIN}/kf-tile.32.exe"
+
+make clean
+make formula/formula.cpp cl/formula.cpp
+make -j "${NCPUS}" SYSTEM=64
+cp -avi kf.exe "${BIN}/kf.64.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.64.exe"
+strip "${BIN}/kf.64.exe"
+strip "${BIN}/kf-tile.64.exe"
 
 make README.pdf
 make LICENSE.pdf
+pandoc -f markdown -t html -s --toc --metadata "title=Kalles Fraktaler 2+ Manual" README.md -o manual.html
 
 cp -avi README.md "${BIN}/kf.txt"
 cp -avi README.pdf "${BIN}/kf.pdf"
