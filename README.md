@@ -39,7 +39,7 @@ Feedback:
   You need `7-zip` to unzip `.7z` archives, available from
   <https://www.7-zip.org/>.
 
-- Launch `kf.exe` for 64-bit (32-bit binaries are no longer provided).
+- Launch `kf.64.exe` for 64-bit (recommended), `kf.32.exe` for 32-bit.
 
 - Start exploring!
 
@@ -260,6 +260,22 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.10.4** (????-??-??)
+
+    - switch MinGW compiler threading model from win32 to posix: no longer
+      need to patch `OpenEXR` to use `mingw-std-threads` (the latter is no
+      longer needed at all)
+    - rebuild all dependencies for the win32 to posix switch
+    - patch OpenEXR to avoid calling `_wsopen_s` which does not exist in
+      ReactOS' `msvcrt.dll`
+    - adjust build system to ensure `stdc++` and `pthread` libraries are
+      statically linked
+    - explicitly target Win32 API version 0x501 (Windows XP)
+    - return of 32bit builds to the distribution
+    - updated Linux build documentation and scripts
+      (native Windows build instructions and scripts are out of date)
+    - documentation improvements (thanks to FractalAlex)
 
 - **kf-2.14.10.3** (2020-10-08)
 
@@ -1175,8 +1191,10 @@ these sources yourself.
 ## Building On Linux
 
 Compiling KF for your own CPU is recommended for optimal performance.  The
-performance boost can be significant, as the release EXE is compiled for
-generic x86_64 but newer CPUs have additional instructions available.
+performance boost can be significant, as the release EXEs are compiled for
+generic i686 and x86_64 but newer CPUs have additional instructions available.
+This is less important now that OpenCL is available, as this optimizes for
+your hardware at runtime.
 
 Note: there is an upstream bug in the GCC compiler.  On Debian the compiler
 is patched in recent versions.  Patching it yourself is not hard, but it does
@@ -1192,7 +1210,7 @@ you can skip the chroot step and install natively.
 
 0. Setup Debian Buster chroot:
 
-        mkdir ./vm
+        sudo mkdir ./vm
         sudo debootstrap buster ./vm/
         sudo mount proc ./vm/proc -t proc
         sudo mount sysfs ./vm/sys -t sysfs
@@ -1203,11 +1221,13 @@ you can skip the chroot step and install natively.
 1. Install dependencies (inside the chroot if you made one):
 
         dpkg --add-architecture i386
-        echo >> /etc/apt/source.list "deb http://ftp.uk.debian.org/debian/ experimental main contrib non-free"
+        echo >> /etc/apt/apt.conf.d/30buster 'APT::Default-Release "buster";'
+        echo >> /etc/apt/sources.list 'deb http://deb.debian.org/debian bullseye main'
         apt update
         apt install \
           build-essential \
           cabal-install \
+          cmake \
           ghc \
           git \
           libghc-parsec3-dev \
@@ -1222,7 +1242,7 @@ you can skip the chroot step and install natively.
           wine-binfmt \
           xsltproc \
           zip
-        apt install -t experimental \
+        apt install -t bullseye \
           mingw-w64
         apt install \
           pandoc \
@@ -1234,29 +1254,51 @@ you can skip the chroot step and install natively.
     For Ubuntu replace "wine32 wine64 wine-binfmt" with "wine" (but see note
     about build failures with some versions).
 
-2. Prepare non-root build user:
+2. **NEW in 2.15.1.3** configure the system MinGW compilers to use posix
+   threading model (instead of win32).  If you don't do this then you'll
+   get mysterious build failures in C++ threading code (usually saying you
+   need to `#include <thread>` even though it's plainly included already).
+
+   Choose the manual posix alternative for all of these, you can ignore
+   failures for gfortran and gnat if they are not installed:
+
+        update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
+        update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
+        update-alternatives --set x86_64-w64-mingw32-gfortran /usr/bin/x86_64-w64-mingw32-gfortran-posix
+        update-alternatives --set x86_64-w64-mingw32-gnat /usr/bin/x86_64-w64-mingw32-gnat-posix
+        update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
+        update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
+        update-alternatives --set i686-w64-mingw32-gfortran /usr/bin/i686-w64-mingw32-gfortran-posix
+        update-alternatives --set i686-w64-mingw32-gnat /usr/bin/i686-w64-mingw32-gnat-posix
+
+   If you have existing builds from before 2.15.1.3, you should delete
+   them or move them out of the way, as mixing win32 with posix leads
+   to a world of pain and misery.
+
+3. Prepare non-root build user:
 
         adduser build
         # enter and confirm password
         su - build
         mkdir -p ~/win64/src
 
-3. Download Kalles Fraktaler 2 + sources:
+4. Download Kalles Fraktaler 2 + sources:
 
         cd ~/win64/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.14
 
-4. Download and build and install 3rd party library sources (inspect the script
+5. Download and build and install 3rd party library sources (inspect the script
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
 necessary), the script can build both 64bit and 32bit variants if necessary:
 
         cd ~/win64/src/kalles-fraktaler-2
         bash ./prepare.sh dl
         bash ./prepare.sh 64
+        bash ./prepare.sh 32
 
-5. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
+6. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
 
         cd ~/win64/src/kalles-fraktaler-2
         wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).7z"
@@ -1266,14 +1308,29 @@ necessary), the script can build both 64bit and 32bit variants if necessary:
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-6. To build Kalles Fraktaler 2 + optimized for your own CPU:
+7. To build Kalles Fraktaler 2 + optimized for your own 64bit CPU:
 
         cd ~/win64/src/kalles-fraktaler-2
         make clean
         make SYSTEM=native -j $(nproc)
         ./kf.exe
 
-7. To build Kalles Fraktaler 2 + release:
+8. To build Kalles Fraktaler 2 + for generic 32bit CPU:
+
+        cd ~/win64/src/kalles-fraktaler-2
+        make clean
+        make SYSTEM=32 -j $(nproc)
+        ./kf.exe
+
+9. To build Kalles Fraktaler 2 + for generic 64bit CPU:
+
+        cd ~/win64/src/kalles-fraktaler-2
+        make clean
+        make SYSTEM=64 -j $(nproc)
+        ./kf.exe
+
+10. To build Kalles Fraktaler 2 + release (generic 64bit + generic 32bit +
+documentation + source zip + everything 7z + signing):
 
         cd ~/win64/src/kalles-fraktaler-2
         ./release.sh $(git describe)
@@ -1302,32 +1359,19 @@ Note: build fails on Ubuntu 16.04.3 LTS (xenial):
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
-The working Debian Stretch has:
+The working Debian Buster with compiler from Bullseye (needed for the SIMD
+alignment fix mentioned above) has:
 
     $ x86_64-w64-mingw32-g++ --version
-    x86_64-w64-mingw32-g++ (GCC) 6.3.0 20170516
-    Copyright (C) 2016 Free Software Foundation, Inc.
+    x86_64-w64-mingw32-g++ (GCC) 10-posix 20200525
+    Copyright (C) 2020 Free Software Foundation, Inc.
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-The working Debian Buster has:
-
-    $ x86_64-w64-mingw32-g++ --version
-    x86_64-w64-mingw32-g++ (GCC) 8.3-win32 20190406
-    Copyright (C) 2018 Free Software Foundation, Inc.
-    This is free software; see the source for copying conditions.  There is NO
-    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
-The working Debian Buster with compiler from Experimental has:
-
-    $ x86_64-w64-mingw32-g++ --version
-    x86_64-w64-mingw32-g++ (GCC) 9.2-win32 20190909
-    Copyright (C) 2019 Free Software Foundation, Inc.
-    This is free software; see the source for copying conditions.  There is NO
-    warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
-
 
 ## Building on Windows 64-bit (may be adaptable to 32-bit)
+
+**Note** these instructions are out of date since the switch to MinGW posix
+threading model.
 
 Build instructions for compiling on Windows (thanks to knighty and Patrick Owen!):
 
@@ -1479,9 +1523,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.gnu.org/licenses/gpl.html>
 - the PIXMAN library is used under the conditions of the MIT License
   <https://cgit.freedesktop.org/pixman/tree/COPYING>
-- the MINGW-STD-THREADS library is used under the conditions of the Simplified
-  BSD License
-  <https://github.com/meganz/mingw-std-threads/blob/master/LICENSE>
 - the ILMBASE library is used under the conditions of the Modified BSD License
   <https://www.openexr.com/license.html>
 - the OPENEXR library is used under the conditions of the Modified BSD License
@@ -1492,6 +1533,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
   <https://www.boost.org/LICENSE_1_0.txt>
+
+KF versions between 2.14.7 (inclusive) and 2.15.1.3 (exclusive) used:
+
+- the MINGW-STD-THREADS library is used under the conditions of the Simplified
+  BSD License
+  <https://github.com/meganz/mingw-std-threads/blob/master/LICENSE>
 
 **NOTE**:
 If you redistribute the binaries or provide access to the binaries as a
@@ -2660,6 +2707,8 @@ New in 2.14.6 is standalone KFB map colouring support with the `-o`/`--load-map`
 flag:
 
     kf.exe -o map.kfb -c palette.kfp -p out.png
+
+The `-o`/`--load-map` flag can also load raw iteration data from EXR.
 
 New in 2.14.10 is KFR writing, if no image files need to be rendered it is
 very fast to output a zoom sequence (note: no auto-iterations support in this
