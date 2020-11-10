@@ -4778,6 +4778,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	}
 	g_args = &args;
 
+#ifdef KF_OPENCL
+	cldevices = initialize_opencl(nullptr);
+#endif
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
@@ -4794,9 +4797,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		RegisterClass(&wc);
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 		g_SFT.SetWindow(hWnd);
-#ifdef KF_OPENCL
-		cldevices = initialize_opencl(hWnd);
-#endif
 		ShowWindow(hWnd,SW_SHOW);
 
 		MSG msg;
@@ -4818,9 +4818,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	{
 		// prepare
 		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2020 Claude Heiland-Allen");
-#ifdef KF_OPENCL
-		cldevices = initialize_opencl(0);
-#endif
 		if (g_args->bLoadSettings)
 		{
 			bool ret;
