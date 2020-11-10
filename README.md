@@ -263,6 +263,9 @@ Feedback:
 
 - **kf-2.14.10.4** (????-??-??)
 
+    - fix "solve glitches by random choice" not having enough entropy in
+      command line rendering (picking the same point over and over with
+      no progress)
     - switch MinGW compiler threading model from win32 to posix: no longer
       need to patch `OpenEXR` to use `mingw-std-threads` (the latter is no
       longer needed at all)
