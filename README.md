@@ -261,7 +261,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.10.4** (????-??-??)
+- **kf-2.14.10.4** (2020-11-10)
 
     - fix "solve glitches by random choice" not having enough entropy in
       command line rendering (picking the same point over and over with
