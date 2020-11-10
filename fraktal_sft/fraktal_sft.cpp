@@ -2694,18 +2694,16 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 			if (GET_TRANS_GLITCH(t))
 			{
 				count++;
-				glitch_id me = { t, x, y };
 				if (mode == 1) // argmin|z|
 				{
+					glitch_id me = { t, x, y };
 					us = min_glitch(us, me);
 				}
 				else // mode = 2 // random
 				{
 					double random = dither(uint32_t(x), uint32_t(y), uint32_t(g_bAutoGlitch));
-					if (random * count <= 1.0)
-					{
-						us = me;
-					}
+					glitch_id me = { random, x, y };
+					us = min_glitch(us, me);
 				}
 			}
 		}
@@ -2742,30 +2740,10 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		P.Reset();
 		glitch_id us = { 1.0 / 0.0, -1, -1 };
 		int64_t count = 0;
-		int mode = GetGlitchCenterMethod();
-		int n = 0;
 		for (int i = 0; i < nParallel; ++i)
 		{
 			count += pMan[i].count;
-			if (mode == 1) // argmin|z|
-			{
-				us = min_glitch(us, pMan[i].glitch);
-			}
-			else // mode == 2 // random
-			{
-				if (pMan[i].count > 0)
-				{
-					n++;
-					// this is not quite uniform weighting
-					// doesn't take different counts into account
-					// but that probably doesn't matter too much
-					double random = dither(uint32_t(i), uint32_t(nParallel), uint32_t(-g_bAutoGlitch));
-					if (random * n <= 1.0)
-					{
-						us = pMan[i].glitch;
-					}
-				}
-			}
+			us = min_glitch(us, pMan[i].glitch);
 		}
 
 		delete[] pMan;
