@@ -2682,8 +2682,15 @@ __kernel void perturbation_double
     else{
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      if (dex) dex[ix] = de.re;
-      if (dey) dey[ix] = de.im;
+      double de_multiplier = 1;
+      if ((dex || dey) && g->ExponentialMap)
+      {
+        double dx = 0, dy = 0;
+        GetPixelOffset(g, x, y, &dx, &dy);
+        de_multiplier = exp2((y + dy) / g->m_nY);
+      }
+      if (dex) dex[ix] = de.re * de_multiplier;
+      if (dey) dey[ix] = de.im * de_multiplier;
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
@@ -2838,8 +2845,15 @@ __kernel void perturbation_floatexp
     else{
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      if (dex) dex[ix] = de.re;
-      if (dey) dey[ix] = de.im;
+      double de_multiplier = 1;
+      if ((dex || dey) && g->ExponentialMap)
+      {
+        double dx = 0, dy = 0;
+        GetPixelOffset(g, x, y, &dx, &dy);
+        de_multiplier = exp2((y + dy) / g->m_nY);
+      }
+      if (dex) dex[ix] = de.re * de_multiplier;
+      if (dey) dey[ix] = de.im * de_multiplier;
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
@@ -2996,8 +3010,15 @@ __kernel void perturbation_softfloat
     else{
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      if (dex) dex[ix] = de.re;
-      if (dey) dey[ix] = de.im;
+      double de_multiplier = 1;
+      if ((dex || dey) && g->ExponentialMap)
+      {
+        double dx = 0, dy = 0;
+        GetPixelOffset(g, x, y, &dx, &dy);
+        de_multiplier = exp2((y + dy) / g->m_nY);
+      }
+      if (dex) dex[ix] = de.re * de_multiplier;
+      if (dey) dey[ix] = de.im * de_multiplier;
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
