@@ -2687,7 +2687,7 @@ __kernel void perturbation_double
       {
         double dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
-        de_multiplier = exp2((y + dy) / g->m_nY);
+        de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
       }
       if (dex) dex[ix] = de.re * de_multiplier;
       if (dey) dey[ix] = de.im * de_multiplier;
