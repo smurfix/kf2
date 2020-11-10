@@ -285,6 +285,12 @@ Feedback:
 
 - **kf-2.15.1.3** (????-??-??)
 
+    - fix hybrid perturbation logic (perturbing a constant (power 0) should
+      give 0 not the constant again) (thanks Foxxie)
+    - fix more typo breakage in OpenCL hybrids
+    - fix OpenCL enablement when loading settings from command line
+    - fix OpenCL exponential map DE scaling (fixes visible rings in zoomasm)
+    - fix solve glitch by random choice not being random enough
     - switch MinGW compiler threading model from win32 to posix: no longer
       need to patch `OpenEXR` to use `mingw-std-threads` (the latter is no
       longer needed at all)
