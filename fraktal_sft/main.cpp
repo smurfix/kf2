@@ -4740,6 +4740,7 @@ static bool render_frame(int frame, bool onlyKFR)
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
 		{
 			int x = -1, y = -1;
+			g_bAutoGlitch = r; // needed by random glitch center method
 			int n = g_SFT.FindCenterOfGlitch(x, y);
 			if (! n)
 			{
