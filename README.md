@@ -291,6 +291,13 @@ Feedback:
     - fix OpenCL enablement when loading settings from command line
     - fix OpenCL exponential map DE scaling (fixes visible rings in zoomasm)
     - fix solve glitch by random choice not being random enough
+    - merge changes from kf-2.14.10.4
+
+- **kf-2.14.10.4** (2020-11-10)
+
+    - fix "solve glitches by random choice" not having enough entropy in
+      command line rendering (picking the same point over and over with
+      no progress)
     - switch MinGW compiler threading model from win32 to posix: no longer
       need to patch `OpenEXR` to use `mingw-std-threads` (the latter is no
       longer needed at all)
@@ -303,6 +310,7 @@ Feedback:
     - return of 32bit builds to the distribution
     - updated Linux build documentation and scripts
       (native Windows build instructions and scripts are out of date)
+    - documentation improvements (thanks to FractalAlex)
 
 - **kf-2.15.1.2** (2020-11-08)
 
@@ -1435,6 +1443,7 @@ alignment fix mentioned above) has:
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
 ## Building on Windows 64-bit (may be adaptable to 32-bit)
 
 **Note** these instructions are out of date since the switch to MinGW posix
@@ -1841,6 +1850,13 @@ Software license.
 
     When disabled, the window aspect ratio is locked to 16:9.
     When enabled, any aspect ratio is possible.
+<<<<<<< HEAD
+=======
+
+  - **Rotate**
+
+    Activate rotation, drag to rotate the image
+>>>>>>> kf-2.14
 
   - **Transformation**
 
@@ -2833,7 +2849,6 @@ The `-o`/`--load-map` flag can also load raw iteration data from EXR.
 New in 2.14.10 is KFR writing, if no image files need to be rendered it is
 very fast to output a zoom sequence (note: no auto-iterations support in this
 mode).
-
 
 ### Tiled Rendering
 
