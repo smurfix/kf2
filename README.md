@@ -283,14 +283,13 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.1.3** (????-??-??)
+- **kf-2.15.1.3** (2020-11-12)
 
     - fix hybrid perturbation logic (perturbing a constant (power 0) should
       give 0 not the constant again) (thanks Foxxie)
     - fix more typo breakage in OpenCL hybrids
     - fix OpenCL enablement when loading settings from command line
     - fix OpenCL exponential map DE scaling (fixes visible rings in zoomasm)
-    - fix solve glitch by random choice not being random enough
     - merge changes from kf-2.14.10.4
 
 - **kf-2.14.10.4** (2020-11-10)
