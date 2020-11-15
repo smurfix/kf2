@@ -153,6 +153,8 @@ Feedback:
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
 - if hybrid formula is invalid, Ok button does the same as Cancel
 - OpenCL runs on the main thread making the GUI less responsive
+- sometimes files are overwritten without confirmation, when the filename
+  is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
 
 
 ## Differences From Upstream 2.11.1
