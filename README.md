@@ -101,8 +101,6 @@ Feedback:
   (reported by CFJH)
 - with glitch center found by argmin|z|, endless references with little progress
   (reported by gerrit, only some locations)
-- scaled long double rendering broken with some locations (reported by CFJH)
-  (blank image, "always use floatexp" gives correct render)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
 - fractal type out of range (e.g. parameter from newer KF) is silently reset
@@ -260,6 +258,11 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.14.10.5** (????-??-??)
+
+    - fix scaled long double rendering (broken since 2.14.8)
+      (reported by CFJH)
 
 - **kf-2.14.10.4** (2020-11-10)
 
