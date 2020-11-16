@@ -104,8 +104,6 @@ Feedback:
   (untested workaround may be to adjust glitch center method to random)
 - with glitch center found by argmin|z|, endless references with little progress
   (reported by gerrit, only some locations)
-- scaled long double rendering broken with some locations (reported by CFJH)
-  (blank image, "always use floatexp" gives correct render)
 - analytic DE broken with some power 3 Mandelbrot locations (reported by gerrit)
   (workaround is to disable series approximation)
 - fractal type out of range (e.g. parameter from newer KF) is silently reset
@@ -284,6 +282,16 @@ Feedback:
 
 
 ## Change Log
+
+- **kf-2.15.1.4** (????-??-??)
+
+    - merge changes from kf-2.14.10.5
+
+- **kf-2.14.10.5** (????-??-??)
+
+    - fix scaled long double rendering (broken since 2.14.8)
+      (reported by CFJH)
+    - upgrade to gmp 6.2.1
 
 - **kf-2.15.1.3** (2020-11-12)
 
@@ -1851,13 +1859,6 @@ Software license.
 
     When disabled, the window aspect ratio is locked to 16:9.
     When enabled, any aspect ratio is possible.
-<<<<<<< HEAD
-=======
-
-  - **Rotate**
-
-    Activate rotation, drag to rotate the image
->>>>>>> kf-2.14
 
   - **Transformation**
 

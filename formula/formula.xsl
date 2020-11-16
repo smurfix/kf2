@@ -1498,7 +1498,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
           phase -= floor(phase);
           break;
         }
-        double xrn, xin;
+        T xrn, xin;
 
       using V = T;
       V dummyV;

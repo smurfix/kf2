@@ -45,7 +45,7 @@ void CFraktalSFT::MandelCalc()
   const int64_t chunksize = GetSIMDChunkSize();
   const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
   const bool derivatives = GetDerivatives();
-  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1;
+  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1 && KF_SIMD > 0;
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){

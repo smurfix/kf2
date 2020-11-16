@@ -64,7 +64,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
       </derivative>
       <scaled t="R">
         xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
-        xin = 2 * ((Xr + xr * s) * xi + Xi * xr) + ci;
+        xin = 2 * (Xxr * xi + Xi * xr) + ci;
       </scaled>
     </formula>
 
