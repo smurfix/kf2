@@ -263,6 +263,7 @@ Feedback:
 
     - fix scaled long double rendering (broken since 2.14.8)
       (reported by CFJH)
+    - fix SIMD assertion failure in 32bit build (reported by gerson)
     - upgrade to gmp 6.2.1
 
 - **kf-2.14.10.4** (2020-11-10)
