@@ -190,9 +190,9 @@ cd ~/win32/src
 tar xf pixman-*.tar.gz
 cd pixman-*/
 CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win32/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win32
-make -j $NCPUS
-make install
-make check || echo "expected 1 FAIL (thread-test)"
+make SUBDIRS="pixman test" -j $NCPUS
+make SUBDIRS="pixman test" install
+make SUBDIRS="pixman test" check || echo "expected 1 FAIL (thread-test)"
 # boost 32
 cd ~/win32/src
 7zr x boost*.7z
