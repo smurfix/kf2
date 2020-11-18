@@ -259,7 +259,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.10.5** (????-??-??)
+- **kf-2.14.10.5** (2020-11-18)
 
     - fix scaled long double rendering (broken since 2.14.8)
       (reported by CFJH)
