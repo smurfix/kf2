@@ -112,7 +112,7 @@ using std::isinf;
 using std::copysign;
 using std::isnan;
 
-#define I(T) inline T infnan_to_zero(const T &a) { return isinf(a) ? copysign(1e30, a) : isnan(a) ? 0 : a; }
+#define I(T) inline T infnan_to_zero(const T &a) { return isinf(a) ? copysign((T)(1e30), a) : isnan(a) ? (T)(0) : a; }
 I(float)
 I(double)
 I(long double)
