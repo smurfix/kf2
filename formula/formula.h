@@ -57,6 +57,13 @@ static inline double diffabs(const double &c, const double &d)
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
 }
 
+static inline long double diffabs(const long double &c, const long double &d)
+{
+  const long double cd = c + d;
+  const long double c2d = 2.0 * c + d;
+  return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
+}
+
 template<typename R>
 static inline R pnorm(const double g_real, const double g_imag, const double p, const R x, const R y)
 {
