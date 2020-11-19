@@ -180,7 +180,7 @@ inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
     case hybrid_combine_sub: return one - two;
     case hybrid_combine_mul: return one * two;
   }
-  return 0;
+  return complex<R>();
 }
 
 template <typename R>
@@ -200,8 +200,7 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_operator &h, const complex<R> &
   using std::pow;
   if (h.pow == 0)
   {
-    complex<R> a(R(0), R(0));
-    return a;
+    return complex<dual<2, R>>();
   }
   R X = Z.m_r;
   R Y = Z.m_i;
@@ -234,7 +233,7 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_operator &h, const complex<R> &
     B.m_i = -B.m_i;
   }
   complex<dual<2, R>> P(x, y);
-  complex<dual<2, R>> S = 0;
+  complex<dual<2, R>> S((complex<dual<2, R>>()));
   for (int i = 0; i <= h.pow - 1; ++i)
   {
     int j = h.pow - 1 - i;
@@ -290,7 +289,7 @@ inline complex<R> hybrid_pf(const hybrid_operator &h, const complex<R> &Z, const
     B.m_i = -B.m_i;
   }
   complex<R> P(x, y);
-  complex<R> S = 0;
+  complex<R> S((complex<R>()));
   for (int i = 0; i <= h.pow - 1; ++i)
   {
     int j = h.pow - 1 - i;
@@ -320,7 +319,7 @@ inline complex<R> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const com
     case hybrid_combine_sub: return hybrid_pf(h.one, Z, z) - hybrid_pf(h.two, Z, z);
     case hybrid_combine_mul: return hybrid_pf(h.one, Z, z) * hybrid_f(h.two, Z + z) + hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z);
   }
-  return 0;
+  return complex<R>();
 }
 
 template <typename R>
@@ -332,7 +331,7 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_line &h, const complex<R> &Z, c
     case hybrid_combine_sub: return hybrid_pf(h.one, Z, z) - hybrid_pf(h.two, Z, z);
     case hybrid_combine_mul: return hybrid_pf(h.one, Z, z) * hybrid_f(h.two, Z + z) + hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z);
   }
-  return 0;
+  return complex<dual<2,R>>();
 }
 
 template <typename R>
