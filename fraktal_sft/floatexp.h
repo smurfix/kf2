@@ -71,7 +71,7 @@ public:
 		using std::frexp;
 		int e = 0;
 		a = frexp(a, &e);
-		val=a;
+		val=double(a);
 		exp=e;
 		align();
 	}
@@ -407,7 +407,7 @@ public:
 	inline floatexp setLongDouble(long double a)
 	{
 		int e = 0;
-		val = std::frexp(a, &e);
+		val = double(std::frexp(a, &e));
 		exp = e;
 		align();
 		return *this;
@@ -470,7 +470,7 @@ public:
 		  d10 \in [1, 10)
 		*/
 		double lf = std::log10(std::abs(val)) + exp * std::log10(2.0);
-		int64_t e10 = std::floor(lf);
+		int64_t e10 = int64_t(std::floor(lf));
 		double d10 = std::pow(10, lf - e10) * ((val > 0) - (val < 0));
 		if (val == 0) { d10 = 0; e10 = 0; }
 		std::ostringstream os; os
