@@ -2451,12 +2451,12 @@ __kernel void guessing
       dey[ix] = 0.0f;
     }
   }
-  if (x + 2 > g->m_nX)
+  if (x + 2 >= g->m_nX)
   {
     // don't guess edge of image (simplicity)
     return;
   }
-  if (y + 2 > g->m_nY)
+  if (y + 2 >= g->m_nY)
   {
     // don't guess edge of image (simplicity)
     return;
@@ -2740,10 +2740,18 @@ __kernel void perturbation_floatexp
   if (g->BYTES != sizeof(p_config)) return;
   int y = get_global_id(0);
   int x = get_global_id(1);
-  if (g->UseGuessing && ((x | y) & 1) == 1)
+  if (g->UseGuessing)
   {
-    // don't calculate the right/lower pixels of 2x2 subquads until second pass
-    return;
+    x *= 2;
+    y *= 2;
+    if ((g->GuessingPass & 1) == 1)
+    {
+      x += 1;
+    }
+    if ((g->GuessingPass & 2) == 2)
+    {
+      y += 1;
+    }
   }
   long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
   long orig = 0;
@@ -2764,7 +2772,7 @@ __kernel void perturbation_floatexp
   bool first = ! g->m_bAddReference;
   if (g->UseGuessing)
   {
-    first &= g->GuessingPass == 0;
+    first &= (g->GuessingPass == 0);
   }
   if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
   {
@@ -2850,7 +2858,7 @@ __kernel void perturbation_floatexp
       {
         double dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
-        de_multiplier = exp2((y + dy) / g->m_nY);
+        de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
       }
       if (dex) dex[ix] = de.re * de_multiplier;
       if (dey) dey[ix] = de.im * de_multiplier;
