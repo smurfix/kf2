@@ -288,6 +288,7 @@ Feedback:
     - fix long double rendering for hybrid formulas with abs
     - fix typos breaking OpenCL floatexp bailout checks
     - fix guessing for OpenCL floatexp
+    - fix endless reference loop in OpenCL
     - merge changes from kf-2.14.10.6
 
 - **kf-2.14.10.6** (????-??-??)

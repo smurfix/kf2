@@ -45,7 +45,7 @@ void perturbation_double_loop
     if (test1 < Xz)
     {
       l->bGlitch = true;
-      if (! g->m_bNoGlitchDetection)
+      if (! l->bNoGlitchDetection)
         break;
     }
     if (! no_g)

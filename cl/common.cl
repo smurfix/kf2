@@ -1876,6 +1876,7 @@ typedef struct
   double test2;
   long antal;
   long bGlitch;
+  long bNoGlitchDetection;
   double log_m_nPower;
 } p_status_d;
 
@@ -1897,6 +1898,7 @@ typedef struct
   double test2;
   long antal;
   long bGlitch;
+  long bNoGlitchDetection;
   double log_m_nPower;
 } p_status_fe;
 
@@ -1919,6 +1921,7 @@ typedef struct
   softfloat test2;
   long antal;
   long bGlitch;
+  long bNoGlitchDetection;
   softfloat log_m_nPower;
 } p_status_sf;
 #endif
@@ -2651,6 +2654,7 @@ __kernel void perturbation_double
       , 0
       , antal
       , false
+      , g->m_bNoGlitchDetection || (x == g->g_nAddRefX && y == g->g_nAddRefY)
       , g->log_m_nPower
       };
     // core per pixel calculation
@@ -2680,6 +2684,11 @@ __kernel void perturbation_double
       if (dey) dey[ix] = 0;
     }
     else{
+      if (x == g->g_nAddRefX && y == g->g_nAddRefY)
+      {
+        // never consider the pixel of the reference to be glitched
+        bGlitch = false;
+      }
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       double de_multiplier = 1;
@@ -2822,6 +2831,7 @@ __kernel void perturbation_floatexp
       , 0
       , antal
       , false
+      , g->m_bNoGlitchDetection || (x == g->g_nAddRefX && y == g->g_nAddRefY)
       , g->log_m_nPower
       };
     // core per pixel calculation
@@ -2851,6 +2861,11 @@ __kernel void perturbation_floatexp
       if (dey) dey[ix] = 0;
     }
     else{
+      if (x == g->g_nAddRefX && y == g->g_nAddRefY)
+      {
+        // never consider the pixel of the reference to be glitched
+        bGlitch = false;
+      }
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       double de_multiplier = 1;
