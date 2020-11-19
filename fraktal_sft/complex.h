@@ -39,30 +39,16 @@ public:
 	, m_i(i)
 	{
 	}
-	inline complex(const int &r) : m_r(r), m_i(0) { }
-	inline complex(const int64_t &r) : m_r(r), m_i(0) { }
-	inline complex(const float &r) : m_r(r), m_i(0) { }
-	inline complex(const double &r) : m_r(r), m_i(0) { }
-	inline complex(const long double &r) : m_r(r), m_i(0) { }
-	inline complex(const floatexp &r) : m_r(r), m_i(0) { }
-	inline complex(const complex<double> &a)
+	inline complex(const tt &r) noexcept : m_r(r), m_i(0) { }
+	inline complex(const complex<tt> &a) noexcept
 	: m_r(a.m_r)
 	, m_i(a.m_i)
 	{
 	}
-	inline complex(const complex<long double> &a)
-	: m_r(a.m_r)
-	, m_i(a.m_i)
+	template <typename ss>
+	explicit inline operator complex<ss>() const
 	{
-	}
-	inline complex(const complex<floatexp> &a)
-	: m_r(a.m_r)
-	, m_i(a.m_i)
-	{
-	}
-	explicit inline operator complex<floatexp>() const
-	{
-		return complex<floatexp>(floatexp(m_r), floatexp(m_i));
+		return complex<ss>(ss(m_r), ss(m_i));
 	}
 	inline complex &operator =(const complex &a)
 	{
