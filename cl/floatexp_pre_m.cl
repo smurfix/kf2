@@ -43,7 +43,7 @@ void perturbation_floatexp_loop
     const floatexp Xxr2 = fe_sqr(Xxr);
     const floatexp Xxi2 = fe_sqr(Xxi);
     test2 = test1;
-    test1 = fe_double(fe_add(Xxr, Xxi));
+    test1 = fe_double(fe_add(Xxr2, Xxi2));
     if (test1 < Xz)
     {
       l->bGlitch = true;
