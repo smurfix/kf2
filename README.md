@@ -283,7 +283,20 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.1.4** (????-??-??)
+- **kf-2.15.1.5** (????-??-??)
+
+    - fix long double rendering for hybrid formulas with abs
+    - fix typos breaking OpenCL floatexp bailout checks
+    - fix guessing for OpenCL floatexp
+    - merge changes from kf-2.14.10.6
+
+- **kf-2.14.10.6** (????-??-??)
+
+    - fix long double rendering for formulas with abs (reported by Mr Rebooted)
+    - fix floatexp rendering for fractional bailout norm power
+    - fix some float conversion warnings and potential problems
+
+- **kf-2.15.1.4** (2020-11-18)
 
     - merge changes from kf-2.14.10.5
 
