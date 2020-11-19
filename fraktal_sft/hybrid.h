@@ -25,6 +25,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "complex.h"
 #include "dual.h"
 
+#include "../formula/formula.h"
+
 // FIXME TODO check that input from KFR files does not exceed this
 #define MAX_HYBRID_STANZAS 4
 
