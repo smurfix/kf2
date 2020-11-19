@@ -28,8 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define M_PI 3.141592653589793
 #endif
 
-class CFixedFloat;
-class floatexp;
+#include "../fraktal_sft/floatexp.h"
 
 // https://fractalforums.org/fractal-mathematics-and-new-theories/28/perturbation-theory/487/msg3170#msg3170
 // |2w'(w+z)+1|/|delta0|+|w|(|w+2z|+|w|+2|z|)<epsilon/h
@@ -84,6 +83,30 @@ static inline R pnorm(const double g_real, const double g_imag, const double p, 
   }
   return abs(g_real * pow(abs(x), p) + g_imag * pow(abs(y), p));
 }
+
+template <>
+inline floatexp pnorm(const double g_real, const double g_imag, const double p, const floatexp xx, const floatexp yy)
+{
+  using std::abs;
+  using std::max;
+  using std::pow;
+  double x(xx);
+  double y(yy);
+  if (g_real == 1.0 && g_imag == 1.0 && p == 2.0)
+  {
+    return x * x + y * y;
+  }
+  if (p == 1.0)
+  {
+    return abs(g_real * abs(x) + g_imag * abs(y));
+  }
+  if (p == 1.0/0.0)
+  {
+    return abs(max(g_real * abs(x), g_imag * abs(y)));
+  }
+  return abs(g_real * pow(abs(x), p) + g_imag * pow(abs(y), p));
+}
+
 
 using std::isinf;
 using std::copysign;
