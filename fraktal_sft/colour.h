@@ -97,9 +97,9 @@ inline srgb8 dither(const srgb &s, int x, int y)
     mask[c] = ((((x + c * 67) + y * 236) * 119) & 255) / 256.0f;
   }
   srgb8 o;
-  o.r = floor(255.0f * s.r + mask[0]);
-  o.g = floor(255.0f * s.g + mask[1]);
-  o.b = floor(255.0f * s.b + mask[2]);
+  o.r = (unsigned char) floor(255.0f * s.r + mask[0]);
+  o.g = (unsigned char) floor(255.0f * s.g + mask[1]);
+  o.b = (unsigned char) floor(255.0f * s.b + mask[2]);
   return o;
 }
 
