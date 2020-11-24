@@ -266,6 +266,8 @@ Feedback:
     - fix some float conversion warnings and potential problems
     - make prepare script modular (second argument determines libraries
       to build, default is all libraries)
+    - patch OpenEXR to try to fix issues with non-ASCII paths on Windows
+      (reported by Ookamitada Shirohi)
 
 - **kf-2.14.10.5** (2020-11-18)
 

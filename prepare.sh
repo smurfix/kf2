@@ -158,6 +158,7 @@ then
     cd ~/win64/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
     cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win64/include -DZLIB_INCLUDE_DIR=$HOME/win64/include -DZLIB_LIBRARY=$HOME/win64/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win64 ..
@@ -279,6 +280,7 @@ then
     cd ~/win32/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
     cd build
