@@ -291,11 +291,15 @@ Feedback:
     - fix endless reference loop in OpenCL
     - merge changes from kf-2.14.10.6
 
-- **kf-2.14.10.6** (????-??-??)
+- **kf-2.14.10.6** (2020-11-24)
 
     - fix long double rendering for formulas with abs (reported by Mr Rebooted)
     - fix floatexp rendering for fractional bailout norm power
     - fix some float conversion warnings and potential problems
+    - make prepare script modular (second argument determines libraries
+      to build, default is all libraries)
+    - patch OpenEXR to try to fix issues with non-ASCII paths on Windows
+      (reported by Ookamitada Shirohi)
 
 - **kf-2.15.1.4** (2020-11-18)
 
