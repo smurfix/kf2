@@ -259,7 +259,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.14.10.6** (????-??-??)
+- **kf-2.14.10.6** (2020-11-24)
 
     - fix long double rendering for formulas with abs (reported by Mr Rebooted)
     - fix floatexp rendering for fractional bailout norm power
