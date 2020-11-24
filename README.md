@@ -264,6 +264,8 @@ Feedback:
     - fix long double rendering for formulas with abs (reported by Mr Rebooted)
     - fix floatexp rendering for fractional bailout norm power
     - fix some float conversion warnings and potential problems
+    - make prepare script modular (second argument determines libraries
+      to build, default is all libraries)
 
 - **kf-2.14.10.5** (2020-11-18)
 
