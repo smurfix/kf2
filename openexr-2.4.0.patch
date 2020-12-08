@@ -1,0 +1,62 @@
+diff -ruw openexr-2.4.0.old/IlmBase/IlmThread/IlmThread.h openexr-2.4.0.new/IlmBase/IlmThread/IlmThread.h
+--- openexr-2.4.0.old/IlmBase/IlmThread/IlmThread.h	2019-09-18 02:02:06.000000000 +0100
++++ openexr-2.4.0.new/IlmBase/IlmThread/IlmThread.h	2019-09-23 13:00:01.447911162 +0100
+@@ -106,7 +106,7 @@
+ #      include <pthread.h>
+ #   endif
+ #else
+-#   include <thread>
++#   include <mingw-std-threads/mingw.thread.h>
+ #endif
+ 
+ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+diff -ruw openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadMutex.h openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadMutex.h
+--- openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadMutex.h	2019-09-18 02:02:06.000000000 +0100
++++ openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadMutex.h	2019-09-23 13:01:04.368243384 +0100
+@@ -81,7 +81,7 @@
+ #      include <pthread.h>
+ #   endif
+ #else
+-#   include <mutex>
++#   include <mingw-std-threads/mingw.mutex.h>
+ #endif
+ 
+ ILMTHREAD_INTERNAL_NAMESPACE_HEADER_ENTER
+diff -ruw openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadPool.cpp openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadPool.cpp
+--- openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadPool.cpp	2019-09-18 02:02:06.000000000 +0100
++++ openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadPool.cpp	2019-09-23 12:59:44.051818967 +0100
+@@ -47,7 +47,7 @@
+ #ifndef ILMBASE_FORCE_CXX03
+ # include <memory>
+ # include <atomic>
+-# include <thread>
++# include <mingw-std-threads/mingw.thread.h>
+ #else
+ # ifndef _WIN32
+ #  include <unistd.h>
+diff -ruw openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadSemaphore.h openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadSemaphore.h
+--- openexr-2.4.0.old/IlmBase/IlmThread/IlmThreadSemaphore.h	2019-09-18 02:02:06.000000000 +0100
++++ openexr-2.4.0.new/IlmBase/IlmThread/IlmThreadSemaphore.h	2019-09-23 13:00:45.276142774 +0100
+@@ -62,8 +62,8 @@
+ #         include <pthread.h>
+ #      endif
+ #   else
+-#      include <mutex>
+-#      include <condition_variable>
++#      include <mingw-std-threads/mingw.thread.h>
++#      include <mingw-std-threads/mingw.condition_variable.h>
+ #   endif
+ #endif
+ 
+diff -ruw openexr-2.4.0.old/OpenEXR/IlmImf/dwaLookups.cpp openexr-2.4.0.new/OpenEXR/IlmImf/dwaLookups.cpp
+--- openexr-2.4.0.old/OpenEXR/IlmImf/dwaLookups.cpp	2019-09-18 02:02:06.000000000 +0100
++++ openexr-2.4.0.new/OpenEXR/IlmImf/dwaLookups.cpp	2019-09-23 12:59:31.075750097 +0100
+@@ -46,7 +46,7 @@
+ #include <OpenEXRConfigInternal.h>
+ 
+ #if __cplusplus >= 201103L
+-#include <thread>
++#include <mingw-std-threads/mingw.thread.h>
+ #endif
+ 
+ #ifdef OPENEXR_IMF_HAVE_SYSCONF_NPROCESSORS_ONLN

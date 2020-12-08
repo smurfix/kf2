@@ -283,6 +283,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.10.7** (2020-12-08)
+
+    - revert 2.14.10.4's threading model change: back to win32 from posix
+      (fixes weirdness like zooming out resetting zoom to infinity or 0)
+      (reported by Dinkydau)
+
 - **kf-2.15.1.5** (2020-11-24)
 
     - fix long double rendering for hybrid formulas with abs
@@ -1357,26 +1363,25 @@ you can skip the chroot step and install natively.
     For Ubuntu replace "wine32 wine64 wine-binfmt" with "wine" (but see note
     about build failures with some versions).
 
-2. **NEW in 2.15.1.3** configure the system MinGW compilers to use posix
-   threading model (instead of win32).  If you don't do this then you'll
-   get mysterious build failures in C++ threading code (usually saying you
-   need to `#include <thread>` even though it's plainly included already).
+2. Configure the system MinGW compilers to use win32 threading model
+   (instead of posix).  If you don't do this then you'll get mysterious
+   weird behaviour (like zooming out resetting zoom to infinity or 0).
 
    Choose the manual posix alternative for all of these, you can ignore
    failures for gfortran and gnat if they are not installed:
 
-        update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-posix
-        update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-posix
-        update-alternatives --set x86_64-w64-mingw32-gfortran /usr/bin/x86_64-w64-mingw32-gfortran-posix
-        update-alternatives --set x86_64-w64-mingw32-gnat /usr/bin/x86_64-w64-mingw32-gnat-posix
-        update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-posix
-        update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-posix
-        update-alternatives --set i686-w64-mingw32-gfortran /usr/bin/i686-w64-mingw32-gfortran-posix
-        update-alternatives --set i686-w64-mingw32-gnat /usr/bin/i686-w64-mingw32-gnat-posix
+        update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-win32
+        update-alternatives --set x86_64-w64-mingw32-gcc /usr/bin/x86_64-w64-mingw32-gcc-win32
+        update-alternatives --set x86_64-w64-mingw32-gfortran /usr/bin/x86_64-w64-mingw32-gfortran-win32
+        update-alternatives --set x86_64-w64-mingw32-gnat /usr/bin/x86_64-w64-mingw32-gnat-win32
+        update-alternatives --set i686-w64-mingw32-g++ /usr/bin/i686-w64-mingw32-g++-win32
+        update-alternatives --set i686-w64-mingw32-gcc /usr/bin/i686-w64-mingw32-gcc-win32
+        update-alternatives --set i686-w64-mingw32-gfortran /usr/bin/i686-w64-mingw32-gfortran-win32
+        update-alternatives --set i686-w64-mingw32-gnat /usr/bin/i686-w64-mingw32-gnat-win32
 
-   If you have existing builds from before 2.15.1.3, you should delete
-   them or move them out of the way, as mixing win32 with posix leads
-   to a world of pain and misery.
+   If you have existing builds build with posix threading model, you
+   should delete them or move them out of the way, as mixing win32 with
+   posix leads to a world of pain and misery.
 
 3. Prepare non-root build user:
 

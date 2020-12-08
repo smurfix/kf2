@@ -18,10 +18,10 @@
 set -e
 NCPUS="$(( $(nproc) * 2 ))"
 export CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501"
-export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic"
+export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic"
 if [ "x$2" = "x" ]
 then
-  PREPARE="gmp mpfr zlib png jpeg tiff gsl pixman glm openexr clew boost"
+  PREPARE="gmp mpfr zlib png jpeg tiff gsl pixman glm mingw-std-threads openexr clew boost"
 else
   PREPARE="$2"
 fi
@@ -29,6 +29,8 @@ if [ "x$1" = "xdl" ]
 then
   mkdir -p ~/win64/src
   mkdir -p ~/win32/src
+  cp -avft ~/win64/src *.patch
+  cp -avft ~/win32/src *.patch
   # download
   cd ~/win64/src
   wget -c https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.7z
@@ -43,8 +45,9 @@ then
   wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.3.tar.gz -O openexr-2.5.3.tar.gz
+  git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
-  cp -avft ~/win32/src *z clew # allpatches
+  cp -avft ~/win32/src *z mingw-std-threads clew # allpatches
 elif [ "x$1" = "x64" ]
 then
   if [[ "${PREPARE}" =~ "gmp" ]]
@@ -152,12 +155,20 @@ then
     rm -f glm
     ln -s ../src/glm*/glm/
   fi
+  if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
+  then
+    # mingw-std-threads 64
+    cd ~/win64/include
+    rm -f mingw-std-threads
+    ln -s ../src/mingw-std-threads
+  fi
   if [[ "${PREPARE}" =~ "openexr" ]]
   then
     # openexr 64
     cd ~/win64/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    patch -p1 < $(ls ../openexr-*.patch)
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
     cd build
@@ -274,12 +285,20 @@ then
     rm -f glm
     ln -s ../src/glm*/glm/
   fi
+  if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
+  then
+    # mingw-std-threads 32
+    cd ~/win32/include
+    rm -f mingw-std-threads
+    ln -s ../src/mingw-std-threads
+  fi
   if [[ "${PREPARE}" =~ "openexr" ]]
   then
     # openexr 32
     cd ~/win32/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    patch -p1 < $(ls ../openexr-*.patch)
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
