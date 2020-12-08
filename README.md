@@ -283,6 +283,10 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.1.6** (????-??-??)
+
+    - merge changes from kf-2.14.10.7
+
 - **kf-2.14.10.7** (2020-12-08)
 
     - revert 2.14.10.4's threading model change: back to win32 from posix
