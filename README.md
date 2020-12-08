@@ -259,6 +259,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.14.10.7** (????-??-??)
+
+    - revert 2.14.10.4's threading model change: back to win32 from posix
+      (fixes weirdness like zooming out resetting zoom to infinity or 0)
+      (reported by Dinkydau)
+
 - **kf-2.14.10.6** (2020-11-24)
 
     - fix long double rendering for formulas with abs (reported by Mr Rebooted)
