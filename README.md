@@ -283,7 +283,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.1.6** (????-??-??)
+- **kf-2.15.1.6** (2020-12-08)
 
     - merge changes from kf-2.14.10.7
 
