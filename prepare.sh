@@ -29,6 +29,8 @@ if [ "x$1" = "xdl" ]
 then
   mkdir -p ~/win64/src
   mkdir -p ~/win32/src
+  cp -avft ~/win64/src *.patch
+  cp -avft ~/win32/src *.patch
   # download
   cd ~/win64/src
   wget -c https://dl.bintray.com/boostorg/release/1.74.0/source/boost_1_74_0.7z
@@ -166,6 +168,7 @@ then
     cd ~/win64/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    patch -p1 < $(ls ../openexr-*.patch)
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
     cd build
@@ -295,6 +298,7 @@ then
     cd ~/win32/src
     tar xf openexr-*.tar.gz
     cd openexr-*/
+    patch -p1 < $(ls ../openexr-*.patch)
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
