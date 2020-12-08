@@ -18,10 +18,10 @@
 set -e
 NCPUS="$(( $(nproc) * 2 ))"
 export CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501"
-export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic"
+export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic"
 if [ "x$2" = "x" ]
 then
-  PREPARE="gmp mpfr zlib png jpeg tiff gsl pixman glm openexr clew boost"
+  PREPARE="gmp mpfr zlib png jpeg tiff gsl pixman glm mingw-std-threads openexr clew boost"
 else
   PREPARE="$2"
 fi
@@ -43,8 +43,9 @@ then
   wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.3.tar.gz -O openexr-2.5.3.tar.gz
+  git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
-  cp -avft ~/win32/src *z clew # allpatches
+  cp -avft ~/win32/src *z mingw-std-threads clew # allpatches
 elif [ "x$1" = "x64" ]
 then
   if [[ "${PREPARE}" =~ "gmp" ]]
@@ -151,6 +152,13 @@ then
     cd ~/win64/include
     rm -f glm
     ln -s ../src/glm*/glm/
+  fi
+  if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
+  then
+    # mingw-std-threads 64
+    cd ~/win64/include
+    rm -f mingw-std-threads
+    ln -s ../src/mingw-std-threads
   fi
   if [[ "${PREPARE}" =~ "openexr" ]]
   then
@@ -273,6 +281,13 @@ then
     cd ~/win32/include
     rm -f glm
     ln -s ../src/glm*/glm/
+  fi
+  if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
+  then
+    # mingw-std-threads 32
+    cd ~/win32/include
+    rm -f mingw-std-threads
+    ln -s ../src/mingw-std-threads
   fi
   if [[ "${PREPARE}" =~ "openexr" ]]
   then
