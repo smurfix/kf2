@@ -2262,6 +2262,28 @@ At the very top right:
     while a long render is taking place.
 
 
+## Status bar
+
+### Left
+
+- D% pixels done with current reference.
+- G% pixels guessed by neighboring interior.
+- R% reference iterations vs maximum iteration count.
+- A% series approximation skipped vs maximum iteration count.
+
+### Middle
+
+- Zoom magnification (e.g. 1.23E45).
+- Elapsed wall clock time.
+- Number of references.
+- Done marker.
+
+### Right
+
+- Pixel coordinates of mouse cursor.
+- Iteration count at mouse cursor.
+
+
 ## Formula dialog
 
   - Fractal type: Mandelbrot, Burning Ship, etc
