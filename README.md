@@ -140,6 +140,13 @@ Feedback:
 - nanomb2 currently disables glitch detection and correction
 - nanomb1/2 reference calculations are not multithreaded (single core only)
 - nanomb1/2 reference calculations are using slow Boost C++ wrapper for MPFR
+- crosshair window contents is misaligned if OS window scaling is changed
+  - workaround for Windows 10: "You can quickly open the Magnifier by using the
+    keyboard shortcut Windows key with the plus sign (+) to zoom in and Windows
+    key with minus sign (-) to zoom out. Use Windows key and Esc to exit the magnifier."
+  - workaround for Linux/Wine: third-party magnifiers include
+    `kmag`, `magnus`, `vmg`, `xmag`, `xzoom`;
+    I had best results with `kmag`.
 - help button in file browser does nothing
 - may be difficult to build the source at the moment (dependency on 'et')
 - seams/bands with mixed power hybrids and numerical DE/slope
