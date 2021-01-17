@@ -1398,6 +1398,7 @@ alignment fix mentioned above) has:
     This is free software; see the source for copying conditions.  There is NO
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
+
 ## Building on Windows 64-bit (may be adaptable to 32-bit)
 
 **Note** these instructions are out of date since the switch to MinGW posix
@@ -2165,6 +2166,29 @@ At the very top right:
 
     This also functions as a lock mechanism, preventing accidental zooming
     while a long render is taking place.
+
+
+## Status bar
+
+### Left
+
+- D% pixels done with current reference.
+- G% pixels guessed by neighboring interior.
+- R% reference iterations vs maximum iteration count.
+- A% series approximation skipped vs maximum iteration count.
+
+### Middle
+
+- Zoom magnification (e.g. 1.23E45).
+- Elapsed wall clock time.
+- Number of references.
+- Done marker.
+
+### Right
+
+- Pixel coordinates of mouse cursor.
+- Iteration count at mouse cursor.
+
 
 ## Formula dialog
 
