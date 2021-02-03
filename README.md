@@ -157,6 +157,7 @@ Feedback:
   instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
 - if hybrid formula is invalid, Ok button does the same as Cancel
+- EXR files are always saved with a preview image
 - OpenCL runs on the main thread making the GUI less responsive
 - sometimes files are overwritten without confirmation, when the filename
   is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
