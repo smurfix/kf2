@@ -1,0 +1,12 @@
+WINPREFIXPLUS ?= $(HOME)/win/aarch64
+WINPREFIX ?= $(HOME)/win/aarch64
+SIMD ?= 2
+OPENCL ?= 1
+COMPILE ?= aarch64-w64-mingw32-g++
+LINK ?= aarch64-w64-mingw32-g++
+WINDRES ?= aarch64-w64-mingw32-windres
+AR ?= aarch64-w64-mingw32-ar
+AR2 ?= aarch64-w64-mingw32-ranlib
+XSLTPROC ?= xsltproc
+RM ?= rm -f
+GCC ?= aarch64-w64-mingw32-gcc

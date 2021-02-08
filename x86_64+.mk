@@ -1,5 +1,5 @@
-WINPREFIXPLUS ?= $(HOME)/win64+
-WINPREFIX ?= $(HOME)/win64
+WINPREFIXPLUS ?= $(HOME)/win/x86_64+
+WINPREFIX ?= $(HOME)/win/x86_64
 SIMD ?= 2
 OPENCL ?= 1
 # require 'haswell' (Intel Haswell), 'bdver4' (AMD Excavator), or 'eden-x4' (VIA)

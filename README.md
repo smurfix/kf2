@@ -291,6 +291,10 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.2** (????-??-??)
+
+    - experimental ARM builds using LLVM (32bit armv7 and 64bit aarch64)
+
 - **kf-2.15.1.6** (2020-12-08)
 
     - merge changes from kf-2.14.10.7
@@ -1375,7 +1379,9 @@ you can skip the chroot step and install natively.
     For Ubuntu replace "wine32 wine64 wine-binfmt" with "wine" (but see note
     about build failures with some versions).
 
-2. Configure the system MinGW compilers to use win32 threading model
+2. Compiling is possible with GCC (well-tested) and LLVM (experimental, supports ARM).
+
+   For GCC, configure the system MinGW compilers to use win32 threading model
    (instead of posix).  If you don't do this then you'll get mysterious
    weird behaviour (like zooming out resetting zoom to infinity or 0).
 
@@ -1400,11 +1406,20 @@ you can skip the chroot step and install natively.
         adduser build
         # enter and confirm password
         su - build
-        mkdir -p ~/win64/src
+        mkdir -p ~/win/src
+
+   If compiling with LLVM, install the MinGW toolchain (needs ~15GB space):
+
+        mkdir -p ~/opt/src
+        cd ~/opt/src/
+        git clone https://github.com/mstorsjo/llvm-mingw.git
+        cd llvm-mingw/
+        ./build-all.sh ~/opt
+        export PATH=${HOME}/opt/bin:$PATH
 
 4. Download Kalles Fraktaler 2 + sources:
 
-        cd ~/win64/src
+        cd ~/win/src
         git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
         cd kalles-fraktaler-2
         git checkout kf-2.15
@@ -1413,14 +1428,16 @@ you can skip the chroot step and install natively.
 if you want to be sure it isn't doing anything dodgy, or to copy/paste parts if
 necessary), the script can build both 64bit and 32bit variants if necessary:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
         bash ./prepare.sh dl
-        bash ./prepare.sh 64
-        bash ./prepare.sh 32
+        bash ./prepare.sh x86_64
+        bash ./prepare.sh i686
+        bash ./prepare.sh aarch64
+        bash ./prepare.sh armv7
 
 6. Download the latest version of Kalles Fraktaler 2 + and copy the `et`-generated formulas from it:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
         wget -c "https://mathr.co.uk/kf/kf-$(wget -q -O- https://mathr.co.uk/kf/VERSION.txt).7z"
         7zr x kf-*.7z
         cd kf-*/
@@ -1428,33 +1445,46 @@ necessary), the script can build both 64bit and 32bit variants if necessary:
         cd kf-*-src/
         cp -avit ../../formula/generated formula/generated/*.c
 
-7. To build Kalles Fraktaler 2 + optimized for your own 64bit CPU:
+7. To build Kalles Fraktaler 2 + optimized for your own Intel/AMD 64bit CPU:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
         make clean
-        make SYSTEM=native -j $(nproc)
+        make SYSTEM=x86_64+native -j $(nproc)
         ./kf.exe
 
-8. To build Kalles Fraktaler 2 + for generic 32bit CPU:
+8. To build Kalles Fraktaler 2 + for generic 32bit Intel CPU:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
         make clean
-        make SYSTEM=32 -j $(nproc)
+        make SYSTEM=i686 -j $(nproc)
         ./kf.exe
 
 9. To build Kalles Fraktaler 2 + for generic 64bit CPU:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
         make clean
-        make SYSTEM=64 -j $(nproc)
+        make SYSTEM=x86_64 -j $(nproc)
         ./kf.exe
 
-10. To build Kalles Fraktaler 2 + release (generic 64bit + generic 32bit +
-documentation + source zip + everything 7z + signing):
+10. To build Kalles Fraktaler 2 + for generic 32bit ARM CPU:
 
-        cd ~/win64/src/kalles-fraktaler-2
+        cd ~/win/src/kalles-fraktaler-2
+        make clean
+        make SYSTEM=armv7 -j $(nproc)
+        ./kf.exe
+
+11. To build Kalles Fraktaler 2 + for generic 64bit ARM CPU:
+
+        cd ~/win/src/kalles-fraktaler-2
+        make clean
+        make SYSTEM=aarch64 -j $(nproc)
+        ./kf.exe
+
+12. To build Kalles Fraktaler 2 + release (all architectures +
+   documentation + source zip + everything 7z + signing):
+
+        cd ~/win/src/kalles-fraktaler-2
         ./release.sh $(git describe)
-
 
 Note: build fails on Ubuntu 16.04.3 LTS (xenial):
 
@@ -1491,8 +1521,7 @@ alignment fix mentioned above) has:
 
 ## Building on Windows 64-bit (may be adaptable to 32-bit)
 
-**Note** these instructions are out of date since the switch to MinGW posix
-threading model.
+**Note** these instructions are out of date.
 
 Build instructions for compiling on Windows (thanks to knighty and Patrick Owen!):
 
@@ -1584,7 +1613,7 @@ necessary), the script will need to be modified to build the 32bit version:
 
         cd "/path/to/Kalles Fraktaler 2 +"
         make clean
-        WINDRES=windres make SYSTEM=native -j $(nproc)
+        WINDRES=windres make SYSTEM=x86_64+native -j $(nproc)
 
     Note that `mingw32-make` does not properly detect that files are already up-to-date,
     making building slow each time. Use `make` instead.
@@ -1610,7 +1639,7 @@ Kalles Fraktaler 2 +
 
 Copyright (C) 2013-2017 Karl Runmo
 
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as

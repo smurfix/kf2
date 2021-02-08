@@ -31,7 +31,7 @@ mkdir "${SRC}"
 
 make clean
 make formula/formula.cpp cl/formula.cpp
-cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile 32.mk 64.mk 64+.mk native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile armv7.mk aarch64.mk i686.mk x86_64.mk x86_64+.mk x86_64+native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
@@ -39,19 +39,35 @@ cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
 make clean
 make formula/formula.cpp cl/formula.cpp
-make -j "${NCPUS}" SYSTEM=32
-cp -avi kf.exe "${BIN}/kf.32.exe"
-cp -avi kf-tile.exe "${BIN}/kf-tile.32.exe"
-strip "${BIN}/kf.32.exe"
-strip "${BIN}/kf-tile.32.exe"
+make -j "${NCPUS}" SYSTEM=armv7
+cp -avi kf.exe "${BIN}/kf.armv7.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.armv7.exe"
+armv7-w64-mingw32-strip "${BIN}/kf.armv7.exe"
+armv7-w64-mingw32-strip "${BIN}/kf-tile.armv7.exe"
 
 make clean
 make formula/formula.cpp cl/formula.cpp
-make -j "${NCPUS}" SYSTEM=64
-cp -avi kf.exe "${BIN}/kf.64.exe"
-cp -avi kf-tile.exe "${BIN}/kf-tile.64.exe"
-strip "${BIN}/kf.64.exe"
-strip "${BIN}/kf-tile.64.exe"
+make -j "${NCPUS}" SYSTEM=aarch64
+cp -avi kf.exe "${BIN}/kf.aarch64.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.aarch64.exe"
+aarch64-w64-mingw32-strip "${BIN}/kf.aarch64.exe"
+aarch64-w64-mingw32-strip "${BIN}/kf-tile.aarch64.exe"
+
+make clean
+make formula/formula.cpp cl/formula.cpp
+make -j "${NCPUS}" SYSTEM=i686
+cp -avi kf.exe "${BIN}/kf.i686.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.i686.exe"
+i686-w64-mingw32-strip "${BIN}/kf.i686.exe"
+i686-w64-mingw32-strip "${BIN}/kf-tile.i686.exe"
+
+make clean
+make formula/formula.cpp cl/formula.cpp
+make -j "${NCPUS}" SYSTEM=x86_64
+cp -avi kf.exe "${BIN}/kf.x86_64.exe"
+cp -avi kf-tile.exe "${BIN}/kf-tile.x86_64.exe"
+x86_64-w64-mingw32-strip "${BIN}/kf.x86_64.exe"
+x86_64-w64-mingw32-strip "${BIN}/kf-tile.x86_64.exe"
 
 make README.pdf
 make LICENSE.pdf

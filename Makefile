@@ -15,11 +15,13 @@
 # You should have received a copy of the GNU Affero General Public License
 # along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
-# make SYSTEM=native for 64bit (most optimized, non-portable)
-# make SYSTEM=64+    for 64bit with recent SIMD extensions
-# make SYSTEM=64     for 64bit
-# make SYSTEM=32     for 32bit (experimental)
-SYSTEM ?= native
+# make SYSTEM=x86_64+native for 64bit (most optimized, non-portable)
+# make SYSTEM=x86_64+       for 64bit with recent SIMD extensions
+# make SYSTEM=x86_64        for 64bit
+# make SYSTEM=i686          for 32bit (experimental)
+# make SYSTEM=aarch64       for 64bit ARM (experimental)
+# make SYSTEM=armv7         for 32bit ARM (experimental)
+SYSTEM ?= x86_64+native
 include $(SYSTEM).mk
 
 CLEWPREFIX := $(WINPREFIX)/src/clew
