@@ -9,4 +9,5 @@ preprocessor
 preprocessor.hi
 *.d
 *.o
+*.res
 _
