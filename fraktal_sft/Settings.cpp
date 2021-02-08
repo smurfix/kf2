@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -188,7 +188,7 @@ bool Settings::OpenFile(const std::string &filename)
 {
   const char *szFile = filename.c_str();
 	char *szData = 0;
-	char *extension = strrchr(szFile, '.');
+	const char *extension = strrchr(szFile, '.');
 	if (extension && 0 == strcmp(".png", extension))
 	{
 		std::string filename = szFile;
