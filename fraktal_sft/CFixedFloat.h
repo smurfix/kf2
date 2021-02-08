@@ -315,7 +315,7 @@ public:
 		return *this;
 	};
 
-	friend class floatexp;
+	friend struct floatexp;
 	friend class floatexp2;
 };
 

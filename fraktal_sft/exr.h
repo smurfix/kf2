@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <string>
 
-class itercount_array;
+struct itercount_array;
 
 // select which channels should be saved into EXR files
 
