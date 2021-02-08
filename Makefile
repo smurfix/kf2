@@ -169,8 +169,11 @@ kf.exe: $(OBJECTS)
 kf-tile.exe: utils/kf-tile.o common/matrix.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o common/matrix.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
 
-res.o: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
-	$(WINDRES) -i fraktal_sft/fraktal_sft.rc -o res.o $(FLAGS_WINDRES)
+res.o: res.res
+	$(WINDRES) -J res -i res.res -o res.o
+
+res.res: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
+	 /usr/bin/x86_64-w64-mingw32-windres -i fraktal_sft/fraktal_sft.rc -o res.res $(FLAGS_WINDRES)
 
 %.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
