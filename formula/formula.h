@@ -130,8 +130,8 @@ struct double2
   inline double2(const double2 &x) { v = x.v; };
   inline double2(const vdouble2 &x) { v = x; };
   inline operator vdouble2() const { return v; };
-  inline const double& operator[](int ix) const { return v[ix]; }
-  inline double& operator[](int ix) { return v[ix]; }
+  inline double operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return ((double *)&v)[ix]; }
 };
 static inline double2 operator-(const double2 &a) { return double2(-a.v); }
 static inline double2 operator+(const double2 &a, const double2 &b) { return double2(a.v + b.v); }
@@ -173,8 +173,8 @@ struct double4
   inline double4(const double4 &x) { v = x.v; };
   inline double4(const vdouble4 &x) { v = x; };
   inline operator vdouble4() const { return v; };
-  inline const double& operator[](int ix) const { return v[ix]; }
-  inline double& operator[](int ix) { return v[ix]; }
+  inline double operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return ((double *)&v)[ix]; }
 };
 static inline double4 operator-(const double4 &a) { return double4(-a.v); }
 static inline double4 operator+(const double4 &a, const double4 &b) { return double4(a.v + b.v); }
@@ -216,8 +216,8 @@ struct double8
   inline double8(const double8 &x) { v = x.v; };
   inline double8(const vdouble8 &x) { v = x; };
   inline operator vdouble8() const { return v; };
-  inline const double& operator[](int ix) const { return v[ix]; }
-  inline double& operator[](int ix) { return v[ix]; }
+  inline double operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return ((double *)&v)[ix]; }
 };
 static inline double8 operator-(const double8 &a) { return double8(-a.v); }
 static inline double8 operator+(const double8 &a, const double8 &b) { return double8(a.v + b.v); }
@@ -259,8 +259,8 @@ struct double16
   inline double16(const double16 &x) { v = x.v; };
   inline double16(const vdouble16 &x) { v = x; };
   inline operator vdouble16() const { return v; };
-  inline const double& operator[](int ix) const { return v[ix]; }
-  inline double& operator[](int ix) { return v[ix]; }
+  inline double operator[](int ix) const { return v[ix]; }
+  inline double& operator[](int ix) { return ((double *)&v)[ix]; }
 };
 static inline double16 operator-(const double16 &a) { return double16(-a.v); }
 static inline double16 operator+(const double16 &a, const double16 &b) { return double16(a.v + b.v); }
