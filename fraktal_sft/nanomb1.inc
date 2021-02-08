@@ -34,12 +34,12 @@ typedef decNumber R_hi;
 typedef complex<R_lo> C_lo;
 typedef complex<R_hi> C_hi;
 
-R_lo r_lo(const R_hi &x)
+static inline R_lo r_lo(const R_hi &x)
 {
   return mpfr_get_fe(x.backend().data());
 }
 
-C_lo c_lo(const C_hi &z)
+static inline C_lo c_lo(const C_hi &z)
 {
   return C_lo(r_lo(z.re), r_lo(z.im));
 }

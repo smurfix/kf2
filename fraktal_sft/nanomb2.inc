@@ -38,12 +38,12 @@ typedef complex<R_hi> C_hi;
 
 //--------------------------------------------------------------------------------------------------------
 // Conversion routines
-inline R_lo r_lo(const R_hi &z)
+static inline R_lo r_lo(const R_hi &z)
 {
   return mpfr_get_fe(z.backend().data());
 }
 
-inline C_lo c_lo(const C_hi &z)
+static inline C_lo c_lo(const C_hi &z)
 {
   return C_lo(r_lo(z.m_r), r_lo(z.m_i));
 }
