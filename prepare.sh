@@ -182,7 +182,7 @@ then
     7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/x86_64/include
     rm -f glm
-    ln -s ../src/glm-0.9.9.8/glm/
+    ln -s ../src/glm/glm/
   fi
   if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
   then
@@ -326,7 +326,7 @@ then
     7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/i686/include
     rm -f glm
-    ln -s ../src/glm-0.9.9.8/glm/
+    ln -s ../src/glm/glm/
   fi
   if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
   then
@@ -474,7 +474,7 @@ then
     7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/aarch64/include
     rm -f glm
-    ln -s ../src/glm-0.9.9.8/glm/
+    ln -s ../src/glm/glm/
   fi
   if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
   then
@@ -620,7 +620,7 @@ then
     7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/armv7/include
     rm -f glm
-    ln -s ../src/glm-0.9.9.8/glm/
+    ln -s ../src/glm/glm/
   fi
   if [[ "${PREPARE}" =~ "mingw-std-threads" ]]
   then
