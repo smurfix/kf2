@@ -251,6 +251,7 @@ void CFraktalSFT::MandelCalc()
             { \
               antalv[q] = antal16[q]; \
               bGlitchv[q] = bGlitch16[q]; \
+              bNoGlitchDetectionv[q] = bNoGlitchDetection16[q]; \
               test1v[q] = test116[q]; \
               test2v[q] = test216[q]; \
               phasev[q] = phase16[q]; \
