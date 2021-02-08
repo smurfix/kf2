@@ -1,0 +1,11 @@
+--- pixman-0.38.4.old/pixman/pixman-mmx.c	2019-03-30 21:49:22.000000000 +0000
++++ pixman-0.38.4.new/pixman/pixman-mmx.c	2021-02-08 15:22:19.827118703 +0000
+@@ -60,7 +60,7 @@
+ #endif
+ 
+ #ifdef USE_X86_MMX
+-# if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64))
++# if (defined(__SUNPRO_C) || defined(_MSC_VER) || defined(_WIN64) || 1)
+ #  include <xmmintrin.h>
+ # else
+ /* We have to compile with -msse to use xmmintrin.h, but that causes SSE
