@@ -157,7 +157,7 @@ then
     # pixman 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf pixman-0.38.4.tar.gz
+    tar xaf ~/win/src/pixman-0.38.4.tar.gz
     cd pixman-0.38.4/
     CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win/x86_64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/x86_64
     make SUBDIRS="pixman test" -j $NCPUS
@@ -170,7 +170,7 @@ then
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
     7zr x ~/win/src/boost_1_75_0.7z
-    cd ~/win/x64_64/include
+    cd ~/win/x86_64/include
     rm -f boost
     ln -s ../src/boost_1_75_0/boost/
   fi
@@ -179,7 +179,7 @@ then
     # glm 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    7zr x glm-0.9.9.8.7z
+    7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/x86_64/include
     rm -f glm
     ln -s ../src/glm-0.9.9.8/glm/
@@ -199,7 +199,7 @@ then
     cd ~/win/x86_64/src
     tar xaf ~/win/src/openexr-2.5.4.tar.gz
     cd openexr-2.5.4/
-    patch -p1 < ~/win/src/openexr-2.4.0.patch
+    #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
     cd build
@@ -255,7 +255,7 @@ then
     cd ~/win/i686/src
     tar xaf ~/win/src/libpng-1.6.37.tar.xz
     cd libpng-1.6.37/
-    ./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
+    ./configure --disable-shared --host=i686-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win/i686/include" LDFLAGS="$LDFLAGS -L$HOME/win/i686/lib" --prefix=$HOME/win/i686
     make -j $NCPUS
     make install
   fi
@@ -264,7 +264,7 @@ then
     # jpeg 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xaf jpegsrc.v6b2.tar.gz
+    tar xaf ~/win/src/jpegsrc.v6b2.tar.gz
     cd jpeg-6b2/
     ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win/i686
     make -j $NCPUS
@@ -302,6 +302,7 @@ then
     cd ~/win/i686/src
     tar xaf ~/win/src/pixman-0.38.4.tar.gz
     cd pixman-0.38.4/
+    patch -p1 < ~/win/src/pixman-0.38.4-i686.patch
     CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win/i686/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/i686
     make SUBDIRS="pixman test" -j $NCPUS
     make SUBDIRS="pixman test" install
@@ -342,7 +343,7 @@ then
     cd ~/win/i686/src
     tar xf ~/win/src/openexr-2.5.4.tar.gz
     cd openexr-2.5.4/
-    patch -p1 < ~/win/src/openexr-2.4.0.patch
+    #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
@@ -388,9 +389,9 @@ then
     cd ~/win/aarch64/src
     tar xaf ~/win/src/zlib-1.2.11.tar.xz
     cd zlib-1.2.11/
-    CC=aarch64-w64-mingw32-gcc ./configure --static --prefix=$HOME/win/aarch64
-    CC=aarch64-w64-mingw32-gcc make -j $NCPUS
-    CC=aarch64-w64-mingw32-gcc make install
+    CC=aarch64-w64-mingw32-gcc AR=aarch64-w64-mingw32-ar RANLIB=aarch64-w64-mingw32-ranlib ./configure --static --prefix=$HOME/win/aarch64
+    CC=aarch64-w64-mingw32-gcc AR=aarch64-w64-mingw32-ar RANLIB=aarch64-w64-mingw32-ranlib make -j $NCPUS -k || echo
+    CC=aarch64-w64-mingw32-gcc AR=aarch64-w64-mingw32-ar RANLIB=aarch64-w64-mingw32-ranlib make install
   fi
   if [[ "${PREPARE}" =~ "png" ]]
   then
@@ -408,7 +409,9 @@ then
     # jpeg 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
+    tar xaf ~/win/src/libpng-1.6.37.tar.xz
     tar xaf ~/win/src/jpegsrc.v6b2.tar.gz
+    cp -avf libpng-1.6.37/config.sub jpeg-6b2/config.sub
     cd jpeg-6b2/
     ./configure --disable-shared --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64
     make -j $NCPUS
@@ -444,9 +447,9 @@ then
     # pixman 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf pixman-0.38.4.tar.gz
+    tar xaf ~/win/src/pixman-0.38.4.tar.gz
     cd pixman-0.38.4/
-    CC=aarch64-w64-mingw32-gcc LDFLAGS=-L$HOME/win/aarch64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/aarch64
+    LDFLAGS=-L$HOME/win/aarch64/lib ./configure --host aarch64-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/aarch64
     make SUBDIRS="pixman test" -j $NCPUS
     make SUBDIRS="pixman test" install
     make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
@@ -455,9 +458,10 @@ then
   then
     # boost 64
     mkdir -p ~/win/aarch64/src
+    mkdir -p ~/win/aarch64/include
     cd ~/win/aarch64/src
     7zr x ~/win/src/boost_1_75_0.7z
-    cd ~/win/x64_64/include
+    cd ~/win/aarch64/include
     rm -f boost
     ln -s ../src/boost_1_75_0/boost/
   fi
@@ -465,8 +469,9 @@ then
   then
     # glm 64
     mkdir -p ~/win/aarch64/src
+    mkdir -p ~/win/aarch64/include
     cd ~/win/aarch64/src
-    7zr x glm-0.9.9.8.7z
+    7zr x ~/win/src/glm-0.9.9.8.7z
     cd ~/win/aarch64/include
     rm -f glm
     ln -s ../src/glm-0.9.9.8/glm/
@@ -486,8 +491,9 @@ then
     cd ~/win/aarch64/src
     tar xaf ~/win/src/openexr-2.5.4.tar.gz
     cd openexr-2.5.4/
-    patch -p1 < ~/win/src/openexr-2.4.0.patch
+    #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
+    sed -i "s/x86_64/aarch64/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
     cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win/aarch64/include -DZLIB_INCLUDE_DIR=$HOME/win/aarch64/include -DZLIB_LIBRARY=$HOME/win/aarch64/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win/aarch64 ..
@@ -506,7 +512,7 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/gmp-6.2.1.tar.lz
     cd gmp-6.2.1/
-    CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=aarch64-pc-linux-gnu --host=armv7-w64-mingw32 --enable-fat --prefix=$HOME/win/armv7
+    CC_FOR_BUILD="gcc" CPP_FOR_BUILD="gcc -E" ./configure --build=x86_64-pc-linux-gnu --host=armv7-w64-mingw32 --disable-assembly --prefix=$HOME/win/armv7
     make -j $NCPUS
     make install
     make check -k || echo
@@ -531,9 +537,9 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/zlib-1.2.11.tar.xz
     cd zlib-1.2.11/
-    CC=armv7-w64-mingw32-gcc ./configure --static --prefix=$HOME/win/armv7
-    CC=armv7-w64-mingw32-gcc make -j $NCPUS
-    CC=armv7-w64-mingw32-gcc make install
+    CC=armv7-w64-mingw32-gcc AR=armv7-w64-mingw32-ar RANLIB=armv7-w64-mingw32-ranlib ./configure --static --prefix=$HOME/win/armv7
+    CC=armv7-w64-mingw32-gcc AR=armv7-w64-mingw32-ar RANLIB=armv7-w64-mingw32-ranlib make -j $NCPUS
+    CC=armv7-w64-mingw32-gcc AR=armv7-w64-mingw32-ar RANLIB=armv7-w64-mingw32-ranlib make install
   fi
   if [[ "${PREPARE}" =~ "png" ]]
   then
@@ -542,7 +548,7 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/libpng-1.6.37.tar.xz
     cd libpng-1.6.37/
-    ./configure --disable-shared --host=armv7-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win32/include" LDFLAGS="$LDFLAGS -L$HOME/win32/lib" --prefix=$HOME/win32
+    ./configure --disable-shared --host=armv7-w64-mingw32 CPPFLAGS="$CPPFLAGS -I$HOME/win/armv7/include" LDFLAGS="$LDFLAGS -L$HOME/win/armv7/lib" --prefix=$HOME/win/armv7
     make -j $NCPUS
     make install
   fi
@@ -551,7 +557,9 @@ then
     # jpeg 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xaf jpegsrc.v6b2.tar.gz
+    tar xaf ~/win/src/libpng-1.6.37.tar.xz
+    tar xaf ~/win/src/jpegsrc.v6b2.tar.gz
+    cp -avf libpng-1.6.37/config.sub jpeg-6b2/config.sub
     cd jpeg-6b2/
     ./configure --disable-shared --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7
     make -j $NCPUS
@@ -589,7 +597,7 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/pixman-0.38.4.tar.gz
     cd pixman-0.38.4/
-    CC=armv7-w64-mingw32-gcc LDFLAGS=-L$HOME/win/armv7/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/armv7
+    LDFLAGS=-L${HOME}/win/armv7/lib ./configure --host armv7-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/armv7
     make SUBDIRS="pixman test" -j $NCPUS
     make SUBDIRS="pixman test" install
     make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
@@ -629,7 +637,7 @@ then
     cd ~/win/armv7/src
     tar xf ~/win/src/openexr-2.5.4.tar.gz
     cd openexr-2.5.4/
-    patch -p1 < ~/win/src/openexr-2.4.0.patch
+    #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/armv7/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
