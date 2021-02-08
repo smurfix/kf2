@@ -1972,7 +1972,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				GetTextExtentPoint32A(hDC,szT,strlen(szT),&sc);
 				if(sc.cx>nMaxWidth)
 					nMaxWidth = sc.cx;
-				delete szT;
+				delete[] szT;
 			}
 			SendDlgItemMessage(hWnd,IDC_COMBO_OPENCL_DEVICE,CB_SETDROPPEDWIDTH,nMaxWidth+8+GetSystemMetrics(SM_CXHTHUMB),0);
 			SelectObject(hDC, hfOld);
