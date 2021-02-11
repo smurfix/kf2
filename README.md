@@ -293,7 +293,7 @@ Feedback:
 
 - **kf-2.15.2** (????-??-??)
 
-    - experimental ARM builds using LLVM (32bit armv7 and 64bit aarch64)
+    - experimental ARM builds using LLVM (64bit aarch64; no 32bit armv7 yet)
 
 - **kf-2.15.1.6** (2020-12-08)
 
@@ -1385,7 +1385,7 @@ you can skip the chroot step and install natively.
    (instead of posix).  If you don't do this then you'll get mysterious
    weird behaviour (like zooming out resetting zoom to infinity or 0).
 
-   Choose the manual posix alternative for all of these, you can ignore
+   Choose the manual win32 alternative for all of these, you can ignore
    failures for gfortran and gnat if they are not installed:
 
         update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-win32
@@ -1399,7 +1399,7 @@ you can skip the chroot step and install natively.
 
    If you have existing builds build with posix threading model, you
    should delete them or move them out of the way, as mixing win32 with
-   posix leads to a world of pain and misery.
+   posix leads to a world of pain and misery (as does mixing LLVM with GCC).
 
 3. Prepare non-root build user:
 
@@ -1466,7 +1466,8 @@ necessary), the script can build both 64bit and 32bit variants if necessary:
         make SYSTEM=x86_64 -j $(nproc)
         ./kf.exe
 
-10. To build Kalles Fraktaler 2 + for generic 32bit ARM CPU:
+10. To build Kalles Fraktaler 2 + for generic 32bit ARM CPU
+   (might not work due to a bug in GMP):
 
         cd ~/win/src/kalles-fraktaler-2
         make clean
