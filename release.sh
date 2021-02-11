@@ -37,6 +37,8 @@ BIN="${VERSION}"
 mkdir "${BIN}"
 cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
 
+if false
+then
 make clean
 make formula/formula.cpp cl/formula.cpp
 make -j "${NCPUS}" SYSTEM=armv7
@@ -44,6 +46,7 @@ cp -avi kf.exe "${BIN}/kf.armv7.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.armv7.exe"
 armv7-w64-mingw32-strip "${BIN}/kf.armv7.exe"
 armv7-w64-mingw32-strip "${BIN}/kf-tile.armv7.exe"
+fi
 
 make clean
 make formula/formula.cpp cl/formula.cpp
