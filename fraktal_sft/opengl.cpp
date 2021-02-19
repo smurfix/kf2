@@ -143,8 +143,11 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
   const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7, tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
   GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
   GLuint p_colour = 0, p_blit = 0, f_linear = 0, f_srgb = 0;
-  GLuint vao;
+  GLuint vao = 0;
   GLFWwindow *window = nullptr;
+  // should we do gamma-correct linear-light blending?
+  // default is false (incorrect blending) for historical reasons
+  bool sRGB = false;
   request req;
   while (fifo_read(requests, req))
   {
@@ -292,7 +295,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, max_tile_width, max_tile_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, max_tile_width, max_tile_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         D
 
         glActiveTexture(GL_TEXTURE0 + tu_texture);
@@ -302,7 +305,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, &zeroui);
+        glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, 1, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, &zeroui);
         D
 
         glActiveTexture(GL_TEXTURE0 + tu_palette);
@@ -311,7 +314,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
         glTexParameteri(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-        glTexImage1D(GL_TEXTURE_1D, 0, GL_SRGB, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, &zeroui);
+        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, 1, 0, GL_RGB, GL_UNSIGNED_BYTE, &zeroui);
         D
 
         glGenFramebuffers(1, &f_linear);
@@ -459,15 +462,22 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         D
         // palette
         glActiveTexture(GL_TEXTURE0 + tu_palette);
-        glTexImage1D(GL_TEXTURE_1D, 0, GL_SRGB, req.u.configure.colors.size() / 3, 0, GL_RGB, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);
+        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.colors.size() / 3, 0, GL_RGB, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);
         D
         srgb sinterior =
           { req.u.configure.interior_color[0] / 255.0f
           , req.u.configure.interior_color[1] / 255.0f
           , req.u.configure.interior_color[2] / 255.0f
           };
-        lrgb linterior = srgb2lrgb(sinterior);
-        glUniform3f(glGetUniformLocation(p_colour, "KFP_InteriorColor"), linterior.r, linterior.g, linterior.b);
+        if (sRGB)
+        {
+          lrgb linterior = srgb2lrgb(sinterior);
+          glUniform3f(glGetUniformLocation(p_colour, "KFP_InteriorColor"), linterior.r, linterior.g, linterior.b);
+        }
+        else
+        {
+          glUniform3f(glGetUniformLocation(p_colour, "KFP_InteriorColor"), sinterior.r, sinterior.g, sinterior.b);
+        }
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Smooth"), req.u.configure.smooth);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Flat"), req.u.configure.flat);
         // multi waves
@@ -492,7 +502,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         if (req.u.configure.texture_enabled)
         {
           glActiveTexture(GL_TEXTURE0 + tu_texture);
-          glTexImage2D(GL_TEXTURE_2D, 0, GL_SRGB, req.u.configure.texture_width, req.u.configure.texture_height, 0, GL_SRGB, GL_UNSIGNED_BYTE, req.u.configure.texture);
+          glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.texture_width, req.u.configure.texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, req.u.configure.texture);
         }
         D
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
@@ -577,7 +587,10 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
 
             // copy to 8bit
             glBindFramebuffer(GL_FRAMEBUFFER, f_srgb);
-            glEnable(GL_FRAMEBUFFER_SRGB);
+            if (sRGB)
+            {
+              glEnable(GL_FRAMEBUFFER_SRGB);
+            }
             glUseProgram(p_blit);
             glUniform2f(glGetUniformLocation(p_blit, "v"), tile_width / (double) max_tile_width, tile_height / (double) max_tile_height);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
@@ -585,7 +598,10 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             {
               glReadPixels(0, 0, tile_width, tile_height, GL_RGB, GL_UNSIGNED_BYTE, req.u.render.rgb8);
             }
-            glDisable(GL_FRAMEBUFFER_SRGB);
+            if (sRGB)
+            {
+              glDisable(GL_FRAMEBUFFER_SRGB);
+            }
             D
           }
         }
