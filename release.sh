@@ -1,7 +1,7 @@
 #!/bin/sh
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2020 Claude Heiland-Allen
+# Copyright (C) 2017-2021 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -31,7 +31,7 @@ mkdir "${SRC}"
 
 make clean
 make formula/formula.cpp cl/formula.cpp
-cp -avit "${SRC}/" fraktal_sft formula cl common utils preprocessor.hs Makefile armv7.mk aarch64.mk i686.mk x86_64.mk x86_64+.mk x86_64+native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl common utils glad preprocessor.hs Makefile armv7.mk aarch64.mk i686.mk x86_64.mk x86_64+.mk x86_64+native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
@@ -48,6 +48,8 @@ armv7-w64-mingw32-strip "${BIN}/kf.armv7.exe"
 armv7-w64-mingw32-strip "${BIN}/kf-tile.armv7.exe"
 fi
 
+if false
+then
 make clean
 make formula/formula.cpp cl/formula.cpp
 make -j "${NCPUS}" SYSTEM=aarch64
@@ -55,6 +57,7 @@ cp -avi kf.exe "${BIN}/kf.aarch64.exe"
 cp -avi kf-tile.exe "${BIN}/kf-tile.aarch64.exe"
 aarch64-w64-mingw32-strip "${BIN}/kf.aarch64.exe"
 aarch64-w64-mingw32-strip "${BIN}/kf-tile.aarch64.exe"
+fi
 
 make clean
 make formula/formula.cpp cl/formula.cpp

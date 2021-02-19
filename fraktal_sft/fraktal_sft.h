@@ -659,6 +659,7 @@ public:
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
+  BOOL(UseOpenGL)
 #undef DOUBLE
 #undef INT
 #undef BOOL

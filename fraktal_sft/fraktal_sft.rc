@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -972,6 +972,7 @@ BEGIN
 #ifdef KF_OPENCL
         MENUITEM "OpenCL",                      ID_SPECIAL_OPENCL,MFT_STRING,MFS_ENABLED
 #endif
+        MENUITEM "OpenGL",                      ID_SPECIAL_OPENGL,MFT_STRING,MFS_ENABLED
     END
     MENUITEM "?", ID_MENU_ABOUT,MFT_STRING | MFT_RIGHTJUSTIFY,MFS_ENABLED
 END

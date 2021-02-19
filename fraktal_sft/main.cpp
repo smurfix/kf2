@@ -71,8 +71,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_ptsatuning.h"
 #include "main_transformation.h"
 #include "cmdline.h"
+#include "opengl.h"
+#include <GLFW/glfw3.h>
 #include <iostream>
 #include <sstream>
+#include <thread>
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -620,6 +623,11 @@ static void UpdateSIMDChunkSize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_1024,MF_BYCOMMAND|(z==1024?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateUseOpenGL(HWND hWnd)
+{
+	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_OPENGL,MF_BYCOMMAND|(g_SFT.GetUseOpenGL()?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -652,6 +660,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateEXRParallel(hWnd);
 	UpdateSIMDVectorSize(hWnd);
 	UpdateSIMDChunkSize(hWnd);
+	UpdateUseOpenGL(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -3319,6 +3328,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		ShowWindow(g_hwOpenCL,SW_SHOW);
 	}
 #endif
+	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_OPENGL){
+		g_SFT.SetUseOpenGL(! g_SFT.GetUseOpenGL());
+		UpdateUseOpenGL(hWnd);
+	}
 
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SHOWINFLECTION){
 		g_bShowInflection=!g_bShowInflection;
@@ -4499,9 +4512,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 #ifdef KF_OPENCL
 				"- CLEW git.50751dd <https://github.com/martijnberger/clew>\n"
 #endif
-#ifdef __GNUC__
+        "- GLFW %d.%d.%d <https://glfw.org>\n"
         "\nCompiler:\n"
+#if defined(__GNUC__) && ! defined(__clang__)
         "- MINGW/G++ %d.%d.%d <https://gcc.gnu.org/>\n"
+#else
+#ifdef __clang__
+        "- LLVM/MINGW %d.%d.%d <https://github.com/mstorsjo/llvm-mingw>\n"
+#else
+        "- Unknown"
+#endif
 #endif
 				"\nThanks to:\n"
 				" - K.I.Martin for applying Perturbation and Series Approximation on\n"
@@ -4530,9 +4550,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				ILMBASE_VERSION_STRING,
 				OPENEXR_VERSION_STRING,
 				GLM_VERSION_MAJOR, GLM_VERSION_MINOR, GLM_VERSION_PATCH, GLM_VERSION_REVISION,
-				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100
-#ifdef __GNUC__
+				BOOST_VERSION / 100000, BOOST_VERSION / 100 % 1000, BOOST_VERSION % 100,
+				GLFW_VERSION_MAJOR, GLFW_VERSION_MINOR, GLFW_VERSION_REVISION
+#if defined(__GNUC__) && ! defined(__clang__)
 				, __GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__
+#else
+#if define(__clang__)
+        , __clang_major__, __clang_minor__, __clang_patchlevel__
+#endif
 #endif
 				);
 			szMsg[4096-1] = 0;
@@ -4785,6 +4810,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
+		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
 		strcpy(strrchr(g_szRecovery,'.'),".rec");
 
@@ -4814,6 +4840,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			DispatchMessage(&msg);
 		}
 		DeleteFile(g_szRecovery);
+		request req;
+		req.tag = request_quit;
+		fifo_write(to_opengl, req);
+		response resp;
+		fifo_read(from_opengl, resp);
+		opengl.join();
 	}
 	else
 	{
@@ -4875,6 +4907,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				return 1;
 			}
 		}
+		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
 		bool ok = true;
     if (g_args->bLoadMap)
@@ -4922,6 +4955,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			output_log_message(Info, "all done, exiting");
 		}
+		request req;
+		req.tag = request_quit;
+		fifo_write(to_opengl, req);
+		response resp;
+		fifo_read(from_opengl, resp);
+		opengl.join();
 		return ok ? 0 : 1;
 	}
 

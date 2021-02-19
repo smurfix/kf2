@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -477,6 +477,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_EXPONENTIAL_MAP 40153
 #define ID_TRANSFORMATION 40154
 #define ID_RESET_TRANSFORMATION 40155
+#define ID_SPECIAL_OPENGL 40156
 
 // OpenCL
 #ifdef KF_OPENCL

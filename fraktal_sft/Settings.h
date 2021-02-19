@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -91,6 +91,7 @@ private:
   bool m_EXRParallel;
   bool m_SaveNewtonProgress;
   bool m_ExponentialMap;
+  bool m_UseOpenGL;
 
 public:
 
@@ -149,6 +150,7 @@ public:
   , m_EXRParallel(true)
   , m_SaveNewtonProgress(false)
   , m_ExponentialMap(false)
+  , m_UseOpenGL(false)
   { };
 
   bool FromText(const std::string &text);
@@ -344,6 +346,9 @@ public:
 
   inline bool   GetExponentialMap() const { return m_ExponentialMap; };
   inline void   SetExponentialMap(bool b) { m_ExponentialMap = b; };
+
+  inline bool   GetUseOpenGL() const { return m_UseOpenGL; };
+  inline void   SetUseOpenGL(bool b) { m_UseOpenGL = b; };
 
 };
 

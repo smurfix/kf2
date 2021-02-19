@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -42,6 +42,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cmath>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <set>
 #include "../common/bitmap.h"
 #include "../formula/formula.h"
@@ -55,6 +56,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "newton.h"
 #include "scale_bitmap.h"
 #include "dual.h"
+#include "opengl.h"
 
 double g_real=1;
 double g_imag=1;
@@ -700,7 +702,7 @@ static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x, int y, int w, int h)
 {
-	if (m_bInhibitColouring) return;
+	if (m_bInhibitColouring || GetUseOpenGL()) return;
 	srgb s;
 	s.r = 0;
 	s.g = 0;
@@ -1186,6 +1188,20 @@ static int ThApplyColors(TH_PARAMS *pMan)
 	return 0;
 }
 
+static bool opengl_initialized = false;
+static bool opengl_compiled = false;
+static std::string read_file(const std::string &filename) {
+  std::ifstream in(filename);
+  if (in.is_open())
+  {
+    std::ostringstream sstr;
+    sstr << in.rdbuf();
+    return sstr.str();
+  }
+  return "";
+}
+
+
 void CFraktalSFT::ApplyColors()
 {
 	LoadTexture();
@@ -1201,32 +1217,151 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-		SYSTEM_INFO sysinfo;
-		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-		if (nParallel < 1) nParallel = 1;
-		CParallell P(
-#ifdef _DEBUG
-			1
-#else
-			nParallel
-#endif
-			);
-		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-		int nXStart = 0;
-		int nXStep = (m_nX + nParallel - 1) / nParallel;
-		for (i = 0; i < nParallel; i++)
+		bool opengl_rendered = false;
+		if (GetUseOpenGL())
 		{
-			pMan[i].p = this;
-			pMan[i].nXStart = nXStart;
-			nXStart += nXStep;
-			if (nXStart > m_nX) nXStart = m_nX;
-			pMan[i].nXStop = nXStart;
-			P.AddFunction((LPEXECUTE)ThApplyColors, &pMan[i]);
+			if (! opengl_initialized)
+			{
+				request req;
+				req.tag = request_init;
+				req.u.init.major = 3;
+				req.u.init.minor = 3;
+				fifo_write(to_opengl, req);
+				response resp;
+				fifo_read(from_opengl, resp);
+				assert(resp.tag == response_init);
+				opengl_initialized = resp.u.init.success;
+			}
+			if (opengl_initialized && ! opengl_compiled)
+			{
+				request req;
+				req.tag = request_compile;
+				req.u.compile.vertex_src = read_file("kf.vert.glsl");
+				req.u.compile.fragment_src = read_file("kf.frag.glsl");
+				fifo_write(to_opengl, req);
+				response resp;
+				fifo_read(from_opengl, resp);
+				assert(resp.tag == response_compile);
+				std::cerr << (resp.u.compile.success ? "compiled" : "NOT COMPILED") << std::endl;
+				std::cerr << resp.u.compile.vertex_log;
+				std::cerr << resp.u.compile.fragment_log;
+				std::cerr << resp.u.compile.link_log;
+				opengl_compiled = resp.u.compile.success;
+			}
+			if (opengl_initialized && opengl_compiled)
+			{
+				request req;
+				req.tag = request_configure;
+				req.u.configure.iterations = GetIterations();
+				GetIterations(req.u.configure.iterations_min, req.u.configure.iterations_max);
+				req.u.configure.jitter_seed = GetJitterSeed();
+				req.u.configure.show_glitches = GetShowGlitches();
+				req.u.configure.iter_div = GetIterDiv();
+				req.u.configure.color_offset = GetColorOffset();
+				req.u.configure.color_method = GetColorMethod();
+				req.u.configure.differences = GetDifferences();
+				req.u.configure.color_phase_strength = GetPhaseColorStrength();
+				req.u.configure.colors.clear();
+				for (int i = 0; i < m_nParts; ++i)
+				{
+					req.u.configure.colors.push_back(m_cKeys[i].r);
+					req.u.configure.colors.push_back(m_cKeys[i].g);
+					req.u.configure.colors.push_back(m_cKeys[i].b);
+				}
+				COLOR14 interior = GetInteriorColor();
+				req.u.configure.interior_color[0] = interior.r;
+				req.u.configure.interior_color[1] = interior.g;
+				req.u.configure.interior_color[2] = interior.b;
+				req.u.configure.smooth = m_bTrans;
+				req.u.configure.flat = GetFlat();
+				req.u.configure.multiwaves_enabled = m_bMW;
+				req.u.configure.multiwaves_blend = m_bBlend;
+				req.u.configure.multiwaves.clear();
+				for (int i = 0; i < m_nMW; ++i)
+				{
+					req.u.configure.multiwaves.push_back(m_MW[i].nPeriod);
+					req.u.configure.multiwaves.push_back(m_MW[i].nStart);
+					req.u.configure.multiwaves.push_back(m_MW[i].nType);
+				}
+				req.u.configure.inverse_transition = GetITransition();
+				{
+					int p = 0, r = 0, a = 0;
+					req.u.configure.slopes = GetSlopes(p, r, a);
+					req.u.configure.slope_power = p;
+					req.u.configure.slope_ratio = r;
+					req.u.configure.slope_angle = a;
+				}
+				{
+					double m = 0, p = 0;
+					int r = 0;
+					std::string f;
+					req.u.configure.texture_enabled = GetTexture(m, p, r, f);
+					req.u.configure.texture_merge = m;
+					req.u.configure.texture_power = p;
+					req.u.configure.texture_ratio = r;
+					int nImgOffs = m_nImgPower / 64;
+					req.u.configure.texture_width = m_nX + (nImgOffs + m_nImgPower) / 64;
+					req.u.configure.texture_height = m_nY + (nImgOffs + m_nImgPower) / 64;
+					req.u.configure.texture = m_lpTextureBits; // FIXME row alignment?
+				}
+				fifo_write(to_opengl, req);
+				response resp;
+				fifo_read(from_opengl, resp);
+				assert(resp.tag == response_configure);
+			}
+			if (opengl_initialized && opengl_compiled)
+			{
+				request req;
+				req.tag = request_render;
+				req.u.render.width = m_nX;
+				req.u.render.height = m_nY;
+				req.u.render.n_msb = m_nPixels_MSB;
+				req.u.render.n_lsb = m_nPixels_LSB;
+				req.u.render.n_f = m_nTrans ? &m_nTrans[0][0] : nullptr;
+				req.u.render.t = m_nPhase ? &m_nPhase[0][0] : nullptr;
+				req.u.render.dex = m_nDEx ? &m_nDEx[0][0] : nullptr;
+				req.u.render.dey = m_nDEy ? &m_nDEy[0][0] : nullptr;
+				req.u.render.rgb16 = m_imageHalf;
+				req.u.render.rgb8 = m_lpBits; // FIXME row alignment?
+				fifo_write(to_opengl, req);
+				response resp;
+				fifo_read(from_opengl, resp);
+				assert(resp.tag == response_render);
+				opengl_rendered = true;
+			}
 		}
-		P.Execute();
-		P.Reset();
-		delete[] pMan;
+		if (opengl_rendered)
+		{
+		}
+		else
+		{
+			SYSTEM_INFO sysinfo;
+			GetSystemInfo(&sysinfo);
+			int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+			if (nParallel < 1) nParallel = 1;
+			CParallell P(
+#ifdef _DEBUG
+					1
+#else
+					nParallel
+#endif
+				);
+			TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+			int nXStart = 0;
+			int nXStep = (m_nX + nParallel - 1) / nParallel;
+			for (i = 0; i < nParallel; i++)
+			{
+				pMan[i].p = this;
+				pMan[i].nXStart = nXStart;
+				nXStart += nXStep;
+				if (nXStart > m_nX) nXStart = m_nX;
+				pMan[i].nXStop = nXStart;
+				P.AddFunction((LPEXECUTE)ThApplyColors, &pMan[i]);
+			}
+			P.Execute();
+			P.Reset();
+			delete[] pMan;
+		}
 	}
 }
 int CFraktalSFT::GetSeed()
@@ -3609,7 +3744,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 
 void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 {
-		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring)
+		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring && ! GetUseOpenGL())
     {
       int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
       for (int ty = 0; ty < h; ++ty)

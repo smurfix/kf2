@@ -1,6 +1,6 @@
 # Kalles Fraktaler 2
 # Copyright (C) 2013-2017 Karl Runmo
-# Copyright (C) 2017-2020 Claude Heiland-Allen
+# Copyright (C) 2017-2021 Claude Heiland-Allen
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU Affero General Public License as
@@ -26,9 +26,9 @@ include $(SYSTEM).mk
 
 CLEWPREFIX := $(HOME)/win/src/clew
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -MMD -g -ggdb -gdwarf -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -MMD -g -ggdb -gdwarf -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Iglad/include
 LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
-LIBS := -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
+LIBS := -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/CDecNumber.cpp \
@@ -62,6 +62,7 @@ fraktal_sft/nanomb1_reference.cpp \
 fraktal_sft/nanomb2_perturbation.cpp \
 fraktal_sft/nanomb2_reference.cpp \
 fraktal_sft/newton.cpp \
+fraktal_sft/opengl.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/render.cpp \
@@ -79,6 +80,7 @@ fraktal_sft/colour.h \
 fraktal_sft/complex.h \
 fraktal_sft/dual.h \
 fraktal_sft/exr.h \
+fraktal_sft/fifo.h \
 fraktal_sft/floatexp.h \
 fraktal_sft/fraktal_sft.h \
 fraktal_sft/gradient.h \
@@ -100,6 +102,7 @@ fraktal_sft/nanomb1.inc \
 fraktal_sft/nanomb2.h \
 fraktal_sft/nanomb2.inc \
 fraktal_sft/newton.h \
+fraktal_sft/opengl.h \
 fraktal_sft/png.h \
 fraktal_sft/resource.h \
 fraktal_sft/scale_bitmap.h \
@@ -133,7 +136,7 @@ OPENCL_SOURCES_C = $(CLEWPREFIX)/src/clew.c
 OPENCL_SOURCES_H = cl/opencl.h $(CLEWPREFIX)/include/clew.h
 
 SOURCES_CPP = $(FRAKTAL_SOURCES_CPP) $(COMMON_SOURCES_CPP)
-SOURCES_C = $(wildcard formula/generated/*.c)
+SOURCES_C = $(wildcard formula/generated/*.c) glad/src/glad.c
 SOURCES_H = $(FRAKTAL_SOURCES_H) $(COMMON_SOURCES_H)
 
 FLAGS_WINDRES = -DKF_SIMD=$(SIMD)

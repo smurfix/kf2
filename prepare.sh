@@ -64,6 +64,7 @@ then
   wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.4.tar.gz -O openexr-2.5.4.tar.gz
+  wget -c https://github.com/glfw/glfw/releases/download/3.3.2/glfw-3.3.2.zip
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
 fi
@@ -204,6 +205,19 @@ then
     mkdir -p build
     cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win/x86_64/include -DZLIB_INCLUDE_DIR=$HOME/win/x86_64/include -DZLIB_LIBRARY=$HOME/win/x86_64/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win/x86_64 ..
+    make -j $NCPUS
+    make install
+  fi
+  if [[ "${PREPARE}" =~ "glfw" ]]
+  then
+    # glfw 64
+    mkdir -p ~/win/x86_64/src
+    cd ~/win/x86_64/src
+    unzip ~/win/src/glfw-3.3.2.zip
+    cd glfw-3.3.2/
+    mkdir -p build
+    cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/x86_64-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/x86_64/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
     make -j $NCPUS
     make install
   fi
@@ -349,6 +363,19 @@ then
     mkdir -p build
     cd build
     cmake -DBUILD_SHARED_LIBS=OFF -DCMAKE_TOOLCHAIN_FILE=../cmake/Toolchain-mingw.cmake -DCMAKE_CXX_FLAGS=-I$HOME/win/i686/include -DZLIB_INCLUDE_DIR=$HOME/win/i686/include -DZLIB_LIBRARY=$HOME/win/i686/lib/libz.a -DCMAKE_INSTALL_PREFIX=$HOME/win/i686 ..
+    make -j $NCPUS
+    make install
+  fi
+  if [[ "${PREPARE}" =~ "glfw" ]]
+  then
+    # glfw 32
+    mkdir -p ~/win/i686/src
+    cd ~/win/i686/src
+    unzip ~/win/src/glfw-3.3.2.zip
+    cd glfw-3.3.2/
+    mkdir -p build
+    cd build
+    cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/i686-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/i686/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
     make -j $NCPUS
     make install
   fi
