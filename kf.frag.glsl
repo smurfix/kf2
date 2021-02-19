@@ -430,7 +430,7 @@ void main(void)
     }
     else
     {
-      vdiff.x = sub(float4
+      vdiff.x = -sub(float4
         ( texture(Internal_N1, c + dx).r
         , texture(Internal_N0, c + dx).r
         , 1.0 - texture(Internal_NF, c + dx).r
