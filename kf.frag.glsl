@@ -109,13 +109,49 @@ vec3 lrgb2srgb(vec3 s)
 
 vec3 palette(float ix)
 {
-  // ensure ix is in [0..1)
+  // map [0..1) to [0..1024)
   ix -= floor(ix);
+  ix *= 1024.0;
   // c0, c1 are neighbouring colours in n-palette with interpolant cf
-  int n = textureSize(Internal_Palette, 0);
+  int m_nParts = textureSize(Internal_Palette, 0);
+  vec3 c0, c1;
+  {
+    int i = int(floor(ix));
+    float temp = float(i) * float(m_nParts) / 1024.0;
+    int p = int(temp);
+    int pn = (p + 1) % m_nParts;
+    temp -= float(p);
+    temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
+    c0 = mix
+      ( texelFetch(Internal_Palette, p, 0).rgb
+      , texelFetch(Internal_Palette, pn, 0).rgb
+      , temp
+      );
+  }
+  if (KFP_Smooth)
+  {
+    int i = (int(floor(ix)) + 1) % m_nParts;
+    float temp = float(i) * float(m_nParts) / 1024.0;
+    int p = int(temp);
+    int pn = (p + 1) % m_nParts;
+    temp -= float(p);
+    temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
+    c1 = mix
+      ( texelFetch(Internal_Palette, p, 0).rgb
+      , texelFetch(Internal_Palette, pn, 0).rgb
+      , temp
+      );
+    ix -= floor(ix);
+    return mix(c0, c1, ix);
+  }
+  else
+  {
+    return c0;
+  }
+#if 0
   int ix0 = ((int(floor(ix * float(n))) % n) + n) % n;
   int ix1 = (ix0 + 1) % n;
-  float cf = (ix * float(n)) - float(ix0);
+  float cf = (ix * float(n)) - floor(ix * float(n));
   vec3 c0 = texelFetch(Internal_Palette, ix0, 0).rgb;
   vec3 c1 = texelFetch(Internal_Palette, ix1, 0).rgb;
   // to match KF's regular colouring, need to sin-interpolate c0, c1
@@ -123,19 +159,17 @@ vec3 palette(float ix)
   // and then linear-interpolate those (if smoothing is desired)
   float cf0 = floor(cf * 1024.0 / float(n)) * float(n) / 1024.0;
   float cf1 = floor(cf * 1024.0 / float(n) + 1.0) * float(n) / 1024.0;
-//  cf0 -= floor(cf0);
-//  cf1 -= floor(cf1);
-  vec3 s0 = mix(c0, c1, 0.5 * (1.0 - cos(pi * cf0)));
+  vec3 s0 = mix(c0, c1, sin((cf0 - 0.5) * pi) / 2.0 + 0.5);//0.5 * (1.0 - cos(pi * cf0)));
   if (KFP_Smooth)
   {
-    vec3 s1 = mix(c0, c1, 0.5 * (1.0 - cos(pi * cf1)));
-    // would like to use (cf-cf0)/(cf1-cf0) but that is risky with wrapping
-    return mix(s0, s1, (cf - cf0) / (float(n) / 1024.0));
+    vec3 s1 = mix(c0, c1, sin((cf1 - 0.5) * pi) / 2.0 + 0.5);//0.5 * (1.0 - cos(pi * cf1)));
+    return mix(s0, s1, (cf - cf0) / (cf1 - cf0));
   }
   else
   {
     return s0;
   }
+#endif
 }
 
 #define Float4 float
@@ -156,6 +190,18 @@ float float4(float a) { return a; }
 float float4(uint a, uint b) { return float(a) * pow(2.0, 32.0) + float(b); }
 float float4(uint a, uint b, float c) { return float4(a, b) + c; }
 
+int diff(uint a, uint b)
+{
+  if (a >= b)
+  {
+    return int(a - b);
+  }
+  else
+  {
+    return -int(b - a);
+  }
+}
+
 void main(void)
 {
   vec2 c = vec2(1.0 - Internal_TexCoord.y, Internal_TexCoord.x);
@@ -165,11 +211,7 @@ void main(void)
   uint N1 = texture(Internal_N1, c).r;
   uint N0 = texture(Internal_N0, c).r;
   float NF = texture(Internal_NF, c).r;
-  if (KFP_Flat)
-  {
-    NF = 0.0;
-  }
-  Float4 N = float4(N1, N0, 1.0 - NF);
+  Float4 N = float4(N1, N0, /*KFP_Flat ? 0.0 : */1.0 - NF);
   float T = texture(Internal_T, c).r;
   vec2 DE = vec2(texture(Internal_DEX, c).r, texture(Internal_DEY, c).r);
   if (! KFP_ShowGlitches && NF < 0.0)
@@ -182,7 +224,7 @@ void main(void)
   }
   else
   {
-    Float4 iter;
+    Float4 iter = float4(0.0);
     switch (KFP_ColorMethod)
     {
       case ColorMethod_Standard: iter = N; break;
@@ -211,21 +253,25 @@ void main(void)
         else
         {
           // load 3x3 stencil around the pixel
-          const float ninf = -1.0 / 0.0;
-          mat3 p = mat3(ninf, ninf, ninf, ninf, ninf, ninf, ninf, ninf, ninf);
+          mat3 p = mat3(0.0);
           mat3 px = mat3(0.0);
           mat3 py = mat3(0.0);
           for (int dj = -1; dj <= 1; ++dj)
           {
             for (int di = -1; di <= 1; ++di)
             {
-              p[dj + 1][di + 1] = sub(float4
+              p[dj + 1][di + 1] = float4
                 ( texture(Internal_N1, c + dx * float(di) + dy * float(dj)).r
                 , texture(Internal_N0, c + dx * float(di) + dy * float(dj)).r
                 , 1.0 - texture(Internal_NF, c + dx * float(di) + dy * float(dj)).r
-                ), N)/*.f[0]*/;
-              px[dj + 1][di + 1] = di;
-              py[dj + 1][di + 1] = dj;
+                )/*.f[0]*/;
+#if 0
+                float(diff(texture(Internal_N1, c + dx * float(di) + dy * float(dj)).r, N1)) * pow(2.0, 32.0) +
+                float(diff(texture(Internal_N0, c + dx * float(di) + dy * float(dj)).r, N0)) +
+                ((1.0 - texture(Internal_NF, c + dx * float(di) + dy * float(dj)).r) - (1.0 - NF));
+#endif
+              px[dj + 1][di + 1] = float(di);
+              py[dj + 1][di + 1] = float(dj);
               // GetPixelOffset(x    , y    , px[1][1], py[1][1]); px += di py += dj// FIXME jitter coords
             }
           }
@@ -392,7 +438,7 @@ void main(void)
         nS /= float(nDG);
       if (nDB > 0)
         nB /= float(nDB);
-      vec3 nRGB = srgb2lrgb(hsv2rgb(vec3(nH, nS, nB)));
+      vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)));
       if (KFP_MultiWavesBlend)
       {
         iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
