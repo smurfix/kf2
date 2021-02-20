@@ -225,6 +225,7 @@ void main(void)
     Float4 iter = float4(0.0);
     switch (KFP_ColorMethod)
     {
+      default:
       case ColorMethod_Standard: iter = N; break;
       case ColorMethod_SquareRoot: iter = sqrt_(max_(0.0, N)); break;
       case ColorMethod_CubicRoot: iter = cbrt_(max_(0.0, N)); break;
@@ -368,6 +369,7 @@ void main(void)
               }
             }
             break;
+            default:
             case Differences_Traditional:
             {
               // traditional method reverse engineered from original code
