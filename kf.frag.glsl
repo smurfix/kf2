@@ -130,7 +130,7 @@ vec3 palette(float ix)
   }
   if (KFP_Smooth)
   {
-    int i = (int(floor(ix)) + 1) % m_nParts;
+    int i = (int(floor(ix)) + 1) % 1024;
     float temp = float(i) * float(m_nParts) / 1024.0;
     int p = int(temp);
     int pn = (p + 1) % m_nParts;
