@@ -1,7 +1,5 @@
 #version 330 core
 
-in vec2 Internal_TexCoord;
-
 layout(location = 0, index = 0) out vec4 Internal_Colour;
 
 uniform usampler2D Internal_N1;
@@ -12,6 +10,8 @@ uniform sampler2D Internal_DEX;
 uniform sampler2D Internal_DEY;
 uniform sampler2D Internal_Texture;
 uniform sampler1D Internal_Palette;
+
+uniform ivec2 Internal_TilePadding;
 
 uniform ivec2 KFP_ImageSize;
 
@@ -204,16 +204,14 @@ int diff(uint a, uint b)
 
 void main(void)
 {
-  vec2 c = vec2(1.0 - Internal_TexCoord.y, Internal_TexCoord.x);
-  vec2 dx = dFdx(c);
-  vec2 dy = dFdy(c);
+  ivec2 tc = Internal_TilePadding + ivec2(KFP_ImageSize.y - 1 - int(gl_FragCoord.y), int(gl_FragCoord.x));
   vec3 s = vec3(0.0);
-  uint N1 = texture(Internal_N1, c).r;
-  uint N0 = texture(Internal_N0, c).r;
-  float NF = texture(Internal_NF, c).r;
-  Float4 N = float4(N1, N0, /*KFP_Flat ? 0.0 : */1.0 - NF);
-  float T = texture(Internal_T, c).r;
-  vec2 DE = vec2(texture(Internal_DEX, c).r, texture(Internal_DEY, c).r);
+  uint N1 = texelFetch(Internal_N1, tc, 0).r;
+  uint N0 = texelFetch(Internal_N0, tc, 0).r;
+  float NF = texelFetch(Internal_NF, tc, 0).r;
+  Float4 N = float4(N1, N0, 1.0 - NF);
+  float T = texelFetch(Internal_T, tc, 0).r;
+  vec2 DE = vec2(texelFetch(Internal_DEX, tc, 0).r, texelFetch(Internal_DEY, tc, 0).r);
   if (! KFP_ShowGlitches && NF < 0.0)
   {
     discard;
@@ -260,16 +258,12 @@ void main(void)
           {
             for (int di = -1; di <= 1; ++di)
             {
-              p[dj + 1][di + 1] = float4
-                ( texture(Internal_N1, c + dx * float(di) + dy * float(dj)).r
-                , texture(Internal_N0, c + dx * float(di) + dy * float(dj)).r
-                , 1.0 - texture(Internal_NF, c + dx * float(di) + dy * float(dj)).r
-                )/*.f[0]*/;
-#if 0
-                float(diff(texture(Internal_N1, c + dx * float(di) + dy * float(dj)).r, N1)) * pow(2.0, 32.0) +
-                float(diff(texture(Internal_N0, c + dx * float(di) + dy * float(dj)).r, N0)) +
-                ((1.0 - texture(Internal_NF, c + dx * float(di) + dy * float(dj)).r) - (1.0 - NF));
-#endif
+              ivec2 tc1 = tc + ivec2(-dj, di);
+              p[dj + 1][di + 1] = sub(float4
+                ( texelFetch(Internal_N1, tc1, 0).r
+                , texelFetch(Internal_N0, tc1, 0).r
+                , 1.0 - texelFetch(Internal_NF, tc1, 0).r
+                ), N)/*.f[0]*/;
               px[dj + 1][di + 1] = float(di);
               py[dj + 1][di + 1] = float(dj);
               // GetPixelOffset(x    , y    , px[1][1], py[1][1]); px += di py += dj// FIXME jitter coords
@@ -476,15 +470,15 @@ void main(void)
     }
     else
     {
-      vdiff.x = -sub(float4
-        ( texture(Internal_N1, c + dx).r
-        , texture(Internal_N0, c + dx).r
-        , 1.0 - texture(Internal_NF, c + dx).r
+      vdiff.x = sub(float4
+        ( texelFetch(Internal_N1, tc + ivec2(0, 1), 0).r
+        , texelFetch(Internal_N0, tc + ivec2(0, 1), 0).r
+        , 1.0 - texelFetch(Internal_NF, tc + ivec2(0, 1), 0).r
         ), N)/*.f[0]*/;
-      vdiff.y = sub(float4
-        ( texture(Internal_N1, c + dy).r
-        , texture(Internal_N0, c + dy).r
-        , 1.0 - texture(Internal_NF, c + dy).r
+      vdiff.y = -sub(float4
+        ( texelFetch(Internal_N1, tc + ivec2(-1, 0), 0).r
+        , texelFetch(Internal_N0, tc + ivec2(-1, 0), 0).r
+        , 1.0 - texelFetch(Internal_NF, tc + ivec2(-1, 0), 0).r
         ), N)/*.f[0]*/;
     }
     float diff = dot(vdiff, KFP_SlopeDir);
