@@ -161,6 +161,9 @@ Feedback:
 - OpenCL runs on the main thread making the GUI less responsive
 - sometimes files are overwritten without confirmation, when the filename
   is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
+- "Redshifter z^3+a*z^2+c seems to have a bug for a=2, z0 = -4/3" at low
+  zoom levels (reported by gerrit).  Probably needs to start the primary
+  reference at specified z0 instead of 0+0i.
 
 
 ## Differences From Upstream 2.11.1
