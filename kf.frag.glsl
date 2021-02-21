@@ -71,8 +71,543 @@ uniform float KFP_TextureRatio;
 
 // hack to force explicit evaluation order
 uniform float Internal_Zero;
-float Internal_One;
+float Internal_One = 1.0;
 float X(float a) { return Internal_One * a; }
+
+#if __VERSION__ >= 400
+float _builtin_ldexp(float a, int b) { return ldexp(a, b); }
+float ldexp(float a, int b) { return _builtin_ldexp(a, b); }
+#else
+float ldexp(float a, int b) { return a * exp2(b); }
+#endif
+
+///=====================================================================
+/// overload abs()
+
+int _builtin_abs(int a) { return abs(a); }
+ivec2 _builtin_abs(ivec2 a) { return abs(a); }
+ivec3 _builtin_abs(ivec3 a) { return abs(a); }
+ivec4 _builtin_abs(ivec4 a) { return abs(a); }
+float _builtin_abs(float a) { return abs(a); }
+vec2 _builtin_abs(vec2 a) { return abs(a); }
+vec3 _builtin_abs(vec3 a) { return abs(a); }
+vec4 _builtin_abs(vec4 a) { return abs(a); }
+#if __VERSION__ >= 400
+double _builtin_abs(double a) { return abs(a); }
+dvec2 _builtin_abs(dvec2 a) { return abs(a); }
+dvec3 _builtin_abs(dvec3 a) { return abs(a); }
+dvec4 _builtin_abs(dvec4 a) { return abs(a); }
+#endif
+
+int abs(int a) { return _builtin_abs(a); }
+ivec2 abs(ivec2 a) { return _builtin_abs(a); }
+ivec3 abs(ivec3 a) { return _builtin_abs(a); }
+ivec4 abs(ivec4 a) { return _builtin_abs(a); }
+float abs(float a) { return _builtin_abs(a); }
+vec2 abs(vec2 a) { return _builtin_abs(a); }
+vec3 abs(vec3 a) { return _builtin_abs(a); }
+vec4 abs(vec4 a) { return _builtin_abs(a); }
+#if __VERSION__ >= 400
+double abs(double a) { return _builtin_abs(a); }
+dvec2 abs(dvec2 a) { return _builtin_abs(a); }
+dvec3 abs(dvec3 a) { return _builtin_abs(a); }
+dvec4 abs(dvec4 a) { return _builtin_abs(a); }
+#endif
+
+///=====================================================================
+/// overload sqrt()
+
+float _builtin_sqrt(float a) { return sqrt(a); }
+vec2 _builtin_sqrt(vec2 a) { return sqrt(a); }
+vec3 _builtin_sqrt(vec3 a) { return sqrt(a); }
+vec4 _builtin_sqrt(vec4 a) { return sqrt(a); }
+#if __VERSION__ >= 400
+double _builtin_sqrt(double a) { return sqrt(a); }
+dvec2 _builtin_sqrt(dvec2 a) { return sqrt(a); }
+dvec3 _builtin_sqrt(dvec3 a) { return sqrt(a); }
+dvec4 _builtin_sqrt(dvec4 a) { return sqrt(a); }
+#endif
+
+float sqrt(float a) { return _builtin_sqrt(a); }
+vec2 sqrt(vec2 a) { return _builtin_sqrt(a); }
+vec3 sqrt(vec3 a) { return _builtin_sqrt(a); }
+vec4 sqrt(vec4 a) { return _builtin_sqrt(a); }
+#if __VERSION__ >= 400
+double sqrt(double a) { return _builtin_sqrt(a); }
+dvec2 sqrt(dvec2 a) { return _builtin_sqrt(a); }
+dvec3 sqrt(dvec3 a) { return _builtin_sqrt(a); }
+dvec4 sqrt(dvec4 a) { return _builtin_sqrt(a); }
+#endif
+
+///=====================================================================
+/// overload floor()
+
+float _builtin_floor(float a) { return floor(a); }
+vec2 _builtin_floor(vec2 a) { return floor(a); }
+vec3 _builtin_floor(vec3 a) { return floor(a); }
+vec4 _builtin_floor(vec4 a) { return floor(a); }
+#if __VERSION__ >= 400
+double _builtin_floor(double a) { return floor(a); }
+dvec2 _builtin_floor(dvec2 a) { return floor(a); }
+dvec3 _builtin_floor(dvec3 a) { return floor(a); }
+dvec4 _builtin_floor(dvec4 a) { return floor(a); }
+#endif
+
+float floor(float a) { return _builtin_floor(a); }
+vec2 floor(vec2 a) { return _builtin_floor(a); }
+vec3 floor(vec3 a) { return _builtin_floor(a); }
+vec4 floor(vec4 a) { return _builtin_floor(a); }
+#if __VERSION__ >= 400
+double floor(double a) { return _builtin_floor(a); }
+dvec2 floor(dvec2 a) { return _builtin_floor(a); }
+dvec3 floor(dvec3 a) { return _builtin_floor(a); }
+dvec4 floor(dvec4 a) { return _builtin_floor(a); }
+#endif
+
+///=====================================================================
+/// overload ceil()
+
+float _builtin_ceil(float a) { return ceil(a); }
+vec2 _builtin_ceil(vec2 a) { return ceil(a); }
+vec3 _builtin_ceil(vec3 a) { return ceil(a); }
+vec4 _builtin_ceil(vec4 a) { return ceil(a); }
+#if __VERSION__ >= 400
+double _builtin_ceil(double a) { return ceil(a); }
+dvec2 _builtin_ceil(dvec2 a) { return ceil(a); }
+dvec3 _builtin_ceil(dvec3 a) { return ceil(a); }
+dvec4 _builtin_ceil(dvec4 a) { return ceil(a); }
+#endif
+
+float ceil(float a) { return _builtin_ceil(a); }
+vec2 ceil(vec2 a) { return _builtin_ceil(a); }
+vec3 ceil(vec3 a) { return _builtin_ceil(a); }
+vec4 ceil(vec4 a) { return _builtin_ceil(a); }
+#if __VERSION__ >= 400
+double ceil(double a) { return _builtin_ceil(a); }
+dvec2 ceil(dvec2 a) { return _builtin_ceil(a); }
+dvec3 ceil(dvec3 a) { return _builtin_ceil(a); }
+dvec4 ceil(dvec4 a) { return _builtin_ceil(a); }
+#endif
+
+///=====================================================================
+/// overload exp()
+
+float _builtin_exp(float a) { return exp(a); }
+vec2 _builtin_exp(vec2 a) { return exp(a); }
+vec3 _builtin_exp(vec3 a) { return exp(a); }
+vec4 _builtin_exp(vec4 a) { return exp(a); }
+#if __VERSION__ >= 400
+double _builtin_exp(double a) { return exp(a); }
+dvec2 _builtin_exp(dvec2 a) { return exp(a); }
+dvec3 _builtin_exp(dvec3 a) { return exp(a); }
+dvec4 _builtin_exp(dvec4 a) { return exp(a); }
+#endif
+
+float exp(float a) { return _builtin_exp(a); }
+vec2 exp(vec2 a) { return _builtin_exp(a); }
+vec3 exp(vec3 a) { return _builtin_exp(a); }
+vec4 exp(vec4 a) { return _builtin_exp(a); }
+#if __VERSION__ >= 400
+double exp(double a) { return _builtin_exp(a); }
+dvec2 exp(dvec2 a) { return _builtin_exp(a); }
+dvec3 exp(dvec3 a) { return _builtin_exp(a); }
+dvec4 exp(dvec4 a) { return _builtin_exp(a); }
+#endif
+
+///=====================================================================
+/// overload log()
+
+float _builtin_log(float a) { return log(a); }
+vec2 _builtin_log(vec2 a) { return log(a); }
+vec3 _builtin_log(vec3 a) { return log(a); }
+vec4 _builtin_log(vec4 a) { return log(a); }
+#if __VERSION__ >= 400
+double _builtin_log(double a) { return log(a); }
+dvec2 _builtin_log(dvec2 a) { return log(a); }
+dvec3 _builtin_log(dvec3 a) { return log(a); }
+dvec4 _builtin_log(dvec4 a) { return log(a); }
+#endif
+
+float log(float a) { return _builtin_log(a); }
+vec2 log(vec2 a) { return _builtin_log(a); }
+vec3 log(vec3 a) { return _builtin_log(a); }
+vec4 log(vec4 a) { return _builtin_log(a); }
+#if __VERSION__ >= 400
+double log(double a) { return _builtin_log(a); }
+dvec2 log(dvec2 a) { return _builtin_log(a); }
+dvec3 log(dvec3 a) { return _builtin_log(a); }
+dvec4 log(dvec4 a) { return _builtin_log(a); }
+#endif
+
+///=====================================================================
+/// overload sin()
+
+float _builtin_sin(float a) { return sin(a); }
+vec2 _builtin_sin(vec2 a) { return sin(a); }
+vec3 _builtin_sin(vec3 a) { return sin(a); }
+vec4 _builtin_sin(vec4 a) { return sin(a); }
+#if __VERSION__ >= 400
+double _builtin_sin(double a) { return sin(a); }
+dvec2 _builtin_sin(dvec2 a) { return sin(a); }
+dvec3 _builtin_sin(dvec3 a) { return sin(a); }
+dvec4 _builtin_sin(dvec4 a) { return sin(a); }
+#endif
+
+float sin(float a) { return _builtin_sin(a); }
+vec2 sin(vec2 a) { return _builtin_sin(a); }
+vec3 sin(vec3 a) { return _builtin_sin(a); }
+vec4 sin(vec4 a) { return _builtin_sin(a); }
+#if __VERSION__ >= 400
+double sin(double a) { return _builtin_sin(a); }
+dvec2 sin(dvec2 a) { return _builtin_sin(a); }
+dvec3 sin(dvec3 a) { return _builtin_sin(a); }
+dvec4 sin(dvec4 a) { return _builtin_sin(a); }
+#endif
+
+///=====================================================================
+/// overload cos()
+
+float _builtin_cos(float a) { return cos(a); }
+vec2 _builtin_cos(vec2 a) { return cos(a); }
+vec3 _builtin_cos(vec3 a) { return cos(a); }
+vec4 _builtin_cos(vec4 a) { return cos(a); }
+#if __VERSION__ >= 400
+double _builtin_cos(double a) { return cos(a); }
+dvec2 _builtin_cos(dvec2 a) { return cos(a); }
+dvec3 _builtin_cos(dvec3 a) { return cos(a); }
+dvec4 _builtin_cos(dvec4 a) { return cos(a); }
+#endif
+
+float cos(float a) { return _builtin_cos(a); }
+vec2 cos(vec2 a) { return _builtin_cos(a); }
+vec3 cos(vec3 a) { return _builtin_cos(a); }
+vec4 cos(vec4 a) { return _builtin_cos(a); }
+#if __VERSION__ >= 400
+double cos(double a) { return _builtin_cos(a); }
+dvec2 cos(dvec2 a) { return _builtin_cos(a); }
+dvec3 cos(dvec3 a) { return _builtin_cos(a); }
+dvec4 cos(dvec4 a) { return _builtin_cos(a); }
+#endif
+
+///=====================================================================
+/// overload tan()
+
+float _builtin_tan(float a) { return tan(a); }
+vec2 _builtin_tan(vec2 a) { return tan(a); }
+vec3 _builtin_tan(vec3 a) { return tan(a); }
+vec4 _builtin_tan(vec4 a) { return tan(a); }
+#if __VERSION__ >= 400
+double _builtin_tan(double a) { return tan(a); }
+dvec2 _builtin_tan(dvec2 a) { return tan(a); }
+dvec3 _builtin_tan(dvec3 a) { return tan(a); }
+dvec4 _builtin_tan(dvec4 a) { return tan(a); }
+#endif
+
+float tan(float a) { return _builtin_tan(a); }
+vec2 tan(vec2 a) { return _builtin_tan(a); }
+vec3 tan(vec3 a) { return _builtin_tan(a); }
+vec4 tan(vec4 a) { return _builtin_tan(a); }
+#if __VERSION__ >= 400
+double tan(double a) { return _builtin_tan(a); }
+dvec2 tan(dvec2 a) { return _builtin_tan(a); }
+dvec3 tan(dvec3 a) { return _builtin_tan(a); }
+dvec4 tan(dvec4 a) { return _builtin_tan(a); }
+#endif
+
+///=====================================================================
+/// overload sinh()
+
+float _builtin_sinh(float a) { return sinh(a); }
+vec2 _builtin_sinh(vec2 a) { return sinh(a); }
+vec3 _builtin_sinh(vec3 a) { return sinh(a); }
+vec4 _builtin_sinh(vec4 a) { return sinh(a); }
+#if __VERSION__ >= 400
+double _builtin_sinh(double a) { return sinh(a); }
+dvec2 _builtin_sinh(dvec2 a) { return sinh(a); }
+dvec3 _builtin_sinh(dvec3 a) { return sinh(a); }
+dvec4 _builtin_sinh(dvec4 a) { return sinh(a); }
+#endif
+
+float sinh(float a) { return _builtin_sinh(a); }
+vec2 sinh(vec2 a) { return _builtin_sinh(a); }
+vec3 sinh(vec3 a) { return _builtin_sinh(a); }
+vec4 sinh(vec4 a) { return _builtin_sinh(a); }
+#if __VERSION__ >= 400
+double sinh(double a) { return _builtin_sinh(a); }
+dvec2 sinh(dvec2 a) { return _builtin_sinh(a); }
+dvec3 sinh(dvec3 a) { return _builtin_sinh(a); }
+dvec4 sinh(dvec4 a) { return _builtin_sinh(a); }
+#endif
+
+///=====================================================================
+/// overload cosh()
+
+float _builtin_cosh(float a) { return cosh(a); }
+vec2 _builtin_cosh(vec2 a) { return cosh(a); }
+vec3 _builtin_cosh(vec3 a) { return cosh(a); }
+vec4 _builtin_cosh(vec4 a) { return cosh(a); }
+#if __VERSION__ >= 400
+double _builtin_cosh(double a) { return cosh(a); }
+dvec2 _builtin_cosh(dvec2 a) { return cosh(a); }
+dvec3 _builtin_cosh(dvec3 a) { return cosh(a); }
+dvec4 _builtin_cosh(dvec4 a) { return cosh(a); }
+#endif
+
+float cosh(float a) { return _builtin_cosh(a); }
+vec2 cosh(vec2 a) { return _builtin_cosh(a); }
+vec3 cosh(vec3 a) { return _builtin_cosh(a); }
+vec4 cosh(vec4 a) { return _builtin_cosh(a); }
+#if __VERSION__ >= 400
+double cosh(double a) { return _builtin_cosh(a); }
+dvec2 cosh(dvec2 a) { return _builtin_cosh(a); }
+dvec3 cosh(dvec3 a) { return _builtin_cosh(a); }
+dvec4 cosh(dvec4 a) { return _builtin_cosh(a); }
+#endif
+
+///=====================================================================
+/// overload tanh()
+
+float _builtin_tanh(float a) { return tanh(a); }
+vec2 _builtin_tanh(vec2 a) { return tanh(a); }
+vec3 _builtin_tanh(vec3 a) { return tanh(a); }
+vec4 _builtin_tanh(vec4 a) { return tanh(a); }
+#if __VERSION__ >= 400
+double _builtin_tanh(double a) { return tanh(a); }
+dvec2 _builtin_tanh(dvec2 a) { return tanh(a); }
+dvec3 _builtin_tanh(dvec3 a) { return tanh(a); }
+dvec4 _builtin_tanh(dvec4 a) { return tanh(a); }
+#endif
+
+float tanh(float a) { return _builtin_tanh(a); }
+vec2 tanh(vec2 a) { return _builtin_tanh(a); }
+vec3 tanh(vec3 a) { return _builtin_tanh(a); }
+vec4 tanh(vec4 a) { return _builtin_tanh(a); }
+#if __VERSION__ >= 400
+double tanh(double a) { return _builtin_tanh(a); }
+dvec2 tanh(dvec2 a) { return _builtin_tanh(a); }
+dvec3 tanh(dvec3 a) { return _builtin_tanh(a); }
+dvec4 tanh(dvec4 a) { return _builtin_tanh(a); }
+#endif
+
+///=====================================================================
+/// overload asin()
+
+float _builtin_asin(float a) { return asin(a); }
+vec2 _builtin_asin(vec2 a) { return asin(a); }
+vec3 _builtin_asin(vec3 a) { return asin(a); }
+vec4 _builtin_asin(vec4 a) { return asin(a); }
+#if __VERSION__ >= 400
+double _builtin_asin(double a) { return asin(a); }
+dvec2 _builtin_asin(dvec2 a) { return asin(a); }
+dvec3 _builtin_asin(dvec3 a) { return asin(a); }
+dvec4 _builtin_asin(dvec4 a) { return asin(a); }
+#endif
+
+float asin(float a) { return _builtin_asin(a); }
+vec2 asin(vec2 a) { return _builtin_asin(a); }
+vec3 asin(vec3 a) { return _builtin_asin(a); }
+vec4 asin(vec4 a) { return _builtin_asin(a); }
+#if __VERSION__ >= 400
+double asin(double a) { return _builtin_asin(a); }
+dvec2 asin(dvec2 a) { return _builtin_asin(a); }
+dvec3 asin(dvec3 a) { return _builtin_asin(a); }
+dvec4 asin(dvec4 a) { return _builtin_asin(a); }
+#endif
+
+///=====================================================================
+/// overload acos()
+
+float _builtin_acos(float a) { return acos(a); }
+vec2 _builtin_acos(vec2 a) { return acos(a); }
+vec3 _builtin_acos(vec3 a) { return acos(a); }
+vec4 _builtin_acos(vec4 a) { return acos(a); }
+#if __VERSION__ >= 400
+double _builtin_acos(double a) { return acos(a); }
+dvec2 _builtin_acos(dvec2 a) { return acos(a); }
+dvec3 _builtin_acos(dvec3 a) { return acos(a); }
+dvec4 _builtin_acos(dvec4 a) { return acos(a); }
+#endif
+
+float acos(float a) { return _builtin_acos(a); }
+vec2 acos(vec2 a) { return _builtin_acos(a); }
+vec3 acos(vec3 a) { return _builtin_acos(a); }
+vec4 acos(vec4 a) { return _builtin_acos(a); }
+#if __VERSION__ >= 400
+double acos(double a) { return _builtin_acos(a); }
+dvec2 acos(dvec2 a) { return _builtin_acos(a); }
+dvec3 acos(dvec3 a) { return _builtin_acos(a); }
+dvec4 acos(dvec4 a) { return _builtin_acos(a); }
+#endif
+
+///=====================================================================
+/// overload atan()
+
+float _builtin_atan(float a) { return atan(a); }
+vec2 _builtin_atan(vec2 a) { return atan(a); }
+vec3 _builtin_atan(vec3 a) { return atan(a); }
+vec4 _builtin_atan(vec4 a) { return atan(a); }
+#if __VERSION__ >= 400
+double _builtin_atan(double a) { return atan(a); }
+dvec2 _builtin_atan(dvec2 a) { return atan(a); }
+dvec3 _builtin_atan(dvec3 a) { return atan(a); }
+dvec4 _builtin_atan(dvec4 a) { return atan(a); }
+#endif
+float _builtin_atan(float a, float b) { return atan(a, b); }
+vec2 _builtin_atan(vec2 a, vec2 b) { return atan(a, b); }
+vec3 _builtin_atan(vec3 a, vec3 b) { return atan(a, b); }
+vec4 _builtin_atan(vec4 a, vec4 b) { return atan(a, b); }
+#if __VERSION__ >= 400
+double _builtin_atan(double a, double b) { return atan(a, b); }
+dvec2 _builtin_atan(dvec2 a, dvec2 b) { return atan(a, b); }
+dvec3 _builtin_atan(dvec3 a, dvec3 b) { return atan(a, b); }
+dvec4 _builtin_atan(dvec4 a, dvec4 b) { return atan(a, b); }
+#endif
+
+float atan(float a) { return _builtin_atan(a); }
+vec2 atan(vec2 a) { return _builtin_atan(a); }
+vec3 atan(vec3 a) { return _builtin_atan(a); }
+vec4 atan(vec4 a) { return _builtin_atan(a); }
+#if __VERSION__ >= 400
+double atan(double a) { return _builtin_atan(a); }
+dvec2 atan(dvec2 a) { return _builtin_atan(a); }
+dvec3 atan(dvec3 a) { return _builtin_atan(a); }
+dvec4 atan(dvec4 a) { return _builtin_atan(a); }
+#endif
+float atan(float a, float b) { return _builtin_atan(a, b); }
+vec2 atan(vec2 a, vec2 b) { return _builtin_atan(a, b); }
+vec3 atan(vec3 a, vec3 b) { return _builtin_atan(a, b); }
+vec4 atan(vec4 a, vec4 b) { return _builtin_atan(a, b); }
+#if __VERSION__ >= 400
+double atan(double a, double b) { return _builtin_atan(a, b); }
+dvec2 atan(dvec2 a, dvec2 b) { return _builtin_atan(a, b); }
+dvec3 atan(dvec3 a, dvec3 b) { return _builtin_atan(a, b); }
+dvec4 atan(dvec4 a, dvec4 b) { return _builtin_atan(a, b); }
+#endif
+
+///=====================================================================
+/// overload asinh()
+
+float _builtin_asinh(float a) { return asinh(a); }
+vec2 _builtin_asinh(vec2 a) { return asinh(a); }
+vec3 _builtin_asinh(vec3 a) { return asinh(a); }
+vec4 _builtin_asinh(vec4 a) { return asinh(a); }
+#if __VERSION__ >= 400
+double _builtin_asinh(double a) { return asinh(a); }
+dvec2 _builtin_asinh(dvec2 a) { return asinh(a); }
+dvec3 _builtin_asinh(dvec3 a) { return asinh(a); }
+dvec4 _builtin_asinh(dvec4 a) { return asinh(a); }
+#endif
+
+float asinh(float a) { return _builtin_asinh(a); }
+vec2 asinh(vec2 a) { return _builtin_asinh(a); }
+vec3 asinh(vec3 a) { return _builtin_asinh(a); }
+vec4 asinh(vec4 a) { return _builtin_asinh(a); }
+#if __VERSION__ >= 400
+double asinh(double a) { return _builtin_asinh(a); }
+dvec2 asinh(dvec2 a) { return _builtin_asinh(a); }
+dvec3 asinh(dvec3 a) { return _builtin_asinh(a); }
+dvec4 asinh(dvec4 a) { return _builtin_asinh(a); }
+#endif
+
+///=====================================================================
+/// overload acosh()
+
+float _builtin_acosh(float a) { return acosh(a); }
+vec2 _builtin_acosh(vec2 a) { return acosh(a); }
+vec3 _builtin_acosh(vec3 a) { return acosh(a); }
+vec4 _builtin_acosh(vec4 a) { return acosh(a); }
+#if __VERSION__ >= 400
+double _builtin_acosh(double a) { return acosh(a); }
+dvec2 _builtin_acosh(dvec2 a) { return acosh(a); }
+dvec3 _builtin_acosh(dvec3 a) { return acosh(a); }
+dvec4 _builtin_acosh(dvec4 a) { return acosh(a); }
+#endif
+
+float acosh(float a) { return _builtin_acosh(a); }
+vec2 acosh(vec2 a) { return _builtin_acosh(a); }
+vec3 acosh(vec3 a) { return _builtin_acosh(a); }
+vec4 acosh(vec4 a) { return _builtin_acosh(a); }
+#if __VERSION__ >= 400
+double acosh(double a) { return _builtin_acosh(a); }
+dvec2 acosh(dvec2 a) { return _builtin_acosh(a); }
+dvec3 acosh(dvec3 a) { return _builtin_acosh(a); }
+dvec4 acosh(dvec4 a) { return _builtin_acosh(a); }
+#endif
+
+///=====================================================================
+/// overload atanh()
+
+float _builtin_atanh(float a) { return atanh(a); }
+vec2 _builtin_atanh(vec2 a) { return atanh(a); }
+vec3 _builtin_atanh(vec3 a) { return atanh(a); }
+vec4 _builtin_atanh(vec4 a) { return atanh(a); }
+#if __VERSION__ >= 400
+double _builtin_atanh(double a) { return atanh(a); }
+dvec2 _builtin_atanh(dvec2 a) { return atanh(a); }
+dvec3 _builtin_atanh(dvec3 a) { return atanh(a); }
+dvec4 _builtin_atanh(dvec4 a) { return atanh(a); }
+#endif
+
+float atanh(float a) { return _builtin_atanh(a); }
+vec2 atanh(vec2 a) { return _builtin_atanh(a); }
+vec3 atanh(vec3 a) { return _builtin_atanh(a); }
+vec4 atanh(vec4 a) { return _builtin_atanh(a); }
+#if __VERSION__ >= 400
+double atanh(double a) { return _builtin_atanh(a); }
+dvec2 atanh(dvec2 a) { return _builtin_atanh(a); }
+dvec3 atanh(dvec3 a) { return _builtin_atanh(a); }
+dvec4 atanh(dvec4 a) { return _builtin_atanh(a); }
+#endif
+
+///=====================================================================
+/// overload pow()
+
+float _builtin_pow(float a, float b) { return pow(a, b); }
+vec2 _builtin_pow(vec2 a, vec2 b) { return pow(a, b); }
+vec3 _builtin_pow(vec3 a, vec3 b) { return pow(a, b); }
+vec4 _builtin_pow(vec4 a, vec4 b) { return pow(a, b); }
+#if __VERSION__ >= 400
+double _builtin_pow(double a, double b) { return pow(a, b); }
+dvec2 _builtin_pow(dvec2 a, dvec2 b) { return pow(a, b); }
+dvec3 _builtin_pow(dvec3 a, dvec3 b) { return pow(a, b); }
+dvec4 _builtin_pow(dvec4 a, dvec4 b) { return pow(a, b); }
+#endif
+
+float pow(float a, float b) { return _builtin_pow(a, b); }
+vec2 pow(vec2 a, vec2 b) { return _builtin_pow(a, b); }
+vec3 pow(vec3 a, vec3 b) { return _builtin_pow(a, b); }
+vec4 pow(vec4 a, vec4 b) { return _builtin_pow(a, b); }
+#if __VERSION__ >= 400
+double pow(double a, double b) { return _builtin_pow(a, b); }
+dvec2 pow(dvec2 a, dvec2 b) { return _builtin_pow(a, b); }
+dvec3 pow(dvec3 a, dvec3 b) { return _builtin_pow(a, b); }
+dvec4 pow(dvec4 a, dvec4 b) { return _builtin_pow(a, b); }
+#endif
+
+///=====================================================================
+/// overload max() // FIXME misses variations eg max(vec3, float)
+
+float _builtin_max(float a, float b) { return max(a, b); }
+vec2 _builtin_max(vec2 a, vec2 b) { return max(a, b); }
+vec3 _builtin_max(vec3 a, vec3 b) { return max(a, b); }
+vec4 _builtin_max(vec4 a, vec4 b) { return max(a, b); }
+#if __VERSION__ >= 400
+double _builtin_max(double a, double b) { return max(a, b); }
+dvec2 _builtin_max(dvec2 a, dvec2 b) { return max(a, b); }
+dvec3 _builtin_max(dvec3 a, dvec3 b) { return max(a, b); }
+dvec4 _builtin_max(dvec4 a, dvec4 b) { return max(a, b); }
+#endif
+
+float max(float a, float b) { return _builtin_max(a, b); }
+vec2 max(vec2 a, vec2 b) { return _builtin_max(a, b); }
+vec3 max(vec3 a, vec3 b) { return _builtin_max(a, b); }
+vec4 max(vec4 a, vec4 b) { return _builtin_max(a, b); }
+#if __VERSION__ >= 400
+double max(double a, double b) { return _builtin_max(a, b); }
+dvec2 max(dvec2 a, dvec2 b) { return _builtin_max(a, b); }
+dvec3 max(dvec3 a, dvec3 b) { return _builtin_max(a, b); }
+dvec4 max(dvec4 a, dvec4 b) { return _builtin_max(a, b); }
+#endif
 
 ///=====================================================================
 /// BEGIN qd-2.3.22+dfsg.1
@@ -82,7 +617,15 @@ float X(float a) { return Internal_One * a; }
 #if __VERSION__ >= 400
 #define QD_FMS(a,b,s) fma(a,b,-s)
 #endif
+
 #define QD_IEEE_ADD
+
+struct dd_real { float x[2]; };
+dd_real dd_real_() { return dd_real(float[2](0.0, 0.0)); }
+dd_real dd_real_(float hi) { return dd_real(float[2](hi, 0.0)); }
+dd_real dd_real_(float hi, float lo) { return dd_real(float[2](hi, lo)); }
+
+struct qd_real { float x[4]; };
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/COPYING
@@ -175,23 +718,50 @@ or derivative works thereof, in binary and source code form.
 const float _d_nan = 0.0 / 0.0;
 const float _d_inf = 1.0 / 0.0;
 
+/*
+ff :: Double -> (Float, Float)
+ff d =
+  let hi :: Float
+      hi = realToFrac d
+  in (hi, realToFrac (d - realToFrac hi))
+*/
+const dd_real dd_nan = dd_real(float[2](_d_nan, _d_nan));
+const dd_real dd_inf = dd_real(float[2](_d_inf, _d_inf));
+const dd_real dd_0 = dd_real(float[2](0.0, 0.0));
+const dd_real dd_1 = dd_real(float[2](1.0, 0.0));
+const dd_real dd_e = dd_real(float[2](2.7182817,8.2548404e-8));
+const dd_real dd_log2 = dd_real(float[2](0.6931472,-1.9046542e-9));
+const dd_real dd_log10 = dd_real(float[2](2.3025851,-3.1975436e-8));
+const dd_real dd_2pi = dd_real(float[2](6.2831855,-1.7484555e-7));
+const dd_real dd_pi = dd_real(float[2](3.1415927,-8.742278e-8));
+const dd_real dd_3pi4 = dd_real(float[2](2.3561945,-5.9624403e-9));
+const dd_real dd_pi2 = dd_real(float[2](1.5707964,-4.371139e-8));
+const dd_real dd_pi4 = dd_real(float[2](0.7853982,-2.1855694e-8));
+const dd_real dd_pi16 = dd_real(float[2](0.19634955,-5.4639235e-9));
+
+const float dd_eps = 1.4210855e-14; // 2^-46
+const float dd_min_normalized = 1.9721523e-31; // 2^(-126 + 24)
+const dd_real dd_max = dd_real(float[2](3.4028235e38, 2.0282408e31));
+const dd_real dd_safe_max = dd_real(float[2](3.401993e38, 2.0282408e31));
+const int dd_ndigits = 13;
+
 /*********** Basic Functions ************/
 /* Computes fl(a+b) and err(a+b).  Assumes |a| >= |b|. */
-float quick_two_sum(float a, float b, inout float err) {
+float quick_two_sum(float a, float b, out float err) {
   float s = a + b;
   err = b - (s - a);
   return s;
 }
 
 /* Computes fl(a-b) and err(a-b).  Assumes |a| >= |b| */
-float quick_two_diff(float a, float b, inout float err) {
+float quick_two_diff(float a, float b, out float err) {
   float s = a - b;
   err = (a - s) - b;
   return s;
 }
 
 /* Computes fl(a+b) and err(a+b).  */
-float two_sum(float a, float b, inout float err) {
+float two_sum(float a, float b, out float err) {
   float s = a + b;
   float bb = s - a;
   err = (a - (s - bb)) + (b - bb);
@@ -199,7 +769,7 @@ float two_sum(float a, float b, inout float err) {
 }
 
 /* Computes fl(a-b) and err(a-b).  */
-float two_diff(float a, float b, inout float err) {
+float two_diff(float a, float b, out float err) {
   float s = a - b;
   float bb = s - a;
   err = (a - (s - bb)) - (b + bb);
@@ -208,7 +778,7 @@ float two_diff(float a, float b, inout float err) {
 
 #ifndef QD_FMS
 /* Computes high word and lo word of a */
-void split(float a, inout float hi, inout float lo) {
+void split(float a, out float hi, out float lo) {
   float temp;
   if (a > _QD_SPLIT_THRESH || a < -_QD_SPLIT_THRESH) {
     a *= 3.7252902984619140625e-09;  // 2^-28
@@ -226,7 +796,7 @@ void split(float a, inout float hi, inout float lo) {
 #endif
 
 /* Computes fl(a*b) and err(a*b). */
-float two_prod(float a, float b, inout float err) {
+float two_prod(float a, float b, out float err) {
 #ifdef QD_FMS
   float p = a * b;
   err = QD_FMS(a, b, p);
@@ -242,7 +812,7 @@ float two_prod(float a, float b, inout float err) {
 }
 
 /* Computes fl(a*a) and err(a*a).  Faster than the above method. */
-float two_sqr(float a, inout float err) {
+float two_sqr(float a, out float err) {
 #ifdef QD_FMS
   float p = a * a;
   err = QD_FMS(a, a, p);
@@ -270,7 +840,7 @@ float aint(float d) {
 
 /* These are provided to give consistent
    interface for float with float-float and quad-float. */
-void sincosh(float t, inout float sinh_t, inout float cosh_t) {
+void sincosh(float t, out float sinh_t, out float cosh_t) {
   sinh_t = sinh(t);
   cosh_t = cosh(t);
 }
@@ -281,8 +851,6 @@ float sqr(float t) {
 
 float to_float(float a) { return a; }
 int    to_int(float a) { return int(a); }
-
-}
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/src/dd_const.cpp
@@ -299,31 +867,31 @@ int    to_int(float a) { return int(a); }
  */
 
 #if 0
-const dd_real dd_2pi = dd_real(6.283185307179586232e+00,
+const dd_real dd_2pi = dd_real_(6.283185307179586232e+00,
                                       2.449293598294706414e-16);
-const dd_real dd_pi = dd_real(3.141592653589793116e+00,
+const dd_real dd_pi = dd_real_(3.141592653589793116e+00,
                                      1.224646799147353207e-16);
-const dd_real dd_pi2 = dd_real(1.570796326794896558e+00,
+const dd_real dd_pi2 = dd_real_(1.570796326794896558e+00,
                                       6.123233995736766036e-17);
-const dd_real dd_pi4 = dd_real(7.853981633974482790e-01,
+const dd_real dd_pi4 = dd_real_(7.853981633974482790e-01,
                                       3.061616997868383018e-17);
-const dd_real dd_3pi4 = dd_real(2.356194490192344837e+00,
+const dd_real dd_3pi4 = dd_real_(2.356194490192344837e+00,
                                        9.1848509936051484375e-17);
-const dd_real dd_e = dd_real(2.718281828459045091e+00,
+const dd_real dd_e = dd_real_(2.718281828459045091e+00,
                                     1.445646891729250158e-16);
-const dd_real dd_log2 = dd_real(6.931471805599452862e-01,
+const dd_real dd_log2 = dd_real_(6.931471805599452862e-01,
                                        2.319046813846299558e-17);
-const dd_real dd_log10 = dd_real(2.302585092994045901e+00,
+const dd_real dd_log10 = dd_real_(2.302585092994045901e+00,
                                         -2.170756223382249351e-16);
-const dd_real dd_nan = dd_real(_d_nan, _d_nan);
-const dd_real dd_inf = dd_real(_d_inf, _d_inf);
+const dd_real dd_nan = dd_real_(_d_nan, _d_nan);
+const dd_real dd_inf = dd_real_(_d_inf, _d_inf);
 
 const float dd_eps = 4.93038065763132e-32;  // 2^-104
 const float dd_min_normalized = 2.0041683600089728e-292;  // = 2^(-1022 + 53)
 const dd_real dd_max =
-    dd_real(1.79769313486231570815e+308, 9.97920154767359795037e+291);
+    dd_real_(1.79769313486231570815e+308, 9.97920154767359795037e+291);
 const dd_real dd_safe_max =
-    dd_real(1.7976931080746007281e+308, 9.97920154767359795037e+291);
+    dd_real_(1.7976931080746007281e+308, 9.97920154767359795037e+291);
 const int dd_ndigits = 31;
 #endif
 
@@ -349,7 +917,7 @@ const int dd_ndigits = 31;
 dd_real dd_add(float a, float b) {
   float s, e;
   s = two_sum(a, b, e);
-  return dd_real(s, e);
+  return dd_real_(s, e);
 }
 
 /* float-float + float */
@@ -358,7 +926,7 @@ dd_real add(dd_real a, float b) {
   s1 = two_sum(a.x[0], b, s2);
   s2 += a.x[1];
   s1 = quick_two_sum(s1, s2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 }
 
 /* float-float + float-float */
@@ -373,7 +941,7 @@ dd_real ieee_add(dd_real a, dd_real b) {
   s1 = quick_two_sum(s1, s2, s2);
   s2 += t2;
   s1 = quick_two_sum(s1, s2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 }
 
 dd_real sloppy_add(dd_real a, dd_real b) {
@@ -384,7 +952,7 @@ dd_real sloppy_add(dd_real a, dd_real b) {
   s = two_sum(a.x[0], b.x[0], e);
   e += (a.x[1] + b.x[1]);
   s = quick_two_sum(s, e, e);
-  return dd_real(s, e);
+  return dd_real_(s, e);
 }
 
 dd_real add(dd_real a, dd_real b) {
@@ -397,35 +965,35 @@ dd_real add(dd_real a, dd_real b) {
 
 /* float + float-float */
 dd_real add(float a, dd_real b) {
-  return (b + a);
+  return add(b, a);
 }
 
 
 /*********** Self-Additions ************/
 /* float-float += float */
-void add_set(inout dd_real this, float a) {
+void add_set(inout dd_real self, float a) {
   float s1, s2;
-  s1 = two_sum(this.x[0], a, s2);
-  s2 += this.x[1];
-  this.x[0] = quick_two_sum(s1, s2, this.x[1]);
+  s1 = two_sum(self.x[0], a, s2);
+  s2 += self.x[1];
+  self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 }
 
 /* float-float += float-float */
-void add_set(inout dd_real this, dd_real a) {
+void add_set(inout dd_real self, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
-  s = two_sum(this.x[0], a.x[0], e);
-  e += this.x[1];
+  s = two_sum(self.x[0], a.x[0], e);
+  e += self.x[1];
   e += a.x[1];
-  this.x[0] = quick_two_sum(s, e, this.x[1]);
+  self.x[0] = quick_two_sum(s, e, self.x[1]);
 #else
   float s1, s2, t1, t2;
-  s1 = two_sum(this.x[0], a.x[0], s2);
-  t1 = two_sum(this.x[1], a.x[1], t2);
+  s1 = two_sum(self.x[0], a.x[0], s2);
+  t1 = two_sum(self.x[1], a.x[1], t2);
   s2 += t1;
   s1 = quick_two_sum(s1, s2, s2);
   s2 += t2;
-  this.x[0] = quick_two_sum(s1, s2, this.x[1]);
+  self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 #endif
 }
 
@@ -434,7 +1002,7 @@ void add_set(inout dd_real this, dd_real a) {
 dd_real dd_sub(float a, float b) {
   float s, e;
   s = two_diff(a, b, e);
-  return dd_real(s, e);
+  return dd_real_(s, e);
 }
 
 /* float-float - float */
@@ -443,7 +1011,7 @@ dd_real sub(dd_real a, float b) {
   s1 = two_diff(a.x[0], b, s2);
   s2 += a.x[1];
   s1 = quick_two_sum(s1, s2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 }
 
 /* float-float - float-float */
@@ -454,7 +1022,7 @@ dd_real sub(dd_real a, dd_real b) {
   e += a.x[1];
   e -= b.x[1];
   s = quick_two_sum(s, e, e);
-  return dd_real(s, e);
+  return dd_real_(s, e);
 #else
   float s1, s2, t1, t2;
   s1 = two_diff(a.x[0], b.x[0], s2);
@@ -463,7 +1031,7 @@ dd_real sub(dd_real a, dd_real b) {
   s1 = quick_two_sum(s1, s2, s2);
   s2 += t2;
   s1 = quick_two_sum(s1, s2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 #endif
 }
 
@@ -473,40 +1041,40 @@ dd_real sub(float a, dd_real b) {
   s1 = two_diff(a, b.x[0], s2);
   s2 -= b.x[1];
   s1 = quick_two_sum(s1, s2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 }
 
 /*********** Self-Subtractions ************/
 /* float-float -= float */
-void sub_set(inout dd_real this, float a) {
+void sub_set(inout dd_real self, float a) {
   float s1, s2;
-  s1 = two_diff(this.x[0], a, s2);
-  s2 += this.x[1];
-  this.x[0] = quick_two_sum(s1, s2, this.x[1]);
+  s1 = two_diff(self.x[0], a, s2);
+  s2 += self.x[1];
+  self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 }
 
 /* float-float -= float-float */
-void sub_set(inout dd_real this, dd_real a) {
+void sub_set(inout dd_real self, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
-  s = two_diff(this.x[0], a.x[0], e);
-  e += this.x[1];
+  s = two_diff(self.x[0], a.x[0], e);
+  e += self.x[1];
   e -= a.x[1];
-  this.x[0] = quick_two_sum(s, e, this.x[1]);
+  self.x[0] = quick_two_sum(s, e, self.x[1]);
 #else
   float s1, s2, t1, t2;
-  s1 = two_diff(this.x[0], a.x[0], s2);
-  t1 = two_diff(this.x[1], a.x[1], t2);
+  s1 = two_diff(self.x[0], a.x[0], s2);
+  t1 = two_diff(self.x[1], a.x[1], t2);
   s2 += t1;
   s1 = quick_two_sum(s1, s2, s2);
   s2 += t2;
-  this.x[0] = quick_two_sum(s1, s2, this.x[1]);
+  self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 #endif
 }
 
 /*********** Unary Minus ***********/
 dd_real neg(dd_real a) {
-  return dd_real(-a.x[0], -a.x[1]);
+  return dd_real_(-a.x[0], -a.x[1]);
 }
 
 /*********** Multiplications ************/
@@ -514,17 +1082,17 @@ dd_real neg(dd_real a) {
 dd_real dd_mul(float a, float b) {
   float p, e;
   p = two_prod(a, b, e);
-  return dd_real(p, e);
+  return dd_real_(p, e);
 }
 
 /* float-float * (2.0 ^ exp) */
 dd_real ldexp(dd_real a, int exp) {
-  return dd_real(ldexp(a.x[0], exp), ldexp(a.x[1], exp));
+  return dd_real_(ldexp(a.x[0], exp), ldexp(a.x[1], exp));
 }
 
 /* float-float * float,  where float is a power of 2. */
 dd_real mul_pwr2(dd_real a, float b) {
-  return dd_real(a.x[0] * b, a.x[1] * b);
+  return dd_real_(a.x[0] * b, a.x[1] * b);
 }
 
 /* float-float * float */
@@ -534,7 +1102,7 @@ dd_real mul(dd_real a, float b) {
   p1 = two_prod(a.x[0], b, p2);
   p2 += (a.x[1] * b);
   p1 = quick_two_sum(p1, p2, p2);
-  return dd_real(p1, p2);
+  return dd_real_(p1, p2);
 }
 
 /* float-float * float-float */
@@ -544,30 +1112,30 @@ dd_real mul(dd_real a, dd_real b) {
   p1 = two_prod(a.x[0], b.x[0], p2);
   p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
   p1 = quick_two_sum(p1, p2, p2);
-  return dd_real(p1, p2);
+  return dd_real_(p1, p2);
 }
 
 /* float * float-float */
 dd_real mul(float a, dd_real b) {
-  return (b * a);
+  return mul(b, a);
 }
 
 /*********** Self-Multiplications ************/
 /* float-float *= float */
-void mul_set(inout dd_real this, float a) {
+void mul_set(inout dd_real self, float a) {
   float p1, p2;
-  p1 = two_prod(this.x[0], a, p2);
-  p2 += this.x[1] * a;
-  this.x[0] = quick_two_sum(p1, p2, this.x[1]);
+  p1 = two_prod(self.x[0], a, p2);
+  p2 += self.x[1] * a;
+  self.x[0] = quick_two_sum(p1, p2, self.x[1]);
 }
 
 /* float-float *= float-float */
-void mul_set(inout dd_real this, dd_real a) {
+void mul_set(inout dd_real self, dd_real a) {
   float p1, p2;
-  p1 = two_prod(this.x[0], a.x[0], p2);
-  p2 += a.x[1] * this.x[0];
-  p2 += a.x[0] * this.x[1];
-  this.x[0] = quick_two_sum(p1, p2, this.x[1]);
+  p1 = two_prod(self.x[0], a.x[0], p2);
+  p2 += a.x[1] * self.x[0];
+  p2 += a.x[0] * self.x[1];
+  self.x[0] = quick_two_sum(p1, p2, self.x[1]);
 }
 
 /*********** Divisions ************/
@@ -588,7 +1156,7 @@ dd_real dd_div(float a, float b) {
 
   s = quick_two_sum(q1, q2, e);
 
-  return dd_real(s, e);
+  return dd_real_(s, e);
 }
 
 /* float-float / float */
@@ -624,7 +1192,7 @@ dd_real sloppy_div(dd_real a, dd_real b) {
   q1 = a.x[0] / b.x[0];  /* approximate quotient */
 
   /* compute  this - q1 * dd */
-  r = b * q1;
+  r = mul(b, q1);
   s1 = two_diff(a.x[0], r.x[0], s2);
   s2 -= r.x[1];
   s2 += a.x[1];
@@ -643,15 +1211,15 @@ dd_real accurate_div(dd_real a, dd_real b) {
 
   q1 = a.x[0] / b.x[0];  /* approximate quotient */
 
-  r = a - q1 * b;
+  r = sub(a, mul(q1, b));
 
   q2 = r.x[0] / b.x[0];
-  r -= (q2 * b);
+  sub_set(r, mul(q2, b));
 
   q3 = r.x[0] / b.x[0];
 
   q1 = quick_two_sum(q1, q2, q2);
-  r = dd_real(q1, q2) + q3;
+  r = add(dd_real_(q1, q2), q3);
   return r;
 }
 
@@ -666,34 +1234,22 @@ dd_real div(dd_real a, dd_real b) {
 
 /* float / float-float */
 dd_real div(float a, dd_real b) {
-  return dd_real(a) / b;
+  return div(dd_real_(a), b);
 }
 
 dd_real inv(dd_real a) {
-  return 1.0 / a;
+  return div(1.0, a);
 }
 
 /*********** Self-Divisions ************/
 /* float-float /= float */
-void div_set(inout dd_real this, float a) {
-  this = this / a;
+void div_set(inout dd_real self, float a) {
+  self = div(self, a);
 }
 
 /* float-float /= float-float */
-void div_set(inout dd_real this, dd_real a) {
-  this = this / a;
-}
-
-/********** Remainder **********/
-dd_real drem(dd_real a, dd_real b) {
-  dd_real n = nint(a / b);
-  return (a - n * b);
-}
-
-dd_real divrem(dd_real a, dd_real b, inout dd_real r) {
-  dd_real n = nint(a / b);
-  r = a - n * b;
-  return n;
+void div_set(inout dd_real self, dd_real a) {
+  self = div(self, a);
 }
 
 /*********** Squaring **********/
@@ -704,15 +1260,81 @@ dd_real sqr(dd_real a) {
   p2 += 2.0 * a.x[0] * a.x[1];
   p2 += a.x[1] * a.x[1];
   s1 = quick_two_sum(p1, p2, s2);
-  return dd_real(s1, s2);
+  return dd_real_(s1, s2);
 }
 
 dd_real dd_sqr(float a) {
   float p1, p2;
   p1 = two_sqr(a, p2);
-  return dd_real(p1, p2);
+  return dd_real_(p1, p2);
 }
 
+/*********** Micellaneous ************/
+/*  this == 0 */
+bool is_zero(dd_real self) {
+  return (self.x[0] == 0.0);
+}
+
+/*  this == 1 */
+bool is_one(dd_real self) {
+  return (self.x[0] == 1.0 && self.x[1] == 0.0);
+}
+
+/*  this > 0 */
+bool is_positive(dd_real self) {
+  return (self.x[0] > 0.0);
+}
+
+/* this < 0 */
+bool is_negative(dd_real self) {
+  return (self.x[0] < 0.0);
+}
+
+/* Absolute value */
+dd_real abs(dd_real a) {
+  return (a.x[0] < 0.0) ? neg(a) : a;
+}
+
+dd_real fabs(dd_real a) {
+  return abs(a);
+}
+
+
+/* Computes the n-th power of a float-float number.
+   NOTE:  0^0 causes an error.                         */
+dd_real npwr(dd_real a, int n) {
+
+  if (n == 0) {
+    if (is_zero(a)) {
+      return dd_nan;
+    }
+    return dd_1;
+  }
+
+  dd_real r = a;
+  dd_real s = dd_1;
+  int N = abs(n);
+
+  if (N > 1) {
+    /* Use binary exponentiation */
+    while (N > 0) {
+      if (N % 2 == 1) {
+        mul_set(s, r);
+      }
+      N /= 2;
+      if (N > 0)
+        r = sqr(r);
+    }
+  } else {
+    s = r;
+  }
+
+  /* Compute the reciprocal if n is negative. */
+  if (n < 0)
+    return inv(s);
+
+  return s;
+}
 
 /********** Exponentiation **********/
 dd_real pow(dd_real a, int n) {
@@ -722,9 +1344,9 @@ dd_real pow(dd_real a, int n) {
 
 /*********** Assignments ************/
 /* float-float = float */
-void set(inout dd_real this, float a) {
-  this.x[0] = a;
-  this.x[1] = 0.0;
+void set(out dd_real self, float a) {
+  self.x[0] = a;
+  self.x[1] = 0.0;
 }
 
 /*********** Equality Comparisons ************/
@@ -786,11 +1408,6 @@ bool ge(dd_real a, dd_real b) {
   return (a.x[0] > b.x[0] || (a.x[0] == b.x[0] && a.x[1] >= b.x[1]));
 }
 
-/* float >= float-float */
-bool ge(float a, dd_real b) {
-  return (b <= a);
-}
-
 /*********** Less-Than-Or-Equal-To Comparisons ************/
 /* float-float <= float */
 bool le(dd_real a, float b) {
@@ -804,7 +1421,12 @@ bool le(dd_real a, dd_real b) {
 
 /* float <= float-float */
 bool le(float a, dd_real b) {
-  return (b >= a);
+  return ge(b, a);
+}
+
+/* float >= float-float */
+bool ge(float a, dd_real b) {
+  return le(b, a);
 }
 
 /*********** Not-Equal-To Comparisons ************/
@@ -823,34 +1445,41 @@ bool ne(float a, dd_real b) {
   return (a != b.x[0] || b.x[1] != 0.0);
 }
 
-/*********** Micellaneous ************/
-/*  this == 0 */
-bool is_zero(dd_real this) {
-  return (this.x[0] == 0.0);
+
+dd_real max(float a, dd_real b)
+{
+  if (gt(a, b))
+  {
+    return dd_real_(a);
+  }
+  else
+  {
+    return b;
+  }
 }
 
-/*  this == 1 */
-bool is_one(dd_real this) {
-  return (this.x[0] == 1.0 && this.x[1] == 0.0);
+dd_real max(dd_real b, float a)
+{
+  if (gt(a, b))
+  {
+    return dd_real_(a);
+  }
+  else
+  {
+    return b;
+  }
 }
 
-/*  this > 0 */
-bool is_positive(dd_real this) {
-  return (this.x[0] > 0.0);
-}
-
-/* this < 0 */
-bool is_negative(dd_real this) {
-  return (this.x[0] < 0.0);
-}
-
-/* Absolute value */
-dd_real abs(dd_real a) {
-  return (a.x[0] < 0.0) ? -a : a;
-}
-
-dd_real fabs(dd_real a) {
-  return abs(a);
+dd_real max(dd_real a, dd_real b)
+{
+  if (gt(a, b))
+  {
+    return a;
+  }
+  else
+  {
+    return b;
+  }
 }
 
 /* Round to Nearest integer */
@@ -874,7 +1503,7 @@ dd_real nint(dd_real a) {
     }
   }
 
-  return dd_real(hi, lo);
+  return dd_real_(hi, lo);
 }
 
 dd_real floor(dd_real a) {
@@ -887,7 +1516,7 @@ dd_real floor(dd_real a) {
     hi = quick_two_sum(hi, lo, lo);
   }
 
-  return dd_real(hi, lo);
+  return dd_real_(hi, lo);
 }
 
 dd_real ceil(dd_real a) {
@@ -900,11 +1529,23 @@ dd_real ceil(dd_real a) {
     hi = quick_two_sum(hi, lo, lo);
   }
 
-  return dd_real(hi, lo);
+  return dd_real_(hi, lo);
 }
 
 dd_real aint(dd_real a) {
   return (a.x[0] >= 0.0) ? floor(a) : ceil(a);
+}
+
+/********** Remainder **********/
+dd_real drem(dd_real a, dd_real b) {
+  dd_real n = nint(div(a, b));
+  return sub(a, mul(n, b));
+}
+
+dd_real divrem(dd_real a, dd_real b, out dd_real r) {
+  dd_real n = nint(div(a, b));
+  r = sub(a, mul(n, b));
+  return n;
 }
 
 /* Cast to float. */
@@ -947,22 +1588,22 @@ dd_real sqrt(dd_real a) {
      only half the precision.
   */
 
-  if (a.is_zero())
-    return 0.0;
+  if (is_zero(a))
+    return dd_0;
 
-  if (a.is_negative()) {
+  if (is_negative(a)) {
     return dd_nan;
   }
 
   float x = 1.0 / sqrt(a.x[0]);
   float ax = a.x[0] * x;
-  return dd_add(ax, (a - dd_sqr(ax)).x[0] * (x * 0.5));
+  return dd_add(ax, sub(a, dd_sqr(ax)).x[0] * (x * 0.5));
 }
 
 /* Computes the square root of a float in float-float precision.
    NOTE: d must not be negative.                                   */
 dd_real dd_sqrt(float d) {
-  return sqrt(dd_real(d));
+  return sqrt(dd_real_(d));
 }
 
 /* Computes the n-th root of the float-float number a.
@@ -985,7 +1626,7 @@ dd_real nroot(dd_real a, int n) {
     return dd_nan;
   }
 
-  if (n%2 == 0 && a.is_negative()) {
+  if (n%2 == 0 && is_negative(a)) {
     return dd_nan;
   }
 
@@ -996,84 +1637,39 @@ dd_real nroot(dd_real a, int n) {
     return sqrt(a);
   }
 
-  if (a.is_zero())
-    return 0.0;
+  if (is_zero(a))
+    return dd_0;
 
   /* Note  a^{-1/n} = exp(-log(a)/n) */
   dd_real r = abs(a);
-  dd_real x = exp(-log(r.x[0]) / n);
+  dd_real x; set(x, exp(-log(r.x[0]) / n));
 
   /* Perform Newton's iteration. */
-  x += x * (1.0 - r * npwr(x, n)) / float(n);
+  add_set(x, div(mul(x, sub(1.0, mul(r, npwr(x, n)))), float(n)));
   if (a.x[0] < 0.0)
-    x = -x;
-  return 1.0/x;
+    x = neg(x);
+  return inv(x);
 }
 
-/* Computes the n-th power of a float-float number.
-   NOTE:  0^0 causes an error.                         */
-dd_real npwr(dd_real a, int n) {
-
-  if (n == 0) {
-    if (a.is_zero()) {
-      return dd_nan;
-    }
-    return 1.0;
-  }
-
-  dd_real r = a;
-  dd_real s = 1.0;
-  int N = abs(n);
-
-  if (N > 1) {
-    /* Use binary exponentiation */
-    while (N > 0) {
-      if (N % 2 == 1) {
-        s *= r;
-      }
-      N /= 2;
-      if (N > 0)
-        r = sqr(r);
-    }
-  } else {
-    s = r;
-  }
-
-  /* Compute the reciprocal if n is negative. */
-  if (n < 0)
-    return (1.0 / s);
-
-  return s;
-}
-
-dd_real pow(dd_real a, int n) {
-  return npwr(a, n);
-}
-
-dd_real pow(dd_real a, dd_real b) {
-  return exp(b * log(a));
-}
-
-#if 0
+// mapM_ putStrLn [ "  , dd_real(float[2](" ++ show (ff (1 / factorial (2 + m))) ++ "))" | m <- [1..15] ]
 const int n_inv_fact = 15;
-const float inv_fact[n_inv_fact][2] = {
-  { 1.66666666666666657e-01,  9.25185853854297066e-18},
-  { 4.16666666666666644e-02,  2.31296463463574266e-18},
-  { 8.33333333333333322e-03,  1.15648231731787138e-19},
-  { 1.38888888888888894e-03, -5.30054395437357706e-20},
-  { 1.98412698412698413e-04,  1.72095582934207053e-22},
-  { 2.48015873015873016e-05,  2.15119478667758816e-23},
-  { 2.75573192239858925e-06, -1.85839327404647208e-22},
-  { 2.75573192239858883e-07,  2.37677146222502973e-23},
-  { 2.50521083854417202e-08, -1.44881407093591197e-24},
-  { 2.08767569878681002e-09, -1.20734505911325997e-25},
-  { 1.60590438368216133e-10,  1.25852945887520981e-26},
-  { 1.14707455977297245e-11,  2.06555127528307454e-28},
-  { 7.64716373181981641e-13,  7.03872877733453001e-30},
-  { 4.77947733238738525e-14,  4.39920548583408126e-31},
-  { 2.81145725434552060e-15,  1.65088427308614326e-31}
-};
-#endif
+const dd_real inv_fact[n_inv_fact] = dd_real[n_inv_fact]
+  ( dd_real(float[2](0.16666667,-4.967054e-9))
+  , dd_real(float[2](4.1666668e-2,-1.2417635e-9))
+  , dd_real(float[2](8.333334e-3,-4.346172e-10))
+  , dd_real(float[2](1.3888889e-3,-3.3631094e-11))
+  , dd_real(float[2](1.984127e-4,-2.7255969e-12))
+  , dd_real(float[2](2.4801588e-5,-3.406996e-13))
+  , dd_real(float[2](2.7557319e-6,3.7935712e-14))
+  , dd_real(float[2](2.755732e-7,-7.575112e-15))
+  , dd_real(float[2](2.5052108e-8,4.417623e-16))
+  , dd_real(float[2](2.0876756e-9,1.108284e-16))
+  , dd_real(float[2](1.6059044e-10,-5.3525265e-18))
+  , dd_real(float[2](1.1470745e-11,2.3722077e-19))
+  , dd_real(float[2](7.6471636e-13,1.22007105e-20))
+  , dd_real(float[2](4.7794773e-14,7.625444e-22))
+  , dd_real(float[2](2.8114574e-15,-1.0462085e-22))
+  );
 
 /* Exponential.  Computes exp(x) in float-float precision. */
 dd_real exp(dd_real a) {
@@ -1102,33 +1698,33 @@ dd_real exp(dd_real a) {
     return dd_e;
 
   float m = floor(a.x[0] / dd_log2.x[0] + 0.5);
-  dd_real r = mul_pwr2(a - dd_log2 * m, inv_k);
+  dd_real r = mul_pwr2(sub(a, mul(dd_log2, m)), inv_k);
   dd_real s, t, p;
 
   p = sqr(r);
-  s = r + mul_pwr2(p, 0.5);
-  p *= r;
-  t = p * dd_real(inv_fact[0][0], inv_fact[0][1]);
+  s = add(r, mul_pwr2(p, 0.5));
+  mul_set(p, r);
+  t = mul(p, inv_fact[0]);
   int i = 0;
   do {
-    s += t;
-    p *= r;
+    add_set(s, t);
+    mul_set(p, r);
     ++i;
-    t = p * dd_real(inv_fact[i][0], inv_fact[i][1]);
+    t = mul(p, inv_fact[i]);
   } while (abs(to_float(t)) > inv_k * dd_eps && i < 5);
 
-  s += t;
+  add_set(s, t);
 
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s = mul_pwr2(s, 2.0) + sqr(s);
-  s += 1.0;
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  s = add(mul_pwr2(s, 2.0), sqr(s));
+  add_set(s, 1.0);
 
   return ldexp(s, int(m));
 }
@@ -1152,61 +1748,61 @@ dd_real log(dd_real a) {
      Only one iteration is needed, since Newton's iteration
      approximately doubles the number of digits per iteration. */
 
-  if (a.is_one()) {
-    return 0.0;
+  if (is_one(a)) {
+    return dd_0;
   }
 
   if (a.x[0] <= 0.0) {
     return dd_nan;
   }
 
-  dd_real x = log(a.x[0]);   /* Initial approximation */
+  dd_real x;
+  set(x, log(a.x[0]));   /* Initial approximation */
 
-  x = x + a * exp(-x) - 1.0;
+  x = sub(add(x, mul(a, exp(neg(x)))), 1.0);
   return x;
 }
 
 dd_real log10(dd_real a) {
-  return log(a) / dd_log10;
+  return div(log(a), dd_log10);
 }
-#if 0
-const dd_real _pi16 = dd_real(1.963495408493620697e-01,
-                                     7.654042494670957545e-18);
+
+dd_real pow(dd_real a, dd_real b) {
+  return exp(mul(b, log(a)));
+}
 
 /* Table of sin(k * pi/16) and cos(k * pi/16). */
-const float sin_table [4][2] = {
-  {1.950903220161282758e-01, -7.991079068461731263e-18},
-  {3.826834323650897818e-01, -1.005077269646158761e-17},
-  {5.555702330196021776e-01,  4.709410940561676821e-17},
-  {7.071067811865475727e-01, -4.833646656726456726e-17}
-};
-
-const float cos_table [4][2] = {
-  {9.807852804032304306e-01, 1.854693999782500573e-17},
-  {9.238795325112867385e-01, 1.764504708433667706e-17},
-  {8.314696123025452357e-01, 1.407385698472802389e-18},
-  {7.071067811865475727e-01, -4.833646656726456726e-17}
-};
-#endif
+const dd_real sin_table[4] = dd_real[4]
+  ( dd_real(float[2](0.19509032,-1.6704715e-9))
+  , dd_real(float[2](0.38268343,6.2233507e-9))
+  , dd_real(float[2](0.55557024,-1.1769521e-8))
+  , dd_real(float[2](0.70710677,1.21016175e-8))
+  );
+const dd_real cos_table[4] = dd_real[4]
+  ( dd_real(float[2](0.98078525,2.9739473e-8))
+  , dd_real(float[2](0.9238795,2.830749e-8))
+  , dd_real(float[2](0.8314696,1.6870263e-8))
+  , dd_real(float[2](0.70710677,1.21016175e-8))
+  );
 
 /* Computes sin(a) using Taylor series.
    Assumes |a| <= pi/32.                           */
 dd_real sin_taylor(dd_real a) {
-  const float thresh = 0.5 * abs(to_float(a)) * dd_eps;
+  float thresh = 0.5 * abs(to_float(a)) * dd_eps;
   dd_real r, s, t, x;
 
-  if (a.is_zero()) {
-    return 0.0;
+  if (is_zero(a)) {
+    return dd_0;
   }
 
   int i = 0;
-  x = -sqr(a);
+  x = neg(sqr(a));
   s = a;
   r = a;
   do {
-    r *= x;
-    t = r * dd_real(inv_fact[i][0], inv_fact[i][1]);
-    s += t;
+    mul_set(r, x);
+    t = mul(r, inv_fact[i]);
+    add_set(s, t);
     i += 2;
   } while (i < n_inv_fact && abs(to_float(t)) > thresh);
 
@@ -1217,34 +1813,33 @@ dd_real cos_taylor(dd_real a) {
   const float thresh = 0.5 * dd_eps;
   dd_real r, s, t, x;
 
-  if (a.is_zero()) {
-    return 1.0;
+  if (is_zero(a)) {
+    return dd_1;
   }
 
-  x = -sqr(a);
+  x = neg(sqr(a));
   r = x;
-  s = 1.0 + mul_pwr2(r, 0.5);
+  s = add(1.0, mul_pwr2(r, 0.5));
   int i = 1;
   do {
-    r *= x;
-    t = r * dd_real(inv_fact[i][0], inv_fact[i][1]);
-    s += t;
+    mul_set(r, x);
+    t = mul(r, inv_fact[i]);
+    add_set(s, t);
     i += 2;
   } while (i < n_inv_fact && abs(to_float(t)) > thresh);
 
   return s;
 }
 
-void sincos_taylor(dd_real a,
-                          inout dd_real sin_a, inout dd_real cos_a) {
-  if (a.is_zero()) {
-    sin_a = 0.0;
-    cos_a = 1.0;
+void sincos_taylor(dd_real a, out dd_real sin_a, out dd_real cos_a) {
+  if (is_zero(a)) {
+    set(sin_a, 0.0);
+    set(cos_a, 1.0);
     return;
   }
 
   sin_a = sin_taylor(a);
-  cos_a = sqrt(1.0 - sqr(sin_a));
+  cos_a = sqrt(sub(1.0, sqr(sin_a)));
 }
 
 
@@ -1261,21 +1856,21 @@ dd_real sin(dd_real a) {
      we can compute sin(x) from sin(s), cos(s).  This greatly
      increases the convergence of the sine Taylor series. */
 
-  if (a.is_zero()) {
-    return 0.0;
+  if (is_zero(a)) {
+    return dd_0;
   }
 
   // approximately reduce modulo 2*pi
-  dd_real z = nint(a / dd_2pi);
-  dd_real r = a - dd_2pi * z;
+  dd_real z = nint(div(a, dd_2pi));
+  dd_real r = sub(a, mul(dd_2pi, z));
 
   // approximately reduce modulo pi/2 and then modulo pi/16.
   dd_real t;
   float q = floor(r.x[0] / dd_pi2.x[0] + 0.5);
-  t = r - dd_pi2 * q;
+  t = sub(r, mul(dd_pi2, q));
   int j = int(q);
-  q = floor(t.x[0] / _pi16.x[0] + 0.5);
-  t -= _pi16 * q;
+  q = floor(t.x[0] / dd_pi16.x[0] + 0.5);
+  sub_set(t, mul(dd_pi16, q));
   int k = int(q);
   int abs_k = abs(k);
 
@@ -1294,39 +1889,39 @@ dd_real sin(dd_real a) {
       case 1:
         return cos_taylor(t);
       case -1:
-        return -cos_taylor(t);
+        return neg(cos_taylor(t));
       default:
-        return -sin_taylor(t);
+        return neg(sin_taylor(t));
     }
   }
 
-  dd_real u(cos_table[abs_k-1][0], cos_table[abs_k-1][1]);
-  dd_real v(sin_table[abs_k-1][0], sin_table[abs_k-1][1]);
+  dd_real u = cos_table[abs_k-1];
+  dd_real v = sin_table[abs_k-1];
   dd_real sin_t, cos_t;
   sincos_taylor(t, sin_t, cos_t);
   if (j == 0) {
     if (k > 0) {
-      r = u * sin_t + v * cos_t;
+      r = add(mul(u, sin_t), mul(v, cos_t));
     } else {
-      r = u * sin_t - v * cos_t;
+      r = sub(mul(u, sin_t), mul(v, cos_t));
     }
   } else if (j == 1) {
     if (k > 0) {
-      r = u * cos_t - v * sin_t;
+      r = sub(mul(u, cos_t), mul(v, sin_t));
     } else {
-      r = u * cos_t + v * sin_t;
+      r = add(mul(u, cos_t), mul(v, sin_t));
     }
   } else if (j == -1) {
     if (k > 0) {
-      r = v * sin_t - u * cos_t;
+      r = sub(mul(v, sin_t), mul(u, cos_t));
     } else if (k < 0) {
-      r = -u * cos_t - v * sin_t;
+      r = neg(add(mul(u, cos_t), mul(v, sin_t)));
     }
   } else {
     if (k > 0) {
-      r = -u * sin_t - v * cos_t;
+      r = neg(add(mul(u, sin_t), mul(v, cos_t)));
     } else {
-      r = v * cos_t - u * sin_t;
+      r = sub(mul(v, cos_t), mul(u, sin_t));
     }
   }
 
@@ -1335,21 +1930,21 @@ dd_real sin(dd_real a) {
 
 dd_real cos(dd_real a) {
 
-  if (a.is_zero()) {
-    return 1.0;
+  if (is_zero(a)) {
+    return dd_1;
   }
 
   // approximately reduce modulo 2*pi
-  dd_real z = nint(a / dd_2pi);
-  dd_real r = a - z * dd_2pi;
+  dd_real z = nint(div(a, dd_2pi));
+  dd_real r = sub(a, mul(z, dd_2pi));
 
   // approximately reduce modulo pi/2 and then modulo pi/16
   dd_real t;
   float q = floor(r.x[0] / dd_pi2.x[0] + 0.5);
-  t = r - dd_pi2 * q;
+  t = sub(r, mul(dd_pi2, q));
   int j = int(q);
-  q = floor(t.x[0] / _pi16.x[0] + 0.5);
-  t -= _pi16 * q;
+  q = floor(t.x[0] / dd_pi16.x[0] + 0.5);
+  sub_set(t, mul(dd_pi16, q));
   int k = int(q);
   int abs_k = abs(k);
 
@@ -1366,68 +1961,68 @@ dd_real cos(dd_real a) {
       case 0:
         return cos_taylor(t);
       case 1:
-        return -sin_taylor(t);
+        return neg(sin_taylor(t));
       case -1:
         return sin_taylor(t);
       default:
-        return -cos_taylor(t);
+        return neg(cos_taylor(t));
     }
   }
 
   dd_real sin_t, cos_t;
   sincos_taylor(t, sin_t, cos_t);
-  dd_real u(cos_table[abs_k-1][0], cos_table[abs_k-1][1]);
-  dd_real v(sin_table[abs_k-1][0], sin_table[abs_k-1][1]);
+  dd_real u = cos_table[abs_k-1];
+  dd_real v = sin_table[abs_k-1];
 
   if (j == 0) {
     if (k > 0) {
-      r = u * cos_t - v * sin_t;
+      r = sub(mul(u, cos_t), mul(v, sin_t));
     } else {
-      r = u * cos_t + v * sin_t;
+      r = add(mul(u, cos_t), mul(v, sin_t));
     }
   } else if (j == 1) {
     if (k > 0) {
-      r = - u * sin_t - v * cos_t;
+      r = neg(add(mul(u, sin_t), mul(v, cos_t)));
     } else {
-      r = v * cos_t - u * sin_t;
+      r = sub(mul(v, cos_t), mul(u, sin_t));
     }
   } else if (j == -1) {
     if (k > 0) {
-      r = u * sin_t + v * cos_t;
+      r = add(mul(u, sin_t), mul(v, cos_t));
     } else {
-      r = u * sin_t - v * cos_t;
+      r = sub(mul(u, sin_t), mul(v, cos_t));
     }
   } else {
     if (k > 0) {
-      r = v * sin_t - u * cos_t;
+      r = sub(mul(v, sin_t), mul(u, cos_t));
     } else {
-      r = - u * cos_t - v * sin_t;
+      r = neg(add(mul(u, cos_t), mul(v, sin_t)));
     }
   }
 
   return r;
 }
 
-void sincos(dd_real a, inout dd_real sin_a, inout dd_real cos_a) {
+void sincos(dd_real a, out dd_real sin_a, out dd_real cos_a) {
 
-  if (a.is_zero()) {
-    sin_a = 0.0;
-    cos_a = 1.0;
+  if (is_zero(a)) {
+    set(sin_a, 0.0);
+    set(cos_a, 1.0);
     return;
   }
 
   // approximately reduce modulo 2*pi
-  dd_real z = nint(a / dd_2pi);
-  dd_real r = a - dd_2pi * z;
+  dd_real z = nint(div(a, dd_2pi));
+  dd_real r = sub(a, mul(dd_2pi, z));
 
   // approximately reduce module pi/2 and pi/16
   dd_real t;
   float q = floor(r.x[0] / dd_pi2.x[0] + 0.5);
-  t = r - dd_pi2 * q;
+  t = sub(r, mul(dd_pi2, q));
   int j = int(q);
   int abs_j = abs(j);
-  q = floor(t.x[0] / _pi16.x[0] + 0.5);
-  t -= _pi16 * q;
+  q = floor(t.x[0] / dd_pi16.x[0] + 0.5);
+  sub_set(t, mul(dd_pi16, q));
   int k = int(q);
   int abs_k = abs(k);
 
@@ -1450,15 +2045,15 @@ void sincos(dd_real a, inout dd_real sin_a, inout dd_real cos_a) {
     s = sin_t;
     c = cos_t;
   } else {
-    dd_real u(cos_table[abs_k-1][0], cos_table[abs_k-1][1]);
-    dd_real v(sin_table[abs_k-1][0], sin_table[abs_k-1][1]);
+    dd_real u = cos_table[abs_k-1];
+    dd_real v = sin_table[abs_k-1];
 
     if (k > 0) {
-      s = u * sin_t + v * cos_t;
-      c = u * cos_t - v * sin_t;
+      s = add(mul(u, sin_t), mul(v, cos_t));
+      c = sub(mul(u, cos_t), mul(v, sin_t));
     } else {
-      s = u * sin_t - v * cos_t;
-      c = u * cos_t + v * sin_t;
+      s = sub(mul(u, sin_t), mul(v, cos_t));
+      c = add(mul(u, cos_t), mul(v, sin_t));
     }
   }
 
@@ -1467,22 +2062,18 @@ void sincos(dd_real a, inout dd_real sin_a, inout dd_real cos_a) {
     cos_a = c;
   } else if (j == 1) {
     sin_a = c;
-    cos_a = -s;
+    cos_a = neg(s);
   } else if (j == -1) {
-    sin_a = -c;
+    sin_a = neg(c);
     cos_a = s;
   } else {
-    sin_a = -s;
-    cos_a = -c;
+    sin_a = neg(s);
+    cos_a = neg(c);
   }
 
 }
 
-dd_real atan(dd_real a) {
-  return atan2(a, dd_real(1.0));
-}
-
-dd_real atan2(dd_real y, dd_real x) {
+dd_real atan(dd_real y, dd_real x) {
   /* Strategy: Instead of using Taylor series to compute
      arctan, we instead use Newton's iteration to solve
      the equation
@@ -1500,89 +2091,93 @@ dd_real atan2(dd_real y, dd_real x) {
      denominator is larger.  Otherwise, the second is used.
   */
 
-  if (x.is_zero()) {
+  if (is_zero(x)) {
 
-    if (y.is_zero()) {
+    if (is_zero(y)) {
       /* Both x and y is zero. */
       return dd_nan;
     }
 
-    return (y.is_positive()) ? dd_pi2 : -dd_pi2;
-  } else if (y.is_zero()) {
-    return (x.is_positive()) ? dd_real(0.0) : dd_pi;
+    return (is_positive(y)) ? dd_pi2 : neg(dd_pi2);
+  } else if (is_zero(y)) {
+    return (is_positive(x)) ? dd_0 : dd_pi;
   }
 
-  if (x == y) {
-    return (y.is_positive()) ? dd_pi4 : -dd_3pi4;
+  if (eq(x, y)) {
+    return (is_positive(y)) ? dd_pi4 : neg(dd_3pi4);
   }
 
-  if (x == -y) {
-    return (y.is_positive()) ? dd_3pi4 : -dd_pi4;
+  if (eq(x, neg(y))) {
+    return (is_positive(y)) ? dd_3pi4 : neg(dd_pi4);
   }
 
-  dd_real r = sqrt(sqr(x) + sqr(y));
-  dd_real xx = x / r;
-  dd_real yy = y / r;
+  dd_real r = sqrt(add(sqr(x), sqr(y)));
+  dd_real xx = div(x, r);
+  dd_real yy = div(y, r);
 
   /* Compute float precision approximation to atan. */
-  dd_real z = atan2(to_float(y), to_float(x));
+  dd_real z; set(z, atan(to_float(y), to_float(x)));
   dd_real sin_z, cos_z;
 
   if (abs(xx.x[0]) > abs(yy.x[0])) {
     /* Use Newton iteration 1.  z' = z + (y - sin(z)) / cos(z)  */
     sincos(z, sin_z, cos_z);
-    z += (yy - sin_z) / cos_z;
+    add_set(z, div(sub(yy, sin_z), cos_z));
   } else {
     /* Use Newton iteration 2.  z' = z - (x - cos(z)) / sin(z)  */
     sincos(z, sin_z, cos_z);
-    z -= (xx - cos_z) / sin_z;
+    sub_set(z, div(sub(xx, cos_z), sin_z));
   }
 
   return z;
 }
 
+dd_real atan(dd_real a) {
+  return atan(a, dd_1);
+}
+
 dd_real tan(dd_real a) {
   dd_real s, c;
   sincos(a, s, c);
-  return s/c;
+  return div(s, c);
 }
 
 dd_real asin(dd_real a) {
   dd_real abs_a = abs(a);
 
-  if (abs_a > 1.0) {
+  if (gt(abs_a, 1.0)) {
     return dd_nan;
   }
 
-  if (abs_a.is_one()) {
-    return (a.is_positive()) ? dd_pi2 : -dd_pi2;
+  if (is_one(abs_a)) {
+    return (is_positive(a)) ? dd_pi2 : neg(dd_pi2);
   }
 
-  return atan2(a, sqrt(1.0 - sqr(a)));
+  return atan(a, sqrt(sub(1.0, sqr(a))));
 }
 
 dd_real acos(dd_real a) {
   dd_real abs_a = abs(a);
 
-  if (abs_a > 1.0) {
+  if (gt(abs_a, 1.0)) {
     return dd_nan;
   }
 
-  if (abs_a.is_one()) {
-    return (a.is_positive()) ? dd_0 : dd_pi;
+  if (is_one(abs_a)) {
+    return (is_positive(a)) ? dd_0 : dd_pi;
   }
 
-  return atan2(sqrt(1.0 - sqr(a)), a);
+  return atan(sqrt(sub(1.0, sqr(a))), a);
 }
 
 dd_real sinh(dd_real a) {
-  if (a.is_zero()) {
-    return 0.0;
+  if (is_zero(a)) {
+    return dd_0;
   }
 
-  if (abs(a) > 0.05) {
+  if (gt(abs(a), 0.05)) {
     dd_real ea = exp(a);
-    return mul_pwr2(ea - inv(ea), 0.5);
+    return mul_pwr2(sub(ea, inv(ea)), 0.5);
   }
 
   /* since a is small, using the above formula gives
@@ -1595,78 +2190,80 @@ dd_real sinh(dd_real a) {
 
   do {
     m += 2.0;
-    t *= r;
-    t /= (m-1) * m;
+    mul_set(t, r);
+    div_set(t, (m-1) * m);
 
-    s += t;
-  } while (abs(t) > thresh);
+    add_set(s, t);
+  } while (gt(abs(t), thresh));
 
   return s;
 
 }
 
 dd_real cosh(dd_real a) {
-  if (a.is_zero()) {
-    return 1.0;
+  if (is_zero(a)) {
+    return dd_1;
   }
 
   dd_real ea = exp(a);
-  return mul_pwr2(ea + inv(ea), 0.5);
+  return mul_pwr2(add(ea, inv(ea)), 0.5);
 }
 
 dd_real tanh(dd_real a) {
-  if (a.is_zero()) {
-    return 0.0;
+  if (is_zero(a)) {
+    return dd_0;
   }
 
   if (abs(to_float(a)) > 0.05) {
     dd_real ea = exp(a);
     dd_real inv_ea = inv(ea);
-    return (ea - inv_ea) / (ea + inv_ea);
+    return div(sub(ea, inv_ea), add(ea, inv_ea));
   } else {
     dd_real s, c;
     s = sinh(a);
-    c = sqrt(1.0 + sqr(s));
-    return s / c;
+    c = sqrt(add(1.0, sqr(s)));
+    return div(s, c);
   }
 }
 
-void sincosh(dd_real a, inout dd_real s, inout dd_real c) {
+void sincosh(dd_real a, out dd_real s, out dd_real c) {
   if (abs(to_float(a)) <= 0.05) {
     s = sinh(a);
-    c = sqrt(1.0 + sqr(s));
+    c = sqrt(add(1.0, sqr(s)));
   } else {
     dd_real ea = exp(a);
     dd_real inv_ea = inv(ea);
-    s = mul_pwr2(ea - inv_ea, 0.5);
-    c = mul_pwr2(ea + inv_ea, 0.5);
+    s = mul_pwr2(sub(ea, inv_ea), 0.5);
+    c = mul_pwr2(add(ea, inv_ea), 0.5);
   }
 }
 
 dd_real asinh(dd_real a) {
-  return log(a + sqrt(sqr(a) + 1.0));
+  return log(add(a, sqrt(add(sqr(a), 1.0))));
 }
 
 dd_real acosh(dd_real a) {
-  if (a < 1.0) {
+  if (lt(a, 1.0)) {
     return dd_nan;
   }
 
-  return log(a + sqrt(sqr(a) - 1.0));
+  return log(add(a, sqrt(sub(sqr(a), 1.0))));
 }
 
 dd_real atanh(dd_real a) {
-  if (abs(a) >= 1.0) {
+  if (ge(abs(a), 1.0)) {
     return dd_nan;
   }
 
-  return mul_pwr2(log((1.0 + a) / (1.0 - a)), 0.5);
+  return mul_pwr2(log(div(add(1.0, a), sub(1.0, a))), 0.5);
 }
 
 dd_real fmod(dd_real a, dd_real b) {
-  dd_real n = aint(a / b);
-  return (a - b * n);
+  dd_real n = aint(div(a, b));
+  return sub(a, mul(b, n));
 }
+
+#if 0
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/src/qd_const.h
@@ -1763,7 +2360,7 @@ qd_real qd_real(const float xx[4]) {
   qd_real r;
   r.x[0] = xx[0];
   r.x[1] = xx[1];
-  r.x.[2] = xx[2];
+  r.x[2] = xx[2];
   r.x[3] = xx[3];
   return r;
 }
@@ -1786,8 +2383,8 @@ qd_real qd_real() {
 
 qd_real qd_real(dd_real a) {
   qd_real r;
-  r.x[0] = a._hi();
-  r.x[1] = a._lo();
+  r.x[0] = a.x[0];
+  r.x[1] = a.x[1];
   r.x[2] = r.x[3] = 0.0;
   return r;
 }
@@ -1908,12 +2505,12 @@ void renorm(inout float c0, inout float c1,
   c3 = s3;
 }
 
-void renorm(inout qd_real this) {
-  renorm(this.x[0], this.x[1], this.x[2], this.x[3]);
+void renorm(inout qd_real self) {
+  renorm(self.x[0], self.x[1], self.x[2], self.x[3]);
 }
 
-void renorm(inout qd_real this, inout float e) {
-  renorm(this.x[0], this.x[1], this.x[2], this.x[3], e);
+void renorm(inout qd_real self, inout float e) {
+  renorm(self.x[0], self.x[1], self.x[2], self.x[3], e);
 }
 
 
@@ -1930,8 +2527,6 @@ void three_sum2(inout float a, inout float b, inout float c) {
   t1 = two_sum(a, b, t2);
   a  = two_sum(c, t1, t3);
   b = t2 + t3;
-}
-
 }
 
 /* quad-float + float */
@@ -1955,8 +2550,8 @@ qd_real add(qd_real a, dd_real b) {
   float s0, s1, s2, s3;
   float t0, t1;
 
-  s0 = two_sum(a[0], b._hi(), t0);
-  s1 = two_sum(a[1], b._lo(), t1);
+  s0 = two_sum(a[0], b.x[0], t0);
+  s1 = two_sum(a[1], b.x[1], t1);
 
   s1 = two_sum(s1, t0, t0);
 
@@ -1980,8 +2575,6 @@ qd_real add(float a, qd_real b) {
 qd_real add(dd_real a, qd_real b) {
   return (b + a);
 }
-
-namespace qd {
 
 /* s = quick_three_accum(a, b, c) adds c to the dd-pair (a, b).
  * If the result does not fit in two floats, then the sum is
@@ -2008,8 +2601,6 @@ float quick_three_accum(inout float a, inout float b, float c) {
   }
 
   return 0.0;
-}
-
 }
 
 qd_real ieee_add(qd_real a, qd_real b) {
@@ -2146,18 +2737,18 @@ qd_real add(qd_real a, qd_real b) {
 
 /********** Self-Additions ************/
 /* quad-float += float */
-void add_set(inout qd_real this, float a) {
-  this = this + a;
+void add_set(inout qd_real self, float a) {
+  self = self + a;
 }
 
 /* quad-float += float-float */
-void add_set(inout qd_real this, dd_real a) {
-  this = this + a;
+void add_set(inout qd_real self, dd_real a) {
+  self = self + a;
 }
 
 /* quad-float += quad-float */
-void add_set(inout qd_real this, qd_real a) {
-  this = this + a;
+void add_set(inout qd_real self, qd_real a) {
+  self = self + a;
 }
 
 /********** Unary Minus **********/
@@ -2187,16 +2778,16 @@ qd_real sub(qd_real a, qd_real b) {
 }
 
 /********** Self-Subtractions **********/
-void sub_set(inout qd_real this, float a) {
-  return ((this) += (-a));
+void sub_set(inout qd_real self, float a) {
+  return ((self) += (-a));
 }
 
-void sub_set(inout qd_real this, dd_real a) {
-  return ((this) += (-a));
+void sub_set(inout qd_real self, dd_real a) {
+  return ((self) += (-a));
 }
 
-void sub_set(inout qd_real this, qd_real a) {
-  return ((this) += (-a));
+void sub_set(inout qd_real self, qd_real a) {
+  return ((self) += (-a));
 }
 
 
@@ -2254,11 +2845,11 @@ qd_real mul(qd_real a, dd_real b) {
   float s0, s1, s2;
   float t0, t1;
 
-  p0 = two_prod(a[0], b._hi(), q0);
-  p1 = two_prod(a[0], b._lo(), q1);
-  p2 = two_prod(a[1], b._hi(), q2);
-  p3 = two_prod(a[1], b._lo(), q3);
-  p4 = two_prod(a[2], b._hi(), q4);
+  p0 = two_prod(a[0], b.x[0], q0);
+  p1 = two_prod(a[0], b.x[1], q1);
+  p2 = two_prod(a[1], b.x[0], q2);
+  p3 = two_prod(a[1], b.x[1], q3);
+  p4 = two_prod(a[2], b.x[0], q4);
 
   three_sum(p1, p2, q0);
 
@@ -2271,7 +2862,7 @@ qd_real mul(qd_real a, dd_real b) {
   s2 = t0 + t1 + p4;
   p2 = s0;
 
-  p3 = a[2] * b._hi() + a[3] * b._lo() + q3 + q4;
+  p3 = a[2] * b.x[0] + a[3] * b.x[1] + q3 + q4;
   three_sum2(p3, q0, s1);
   p4 = q0 + s2;
 
@@ -2442,18 +3033,18 @@ qd_real sqr(qd_real a) {
 
 /********** Self-Multiplication **********/
 /* quad-float *= float */
-void mul_set(inout qd_real this, float a) {
-  this = (this * a);
+void mul_set(inout qd_real self, float a) {
+  self = (self * a);
 }
 
 /* quad-float *= float-float */
-void mul_set(inout qd_real this, dd_real a) {
-  this = (this * a);
+void mul_set(inout qd_real self, dd_real a) {
+  self = (self * a);
 }
 
 /* quad-float *= quad-float */
-void mul_set(inout qd_real this, qd_real a) {
-  this = this * a;
+void mul_set(inout qd_real self, qd_real a) {
+  self = self * a;
 }
 
 qd_real div(qd_real a, dd_real b) {
@@ -2484,18 +3075,18 @@ qd_real div(dd_real a, qd_real b) {
 
 /********** Self-Divisions **********/
 /* quad-float /= float */
-void div_set(inout qd_real this, float a) {
-  this = (this / a);
+void div_set(inout qd_real self, float a) {
+  self = (self / a);
 }
 
 /* quad-float /= float-float */
-void div_set(inout qd_real this, dd_real a) {
-  this = (this / a);
+void div_set(inout qd_real self, dd_real a) {
+  self = (self / a);
 }
 
 /* quad-float /= quad-float */
-void div_set(inout qd_real this, qd_real a) {
-  this = (this / a);
+void div_set(inout qd_real self, qd_real a) {
+  self = (self / a);
 }
 
 
@@ -2519,16 +3110,16 @@ qd_real quick_nint(qd_real a) {
 
 /*********** Assignments ************/
 /* quad-float = float */
-void set(inout qd_real this, float a) {
-  this.x[0] = a;
-  this.x[1] = this.x[2] = this.x[3] = 0.0;
+void set(inout qd_real self, float a) {
+  self.x[0] = a;
+  self.x[1] = self.x[2] = self.x[3] = 0.0;
 }
 
 /* quad-float = float-float */
-void set(inout qd_real this, dd_real a) {
-  this.x[0] = a._hi();
-  this.x[1] = a._lo();
-  this.x[2] = this.x[3] = 0.0;
+void set(inout qd_real self, dd_real a) {
+  self.x[0] = a.x[0];
+  self.x[1] = a.x[1];
+  self.x[2] = self.x[3] = 0.0;
 }
 
 /********** Equality Comparison **********/
@@ -2541,7 +3132,7 @@ bool eq(float a, qd_real b) {
 }
 
 bool eq(qd_real a, dd_real b) {
-  return (a[0] == b._hi() && a[1] == b._lo() &&
+  return (a[0] == b.x[0] && a[1] == b.x[1] &&
           a[2] == 0.0 && a[3] == 0.0);
 }
 
@@ -2565,9 +3156,9 @@ bool lt(float a, qd_real b) {
 }
 
 bool lt(qd_real a, dd_real b) {
-  return (a[0] < b._hi() ||
-          (a[0] == b._hi() && (a[1] < b._lo() ||
-                            (a[1] == b._lo() && a[2] < 0.0))));
+  return (a[0] < b.x[0] ||
+          (a[0] == b.x[0] && (a[1] < b.x[1] ||
+                            (a[1] == b.x[1] && a[2] < 0.0))));
 }
 
 bool lt(dd_real a, qd_real b) {
@@ -2591,9 +3182,9 @@ bool gt(float a, qd_real b) {
 }
 
 bool gt(qd_real a, dd_real b) {
-  return (a[0] > b._hi() ||
-          (a[0] == b._hi() && (a[1] > b._lo() ||
-                            (a[1] == b._lo() && a[2] > 0.0))));
+  return (a[0] > b.x[0] ||
+          (a[0] == b.x[0] && (a[1] > b.x[1] ||
+                            (a[1] == b.x[1] && a[2] > 0.0))));
 }
 
 bool gt(dd_real a, qd_real b) {
@@ -2618,9 +3209,9 @@ bool le(float a, qd_real b) {
 }
 
 bool le(qd_real a, dd_real b) {
-  return (a[0] < b._hi() ||
-          (a[0] == b._hi() && (a[1] < b._lo() ||
-                            (a[1] == b._lo() && a[2] <= 0.0))));
+  return (a[0] < b.x[0] ||
+          (a[0] == b.x[0] && (a[1] < b.x[1] ||
+                            (a[1] == b.x[1] && a[2] <= 0.0))));
 }
 
 bool le(dd_real a, qd_real b) {
@@ -2644,9 +3235,9 @@ bool ge(float a, qd_real b) {
 }
 
 bool ge(qd_real a, dd_real b) {
-  return (a[0] > b._hi() ||
-          (a[0] == b._hi() && (a[1] > b._lo() ||
-                            (a[1] == b._lo() && a[2] >= 0.0))));
+  return (a[0] > b.x[0] ||
+          (a[0] == b.x[0] && (a[1] > b.x[1] ||
+                            (a[1] == b.x[1] && a[2] >= 0.0))));
 }
 
 bool ge(dd_real a, qd_real b) {
@@ -2689,24 +3280,24 @@ qd_real aint(qd_real a) {
   return (a[0] >= 0) ? floor(a) : ceil(a);
 }
 
-bool is_zero(qd_real this) {
-  return (this.x[0] == 0.0);
+bool is_zero(qd_real self) {
+  return (self.x[0] == 0.0);
 }
 
-bool is_one(qd_real this) {
-  return (this.x[0] == 1.0 && this.x[1] == 0.0 && this.x[2] == 0.0 && this.x[3] == 0.0);
+bool is_one(qd_real self) {
+  return (self.x[0] == 1.0 && self.x[1] == 0.0 && self.x[2] == 0.0 && self.x[3] == 0.0);
 }
 
-bool is_positive(qd_real this) {
-  return (this.x[0] > 0.0);
+bool is_positive(qd_real self) {
+  return (self.x[0] > 0.0);
 }
 
-bool is_negative(qd_real this) {
-  return (this.x[0] < 0.0);
+bool is_negative(qd_real self) {
+  return (self.x[0] < 0.0);
 }
 
-dd_real to_dd_real(qd_real a) {
-  return dd_real(a[0], a[1]);
+dd_real to_dd_real_(qd_real a) {
+  return dd_real_(a[0], a[1]);
 }
 
 float to_float(qd_real a) {
@@ -2864,17 +3455,17 @@ qd_real div(qd_real a, float b) {
 
   /* Compute the remainder  a - q0 * b */
   t0 = two_prod(q0, b, t1);
-  r = a - dd_real(t0, t1);
+  r = a - dd_real_(t0, t1);
 
   /* Compute the first correction */
   q1 = r[0] / b;
   t0 = two_prod(q1, b, t1);
-  r -= dd_real(t0, t1);
+  r -= dd_real_(t0, t1);
 
   /* Second correction to the quotient. */
   q2 = r[0] / b;
   t0 = two_prod(q2, b, t1);
-  r -= dd_real(t0, t1);
+  r -= dd_real_(t0, t1);
 
   /* Final correction to the quotient. */
   q3 = r[0] / b;
@@ -2931,16 +3522,16 @@ qd_real sloppy_div(qd_real a, dd_real b) {
   qd_real r;
   qd_real qd_b(b);
 
-  q0 = a[0] / b._hi();
+  q0 = a[0] / b.x[0];
   r = a - q0 * qd_b;
 
-  q1 = r[0] / b._hi();
+  q1 = r[0] / b.x[0];
   r -= (q1 * qd_b);
 
-  q2 = r[0] / b._hi();
+  q2 = r[0] / b.x[0];
   r -= (q2 * qd_b);
 
-  q3 = r[0] / b._hi();
+  q3 = r[0] / b.x[0];
 
   renorm(q0, q1, q2, q3);
   return qd_real(q0, q1, q2, q3);
@@ -2951,19 +3542,19 @@ qd_real accurate_div(qd_real a, dd_real b) {
   qd_real r;
   qd_real qd_b(b);
 
-  q0 = a[0] / b._hi();
+  q0 = a[0] / b.x[0];
   r = a - q0 * qd_b;
 
-  q1 = r[0] / b._hi();
+  q1 = r[0] / b.x[0];
   r -= (q1 * qd_b);
 
-  q2 = r[0] / b._hi();
+  q2 = r[0] / b.x[0];
   r -= (q2 * qd_b);
 
-  q3 = r[0] / b._hi();
+  q3 = r[0] / b.x[0];
   r -= (q3 * qd_b);
 
-  q4 = r[0] / b._hi();
+  q4 = r[0] / b.x[0];
 
   renorm(q0, q1, q2, q3, q4);
   return qd_real(q0, q1, q2, q3);
@@ -3029,10 +3620,10 @@ qd_real sqrt(qd_real a) {
      twice.
   */
 
-  if (a.is_zero())
+  if (is_zero(a))
     return 0.0;
 
-  if (a.is_negative()) {
+  if (is_negative(a)) {
     return qd_nan;
   }
 
@@ -3066,7 +3657,7 @@ qd_real nroot(qd_real a, int n) {
     return qd_nan;
   }
 
-  if (n % 2 == 0 && a.is_negative()) {
+  if (n % 2 == 0 && is_negative(a)) {
     return qd_nan;
   }
 
@@ -3076,7 +3667,7 @@ qd_real nroot(qd_real a, int n) {
   if (n == 2) {
     return sqrt(a);
   }
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return qd_real(0.0);
   }
 
@@ -3151,10 +3742,10 @@ qd_real exp(qd_real a) {
   if (a[0] >=  709.0)
     return qd_inf;
 
-  if (a.is_zero())
+  if (is_zero(a))
     return qd_1;
 
-  if (a.is_one())
+  if (is_one(a))
     return qd_e;
 
   float m = floor(a.x[0] / qd_log2.x[0] + 0.5);
@@ -3210,7 +3801,7 @@ qd_real log(qd_real a) {
      Two iteration is needed, since Newton's iteration
      approximately doubles the number of digits per iteration. */
 
-  if (a.is_one()) {
+  if (is_one(a)) {
     return qd_0;
   }
 
@@ -4279,7 +4870,7 @@ void sincos_taylor(qd_real a,
   const float thresh = 0.5 * qd_eps * abs(to_float(a));
   qd_real p, s, t, x;
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     sin_a = 0.0;
     cos_a = 1.0;
     return;
@@ -4304,7 +4895,7 @@ qd_real sin_taylor(qd_real a) {
   const float thresh = 0.5 * qd_eps * abs(to_float(a));
   qd_real p, s, t, x;
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 0.0;
   }
 
@@ -4326,7 +4917,7 @@ qd_real cos_taylor(qd_real a) {
   const float thresh = 0.5 * qd_eps;
   qd_real p, s, t, x;
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 1.0;
   }
 
@@ -4355,7 +4946,7 @@ qd_real sin(qd_real a) {
      sin(x) from sin(s) and cos(s).  This greatly increases the
      convergence of the sine Taylor series.                          */
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 0.0;
   }
 
@@ -4429,7 +5020,7 @@ qd_real sin(qd_real a) {
 
 qd_real cos(qd_real a) {
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 1.0;
   }
 
@@ -4504,7 +5095,7 @@ qd_real cos(qd_real a) {
 
 void sincos(qd_real a, inout qd_real sin_a, inout qd_real cos_a) {
 
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     sin_a = 0.0;
     cos_a = 1.0;
     return;
@@ -4592,10 +5183,10 @@ void sincos(qd_real a, inout qd_real sin_a, inout qd_real cos_a) {
 }
 
 qd_real atan(qd_real a) {
-  return atan2(a, qd_real(1.0));
+  return atan(a, qd_real(1.0));
 }
 
-qd_real atan2(qd_real y, qd_real x) {
+qd_real atan(qd_real y, qd_real x) {
   /* Strategy: Instead of using Taylor series to compute
      arctan, we instead use Newton's iteration to solve
      the equation
@@ -4613,24 +5204,24 @@ qd_real atan2(qd_real y, qd_real x) {
      denominator is larger.  Otherwise, the second is used.
   */
 
-  if (x.is_zero()) {
+  if (is_zero(x)) {
 
-    if (y.is_zero()) {
+    if (is_zero(y)) {
       /* Both x and y is zero. */
       return qd_nan;
     }
 
-    return (y.is_positive()) ? qd_pi2 : -qd_pi2;
-  } else if (y.is_zero()) {
-    return (x.is_positive()) ? qd_0 : qd_pi;
+    return (is_positive(y)) ? qd_pi2 : -qd_pi2;
+  } else if (is_zero(y)) {
+    return (is_positive(x)) ? qd_0 : qd_pi;
   }
 
   if (x == y) {
-    return (y.is_positive()) ? qd_pi4 : -qd_3pi4;
+    return (is_positive(y)) ? qd_pi4 : -qd_3pi4;
   }
 
   if (x == -y) {
-    return (y.is_positive()) ? qd_3pi4 : -qd_pi4;
+    return (is_positive(y)) ? qd_3pi4 : -qd_pi4;
   }
 
   qd_real r = sqrt(sqr(x) + sqr(y));
@@ -4638,7 +5229,7 @@ qd_real atan2(qd_real y, qd_real x) {
   qd_real yy = y / r;
 
   /* Compute float precision approximation to atan. */
-  qd_real z = atan2(to_float(y), to_float(x));
+  qd_real z = atan(to_float(y), to_float(x));
   qd_real sin_z, cos_z;
 
   if (abs(xx.x[0]) > abs(yy.x[0])) {
@@ -4687,11 +5278,11 @@ qd_real asin(qd_real a) {
     return qd_nan;
   }
 
-  if (abs_a.is_one()) {
-    return (a.is_positive()) ? qd_pi2 : -qd_pi2;
+  if (is_one(abs_a)) {
+    return (is_positive(a)) ? qd_pi2 : -qd_pi2;
   }
 
-  return atan2(a, sqrt(1.0 - sqr(a)));
+  return atan(a, sqrt(1.0 - sqr(a)));
 }
 
 qd_real acos(qd_real a) {
@@ -4701,15 +5292,15 @@ qd_real acos(qd_real a) {
     return qd_nan;
   }
 
-  if (abs_a.is_one()) {
-    return (a.is_positive()) ? qd_0 : qd_pi;
+  if (is_one(abs_a)) {
+    return (is_positive(a)) ? qd_0 : qd_pi;
   }
 
-  return atan2(sqrt(1.0 - sqr(a)), a);
+  return atan(sqrt(1.0 - sqr(a)), a);
 }
 
 qd_real sinh(qd_real a) {
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 0.0;
   }
 
@@ -4738,7 +5329,7 @@ qd_real sinh(qd_real a) {
 }
 
 qd_real cosh(qd_real a) {
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 1.0;
   }
 
@@ -4747,7 +5338,7 @@ qd_real cosh(qd_real a) {
 }
 
 qd_real tanh(qd_real a) {
-  if (a.is_zero()) {
+  if (is_zero(a)) {
     return 0.0;
   }
 
@@ -4804,9 +5395,10 @@ qd_real fmod(qd_real a, qd_real b) {
 /// END qd-2.3.22+dfsg.1
 ///=====================================================================
 
+#endif
+
 const float pi = 3.141592653;
 
-float sqr(float x) { return x * x; }
 float hypot1(float x, float y) { return sqrt(x * x + y * y); }
 float hypot2(float x, float y) { return x * x + y * y; }
 
@@ -4888,23 +5480,20 @@ vec3 palette(float ix)
   }
 }
 
-#define Float4 float
-float add(float a, float b) { return a + b; }
-float sub(float a, float b) { return a - b; }
-float mul(float a, float b) { return a * b; }
-float div(float a, float b) { return a / b; }
-float sqrt_(float a) { return sqrt(a); }
-float cbrt_(float a) { return pow(a, 1.0 / 3.0); }
-float log_(float a) { return log(a); }
-float atan_(float a) { return atan(a); }
-float floor_(float a) { return floor(a); }
-float max_(float a, float b) { return max(a, b); }
-float wrap(float a) { return sub(a, floor_(a)); }
+dd_real cbrt(dd_real a) { return nroot(a, 3); }
+dd_real wrap(dd_real a) { return sub(a, floor(a)); }
 
-float float4(uint a) { return float(a); }
-float float4(float a) { return a; }
-float float4(uint a, uint b) { return float(a) * pow(2.0, 32.0) + float(b); }
-float float4(uint a, uint b, float c) { return float4(a, b) + c; }
+dd_real dd_real_(uint a)
+{
+  float hi = float(a);
+  float lo = float(a - uint(hi));
+  return dd_real_(hi, lo);
+}
+dd_real dd_real_(uint a, uint b) { return add(ldexp(dd_real_(a), 32), dd_real_(b)); }
+dd_real dd_real_(uint a, uint b, float c) { return add(dd_real_(a, b), c); }
+
+#define Float4 dd_real
+#define float4 dd_real_
 
 int diff(uint a, uint b)
 {
@@ -4944,12 +5533,12 @@ void main(void)
     {
       default:
       case ColorMethod_Standard: iter = N; break;
-      case ColorMethod_SquareRoot: iter = sqrt_(max_(0.0, N)); break;
-      case ColorMethod_CubicRoot: iter = cbrt_(max_(0.0, N)); break;
-      case ColorMethod_Logarithm: iter = log_(max_(1.0, N)); break;
-      case ColorMethod_LogLog: iter = log_(add(1.0, log_(add(1.0, N)))); break;
-      case ColorMethod_ATan: iter = atan_(N); break;
-      case ColorMethod_FourthRoot: iter = sqrt_(sqrt_(max_(0.0, N))); break;
+      case ColorMethod_SquareRoot: iter = sqrt(max(0.0, N)); break;
+      case ColorMethod_CubicRoot: iter = cbrt(max(0.0, N)); break;
+      case ColorMethod_Logarithm: iter = log(max(1.0, N)); break;
+      case ColorMethod_LogLog: iter = log(add(1.0, log(add(1.0, N)))); break;
+      case ColorMethod_ATan: iter = atan(N); break;
+      case ColorMethod_FourthRoot: iter = sqrt(sqrt(max(0.0, N))); break;
       case ColorMethod_Stretched:
       {
         Float4 imin = float4(KFP_IterationsMin[1], KFP_IterationsMin[0]);
@@ -4981,7 +5570,7 @@ void main(void)
                 ( texelFetch(Internal_N1, tc1, 0).r
                 , texelFetch(Internal_N0, tc1, 0).r
                 , 1.0 - texelFetch(Internal_NF, tc1, 0).r
-                ), N)/*.f[0]*/;
+                ), N).x[0];
               px[dj + 1][di + 1] = float(di);
               py[dj + 1][di + 1] = float(dj);
               // GetPixelOffset(x    , y    , px[1][1], py[1][1]); px += di py += dj// FIXME jitter coords
@@ -5103,20 +5692,20 @@ void main(void)
         // post differencing transfer functions
         iter = mul(iter, float(KFP_ImageSize.x) / 640.0);
         if (KFP_ColorMethod == ColorMethod_DistanceSqrt || KFP_ColorMethod == ColorMethod_DEPlusStandard)
-          iter = sqrt_(max_(0.0, iter));
+          iter = sqrt(max(0.0, iter));
         else if (KFP_ColorMethod == ColorMethod_DistanceLog)
-          iter = log_(max_(1.0, add(1.0, iter)));
-        if(iter/*.f[0]*/ > 1024.0)
+          iter = log(max(1.0, add(1.0, iter)));
+        if(gt(iter, 1024.0))
           iter = float4(1024.0);
-        if(KFP_ColorMethod == ColorMethod_DEPlusStandard && iter/*.f[0]*/ > KFP_IterDiv)
+        if(KFP_ColorMethod == ColorMethod_DEPlusStandard && gt(iter, KFP_IterDiv))
           iter = N;
         break;
       }
     }
     iter = div(iter, KFP_IterDiv);
     iter = add(iter, KFP_ColorOffset);
-    Float4 iter_ = floor_(iter);
-    float offs = sub(iter, iter_)/*.f[0]*/;
+    Float4 iter_ = floor(iter);
+    float offs = sub(iter, iter_).x[0];
     if (KFP_InverseTransition)
       iter = add(iter_, 1.0 - offs);
     if (KFP_MultiWavesEnabled){
@@ -5126,9 +5715,9 @@ void main(void)
         float nPeriod = float(KFP_MultiWaves[i].x);
         float g;
         if (KFP_Smooth)
-          g = sin(2.0 * pi * wrap(div(iter, nPeriod * 2.0))/*.f[0]*/) / 2.0 + 0.5;
+          g = sin(2.0 * pi * wrap(div(iter, nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
         else
-          g = sin(2.0 * pi * wrap(div(floor_(iter), nPeriod * 2.0))/*.f[0]*/) / 2.0 + 0.5;
+          g = sin(2.0 * pi * wrap(div(floor(iter), nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
         if (nPeriod < 0)
           g = -nPeriod / 100.0;
         int type = KFP_MultiWaves[i].z;
@@ -5155,11 +5744,11 @@ void main(void)
       if (KFP_MultiWavesBlend)
       {
         iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
-        iter_ = floor_(iter);
-        offs = sub(iter, iter_)/*.f[0]*/;
+        iter_ = floor(iter);
+        offs = sub(iter, iter_).x[0];
         if (KFP_InverseTransition)
           iter = add(iter_, 1.0 - offs);
-        vec3 nRGB2 = palette(wrap(div(iter, 1024.0))/*.f[0]*/);
+        vec3 nRGB2 = palette(wrap(div(iter, 1024.0)).x[0]);
         s = mix(nRGB, nRGB2, 0.5);
       }
       else
@@ -5169,11 +5758,11 @@ void main(void)
     }
     else{
       iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
-      iter_ = floor_(iter);
-      offs = sub(iter, iter_)/*.f[0]*/;
+      iter_ = floor(iter);
+      offs = sub(iter, iter_).x[0];
       if (KFP_InverseTransition)
         iter = add(iter_, 1.0 - offs);
-      s = palette(wrap(div(iter, 1024.0))/*.f[0]*/);
+      s = palette(wrap(div(iter, 1024.0)).x[0]);
     }
   }
   if(KFP_TextureEnabled)
@@ -5193,12 +5782,12 @@ void main(void)
         ( texelFetch(Internal_N1, tc + ivec2(0, 1), 0).r
         , texelFetch(Internal_N0, tc + ivec2(0, 1), 0).r
         , 1.0 - texelFetch(Internal_NF, tc + ivec2(0, 1), 0).r
-        ), N)/*.f[0]*/;
+        ), N).x[0];
       vdiff.y = -sub(float4
         ( texelFetch(Internal_N1, tc + ivec2(-1, 0), 0).r
         , texelFetch(Internal_N0, tc + ivec2(-1, 0), 0).r
         , 1.0 - texelFetch(Internal_NF, tc + ivec2(-1, 0), 0).r
-        ), N)/*.f[0]*/;
+        ), N).x[0];
     }
     float diff = dot(vdiff, KFP_SlopeDir);
     diff *= KFP_SlopePower * float(KFP_ImageSize.x) / 640.0;
