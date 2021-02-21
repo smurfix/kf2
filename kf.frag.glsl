@@ -424,23 +424,21 @@ dd_real add(float a, dd_real b) {
 
 /*********** Self-Additions ************/
 /* float-float += float */
-dd_real add_set(inout dd_real this, float a) {
+void add_set(inout dd_real this, float a) {
   float s1, s2;
   s1 = qd::two_sum(this.x[0], a, s2);
   s2 += this.x[1];
   this.x[0] = qd::quick_two_sum(s1, s2, this.x[1]);
-  return this;
 }
 
 /* float-float += float-float */
-dd_real add_set(inout dd_real this, dd_real a) {
+void add_set(inout dd_real this, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = qd::two_sum(this.x[0], a.x[0], e);
   e += this.x[1];
   e += a.x[1];
   this.x[0] = qd::quick_two_sum(s, e, this.x[1]);
-  return this;
 #else
   float s1, s2, t1, t2;
   s1 = qd::two_sum(this.x[0], a.x[0], s2);
@@ -449,7 +447,6 @@ dd_real add_set(inout dd_real this, dd_real a) {
   s1 = qd::quick_two_sum(s1, s2, s2);
   s2 += t2;
   this.x[0] = qd::quick_two_sum(s1, s2, this.x[1]);
-  return this;
 #endif
 }
 
@@ -502,23 +499,21 @@ dd_real sub(float a, dd_real b) {
 
 /*********** Self-Subtractions ************/
 /* float-float -= float */
-dd_real sub_set(inout dd_real this, float a) {
+void sub_set(inout dd_real this, float a) {
   float s1, s2;
   s1 = qd::two_diff(this.x[0], a, s2);
   s2 += this.x[1];
   this.x[0] = qd::quick_two_sum(s1, s2, this.x[1]);
-  return this;
 }
 
 /* float-float -= float-float */
-dd_real sub_set(inout dd_real this, dd_real a) {
+void sub_set(inout dd_real this, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = qd::two_diff(this.x[0], a.x[0], e);
   e += this.x[1];
   e -= a.x[1];
   this.x[0] = qd::quick_two_sum(s, e, this.x[1]);
-  return this;
 #else
   float s1, s2, t1, t2;
   s1 = qd::two_diff(this.x[0], a.x[0], s2);
@@ -527,7 +522,6 @@ dd_real sub_set(inout dd_real this, dd_real a) {
   s1 = qd::quick_two_sum(s1, s2, s2);
   s2 += t2;
   this.x[0] = qd::quick_two_sum(s1, s2, this.x[1]);
-  return this;
 #endif
 }
 
@@ -581,22 +575,20 @@ dd_real mul(float a, dd_real b) {
 
 /*********** Self-Multiplications ************/
 /* float-float *= float */
-dd_real mul_set(inout dd_real this, float a) {
+void mul_set(inout dd_real this, float a) {
   float p1, p2;
   p1 = qd::two_prod(this.x[0], a, p2);
   p2 += this.x[1] * a;
   this.x[0] = qd::quick_two_sum(p1, p2, this.x[1]);
-  return this;
 }
 
 /* float-float *= float-float */
-dd_real mul_set(inout dd_real this, dd_real a) {
+void mul_set(inout dd_real this, dd_real a) {
   float p1, p2;
   p1 = qd::two_prod(this.x[0], a.x[0], p2);
   p2 += a.x[1] * this.x[0];
   p2 += a.x[0] * this.x[1];
   this.x[0] = qd::quick_two_sum(p1, p2, this.x[1]);
-  return this;
 }
 
 /*********** Divisions ************/
@@ -704,15 +696,13 @@ dd_real inv(dd_real a) {
 
 /*********** Self-Divisions ************/
 /* float-float /= float */
-dd_real div_set(inout dd_real this, float a) {
+void div_set(inout dd_real this, float a) {
   this = this / a;
-  return this;
 }
 
 /* float-float /= float-float */
-dd_real div_set(inout dd_real this, dd_real a) {
+void div_set(inout dd_real this, dd_real a) {
   this = this / a;
-  return this;
 }
 
 /********** Remainder **********/
@@ -753,10 +743,9 @@ dd_real pow(dd_real a, int n) {
 
 /*********** Assignments ************/
 /* float-float = float */
-inout dd_real set(inout dd_real this, float a) {
+void set(inout dd_real this, float a) {
   this.x[0] = a;
   this.x[1] = 0.0;
-  return this;
 }
 
 /*********** Equality Comparisons ************/
@@ -1001,7 +990,7 @@ using std::setw;
 
 /* Computes the square root of the float-float number dd.
    NOTE: dd must be a non-negative number.                   */
-QD_API dd_real sqrt(dd_real a) {
+dd_real sqrt(dd_real a) {
   /* Strategy:  Use Karp's trick:  if x is an approximation
      to sqrt(a), then
 
@@ -1744,7 +1733,7 @@ dd_real atanh(dd_real a) {
   return mul_pwr2(log((1.0 + a) / (1.0 - a)), 0.5);
 }
 
-QD_API dd_real fmod(dd_real a, dd_real b) {
+dd_real fmod(dd_real a, dd_real b) {
   dd_real n = aint(a / b);
   return (a - b * n);
 }
@@ -1882,16 +1871,8 @@ qd_real::qd_real(int i) {
 }
 
 /********** Accessors **********/
-float qd_real::operator[](int i) const {
-  return x[i];
-}
-
-inout float qd_real::operator[](int i) {
-  return x[i];
-}
-
-bool qd_real::isnan() const {
-  return QD_ISNAN(x[0]) || QD_ISNAN(x[1]) || QD_ISNAN(x[2]) || QD_ISNAN(x[3]);
+bool isnan(qd_real x) const {
+  return QD_ISNAN(x.x[0]) || QD_ISNAN(x.x[1]) || QD_ISNAN(x.x[2]) || QD_ISNAN(x.x[3]);
 }
 
 /********** Renormalization **********/
@@ -2240,21 +2221,18 @@ qd_real add(qd_real a, qd_real b) {
 
 /********** Self-Additions ************/
 /* quad-float += float */
-inout qd_real add_set(inout qd_real this, float a) {
+void add_set(inout qd_real this, float a) {
   this = this + a;
-  return this;
 }
 
 /* quad-float += float-float */
-inout qd_real add_set(inout qd_real this, dd_real a) {
+void add_set(inout qd_real this, dd_real a) {
   this = this + a;
-  return this;
 }
 
 /* quad-float += quad-float */
-inout qd_real add_set(inout qd_real this, qd_real a) {
+void add_set(inout qd_real this, qd_real a) {
   this = this + a;
-  return this;
 }
 
 /********** Unary Minus **********/
@@ -2284,15 +2262,15 @@ qd_real sub(qd_real a, qd_real b) {
 }
 
 /********** Self-Subtractions **********/
-inout qd_real sub_set(inout qd_real this, float a) {
+void sub_set(inout qd_real this, float a) {
   return ((this) += (-a));
 }
 
-inout qd_real sub_set(inout qd_real this, dd_real a) {
+void sub_set(inout qd_real this, dd_real a) {
   return ((this) += (-a));
 }
 
-inout qd_real sub_set(inout qd_real this, qd_real a) {
+void sub_set(inout qd_real this, qd_real a) {
   return ((this) += (-a));
 }
 
@@ -2539,21 +2517,18 @@ qd_real sqr(qd_real a) {
 
 /********** Self-Multiplication **********/
 /* quad-float *= float */
-inout qd_real mul_set(inout qd_real this, float a) {
+void mul_set(inout qd_real this, float a) {
   this = (this * a);
-  return this;
 }
 
 /* quad-float *= float-float */
-inout qd_real mul_set(inout qd_real this, dd_real a) {
+void mul_set(inout qd_real this, dd_real a) {
   this = (this * a);
-  return this;
 }
 
 /* quad-float *= quad-float */
-inout qd_real mul_set(inout qd_real this, qd_real a) {
+void mul_set(inout qd_real this, qd_real a) {
   this = this * a;
-  return this;
 }
 
 qd_real div(qd_real a, dd_real b) {
@@ -2584,21 +2559,18 @@ qd_real div(dd_real a, qd_real b) {
 
 /********** Self-Divisions **********/
 /* quad-float /= float */
-inout qd_real div_set(inout qd_real this, float a) {
+void div_set(inout qd_real this, float a) {
   this = (this / a);
-  return this;
 }
 
 /* quad-float /= float-float */
-inout qd_real div_set(inout qd_real this, dd_real a) {
+void div_set(inout qd_real this, dd_real a) {
   this = (this / a);
-  return this;
 }
 
 /* quad-float /= quad-float */
-inout qd_real div_set(inout qd_real this, qd_real a) {
+void div_set(inout qd_real this, qd_real a) {
   this = (this / a);
-  return this;
 }
 
 
@@ -2622,18 +2594,16 @@ qd_real quick_nint(qd_real a) {
 
 /*********** Assignments ************/
 /* quad-float = float */
-inout qd_real set(inout qd_real this, float a) {
+void set(inout qd_real this, float a) {
   this.x[0] = a;
   this.x[1] = this.x[2] = this.x[3] = 0.0;
-  return this;
 }
 
 /* quad-float = float-float */
-inout qd_real set(inout qd_real this, dd_real a) {
+void set(inout qd_real this, dd_real a) {
   this.x[0] = a._hi();
   this.x[1] = a._lo();
   this.x[2] = this.x[3] = 0.0;
-  return this;
 }
 
 /********** Equality Comparison **********/
@@ -3155,7 +3125,7 @@ qd_real qd_real::accurate_div(qd_real a, qd_real b) {
   return qd_real(q0, q1, q2, q3);
 }
 
-QD_API qd_real sqrt(qd_real a) {
+qd_real sqrt(qd_real a) {
   /* Strategy:
 
      Perform the following Newton iteration:
@@ -4950,7 +4920,7 @@ qd_real atanh(qd_real a) {
   return mul_pwr2(log((1.0 + a) / (1.0 - a)), 0.5);
 }
 
-QD_API qd_real fmod(qd_real a, qd_real b) {
+qd_real fmod(qd_real a, qd_real b) {
   qd_real n = aint(a / b);
   return (a - b * n);
 }
