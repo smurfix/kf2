@@ -69,6 +69,11 @@ uniform float KFP_TextureMerge;
 uniform float KFP_TexturePower;
 uniform float KFP_TextureRatio;
 
+// hack to force explicit evaluation order
+uniform float Internal_Zero;
+float Internal_One;
+float X(float a) { return Internal_One * a; }
+
 ///=====================================================================
 /// BEGIN qd-2.3.22+dfsg.1
 /// via apt-get source qd on Debian Bullseye
@@ -6120,6 +6125,7 @@ int diff(uint a, uint b)
 
 void main(void)
 {
+  Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
   ivec2 tc = Internal_TilePadding + ivec2(KFP_ImageSize.y - 1 - int(gl_FragCoord.y), int(gl_FragCoord.x));
   vec3 s = vec3(0.0);
   uint N1 = texelFetch(Internal_N1, tc, 0).r;
