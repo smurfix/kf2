@@ -72,7 +72,7 @@ uniform float KFP_TextureRatio;
 // hack to force explicit evaluation order
 uniform float Internal_Zero;
 float Internal_One = 1.0;
-float X(float a) { return Internal_One * a; }
+float EXACT(float a) { return Internal_One * a; }
 
 #if __VERSION__ >= 400
 float _builtin_ldexp(float a, int b) { return ldexp(a, b); }
@@ -748,31 +748,31 @@ const int dd_ndigits = 13;
 /*********** Basic Functions ************/
 /* Computes fl(a+b) and err(a+b).  Assumes |a| >= |b|. */
 float quick_two_sum(float a, float b, out float err) {
-  float s = a + b;
-  err = b - (s - a);
+  float s = EXACT(a + b);
+  err = EXACT(b - EXACT(s - a));
   return s;
 }
 
 /* Computes fl(a-b) and err(a-b).  Assumes |a| >= |b| */
 float quick_two_diff(float a, float b, out float err) {
-  float s = a - b;
-  err = (a - s) - b;
+  float s = EXACT(a - b);
+  err = EXACT(EXACT(a - s) - b);
   return s;
 }
 
 /* Computes fl(a+b) and err(a+b).  */
 float two_sum(float a, float b, out float err) {
-  float s = a + b;
-  float bb = s - a;
-  err = (a - (s - bb)) + (b - bb);
+  float s = EXACT(a + b);
+  float bb = EXACT(s - a);
+  err = EXACT(EXACT(a - EXACT(s - bb)) + EXACT(b - bb));
   return s;
 }
 
 /* Computes fl(a-b) and err(a-b).  */
 float two_diff(float a, float b, out float err) {
-  float s = a - b;
-  float bb = s - a;
-  err = (a - (s - bb)) - (b + bb);
+  float s = EXACT(a - b);
+  float bb = EXACT(s - a);
+  err = EXACT(EXACT(a - EXACT(s - bb)) - EXACT(b + bb));
   return s;
 }
 
@@ -783,14 +783,14 @@ void split(float a, out float hi, out float lo) {
   if (a > _QD_SPLIT_THRESH || a < -_QD_SPLIT_THRESH) {
     a *= 3.7252902984619140625e-09;  // 2^-28
     temp = _QD_SPLITTER * a;
-    hi = temp - (temp - a);
-    lo = a - hi;
+    hi = EXACT(temp - EXACT(temp - a));
+    lo = EXACT(a - hi);
     hi *= 268435456.0;          // 2^28
     lo *= 268435456.0;          // 2^28
   } else {
     temp = _QD_SPLITTER * a;
-    hi = temp - (temp - a);
-    lo = a - hi;
+    hi = EXACT(temp - EXACT(temp - a));
+    lo = EXACT(a - hi);
   }
 }
 #endif
@@ -798,15 +798,15 @@ void split(float a, out float hi, out float lo) {
 /* Computes fl(a*b) and err(a*b). */
 float two_prod(float a, float b, out float err) {
 #ifdef QD_FMS
-  float p = a * b;
+  float p = EXACT(a * b);
   err = QD_FMS(a, b, p);
   return p;
 #else
   float a_hi, a_lo, b_hi, b_lo;
-  float p = a * b;
+  float p = EXACT(a * b);
   split(a, a_hi, a_lo);
   split(b, b_hi, b_lo);
-  err = ((a_hi * b_hi - p) + a_hi * b_lo + a_lo * b_hi) + a_lo * b_lo;
+  err = EXACT(EXACT(EXACT(a_hi * b_hi) - p) + a_hi * b_lo + a_lo * b_hi) + a_lo * b_lo;
   return p;
 #endif
 }
@@ -814,14 +814,14 @@ float two_prod(float a, float b, out float err) {
 /* Computes fl(a*a) and err(a*a).  Faster than the above method. */
 float two_sqr(float a, out float err) {
 #ifdef QD_FMS
-  float p = a * a;
+  float p = EXACT(a * a);
   err = QD_FMS(a, a, p);
   return p;
 #else
   float hi, lo;
-  float q = a * a;
+  float q = EXACT(a * a);
   split(a, hi, lo);
-  err = ((hi * hi - q) + 2.0 * hi * lo) + lo * lo;
+  err = EXACT(EXACT(EXACT(hi * hi) - q) + 2.0 * hi * lo) + lo * lo;
   return q;
 #endif
 }
@@ -924,7 +924,7 @@ dd_real dd_add(float a, float b) {
 dd_real add(dd_real a, float b) {
   float s1, s2;
   s1 = two_sum(a.x[0], b, s2);
-  s2 += a.x[1];
+  s2 = EXACT(s2 + a.x[1]);
   s1 = quick_two_sum(s1, s2, s2);
   return dd_real_(s1, s2);
 }
@@ -937,9 +937,9 @@ dd_real ieee_add(dd_real a, dd_real b) {
 
   s1 = two_sum(a.x[0], b.x[0], s2);
   t1 = two_sum(a.x[1], b.x[1], t2);
-  s2 += t1;
+  s2 = EXACT(s2 + t1);
   s1 = quick_two_sum(s1, s2, s2);
-  s2 += t2;
+  s2 = EXACT(s2 + t2);
   s1 = quick_two_sum(s1, s2, s2);
   return dd_real_(s1, s2);
 }
@@ -950,7 +950,7 @@ dd_real sloppy_add(dd_real a, dd_real b) {
   float s, e;
 
   s = two_sum(a.x[0], b.x[0], e);
-  e += (a.x[1] + b.x[1]);
+  e = EXACT(e + EXACT(a.x[1] + b.x[1]));
   s = quick_two_sum(s, e, e);
   return dd_real_(s, e);
 }
@@ -974,7 +974,7 @@ dd_real add(float a, dd_real b) {
 void add_set(inout dd_real self, float a) {
   float s1, s2;
   s1 = two_sum(self.x[0], a, s2);
-  s2 += self.x[1];
+  s2 = EXACT(s2 + self.x[1]);
   self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 }
 
@@ -983,16 +983,16 @@ void add_set(inout dd_real self, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_sum(self.x[0], a.x[0], e);
-  e += self.x[1];
-  e += a.x[1];
+  e = EXACT(e + self.x[1]);
+  e = EXACT(e + a.x[1]);
   self.x[0] = quick_two_sum(s, e, self.x[1]);
 #else
   float s1, s2, t1, t2;
   s1 = two_sum(self.x[0], a.x[0], s2);
   t1 = two_sum(self.x[1], a.x[1], t2);
-  s2 += t1;
+  s2 = EXACT(s2 + t1);
   s1 = quick_two_sum(s1, s2, s2);
-  s2 += t2;
+  s2 = EXACT(s2 + t2);
   self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 #endif
 }
@@ -1009,7 +1009,7 @@ dd_real dd_sub(float a, float b) {
 dd_real sub(dd_real a, float b) {
   float s1, s2;
   s1 = two_diff(a.x[0], b, s2);
-  s2 += a.x[1];
+  s2 = EXACT(s2 + a.x[1]);
   s1 = quick_two_sum(s1, s2, s2);
   return dd_real_(s1, s2);
 }
@@ -1019,17 +1019,17 @@ dd_real sub(dd_real a, dd_real b) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_diff(a.x[0], b.x[0], e);
-  e += a.x[1];
-  e -= b.x[1];
+  e = EXACT(e + a.x[1]);
+  e = EXACT(e - b.x[1]);
   s = quick_two_sum(s, e, e);
   return dd_real_(s, e);
 #else
   float s1, s2, t1, t2;
   s1 = two_diff(a.x[0], b.x[0], s2);
   t1 = two_diff(a.x[1], b.x[1], t2);
-  s2 += t1;
+  s2 = EXACT(s2 + t1);
   s1 = quick_two_sum(s1, s2, s2);
-  s2 += t2;
+  s2 = EXACT(s2 + t2);
   s1 = quick_two_sum(s1, s2, s2);
   return dd_real_(s1, s2);
 #endif
@@ -1039,7 +1039,7 @@ dd_real sub(dd_real a, dd_real b) {
 dd_real sub(float a, dd_real b) {
   float s1, s2;
   s1 = two_diff(a, b.x[0], s2);
-  s2 -= b.x[1];
+  s2 = EXACT(s2 - b.x[1]);
   s1 = quick_two_sum(s1, s2, s2);
   return dd_real_(s1, s2);
 }
@@ -1049,7 +1049,7 @@ dd_real sub(float a, dd_real b) {
 void sub_set(inout dd_real self, float a) {
   float s1, s2;
   s1 = two_diff(self.x[0], a, s2);
-  s2 += self.x[1];
+  s2 = EXACT(s2 + self.x[1]);
   self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 }
 
@@ -1058,16 +1058,16 @@ void sub_set(inout dd_real self, dd_real a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_diff(self.x[0], a.x[0], e);
-  e += self.x[1];
-  e -= a.x[1];
+  e = EXACT(e + self.x[1]);
+  e = EXACT(e - a.x[1];
   self.x[0] = quick_two_sum(s, e, self.x[1]);
 #else
   float s1, s2, t1, t2;
   s1 = two_diff(self.x[0], a.x[0], s2);
   t1 = two_diff(self.x[1], a.x[1], t2);
-  s2 += t1;
+  s2 = EXACT(s2 + t1);
   s1 = quick_two_sum(s1, s2, s2);
-  s2 += t2;
+  s2 = EXACT(s2 + t2);
   self.x[0] = quick_two_sum(s1, s2, self.x[1]);
 #endif
 }
@@ -1100,7 +1100,7 @@ dd_real mul(dd_real a, float b) {
   float p1, p2;
 
   p1 = two_prod(a.x[0], b, p2);
-  p2 += (a.x[1] * b);
+  p2 = EXACT(p2 + EXACT(a.x[1] * b));
   p1 = quick_two_sum(p1, p2, p2);
   return dd_real_(p1, p2);
 }
@@ -1110,7 +1110,7 @@ dd_real mul(dd_real a, dd_real b) {
   float p1, p2;
 
   p1 = two_prod(a.x[0], b.x[0], p2);
-  p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
+  p2 = EXACT(p2 + EXACT(a.x[0] * b.x[1] + a.x[1] * b.x[0]));
   p1 = quick_two_sum(p1, p2, p2);
   return dd_real_(p1, p2);
 }
@@ -1125,7 +1125,7 @@ dd_real mul(float a, dd_real b) {
 void mul_set(inout dd_real self, float a) {
   float p1, p2;
   p1 = two_prod(self.x[0], a, p2);
-  p2 += self.x[1] * a;
+  p2 = EXACT(p2 + EXACT(self.x[1] * a));
   self.x[0] = quick_two_sum(p1, p2, self.x[1]);
 }
 
@@ -1133,8 +1133,8 @@ void mul_set(inout dd_real self, float a) {
 void mul_set(inout dd_real self, dd_real a) {
   float p1, p2;
   p1 = two_prod(self.x[0], a.x[0], p2);
-  p2 += a.x[1] * self.x[0];
-  p2 += a.x[0] * self.x[1];
+  p2 = EXACT(p2 + EXACT(a.x[1] * self.x[0]));
+  p2 = EXACT(p2 + EXACT(a.x[0] * self.x[1]));
   self.x[0] = quick_two_sum(p1, p2, self.x[1]);
 }
 
@@ -1144,15 +1144,15 @@ dd_real dd_div(float a, float b) {
   float p1, p2;
   float s, e;
 
-  q1 = a / b;
+  q1 = EXACT(a / b);
 
   /* Compute  a - q1 * b */
   p1 = two_prod(q1, b, p2);
   s = two_diff(a, p1, e);
-  e -= p2;
+  e = EXACT(e - p2);
 
   /* get next approximation */
-  q2 = (s + e) / b;
+  q2 = EXACT(EXACT(s + e) / b);
 
   s = quick_two_sum(q1, q2, e);
 
@@ -1167,16 +1167,16 @@ dd_real div(dd_real a, float b) {
   float s, e;
   dd_real r;
 
-  q1 = a.x[0] / b;   /* approximate quotient. */
+  q1 = EXACT(a.x[0] / b);   /* approximate quotient. */
 
   /* Compute  this - q1 * d */
   p1 = two_prod(q1, b, p2);
   s = two_diff(a.x[0], p1, e);
-  e += a.x[1];
-  e -= p2;
+  e = EXACT(e + a.x[1]);
+  e = EXACT(e - p2);
 
   /* get next approximation. */
-  q2 = (s + e) / b;
+  q2 = EXACT(EXACT(s + e) / b);
 
   /* renormalize */
   r.x[0] = quick_two_sum(q1, q2, r.x[1]);
@@ -1189,16 +1189,16 @@ dd_real sloppy_div(dd_real a, dd_real b) {
   float q1, q2;
   dd_real r;
 
-  q1 = a.x[0] / b.x[0];  /* approximate quotient */
+  q1 = EXACT(a.x[0] / b.x[0]);  /* approximate quotient */
 
   /* compute  this - q1 * dd */
   r = mul(b, q1);
   s1 = two_diff(a.x[0], r.x[0], s2);
-  s2 -= r.x[1];
-  s2 += a.x[1];
+  s2 = EXACT(s2 - r.x[1]);
+  s2 = EXACT(s2 + a.x[1]);
 
   /* get next approximation */
-  q2 = (s1 + s2) / b.x[0];
+  q2 = EXACT(EXACT(s1 + s2) / b.x[0]);
 
   /* renormalize */
   r.x[0] = quick_two_sum(q1, q2, r.x[1]);
@@ -1209,14 +1209,14 @@ dd_real accurate_div(dd_real a, dd_real b) {
   float q1, q2, q3;
   dd_real r;
 
-  q1 = a.x[0] / b.x[0];  /* approximate quotient */
+  q1 = EXACT(a.x[0] / b.x[0]);  /* approximate quotient */
 
   r = sub(a, mul(q1, b));
 
-  q2 = r.x[0] / b.x[0];
+  q2 = EXACT(r.x[0] / b.x[0]);
   sub_set(r, mul(q2, b));
 
-  q3 = r.x[0] / b.x[0];
+  q3 = EXACT(r.x[0] / b.x[0]);
 
   q1 = quick_two_sum(q1, q2, q2);
   r = add(dd_real_(q1, q2), q3);
@@ -1257,8 +1257,8 @@ dd_real sqr(dd_real a) {
   float p1, p2;
   float s1, s2;
   p1 = two_sqr(a.x[0], p2);
-  p2 += 2.0 * a.x[0] * a.x[1];
-  p2 += a.x[1] * a.x[1];
+  p2 = EXACT(p2 + EXACT(2.0 * a.x[0] * a.x[1]));
+  p2 = EXACT(p2 + EXACT(a.x[1] * a.x[1]));
   s1 = quick_two_sum(p1, p2, s2);
   return dd_real_(s1, s2);
 }
@@ -1595,8 +1595,8 @@ dd_real sqrt(dd_real a) {
     return dd_nan;
   }
 
-  float x = 1.0 / sqrt(a.x[0]);
-  float ax = a.x[0] * x;
+  float x = EXACT(1.0 / sqrt(a.x[0]));
+  float ax = EXACT(a.x[0] * x);
   return dd_add(ax, sub(a, dd_sqr(ax)).x[0] * (x * 0.5));
 }
 
