@@ -166,8 +166,8 @@ or derivative works thereof, in binary and source code form.
 #ifndef _QD_INLINE_H
 #define _QD_INLINE_H
 
-#define _QD_SPLITTER 134217729.0               // = 2^27 + 1
-#define _QD_SPLIT_THRESH 6.69692879491417e+299 // = 2^996
+#define _QD_SPLITTER     4097.0       // = 2^12 + 1
+#define _QD_SPLIT_THRESH 4.1538375e34 // 2^115
 
 #ifdef QD_VACPP_BUILTINS_H
 /* For VisualAge C++ __fmadd */
@@ -309,6 +309,7 @@ int    to_int(float a) { return static_cast<int>(a); }
 #include "config.h"
 #include <qd/dd_real.h>
 
+#if 0
 const dd_real dd_real::_2pi = dd_real(6.283185307179586232e+00,
                                       2.449293598294706414e-16);
 const dd_real dd_real::_pi = dd_real(3.141592653589793116e+00,
@@ -335,6 +336,7 @@ const dd_real dd_real::_max =
 const dd_real dd_real::_safe_max =
     dd_real(1.7976931080746007281e+308, 9.97920154767359795037e+291);
 const int dd_real::_ndigits = 31;
+#endif
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/include/qd/dd_inline.h
@@ -855,23 +857,23 @@ bool ne(float a, dd_real b) {
 
 /*********** Micellaneous ************/
 /*  this == 0 */
-bool dd_real::is_zero() const {
-  return (x[0] == 0.0);
+bool is_zero(dd_real this) {
+  return (this.x[0] == 0.0);
 }
 
 /*  this == 1 */
-bool dd_real::is_one() const {
-  return (x[0] == 1.0 && x[1] == 0.0);
+bool is_one(dd_real this) {
+  return (this.x[0] == 1.0 && this.x[1] == 0.0);
 }
 
 /*  this > 0 */
-bool dd_real::is_positive() const {
-  return (x[0] > 0.0);
+bool is_positive(dd_real this) {
+  return (this.x[0] > 0.0);
 }
 
 /* this < 0 */
-bool dd_real::is_negative() const {
-  return (x[0] < 0.0);
+bool is_negative(dd_real this) {
+  return (this.x[0] < 0.0);
 }
 
 /* Absolute value */
@@ -1121,6 +1123,7 @@ dd_real pow(dd_real a, dd_real b) {
   return exp(b * log(a));
 }
 
+#if 0
 static const int n_inv_fact = 15;
 static const float inv_fact[n_inv_fact][2] = {
   { 1.66666666666666657e-01,  9.25185853854297066e-18},
@@ -1139,6 +1142,7 @@ static const float inv_fact[n_inv_fact][2] = {
   { 4.77947733238738525e-14,  4.39920548583408126e-31},
   { 2.81145725434552060e-15,  1.65088427308614326e-31}
 };
+#endif
 
 /* Exponential.  Computes exp(x) in float-float precision. */
 dd_real exp(dd_real a) {
@@ -1235,7 +1239,7 @@ dd_real log(dd_real a) {
 dd_real log10(dd_real a) {
   return log(a) / dd_real::_log10;
 }
-
+#if 0
 static const dd_real _pi16 = dd_real(1.963495408493620697e-01,
                                      7.654042494670957545e-18);
 
@@ -1253,6 +1257,7 @@ static const float cos_table [4][2] = {
   {8.314696123025452357e-01, 1.407385698472802389e-18},
   {7.071067811865475727e-01, -4.833646656726456726e-17}
 };
+#endif
 
 /* Computes sin(a) using Taylor series.
    Assumes |a| <= pi/32.                           */
@@ -1744,102 +1749,6 @@ QD_API dd_real fmod(dd_real a, dd_real b) {
   return (a - b * n);
 }
 
-QD_API dd_real ddrand() {
-  static const float m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
-  float m = m_const;
-  dd_real r = 0.0;
-  float d;
-
-  /* Strategy:  Generate 31 bits at a time, using lrand48
-     random number generator.  Shift the bits, and reapeat
-     4 times. */
-
-  for (int i = 0; i < 4; i++, m *= m_const) {
-//    d = lrand48() * m;
-    d = std::rand() * m;
-    r += d;
-  }
-
-  return r;
-}
-
-/* polyeval(c, n, x)
-   Evaluates the given n-th degree polynomial at x.
-   The polynomial is given by the array of (n+1) coefficients. */
-dd_real polyeval(const dd_real *c, int n, dd_real x) {
-  /* Just use Horner's method of polynomial evaluation. */
-  dd_real r = c[n];
-
-  for (int i = n-1; i >= 0; i--) {
-    r *= x;
-    r += c[i];
-  }
-
-  return r;
-}
-
-/* polyroot(c, n, x0)
-   Given an n-th degree polynomial, finds a root close to
-   the given guess x0.  Note that this uses simple Newton
-   iteration scheme, and does not work for multiple roots.  */
-QD_API dd_real polyroot(const dd_real *c, int n,
-    dd_real x0, int max_iter, float thresh) {
-  dd_real x = x0;
-  dd_real f;
-  dd_real *d = new dd_real[n];
-  bool conv = false;
-  int i;
-  float max_c = std::abs(to_float(c[0]));
-  float v;
-
-  if (thresh == 0.0) thresh = dd_real::_eps;
-
-  /* Compute the coefficients of the derivatives. */
-  for (i = 1; i <= n; i++) {
-    v = std::abs(to_float(c[i]));
-    if (v > max_c) max_c = v;
-    d[i-1] = c[i] * static_cast<float>(i);
-  }
-  thresh *= max_c;
-
-  /* Newton iteration. */
-  for (i = 0; i < max_iter; i++) {
-    f = polyeval(c, n, x);
-
-    if (abs(f) < thresh) {
-      conv = true;
-      break;
-    }
-    x -= (f / polyeval(d, n-1, x));
-  }
-  delete [] d;
-
-  if (!conv) {
-    dd_real::error("(dd_real::polyroot): Failed to converge.");
-    return dd_real::_nan;
-  }
-
-  return x;
-}
-
-
-/* Debugging routines */
-dd_real dd_real::debug_rand() {
-
-  if (std::rand() % 2 == 0)
-    return ddrand();
-
-  int expn = 0;
-  dd_real a = 0.0;
-  float d;
-  for (int i = 0; i < 2; i++) {
-    d = std::ldexp(static_cast<float>(std::rand()) / RAND_MAX, -expn);
-    a += d;
-    expn = expn + 54 + std::rand() % 200;
-  }
-  return a;
-}
-
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/src/qd_const.h
 ///=====================================================================
@@ -1858,6 +1767,7 @@ dd_real dd_real::debug_rand() {
 #include "config.h"
 #include <qd/qd_real.h>
 
+#if 0
 /* Some useful constants. */
 const qd_real qd_real::_2pi = qd_real(6.283185307179586232e+00,
                                       2.449293598294706414e-16,
@@ -1905,6 +1815,7 @@ const qd_real qd_real::_safe_max = qd_real(
     1.7976931080746007281e+308,  9.97920154767359795037e+291,
     5.53956966280111259858e+275, 3.07507889307840487279e+259);
 const int qd_real::_ndigits = 62;
+#endif
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/include/qd/qd_inline.h
@@ -3328,6 +3239,7 @@ qd_real nroot(qd_real a, int n) {
   return 1.0 / x;
 }
 
+#if 0
 static const int n_inv_fact = 15;
 static const qd_real inv_fact[n_inv_fact] = {
   qd_real( 1.66666666666666657e-01,  9.25185853854297066e-18,
@@ -3361,6 +3273,7 @@ static const qd_real inv_fact[n_inv_fact] = {
   qd_real( 2.81145725434552060e-15,  1.65088427308614326e-31,
           -2.87777179307447918e-50,  4.27110689256293549e-67)
 };
+#endif
 
 qd_real exp(qd_real a) {
   /* Strategy:  We first reduce the size of x by noting that
@@ -3466,6 +3379,7 @@ qd_real log10(qd_real a) {
   return log(a) / qd_real::_log10;
 }
 
+#if 0
 static const qd_real _pi1024 = qd_real(
     3.067961575771282340e-03, 1.195944139792337116e-19,
    -2.924579892303066080e-36, 1.086381075061880158e-52);
@@ -4500,6 +4414,7 @@ static const qd_real cos_table [] = {
   qd_real( 7.0710678118654757e-01, -4.8336466567264567e-17,
        2.0693376543497068e-33, 2.4677734957341755e-50)
 };
+#endif
 
 /* Computes sin(a) and cos(a) using Taylor series.
    Assumes |a| <= pi/2048.                           */
@@ -5038,99 +4953,6 @@ qd_real atanh(qd_real a) {
 QD_API qd_real fmod(qd_real a, qd_real b) {
   qd_real n = aint(a / b);
   return (a - b * n);
-}
-
-QD_API qd_real qdrand() {
-  static const float m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
-  float m = m_const;
-  qd_real r = 0.0;
-  float d;
-
-  /* Strategy:  Generate 31 bits at a time, using lrand48
-     random number generator.  Shift the bits, and repeat
-     7 times. */
-
-  for (int i = 0; i < 7; i++, m *= m_const) {
-    d = std::rand() * m;
-    r += d;
-  }
-
-  return r;
-}
-
-
-/* polyeval(c, n, x)
-   Evaluates the given n-th degree polynomial at x.
-   The polynomial is given by the array of (n+1) coefficients. */
-qd_real polyeval(const qd_real *c, int n, qd_real x) {
-  /* Just use Horner's method of polynomial evaluation. */
-  qd_real r = c[n];
-
-  for (int i = n-1; i >= 0; i--) {
-    r *= x;
-    r += c[i];
-  }
-
-  return r;
-}
-
-/* polyroot(c, n, x0)
-   Given an n-th degree polynomial, finds a root close to
-   the given guess x0.  Note that this uses simple Newton
-   iteration scheme, and does not work for multiple roots.  */
-QD_API qd_real polyroot(const qd_real *c, int n,
-    qd_real x0, int max_iter, float thresh) {
-  qd_real x = x0;
-  qd_real f;
-  qd_real *d = new qd_real[n];
-  bool conv = false;
-  int i;
-  float max_c = std::abs(to_float(c[0]));
-  float v;
-
-  if (thresh == 0.0) thresh = qd_real::_eps;
-
-  /* Compute the coefficients of the derivatives. */
-  for (i = 1; i <= n; i++) {
-    v = std::abs(to_float(c[i]));
-    if (v > max_c) max_c = v;
-    d[i-1] = c[i] * static_cast<float>(i);
-  }
-  thresh *= max_c;
-
-  /* Newton iteration. */
-  for (i = 0; i < max_iter; i++) {
-    f = polyeval(c, n, x);
-
-    if (abs(f) < thresh) {
-      conv = true;
-      break;
-    }
-    x -= (f / polyeval(d, n-1, x));
-  }
-  delete [] d;
-
-  if (!conv) {
-    qd_real::error("(qd_real::polyroot): Failed to converge.");
-    return qd_real::_nan;
-  }
-
-  return x;
-}
-
-qd_real qd_real::debug_rand() {
-  if (std::rand() % 2 == 0)
-    return qdrand();
-
-  int expn = 0;
-  qd_real a = 0.0;
-  float d;
-  for (int i = 0; i < 4; i++) {
-    d = std::ldexp(std::rand() / static_cast<float>(RAND_MAX), -expn);
-    a += d;
-    expn = expn + 54 + std::rand() % 200;
-  }
-  return a;
 }
 
 ///=====================================================================
