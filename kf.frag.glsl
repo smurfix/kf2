@@ -179,44 +179,44 @@ or derivative works thereof, in binary and source code form.
 
 namespace qd {
 
-static const double _d_nan = std::numeric_limits<double>::quiet_NaN();
-static const double _d_inf = std::numeric_limits<double>::infinity();
+static const float _d_nan = std::numeric_limits<float>::quiet_NaN();
+static const float _d_inf = std::numeric_limits<float>::infinity();
 
 /*********** Basic Functions ************/
 /* Computes fl(a+b) and err(a+b).  Assumes |a| >= |b|. */
-double quick_two_sum(double a, double b, double &err) {
-  double s = a + b;
+float quick_two_sum(float a, float b, float &err) {
+  float s = a + b;
   err = b - (s - a);
   return s;
 }
 
 /* Computes fl(a-b) and err(a-b).  Assumes |a| >= |b| */
-double quick_two_diff(double a, double b, double &err) {
-  double s = a - b;
+float quick_two_diff(float a, float b, float &err) {
+  float s = a - b;
   err = (a - s) - b;
   return s;
 }
 
 /* Computes fl(a+b) and err(a+b).  */
-double two_sum(double a, double b, double &err) {
-  double s = a + b;
-  double bb = s - a;
+float two_sum(float a, float b, float &err) {
+  float s = a + b;
+  float bb = s - a;
   err = (a - (s - bb)) + (b - bb);
   return s;
 }
 
 /* Computes fl(a-b) and err(a-b).  */
-double two_diff(double a, double b, double &err) {
-  double s = a - b;
-  double bb = s - a;
+float two_diff(float a, float b, float &err) {
+  float s = a - b;
+  float bb = s - a;
   err = (a - (s - bb)) - (b + bb);
   return s;
 }
 
 #ifndef QD_FMS
 /* Computes high word and lo word of a */
-void split(double a, double &hi, double &lo) {
-  double temp;
+void split(float a, float &hi, float &lo) {
+  float temp;
   if (a > _QD_SPLIT_THRESH || a < -_QD_SPLIT_THRESH) {
     a *= 3.7252902984619140625e-09;  // 2^-28
     temp = _QD_SPLITTER * a;
@@ -233,14 +233,14 @@ void split(double a, double &hi, double &lo) {
 #endif
 
 /* Computes fl(a*b) and err(a*b). */
-double two_prod(double a, double b, double &err) {
+float two_prod(float a, float b, float &err) {
 #ifdef QD_FMS
-  double p = a * b;
+  float p = a * b;
   err = QD_FMS(a, b, p);
   return p;
 #else
-  double a_hi, a_lo, b_hi, b_lo;
-  double p = a * b;
+  float a_hi, a_lo, b_hi, b_lo;
+  float p = a * b;
   split(a, a_hi, a_lo);
   split(b, b_hi, b_lo);
   err = ((a_hi * b_hi - p) + a_hi * b_lo + a_lo * b_hi) + a_lo * b_lo;
@@ -249,14 +249,14 @@ double two_prod(double a, double b, double &err) {
 }
 
 /* Computes fl(a*a) and err(a*a).  Faster than the above method. */
-double two_sqr(double a, double &err) {
+float two_sqr(float a, float &err) {
 #ifdef QD_FMS
-  double p = a * a;
+  float p = a * a;
   err = QD_FMS(a, a, p);
   return p;
 #else
-  double hi, lo;
-  double q = a * a;
+  float hi, lo;
+  float q = a * a;
   split(a, hi, lo);
   err = ((hi * hi - q) + 2.0 * hi * lo) + lo * lo;
   return q;
@@ -264,30 +264,30 @@ double two_sqr(double a, double &err) {
 }
 
 /* Computes the nearest integer to d. */
-double nint(double d) {
+float nint(float d) {
   if (d == std::floor(d))
     return d;
   return std::floor(d + 0.5);
 }
 
 /* Computes the truncated integer. */
-double aint(double d) {
+float aint(float d) {
   return (d >= 0.0) ? std::floor(d) : std::ceil(d);
 }
 
 /* These are provided to give consistent
-   interface for double with double-double and quad-double. */
-void sincosh(double t, double &sinh_t, double &cosh_t) {
+   interface for float with float-float and quad-float. */
+void sincosh(float t, float &sinh_t, float &cosh_t) {
   sinh_t = std::sinh(t);
   cosh_t = std::cosh(t);
 }
 
-double sqr(double t) {
+float sqr(float t) {
   return t * t;
 }
 
-double to_double(double a) { return a; }
-int    to_int(double a) { return static_cast<int>(a); }
+float to_float(float a) { return a; }
+int    to_int(float a) { return static_cast<int>(a); }
 
 }
 
@@ -328,8 +328,8 @@ const dd_real dd_real::_log10 = dd_real(2.302585092994045901e+00,
 const dd_real dd_real::_nan = dd_real(qd::_d_nan, qd::_d_nan);
 const dd_real dd_real::_inf = dd_real(qd::_d_inf, qd::_d_inf);
 
-const double dd_real::_eps = 4.93038065763132e-32;  // 2^-104
-const double dd_real::_min_normalized = 2.0041683600089728e-292;  // = 2^(-1022 + 53)
+const float dd_real::_eps = 4.93038065763132e-32;  // 2^-104
+const float dd_real::_min_normalized = 2.0041683600089728e-292;  // = 2^(-1022 + 53)
 const dd_real dd_real::_max =
     dd_real(1.79769313486231570815e+308, 9.97920154767359795037e+291);
 const dd_real dd_real::_safe_max =
@@ -349,7 +349,7 @@ const int dd_real::_ndigits = 31;
  *
  * Copyright (c) 2000-2001
  *
- * Contains small functions (suitable for inlining) in the double-double
+ * Contains small functions (suitable for inlining) in the float-float
  * arithmetic package.
  */
 #ifndef _QD_DD_INLINE_H
@@ -364,27 +364,27 @@ const int dd_real::_ndigits = 31;
 
 
 /*********** Additions ************/
-/* double-double = double + double */
-dd_real dd_real::add(double a, double b) {
-  double s, e;
+/* float-float = float + float */
+dd_real dd_real::add(float a, float b) {
+  float s, e;
   s = qd::two_sum(a, b, e);
   return dd_real(s, e);
 }
 
-/* double-double + double */
-dd_real operator+(const dd_real &a, double b) {
-  double s1, s2;
+/* float-float + float */
+dd_real operator+(const dd_real &a, float b) {
+  float s1, s2;
   s1 = qd::two_sum(a.x[0], b, s2);
   s2 += a.x[1];
   s1 = qd::quick_two_sum(s1, s2, s2);
   return dd_real(s1, s2);
 }
 
-/* double-double + double-double */
+/* float-float + float-float */
 dd_real dd_real::ieee_add(const dd_real &a, const dd_real &b) {
   /* This one satisfies IEEE style error bound,
      due to K. Briggs and W. Kahan.                   */
-  double s1, s2, t1, t2;
+  float s1, s2, t1, t2;
 
   s1 = qd::two_sum(a.x[0], b.x[0], s2);
   t1 = qd::two_sum(a.x[1], b.x[1], t2);
@@ -398,7 +398,7 @@ dd_real dd_real::ieee_add(const dd_real &a, const dd_real &b) {
 dd_real dd_real::sloppy_add(const dd_real &a, const dd_real &b) {
   /* This is the less accurate version ... obeys Cray-style
      error bound. */
-  double s, e;
+  float s, e;
 
   s = qd::two_sum(a.x[0], b.x[0], e);
   e += (a.x[1] + b.x[1]);
@@ -414,33 +414,33 @@ dd_real operator+(const dd_real &a, const dd_real &b) {
 #endif
 }
 
-/* double + double-double */
-dd_real operator+(double a, const dd_real &b) {
+/* float + float-float */
+dd_real operator+(float a, const dd_real &b) {
   return (b + a);
 }
 
 
 /*********** Self-Additions ************/
-/* double-double += double */
-dd_real &dd_real::operator+=(double a) {
-  double s1, s2;
+/* float-float += float */
+dd_real &dd_real::operator+=(float a) {
+  float s1, s2;
   s1 = qd::two_sum(x[0], a, s2);
   s2 += x[1];
   x[0] = qd::quick_two_sum(s1, s2, x[1]);
   return *this;
 }
 
-/* double-double += double-double */
+/* float-float += float-float */
 dd_real &dd_real::operator+=(const dd_real &a) {
 #ifndef QD_IEEE_ADD
-  double s, e;
+  float s, e;
   s = qd::two_sum(x[0], a.x[0], e);
   e += x[1];
   e += a.x[1];
   x[0] = qd::quick_two_sum(s, e, x[1]);
   return *this;
 #else
-  double s1, s2, t1, t2;
+  float s1, s2, t1, t2;
   s1 = qd::two_sum(x[0], a.x[0], s2);
   t1 = qd::two_sum(x[1], a.x[1], t2);
   s2 += t1;
@@ -452,33 +452,33 @@ dd_real &dd_real::operator+=(const dd_real &a) {
 }
 
 /*********** Subtractions ************/
-/* double-double = double - double */
-dd_real dd_real::sub(double a, double b) {
-  double s, e;
+/* float-float = float - float */
+dd_real dd_real::sub(float a, float b) {
+  float s, e;
   s = qd::two_diff(a, b, e);
   return dd_real(s, e);
 }
 
-/* double-double - double */
-dd_real operator-(const dd_real &a, double b) {
-  double s1, s2;
+/* float-float - float */
+dd_real operator-(const dd_real &a, float b) {
+  float s1, s2;
   s1 = qd::two_diff(a.x[0], b, s2);
   s2 += a.x[1];
   s1 = qd::quick_two_sum(s1, s2, s2);
   return dd_real(s1, s2);
 }
 
-/* double-double - double-double */
+/* float-float - float-float */
 dd_real operator-(const dd_real &a, const dd_real &b) {
 #ifndef QD_IEEE_ADD
-  double s, e;
+  float s, e;
   s = qd::two_diff(a.x[0], b.x[0], e);
   e += a.x[1];
   e -= b.x[1];
   s = qd::quick_two_sum(s, e, e);
   return dd_real(s, e);
 #else
-  double s1, s2, t1, t2;
+  float s1, s2, t1, t2;
   s1 = qd::two_diff(a.x[0], b.x[0], s2);
   t1 = qd::two_diff(a.x[1], b.x[1], t2);
   s2 += t1;
@@ -489,9 +489,9 @@ dd_real operator-(const dd_real &a, const dd_real &b) {
 #endif
 }
 
-/* double - double-double */
-dd_real operator-(double a, const dd_real &b) {
-  double s1, s2;
+/* float - float-float */
+dd_real operator-(float a, const dd_real &b) {
+  float s1, s2;
   s1 = qd::two_diff(a, b.x[0], s2);
   s2 -= b.x[1];
   s1 = qd::quick_two_sum(s1, s2, s2);
@@ -499,26 +499,26 @@ dd_real operator-(double a, const dd_real &b) {
 }
 
 /*********** Self-Subtractions ************/
-/* double-double -= double */
-dd_real &dd_real::operator-=(double a) {
-  double s1, s2;
+/* float-float -= float */
+dd_real &dd_real::operator-=(float a) {
+  float s1, s2;
   s1 = qd::two_diff(x[0], a, s2);
   s2 += x[1];
   x[0] = qd::quick_two_sum(s1, s2, x[1]);
   return *this;
 }
 
-/* double-double -= double-double */
+/* float-float -= float-float */
 dd_real &dd_real::operator-=(const dd_real &a) {
 #ifndef QD_IEEE_ADD
-  double s, e;
+  float s, e;
   s = qd::two_diff(x[0], a.x[0], e);
   e += x[1];
   e -= a.x[1];
   x[0] = qd::quick_two_sum(s, e, x[1]);
   return *this;
 #else
-  double s1, s2, t1, t2;
+  float s1, s2, t1, t2;
   s1 = qd::two_diff(x[0], a.x[0], s2);
   t1 = qd::two_diff(x[1], a.x[1], t2);
   s2 += t1;
@@ -535,26 +535,26 @@ dd_real dd_real::operator-() const {
 }
 
 /*********** Multiplications ************/
-/* double-double = double * double */
-dd_real dd_real::mul(double a, double b) {
-  double p, e;
+/* float-float = float * float */
+dd_real dd_real::mul(float a, float b) {
+  float p, e;
   p = qd::two_prod(a, b, e);
   return dd_real(p, e);
 }
 
-/* double-double * (2.0 ^ exp) */
+/* float-float * (2.0 ^ exp) */
 dd_real ldexp(const dd_real &a, int exp) {
   return dd_real(std::ldexp(a.x[0], exp), std::ldexp(a.x[1], exp));
 }
 
-/* double-double * double,  where double is a power of 2. */
-dd_real mul_pwr2(const dd_real &a, double b) {
+/* float-float * float,  where float is a power of 2. */
+dd_real mul_pwr2(const dd_real &a, float b) {
   return dd_real(a.x[0] * b, a.x[1] * b);
 }
 
-/* double-double * double */
-dd_real operator*(const dd_real &a, double b) {
-  double p1, p2;
+/* float-float * float */
+dd_real operator*(const dd_real &a, float b) {
+  float p1, p2;
 
   p1 = qd::two_prod(a.x[0], b, p2);
   p2 += (a.x[1] * b);
@@ -562,9 +562,9 @@ dd_real operator*(const dd_real &a, double b) {
   return dd_real(p1, p2);
 }
 
-/* double-double * double-double */
+/* float-float * float-float */
 dd_real operator*(const dd_real &a, const dd_real &b) {
-  double p1, p2;
+  float p1, p2;
 
   p1 = qd::two_prod(a.x[0], b.x[0], p2);
   p2 += (a.x[0] * b.x[1] + a.x[1] * b.x[0]);
@@ -572,24 +572,24 @@ dd_real operator*(const dd_real &a, const dd_real &b) {
   return dd_real(p1, p2);
 }
 
-/* double * double-double */
-dd_real operator*(double a, const dd_real &b) {
+/* float * float-float */
+dd_real operator*(float a, const dd_real &b) {
   return (b * a);
 }
 
 /*********** Self-Multiplications ************/
-/* double-double *= double */
-dd_real &dd_real::operator*=(double a) {
-  double p1, p2;
+/* float-float *= float */
+dd_real &dd_real::operator*=(float a) {
+  float p1, p2;
   p1 = qd::two_prod(x[0], a, p2);
   p2 += x[1] * a;
   x[0] = qd::quick_two_sum(p1, p2, x[1]);
   return *this;
 }
 
-/* double-double *= double-double */
+/* float-float *= float-float */
 dd_real &dd_real::operator*=(const dd_real &a) {
-  double p1, p2;
+  float p1, p2;
   p1 = qd::two_prod(x[0], a.x[0], p2);
   p2 += a.x[1] * x[0];
   p2 += a.x[0] * x[1];
@@ -598,10 +598,10 @@ dd_real &dd_real::operator*=(const dd_real &a) {
 }
 
 /*********** Divisions ************/
-dd_real dd_real::div(double a, double b) {
-  double q1, q2;
-  double p1, p2;
-  double s, e;
+dd_real dd_real::div(float a, float b) {
+  float q1, q2;
+  float p1, p2;
+  float s, e;
 
   q1 = a / b;
 
@@ -618,12 +618,12 @@ dd_real dd_real::div(double a, double b) {
   return dd_real(s, e);
 }
 
-/* double-double / double */
-dd_real operator/(const dd_real &a, double b) {
+/* float-float / float */
+dd_real operator/(const dd_real &a, float b) {
 
-  double q1, q2;
-  double p1, p2;
-  double s, e;
+  float q1, q2;
+  float p1, p2;
+  float s, e;
   dd_real r;
 
   q1 = a.x[0] / b;   /* approximate quotient. */
@@ -644,8 +644,8 @@ dd_real operator/(const dd_real &a, double b) {
 }
 
 dd_real dd_real::sloppy_div(const dd_real &a, const dd_real &b) {
-  double s1, s2;
-  double q1, q2;
+  float s1, s2;
+  float q1, q2;
   dd_real r;
 
   q1 = a.x[0] / b.x[0];  /* approximate quotient */
@@ -665,7 +665,7 @@ dd_real dd_real::sloppy_div(const dd_real &a, const dd_real &b) {
 }
 
 dd_real dd_real::accurate_div(const dd_real &a, const dd_real &b) {
-  double q1, q2, q3;
+  float q1, q2, q3;
   dd_real r;
 
   q1 = a.x[0] / b.x[0];  /* approximate quotient */
@@ -682,7 +682,7 @@ dd_real dd_real::accurate_div(const dd_real &a, const dd_real &b) {
   return r;
 }
 
-/* double-double / double-double */
+/* float-float / float-float */
 dd_real operator/(const dd_real &a, const dd_real &b) {
 #ifdef QD_SLOPPY_DIV
   return dd_real::sloppy_div(a, b);
@@ -691,8 +691,8 @@ dd_real operator/(const dd_real &a, const dd_real &b) {
 #endif
 }
 
-/* double / double-double */
-dd_real operator/(double a, const dd_real &b) {
+/* float / float-float */
+dd_real operator/(float a, const dd_real &b) {
   return dd_real(a) / b;
 }
 
@@ -701,13 +701,13 @@ dd_real inv(const dd_real &a) {
 }
 
 /*********** Self-Divisions ************/
-/* double-double /= double */
-dd_real &dd_real::operator/=(double a) {
+/* float-float /= float */
+dd_real &dd_real::operator/=(float a) {
   *this = *this / a;
   return *this;
 }
 
-/* double-double /= double-double */
+/* float-float /= float-float */
 dd_real &dd_real::operator/=(const dd_real &a) {
   *this = *this / a;
   return *this;
@@ -727,8 +727,8 @@ dd_real divrem(const dd_real &a, const dd_real &b, dd_real &r) {
 
 /*********** Squaring **********/
 dd_real sqr(const dd_real &a) {
-  double p1, p2;
-  double s1, s2;
+  float p1, p2;
+  float s1, s2;
   p1 = qd::two_sqr(a.x[0], p2);
   p2 += 2.0 * a.x[0] * a.x[1];
   p2 += a.x[1] * a.x[1];
@@ -736,8 +736,8 @@ dd_real sqr(const dd_real &a) {
   return dd_real(s1, s2);
 }
 
-dd_real dd_real::sqr(double a) {
-  double p1, p2;
+dd_real dd_real::sqr(float a) {
+  float p1, p2;
   p1 = qd::two_sqr(a, p2);
   return dd_real(p1, p2);
 }
@@ -750,106 +750,106 @@ dd_real dd_real::operator^(int n) {
 
 
 /*********** Assignments ************/
-/* double-double = double */
-dd_real &dd_real::operator=(double a) {
+/* float-float = float */
+dd_real &dd_real::operator=(float a) {
   x[0] = a;
   x[1] = 0.0;
   return *this;
 }
 
 /*********** Equality Comparisons ************/
-/* double-double == double */
-bool operator==(const dd_real &a, double b) {
+/* float-float == float */
+bool operator==(const dd_real &a, float b) {
   return (a.x[0] == b && a.x[1] == 0.0);
 }
 
-/* double-double == double-double */
+/* float-float == float-float */
 bool operator==(const dd_real &a, const dd_real &b) {
   return (a.x[0] == b.x[0] && a.x[1] == b.x[1]);
 }
 
-/* double == double-double */
-bool operator==(double a, const dd_real &b) {
+/* float == float-float */
+bool operator==(float a, const dd_real &b) {
   return (a == b.x[0] && b.x[1] == 0.0);
 }
 
 /*********** Greater-Than Comparisons ************/
-/* double-double > double */
-bool operator>(const dd_real &a, double b) {
+/* float-float > float */
+bool operator>(const dd_real &a, float b) {
   return (a.x[0] > b || (a.x[0] == b && a.x[1] > 0.0));
 }
 
-/* double-double > double-double */
+/* float-float > float-float */
 bool operator>(const dd_real &a, const dd_real &b) {
   return (a.x[0] > b.x[0] || (a.x[0] == b.x[0] && a.x[1] > b.x[1]));
 }
 
-/* double > double-double */
-bool operator>(double a, const dd_real &b) {
+/* float > float-float */
+bool operator>(float a, const dd_real &b) {
   return (a > b.x[0] || (a == b.x[0] && b.x[1] < 0.0));
 }
 
 /*********** Less-Than Comparisons ************/
-/* double-double < double */
-bool operator<(const dd_real &a, double b) {
+/* float-float < float */
+bool operator<(const dd_real &a, float b) {
   return (a.x[0] < b || (a.x[0] == b && a.x[1] < 0.0));
 }
 
-/* double-double < double-double */
+/* float-float < float-float */
 bool operator<(const dd_real &a, const dd_real &b) {
   return (a.x[0] < b.x[0] || (a.x[0] == b.x[0] && a.x[1] < b.x[1]));
 }
 
-/* double < double-double */
-bool operator<(double a, const dd_real &b) {
+/* float < float-float */
+bool operator<(float a, const dd_real &b) {
   return (a < b.x[0] || (a == b.x[0] && b.x[1] > 0.0));
 }
 
 /*********** Greater-Than-Or-Equal-To Comparisons ************/
-/* double-double >= double */
-bool operator>=(const dd_real &a, double b) {
+/* float-float >= float */
+bool operator>=(const dd_real &a, float b) {
   return (a.x[0] > b || (a.x[0] == b && a.x[1] >= 0.0));
 }
 
-/* double-double >= double-double */
+/* float-float >= float-float */
 bool operator>=(const dd_real &a, const dd_real &b) {
   return (a.x[0] > b.x[0] || (a.x[0] == b.x[0] && a.x[1] >= b.x[1]));
 }
 
-/* double >= double-double */
-bool operator>=(double a, const dd_real &b) {
+/* float >= float-float */
+bool operator>=(float a, const dd_real &b) {
   return (b <= a);
 }
 
 /*********** Less-Than-Or-Equal-To Comparisons ************/
-/* double-double <= double */
-bool operator<=(const dd_real &a, double b) {
+/* float-float <= float */
+bool operator<=(const dd_real &a, float b) {
   return (a.x[0] < b || (a.x[0] == b && a.x[1] <= 0.0));
 }
 
-/* double-double <= double-double */
+/* float-float <= float-float */
 bool operator<=(const dd_real &a, const dd_real &b) {
   return (a.x[0] < b.x[0] || (a.x[0] == b.x[0] && a.x[1] <= b.x[1]));
 }
 
-/* double <= double-double */
-bool operator<=(double a, const dd_real &b) {
+/* float <= float-float */
+bool operator<=(float a, const dd_real &b) {
   return (b >= a);
 }
 
 /*********** Not-Equal-To Comparisons ************/
-/* double-double != double */
-bool operator!=(const dd_real &a, double b) {
+/* float-float != float */
+bool operator!=(const dd_real &a, float b) {
   return (a.x[0] != b || a.x[1] != 0.0);
 }
 
-/* double-double != double-double */
+/* float-float != float-float */
 bool operator!=(const dd_real &a, const dd_real &b) {
   return (a.x[0] != b.x[0] || a.x[1] != b.x[1]);
 }
 
-/* double != double-double */
-bool operator!=(double a, const dd_real &b) {
+/* float != float-float */
+bool operator!=(float a, const dd_real &b) {
   return (a != b.x[0] || b.x[1] != 0.0);
 }
 
@@ -885,8 +885,8 @@ dd_real fabs(const dd_real &a) {
 
 /* Round to Nearest integer */
 dd_real nint(const dd_real &a) {
-  double hi = qd::nint(a.x[0]);
-  double lo;
+  float hi = qd::nint(a.x[0]);
+  float lo;
 
   if (hi == a.x[0]) {
     /* High word is an integer already.  Round the low word.*/
@@ -908,8 +908,8 @@ dd_real nint(const dd_real &a) {
 }
 
 dd_real floor(const dd_real &a) {
-  double hi = std::floor(a.x[0]);
-  double lo = 0.0;
+  float hi = std::floor(a.x[0]);
+  float lo = 0.0;
 
   if (hi == a.x[0]) {
     /* High word is integer already.  Round the low word. */
@@ -921,8 +921,8 @@ dd_real floor(const dd_real &a) {
 }
 
 dd_real ceil(const dd_real &a) {
-  double hi = std::ceil(a.x[0]);
-  double lo = 0.0;
+  float hi = std::ceil(a.x[0]);
+  float lo = 0.0;
 
   if (hi == a.x[0]) {
     /* High word is integer already.  Round the low word. */
@@ -937,8 +937,8 @@ dd_real aint(const dd_real &a) {
   return (a.x[0] >= 0.0) ? floor(a) : ceil(a);
 }
 
-/* Cast to double. */
-double to_double(const dd_real &a) {
+/* Cast to float. */
+float to_float(const dd_real &a) {
   return a.x[0];
 }
 
@@ -967,7 +967,7 @@ dd_real dd_real::rand() {
  *
  * Copyright (c) 2000-2007
  *
- * Contains implementation of non-inlined functions of double-double
+ * Contains implementation of non-inlined functions of float-float
  * package.  Inlined functions are found in dd_inline.h (in include directory).
  */
 #include <cstdlib>
@@ -1002,7 +1002,7 @@ void dd_real::error(const char *msg) {
   if (msg) { cerr << "ERROR " << msg << endl; }
 }
 
-/* Computes the square root of the double-double number dd.
+/* Computes the square root of the float-float number dd.
    NOTE: dd must be a non-negative number.                   */
 QD_API dd_real sqrt(const dd_real &a) {
   /* Strategy:  Use Karp's trick:  if x is an approximation
@@ -1023,18 +1023,18 @@ QD_API dd_real sqrt(const dd_real &a) {
     return dd_real::_nan;
   }
 
-  double x = 1.0 / std::sqrt(a.x[0]);
-  double ax = a.x[0] * x;
+  float x = 1.0 / std::sqrt(a.x[0]);
+  float ax = a.x[0] * x;
   return dd_real::add(ax, (a - dd_real::sqr(ax)).x[0] * (x * 0.5));
 }
 
-/* Computes the square root of a double in double-double precision.
+/* Computes the square root of a float in float-float precision.
    NOTE: d must not be negative.                                   */
-dd_real dd_real::sqrt(double d) {
+dd_real dd_real::sqrt(float d) {
   return ::sqrt(dd_real(d));
 }
 
-/* Computes the n-th root of the double-double number a.
+/* Computes the n-th root of the float-float number a.
    NOTE: n must be a positive integer.
    NOTE: If n is even, then a must not be negative.       */
 dd_real nroot(const dd_real &a, int n) {
@@ -1075,13 +1075,13 @@ dd_real nroot(const dd_real &a, int n) {
   dd_real x = std::exp(-std::log(r.x[0]) / n);
 
   /* Perform Newton's iteration. */
-  x += x * (1.0 - r * npwr(x, n)) / static_cast<double>(n);
+  x += x * (1.0 - r * npwr(x, n)) / static_cast<float>(n);
   if (a.x[0] < 0.0)
     x = -x;
   return 1.0/x;
 }
 
-/* Computes the n-th power of a double-double number.
+/* Computes the n-th power of a float-float number.
    NOTE:  0^0 causes an error.                         */
 dd_real npwr(const dd_real &a, int n) {
 
@@ -1127,7 +1127,7 @@ dd_real pow(const dd_real &a, const dd_real &b) {
 }
 
 static const int n_inv_fact = 15;
-static const double inv_fact[n_inv_fact][2] = {
+static const float inv_fact[n_inv_fact][2] = {
   { 1.66666666666666657e-01,  9.25185853854297066e-18},
   { 4.16666666666666644e-02,  2.31296463463574266e-18},
   { 8.33333333333333322e-03,  1.15648231731787138e-19},
@@ -1145,7 +1145,7 @@ static const double inv_fact[n_inv_fact][2] = {
   { 2.81145725434552060e-15,  1.65088427308614326e-31}
 };
 
-/* Exponential.  Computes exp(x) in double-double precision. */
+/* Exponential.  Computes exp(x) in float-float precision. */
 dd_real exp(const dd_real &a) {
   /* Strategy:  We first reduce the size of x by noting that
 
@@ -1156,8 +1156,8 @@ dd_real exp(const dd_real &a) {
      evaluated using the familiar Taylor series.  Reducing the
      argument substantially speeds up the convergence.       */
 
-  const double k = 512.0;
-  const double inv_k = 1.0 / k;
+  const float k = 512.0;
+  const float inv_k = 1.0 / k;
 
   if (a.x[0] <= -709.0)
     return 0.0;
@@ -1171,7 +1171,7 @@ dd_real exp(const dd_real &a) {
   if (a.is_one())
     return dd_real::_e;
 
-  double m = std::floor(a.x[0] / dd_real::_log2.x[0] + 0.5);
+  float m = std::floor(a.x[0] / dd_real::_log2.x[0] + 0.5);
   dd_real r = mul_pwr2(a - dd_real::_log2 * m, inv_k);
   dd_real s, t, p;
 
@@ -1185,7 +1185,7 @@ dd_real exp(const dd_real &a) {
     p *= r;
     ++i;
     t = p * dd_real(inv_fact[i][0], inv_fact[i][1]);
-  } while (std::abs(to_double(t)) > inv_k * dd_real::_eps && i < 5);
+  } while (std::abs(to_float(t)) > inv_k * dd_real::_eps && i < 5);
 
   s += t;
 
@@ -1203,7 +1203,7 @@ dd_real exp(const dd_real &a) {
   return ldexp(s, static_cast<int>(m));
 }
 
-/* Logarithm.  Computes log(x) in double-double precision.
+/* Logarithm.  Computes log(x) in float-float precision.
    This is a natural logarithm (i.e., base e).            */
 dd_real log(const dd_real &a) {
   /* Strategy.  The Taylor series for log converges much more
@@ -1245,14 +1245,14 @@ static const dd_real _pi16 = dd_real(1.963495408493620697e-01,
                                      7.654042494670957545e-18);
 
 /* Table of sin(k * pi/16) and cos(k * pi/16). */
-static const double sin_table [4][2] = {
+static const float sin_table [4][2] = {
   {1.950903220161282758e-01, -7.991079068461731263e-18},
   {3.826834323650897818e-01, -1.005077269646158761e-17},
   {5.555702330196021776e-01,  4.709410940561676821e-17},
   {7.071067811865475727e-01, -4.833646656726456726e-17}
 };
 
-static const double cos_table [4][2] = {
+static const float cos_table [4][2] = {
   {9.807852804032304306e-01, 1.854693999782500573e-17},
   {9.238795325112867385e-01, 1.764504708433667706e-17},
   {8.314696123025452357e-01, 1.407385698472802389e-18},
@@ -1262,7 +1262,7 @@ static const double cos_table [4][2] = {
 /* Computes sin(a) using Taylor series.
    Assumes |a| <= pi/32.                           */
 static dd_real sin_taylor(const dd_real &a) {
-  const double thresh = 0.5 * std::abs(to_double(a)) * dd_real::_eps;
+  const float thresh = 0.5 * std::abs(to_float(a)) * dd_real::_eps;
   dd_real r, s, t, x;
 
   if (a.is_zero()) {
@@ -1278,13 +1278,13 @@ static dd_real sin_taylor(const dd_real &a) {
     t = r * dd_real(inv_fact[i][0], inv_fact[i][1]);
     s += t;
     i += 2;
-  } while (i < n_inv_fact && std::abs(to_double(t)) > thresh);
+  } while (i < n_inv_fact && std::abs(to_float(t)) > thresh);
 
   return s;
 }
 
 static dd_real cos_taylor(const dd_real &a) {
-  const double thresh = 0.5 * dd_real::_eps;
+  const float thresh = 0.5 * dd_real::_eps;
   dd_real r, s, t, x;
 
   if (a.is_zero()) {
@@ -1300,7 +1300,7 @@ static dd_real cos_taylor(const dd_real &a) {
     t = r * dd_real(inv_fact[i][0], inv_fact[i][1]);
     s += t;
     i += 2;
-  } while (i < n_inv_fact && std::abs(to_double(t)) > thresh);
+  } while (i < n_inv_fact && std::abs(to_float(t)) > thresh);
 
   return s;
 }
@@ -1341,7 +1341,7 @@ dd_real sin(const dd_real &a) {
 
   // approximately reduce modulo pi/2 and then modulo pi/16.
   dd_real t;
-  double q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
+  float q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
   t = r - dd_real::_pi2 * q;
   int j = static_cast<int>(q);
   q = std::floor(t.x[0] / _pi16.x[0] + 0.5);
@@ -1417,7 +1417,7 @@ dd_real cos(const dd_real &a) {
 
   // approximately reduce modulo pi/2 and then modulo pi/16
   dd_real t;
-  double q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
+  float q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
   t = r - dd_real::_pi2 * q;
   int j = static_cast<int>(q);
   q = std::floor(t.x[0] / _pi16.x[0] + 0.5);
@@ -1496,7 +1496,7 @@ void sincos(const dd_real &a, dd_real &sin_a, dd_real &cos_a) {
 
   // approximately reduce module pi/2 and pi/16
   dd_real t;
-  double q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
+  float q = std::floor(r.x[0] / dd_real::_pi2.x[0] + 0.5);
   t = r - dd_real::_pi2 * q;
   int j = static_cast<int>(q);
   int abs_j = std::abs(j);
@@ -1601,8 +1601,8 @@ dd_real atan2(const dd_real &y, const dd_real &x) {
   dd_real xx = x / r;
   dd_real yy = y / r;
 
-  /* Compute double precision approximation to atan. */
-  dd_real z = std::atan2(to_double(y), to_double(x));
+  /* Compute float precision approximation to atan. */
+  dd_real z = std::atan2(to_float(y), to_float(x));
   dd_real sin_z, cos_z;
 
   if (std::abs(xx.x[0]) > std::abs(yy.x[0])) {
@@ -1669,8 +1669,8 @@ dd_real sinh(const dd_real &a) {
   dd_real s = a;
   dd_real t = a;
   dd_real r = sqr(t);
-  double m = 1.0;
-  double thresh = std::abs((to_double(a)) * dd_real::_eps);
+  float m = 1.0;
+  float thresh = std::abs((to_float(a)) * dd_real::_eps);
 
   do {
     m += 2.0;
@@ -1698,7 +1698,7 @@ dd_real tanh(const dd_real &a) {
     return 0.0;
   }
 
-  if (std::abs(to_double(a)) > 0.05) {
+  if (std::abs(to_float(a)) > 0.05) {
     dd_real ea = exp(a);
     dd_real inv_ea = inv(ea);
     return (ea - inv_ea) / (ea + inv_ea);
@@ -1711,7 +1711,7 @@ dd_real tanh(const dd_real &a) {
 }
 
 void sincosh(const dd_real &a, dd_real &s, dd_real &c) {
-  if (std::abs(to_double(a)) <= 0.05) {
+  if (std::abs(to_float(a)) <= 0.05) {
     s = sinh(a);
     c = sqrt(1.0 + sqr(s));
   } else {
@@ -1750,10 +1750,10 @@ QD_API dd_real fmod(const dd_real &a, const dd_real &b) {
 }
 
 QD_API dd_real ddrand() {
-  static const double m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
-  double m = m_const;
+  static const float m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
+  float m = m_const;
   dd_real r = 0.0;
-  double d;
+  float d;
 
   /* Strategy:  Generate 31 bits at a time, using lrand48
      random number generator.  Shift the bits, and reapeat
@@ -1788,22 +1788,22 @@ dd_real polyeval(const dd_real *c, int n, const dd_real &x) {
    the given guess x0.  Note that this uses simple Newton
    iteration scheme, and does not work for multiple roots.  */
 QD_API dd_real polyroot(const dd_real *c, int n,
-    const dd_real &x0, int max_iter, double thresh) {
+    const dd_real &x0, int max_iter, float thresh) {
   dd_real x = x0;
   dd_real f;
   dd_real *d = new dd_real[n];
   bool conv = false;
   int i;
-  double max_c = std::abs(to_double(c[0]));
-  double v;
+  float max_c = std::abs(to_float(c[0]));
+  float v;
 
   if (thresh == 0.0) thresh = dd_real::_eps;
 
   /* Compute the coefficients of the derivatives. */
   for (i = 1; i <= n; i++) {
-    v = std::abs(to_double(c[i]));
+    v = std::abs(to_float(c[i]));
     if (v > max_c) max_c = v;
-    d[i-1] = c[i] * static_cast<double>(i);
+    d[i-1] = c[i] * static_cast<float>(i);
   }
   thresh *= max_c;
 
@@ -1828,8 +1828,8 @@ QD_API dd_real polyroot(const dd_real *c, int n,
 }
 
 
-/* Constructor.  Reads a double-double number from the string s
-   and constructs a double-double number.                         */
+/* Constructor.  Reads a float-float number from the string s
+   and constructs a float-float number.                         */
 dd_real::dd_real(const char *s) {
   if (dd_real::read(s, *this)) {
     dd_real::error("(dd_real::dd_real): INPUT ERROR.");
@@ -1845,7 +1845,7 @@ dd_real &dd_real::operator=(const char *s) {
   return *this;
 }
 
-/* Outputs the double-double number dd. */
+/* Outputs the float-float number dd. */
 ostream &operator<<(ostream &os, const dd_real &dd) {
   bool showpos = (os.flags() & ios_base::showpos) != 0;
   bool uppercase =  (os.flags() & ios_base::uppercase) != 0;
@@ -1853,7 +1853,7 @@ ostream &operator<<(ostream &os, const dd_real &dd) {
       showpos, uppercase, os.fill());
 }
 
-/* Reads in the double-double number a. */
+/* Reads in the float-float number a. */
 istream &operator>>(istream &s, dd_real &a) {
   char str[255];
   s >> str;
@@ -1951,7 +1951,7 @@ void dd_real::to_digits(char *s, int &expn, int precision) const {
   expn = e;
 }
 
-/* Writes the double-double number into the character array s of length len.
+/* Writes the float-float number into the character array s of length len.
    The integer d specifies how many significant digits to write.
    The string s must be able to hold at least (d+8) characters.
    showpos indicates whether to use the + sign, and uppercase indicates
@@ -2101,7 +2101,7 @@ string dd_real::to_string(int precision, int width, ios_base::fmtflags fmt,
     // and are output with the point in the wrong place, leading to a dramatically off value
     if(fixed && (precision > 0)){
       // make sure that the value isn't dramatically larger
-      double from_string = atof(s.c_str());
+      float from_string = atof(s.c_str());
 
       // if this ratio is large, then we've got problems
       if( fabs( from_string / this->x[0] ) > 3.0 ){
@@ -2154,7 +2154,7 @@ string dd_real::to_string(int precision, int width, ios_base::fmtflags fmt,
   return s;
 }
 
-/* Reads in a double-double number from the string s. */
+/* Reads in a float-float number from the string s. */
 int dd_real::read(const char *s, dd_real &a) {
   const char *p = s;
   char ch;
@@ -2174,7 +2174,7 @@ int dd_real::read(const char *s, dd_real &a) {
     if (ch >= '0' && ch <= '9') {
       int d = ch - '0';
       r *= 10.0;
-      r += static_cast<double>(d);
+      r += static_cast<float>(d);
       nd++;
     } else {
 
@@ -2242,10 +2242,10 @@ void dd_real::dump_bits(const string &name, std::ostream &os) const {
   }
   os << "[ ";
   len += 2;
-  print_double_info(os, x[0]);
+  print_float_info(os, x[0]);
   os << endl;
   for (string::size_type i = 0; i < len; i++) os << ' ';
-  print_double_info(os, x[1]);
+  print_float_info(os, x[1]);
   os << " ]" << endl;
 }
 
@@ -2256,9 +2256,9 @@ dd_real dd_real::debug_rand() {
 
   int expn = 0;
   dd_real a = 0.0;
-  double d;
+  float d;
   for (int i = 0; i < 2; i++) {
-    d = std::ldexp(static_cast<double>(std::rand()) / RAND_MAX, -expn);
+    d = std::ldexp(static_cast<float>(std::rand()) / RAND_MAX, -expn);
     a += d;
     expn = expn + 54 + std::rand() % 200;
   }
@@ -2278,7 +2278,7 @@ dd_real dd_real::debug_rand() {
  *
  * Copyright (c) 2000-2001
  *
- * Defines constants used in quad-double package.
+ * Defines constants used in quad-float package.
  */
 #include "config.h"
 #include <qd/qd_real.h>
@@ -2321,8 +2321,8 @@ const qd_real qd_real::_nan = qd_real(qd::_d_nan, qd::_d_nan,
 const qd_real qd_real::_inf = qd_real(qd::_d_inf, qd::_d_inf,
                                       qd::_d_inf, qd::_d_inf);
 
-const double qd_real::_eps = 1.21543267145725e-63; // = 2^-209
-const double qd_real::_min_normalized = 1.6259745436952323e-260; // = 2^(-1022 + 3*53)
+const float qd_real::_eps = 1.21543267145725e-63; // = 2^-209
+const float qd_real::_min_normalized = 1.6259745436952323e-260; // = 2^(-1022 + 3*53)
 const qd_real qd_real::_max = qd_real(
     1.79769313486231570815e+308, 9.97920154767359795037e+291,
     5.53956966280111259858e+275, 3.07507889307840487279e+259);
@@ -2344,7 +2344,7 @@ const int qd_real::_ndigits = 62;
  *
  * Copyright (c) 2000-2001
  *
- * Contains small functions (suitable for inlining) in the quad-double
+ * Contains small functions (suitable for inlining) in the quad-float
  * arithmetic package.
  */
 #ifndef _QD_QD_INLINE_H
@@ -2358,21 +2358,21 @@ const int qd_real::_ndigits = 62;
 #endif
 
 /********** Constructors **********/
-qd_real::qd_real(double x0, double x1, double x2, double x3) {
+qd_real::qd_real(float x0, float x1, float x2, float x3) {
   x[0] = x0;
   x[1] = x1;
   x[2] = x2;
   x[3] = x3;
 }
 
-qd_real::qd_real(const double *xx) {
+qd_real::qd_real(const float *xx) {
   x[0] = xx[0];
   x[1] = xx[1];
   x[2] = xx[2];
   x[3] = xx[3];
 }
 
-qd_real::qd_real(double x0) {
+qd_real::qd_real(float x0) {
   x[0] = x0;
   x[1] = x[2] = x[3] = 0.0;
 }
@@ -2391,16 +2391,16 @@ qd_real::qd_real(const dd_real &a) {
 }
 
 qd_real::qd_real(int i) {
-  x[0] = static_cast<double>(i);
+  x[0] = static_cast<float>(i);
   x[1] = x[2] = x[3] = 0.0;
 }
 
 /********** Accessors **********/
-double qd_real::operator[](int i) const {
+float qd_real::operator[](int i) const {
   return x[i];
 }
 
-double &qd_real::operator[](int i) {
+float &qd_real::operator[](int i) {
   return x[i];
 }
 
@@ -2410,10 +2410,10 @@ bool qd_real::isnan() const {
 
 /********** Renormalization **********/
 namespace qd {
-void quick_renorm(double &c0, double &c1,
-                         double &c2, double &c3, double &c4) {
-  double t0, t1, t2, t3;
-  double s;
+void quick_renorm(float &c0, float &c1,
+                         float &c2, float &c3, float &c4) {
+  float t0, t1, t2, t3;
+  float s;
   s  = qd::quick_two_sum(c3, c4, t3);
   s  = qd::quick_two_sum(c2, s , t2);
   s  = qd::quick_two_sum(c1, s , t1);
@@ -2429,9 +2429,9 @@ void quick_renorm(double &c0, double &c1,
   c3 = t0 + t1;
 }
 
-void renorm(double &c0, double &c1,
-                   double &c2, double &c3) {
-  double s0, s1, s2 = 0.0, s3 = 0.0;
+void renorm(float &c0, float &c1,
+                   float &c2, float &c3) {
+  float s0, s1, s2 = 0.0, s3 = 0.0;
 
   if (QD_ISINF(c0)) return;
 
@@ -2461,9 +2461,9 @@ void renorm(double &c0, double &c1,
   c3 = s3;
 }
 
-void renorm(double &c0, double &c1,
-                   double &c2, double &c3, double &c4) {
-  double s0, s1, s2 = 0.0, s3 = 0.0;
+void renorm(float &c0, float &c1,
+                   float &c2, float &c3, float &c4) {
+  float s0, s1, s2 = 0.0, s3 = 0.0;
 
   if (QD_ISINF(c0)) return;
 
@@ -2518,7 +2518,7 @@ void qd_real::renorm() {
   qd::renorm(x[0], x[1], x[2], x[3]);
 }
 
-void qd_real::renorm(double &e) {
+void qd_real::renorm(float &e) {
   qd::renorm(x[0], x[1], x[2], x[3], e);
 }
 
@@ -2526,15 +2526,15 @@ void qd_real::renorm(double &e) {
 /********** Additions ************/
 namespace qd {
 
-void three_sum(double &a, double &b, double &c) {
-  double t1, t2, t3;
+void three_sum(float &a, float &b, float &c) {
+  float t1, t2, t3;
   t1 = qd::two_sum(a, b, t2);
   a  = qd::two_sum(c, t1, t3);
   b  = qd::two_sum(t2, t3, c);
 }
 
-void three_sum2(double &a, double &b, double &c) {
-  double t1, t2, t3;
+void three_sum2(float &a, float &b, float &c) {
+  float t1, t2, t3;
   t1 = qd::two_sum(a, b, t2);
   a  = qd::two_sum(c, t1, t3);
   b = t2 + t3;
@@ -2542,10 +2542,10 @@ void three_sum2(double &a, double &b, double &c) {
 
 }
 
-/* quad-double + double */
-qd_real operator+(const qd_real &a, double b) {
-  double c0, c1, c2, c3;
-  double e;
+/* quad-float + float */
+qd_real operator+(const qd_real &a, float b) {
+  float c0, c1, c2, c3;
+  float e;
 
   c0 = qd::two_sum(a[0], b, e);
   c1 = qd::two_sum(a[1], e, e);
@@ -2557,11 +2557,11 @@ qd_real operator+(const qd_real &a, double b) {
   return qd_real(c0, c1, c2, c3);
 }
 
-/* quad-double + double-double */
+/* quad-float + float-float */
 qd_real operator+(const qd_real &a, const dd_real &b) {
 
-  double s0, s1, s2, s3;
-  double t0, t1;
+  float s0, s1, s2, s3;
+  float t0, t1;
 
   s0 = qd::two_sum(a[0], b._hi(), t0);
   s1 = qd::two_sum(a[1], b._lo(), t1);
@@ -2579,12 +2579,12 @@ qd_real operator+(const qd_real &a, const dd_real &b) {
 }
 
 
-/* double + quad-double */
-qd_real operator+(double a, const qd_real &b) {
+/* float + quad-float */
+qd_real operator+(float a, const qd_real &b) {
   return (b + a);
 }
 
-/* double-double + quad-double */
+/* float-float + quad-float */
 qd_real operator+(const dd_real &a, const qd_real &b) {
   return (b + a);
 }
@@ -2592,11 +2592,11 @@ qd_real operator+(const dd_real &a, const qd_real &b) {
 namespace qd {
 
 /* s = quick_three_accum(a, b, c) adds c to the dd-pair (a, b).
- * If the result does not fit in two doubles, then the sum is
+ * If the result does not fit in two floats, then the sum is
  * output into s and (a,b) contains the remainder.  Otherwise
  * s is zero and (a,b) contains the sum. */
-double quick_three_accum(double &a, double &b, double c) {
-  double s;
+float quick_three_accum(float &a, float &b, float c) {
+  float s;
   bool za, zb;
 
   s = qd::two_sum(b, c, b);
@@ -2622,9 +2622,9 @@ double quick_three_accum(double &a, double &b, double c) {
 
 qd_real qd_real::ieee_add(const qd_real &a, const qd_real &b) {
   int i, j, k;
-  double s, t;
-  double u, v;   /* double-length accumulator */
-  double x[4] = {0.0, 0.0, 0.0, 0.0};
+  float s, t;
+  float u, v;   /* float-length accumulator */
+  float x[4] = {0.0, 0.0, 0.0, 0.0};
 
   i = j = k = 0;
   if (std::abs(a[i]) > std::abs(b[j]))
@@ -2674,8 +2674,8 @@ qd_real qd_real::ieee_add(const qd_real &a, const qd_real &b) {
 
 qd_real qd_real::sloppy_add(const qd_real &a, const qd_real &b) {
   /*
-  double s0, s1, s2, s3;
-  double t0, t1, t2, t3;
+  float s0, s1, s2, s3;
+  float t0, t1, t2, t3;
 
   s0 = qd::two_sum(a[0], b[0], t0);
   s1 = qd::two_sum(a[1], b[1], t1);
@@ -2694,12 +2694,12 @@ qd_real qd_real::sloppy_add(const qd_real &a, const qd_real &b) {
   /* Same as above, but addition re-organized to minimize
      data dependency ... unfortunately some compilers are
      not very smart to do this automatically */
-  double s0, s1, s2, s3;
-  double t0, t1, t2, t3;
+  float s0, s1, s2, s3;
+  float t0, t1, t2, t3;
 
-  double v0, v1, v2, v3;
-  double u0, u1, u2, u3;
-  double w0, w1, w2, w3;
+  float v0, v1, v2, v3;
+  float u0, u1, u2, u3;
+  float w0, w1, w2, w3;
 
   s0 = a[0] + b[0];
   s1 = a[1] + b[1];
@@ -2741,7 +2741,7 @@ qd_real qd_real::sloppy_add(const qd_real &a, const qd_real &b) {
   return qd_real(s0, s1, s2, s3);
 }
 
-/* quad-double + quad-double */
+/* quad-float + quad-float */
 qd_real operator+(const qd_real &a, const qd_real &b) {
 #ifndef QD_IEEE_ADD
   return qd_real::sloppy_add(a, b);
@@ -2753,19 +2753,19 @@ qd_real operator+(const qd_real &a, const qd_real &b) {
 
 
 /********** Self-Additions ************/
-/* quad-double += double */
-qd_real &qd_real::operator+=(double a) {
+/* quad-float += float */
+qd_real &qd_real::operator+=(float a) {
   *this = *this + a;
   return *this;
 }
 
-/* quad-double += double-double */
+/* quad-float += float-float */
 qd_real &qd_real::operator+=(const dd_real &a) {
   *this = *this + a;
   return *this;
 }
 
-/* quad-double += quad-double */
+/* quad-float += quad-float */
 qd_real &qd_real::operator+=(const qd_real &a) {
   *this = *this + a;
   return *this;
@@ -2777,11 +2777,11 @@ qd_real qd_real::operator-() const {
 }
 
 /********** Subtractions **********/
-qd_real operator-(const qd_real &a, double b) {
+qd_real operator-(const qd_real &a, float b) {
   return (a + (-b));
 }
 
-qd_real operator-(double a, const qd_real &b) {
+qd_real operator-(float a, const qd_real &b) {
   return (a + (-b));
 }
 
@@ -2798,7 +2798,7 @@ qd_real operator-(const qd_real &a, const qd_real &b) {
 }
 
 /********** Self-Subtractions **********/
-qd_real &qd_real::operator-=(double a) {
+qd_real &qd_real::operator-=(float a) {
   return ((*this) += (-a));
 }
 
@@ -2811,7 +2811,7 @@ qd_real &qd_real::operator-=(const qd_real &a) {
 }
 
 
-qd_real operator*(double a, const qd_real &b) {
+qd_real operator*(float a, const qd_real &b) {
   return (b * a);
 }
 
@@ -2819,15 +2819,15 @@ qd_real operator*(const dd_real &a, const qd_real &b) {
   return (b * a);
 }
 
-qd_real mul_pwr2(const qd_real &a, double b) {
+qd_real mul_pwr2(const qd_real &a, float b) {
   return qd_real(a[0] * b, a[1] * b, a[2] * b, a[3] * b);
 }
 
 /********** Multiplications **********/
-qd_real operator*(const qd_real &a, double b) {
-  double p0, p1, p2, p3;
-  double q0, q1, q2;
-  double s0, s1, s2, s3, s4;
+qd_real operator*(const qd_real &a, float b) {
+  float p0, p1, p2, p3;
+  float q0, q1, q2;
+  float s0, s1, s2, s3, s4;
 
   p0 = qd::two_prod(a[0], b, q0);
   p1 = qd::two_prod(a[1], b, q1);
@@ -2850,7 +2850,7 @@ qd_real operator*(const qd_real &a, double b) {
 
 }
 
-/* quad-double * double-double */
+/* quad-float * float-float */
 /* a0 * b0                        0
         a0 * b1                   1
         a1 * b0                   2
@@ -2860,10 +2860,10 @@ qd_real operator*(const qd_real &a, double b) {
                   a3 * b0         6
                        a3 * b1    7 */
 qd_real operator*(const qd_real &a, const dd_real &b) {
-  double p0, p1, p2, p3, p4;
-  double q0, q1, q2, q3, q4;
-  double s0, s1, s2;
-  double t0, t1;
+  float p0, p1, p2, p3, p4;
+  float q0, q1, q2, q3, q4;
+  float s0, s1, s2;
+  float t0, t1;
 
   p0 = qd::two_prod(a[0], b._hi(), q0);
   p1 = qd::two_prod(a[0], b._lo(), q1);
@@ -2890,7 +2890,7 @@ qd_real operator*(const qd_real &a, const dd_real &b) {
   return qd_real(p0, p1, p2, p3);
 }
 
-/* quad-double * quad-double */
+/* quad-float * quad-float */
 /* a0 * b0                    0
         a0 * b1               1
         a1 * b0               2
@@ -2902,10 +2902,10 @@ qd_real operator*(const qd_real &a, const dd_real &b) {
                   a2 * b1     8
                   a3 * b0     9  */
 qd_real qd_real::sloppy_mul(const qd_real &a, const qd_real &b) {
-  double p0, p1, p2, p3, p4, p5;
-  double q0, q1, q2, q3, q4, q5;
-  double t0, t1;
-  double s0, s1, s2;
+  float p0, p1, p2, p3, p4, p5;
+  float q0, q1, q2, q3, q4, q5;
+  float t0, t1;
+  float s0, s1, s2;
 
   p0 = qd::two_prod(a[0], b[0], q0);
 
@@ -2936,13 +2936,13 @@ qd_real qd_real::sloppy_mul(const qd_real &a, const qd_real &b) {
 }
 
 qd_real qd_real::accurate_mul(const qd_real &a, const qd_real &b) {
-  double p0, p1, p2, p3, p4, p5;
-  double q0, q1, q2, q3, q4, q5;
-  double p6, p7, p8, p9;
-  double q6, q7, q8, q9;
-  double r0, r1;
-  double t0, t1;
-  double s0, s1, s2;
+  float p0, p1, p2, p3, p4, p5;
+  float q0, q1, q2, q3, q4, q5;
+  float p6, p7, p8, p9;
+  float q6, q7, q8, q9;
+  float r0, r1;
+  float t0, t1;
+  float s0, s1, s2;
 
   p0 = qd::two_prod(a[0], b[0], q0);
 
@@ -3005,14 +3005,14 @@ qd_real operator*(const qd_real &a, const qd_real &b) {
 #endif
 }
 
-/* quad-double ^ 2  = (x0 + x1 + x2 + x3) ^ 2
+/* quad-float ^ 2  = (x0 + x1 + x2 + x3) ^ 2
                     = x0 ^ 2 + 2 x0 * x1 + (2 x0 * x2 + x1 ^ 2)
                                + (2 x0 * x3 + 2 x1 * x2)           */
 qd_real sqr(const qd_real &a) {
-  double p0, p1, p2, p3, p4, p5;
-  double q0, q1, q2, q3;
-  double s0, s1;
-  double t0, t1;
+  float p0, p1, p2, p3, p4, p5;
+  float q0, q1, q2, q3;
+  float s0, s1;
+  float t0, t1;
 
   p0 = qd::two_sqr(a[0], q0);
   p1 = qd::two_prod(2.0 * a[0], a[1], q1);
@@ -3052,19 +3052,19 @@ qd_real sqr(const qd_real &a) {
 }
 
 /********** Self-Multiplication **********/
-/* quad-double *= double */
-qd_real &qd_real::operator*=(double a) {
+/* quad-float *= float */
+qd_real &qd_real::operator*=(float a) {
   *this = (*this * a);
   return *this;
 }
 
-/* quad-double *= double-double */
+/* quad-float *= float-float */
 qd_real &qd_real::operator*=(const dd_real &a) {
   *this = (*this * a);
   return *this;
 }
 
-/* quad-double *= quad-double */
+/* quad-float *= quad-float */
 qd_real &qd_real::operator*=(const qd_real &a) {
   *this = *this * a;
   return *this;
@@ -3086,30 +3086,30 @@ qd_real operator/(const qd_real &a, const qd_real &b) {
 #endif
 }
 
-/* double / quad-double */
-qd_real operator/(double a, const qd_real &b) {
+/* float / quad-float */
+qd_real operator/(float a, const qd_real &b) {
   return qd_real(a) / b;
 }
 
-/* double-double / quad-double */
+/* float-float / quad-float */
 qd_real operator/(const dd_real &a, const qd_real &b) {
   return qd_real(a) / b;
 }
 
 /********** Self-Divisions **********/
-/* quad-double /= double */
-qd_real &qd_real::operator/=(double a) {
+/* quad-float /= float */
+qd_real &qd_real::operator/=(float a) {
   *this = (*this / a);
   return *this;
 }
 
-/* quad-double /= double-double */
+/* quad-float /= float-float */
 qd_real &qd_real::operator/=(const dd_real &a) {
   *this = (*this / a);
   return *this;
 }
 
-/* quad-double /= quad-double */
+/* quad-float /= quad-float */
 qd_real &qd_real::operator/=(const qd_real &a) {
   *this = (*this / a);
   return *this;
@@ -3140,14 +3140,14 @@ qd_real quick_nint(const qd_real &a) {
 }
 
 /*********** Assignments ************/
-/* quad-double = double */
-qd_real &qd_real::operator=(double a) {
+/* quad-float = float */
+qd_real &qd_real::operator=(float a) {
   x[0] = a;
   x[1] = x[2] = x[3] = 0.0;
   return *this;
 }
 
-/* quad-double = double-double */
+/* quad-float = float-float */
 qd_real &qd_real::operator=(const dd_real &a) {
   x[0] = a._hi();
   x[1] = a._lo();
@@ -3156,11 +3156,11 @@ qd_real &qd_real::operator=(const dd_real &a) {
 }
 
 /********** Equality Comparison **********/
-bool operator==(const qd_real &a, double b) {
+bool operator==(const qd_real &a, float b) {
   return (a[0] == b && a[1] == 0.0 && a[2] == 0.0 && a[3] == 0.0);
 }
 
-bool operator==(double a, const qd_real &b) {
+bool operator==(float a, const qd_real &b) {
   return (b == a);
 }
 
@@ -3180,11 +3180,11 @@ bool operator==(const qd_real &a, const qd_real &b) {
 
 
 /********** Less-Than Comparison ***********/
-bool operator<(const qd_real &a, double b) {
+bool operator<(const qd_real &a, float b) {
   return (a[0] < b || (a[0] == b && a[1] < 0.0));
 }
 
-bool operator<(double a, const qd_real &b) {
+bool operator<(float a, const qd_real &b) {
   return (b > a);
 }
 
@@ -3206,11 +3206,11 @@ bool operator<(const qd_real &a, const qd_real &b) {
 }
 
 /********** Greater-Than Comparison ***********/
-bool operator>(const qd_real &a, double b) {
+bool operator>(const qd_real &a, float b) {
   return (a[0] > b || (a[0] == b && a[1] > 0.0));
 }
 
-bool operator>(double a, const qd_real &b) {
+bool operator>(float a, const qd_real &b) {
   return (b < a);
 }
 
@@ -3233,11 +3233,11 @@ bool operator>(const qd_real &a, const qd_real &b) {
 
 
 /********** Less-Than-Or-Equal-To Comparison **********/
-bool operator<=(const qd_real &a, double b) {
+bool operator<=(const qd_real &a, float b) {
   return (a[0] < b || (a[0] == b && a[1] <= 0.0));
 }
 
-bool operator<=(double a, const qd_real &b) {
+bool operator<=(float a, const qd_real &b) {
   return (b >= a);
 }
 
@@ -3259,11 +3259,11 @@ bool operator<=(const qd_real &a, const qd_real &b) {
 }
 
 /********** Greater-Than-Or-Equal-To Comparison **********/
-bool operator>=(const qd_real &a, double b) {
+bool operator>=(const qd_real &a, float b) {
   return (a[0] > b || (a[0] == b && a[1] >= 0.0));
 }
 
-bool operator>=(double a, const qd_real &b) {
+bool operator>=(float a, const qd_real &b) {
   return (b <= a);
 }
 
@@ -3287,11 +3287,11 @@ bool operator>=(const qd_real &a, const qd_real &b) {
 
 
 /********** Not-Equal-To Comparison **********/
-bool operator!=(const qd_real &a, double b) {
+bool operator!=(const qd_real &a, float b) {
   return !(a == b);
 }
 
-bool operator!=(double a, const qd_real &b) {
+bool operator!=(float a, const qd_real &b) {
   return !(a == b);
 }
 
@@ -3333,7 +3333,7 @@ dd_real to_dd_real(const qd_real &a) {
   return dd_real(a[0], a[1]);
 }
 
-double to_double(const qd_real &a) {
+float to_float(const qd_real &a) {
   return a[0];
 }
 
@@ -3387,7 +3387,7 @@ qd_real ldexp(const qd_real &a, int n) {
  *
  * Copyright (c) 2000-2007
  *
- * Contains implementation of non-inlined functions of quad-double
+ * Contains implementation of non-inlined functions of quad-float
  * package.  Inlined functions are found in qd_inline.h (in include directory).
  */
 #include <cstdlib>
@@ -3426,21 +3426,21 @@ void qd_real::error(const char *msg) {
 /********** Multiplications **********/
 
 qd_real nint(const qd_real &a) {
-  double x0, x1, x2, x3;
+  float x0, x1, x2, x3;
 
   x0 = nint(a[0]);
   x1 = x2 = x3 = 0.0;
 
   if (x0 == a[0]) {
-    /* First double is already an integer. */
+    /* First float is already an integer. */
     x1 = nint(a[1]);
 
     if (x1 == a[1]) {
-      /* Second double is already an integer. */
+      /* Second float is already an integer. */
       x2 = nint(a[2]);
 
       if (x2 == a[2]) {
-        /* Third double is already an integer. */
+        /* Third float is already an integer. */
         x3 = nint(a[3]);
       } else {
         if (std::abs(x2 - a[2]) == 0.5 && a[3] < 0.0) {
@@ -3455,7 +3455,7 @@ qd_real nint(const qd_real &a) {
     }
 
   } else {
-    /* First double is not an integer. */
+    /* First float is not an integer. */
       if (std::abs(x0 - a[0]) == 0.5 && a[1] < 0.0) {
           x0 -= 1.0;
       }
@@ -3466,7 +3466,7 @@ qd_real nint(const qd_real &a) {
 }
 
 qd_real floor(const qd_real &a) {
-  double x0, x1, x2, x3;
+  float x0, x1, x2, x3;
   x1 = x2 = x3 = 0.0;
   x0 = std::floor(a[0]);
 
@@ -3489,7 +3489,7 @@ qd_real floor(const qd_real &a) {
 }
 
 qd_real ceil(const qd_real &a) {
-  double x0, x1, x2, x3;
+  float x0, x1, x2, x3;
   x1 = x2 = x3 = 0.0;
   x0 = std::ceil(a[0]);
 
@@ -3514,13 +3514,13 @@ qd_real ceil(const qd_real &a) {
 
 
 /********** Divisions **********/
-/* quad-double / double */
-qd_real operator/(const qd_real &a, double b) {
+/* quad-float / float */
+qd_real operator/(const qd_real &a, float b) {
   /* Strategy:  compute approximate quotient using high order
-     doubles, and then correct it 3 times using the remainder.
+     floats, and then correct it 3 times using the remainder.
      (Analogous to long division.)                             */
-  double t0, t1;
-  double q0, q1, q2, q3;
+  float t0, t1;
+  float q0, q1, q2, q3;
   qd_real r;
 
   q0 = a[0] / b;  /* approximate quotient */
@@ -3575,7 +3575,7 @@ ostream &operator<<(ostream &os, const qd_real &qd) {
       showpos, uppercase, os.fill());
 }
 
-/* Read a quad-double from s. */
+/* Read a quad-float from s. */
 int qd_real::read(const char *s, qd_real &qd) {
   const char *p = s;
   char ch;
@@ -3594,7 +3594,7 @@ int qd_real::read(const char *s, qd_real &qd) {
       /* It's a digit */
       int d = ch - '0';
       r *= 10.0;
-      r += static_cast<double>(d);
+      r += static_cast<float>(d);
       nd++;
     } else {
       /* Non-digit */
@@ -3737,7 +3737,7 @@ void qd_real::to_digits(char *s, int &expn, int precision) const {
   expn = e;
 }
 
-/* Writes the quad-double number into the character array s of length len.
+/* Writes the quad-float number into the character array s of length len.
    The integer d specifies how many significant digits to write.
    The string s must be able to hold at least (d+8) characters.
    showpos indicates whether to use the + sign, and uppercase indicates
@@ -3893,7 +3893,7 @@ string qd_real::to_string(int precision, int width, ios_base::fmtflags fmt,
     // and are output with the point in the wrong place, leading to a dramatically off value
     if(fixed && (precision > 0)){
       // make sure that the value isn't dramatically larger
-      double from_string = atof(s.c_str());
+      float from_string = atof(s.c_str());
 
       // if this ratio is large, then we've got problems
       if( fabs( from_string / this->x[0] ) > 3.0 ){
@@ -3997,7 +3997,7 @@ void qd_real::dump_bits(const string &name, std::ostream &os) const {
   len += 2;
   for (int j = 0; j < 4; j++) {
     if (j > 0) for (string::size_type i = 0; i < len; i++) os << ' ';
-    print_double_info(os, x[j]);
+    print_float_info(os, x[j]);
     if (j < 3)
       os << endl;
     else
@@ -4026,9 +4026,9 @@ void qd_real::dump(const string &name, std::ostream &os) const {
 }
 
 /* Divisions */
-/* quad-double / double-double */
+/* quad-float / float-float */
 qd_real qd_real::sloppy_div(const qd_real &a, const dd_real &b) {
-  double q0, q1, q2, q3;
+  float q0, q1, q2, q3;
   qd_real r;
   qd_real qd_b(b);
 
@@ -4048,7 +4048,7 @@ qd_real qd_real::sloppy_div(const qd_real &a, const dd_real &b) {
 }
 
 qd_real qd_real::accurate_div(const qd_real &a, const dd_real &b) {
-  double q0, q1, q2, q3, q4;
+  float q0, q1, q2, q3, q4;
   qd_real r;
   qd_real qd_b(b);
 
@@ -4070,9 +4070,9 @@ qd_real qd_real::accurate_div(const qd_real &a, const dd_real &b) {
   return qd_real(q0, q1, q2, q3);
 }
 
-/* quad-double / quad-double */
+/* quad-float / quad-float */
 qd_real qd_real::sloppy_div(const qd_real &a, const qd_real &b) {
-  double q0, q1, q2, q3;
+  float q0, q1, q2, q3;
 
   qd_real r;
 
@@ -4093,7 +4093,7 @@ qd_real qd_real::sloppy_div(const qd_real &a, const qd_real &b) {
 }
 
 qd_real qd_real::accurate_div(const qd_real &a, const qd_real &b) {
-  double q0, q1, q2, q3;
+  float q0, q1, q2, q3;
 
   qd_real r;
 
@@ -4109,7 +4109,7 @@ qd_real qd_real::accurate_div(const qd_real &a, const qd_real &b) {
   q3 = r[0] / b[0];
 
   r -= (b * q3);
-  double q4 = r[0] / b[0];
+  float q4 = r[0] / b[0];
 
   ::renorm(q0, q1, q2, q3, q4);
 
@@ -4124,7 +4124,7 @@ QD_API qd_real sqrt(const qd_real &a) {
        x' = x + (1 - a * x^2) * x / 2;
 
      which converges to 1/sqrt(a), starting with the
-     double precision approximation to 1/sqrt(a).
+     float precision approximation to 1/sqrt(a).
      Since Newton's iteration more or less doubles the
      number of correct digits, we only need to perform it
      twice.
@@ -4190,7 +4190,7 @@ qd_real nroot(const qd_real &a, int n) {
   qd_real x = std::exp(-std::log(r.x[0]) / n);
 
   /* Perform Newton's iteration. */
-  double dbl_n = static_cast<double>(n);
+  float dbl_n = static_cast<float>(n);
   x += x * (1.0 - r * npwr(x, n)) / dbl_n;
   x += x * (1.0 - r * npwr(x, n)) / dbl_n;
   x += x * (1.0 - r * npwr(x, n)) / dbl_n;
@@ -4244,8 +4244,8 @@ qd_real exp(const qd_real &a) {
      evaluated using the familiar Taylor series.  Reducing the
      argument substantially speeds up the convergence.       */
 
-  const double k = ldexp(1.0, 16);
-  const double inv_k = 1.0 / k;
+  const float k = ldexp(1.0, 16);
+  const float inv_k = 1.0 / k;
 
   if (a[0] <= -709.0)
     return 0.0;
@@ -4259,10 +4259,10 @@ qd_real exp(const qd_real &a) {
   if (a.is_one())
     return qd_real::_e;
 
-  double m = std::floor(a.x[0] / qd_real::_log2.x[0] + 0.5);
+  float m = std::floor(a.x[0] / qd_real::_log2.x[0] + 0.5);
   qd_real r = mul_pwr2(a - qd_real::_log2 * m, inv_k);
   qd_real s, p, t;
-  double thresh = inv_k * qd_real::_eps;
+  float thresh = inv_k * qd_real::_eps;
 
   p = sqr(r);
   s = r + mul_pwr2(p, 0.5);
@@ -4271,7 +4271,7 @@ qd_real exp(const qd_real &a) {
     p *= r;
     t = p * inv_fact[i++];
     s += t;
-  } while (std::abs(to_double(t)) > thresh && i < 9);
+  } while (std::abs(to_float(t)) > thresh && i < 9);
 
   s = mul_pwr2(s, 2.0) + sqr(s);
   s = mul_pwr2(s, 2.0) + sqr(s);
@@ -4293,7 +4293,7 @@ qd_real exp(const qd_real &a) {
   return ldexp(s, static_cast<int>(m));
 }
 
-/* Logarithm.  Computes log(x) in quad-double precision.
+/* Logarithm.  Computes log(x) in quad-float precision.
    This is a natural logarithm (i.e., base e).            */
 qd_real log(const qd_real &a) {
   /* Strategy.  The Taylor series for log converges much more
@@ -5377,7 +5377,7 @@ static const qd_real cos_table [] = {
    Assumes |a| <= pi/2048.                           */
 static void sincos_taylor(const qd_real &a,
                           qd_real &sin_a, qd_real &cos_a) {
-  const double thresh = 0.5 * qd_real::_eps * std::abs(to_double(a));
+  const float thresh = 0.5 * qd_real::_eps * std::abs(to_float(a));
   qd_real p, s, t, x;
 
   if (a.is_zero()) {
@@ -5395,14 +5395,14 @@ static void sincos_taylor(const qd_real &a,
     t = p * inv_fact[i];
     s += t;
     i += 2;
-  } while (i < n_inv_fact && std::abs(to_double(t)) > thresh);
+  } while (i < n_inv_fact && std::abs(to_float(t)) > thresh);
 
   sin_a = s;
   cos_a = sqrt(1.0 - sqr(s));
 }
 
 static qd_real sin_taylor(const qd_real &a) {
-  const double thresh = 0.5 * qd_real::_eps * std::abs(to_double(a));
+  const float thresh = 0.5 * qd_real::_eps * std::abs(to_float(a));
   qd_real p, s, t, x;
 
   if (a.is_zero()) {
@@ -5418,13 +5418,13 @@ static qd_real sin_taylor(const qd_real &a) {
     t = p * inv_fact[i];
     s += t;
     i += 2;
-  } while (i < n_inv_fact && std::abs(to_double(t)) > thresh);
+  } while (i < n_inv_fact && std::abs(to_float(t)) > thresh);
 
   return s;
 }
 
 static qd_real cos_taylor(const qd_real &a) {
-  const double thresh = 0.5 * qd_real::_eps;
+  const float thresh = 0.5 * qd_real::_eps;
   qd_real p, s, t, x;
 
   if (a.is_zero()) {
@@ -5440,7 +5440,7 @@ static qd_real cos_taylor(const qd_real &a) {
     t = p * inv_fact[i];
     s += t;
     i += 2;
-  } while (i < n_inv_fact && std::abs(to_double(t)) > thresh);
+  } while (i < n_inv_fact && std::abs(to_float(t)) > thresh);
 
   return s;
 }
@@ -5465,7 +5465,7 @@ qd_real sin(const qd_real &a) {
   qd_real r = a - qd_real::_2pi * z;
 
   // approximately reduce modulo pi/2 and then modulo pi/1024
-  double q = std::floor(r.x[0] / qd_real::_pi2[0] + 0.5);
+  float q = std::floor(r.x[0] / qd_real::_pi2[0] + 0.5);
   qd_real t = r - qd_real::_pi2 * q;
   int j = static_cast<int>(q);
   q = std::floor(t.x[0] / _pi1024[0] + 0.5);
@@ -5541,7 +5541,7 @@ qd_real cos(const qd_real &a) {
   qd_real r = a - qd_real::_2pi * z;
 
   // approximately reduce modulo pi/2 and then modulo pi/1024
-  double q = std::floor(r.x[0] / qd_real::_pi2.x[0] + 0.5);
+  float q = std::floor(r.x[0] / qd_real::_pi2.x[0] + 0.5);
   qd_real t = r - qd_real::_pi2 * q;
   int j = static_cast<int>(q);
   q = std::floor(t.x[0] / _pi1024.x[0] + 0.5);
@@ -5620,7 +5620,7 @@ void sincos(const qd_real &a, qd_real &sin_a, qd_real &cos_a) {
   qd_real t = a - qd_real::_2pi * z;
 
   // approximately reduce by pi/2 and then by pi/1024.
-  double q = std::floor(t.x[0] / qd_real::_pi2.x[0] + 0.5);
+  float q = std::floor(t.x[0] / qd_real::_pi2.x[0] + 0.5);
   t -= qd_real::_pi2 * q;
   int j = static_cast<int>(q);
   q = std::floor(t.x[0] / _pi1024.x[0] + 0.5);
@@ -5745,8 +5745,8 @@ qd_real atan2(const qd_real &y, const qd_real &x) {
   qd_real xx = x / r;
   qd_real yy = y / r;
 
-  /* Compute double precision approximation to atan. */
-  qd_real z = std::atan2(to_double(y), to_double(x));
+  /* Compute float precision approximation to atan. */
+  qd_real z = std::atan2(to_float(y), to_float(x));
   qd_real sin_z, cos_z;
 
   if (std::abs(xx.x[0]) > std::abs(yy.x[0])) {
@@ -5833,8 +5833,8 @@ qd_real sinh(const qd_real &a) {
   qd_real s = a;
   qd_real t = a;
   qd_real r = sqr(t);
-  double m = 1.0;
-  double thresh = std::abs(to_double(a) * qd_real::_eps);
+  float m = 1.0;
+  float thresh = std::abs(to_float(a) * qd_real::_eps);
 
   do {
     m += 2.0;
@@ -5861,7 +5861,7 @@ qd_real tanh(const qd_real &a) {
     return 0.0;
   }
 
-  if (std::abs(to_double(a)) > 0.05) {
+  if (std::abs(to_float(a)) > 0.05) {
     qd_real ea = exp(a);
     qd_real inv_ea = inv(ea);
     return (ea - inv_ea) / (ea + inv_ea);
@@ -5874,7 +5874,7 @@ qd_real tanh(const qd_real &a) {
 }
 
 void sincosh(const qd_real &a, qd_real &s, qd_real &c) {
-  if (std::abs(to_double(a)) <= 0.05) {
+  if (std::abs(to_float(a)) <= 0.05) {
     s = sinh(a);
     c = sqrt(1.0 + sqr(s));
   } else {
@@ -5913,10 +5913,10 @@ QD_API qd_real fmod(const qd_real &a, const qd_real &b) {
 }
 
 QD_API qd_real qdrand() {
-  static const double m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
-  double m = m_const;
+  static const float m_const = 4.6566128730773926e-10;  /* = 2^{-31} */
+  float m = m_const;
   qd_real r = 0.0;
-  double d;
+  float d;
 
   /* Strategy:  Generate 31 bits at a time, using lrand48
      random number generator.  Shift the bits, and repeat
@@ -5951,22 +5951,22 @@ qd_real polyeval(const qd_real *c, int n, const qd_real &x) {
    the given guess x0.  Note that this uses simple Newton
    iteration scheme, and does not work for multiple roots.  */
 QD_API qd_real polyroot(const qd_real *c, int n,
-    const qd_real &x0, int max_iter, double thresh) {
+    const qd_real &x0, int max_iter, float thresh) {
   qd_real x = x0;
   qd_real f;
   qd_real *d = new qd_real[n];
   bool conv = false;
   int i;
-  double max_c = std::abs(to_double(c[0]));
-  double v;
+  float max_c = std::abs(to_float(c[0]));
+  float v;
 
   if (thresh == 0.0) thresh = qd_real::_eps;
 
   /* Compute the coefficients of the derivatives. */
   for (i = 1; i <= n; i++) {
-    v = std::abs(to_double(c[i]));
+    v = std::abs(to_float(c[i]));
     if (v > max_c) max_c = v;
-    d[i-1] = c[i] * static_cast<double>(i);
+    d[i-1] = c[i] * static_cast<float>(i);
   }
   thresh *= max_c;
 
@@ -5996,9 +5996,9 @@ qd_real qd_real::debug_rand() {
 
   int expn = 0;
   qd_real a = 0.0;
-  double d;
+  float d;
   for (int i = 0; i < 4; i++) {
-    d = std::ldexp(std::rand() / static_cast<double>(RAND_MAX), -expn);
+    d = std::ldexp(std::rand() / static_cast<float>(RAND_MAX), -expn);
     a += d;
     expn = expn + 54 + std::rand() % 200;
   }
