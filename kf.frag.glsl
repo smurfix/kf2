@@ -112,6 +112,9 @@ vec3 palette(float ix)
   // map [0..1) to [0..1024)
   ix -= floor(ix);
   ix *= 1024.0;
+  // to match KF's regular colouring, need to sin-interpolate c0, c1
+  // to get neighbouring colours in 1024-palette
+  // and then linear-interpolate those (if smoothing is desired)
   // c0, c1 are neighbouring colours in n-palette with interpolant cf
   int m_nParts = textureSize(Internal_Palette, 0);
   vec3 c0, c1;
@@ -148,28 +151,6 @@ vec3 palette(float ix)
   {
     return c0;
   }
-#if 0
-  int ix0 = ((int(floor(ix * float(n))) % n) + n) % n;
-  int ix1 = (ix0 + 1) % n;
-  float cf = (ix * float(n)) - floor(ix * float(n));
-  vec3 c0 = texelFetch(Internal_Palette, ix0, 0).rgb;
-  vec3 c1 = texelFetch(Internal_Palette, ix1, 0).rgb;
-  // to match KF's regular colouring, need to sin-interpolate c0, c1
-  // to get neighbouring colours in 1024-palette
-  // and then linear-interpolate those (if smoothing is desired)
-  float cf0 = floor(cf * 1024.0 / float(n)) * float(n) / 1024.0;
-  float cf1 = floor(cf * 1024.0 / float(n) + 1.0) * float(n) / 1024.0;
-  vec3 s0 = mix(c0, c1, sin((cf0 - 0.5) * pi) / 2.0 + 0.5);//0.5 * (1.0 - cos(pi * cf0)));
-  if (KFP_Smooth)
-  {
-    vec3 s1 = mix(c0, c1, sin((cf1 - 0.5) * pi) / 2.0 + 0.5);//0.5 * (1.0 - cos(pi * cf1)));
-    return mix(s0, s1, (cf - cf0) / (cf1 - cf0));
-  }
-  else
-  {
-    return s0;
-  }
-#endif
 }
 
 #define Float4 float
