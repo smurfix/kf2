@@ -5528,7 +5528,7 @@ void main(void)
   }
   else
   {
-    Float4 iter = float4(0.0);
+    Float4 iter = float4(N1, N0, KFP_Flat ? 0.0 : 1.0 - NF);
     switch (KFP_ColorMethod)
     {
       default:
