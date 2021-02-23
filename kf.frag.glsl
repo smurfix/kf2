@@ -5532,18 +5532,18 @@ void main(void)
     switch (KFP_ColorMethod)
     {
       default:
-      case ColorMethod_Standard: iter = N; break;
-      case ColorMethod_SquareRoot: iter = sqrt(max(0.0, N)); break;
-      case ColorMethod_CubicRoot: iter = cbrt(max(0.0, N)); break;
-      case ColorMethod_Logarithm: iter = log(max(1.0, N)); break;
-      case ColorMethod_LogLog: iter = log(add(1.0, log(add(1.0, N)))); break;
-      case ColorMethod_ATan: iter = atan(N); break;
-      case ColorMethod_FourthRoot: iter = sqrt(sqrt(max(0.0, N))); break;
+      case ColorMethod_Standard: iter = iter; break;
+      case ColorMethod_SquareRoot: iter = sqrt(max(0.0, iter)); break;
+      case ColorMethod_CubicRoot: iter = cbrt(max(0.0, iter)); break;
+      case ColorMethod_Logarithm: iter = log(max(1.0, iter)); break;
+      case ColorMethod_LogLog: iter = log(add(1.0, log(add(1.0, iter)))); break;
+      case ColorMethod_ATan: iter = atan(iter); break;
+      case ColorMethod_FourthRoot: iter = sqrt(sqrt(max(0.0, iter))); break;
       case ColorMethod_Stretched:
       {
         Float4 imin = float4(KFP_IterationsMin[1], KFP_IterationsMin[0]);
         Float4 imax = float4(KFP_IterationsMax[1], KFP_IterationsMax[0]);
-        iter = mul(1024.0, div(sub(N, imin), sub(imax, imin))); break;
+        iter = mul(1024.0, div(sub(iter, imin), sub(imax, imin))); break;
       }
       case ColorMethod_DistanceLinear:
       case ColorMethod_DEPlusStandard:
