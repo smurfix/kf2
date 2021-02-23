@@ -4900,12 +4900,14 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			bool ret;
 			g_szFile = g_args->sLoadPalette;
 			output_log_message(Info, "loading palette " << g_szFile);
+			g_SFT.m_bInhibitColouring = true;
 			ret = ! g_SFT.OpenFile(g_szFile, TRUE);
 			if (ret)
 			{
 				output_log_message(Error, "loading palette " << g_szFile << " FAILED");
 				return 1;
 			}
+			g_SFT.m_bInhibitColouring = false;
 		}
 		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
