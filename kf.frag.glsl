@@ -5565,7 +5565,7 @@ void main(void)
           {
             for (int di = -1; di <= 1; ++di)
             {
-              ivec2 tc1 = tc + ivec2(-dj, di);
+              ivec2 tc1 = tc + ivec2(dj, di);
               p[dj + 1][di + 1] = sub(float4
                 ( texelFetch(Internal_N1, tc1, 0).r
                 , texelFetch(Internal_N0, tc1, 0).r
