@@ -508,73 +508,232 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
       case request_render:
       {
         response resp;
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 1);
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, req.u.render.height);
+
+        const int padding = 1;
+        uint32_t *n_msb = req.u.render.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
+        uint32_t *n_lsb = req.u.render.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
+        float    *n_f   = req.u.render.n_f   ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_t   = req.u.render.t     ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_dex = req.u.render.dex   ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_dey = req.u.render.dey   ? new float   [max_tile_width * max_tile_height] : nullptr;
+
         glPixelStorei(GL_PACK_ALIGNMENT, 1);
         glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
         D
-        for (int64_t tile_y = req.u.render.height; tile_y > 0; tile_y -= max_tile_height)
+        for (int64_t tile_y = req.u.render.height + padding; tile_y > 0 - padding; tile_y -= (max_tile_height - 2 * padding))
         {
-          const int tile_height = std::min(max_tile_height, tile_y);
-          for (int64_t tile_x = 0; tile_x < req.u.render.width; tile_x += max_tile_width)
+          const int tile_height = std::min(max_tile_height, tile_y + padding);
+          for (int64_t tile_x = 0 - padding; tile_x < req.u.render.width + padding; tile_x += (max_tile_width - 2 * padding))
           {
-            const int tile_width = std::min(max_tile_width, req.u.render.width - tile_x);
-            glPixelStorei(GL_UNPACK_SKIP_ROWS, tile_x);
-            glPixelStorei(GL_PACK_SKIP_ROWS, req.u.render.height - tile_y);
-            glPixelStorei(GL_UNPACK_SKIP_PIXELS, tile_y - tile_height);
-            glPixelStorei(GL_PACK_SKIP_PIXELS, tile_x);
-            D
+            const int tile_width = std::min(max_tile_width, req.u.render.width - tile_x + padding);
+            const int64_t skip = 3 * ((tile_x + padding) + (req.u.render.height + padding - tile_y) * req.u.render.width);
+
+            // copy from arrays to tile; reflect data at image boundaries
+            // FIXME assumes tile size >= 3x3
+            for (int64_t x = tile_x; x < tile_x + tile_width; ++x)
+            {
+              for (int64_t y = tile_y - tile_height; y < tile_y; ++y)
+              {
+                uint32_t msb = 0;
+                uint32_t lsb = 0;
+                float f = 0;
+                float t = 0;
+                float dex = 0;
+                float dey = 0;
+
+#define X(dx,dy) \
+  int64_t k1 = (x + (dx)) * req.u.render.height + (y + (dy)); \
+  int64_t k2 = (x + 2*(dx)) * req.u.render.height + (y + 2*(dy)); \
+  int64_t neighbour_n = 0; \
+  float neighbour_nf = 0; \
+  int64_t next_n = 0; \
+  float next_nf = 0; \
+  if (n_msb) \
+  { \
+    neighbour_n += int64_t(req.u.render.n_msb[k1]) << 32; \
+    next_n += int64_t(req.u.render.n_msb[k2]) << 32; \
+  } \
+  if (n_lsb) \
+  { \
+    neighbour_n += int64_t(req.u.render.n_lsb[k1]); \
+    next_n += int64_t(req.u.render.n_lsb[k2]); \
+  } \
+  if (n_f) \
+  { \
+    neighbour_nf = 1.0f - req.u.render.n_f[k1]; \
+    next_nf = 1.0f - req.u.render.n_f[k2]; \
+  } \
+  f = 2.0f * neighbour_nf - next_nf; \
+  int64_t n = neighbour_n + (neighbour_n - next_n); \
+  n += std::floor(f); \
+  f -= std::floor(f); \
+  f = 1.0f - f; \
+  msb = uint32_t(n >> 32) & 0xFFFFffffu; \
+  lsb = uint32_t(n      ) & 0xFFFFffffu; \
+  if (n_t) \
+  { \
+    float neighbour = 6.283185307179586f * req.u.render.t[k1]; \
+    float next = 6.283185307179586f * req.u.render.t[k2]; \
+    t = std::atan2(2.0 * std::sin(neighbour) - std::sin(next), 2.0 * std::cos(neighbour) - std::cos(next)) / 6.283185307179586f; \
+    t -= std::floor(t); \
+  } \
+  if (n_dex) \
+  { \
+    float neighbour = req.u.render.dex[k1]; \
+    float next = req.u.render.dex[k2]; \
+    dex = 2.0 * neighbour - next; \
+  } \
+  if (n_dey) \
+  { \
+    float neighbour = req.u.render.dey[k1]; \
+    float next = req.u.render.dey[k2]; \
+    dey = 2.0 * neighbour - next; \
+  }
+
+                if (x < 0 && y < 0)
+                {
+                  X(1, 1)
+                }
+                else if (x < 0 && y < req.u.render.height)
+                {
+                  X(1, 0)
+                }
+                else if (x < 0 && req.u.render.height <= y)
+                {
+                  X(1, -1)
+                }
+                else if (x < req.u.render.width && y < 0)
+                {
+                  X(0, 1)
+                }
+                else if (x < req.u.render.width && y < req.u.render.height)
+                {
+                  // middle of tile
+                  int64_t k0 = (x) * req.u.render.height + (y);
+                  if (n_msb)
+                  {
+                    msb = req.u.render.n_msb[k0];
+                  }
+                  if (n_lsb)
+                  {
+                    lsb = req.u.render.n_lsb[k0];
+                  }
+                  if (n_f)
+                  {
+                    f = req.u.render.n_f[k0];
+                  }
+                  if (n_t)
+                  {
+                    t = req.u.render.t[k0];
+                  }
+                  if (n_dex)
+                  {
+                    dex = req.u.render.dex[k0];
+                  }
+                  if (n_dey)
+                  {
+                    dey = req.u.render.dey[k0];
+                  }
+                }
+                else if (x < req.u.render.width && req.u.render.height <= y)
+                {
+                  X(0, -1)
+                }
+                else if (req.u.render.width <= x && y < 0)
+                {
+                  X(-1, 1)
+                }
+                else if (req.u.render.width <= x && y < req.u.render.height)
+                {
+                  X(-1, 0)
+                }
+                else if (req.u.render.width <= x && req.u.render.height <= y)
+                {
+                  X(-1, -1)
+                }
+
+#undef X
+
+                int64_t k = (x - tile_x) * tile_height + (y - (tile_y - tile_height));
+                if (n_msb)
+                {
+                  n_msb[k] = msb;
+                }
+                if (n_lsb)
+                {
+                  n_lsb[k] = lsb;
+                }
+                if (n_f)
+                {
+                  n_f[k] = f;
+                }
+                if (n_t)
+                {
+                  n_t[k] = t;
+                }
+                if (n_dex)
+                {
+                  n_dex[k] = dex;
+                }
+                if (n_dey)
+                {
+                  n_dey[k] = dey;
+                }
+              }
+            }
 
             // upload textures
-            if (req.u.render.n_msb)
+            if (n_msb)
             {
               glActiveTexture(GL_TEXTURE0 + tu_n_msb);
               D
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, tile_height, tile_width, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, req.u.render.n_msb);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, tile_height, tile_width, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, n_msb);
               D
             }
-            if (req.u.render.n_lsb)
+            if (n_lsb)
             {
               glActiveTexture(GL_TEXTURE0 + tu_n_lsb);
               D
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, tile_height, tile_width, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, req.u.render.n_lsb);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32UI, tile_height, tile_width, 0, GL_RED_INTEGER, GL_UNSIGNED_INT, n_lsb);
               D
             }
-            if (req.u.render.n_f)
+            if (n_f)
             {
               glActiveTexture(GL_TEXTURE0 + tu_n_f);
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, req.u.render.n_f);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, n_f);
             }
             D
-            if (req.u.render.t)
+            if (n_t)
             {
               glActiveTexture(GL_TEXTURE0 + tu_t);
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, req.u.render.t);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, n_t);
             }
             D
-            if (req.u.render.dex)
+            if (n_dex)
             {
               glActiveTexture(GL_TEXTURE0 + tu_dex);
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, req.u.render.dex);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, n_dex);
             }
             D
-            if (req.u.render.dey)
+            if (n_dey)
             {
               glActiveTexture(GL_TEXTURE0 + tu_dey);
-              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, req.u.render.dey);
+              glTexImage2D(GL_TEXTURE_2D, 0, GL_R32F, tile_height, tile_width, 0, GL_RED, GL_FLOAT, n_dey);
             }
             D
 
             // render to 16bit
             glBindFramebuffer(GL_FRAMEBUFFER, f_linear);
-            glViewport(0, 0, tile_width, tile_height);
+            glViewport(0, 0, tile_width - 2 * padding, tile_height - 2 * padding);
             glUseProgram(p_colour);
             glUniform2i(glGetUniformLocation(p_colour, "KFP_ImageSize"), req.u.render.width, req.u.render.height);
-            glUniform4i(glGetUniformLocation(p_colour, "Internal_Tile"), tile_x, tile_y, tile_width, tile_height);
+            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x, tile_y - tile_height);
+            glUniform2i(glGetUniformLocation(p_colour, "Internal_TilePadding"), padding, padding);
+            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileSize"), tile_width, tile_height);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb16)
             {
-              glReadPixels(0, 0, tile_width, tile_height, GL_RGB, GL_HALF_FLOAT, req.u.render.rgb16);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_RGB, GL_HALF_FLOAT, req.u.render.rgb16 + skip);
             }
             D
 
@@ -588,7 +747,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb8)
             {
-              glReadPixels(0, 0, tile_width, tile_height, GL_RGB, GL_UNSIGNED_BYTE, req.u.render.rgb8);
+              glReadPixels(0, 0, tile_width - 2, tile_height - 2, GL_RGB, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
             }
             if (sRGB)
             {
@@ -597,14 +756,16 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             D
           }
         }
-        glPixelStorei(GL_UNPACK_ALIGNMENT, 4);
-        glPixelStorei(GL_UNPACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_UNPACK_SKIP_PIXELS, 0);
-        glPixelStorei(GL_UNPACK_SKIP_ROWS, 0);
+
+        delete[] n_msb;
+        delete[] n_lsb;
+        delete[] n_f;
+        delete[] n_t;
+        delete[] n_dex;
+        delete[] n_dey;
+
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glPixelStorei(GL_PACK_ROW_LENGTH, 0);
-        glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
-        glPixelStorei(GL_PACK_SKIP_ROWS, 0);
         D
         resp.tag = response_render;
         fifo_write(responses, resp);

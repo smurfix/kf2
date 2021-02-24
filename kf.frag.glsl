@@ -12,6 +12,8 @@ uniform sampler2D Internal_Texture;
 uniform sampler1D Internal_Palette;
 
 uniform ivec2 Internal_TilePadding;
+uniform ivec2 Internal_TileOrigin;
+uniform ivec2 Internal_TileSize;
 
 uniform ivec2 KFP_ImageSize;
 
@@ -5495,22 +5497,10 @@ dd_real dd_real_(uint a, uint b, float c) { return add(dd_real_(a, b), c); }
 #define Float4 dd_real
 #define float4 dd_real_
 
-int diff(uint a, uint b)
-{
-  if (a >= b)
-  {
-    return int(a - b);
-  }
-  else
-  {
-    return -int(b - a);
-  }
-}
-
 void main(void)
 {
   Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
-  ivec2 tc = Internal_TilePadding + ivec2(KFP_ImageSize.y - 1 - int(gl_FragCoord.y), int(gl_FragCoord.x));
+  ivec2 tc = Internal_TilePadding.yx + ivec2(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y), int(gl_FragCoord.x));
   vec3 s = vec3(0.0);
   uint N1 = texelFetch(Internal_N1, tc, 0).r;
   uint N0 = texelFetch(Internal_N0, tc, 0).r;
@@ -5778,12 +5768,12 @@ void main(void)
     }
     else
     {
-      vdiff.x = sub(float4
+      vdiff.x = -sub(float4
         ( texelFetch(Internal_N1, tc + ivec2(0, 1), 0).r
         , texelFetch(Internal_N0, tc + ivec2(0, 1), 0).r
         , 1.0 - texelFetch(Internal_NF, tc + ivec2(0, 1), 0).r
         ), N).x[0];
-      vdiff.y = -sub(float4
+      vdiff.y = sub(float4
         ( texelFetch(Internal_N1, tc + ivec2(-1, 0), 0).r
         , texelFetch(Internal_N0, tc + ivec2(-1, 0), 0).r
         , 1.0 - texelFetch(Internal_NF, tc + ivec2(-1, 0), 0).r
@@ -5795,14 +5785,14 @@ void main(void)
     {
       diff = atan(diff) / (pi / 2.0);
       diff = diff * KFP_SlopeRatio / 100.0;
-      s = (1 - diff) * s;
+      s = (1.0 - diff) * s;
     }
     else
     {
       diff = -diff;
       diff = atan(diff) / (pi / 2.0);
       diff = diff * KFP_SlopeRatio / 100.0;
-      s = (1 - diff) * s + vec3(diff);
+      s = (1.0 - diff) * s + vec3(diff);
     }
   }
   if (uvec2(N0, N1) == KFP_Iterations && ! KFP_TextureEnabled)
