@@ -5812,7 +5812,7 @@ void main(void)
         nS /= float(nDG);
       if (nDB > 0)
         nB /= float(nDB);
-      vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)));
+      vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)).bgr);
       if (KFP_MultiWavesBlend)
       {
         iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
