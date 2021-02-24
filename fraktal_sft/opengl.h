@@ -75,6 +75,8 @@ struct response_compile_t
 struct request_configure_t
 {
   int64_t jitter_seed;
+  int jitter_shape;
+  double jitter_scale;
   bool show_glitches;
   bool inverse_transition;
   int64_t iterations;

@@ -20,7 +20,11 @@ uniform ivec2 KFP_ImageSize;
 uniform uvec2 KFP_Iterations;
 uniform uvec2 KFP_IterationsMin;
 uniform uvec2 KFP_IterationsMax;
+
 uniform uint KFP_JitterSeed;
+uniform int KFP_JitterShape;
+uniform float KFP_JitterScale;
+
 uniform float KFP_IterDiv;
 uniform float KFP_ColorOffset;
 
@@ -5482,6 +5486,61 @@ vec3 palette(float ix)
   }
 }
 
+uint burtle_hash(uint a)
+{
+  a = (a+0x7ed55d16u) + (a<<12);
+  a = (a^0xc761c23cu) ^ (a>>19);
+  a = (a+0x165667b1u) + (a<<5);
+  a = (a+0xd3a2646cu) ^ (a<<9);
+  a = (a+0xfd7046c5u) + (a<<3);
+  a = (a^0xb55a4f09u) ^ (a>>16);
+  return a;
+}
+
+// uniform in [0,1)
+float dither(int x, int y, int c)
+{
+  return float(burtle_hash(uint(x) + burtle_hash(uint(y) + burtle_hash(uint(c))))) / exp2(32.0);
+}
+
+vec2 GetPixelOffset(ivec2 ix)
+{
+  float x = 0.0, y = 0.0;
+  int c = int(KFP_JitterSeed);
+  if (c != 0)
+  {
+    float s = KFP_JitterScale;
+    float u = dither(ix.x, ix.y, 2 * c + 0);
+    float v = dither(ix.x, ix.y, 2 * c + 1);
+    switch (KFP_JitterShape)
+    {
+      default:
+      case 0: // uniform
+        {
+          x = s * (u - 0.5);
+          y = s * (v - 0.5);
+        }
+        break;
+      case 1: // Gaussian
+        {
+          // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
+          float r = 0.0 < u && u < 1.0 ? sqrt(-2.0 * log(u)) : 0.0;
+          float t = 2.0 * 3.141592653589793 * v;
+          s *= 0.5;
+          x = s * r * cos(t);
+          y = s * r * sin(t);
+        }
+        break;
+    }
+  }
+  else
+  {
+    x = 0.0;
+    y = 0.0;
+  }
+  return vec2(x, y);
+}
+
 dd_real cbrt(dd_real a) { return nroot(a, 3); }
 dd_real wrap(dd_real a) { return sub(a, floor(a)); }
 
@@ -5500,6 +5559,7 @@ dd_real dd_real_(uint a, uint b, float c) { return add(dd_real_(a, b), c); }
 void main(void)
 {
   Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
+  ivec2 pixel = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y));
   ivec2 tc = Internal_TilePadding.yx + ivec2(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y), int(gl_FragCoord.x));
   vec3 s = vec3(0.0);
   uint N1 = texelFetch(Internal_N1, tc, 0).r;
@@ -5561,9 +5621,9 @@ void main(void)
                 , texelFetch(Internal_N0, tc1, 0).r
                 , 1.0 - texelFetch(Internal_NF, tc1, 0).r
                 ), N).x[0];
-              px[di + 1][dj + 1] = float(di);
-              py[di + 1][dj + 1] = float(dj);
-              // GetPixelOffset(x    , y    , px[1][1], py[1][1]); px += di py += dj// FIXME jitter coords
+              vec2 offset = GetPixelOffset(pixel + ivec2(di, dj));
+              px[di + 1][dj + 1] = float(di) + offset.x;
+              py[di + 1][dj + 1] = float(dj) + offset.y;
             }
           }
           // tile boundaries are clamp to edge

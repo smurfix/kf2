@@ -1255,6 +1255,8 @@ void CFraktalSFT::ApplyColors()
 				req.u.configure.iterations = GetIterations();
 				GetIterations(req.u.configure.iterations_min, req.u.configure.iterations_max, nullptr, nullptr, true);
 				req.u.configure.jitter_seed = GetJitterSeed();
+				req.u.configure.jitter_shape = GetJitterShape();
+				req.u.configure.jitter_scale = GetJitterScale();
 				req.u.configure.show_glitches = GetShowGlitches();
 				req.u.configure.iter_div = GetIterDiv();
 				req.u.configure.color_offset = GetColorOffset();

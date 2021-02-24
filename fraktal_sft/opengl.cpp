@@ -447,6 +447,9 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_Iterations"), req.u.configure.iterations & 0xFFFFffffu, (req.u.configure.iterations >> 32) && 0xFFFFffffu);
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMin"), req.u.configure.iterations_min & 0xFFFFffffu, (req.u.configure.iterations_min >> 32) && 0xFFFFffffu);
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMax"), req.u.configure.iterations_max & 0xFFFFffffu, (req.u.configure.iterations_max >> 32) && 0xFFFFffffu);
+        glUniform1ui(glGetUniformLocation(p_colour, "KFP_JitterSeed"), req.u.configure.jitter_seed);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_JitterShape"), req.u.configure.jitter_shape);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_JitterScale"), req.u.configure.jitter_scale);
         glUniform1f(glGetUniformLocation(p_colour, "KFP_IterDiv"), req.u.configure.iter_div);
         glUniform1f(glGetUniformLocation(p_colour, "KFP_ColorOffset"), req.u.configure.color_offset);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_ColorMethod"), req.u.configure.color_method);
@@ -727,7 +730,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glViewport(0, 0, tile_width - 2 * padding, tile_height - 2 * padding);
             glUseProgram(p_colour);
             glUniform2i(glGetUniformLocation(p_colour, "KFP_ImageSize"), req.u.render.width, req.u.render.height);
-            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x, tile_y - tile_height);
+            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x + padding, req.u.render.height + padding - tile_y);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TilePadding"), padding, padding);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TileSize"), tile_width, tile_height);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
