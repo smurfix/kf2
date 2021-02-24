@@ -1253,7 +1253,7 @@ void CFraktalSFT::ApplyColors()
 				request req;
 				req.tag = request_configure;
 				req.u.configure.iterations = GetIterations();
-				GetIterations(req.u.configure.iterations_min, req.u.configure.iterations_max);
+				GetIterations(req.u.configure.iterations_min, req.u.configure.iterations_max, nullptr, nullptr, true);
 				req.u.configure.jitter_seed = GetJitterSeed();
 				req.u.configure.show_glitches = GetShowGlitches();
 				req.u.configure.iter_div = GetIterDiv();
@@ -2188,7 +2188,9 @@ bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
 	GetSystemInfo(&sysinfo);
 	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
-	return ReadEXRMapFile(szfile, nParallel);
+	bool ret = ReadEXRMapFile(szfile, nParallel);
+	m_bIterChanged = true;
+	return ret;
 }
 
 BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
@@ -2356,6 +2358,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		delete[] OrgDEy;
 	}
 	ReinitializeBitmap();
+	m_bIterChanged = true;
 	return ok;
 }
 
