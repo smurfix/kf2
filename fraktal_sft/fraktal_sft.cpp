@@ -69,7 +69,6 @@ double g_FactorAI=0;
 #define SMOOTH_TOLERANCE 256
 int g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
 int g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
-int g_nRefZero = 3;
 #define APPROX_GRID 19
 #define TERM4
 #define TERM5
@@ -1920,9 +1919,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		CFixedFloat im = im1 + (im0 - im1) / g;
 		SetPosition(re, im, radius, nWidth, nHeight);
 	}
-//	if (bReuseCenter && m_nZoom>g_nRefZero && !m_bReuseRef)
-//		AddReference(nXPos + m_nY/10 - 1, nYPos + m_nY/10 - 1);
-//	else
 	if (autorender)
 		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
 }
@@ -2467,7 +2463,7 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 #define KF_RERENDER_ONLY_ALL_GLITCHES
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
 {
-	if (!m_nPixels || (m_nZoom<g_nRefZero && !bEraseAll))
+	if (!m_nPixels)
 		return FALSE;
 g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
@@ -2480,19 +2476,13 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 #else
 	int **Pixels = m_nPixels;
 #endif
-	if (m_nZoom >= g_nRefZero){
+	{
 		floatexp dbD0r, dbD0i;
 		GetPixelCoordinates(nXPos, nYPos, dbD0r, dbD0i);
 		m_rref = m_rref + CFixedFloat(dbD0r);
 		m_iref = m_iref + CFixedFloat(dbD0i);
 		g_nAddRefX = nXPos;
 		g_nAddRefY = nYPos;
-	}
-	else{
-		m_rref = 0;
-		m_iref = 0;
-		g_nAddRefX = -1;
-		g_nAddRefY = -1;
 	}
 	int x, y;
 #ifdef KF_RERENDER_ONLY_ALL_GLITCHES

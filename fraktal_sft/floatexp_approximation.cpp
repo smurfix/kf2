@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 void CFraktalSFT::CalculateApproximation(int nType)
 {
 	m_nApprox = 0;
-	if (GetNoApprox() || GetApproximationType() == SeriesType_None || m_nZoom < g_nRefZero)
+	if (GetNoApprox() || GetApproximationType() == SeriesType_None || m_nZoom < 3 /* g_nRefZero */)
 	{
 		m_nMaxApproximation = 0;
 		return;

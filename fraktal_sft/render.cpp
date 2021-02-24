@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -312,17 +312,11 @@ void CFraktalSFT::RenderFractal()
 	}
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	int i;
-	if (!GetReuseReference() || !m_db_dxr || m_nZoom<g_nRefZero){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
+	if (!GetReuseReference() || !m_db_dxr){
+		if (m_bAddReference != 1){
+			{
 				m_rref = m_CenterRe;
 				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
@@ -443,16 +437,10 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	int i;
 	if (!GetReuseReference() || !m_ldxr){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
+		if (m_bAddReference != 1){
+			{
 				m_rref = m_CenterRe;
 				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
@@ -534,16 +522,10 @@ void CFraktalSFT::RenderFractalEXP()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	if (!GetReuseReference() || !m_dxr){
-		if (m_bAddReference != 1 || m_nZoom<g_nRefZero){
-			if (m_nZoom >= g_nRefZero){
+		if (m_bAddReference != 1){
+			{
 				m_rref = m_CenterRe;
 				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-			else{
-				m_rref = 0;
-				m_iref = 0;
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
