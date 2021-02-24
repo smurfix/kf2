@@ -102,27 +102,21 @@ static GLuint vertex_fragment_shader(const char *vert, const char *frag, std::st
   return program;
 }
 
-const char *blit_vert = 
+const char *blit_vert =
       "#version 330 core\n"
-      "out vec2 c;\n"
-      "uniform vec2 v;\n"
       "void main(void) {\n"
       "  switch (gl_VertexID) {\n"
       "  default:\n"
       "  case 0:\n"
-      "    c = vec2(0.0, 0.0);\n"
       "    gl_Position = vec4(-1.0, -1.0, 0.0, 1.0);\n"
       "    break;\n"
       "  case 1:\n"
-      "    c = vec2(v.x, 0.0);\n"
       "    gl_Position = vec4( 1.0, -1.0, 0.0, 1.0);\n"
       "    break;\n"
       "  case 2:\n"
-      "    c = vec2(0.0, v.y);\n"
       "    gl_Position = vec4(-1.0,  1.0, 0.0, 1.0);\n"
       "    break;\n"
       "  case 3:\n"
-      "    c = v;\n"
       "    gl_Position = vec4( 1.0,  1.0, 0.0, 1.0);\n"
       "    break;\n"
       "  }\n"
@@ -130,10 +124,9 @@ const char *blit_vert =
   ;
 const char *blit_frag =
       "#version 330 core\n"
-      "in vec2 c;\n"
       "layout(location = 0, index = 0) out vec4 colour;\n"
       "uniform sampler2D t;\n"
-      "void main(void) { colour = texture(t, c); }\n"
+      "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
   ;
 
 void opengl_thread(fifo<request> &requests, fifo<response> &responses)
@@ -592,7 +585,6 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
               glEnable(GL_FRAMEBUFFER_SRGB);
             }
             glUseProgram(p_blit);
-            glUniform2f(glGetUniformLocation(p_blit, "v"), tile_width / (double) max_tile_width, tile_height / (double) max_tile_height);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb8)
             {
