@@ -5608,7 +5608,8 @@ void main(void)
         else
         {
           // load 3x3 stencil around the pixel
-          mat3 p = mat3(0.0);
+          float nan = 0.0 / 0.0;
+          mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
           mat3 px = mat3(0.0);
           mat3 py = mat3(0.0);
           for (int dj = -1; dj <= 1; ++dj)
@@ -5616,16 +5617,37 @@ void main(void)
             for (int di = -1; di <= 1; ++di)
             {
               ivec2 tc1 = tc + ivec2(dj, di);
-              p[di + 1][dj + 1] = sub(float4
-                ( texelFetch(Internal_N1, tc1, 0).r
-                , texelFetch(Internal_N0, tc1, 0).r
-                , 1.0 - texelFetch(Internal_NF, tc1, 0).r
-                ), N).x[0];
-              vec2 offset = GetPixelOffset(pixel + ivec2(di, dj));
-              px[di + 1][dj + 1] = float(di) + offset.x;
-              py[di + 1][dj + 1] = float(dj) + offset.y;
+              ivec2 pixel1 = pixel + ivec2(di, dj);
+              if (0 <= pixel1.x && pixel1.x < KFP_ImageSize.x &&
+                  0 <= pixel1.y && pixel1.y < KFP_ImageSize.y)
+              {
+                p[di + 1][dj + 1] = sub(float4
+                  ( texelFetch(Internal_N1, tc1, 0).r
+                  , texelFetch(Internal_N0, tc1, 0).r
+                  , 1.0 - texelFetch(Internal_NF, tc1, 0).r
+                  ), N).x[0];
+                vec2 offset = GetPixelOffset(pixel + ivec2(di, dj));
+                px[di + 1][dj + 1] = float(di) + offset.x;
+                py[di + 1][dj + 1] = float(dj) + offset.y;
+              }
             }
           }
+          // reflect at image boundaries if necessary
+          // this will break (result is infinite or NaN) for image size of 1 pixel
+          p[1][1] *= 2.0;
+          px[1][1] *= 2.0;
+          py[1][1] *= 2.0;
+          if (isnan(p[0][0])) {p[0][0] = p[1][1] - p[2][2];px[0][0] = px[1][1] - px[2][2];py[0][0] = py[1][1] - py[2][2];}
+          if (isnan(p[0][1])) {p[0][1] = p[1][1] - p[2][1];px[0][1] = px[1][1] - px[2][1];py[0][1] = py[1][1] - py[2][1];}
+          if (isnan(p[0][2])) {p[0][2] = p[1][1] - p[2][0];px[0][2] = px[1][1] - px[2][0];py[0][2] = py[1][1] - py[2][0];}
+          if (isnan(p[1][0])) {p[1][0] = p[1][1] - p[1][2];px[1][0] = px[1][1] - px[1][2];py[1][0] = py[1][1] - py[1][2];}
+          if (isnan(p[1][2])) {p[1][2] = p[1][1] - p[1][0];px[1][2] = px[1][1] - px[1][0];py[1][2] = py[1][1] - py[1][0];}
+          if (isnan(p[2][0])) {p[2][0] = p[1][1] - p[0][2];px[2][0] = px[1][1] - px[0][2];py[2][0] = py[1][1] - py[0][2];}
+          if (isnan(p[2][1])) {p[2][1] = p[1][1] - p[0][1];px[2][1] = px[1][1] - px[0][1];py[2][1] = py[1][1] - py[0][1];}
+          if (isnan(p[2][2])) {p[2][2] = p[1][1] - p[0][0];px[2][2] = px[1][1] - px[0][0];py[2][2] = py[1][1] - py[0][0];}
+          p[1][1] *= 0.5;
+          px[1][1] *= 0.5;
+          py[1][1] *= 0.5;
           // tile boundaries are clamp to edge
           // need to render overlapping padded tiles for correctness
           switch (KFP_Differences)
