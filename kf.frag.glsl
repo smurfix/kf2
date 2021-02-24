@@ -5566,13 +5566,13 @@ void main(void)
             for (int di = -1; di <= 1; ++di)
             {
               ivec2 tc1 = tc + ivec2(dj, di);
-              p[dj + 1][di + 1] = sub(float4
+              p[di + 1][dj + 1] = sub(float4
                 ( texelFetch(Internal_N1, tc1, 0).r
                 , texelFetch(Internal_N0, tc1, 0).r
                 , 1.0 - texelFetch(Internal_NF, tc1, 0).r
                 ), N).x[0];
-              px[dj + 1][di + 1] = float(di);
-              py[dj + 1][di + 1] = float(dj);
+              px[di + 1][dj + 1] = float(di);
+              py[di + 1][dj + 1] = float(dj);
               // GetPixelOffset(x    , y    , px[1][1], py[1][1]); px += di py += dj// FIXME jitter coords
             }
           }
