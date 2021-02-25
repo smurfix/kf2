@@ -1826,6 +1826,7 @@ static int WINAPI EXRChannelsProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
 		SendDlgItemMessage(hWnd, IDC_EXR_T, BM_SETCHECK, e->T, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_SETCHECK, e->DEX, 0);
 		SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_SETCHECK, e->DEY, 0);
+		SendDlgItemMessage(hWnd, IDC_EXR_PREVIEW, BM_SETCHECK, e->Preview, 0);
 		return 1;
 	}
 	if(uMsg==WM_COMMAND){
@@ -1841,6 +1842,7 @@ static int WINAPI EXRChannelsProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
 			e->T = SendDlgItemMessage(hWnd, IDC_EXR_T, BM_GETCHECK, 0, 0);
 			e->DEX = SendDlgItemMessage(hWnd, IDC_EXR_DEX, BM_GETCHECK, 0, 0);
 			e->DEY = SendDlgItemMessage(hWnd, IDC_EXR_DEY, BM_GETCHECK, 0, 0);
+			e->Preview = SendDlgItemMessage(hWnd, IDC_EXR_PREVIEW, BM_GETCHECK, 0, 0);
 			EndDialog(hWnd,1);
 		}
 	}

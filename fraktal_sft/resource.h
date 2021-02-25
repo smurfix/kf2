@@ -161,6 +161,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_EXR_T                       1113
 #define IDC_COLOR_PHASE_STRENGTH        1114
 #define IDC_NEWTON_PROGRESS             1115
+#define IDC_EXR_PREVIEW                 1116
 
 // "Formula" dialog
 #define IDD_FORMULA                     120

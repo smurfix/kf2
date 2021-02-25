@@ -34,12 +34,13 @@ enum EXRChannel_Bit {
   EXRChannel_NF = 4,
   EXRChannel_DEX = 5,
   EXRChannel_DEY = 6,
-  EXRChannel_T = 7
+  EXRChannel_T = 7,
+  EXRChannel_Preview = 8
 };
 
 struct EXRChannels
 {
-  bool R, G, B, N, NF, DEX, DEY, T;
+  bool R, G, B, N, NF, DEX, DEY, T, Preview;
 };
 
 static inline int64_t pack_exr_channels(EXRChannels c)
@@ -52,7 +53,8 @@ static inline int64_t pack_exr_channels(EXRChannels c)
     ((int64_t) c.NF << EXRChannel_NF) |
     ((int64_t) c.DEX << EXRChannel_DEX) |
     ((int64_t) c.DEY << EXRChannel_DEY) |
-    ((int64_t) c.T << EXRChannel_T) ;
+    ((int64_t) c.T << EXRChannel_T) |
+    ((int64_t) c.Preview << EXRChannel_Preview);
 }
 
 static inline EXRChannels unpack_exr_channels(int64_t x)
@@ -66,6 +68,7 @@ static inline EXRChannels unpack_exr_channels(int64_t x)
     , bool(x & (1 << EXRChannel_DEX))
     , bool(x & (1 << EXRChannel_DEY))
     , bool(x & (1 << EXRChannel_T))
+    , bool(x & (1 << EXRChannel_Preview))
     };
   return r;
 }

@@ -105,22 +105,25 @@ extern int SaveEXR
     }
     // prepare preview image
     Header header(arrWidth, arrHeight);
-    Array2D<PreviewRgba> preview;
-    preview.resizeErase(nHeight, nWidth);
-    // TODO parallelize
-    for (int j = 0; j < nHeight; ++j)
+    if (C.Preview)
     {
-      for (int i = 0; i < nWidth; ++i)
+      Array2D<PreviewRgba> preview;
+      preview.resizeErase(nHeight, nWidth);
+      // TODO parallelize
+      for (int j = 0; j < nHeight; ++j)
       {
-        size_t k = (j * size_t(nWidth) + i) * 3;
-        PreviewRgba &o = preview[j][i];
-        o.r = Data[k + 0];
-        o.g = Data[k + 1];
-        o.b = Data[k + 2];
-        o.a = 255;
+        for (int i = 0; i < nWidth; ++i)
+        {
+          size_t k = (j * size_t(nWidth) + i) * 3;
+          PreviewRgba &o = preview[j][i];
+          o.r = Data[k + 0];
+          o.g = Data[k + 1];
+          o.b = Data[k + 2];
+          o.a = 255;
+        }
       }
+      header.setPreviewImage(PreviewImage(nWidth, nHeight, &preview[0][0]));
     }
-    header.setPreviewImage(PreviewImage(nWidth, nHeight, &preview[0][0]));
     // insert metadata
     header.insert(magic, StringAttribute(comment));
     header.insert("Iterations", IntAttribute(maxiter));
