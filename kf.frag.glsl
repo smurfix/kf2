@@ -5560,6 +5560,7 @@ void main(void)
 {
   Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
   ivec2 pixel = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y));
+  ivec2 pixel2 = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y));
   ivec2 tc = Internal_TilePadding.yx + ivec2(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y), int(gl_FragCoord.x));
   vec3 s = vec3(0.0);
   uint N1 = texelFetch(Internal_N1, tc, 0).r;
@@ -5837,9 +5838,34 @@ void main(void)
       s = palette(wrap(div(iter, 1024.0)).x[0]);
     }
   }
-  if(KFP_TextureEnabled)
+  if (KFP_TextureEnabled)
   {
-    // SetTexture(nIndex,x,y,s); FIXME
+    float nImgOffs = KFP_TexturePower / 64.0;
+    float diffx = p[0][1] - p[1][1];
+    float diffy = p[1][0] - p[1][1];
+    float diff = dot(vec2(diffx, diffy), KFP_SlopeDir);
+    diff  = 1.0 + diff;
+    diffx = 1.0 + diffx;
+    diffy = 1.0 + diffy;
+    diff  = pow(diff,  KFP_TexturePower);
+    diffx = pow(diffx, KFP_TexturePower);
+    diffy = pow(diffy, KFP_TexturePower);
+    float sx = 1.0;
+    float  sy = 1.0;
+    if (diff  <= 1.0) { diff  = 1.0 / diff; }
+    if (diffx <= 1.0) { diffx = 1.0 / diffx; sx = -sx; }
+    if (diffy <= 1.0) { diffy = 1.0 / diffy; sy = -sy; }
+    diff  = (atan(diff)  - pi / 4.0) / (pi / 4.0);
+    diffx = (atan(diffx) - pi / 4.0) / (pi / 4.0);
+    diffy = (atan(diffy) - pi / 4.0) / (pi / 4.0);
+    diff  *= KFP_TextureRatio / 100.0;
+    diffx *= KFP_TextureRatio / 100.0;
+    diffy *= KFP_TextureRatio / 100.0;
+    float dx = nImgOffs + sx * KFP_TexturePower * diffx;
+    float dy = nImgOffs - sy * KFP_TexturePower * diffy;
+    vec2 bg = vec2(pixel2) + vec2(dx, dy);
+    bg /= vec2(textureSize(Internal_Texture, 0).xy);
+    s = mix(s, texture(Internal_Texture, bg).rgb, KFP_TextureMerge);
   }
   if (KFP_Slopes)
   {
