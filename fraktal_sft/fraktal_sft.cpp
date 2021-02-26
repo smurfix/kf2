@@ -1300,9 +1300,8 @@ void CFraktalSFT::ApplyColors()
 					req.u.configure.texture_merge = m;
 					req.u.configure.texture_power = p;
 					req.u.configure.texture_ratio = r;
-					int nImgOffs = m_nImgPower / 64;
-					req.u.configure.texture_width = m_nX + (nImgOffs + m_nImgPower) / 64;
-					req.u.configure.texture_height = m_nY + (nImgOffs + m_nImgPower) / 64;
+					req.u.configure.texture_width = m_bmiBkg.biWidth;
+					req.u.configure.texture_height = m_bmiBkg.biHeight;
 					req.u.configure.texture = m_lpTextureBits; // FIXME row alignment?
 				}
 				fifo_write(to_opengl, req);
