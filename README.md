@@ -1686,6 +1686,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
   <https://www.boost.org/LICENSE_1_0.txt>
 - the CLEW library is used under the Boost Software License Version 1.0
   <https://www.boost.org/LICENSE_1_0.txt>
+- the GLFW library is used under the zlib/libpng License
+  <https://www.glfw.org/license.html>
+- the GLAD library is used under the GLAD License
+  <https://github.com/Dav1dde/glad/blob/master/LICENSE>
+- the QD library is used under the QD License
+  <https://sources.debian.org/src/qd/2.3.22+dfsg.1-3/COPYING/>
+  <https://sources.debian.org/src/qd/2.3.22+dfsg.1-3/BSD-LBNL-License.doc/>
 
 KF versions between 2.14.7 (inclusive) and 2.15.1.3 (exclusive) used:
 
