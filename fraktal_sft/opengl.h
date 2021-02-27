@@ -60,7 +60,6 @@ struct response_init_t
 
 struct request_compile_t
 {
-  std::string vertex_src;
   std::string fragment_src;
 };
 

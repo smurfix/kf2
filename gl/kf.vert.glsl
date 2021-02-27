@@ -1,5 +1,3 @@
-#version 330 core
-
 void main(void) {
   switch (gl_VertexID) {
   default:

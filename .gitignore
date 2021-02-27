@@ -4,6 +4,7 @@ README.pdf
 LICENSE.pdf
 cl/*_cl.c
 cl/formula.cpp
+gl/*.h
 formula/formula.cpp
 preprocessor
 preprocessor.hi

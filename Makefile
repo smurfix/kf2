@@ -149,6 +149,8 @@ SOURCES_H += $(OPENCL_SOURCES_H)
 FLAGS_WINDRES += -DKF_OPENCL=1
 endif
 
+SOURCES_H += gl/kf_vert_glsl.h gl/kf_frag_glsl.h
+
 COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS) -Dclew_STATIC
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
@@ -227,6 +229,14 @@ preprocessor: preprocessor.hs
 cl/opencl.o: cl/opencl.cpp cl/opencl.h
 
 cl/formula.o: cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
+
+gl/%_vert_glsl.h: gl/%.vert.glsl gl/s2c.sh
+	./gl/s2c.sh $*_vert_glsl < $< > $@
+
+gl/%_frag_glsl.h: gl/%.frag.glsl gl/s2c.sh
+	./gl/s2c.sh $*_frag_glsl < $< > $@
+
+fraktal_sft/opengl.o: fraktal_sft/opengl.cpp fraktal_sft/opengl.h gl/kf_vert_glsl.h gl/kf_frag_glsl.h
 
 %.pdf: %.md
 	pandoc -f markdown -t latex -V "toc=true" -V "papersize=a4" -V "geometry=margin=1.2in" < $< -o $@

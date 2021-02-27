@@ -1235,8 +1235,7 @@ void CFraktalSFT::ApplyColors()
 			{
 				request req;
 				req.tag = request_compile;
-				req.u.compile.vertex_src = read_file("kf.vert.glsl");
-				req.u.compile.fragment_src = read_file("kf.frag.glsl");
+				req.u.compile.fragment_src = read_file("kf.glsl");
 				fifo_write(to_opengl, req);
 				response resp;
 				fifo_read(from_opengl, resp);

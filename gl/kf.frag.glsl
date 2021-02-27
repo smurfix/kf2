@@ -1,21 +1,16 @@
-#version 330 core
+// implement this
+vec3 colour(void);
 
-layout(location = 0, index = 0) out vec4 Internal_Colour;
-
-uniform usampler2D Internal_N1;
-uniform usampler2D Internal_N0;
-uniform sampler2D Internal_NF;
-uniform sampler2D Internal_T;
-uniform sampler2D Internal_DEX;
-uniform sampler2D Internal_DEY;
-uniform sampler2D Internal_Texture;
-uniform sampler1D Internal_Palette;
-
-uniform ivec2 Internal_TilePadding;
-uniform ivec2 Internal_TileOrigin;
-uniform ivec2 Internal_TileSize;
+///=====================================================================
+/// public API
 
 uniform ivec2 KFP_ImageSize;
+
+uniform sampler1D KFP_Palette;
+
+uniform vec3 KFP_InteriorColor;
+
+uniform bool KFP_ShowGlitches;
 
 uniform uvec2 KFP_Iterations;
 uniform uvec2 KFP_IterationsMin;
@@ -53,8 +48,6 @@ uniform int KFP_Differences;
 #define Differences_Analytic 7
 
 uniform float KFP_PhaseColorStrength;
-uniform bool KFP_ShowGlitches;
-uniform vec3 KFP_InteriorColor;
 
 uniform bool KFP_Smooth;
 uniform bool KFP_Flat;
@@ -63,17 +56,35 @@ uniform bool KFP_InverseTransition;
 uniform bool KFP_MultiWavesEnabled;
 uniform bool KFP_MultiWavesBlend;
 uniform int KFP_MultiWavesCount;
-uniform ivec3 KFP_MultiWaves[32];
+#define KFP_MultiWavesCountMax 32
+uniform ivec3 KFP_MultiWaves[KFP_MultiWavesCountMax];
 
 uniform bool KFP_Slopes;
 uniform float KFP_SlopePower;
 uniform float KFP_SlopeRatio;
 uniform vec2 KFP_SlopeDir;
 
+uniform sampler2D KFP_Texture;
 uniform bool KFP_TextureEnabled;
 uniform float KFP_TextureMerge;
 uniform float KFP_TexturePower;
 uniform float KFP_TextureRatio;
+
+/// end of public API
+///=====================================================================
+
+layout(location = 0, index = 0) out vec4 Internal_Colour;
+
+uniform usampler2D Internal_N1;
+uniform usampler2D Internal_N0;
+uniform sampler2D Internal_NF;
+uniform sampler2D Internal_T;
+uniform sampler2D Internal_DEX;
+uniform sampler2D Internal_DEY;
+
+uniform ivec2 Internal_TilePadding;
+uniform ivec2 Internal_TileOrigin;
+uniform ivec2 Internal_TileSize;
 
 // hack to force explicit evaluation order
 uniform float Internal_Zero;
@@ -869,35 +880,6 @@ int    to_int(float a) { return int(a); }
  *
  * Copyright (c) 2000-2007
  */
-
-#if 0
-const float49 f49_2pi = float49_(6.283185307179586232e+00,
-                                      2.449293598294706414e-16);
-const float49 f49_pi = float49_(3.141592653589793116e+00,
-                                     1.224646799147353207e-16);
-const float49 f49_pi2 = float49_(1.570796326794896558e+00,
-                                      6.123233995736766036e-17);
-const float49 f49_pi4 = float49_(7.853981633974482790e-01,
-                                      3.061616997868383018e-17);
-const float49 f49_3pi4 = float49_(2.356194490192344837e+00,
-                                       9.1848509936051484375e-17);
-const float49 f49_e = float49_(2.718281828459045091e+00,
-                                    1.445646891729250158e-16);
-const float49 f49_log2 = float49_(6.931471805599452862e-01,
-                                       2.319046813846299558e-17);
-const float49 f49_log10 = float49_(2.302585092994045901e+00,
-                                        -2.170756223382249351e-16);
-const float49 f49_nan = float49_(_d_nan, _d_nan);
-const float49 f49_inf = float49_(_d_inf, _d_inf);
-
-const float f49_eps = 4.93038065763132e-32;  // 2^-104
-const float f49_min_normalized = 2.0041683600089728e-292;  // = 2^(-1022 + 53)
-const float49 f49_max =
-    float49_(1.79769313486231570815e+308, 9.97920154767359795037e+291);
-const float49 f49_safe_max =
-    float49_(1.7976931080746007281e+308, 9.97920154767359795037e+291);
-const int f49_ndigits = 31;
-#endif
 
 ///=====================================================================
 /// qd-2.3.22+dfsg.1/include/qd/dd_inline.h
@@ -5401,6 +5383,7 @@ qd_real fmod(qd_real a, qd_real b) {
 
 #endif
 
+const float nan = 0.0 / 0.0;
 const float pi = 3.141592653;
 
 float hypot1(float x, float y) { return sqrt(x * x + y * y); }
@@ -5438,7 +5421,7 @@ vec3 lrgb2srgb(vec3 s)
   return vec3(lrgb2srgb(s.x), lrgb2srgb(s.y), lrgb2srgb(s.z));
 }
 
-vec3 palette(float ix)
+vec3 KF_Palette(float ix)
 {
   // map [0..1) to [0..1024)
   ix -= floor(ix);
@@ -5447,7 +5430,7 @@ vec3 palette(float ix)
   // to get neighbouring colours in 1024-palette
   // and then linear-interpolate those (if smoothing is desired)
   // c0, c1 are neighbouring colours in n-palette with interpolant cf
-  int m_nParts = textureSize(Internal_Palette, 0);
+  int m_nParts = textureSize(KFP_Palette, 0);
   vec3 c0, c1;
   {
     int i = int(floor(ix));
@@ -5457,8 +5440,8 @@ vec3 palette(float ix)
     temp -= float(p);
     temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
     c0 = mix
-      ( texelFetch(Internal_Palette, p, 0).rgb
-      , texelFetch(Internal_Palette, pn, 0).rgb
+      ( texelFetch(KFP_Palette, p, 0).rgb
+      , texelFetch(KFP_Palette, pn, 0).rgb
       , temp
       );
   }
@@ -5471,8 +5454,8 @@ vec3 palette(float ix)
     temp -= float(p);
     temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
     c1 = mix
-      ( texelFetch(Internal_Palette, p, 0).rgb
-      , texelFetch(Internal_Palette, pn, 0).rgb
+      ( texelFetch(KFP_Palette, p, 0).rgb
+      , texelFetch(KFP_Palette, pn, 0).rgb
       , temp
       );
     ix -= floor(ix);
@@ -5551,45 +5534,74 @@ float49 float49_(uint a)
 float49 float49_(uint a, uint b) { return add(ldexp(float49_(a), 32), float49_(b)); }
 float49 float49_(uint a, uint b, float c) { return add(float49_(a, b), c); }
 
-void main(void)
+ivec2 Internal_TexCoord = Internal_TilePadding.yx + ivec2(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y), int(gl_FragCoord.x));
+ivec2 Internal_PixelCoord = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y));
+
+uint    getN1 (ivec2 offset) { return texelFetch(Internal_N1,  Internal_TexCoord + offset.yx, 0).r; }
+uint    getN0 (ivec2 offset) { return texelFetch(Internal_N0,  Internal_TexCoord + offset.yx, 0).r; }
+float   getNF (ivec2 offset) { return texelFetch(Internal_NF,  Internal_TexCoord + offset.yx, 0).r; }
+float   getT  (ivec2 offset) { return texelFetch(Internal_T,   Internal_TexCoord + offset.yx, 0).r; }
+float   getDEX(ivec2 offset) { return texelFetch(Internal_DEX, Internal_TexCoord + offset.yx, 0).r; }
+float   getDEY(ivec2 offset) { return texelFetch(Internal_DEY, Internal_TexCoord + offset.yx, 0).r; }
+uint    getN1 (void) { return getN1 (ivec2(0, 0)); }
+uint    getN0 (void) { return getN0 (ivec2(0, 0)); }
+float   getNF (void) { return getNF (ivec2(0, 0)); }
+float   getT  (void) { return getT  (ivec2(0, 0)); }
+float   getDEX(void) { return getDEX(ivec2(0, 0)); }
+float   getDEY(void) { return getDEY(ivec2(0, 0)); }
+bool    getGlitch  (ivec2 offset) { return getNF(offset) < 0.0; }
+bool    getInterior(ivec2 offset) { return uvec2(getN0(offset), getN1(offset)) == KFP_Iterations; }
+float49 getN  (ivec2 offset) { return float49_(getN1(offset), getN0(offset), 1.0 - getNF(offset)); }
+vec2    getDE (ivec2 offset) { return vec2(getDEX(offset), getDEY(offset)); }
+bool    getGlitch  (void) { return getGlitch(ivec2(0, 0)); }
+bool    getInterior(void) { return getInterior(ivec2(0, 0)); }
+float49 getN  (void) { return getN (ivec2(0, 0)); }
+vec2    getDE (void) { return getDE(ivec2(0, 0)); }
+
+bool inImage(ivec2 offset)
 {
-  Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
-  ivec2 pixel = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y));
-  ivec2 pixel2 = Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y));
-  ivec2 tc = Internal_TilePadding.yx + ivec2(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y - int(gl_FragCoord.y), int(gl_FragCoord.x));
-  vec3 s = vec3(0.0);
-  uint N1 = texelFetch(Internal_N1, tc, 0).r;
-  uint N0 = texelFetch(Internal_N0, tc, 0).r;
-  float NF = texelFetch(Internal_NF, tc, 0).r;
-  float49 N = float49_(N1, N0, 1.0 - NF);
-  float T = texelFetch(Internal_T, tc, 0).r;
-  vec2 DE = vec2(texelFetch(Internal_DEX, tc, 0).r, texelFetch(Internal_DEY, tc, 0).r);
-  if (! KFP_ShowGlitches && NF < 0.0)
+  ivec2 pixel = Internal_PixelCoord + offset;
+  return 0 <= pixel.x && pixel.x < KFP_ImageSize.x &&
+         0 <= pixel.y && pixel.y < KFP_ImageSize.y;
+}
+
+vec2 getJitter(ivec2 offset)
+{
+  if (inImage(offset))
   {
-    discard;
+    return GetPixelOffset(Internal_PixelCoord + offset);
   }
+  else
+  {
+    return vec2(0.0, 0.0); // FIXME reflect at image boundaries
+  }
+}
+
+vec2 getJitter(void)
+{
+  return getJitter(ivec2(0, 0));
+}
+
+ivec2 getCoord(void)
+{
+  return Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y));
+}
+
+float49 getN3x3(inout mat3 p, inout mat3 px, inout mat3 py)
+{
   // load 3x3 stencil around the pixel
-  float nan = 0.0 / 0.0;
-  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
-  mat3 px = mat3(0.0);
-  mat3 py = mat3(0.0);
+  float49 N = getN();
   for (int dj = -1; dj <= 1; ++dj)
   {
     for (int di = -1; di <= 1; ++di)
     {
-      ivec2 tc1 = tc + ivec2(dj, di);
-      ivec2 pixel1 = pixel + ivec2(di, dj);
-      if (0 <= pixel1.x && pixel1.x < KFP_ImageSize.x &&
-          0 <= pixel1.y && pixel1.y < KFP_ImageSize.y)
+      ivec2 offset = ivec2(di, dj);
+      if (inImage(offset))
       {
-        p[di + 1][dj + 1] = sub(float49_
-          ( texelFetch(Internal_N1, tc1, 0).r
-          , texelFetch(Internal_N0, tc1, 0).r
-          , 1.0 - texelFetch(Internal_NF, tc1, 0).r
-          ), N).x[0];
-        vec2 offset = GetPixelOffset(pixel + ivec2(di, dj));
-        px[di + 1][dj + 1] = float(di) + offset.x;
-        py[di + 1][dj + 1] = float(dj) + offset.y;
+        p[di + 1][dj + 1] = sub(getN(offset), N).x[0];
+        vec2 delta = getJitter(offset);
+        px[di + 1][dj + 1] = float(di) + delta.x;
+        py[di + 1][dj + 1] = float(dj) + delta.y;
       }
     }
   }
@@ -5609,64 +5621,115 @@ void main(void)
   p[1][1] *= 0.5;
   px[1][1] *= 0.5;
   py[1][1] *= 0.5;
-  if (uvec2(N0, N1) == KFP_Iterations)
+  return N;
+}
+
+float KF_Traditional(mat3 p, mat3 px, mat3 py)
+{
+  // traditional method reverse engineered from original code
+  float gx = (p[0][1] - p[1][1]) * 1.414 / hypot1(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+  float gy = (p[1][0] - p[1][1]) * 1.414 / hypot1(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+  float gu = (p[0][0] - p[1][1]) * 1.414 / hypot1(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+  float gv = (p[0][2] - p[1][1]) * 1.414 / hypot1(px[0][2] - px[1][1], py[0][2] - py[1][1]);
+  float g = abs(gx) + abs(gy) + abs(gu) + abs(gv);
+  return 1.0 / g;
+}
+
+float KF_Traditional(void)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  return KF_Traditional(p, px, py);
+}
+
+float KF_Forward3x3(mat3 p, mat3 px, mat3 py)
+{
+  // forward differencing in 8 directions from the target point
+  float gx0 = sqr(p[0][1] - p[1][1]) / hypot2(px[0][1] - px[1][1], py[0][1] - py[1][1]);
+  float gx2 = sqr(p[2][1] - p[1][1]) / hypot2(px[2][1] - px[1][1], py[2][1] - py[1][1]);
+  float gy0 = sqr(p[1][0] - p[1][1]) / hypot2(px[1][0] - px[1][1], py[1][0] - py[1][1]);
+  float gy2 = sqr(p[1][2] - p[1][1]) / hypot2(px[1][2] - px[1][1], py[1][2] - py[1][1]);
+  float gu0 = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+  float gu2 = sqr(p[2][2] - p[1][1]) / hypot2(px[2][2] - px[1][1], py[2][2] - py[1][1]);
+  float gv0 = sqr(p[2][0] - p[1][1]) / hypot2(px[2][0] - px[1][1], py[2][0] - py[1][1]);
+  float gv2 = sqr(p[0][2] - p[1][1]) / hypot2(px[0][2] - px[1][1], py[0][2] - py[1][1]);
+  float g = sqrt(0.25 * (gx0 + gx2 + gy0 + gy2 + gu0 + gu2 + gv0 + gv2));
+  return 1.0 / (g * 2.8284271247461903);
+}
+
+float KF_Forward3x3(void)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  return KF_Forward3x3(p, px, py);
+}
+
+float KF_Central3x3(mat3 p, mat3 px, mat3 py)
+{
+  // gerrit's central difference formula
+  float gx = sqr(p[2][1] - p[0][1]) / hypot2(px[2][1] - px[0][1], py[2][1] - py[0][1]);
+  float gy = sqr(p[1][2] - p[1][0]) / hypot2(px[1][2] - px[1][0], py[1][2] - py[1][0]);
+  float g1 = sqr(p[2][2] - p[0][0]) / hypot2(px[2][2] - px[0][0], py[2][2] - py[0][0]);
+  float g2 = sqr(p[0][2] - p[2][0]) / hypot2(px[0][2] - px[2][0], py[0][2] - py[2][0]);
+  float g = sqrt(0.5 * (gx + gy + g1 + g2));
+  return 1.0 / (g * 2.8284271247461903);
+}
+
+float KF_Central3x3(void)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  return KF_Central3x3(p, px, py);
+}
+
+float KF_Diagonal2x2(mat3 p, mat3 px, mat3 py)
+{
+  // forward differencing in 2 diagonals of a 2x2 substencil
+  if (KFP_JitterSeed == 0u)
   {
-    s = KFP_InteriorColor;
+    float gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
+    float gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
+    float g = sqrt(gu + gv);
+    return 1.0 / (g * 2.8284271247461903);
   }
   else
   {
-    float49 iter = float49_(N1, N0, KFP_Flat ? 0.0 : 1.0 - NF);
-    switch (KFP_ColorMethod)
-    {
-      default:
-      case ColorMethod_Standard: iter = iter; break;
-      case ColorMethod_SquareRoot: iter = sqrt(max(0.0, iter)); break;
-      case ColorMethod_CubicRoot: iter = cbrt(max(0.0, iter)); break;
-      case ColorMethod_Logarithm: iter = log(max(1.0, iter)); break;
-      case ColorMethod_LogLog: iter = log(add(1.0, log(add(1.0, iter)))); break;
-      case ColorMethod_ATan: iter = atan(iter); break;
-      case ColorMethod_FourthRoot: iter = sqrt(sqrt(max(0.0, iter))); break;
-      case ColorMethod_Stretched:
-      {
-        float49 imin = float49_(KFP_IterationsMin[1], KFP_IterationsMin[0]);
-        float49 imax = float49_(KFP_IterationsMax[1], KFP_IterationsMax[0]);
-        iter = mul(1024.0, div(sub(iter, imin), sub(imax, imin))); break;
-      }
-      case ColorMethod_DistanceLinear:
-      case ColorMethod_DEPlusStandard:
-      case ColorMethod_DistanceLog:
-      case ColorMethod_DistanceSqrt:
-      {
-        iter = float49_(0.0);
-        if (KFP_Differences == Differences_Analytic)
-        {
-          iter = float49_(1.0 / length(DE));
-        }
-        else
-        {
-          // tile boundaries are clamp to edge
-          // need to render overlapping padded tiles for correctness
-          switch (KFP_Differences)
-          {
-            case Differences_Laplacian3x3:
-            {
-              float L = 0.0;
-              L +=  1.0 * p[0][0];
-              L +=  4.0 * p[0][1];
-              L +=  1.0 * p[0][2];
-              L +=  4.0 * p[1][0];
-              L -= 20.0 * p[1][1];
-              L +=  4.0 * p[1][2];
-              L +=  1.0 * p[2][0];
-              L +=  4.0 * p[2][1];
-              L +=  1.0 * p[2][2];
-              L /=  6.0;
-  #define INV_LOG_2 1.4426950408889634
-              float g = sqrt(abs(L * INV_LOG_2));
-  #undef INV_LOG_2
-              iter = float49_(g * 2.8284271247461903);
-            }
-            break;
+    // with displacement correction by gerrit
+    float nux = px[0][0] - px[1][1];
+    float nuy = py[0][0] - py[1][1];
+    float nvx = px[1][0] - px[0][1];
+    float nvy = py[1][0] - py[0][1];
+    float nu = hypot1(nux, nuy);
+    float nv = hypot1(nvx, nvy);
+    nux /= nu;
+    nuy /= nu;
+    nvx /= nv;
+    nvy /= nv;
+    float u = (p[0][0] - p[1][1]) / nu;
+    float v = (p[1][0] - p[0][1]) / nv;
+    float dotnunv = nux * nvx + nuy * nvy;
+    float crossnunv = nux * nvy - nuy * nvx;
+    float g = sqrt((u * u + v * v - 2 * u * v * dotnunv) / sqr(crossnunv));
+    return 1.0 / (g * 2.8284271247461903);
+  }
+}
+
+float KF_Diagonal2x2(void)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  return KF_Diagonal2x2(p, px, py);
+}
+
+#if 0
             case Differences_LeastSquares3x3:
             {
               float gx = 0;
@@ -5685,138 +5748,248 @@ void main(void)
               iter = float49_(g * 2.8284271247461903);
             }
             break;
-            case Differences_Central3x3:
-            {
-              // gerrit's central difference formula
-              float gx = sqr(p[2][1] - p[0][1]) / hypot2(px[2][1] - px[0][1], py[2][1] - py[0][1]);
-              float gy = sqr(p[1][2] - p[1][0]) / hypot2(px[1][2] - px[1][0], py[1][2] - py[1][0]);
-              float g1 = sqr(p[2][2] - p[0][0]) / hypot2(px[2][2] - px[0][0], py[2][2] - py[0][0]);
-              float g2 = sqr(p[0][2] - p[2][0]) / hypot2(px[0][2] - px[2][0], py[0][2] - py[2][0]);
-              float g = sqrt(0.5 * (gx + gy + g1 + g2));
-              iter = float49_(g * 2.8284271247461903);
-            }
-            break;
-            case Differences_Forward3x3:
-            {
-              // forward differencing in 8 directions from the target point
-              float gx0 = sqr(p[0][1] - p[1][1]) / hypot2(px[0][1] - px[1][1], py[0][1] - py[1][1]);
-              float gx2 = sqr(p[2][1] - p[1][1]) / hypot2(px[2][1] - px[1][1], py[2][1] - py[1][1]);
-              float gy0 = sqr(p[1][0] - p[1][1]) / hypot2(px[1][0] - px[1][1], py[1][0] - py[1][1]);
-              float gy2 = sqr(p[1][2] - p[1][1]) / hypot2(px[1][2] - px[1][1], py[1][2] - py[1][1]);
-              float gu0 = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-              float gu2 = sqr(p[2][2] - p[1][1]) / hypot2(px[2][2] - px[1][1], py[2][2] - py[1][1]);
-              float gv0 = sqr(p[2][0] - p[1][1]) / hypot2(px[2][0] - px[1][1], py[2][0] - py[1][1]);
-              float gv2 = sqr(p[0][2] - p[1][1]) / hypot2(px[0][2] - px[1][1], py[0][2] - py[1][1]);
-              float g = sqrt(0.25 * (gx0 + gx2 + gy0 + gy2 + gu0 + gu2 + gv0 + gv2));
-              iter = float49_(g * 2.8284271247461903);
-            }
-            break;
-            case Differences_Diagonal2x2: // aka Roberts Cross
-            {
-              // forward differencing in 2 diagonals of a 2x2 substencil
-              if (KFP_JitterSeed == 0u)
-              {
-                float gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-                float gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
-                float g = sqrt(gu + gv);
-                iter = float49_(g * 2.8284271247461903);
-              }
-              else
-              {
-                // with displacement correction by gerrit
-                float nux = px[0][0] - px[1][1];
-                float nuy = py[0][0] - py[1][1];
-                float nvx = px[1][0] - px[0][1];
-                float nvy = py[1][0] - py[0][1];
-                float nu = hypot1(nux, nuy);
-                float nv = hypot1(nvx, nvy);
-                nux /= nu;
-                nuy /= nu;
-                nvx /= nv;
-                nvy /= nv;
-                float u = (p[0][0] - p[1][1]) / nu;
-                float v = (p[1][0] - p[0][1]) / nv;
-                float dotnunv = nux * nvx + nuy * nvy;
-                float crossnunv = nux * nvy - nuy * nvx;
-                float g = sqrt((u * u + v * v - 2 * u * v * dotnunv) / sqr(crossnunv));
-                iter = float49_(g * 2.8284271247461903);
-              }
-            }
-            break;
-            default:
-            case Differences_Traditional:
-            {
-              // traditional method reverse engineered from original code
-              float gx = (p[0][1] - p[1][1]) * 1.414 / hypot1(px[0][1] - px[1][1], py[0][1] - py[1][1]);
-              float gy = (p[1][0] - p[1][1]) * 1.414 / hypot1(px[1][0] - px[1][1], py[1][0] - py[1][1]);
-              float gu = (p[0][0] - p[1][1]) * 1.414 / hypot1(px[0][0] - px[1][1], py[0][0] - py[1][1]);
-              float gv = (p[0][2] - p[1][1]) * 1.414 / hypot1(px[0][2] - px[1][1], py[0][2] - py[1][1]);
-              float g = abs(gx) + abs(gy) + abs(gu) + abs(gv);
-              iter = float49_(g);
-            }
-            break;
-          }
-        }
-        // post differencing transfer functions
-        iter = mul(iter, float(KFP_ImageSize.x) / 640.0);
-        if (KFP_ColorMethod == ColorMethod_DistanceSqrt || KFP_ColorMethod == ColorMethod_DEPlusStandard)
-          iter = sqrt(max(0.0, iter));
-        else if (KFP_ColorMethod == ColorMethod_DistanceLog)
-          iter = log(max(1.0, add(1.0, iter)));
-        if(gt(iter, 1024.0))
-          iter = float49_(1024.0);
-        if(KFP_ColorMethod == ColorMethod_DEPlusStandard && gt(iter, KFP_IterDiv))
-          iter = N;
-        break;
-      }
+#endif
+
+float KF_Laplacian3x3(mat3 p, mat3 px, mat3 py)
+{
+  float L = 0.0;
+  L +=  1.0 * p[0][0];
+  L +=  4.0 * p[0][1];
+  L +=  1.0 * p[0][2];
+  L +=  4.0 * p[1][0];
+  L -= 20.0 * p[1][1];
+  L +=  4.0 * p[1][2];
+  L +=  1.0 * p[2][0];
+  L +=  4.0 * p[2][1];
+  L +=  1.0 * p[2][2];
+  L /=  6.0;
+#define INV_LOG_2 1.4426950408889634
+  float g = sqrt(abs(L * INV_LOG_2));
+#undef INV_LOG_2
+  return 1.0 / (g * 2.8284271247461903);
+}
+
+float KF_Laplacian3x3(void)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  return KF_Laplacian3x3(p, px, py);
+}
+
+float KF_Analytic(ivec2 offset)
+{
+  return length(getDE(offset));
+}
+
+float KF_Analytic(void)
+{
+  return KF_Analytic(ivec2(0, 0));
+}
+
+float KF_DE(int method)
+{
+  switch (method)
+  {
+    default:
+    case Differences_Traditional: return KF_Traditional();
+    case Differences_Forward3x3: return KF_Forward3x3();
+    case Differences_Central3x3: return KF_Central3x3();
+    case Differences_Diagonal2x2: return KF_Diagonal2x2();
+#if 0
+    case Differences_LeastSquares2x2: return KF_LeastSquares2x2();
+    case Differences_LeastSquares3x3: return KF_LeastSquares3x3();
+#endif
+    case Differences_Laplacian3x3: return KF_Laplacian3x3();
+    case Differences_Analytic: return KF_Analytic();
+  }
+  return 0.0;
+}
+
+vec3 KF_InfiniteWaves(bool Smooth, float49 iter)
+{
+  float nH = 0.0, nS = 0.0, nB = 0.0;
+  int nDR = 0, nDG = 0, nDB = 0;
+  for (int i = 0; i < KFP_MultiWavesCount; i++){
+    float nPeriod = float(KFP_MultiWaves[i].x);
+    float g;
+    if (Smooth)
+      g = sin(2.0 * pi * wrap(div(iter, nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
+    else
+      g = sin(2.0 * pi * wrap(div(floor(iter), nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
+    if (nPeriod < 0)
+      g = -nPeriod / 100.0;
+    int type = KFP_MultiWaves[i].z;
+    if (type == 0){
+      nH += g;
+      nDR++;
     }
-    iter = div(iter, KFP_IterDiv);
-    iter = add(iter, KFP_ColorOffset);
-    float49 iter_ = floor(iter);
-    float offs = sub(iter, iter_).x[0];
-    if (KFP_InverseTransition)
-      iter = add(iter_, 1.0 - offs);
-    if (KFP_MultiWavesEnabled){
-      float nH = 0.0, nS = 0.0, nB = 0.0;
-      int nDR = 0, nDG = 0, nDB = 0;
-      for (int i = 0; i < KFP_MultiWavesCount; i++){
-        float nPeriod = float(KFP_MultiWaves[i].x);
-        float g;
-        if (KFP_Smooth)
-          g = sin(2.0 * pi * wrap(div(iter, nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
-        else
-          g = sin(2.0 * pi * wrap(div(floor(iter), nPeriod * 2.0)).x[0]) / 2.0 + 0.5;
-        if (nPeriod < 0)
-          g = -nPeriod / 100.0;
-        int type = KFP_MultiWaves[i].z;
-        if (type == 0){
-          nH += g;
-          nDR++;
-        }
-        if (type == 1){
-          nS += g;
-          nDG++;
-        }
-        if (type == 2){
-          nB += g;
-          nDB++;
-        }
-      }
-      if (nDR > 0)
-        nH /= float(nDR);
-      if (nDG > 0)
-        nS /= float(nDG);
-      if (nDB > 0)
-        nB /= float(nDB);
-      vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)).bgr);
+    if (type == 1){
+      nS += g;
+      nDG++;
+    }
+    if (type == 2){
+      nB += g;
+      nDB++;
+    }
+  }
+  if (nDR > 0)
+    nH /= float(nDR);
+  if (nDG > 0)
+    nS /= float(nDG);
+  if (nDB > 0)
+    nB /= float(nDB);
+  vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)).bgr);
+  return nRGB;
+}
+
+vec2 KF_TextureWarp(float TexturePower, float TextureRatio, vec2 SlopeDir)
+{
+  mat3 p = mat3(nan, nan, nan, nan, nan, nan, nan, nan, nan);
+  mat3 px = mat3(0.0);
+  mat3 py = mat3(0.0);
+  getN3x3(p, px, py);
+  float nImgOffs = TexturePower / 64.0;
+  float diffx = p[0][1] - p[1][1];
+  float diffy = p[1][0] - p[1][1];
+  float diff = dot(vec2(diffx, diffy), SlopeDir);
+  diff  = 1.0 + diff;
+  diffx = 1.0 + diffx;
+  diffy = 1.0 + diffy;
+  diff  = pow(diff,  TexturePower);
+  diffx = pow(diffx, TexturePower);
+  diffy = pow(diffy, TexturePower);
+  float sx = 1.0;
+  float  sy = 1.0;
+  if (diff  <= 1.0) { diff  = 1.0 / diff; }
+  if (diffx <= 1.0) { diffx = 1.0 / diffx; sx = -sx; }
+  if (diffy <= 1.0) { diffy = 1.0 / diffy; sy = -sy; }
+  diff  = (atan(diff)  - pi / 4.0) / (pi / 4.0);
+  diffx = (atan(diffx) - pi / 4.0) / (pi / 4.0);
+  diffy = (atan(diffy) - pi / 4.0) / (pi / 4.0);
+  diff  *= TextureRatio / 100.0;
+  diffx *= TextureRatio / 100.0;
+  diffy *= TextureRatio / 100.0;
+  float dx = nImgOffs + sx * TexturePower * diffx;
+  float dy = nImgOffs - sy * TexturePower * diffy;
+  return vec2(dx, dy);
+}
+
+vec4 KF_Slopes(bool analytic, vec2 SlopeDir, float Power, float Ratio)
+{
+  Power *= float(KFP_ImageSize.x) / 640.0;
+  Ratio /= 100.0;
+  vec2 vdiff;
+  if (analytic)
+  {
+    vec2 DE = getDE();
+    vdiff = vec2(1.0, -1.0) * DE / dot(DE, DE);
+  }
+  else
+  {
+    float49 N = getN();
+    vdiff.x = -sub(getN(ivec2(1, 0)), N).x[0];
+    vdiff.y = sub(getN(ivec2(0, -1)), N).x[0];
+  }
+  float diff = dot(vdiff, SlopeDir);
+  diff *= Power;
+  if (diff >= 0.0)
+  {
+    diff = atan(diff) / (pi / 2.0);
+    diff = diff * Ratio;
+    return vec4(vec3(0.0), diff);
+  }
+  else
+  {
+    diff = -diff;
+    diff = atan(diff) / (pi / 2.0);
+    diff = diff * Ratio;
+    return vec4(vec3(1.0), diff);
+  }
+}
+
+float49 KF_InverseTransition(float49 iter)
+{
+  float49 iter_ = floor(iter);
+  float offs = sub(iter, iter_).x[0];
+  iter = add(iter_, 1.0 - offs);
+  return iter;
+}
+
+float49 KF_IterTransform(float49 iter0)
+{
+  float49 iter = iter0;
+  switch (KFP_ColorMethod)
+  {
+    default:
+    case ColorMethod_Standard: iter = iter; break;
+    case ColorMethod_SquareRoot: iter = sqrt(max(0.0, iter)); break;
+    case ColorMethod_CubicRoot: iter = cbrt(max(0.0, iter)); break;
+    case ColorMethod_Logarithm: iter = log(max(1.0, iter)); break;
+    case ColorMethod_LogLog: iter = log(add(1.0, log(add(1.0, iter)))); break;
+    case ColorMethod_ATan: iter = atan(iter); break;
+    case ColorMethod_FourthRoot: iter = sqrt(sqrt(max(0.0, iter))); break;
+    case ColorMethod_Stretched:
+    {
+      float49 imin = float49_(KFP_IterationsMin[1], KFP_IterationsMin[0]);
+      float49 imax = float49_(KFP_IterationsMax[1], KFP_IterationsMax[0]);
+      iter = mul(1024.0, div(sub(iter, imin), sub(imax, imin))); break;
+    }
+    case ColorMethod_DistanceLinear:
+    case ColorMethod_DEPlusStandard:
+    case ColorMethod_DistanceLog:
+    case ColorMethod_DistanceSqrt:
+    {
+      iter = float49_(1.0 / KF_DE(KFP_Differences));
+      // post differencing transfer functions
+      iter = mul(iter, float(KFP_ImageSize.x) / 640.0);
+      if (KFP_ColorMethod == ColorMethod_DistanceSqrt || KFP_ColorMethod == ColorMethod_DEPlusStandard)
+        iter = sqrt(max(0.0, iter));
+      else if (KFP_ColorMethod == ColorMethod_DistanceLog)
+        iter = log(max(1.0, add(1.0, iter)));
+      if(gt(iter, 1024.0))
+        iter = float49_(1024.0);
+      if(KFP_ColorMethod == ColorMethod_DEPlusStandard && gt(iter, KFP_IterDiv))
+        iter = iter0;
+      break;
+    }
+  }
+  iter = div(iter, KFP_IterDiv);
+  iter = add(iter, KFP_ColorOffset);
+  if (KFP_InverseTransition)
+  {
+    iter = KF_InverseTransition(iter);
+  }
+  return iter;
+}
+
+vec3 KF_Colour(void)
+{
+  vec3 s = vec3(0.0);
+  if (! KFP_ShowGlitches && getGlitch())
+  {
+    discard;
+  }
+  if (getInterior())
+  {
+    s = KFP_InteriorColor;
+  }
+  else
+  {
+    float49 iter = float49_(getN1(), getN0(), KFP_Flat ? 0.0 : 1.0 - getNF());
+    iter = KF_IterTransform(iter);
+    if (KFP_MultiWavesEnabled)
+    {
+      vec3 nRGB = KF_InfiniteWaves(KFP_Smooth, iter);
       if (KFP_MultiWavesBlend)
       {
-        iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
-        iter_ = floor(iter);
-        offs = sub(iter, iter_).x[0];
+        iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * getT());
         if (KFP_InverseTransition)
-          iter = add(iter_, 1.0 - offs);
-        vec3 nRGB2 = palette(wrap(div(iter, 1024.0)).x[0]);
+        {
+          iter = KF_InverseTransition(iter);
+        }
+        vec3 nRGB2 = KF_Palette(wrap(div(iter, 1024.0)).x[0]);
         s = mix(nRGB, nRGB2, 0.5);
       }
       else
@@ -5824,83 +5997,38 @@ void main(void)
         s = nRGB;
       }
     }
-    else{
-      iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * T);
-      iter_ = floor(iter);
-      offs = sub(iter, iter_).x[0];
+    else
+    {
+      iter = add(iter, KFP_PhaseColorStrength / 100.0 * 1024.0 * getT());
       if (KFP_InverseTransition)
-        iter = add(iter_, 1.0 - offs);
-      s = palette(wrap(div(iter, 1024.0)).x[0]);
+      {
+        iter = KF_InverseTransition(iter);
+      }
+      s = KF_Palette(wrap(div(iter, 1024.0)).x[0]);
     }
   }
   if (KFP_TextureEnabled)
   {
-    float nImgOffs = KFP_TexturePower / 64.0;
-    float diffx = p[0][1] - p[1][1];
-    float diffy = p[1][0] - p[1][1];
-    float diff = dot(vec2(diffx, diffy), KFP_SlopeDir);
-    diff  = 1.0 + diff;
-    diffx = 1.0 + diffx;
-    diffy = 1.0 + diffy;
-    diff  = pow(diff,  KFP_TexturePower);
-    diffx = pow(diffx, KFP_TexturePower);
-    diffy = pow(diffy, KFP_TexturePower);
-    float sx = 1.0;
-    float  sy = 1.0;
-    if (diff  <= 1.0) { diff  = 1.0 / diff; }
-    if (diffx <= 1.0) { diffx = 1.0 / diffx; sx = -sx; }
-    if (diffy <= 1.0) { diffy = 1.0 / diffy; sy = -sy; }
-    diff  = (atan(diff)  - pi / 4.0) / (pi / 4.0);
-    diffx = (atan(diffx) - pi / 4.0) / (pi / 4.0);
-    diffy = (atan(diffy) - pi / 4.0) / (pi / 4.0);
-    diff  *= KFP_TextureRatio / 100.0;
-    diffx *= KFP_TextureRatio / 100.0;
-    diffy *= KFP_TextureRatio / 100.0;
-    float dx = nImgOffs + sx * KFP_TexturePower * diffx;
-    float dy = nImgOffs - sy * KFP_TexturePower * diffy;
-    vec2 bg = vec2(pixel2) + vec2(dx, dy);
-    bg /= vec2(textureSize(Internal_Texture, 0).xy);
-    s = mix(s, texture(Internal_Texture, bg).rgb, KFP_TextureMerge);
+    vec2 tc = getCoord() + KF_TextureWarp(KFP_TexturePower, KFP_TextureRatio, KFP_SlopeDir);
+    tc /= vec2(KFP_ImageSize.xy);
+    s = mix(s, texture(KFP_Texture, tc).rgb, KFP_TextureMerge);
   }
   if (KFP_Slopes)
   {
-    vec2 vdiff;
-    if (KFP_Differences == Differences_Analytic)
-    {
-      vdiff = vec2(1.0, -1.0) * DE / dot(DE, DE);
-    }
-    else
-    {
-      vdiff.x = -sub(float49_
-        ( texelFetch(Internal_N1, tc + ivec2(0, 1), 0).r
-        , texelFetch(Internal_N0, tc + ivec2(0, 1), 0).r
-        , 1.0 - texelFetch(Internal_NF, tc + ivec2(0, 1), 0).r
-        ), N).x[0];
-      vdiff.y = sub(float49_
-        ( texelFetch(Internal_N1, tc + ivec2(-1, 0), 0).r
-        , texelFetch(Internal_N0, tc + ivec2(-1, 0), 0).r
-        , 1.0 - texelFetch(Internal_NF, tc + ivec2(-1, 0), 0).r
-        ), N).x[0];
-    }
-    float diff = dot(vdiff, KFP_SlopeDir);
-    diff *= KFP_SlopePower * float(KFP_ImageSize.x) / 640.0;
-    if (diff >= 0.0)
-    {
-      diff = atan(diff) / (pi / 2.0);
-      diff = diff * KFP_SlopeRatio / 100.0;
-      s = (1.0 - diff) * s;
-    }
-    else
-    {
-      diff = -diff;
-      diff = atan(diff) / (pi / 2.0);
-      diff = diff * KFP_SlopeRatio / 100.0;
-      s = (1.0 - diff) * s + vec3(diff);
-    }
+    vec4 slope = KF_Slopes(KFP_Differences == Differences_Analytic, KFP_SlopeDir, KFP_SlopePower, KFP_SlopeRatio);
+    s = mix(s, slope.rgb, slope.a);
   }
-  if (uvec2(N0, N1) == KFP_Iterations && ! KFP_TextureEnabled)
+  if (getInterior() && ! KFP_TextureEnabled)
   {
     s = KFP_InteriorColor;
   }
-  Internal_Colour = vec4(clamp(s, vec3(0.0), vec3(65504.0)), 1.0);
+  return s;
 }
+
+void main(void)
+{
+  Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
+  Internal_Colour = vec4(clamp(colour(), vec3(0.0), vec3(65504.0)), 1.0);
+}
+
+#line 0 1

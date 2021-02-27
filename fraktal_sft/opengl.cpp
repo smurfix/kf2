@@ -20,8 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "opengl.h"
 #include <GLFW/glfw3.h>
 
-#define D { GLint e = 0; while ((e = glGetError())) { std::cerr << "OpenGL error " << e << " at line " << __LINE__ << std::endl; } }
+#include "../gl/kf_vert_glsl.h"
+#include "../gl/kf_frag_glsl.h"
 
+#define D { GLint e = 0; while ((e = glGetError())) { std::cerr << "OpenGL error " << e << " at line " << __LINE__ << std::endl; } }
 
 static bool debug_program(GLuint program, std::string &log) {
   GLint status = 0;
@@ -70,14 +72,14 @@ static bool debug_shader(GLuint shader, GLenum type, std::string &log) {
   return status;
 }
 
-static GLuint vertex_fragment_shader(const char *vert, const char *frag, std::string &vert_log, std::string &frag_log, std::string &link_log)
+static GLuint vertex_fragment_shader(const char *version, const char *vert, const char *frag, const char *frag2, std::string &vert_log, std::string &frag_log, std::string &link_log)
 {
   bool ok = true;
   GLuint program = glCreateProgram();
   {
     GLuint shader = glCreateShader(GL_VERTEX_SHADER);
-    const char *sources[] = { vert };
-    glShaderSource(shader, 1, sources, 0);
+    const char *sources[] = { version, vert };
+    glShaderSource(shader, 2, sources, 0);
     glCompileShader(shader);
     ok &= debug_shader(shader, GL_VERTEX_SHADER, vert_log);
     glAttachShader(program, shader);
@@ -85,8 +87,8 @@ static GLuint vertex_fragment_shader(const char *vert, const char *frag, std::st
   }
   {
     GLuint shader = glCreateShader(GL_FRAGMENT_SHADER);
-    const char *sources[] = { frag };
-    glShaderSource(shader, 1, sources, 0);
+    const char *sources[] = { version, frag, frag2 };
+    glShaderSource(shader, 3, sources, 0);
     glCompileShader(shader);
     ok &= debug_shader(shader, GL_FRAGMENT_SHADER, frag_log);
     glAttachShader(program, shader);
@@ -103,7 +105,6 @@ static GLuint vertex_fragment_shader(const char *vert, const char *frag, std::st
 }
 
 const char *blit_vert =
-      "#version 330 core\n"
       "void main(void) {\n"
       "  switch (gl_VertexID) {\n"
       "  default:\n"
@@ -123,7 +124,6 @@ const char *blit_vert =
       "}\n"
   ;
 const char *blit_frag =
-      "#version 330 core\n"
       "layout(location = 0, index = 0) out vec4 colour;\n"
       "uniform sampler2D t;\n"
       "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
@@ -135,6 +135,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
   const int64_t max_tile_height = 1024;
   const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7, tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
   GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
+  std::string version;
   GLuint p_colour = 0, p_blit = 0, f_linear = 0, f_srgb = 0;
   GLuint vao = 0;
   GLFWwindow *window = nullptr;
@@ -170,6 +171,17 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, req.u.init.major);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, req.u.init.minor);
+        if (req.u.init.major > 3 || (req.u.init.major == 3 && req.u.init.minor >= 3))
+        {
+          int v = 100 * req.u.init.major + 10 * req.u.init.minor;
+          std::ostringstream o;
+          o << "#version " << v << " core\n";
+          version = o.str();
+        }
+        else
+        {
+          version = "#version 120\n";
+        }
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
@@ -320,7 +332,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         D
 
         std::string vertex_log, fragment_log, link_log;
-        p_blit = vertex_fragment_shader(blit_vert, blit_frag, vertex_log, fragment_log, link_log);
+        p_blit = vertex_fragment_shader(version.c_str(), blit_vert, blit_frag, "", vertex_log, fragment_log, link_log);
         std::cerr << vertex_log << std::endl;
         std::cerr << fragment_log << std::endl;
         std::cerr << link_log << std::endl;
@@ -425,7 +437,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         resp.u.compile.vertex_log = "";
         resp.u.compile.fragment_log = "";
         resp.u.compile.link_log = "";
-        p_colour = vertex_fragment_shader(req.u.compile.vertex_src.c_str(), req.u.compile.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
+        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.u.compile.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
         D
         resp.u.compile.success = p_colour > 0;
         fifo_write(responses, resp);
@@ -442,8 +454,8 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform1i(glGetUniformLocation(p_colour, "Internal_T"), tu_t);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_DEX"), tu_dex);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_DEY"), tu_dey);
-        glUniform1i(glGetUniformLocation(p_colour, "Internal_Texture"), tu_texture);
-        glUniform1i(glGetUniformLocation(p_colour, "Internal_Palette"), tu_palette);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Palette"), tu_palette);
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_Iterations"), req.u.configure.iterations & 0xFFFFffffu, (req.u.configure.iterations >> 32) && 0xFFFFffffu);
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMin"), req.u.configure.iterations_min & 0xFFFFffffu, (req.u.configure.iterations_min >> 32) && 0xFFFFffffu);
         glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMax"), req.u.configure.iterations_max & 0xFFFFffffu, (req.u.configure.iterations_max >> 32) && 0xFFFFffffu);
