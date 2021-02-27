@@ -2549,6 +2549,360 @@ At the very top right:
     Privacy note: the full file system path to the texture file is saved
     in the parameter files (including saved image metadata).
 
+  - **OpenGL**
+
+    Use an OpenGL Shader Language (GLSL) snippet for colouring the image.
+    See below.  The shader source code is saved inside the palette and
+    parameter files (including saved image metadata).
+
+## OpenGL Shader Language API
+
+OpenGL Shader Language basic syntax is similar to C or C++ (braces and
+semicolons).  KF provides a number of preset uniform variables and a small
+library of functions which you can use to access the raw iteration data
+in the neighbourhood of a pixel (random access is not possible due to the
+tiled rendering used for larger images).  KF's default colouring algorithm
+(and modularized subparts) are also available for use in custom code.
+
+The GLSL fragment should implement a function with this name and type
+signature:
+
+```
+vec3 colour(void);
+```
+
+The default colouring can be emulated by using `KF_Colour`:
+
+```
+vec3 colour() { return KF_Colour(); }
+```
+
+There should be no `#version` line in the GLSL fragment, instead `__VERSION__`
+should be used to adapt to the environment.
+
+### `float49` numbers
+
+To avoid precision loss when representing iteration counts, a `float49`
+type is available which has 49 bits, compared to only 24 bits for regular
+float.  GLSL does not have operator overloading (only function overloading)
+so you can manipulate them with these functions:
+
+```
+add neg sub mul inv div sqr ldexp
+is_zero is_one is_positive is_negative
+gt lt ge le eq ne abs max
+fmod divrem drem nint aint floor ceil
+exp log log10 pow sqrt nroot
+sin cos tan sincos asin acos atan
+sinh cosh tanh sincosh asinh acosh atanh
+```
+
+Some constants are also available:
+
+```
+f49_nan f49_inf f49_0 f49_1 f49_e f49_log2 f49_log10
+f49_2pi f49_pi f49_3pi4 f49_pi2 f49_pi4 f49_pi16
+f49_eps f49_min_normalized f49_max
+```
+
+You can convert a `float49` to float by `.x[0]`.
+
+### Accessing pixel data
+
+The following functions get data for the current pixel, or for a nearby
+one if an `ivec2` offset is passed.  The maximum absolute useable pixel
+offset is in `uniform ivec2 KFP_TilePadding`.  See the documentation of
+the exported EXR channels for semantics.
+
+#### `getGlitch`
+
+Returns `true` when the current (or offset) pixel is glitched.
+
+#### `getInterior`
+
+Returns `true` when the current (or offset) pixel is interior.
+
+#### `getN1`
+
+Returns the `uint` most significant 32bits of the iteration count of the
+current (or offset) pixel.
+
+#### `getN0`
+
+Returns the `uint` least significant 32bits of the iteration count of the
+current (or offset) pixel.
+
+#### `getNF`
+
+Returns the `float` smooth part of the iteration count of the
+current (or offset) pixel.
+
+#### `getN`
+
+Returns a `float49` of the current (or offset) pixel's smooth iteration count,
+calculated by `(N1 << 32) + N0 + (1.0 - NF)` in 49 bits of precision.
+
+#### `getT`
+
+Returns a `float` of the current (or offset) pixel's phase of final iterate
+(normalized to \[0..1)).
+
+#### `getDEX`
+
+Returns a `float` of the current (or offset) pixel's horizontal analytic distance
+estimate (normalized to 1.0 being a neighbouring pixel's boundary).
+
+#### `getDEY`
+
+Returns a `float` of the current (or offset) pixel's vertical analytic distance
+estimate (normalized to 1.0 being a neighbouring pixel's boundary).
+
+#### `getDE`
+
+Returns a `vec2` combining the current (or offset) pixel's analytic `DEX` and `DEY`.
+
+#### `inImage`
+
+Returns `true` when the provided offset relative to the current pixel
+(not absolute coordinates!) lies inside the image bounds.  The bounds
+can be found in `uniform ivec2 ImageSize`.
+
+#### `getCoord`
+
+Return the `ivec2` absolute image coordinates of the current pixel.
+
+#### `getJitter`
+
+Return the `vec2` jitter delta of the current (or offset) pixel.
+Uses the uniform variables `uint KFP_JitterSeed`, `int KFP_JitterShape`
+and `float KFP_JitterScale`.
+
+#### `getN3x3`
+
+Fills three `mat3` with the relative iteration counts and pixel positions
+(offset plus jitter) of a 3x3 stencil centered on the current pixel.  Used
+for numerical distance estimation.  Returns the center pixel's `float49 N`.
+
+### Distance estimation
+
+A 3x3 stencil of relative iteration counts can be used for numerical
+distance estimation.
+
+#### `KF_DE(int method)`
+
+Returns numerical distance via a differencing method, one of the following `#define`d constants:
+
+```
+Differences_Traditional
+Differences_Forward3x3
+Differences_Central3x3
+Differences_Diagonal2x2
+Differences_LeastSquares2x2
+Differences_LeastSquares3x3
+Differences_Laplacian3x3
+Differences_Analytic
+```
+
+Note: `Differences_LeastSquares2x2` and `Differences_LeastSquares3x3` are not
+implemented in GLSL, and `Differences_Analytic` used the `DEX` and `DEY`
+channels which require derivatives to have been computed.
+
+#### `KF_Traditional()`
+
+Return DE via KF's original implementation.
+
+#### `KF_Forward3x3()`
+
+Return DE via 3x3 forward differences.
+
+#### `KF_Central3x3()`
+
+Return DE via 3x3 central differences.
+
+#### `KF_Diagonal2x2()`
+
+Return DE via 2x2 diagonals, aka Robert's Cross.
+
+#### `KF_Laplacian3x3()`
+
+Return DE via 3x3 Laplacian.
+
+#### `KF_Analytic()`
+
+Return DE via derivatives.
+
+### Accessing colouring parameters
+
+The following `uniform` variables are set from the Colors dialog:
+
+#### `ivec2 KFP_ImageSize`
+
+The size of the final image.
+
+#### `sampler1D KFP_Palette`
+
+The key colours of the palette.  The function `KF_Palette` interpolates
+the palette emulating KF's regular implementation, input is in \[0..1).
+
+
+#### `vec3 KFP_InteriorColor`
+
+The interior colour.
+
+#### `bool KFP_ShowGlitches`
+
+Whether the menu option Advanced -> Show Glitches is selected.
+
+#### `uvec2 KFP_Iterations`
+
+The iteration count.  `[0]` contains the least significant word, `[1]` the
+most significant word.
+
+#### `uvec2 KFP_IterationsMin`
+
+The minimum iteration count achieved in the image.
+
+#### `uvec2 KFP_IterationsMax`
+
+The maximum escaped iteration count achieved in the image.
+
+#### `float KFP_IterDiv`
+
+Divide iterations.
+
+#### `float KFP_ColorOffset`
+
+Color offset.
+
+#### `bool KFP_Smooth`
+
+Smooth colouring.
+
+#### `bool KFP_Flat`
+
+Flat colouring
+
+#### `bool KFP_InverseTransition`
+
+Invert colour transition.  Can be applied to `float49` iteration counts
+with the function `KF_InverseTransition()`.
+
+#### `int KFP_Differences`
+
+Numerical differencing method.  See above.
+
+#### `int KFP_ColorMethod`
+
+Color method, one of the following `#define`d constants:
+
+```
+ColorMethod_Standard
+ColorMethod_SquareRoot
+ColorMethod_CubicRoot
+ColorMethod_Logarithm
+ColorMethod_Stretched
+ColorMethod_DistanceLinear
+ColorMethod_DEPlusStandard
+ColorMethod_DistanceLog
+ColorMethod_DistanceSqrt
+ColorMethod_LogLog
+ColorMethod_ATan
+ColorMethod_FourthRoot
+```
+
+The `float49` iteration counts can be transformed by the ColorMethod
+(including distance estimation, IterDiv, ColorOffset, InverseTransition)
+can be applied with the function `KF_IterTransform()`
+
+#### `float KFP_PhaseColorStrength`
+
+Phase color strength.
+
+### Slopes
+
+#### `bool KFP_Slopes`
+
+Whether slopes are enabled.
+
+#### `float KFP_SlopePower`
+
+Slope power.
+
+#### `float KFP_SlopeRatio`
+
+Slope ratio.
+
+#### `vec2 KFP_SlopeDir`
+
+The cosine and sine of the slope angle, suitable for dot products.
+
+#### `vec4 KF_Slopes(bool Analytic, vec2 SlopeDir, float Power, float Ratio)`
+
+This API function implements slope colouring emulating KF's default colouring.
+The return value `s` can be combined with the background colour `bg` with
+`mix(bg, s.rgb, s.a)`;
+
+### Infinite waves
+
+There are up to `KFP_MultiWavesCountMax` waves (a constant, currently 32):
+
+#### `bool KFP_MultiWavesEnabled`
+
+Whether waves are enabled.
+
+#### `bool KFP_MultiWavesBlend`
+
+Whether waves should be blended.
+
+#### `int KFP_MultiWavesCount`
+
+How many waves are added.
+
+#### `ivec3 KFP_MultiWaves[KFP_MultiWavesCountMax]`
+
+The wave data.  The `ivec3` contains period `.x` and type `.z`, the `.y`
+coordinate is currently not used.  Only the first `KFP_MultiWavesCount`
+slots are filled.
+
+#### `vec3 KF_InfiniteWaves(bool Smooth, float49 N)`
+
+This API function implements infinite waves emulating KF's default colouring.
+
+### Image texture
+
+#### `bool KFP_TextureEnabled`
+
+Whether image texture is enabled.
+
+#### `sampler2D KFP_Texture`
+
+The texture.
+
+#### `float KFP_TextureMerge`
+
+Image texture merge.
+
+#### `float KFP_TexturePower`
+
+Image texture distortion power.
+
+#### `float KFP_TextureRatio`
+
+Image texture distortion ratio.
+
+#### `vec2 KF_TextureWarp(float TexturePower, float TextureRatio, vec2 SlopeDir)`
+
+This API function implements image texture distortion emulating KF's
+default colouring.  Example usage:
+
+```
+if (KFP_TextureEnabled)
+{
+  vec2 tc = getCoord() + KF_TextureWarp(KFP_TexturePower, KFP_TextureRatio, KFP_SlopeDir);
+  tc /= vec2(KFP_ImageSize.xy);
+  s = mix(s, texture(KFP_Texture, tc).rgb, KFP_TextureMerge);
+}
+```
 
 ## Information dialog
 
