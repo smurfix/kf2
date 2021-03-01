@@ -50,6 +50,7 @@ extern HICON g_hIcon;
 
 extern HWND g_hwStatus;
 extern HWND g_hwExamine;
+extern HWND g_hwColors;
 
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal);
 

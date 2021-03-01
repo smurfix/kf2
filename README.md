@@ -2436,6 +2436,9 @@ At the very top right:
 
 ## Colors dialog
 
+The Colors dialog is accessed via the Fraktal menu, or via the keyboard
+shortcut `Ctrl+C` in the main window.
+
   - **Number of key colors**
 
     Set the number of key colors between 1 and 1024.
@@ -2481,6 +2484,8 @@ At the very top right:
   - **Open palette**
 
     Load palette from a KFP (`*.kfp`) file
+
+    Palettes can also be loaded via drag and drop.
 
   - **Expand double**
 
@@ -2554,6 +2559,45 @@ At the very top right:
     Use an OpenGL Shader Language (GLSL) snippet for colouring the image.
     See below.  The shader source code is saved inside the palette and
     parameter files (including saved image metadata).
+
+
+## OpenGL dialog
+
+The OpenGL dialog is accessed via the OpenGL button in the bottom left of
+the Colors dialog, or via the keyboard shortcut `Ctrl+G` in the main window.
+
+  - **GLSL**
+
+    Enter OpenGL shader language source code for colouring snippet.
+    See below for API.
+
+  - **Default**
+
+    Reset colouring GLSL to default (emulating the regular CPU-based colouring
+    algorithm).
+
+  - **Import**
+
+    Load GLSL fragment from a text file (`*.glsl`).
+
+    GLSL fragments can also be imported via drag and drop.
+
+  - **Export**
+
+    Export GLSL fragment to a text file (`*.glsl`).
+
+  - **Enable**
+
+    Use OpenGL shader colouring instead of CPU colouring.
+
+  - **Apply**
+
+    Apply changes, recompiling the shader.
+
+  - **Close**
+
+    Cancel any unapplied changes and close the window.
+
 
 ## OpenGL Shader Language API
 
@@ -2652,14 +2696,20 @@ Returns a `float` of the current (or offset) pixel's phase of final iterate
 Returns a `float` of the current (or offset) pixel's horizontal analytic distance
 estimate (normalized to 1.0 being a neighbouring pixel's boundary).
 
+Requires derivatives to be enabled in the Formula dialog.
+
 #### `getDEY`
 
 Returns a `float` of the current (or offset) pixel's vertical analytic distance
 estimate (normalized to 1.0 being a neighbouring pixel's boundary).
 
+Requires derivatives to be enabled in the Formula dialog.
+
 #### `getDE`
 
 Returns a `vec2` combining the current (or offset) pixel's analytic `DEX` and `DEY`.
+
+Requires derivatives to be enabled in the Formula dialog.
 
 #### `inImage`
 
@@ -2704,8 +2754,8 @@ Differences_Analytic
 ```
 
 Note: `Differences_LeastSquares2x2` and `Differences_LeastSquares3x3` are not
-implemented in GLSL, and `Differences_Analytic` used the `DEX` and `DEY`
-channels which require derivatives to have been computed.
+implemented in GLSL, and `Differences_Analytic` uses the `DEX` and `DEY`
+channels which require derivatives to be enabled in the Formula dialog.
 
 #### `KF_Traditional()`
 

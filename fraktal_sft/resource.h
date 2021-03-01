@@ -162,6 +162,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_COLOR_PHASE_STRENGTH        1114
 #define IDC_NEWTON_PROGRESS             1115
 #define IDC_EXR_PREVIEW                 1116
+#define IDC_COLOR_OPENGL                1117
 
 // "Formula" dialog
 #define IDD_FORMULA                     120
@@ -355,6 +356,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_TRANSFORMATION_STRETCHANGLE 1451
 #define IDC_TRANSFORMATION_STRETCHAMOUNT 1452
 
+#define IDD_OPENGL 127
+#define IDC_OPENGL_ENABLED 1460
+#define IDC_OPENGL_IMPORT 1461
+#define IDC_OPENGL_EXPORT 1462
+#define IDC_OPENGL_GLSL 1463
+#define IDC_OPENGL_LOG 1464
+#define IDC_OPENGL_DEFAULT 1465
+
 // menus
 #define ID_ACTIONS_SETTINGS             40001
 #define ID_ACTIONS_EXIT                 40002
@@ -478,7 +487,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_EXPONENTIAL_MAP 40153
 #define ID_TRANSFORMATION 40154
 #define ID_RESET_TRANSFORMATION 40155
-#define ID_SPECIAL_OPENGL 40156
 
 // OpenCL
 #ifdef KF_OPENCL

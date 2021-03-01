@@ -623,11 +623,6 @@ static void UpdateSIMDChunkSize(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SIMD_CHUNK_SIZE_1024,MF_BYCOMMAND|(z==1024?MF_CHECKED:MF_UNCHECKED));
 }
 
-static void UpdateUseOpenGL(HWND hWnd)
-{
-	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_OPENGL,MF_BYCOMMAND|(g_SFT.GetUseOpenGL()?MF_CHECKED:MF_UNCHECKED));
-}
-
 static void UpdateMenusFromSettings(HWND hWnd)
 {
 	UpdateShrink(hWnd);
@@ -660,7 +655,6 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateEXRParallel(hWnd);
 	UpdateSIMDVectorSize(hWnd);
 	UpdateSIMDChunkSize(hWnd);
-	UpdateUseOpenGL(hWnd);
 }
 
 static void UpdateWindowSize(HWND hWnd)
@@ -2283,6 +2277,8 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
+		if(!g_hwColors)
+			g_hwColors = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG3),hWnd,(DLGPROC)ColorProc);
 		g_hwStatus = CreateStatusWindow(WS_CHILD|WS_VISIBLE,"",hWnd,0);
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
@@ -3330,10 +3326,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		ShowWindow(g_hwOpenCL,SW_SHOW);
 	}
 #endif
-	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_OPENGL){
-		g_SFT.SetUseOpenGL(! g_SFT.GetUseOpenGL());
-		UpdateUseOpenGL(hWnd);
-	}
 
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SHOWINFLECTION){
 		g_bShowInflection=!g_bShowInflection;
@@ -3872,6 +3864,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_POSITION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='C' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SETCOLORS,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_CONTROL)))
+		PostMessage(g_hwColors, WM_COMMAND, IDC_COLOR_OPENGL, 0);
 	else if(uMsg==WM_KEYDOWN && wParam=='D' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_SPECIAL_NEWTON,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='I' && HIWORD(GetKeyState(VK_CONTROL)))
@@ -4107,8 +4101,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_ACTIONS_SETCOLORS){
-			if(!g_hwColors)
-				g_hwColors = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG3),hWnd,(DLGPROC)ColorProc);
 			ShowWindow(g_hwColors,SW_SHOW);
 		}
 		else if(wParam==ID_ACTIONS_ZOOMSIZE_1 || wParam==ID_ACTIONS_ZOOMSIZE_2 ||

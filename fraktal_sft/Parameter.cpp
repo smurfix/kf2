@@ -29,6 +29,58 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <iostream>
 
+std::string glsl_escape(const std::string &s)
+{
+	std::ostringstream o;
+	for (auto p = s.begin(); p != s.end(); ++p)
+	{
+		switch (*p)
+		{
+			case '\\': o << '\\' << '\\'; break;
+			case ' ': o << '\\' << ' '; break;
+			case '\t': o << '\\' << 't'; break;
+			case '\r': o << '\\' << 'r'; break;
+			case '\n': o << '\\' << 'n'; break;
+			default: o << *p; break;
+		}
+	}
+	return o.str();
+}
+
+std::string glsl_unescape(const std::string &s)
+{
+	std::ostringstream o;
+	for (auto p = s.begin(); p != s.end(); ++p)
+	{
+		switch (*p)
+		{
+			case '\\':
+			{
+				++p;
+				if (p != s.end())
+				{
+					switch (*p)
+					{
+						case '\\': o << '\\'; break;
+						case ' ': o << ' '; break;
+						case 't': o << '\t'; break;
+						case 'r': o << '\r'; break;
+						case 'n': o << '\n'; break;
+						default: o << *p; break; // FIXME
+					}
+				}
+				else
+				{
+					// FIXME
+				}
+				break;
+			}
+			default: o << *p; break;
+		}
+	}
+	return o.str();
+}
+
 static const double deg = 360 / 6.283185307179586;
 
 BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
@@ -371,6 +423,11 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	i = stParams.FindString(0, "TextureFile");
 	if (i != -1) m_szTexture = stParams[i][1];
 
+	i = stParams.FindString(0, "UseOpenGL");
+	if (i != -1) SetUseOpenGL(atoi(stParams[i][1]));
+	i = stParams.FindString(0, "GLSL");
+	if (i != -1) SetGLSL(glsl_unescape(stParams[i][1]));
+
 	if (! bNoLocation)
 	{
 	i = stParams.FindString(0, "UseHybridFormula");
@@ -598,6 +655,13 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("RotateAngle", P.rotate * deg)
 	DOUBLE("StretchAngle", P.stretch_angle * deg)
 	DOUBLE("StretchAmount", std::log2(P.stretch_factor))
+
+  // KFR version >= 2150200
+  if (GetUseOpenGL())
+  {
+		INT("UseOpenGL", 1)
+		STRING("GLSL", glsl_escape(GetGLSL()).c_str())
+  }
 
 	INT("Version", kfr_version_number)
 

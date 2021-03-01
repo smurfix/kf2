@@ -106,7 +106,6 @@ bool Settings::FromText(const std::string &text)
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
-  BOOL(UseOpenGL)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -175,7 +174,6 @@ std::string Settings::ToText() const
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
-  BOOL(UseOpenGL)
 #undef DOUBLE
 #undef INT
 #undef BOOL

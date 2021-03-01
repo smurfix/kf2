@@ -253,6 +253,9 @@ CFraktalSFT::CFraktalSFT()
 		m_HybridFormula = h;
 	}
 
+	m_bUseOpenGL = false;
+	m_sGLSL = KF_DEFAULT_GLSL;
+
 	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
@@ -1189,17 +1192,6 @@ static int ThApplyColors(TH_PARAMS *pMan)
 
 static bool opengl_initialized = false;
 static bool opengl_compiled = false;
-static std::string read_file(const std::string &filename) {
-  std::ifstream in(filename);
-  if (in.is_open())
-  {
-    std::ostringstream sstr;
-    sstr << in.rdbuf();
-    return sstr.str();
-  }
-  return "";
-}
-
 
 void CFraktalSFT::ApplyColors()
 {
@@ -1231,20 +1223,24 @@ void CFraktalSFT::ApplyColors()
 				assert(resp.tag == response_init);
 				opengl_initialized = resp.u.init.success;
 			}
-			if (opengl_initialized && ! opengl_compiled)
+			if (opengl_initialized && ((! opengl_compiled) || m_bGLSLChanged))
 			{
 				request req;
 				req.tag = request_compile;
-				req.u.compile.fragment_src = read_file("kf.glsl");
+				req.u.compile.fragment_src = GetGLSL();
 				fifo_write(to_opengl, req);
 				response resp;
 				fifo_read(from_opengl, resp);
 				assert(resp.tag == response_compile);
-				std::cerr << (resp.u.compile.success ? "compiled" : "NOT COMPILED") << std::endl;
-				std::cerr << resp.u.compile.vertex_log;
-				std::cerr << resp.u.compile.fragment_log;
-				std::cerr << resp.u.compile.link_log;
+				std::string nl = "\n";
+				SetGLSLLog
+					( (resp.u.compile.success ? "compiled" : "NOT COMPILED") + nl
+					+ resp.u.compile.vertex_log + nl
+					+ resp.u.compile.fragment_log + nl
+					+ resp.u.compile.link_log + nl
+					);
 				opengl_compiled = resp.u.compile.success;
+				m_bGLSLChanged = false;
 			}
 			if (opengl_initialized && opengl_compiled)
 			{

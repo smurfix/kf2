@@ -435,6 +435,12 @@ class CFraktalSFT
 	bool m_bIsRendering;
 	bool m_UseHybridFormula;
 	hybrid_formula m_HybridFormula;
+
+	bool m_bUseOpenGL;
+	std::string m_sGLSL;
+	std::string m_sGLSLLog;
+	bool m_bGLSLChanged;
+
 public:
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
@@ -659,7 +665,6 @@ public:
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
-  BOOL(UseOpenGL)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -695,6 +700,12 @@ public:
 	{
 		m_HybridFormula = h;
 	};
+	inline bool GetUseOpenGL() { return m_bUseOpenGL; }
+	inline void SetUseOpenGL(bool gl) { m_bUseOpenGL = gl; }
+	inline std::string GetGLSL() { return m_sGLSL; }
+	inline void SetGLSL(const std::string &gl) { m_bGLSLChanged |= (m_sGLSL != gl); m_sGLSL = gl; }
+	inline std::string GetGLSLLog() { return m_sGLSLLog; }
+	inline void SetGLSLLog(const std::string &gl) { m_sGLSLLog = gl; }
 };
 
 struct TH_PARAMS
@@ -737,5 +748,7 @@ inline complex<double> compute_de(T Dr, T Di, T Jxa, T Jxb, T Jya, T Jyb, T s, c
   vec2 den = normalize(u) * (transpose(J) * TK);
   return num / complex<double>(den[0], den[1]);
 }
+
+#define KF_DEFAULT_GLSL "vec3 colour() { return KF_Colour(); }\n"
 
 #endif

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -29,6 +29,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <commctrl.h>
 
+#include <fstream>
+
 static char g_szTmpFile[MAX_PATH];
 
 static RECT g_rShow;
@@ -38,6 +40,151 @@ static BOOL g_bInitColorDialog=FALSE;
 static CListBoxEdit *g_pWaves=NULL;
 static BOOL g_AutoColour = TRUE;
 static int g_AutoUpdate = 0;
+static HWND g_hwColorsOpenGL = nullptr;
+
+static std::string read_file(const std::string &filename)
+{
+  std::ifstream in(filename);
+  if (in.is_open())
+  {
+    std::ostringstream sstr;
+    sstr << in.rdbuf();
+    return sstr.str();
+  }
+  return "";
+}
+
+static bool write_file(const std::string &filename, const std::string &data)
+{
+	std::ofstream out(filename);
+	out << data;
+	out.close();
+	return !!out;
+}
+
+static std::string GetDlgItemString(HWND hWnd, int idc)
+{
+	int length = GetWindowTextLength(GetDlgItem(hWnd, idc));
+	char *buffer = new char[length + 1];
+	GetDlgItemText(hWnd, idc, buffer, length + 1);
+  std::string ret(buffer);
+  delete[] buffer;
+  return ret;
+}
+
+extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
+{
+	if (uMsg == WM_INITDIALOG)
+	{
+		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
+		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
+
+// this dialog is never destoyed, but hidden and reshown
+// this means we don't need to store the tooltip windows
+// because they will be deleted at program exit (I hope)
+// also hopefully WM_INITDIALOG will be called only once
+#define T(idc,str) CreateToolTip(idc, hWnd, str);
+		T(IDC_OPENGL_GLSL, "OpenGL Shader Language source code fragment")
+		T(IDC_OPENGL_LOG, "OpenGL shader compilation log")
+		T(IDC_OPENGL_IMPORT, "Import OpenGL shader fragment")
+		T(IDC_OPENGL_EXPORT, "Export OpenGL shader fragment")
+		T(IDC_OPENGL_ENABLED, "Enable colouring using OpenGL shader")
+		T(IDOK, "Apply changes and compile shader")
+		T(IDCANCEL, "Close the dialog")
+#undef T
+
+		SendDlgItemMessage(hWnd, IDC_OPENGL_GLSL, EM_SETLIMITTEXT, 0, 0);
+		SendDlgItemMessage(hWnd, IDC_OPENGL_LOG, EM_SETLIMITTEXT, 0, 0);
+		DragAcceptFiles(hWnd, TRUE);
+  }
+  if (uMsg == WM_SHOWWINDOW || uMsg == WM_USER + 99)
+  {
+		SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_SETCHECK, g_SFT.GetUseOpenGL() ? 1 : 0, 0);
+		SetDlgItemText(hWnd, IDC_OPENGL_GLSL, g_SFT.GetGLSL().c_str());
+		g_AutoUpdate++;
+		SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+		g_AutoUpdate--;
+	}
+	else if (uMsg == WM_COMMAND)
+	{
+		if (wParam == IDCANCEL || wParam == IDCLOSE)
+		{
+			ShowWindow(hWnd, SW_HIDE);
+		}
+		else if (wParam == IDC_OPENGL_EXPORT)
+		{
+			std::string file;
+			if (BrowseFile(hWnd, false, "Select shader file", "GLSL\0*.glsl\0\0", file))
+			{
+				write_file(file, GetDlgItemString(hWnd, IDC_OPENGL_GLSL));
+			}
+		}
+		else if (wParam == IDC_OPENGL_IMPORT)
+		{
+			g_SFT.UndoStore();
+			std::string file;
+			if (BrowseFile(hWnd, true, "Select shader file", "GLSL\0*.glsl\0\0", file))
+			{
+				SetDlgItemText(hWnd, IDC_OPENGL_GLSL, read_file(file).c_str());
+				g_AutoUpdate++;
+				SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+				g_AutoUpdate--;
+			}
+		}
+		else if (wParam == IDC_OPENGL_DEFAULT)
+		{
+			g_SFT.UndoStore();
+			SetDlgItemText(hWnd, IDC_OPENGL_GLSL, KF_DEFAULT_GLSL);
+			g_AutoUpdate++;
+			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+			g_AutoUpdate--;
+		}
+		else if (wParam == IDC_OPENGL_ENABLED)
+		{
+			g_SFT.UndoStore();
+			g_SFT.SetUseOpenGL(SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_GETCHECK, 0, 0));
+			g_AutoUpdate++;
+			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+			g_AutoUpdate--;
+		}
+		else if (wParam == IDOK)
+		{
+			if (! g_AutoUpdate)
+			{
+				g_SFT.UndoStore();
+			}
+			g_SFT.SetGLSL(GetDlgItemString(hWnd, IDC_OPENGL_GLSL));
+			SendMessage(g_hwColors, WM_COMMAND, IDOK, 0);
+			SetDlgItemText(hWnd, IDC_OPENGL_LOG, g_SFT.GetGLSLLog().c_str());
+		}
+	}
+	else if (uMsg == WM_DROPFILES)
+	{
+		HDROP hDrop = (HDROP) wParam;
+		if (hDrop)
+		{
+			UINT len = DragQueryFile(hDrop, 0, 0, 0);
+			if (len > 0)
+			{
+				char *buffer = (char *) calloc(1, 2 * len + 1);
+				if (buffer)
+				{
+					UINT ok = DragQueryFile(hDrop, 0, buffer, 2 * len);
+					if (ok)
+					{
+						std::string file(buffer);
+						std::string glsl = read_file(file);
+						SetDlgItemText(hWnd, IDC_OPENGL_GLSL, glsl.c_str());
+						SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+					}
+					free(buffer);
+				}
+			}
+			DragFinish(hDrop);
+		}
+	}
+	return 0;
+}
 
 extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -114,6 +261,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		T(IDC_BUTTON17, "Apply more contrast on the palette")
 		T(IDC_BUTTON18, "Apply less contrast on the palette")
 		T(IDC_AUTOCOLOUR, "Automatically apply palette on change")
+		T(IDC_COLOR_OPENGL, "Show OpenGL colouring dialog (Ctrl+G)")
 		T(IDOK, "Apply current palette")
 		T(IDCLOSE, "Close the dialog and undo all changes")
 		T(IDCANCEL, "Close the dialog")
@@ -167,6 +315,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON26),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON27),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON28),g_SFT.GetMW());
+		if (uMsg == WM_USER + 99)
+		{
+			SendMessage(g_hwColorsOpenGL, WM_USER + 99, 0, 0);
+		}
 	}
 	else if(HIWORD(wParam)==LBN_SELCHANGE && LOWORD(wParam)==IDC_LIST6){
 		char szTmp[256];
@@ -947,6 +1099,14 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)"");
 			}
 			InvalidateRect(hWnd,NULL,FALSE);
+		}
+		else if (wParam == IDC_COLOR_OPENGL)
+		{
+			if (! g_hwColorsOpenGL)
+			{
+				g_hwColorsOpenGL = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_OPENGL), hWnd, (DLGPROC) ColorOpenGLProc);
+			}
+			ShowWindow(g_hwColorsOpenGL, SW_SHOW);
 		}
 	}
 	else if(uMsg==WM_USER+88){
