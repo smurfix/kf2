@@ -2051,10 +2051,6 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 						output_log_message(Warn, "automatically enabling derivatives for analytic DE");
 						g_SFT.SetDerivatives(true);
 					}
-					else if (g_SFT.GetDifferences() != Differences_Analytic && g_SFT.GetDerivatives())
-					{
-						output_log_message(Warn, "derivatives are enabled but no analytic DE requested (possibly slow)");
-					}
 					if (hWnd)
 					{
 						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
