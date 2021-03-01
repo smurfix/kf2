@@ -3447,6 +3447,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Undo();
+		if (g_hwColors)
+		{
+			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
+		}
 		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
@@ -3462,6 +3466,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Redo();
+		if (g_hwColors)
+		{
+			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
+		}
 		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
