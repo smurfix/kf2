@@ -468,6 +468,10 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Differences"), req.u.configure.differences);
         glUniform1f(glGetUniformLocation(p_colour, "KFP_PhaseColorStrength"), req.u.configure.color_phase_strength);
         D
+        sRGB = req.u.configure.use_srgb;
+        glActiveTexture(GL_TEXTURE0 + tu_rgb8);
+        glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, max_tile_width, max_tile_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_sRGB"), sRGB);
         // palette
         glActiveTexture(GL_TEXTURE0 + tu_palette);
         glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.colors.size() / 3, 0, GL_BGR, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);

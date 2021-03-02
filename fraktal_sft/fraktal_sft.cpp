@@ -1299,6 +1299,7 @@ void CFraktalSFT::ApplyColors()
 					req.u.configure.texture_height = m_bmiBkg.biHeight;
 					req.u.configure.texture = m_lpTextureBits; // FIXME row alignment?
 				}
+				req.u.configure.use_srgb = GetUseSRGB();
 				fifo_write(to_opengl, req);
 				response resp;
 				fifo_read(from_opengl, resp);

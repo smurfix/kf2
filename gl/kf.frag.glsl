@@ -70,6 +70,8 @@ uniform float KFP_TextureMerge;
 uniform float KFP_TexturePower;
 uniform float KFP_TextureRatio;
 
+uniform bool KFP_sRGB;
+
 /// end of public API
 ///=====================================================================
 
@@ -5389,14 +5391,6 @@ const float pi = 3.141592653;
 float hypot1(float x, float y) { return sqrt(x * x + y * y); }
 float hypot2(float x, float y) { return x * x + y * y; }
 
-// <http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl>
-vec3 hsv2rgb(vec3 c)
-{
-  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
-  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
-  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
-}
-
 float srgb2lrgb(float s)
 {
   if (s <= 0.04045)
@@ -5419,6 +5413,19 @@ float lrgb2srgb(float l)
 vec3 lrgb2srgb(vec3 s)
 {
   return vec3(lrgb2srgb(s.x), lrgb2srgb(s.y), lrgb2srgb(s.z));
+}
+
+// <http://lolengine.net/blog/2013/07/27/rgb-to-hsv-in-glsl>
+vec3 hsv2rgb(vec3 c)
+{
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  vec3 rgb = c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+  if (KFP_sRGB)
+  {
+    rgb = srgb2lrgb(rgb);
+  }
+  return rgb;
 }
 
 vec3 KF_Palette(float ix)

@@ -427,6 +427,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	if (i != -1) SetUseOpenGL(atoi(stParams[i][1]));
 	i = stParams.FindString(0, "GLSL");
 	if (i != -1) SetGLSL(glsl_unescape(stParams[i][1]));
+	i = stParams.FindString(0, "UseSRGB");
+	if (i != -1) SetUseSRGB(atoi(stParams[i][1]));
 
 	if (! bNoLocation)
 	{
@@ -661,6 +663,7 @@ std::string CFraktalSFT::ToText()
   {
 		INT("UseOpenGL", 1)
 		STRING("GLSL", glsl_escape(GetGLSL()).c_str())
+		INT("UseSRGB", GetUseSRGB())
   }
 
 	INT("Version", kfr_version_number)

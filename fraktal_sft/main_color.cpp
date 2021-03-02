@@ -89,6 +89,7 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		T(IDC_OPENGL_IMPORT, "Import OpenGL shader fragment")
 		T(IDC_OPENGL_EXPORT, "Export OpenGL shader fragment")
 		T(IDC_OPENGL_ENABLED, "Enable colouring using OpenGL shader")
+		T(IDC_OPENGL_SRGB, "Convert input/output from/to sRGB colour space.\nWhen activated, shader operates in linear light (recommended)")
 		T(IDOK, "Apply changes and compile shader")
 		T(IDCANCEL, "Close the dialog")
 #undef T
@@ -100,6 +101,7 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
   if (uMsg == WM_SHOWWINDOW || uMsg == WM_USER + 99)
   {
 		SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_SETCHECK, g_SFT.GetUseOpenGL() ? 1 : 0, 0);
+		SendDlgItemMessage(hWnd, IDC_OPENGL_SRGB, BM_SETCHECK, g_SFT.GetUseSRGB() ? 1 : 0, 0);
 		SetDlgItemText(hWnd, IDC_OPENGL_GLSL, g_SFT.GetGLSL().c_str());
 		g_AutoUpdate++;
 		SendMessage(hWnd, WM_COMMAND, IDOK, 0);
@@ -135,6 +137,14 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		{
 			g_SFT.UndoStore();
 			SetDlgItemText(hWnd, IDC_OPENGL_GLSL, KF_DEFAULT_GLSL);
+			g_AutoUpdate++;
+			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
+			g_AutoUpdate--;
+		}
+		else if (wParam == IDC_OPENGL_SRGB)
+		{
+			g_SFT.UndoStore();
+			g_SFT.SetUseSRGB(SendDlgItemMessage(hWnd, IDC_OPENGL_SRGB, BM_GETCHECK, 0, 0));
 			g_AutoUpdate++;
 			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
 			g_AutoUpdate--;

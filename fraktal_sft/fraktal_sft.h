@@ -440,6 +440,7 @@ class CFraktalSFT
 	std::string m_sGLSL;
 	std::string m_sGLSLLog;
 	bool m_bGLSLChanged;
+	bool m_bUseSRGB;
 
 public:
 	BOOL m_bRunning;
@@ -706,6 +707,8 @@ public:
 	inline void SetGLSL(const std::string &gl) { m_bGLSLChanged |= (m_sGLSL != gl); m_sGLSL = gl; }
 	inline std::string GetGLSLLog() { return m_sGLSLLog; }
 	inline void SetGLSLLog(const std::string &gl) { m_sGLSLLog = gl; }
+	inline bool GetUseSRGB() { return m_bUseSRGB; }
+	inline void SetUseSRGB(bool b) { m_bUseSRGB = b; }
 };
 
 struct TH_PARAMS
