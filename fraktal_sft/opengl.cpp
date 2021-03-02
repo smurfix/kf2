@@ -470,12 +470,12 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         D
         // palette
         glActiveTexture(GL_TEXTURE0 + tu_palette);
-        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.colors.size() / 3, 0, GL_RGB, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);
+        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.colors.size() / 3, 0, GL_BGR, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);
         D
         srgb sinterior =
-          { req.u.configure.interior_color[0] / 255.0f
+          { req.u.configure.interior_color[2] / 255.0f
           , req.u.configure.interior_color[1] / 255.0f
-          , req.u.configure.interior_color[2] / 255.0f
+          , req.u.configure.interior_color[0] / 255.0f
           };
         if (sRGB)
         {
@@ -510,7 +510,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         if (req.u.configure.texture_enabled)
         {
           glActiveTexture(GL_TEXTURE0 + tu_texture);
-          glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.texture_width, req.u.configure.texture_height, 0, GL_RGB, GL_UNSIGNED_BYTE, req.u.configure.texture);
+          glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.texture_width, req.u.configure.texture_height, 0, GL_BGR, GL_UNSIGNED_BYTE, req.u.configure.texture);
         }
         D
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
@@ -762,7 +762,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb8)
             {
-              glReadPixels(0, 0, tile_width - 2, tile_height - 2, GL_RGB, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
+              glReadPixels(0, 0, tile_width - 2, tile_height - 2, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
             }
             if (sRGB)
             {
