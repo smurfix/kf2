@@ -2601,6 +2601,12 @@ the Colors dialog, or via the keyboard shortcut `Ctrl+G` in the main window.
 
     Export GLSL fragment to a text file (`*.glsl`).
 
+  - **Use sRGB**
+
+    Convert input and output from/to the sRGB colour space (which is
+    non-linear, to get better perceptual accuracy).  In this mode the shader
+    operates in linear light.
+
   - **Enable**
 
     Use OpenGL shader colouring instead of CPU colouring.
@@ -2612,6 +2618,12 @@ the Colors dialog, or via the keyboard shortcut `Ctrl+G` in the main window.
   - **Close**
 
     Cancel any unapplied changes and close the window.
+
+  - **OpenGL Version**
+
+    The version of OpenGL in use is shown here, typically the highest
+    supported version on your hardware and operating system + drivers.
+    Shaders should use `__VERSION__` to adapt to the environment.
 
 
 ## OpenGL Shader Language API
