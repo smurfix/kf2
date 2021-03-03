@@ -63,7 +63,7 @@ then
   wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
   wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
-  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.4.tar.gz -O openexr-2.5.4.tar.gz
+  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz -O openexr-2.5.5.tar.gz
   wget -c https://github.com/glfw/glfw/releases/download/3.3.3/glfw-3.3.3.zip
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
@@ -198,8 +198,8 @@ then
     # openexr 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/openexr-2.5.4.tar.gz
-    cd openexr-2.5.4/
+    tar xaf ~/win/src/openexr-2.5.5.tar.gz
+    cd openexr-2.5.5/
     #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
@@ -355,8 +355,8 @@ then
     # openexr 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xf ~/win/src/openexr-2.5.4.tar.gz
-    cd openexr-2.5.4/
+    tar xf ~/win/src/openexr-2.5.5.tar.gz
+    cd openexr-2.5.5/
     #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
@@ -516,8 +516,8 @@ then
     # openexr 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/openexr-2.5.4.tar.gz
-    cd openexr-2.5.4/
+    tar xaf ~/win/src/openexr-2.5.5.tar.gz
+    cd openexr-2.5.5/
     #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/aarch64/g" cmake/Toolchain-mingw.cmake
@@ -676,8 +676,8 @@ then
     # openexr 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xf ~/win/src/openexr-2.5.4.tar.gz
-    cd openexr-2.5.4/
+    tar xf ~/win/src/openexr-2.5.5.tar.gz
+    cd openexr-2.5.5/
     #patch -p1 < ~/win/src/openexr-2.4.0.patch
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/armv7/g" cmake/Toolchain-mingw.cmake
