@@ -89,7 +89,7 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		T(IDC_OPENGL_IMPORT, "Import OpenGL shader fragment")
 		T(IDC_OPENGL_EXPORT, "Export OpenGL shader fragment")
 		T(IDC_OPENGL_ENABLED, "Enable colouring using OpenGL shader")
-		T(IDC_OPENGL_SRGB, "Convert input/output from/to sRGB colour space.\nWhen activated, shader operates in linear light (recommended)")
+		T(IDC_OPENGL_SRGB, "Convert input/output from/to sRGB colour space\nWhen activated, shader operates in linear light")
 		T(IDOK, "Apply changes and compile shader")
 		T(IDCANCEL, "Close the dialog")
 #undef T
