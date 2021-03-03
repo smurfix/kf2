@@ -215,23 +215,11 @@ float _builtin_exp(float a) { return exp(a); }
 vec2 _builtin_exp(vec2 a) { return exp(a); }
 vec3 _builtin_exp(vec3 a) { return exp(a); }
 vec4 _builtin_exp(vec4 a) { return exp(a); }
-#if __VERSION__ >= 400
-double _builtin_exp(double a) { return exp(a); }
-dvec2 _builtin_exp(dvec2 a) { return exp(a); }
-dvec3 _builtin_exp(dvec3 a) { return exp(a); }
-dvec4 _builtin_exp(dvec4 a) { return exp(a); }
-#endif
 
 float exp(float a) { return _builtin_exp(a); }
 vec2 exp(vec2 a) { return _builtin_exp(a); }
 vec3 exp(vec3 a) { return _builtin_exp(a); }
 vec4 exp(vec4 a) { return _builtin_exp(a); }
-#if __VERSION__ >= 400
-double exp(double a) { return _builtin_exp(a); }
-dvec2 exp(dvec2 a) { return _builtin_exp(a); }
-dvec3 exp(dvec3 a) { return _builtin_exp(a); }
-dvec4 exp(dvec4 a) { return _builtin_exp(a); }
-#endif
 
 ///=====================================================================
 /// overload log()
@@ -240,23 +228,11 @@ float _builtin_log(float a) { return log(a); }
 vec2 _builtin_log(vec2 a) { return log(a); }
 vec3 _builtin_log(vec3 a) { return log(a); }
 vec4 _builtin_log(vec4 a) { return log(a); }
-#if __VERSION__ >= 400
-double _builtin_log(double a) { return log(a); }
-dvec2 _builtin_log(dvec2 a) { return log(a); }
-dvec3 _builtin_log(dvec3 a) { return log(a); }
-dvec4 _builtin_log(dvec4 a) { return log(a); }
-#endif
 
 float log(float a) { return _builtin_log(a); }
 vec2 log(vec2 a) { return _builtin_log(a); }
 vec3 log(vec3 a) { return _builtin_log(a); }
 vec4 log(vec4 a) { return _builtin_log(a); }
-#if __VERSION__ >= 400
-double log(double a) { return _builtin_log(a); }
-dvec2 log(dvec2 a) { return _builtin_log(a); }
-dvec3 log(dvec3 a) { return _builtin_log(a); }
-dvec4 log(dvec4 a) { return _builtin_log(a); }
-#endif
 
 ///=====================================================================
 /// overload sin()
@@ -265,23 +241,11 @@ float _builtin_sin(float a) { return sin(a); }
 vec2 _builtin_sin(vec2 a) { return sin(a); }
 vec3 _builtin_sin(vec3 a) { return sin(a); }
 vec4 _builtin_sin(vec4 a) { return sin(a); }
-#if __VERSION__ >= 400
-double _builtin_sin(double a) { return sin(a); }
-dvec2 _builtin_sin(dvec2 a) { return sin(a); }
-dvec3 _builtin_sin(dvec3 a) { return sin(a); }
-dvec4 _builtin_sin(dvec4 a) { return sin(a); }
-#endif
 
 float sin(float a) { return _builtin_sin(a); }
 vec2 sin(vec2 a) { return _builtin_sin(a); }
 vec3 sin(vec3 a) { return _builtin_sin(a); }
 vec4 sin(vec4 a) { return _builtin_sin(a); }
-#if __VERSION__ >= 400
-double sin(double a) { return _builtin_sin(a); }
-dvec2 sin(dvec2 a) { return _builtin_sin(a); }
-dvec3 sin(dvec3 a) { return _builtin_sin(a); }
-dvec4 sin(dvec4 a) { return _builtin_sin(a); }
-#endif
 
 ///=====================================================================
 /// overload cos()
@@ -290,23 +254,11 @@ float _builtin_cos(float a) { return cos(a); }
 vec2 _builtin_cos(vec2 a) { return cos(a); }
 vec3 _builtin_cos(vec3 a) { return cos(a); }
 vec4 _builtin_cos(vec4 a) { return cos(a); }
-#if __VERSION__ >= 400
-double _builtin_cos(double a) { return cos(a); }
-dvec2 _builtin_cos(dvec2 a) { return cos(a); }
-dvec3 _builtin_cos(dvec3 a) { return cos(a); }
-dvec4 _builtin_cos(dvec4 a) { return cos(a); }
-#endif
 
 float cos(float a) { return _builtin_cos(a); }
 vec2 cos(vec2 a) { return _builtin_cos(a); }
 vec3 cos(vec3 a) { return _builtin_cos(a); }
 vec4 cos(vec4 a) { return _builtin_cos(a); }
-#if __VERSION__ >= 400
-double cos(double a) { return _builtin_cos(a); }
-dvec2 cos(dvec2 a) { return _builtin_cos(a); }
-dvec3 cos(dvec3 a) { return _builtin_cos(a); }
-dvec4 cos(dvec4 a) { return _builtin_cos(a); }
-#endif
 
 ///=====================================================================
 /// overload tan()
@@ -315,23 +267,11 @@ float _builtin_tan(float a) { return tan(a); }
 vec2 _builtin_tan(vec2 a) { return tan(a); }
 vec3 _builtin_tan(vec3 a) { return tan(a); }
 vec4 _builtin_tan(vec4 a) { return tan(a); }
-#if __VERSION__ >= 400
-double _builtin_tan(double a) { return tan(a); }
-dvec2 _builtin_tan(dvec2 a) { return tan(a); }
-dvec3 _builtin_tan(dvec3 a) { return tan(a); }
-dvec4 _builtin_tan(dvec4 a) { return tan(a); }
-#endif
 
 float tan(float a) { return _builtin_tan(a); }
 vec2 tan(vec2 a) { return _builtin_tan(a); }
 vec3 tan(vec3 a) { return _builtin_tan(a); }
 vec4 tan(vec4 a) { return _builtin_tan(a); }
-#if __VERSION__ >= 400
-double tan(double a) { return _builtin_tan(a); }
-dvec2 tan(dvec2 a) { return _builtin_tan(a); }
-dvec3 tan(dvec3 a) { return _builtin_tan(a); }
-dvec4 tan(dvec4 a) { return _builtin_tan(a); }
-#endif
 
 ///=====================================================================
 /// overload sinh()
@@ -340,23 +280,11 @@ float _builtin_sinh(float a) { return sinh(a); }
 vec2 _builtin_sinh(vec2 a) { return sinh(a); }
 vec3 _builtin_sinh(vec3 a) { return sinh(a); }
 vec4 _builtin_sinh(vec4 a) { return sinh(a); }
-#if __VERSION__ >= 400
-double _builtin_sinh(double a) { return sinh(a); }
-dvec2 _builtin_sinh(dvec2 a) { return sinh(a); }
-dvec3 _builtin_sinh(dvec3 a) { return sinh(a); }
-dvec4 _builtin_sinh(dvec4 a) { return sinh(a); }
-#endif
 
 float sinh(float a) { return _builtin_sinh(a); }
 vec2 sinh(vec2 a) { return _builtin_sinh(a); }
 vec3 sinh(vec3 a) { return _builtin_sinh(a); }
 vec4 sinh(vec4 a) { return _builtin_sinh(a); }
-#if __VERSION__ >= 400
-double sinh(double a) { return _builtin_sinh(a); }
-dvec2 sinh(dvec2 a) { return _builtin_sinh(a); }
-dvec3 sinh(dvec3 a) { return _builtin_sinh(a); }
-dvec4 sinh(dvec4 a) { return _builtin_sinh(a); }
-#endif
 
 ///=====================================================================
 /// overload cosh()
@@ -365,23 +293,11 @@ float _builtin_cosh(float a) { return cosh(a); }
 vec2 _builtin_cosh(vec2 a) { return cosh(a); }
 vec3 _builtin_cosh(vec3 a) { return cosh(a); }
 vec4 _builtin_cosh(vec4 a) { return cosh(a); }
-#if __VERSION__ >= 400
-double _builtin_cosh(double a) { return cosh(a); }
-dvec2 _builtin_cosh(dvec2 a) { return cosh(a); }
-dvec3 _builtin_cosh(dvec3 a) { return cosh(a); }
-dvec4 _builtin_cosh(dvec4 a) { return cosh(a); }
-#endif
 
 float cosh(float a) { return _builtin_cosh(a); }
 vec2 cosh(vec2 a) { return _builtin_cosh(a); }
 vec3 cosh(vec3 a) { return _builtin_cosh(a); }
 vec4 cosh(vec4 a) { return _builtin_cosh(a); }
-#if __VERSION__ >= 400
-double cosh(double a) { return _builtin_cosh(a); }
-dvec2 cosh(dvec2 a) { return _builtin_cosh(a); }
-dvec3 cosh(dvec3 a) { return _builtin_cosh(a); }
-dvec4 cosh(dvec4 a) { return _builtin_cosh(a); }
-#endif
 
 ///=====================================================================
 /// overload tanh()
@@ -390,23 +306,11 @@ float _builtin_tanh(float a) { return tanh(a); }
 vec2 _builtin_tanh(vec2 a) { return tanh(a); }
 vec3 _builtin_tanh(vec3 a) { return tanh(a); }
 vec4 _builtin_tanh(vec4 a) { return tanh(a); }
-#if __VERSION__ >= 400
-double _builtin_tanh(double a) { return tanh(a); }
-dvec2 _builtin_tanh(dvec2 a) { return tanh(a); }
-dvec3 _builtin_tanh(dvec3 a) { return tanh(a); }
-dvec4 _builtin_tanh(dvec4 a) { return tanh(a); }
-#endif
 
 float tanh(float a) { return _builtin_tanh(a); }
 vec2 tanh(vec2 a) { return _builtin_tanh(a); }
 vec3 tanh(vec3 a) { return _builtin_tanh(a); }
 vec4 tanh(vec4 a) { return _builtin_tanh(a); }
-#if __VERSION__ >= 400
-double tanh(double a) { return _builtin_tanh(a); }
-dvec2 tanh(dvec2 a) { return _builtin_tanh(a); }
-dvec3 tanh(dvec3 a) { return _builtin_tanh(a); }
-dvec4 tanh(dvec4 a) { return _builtin_tanh(a); }
-#endif
 
 ///=====================================================================
 /// overload asin()
@@ -415,23 +319,11 @@ float _builtin_asin(float a) { return asin(a); }
 vec2 _builtin_asin(vec2 a) { return asin(a); }
 vec3 _builtin_asin(vec3 a) { return asin(a); }
 vec4 _builtin_asin(vec4 a) { return asin(a); }
-#if __VERSION__ >= 400
-double _builtin_asin(double a) { return asin(a); }
-dvec2 _builtin_asin(dvec2 a) { return asin(a); }
-dvec3 _builtin_asin(dvec3 a) { return asin(a); }
-dvec4 _builtin_asin(dvec4 a) { return asin(a); }
-#endif
 
 float asin(float a) { return _builtin_asin(a); }
 vec2 asin(vec2 a) { return _builtin_asin(a); }
 vec3 asin(vec3 a) { return _builtin_asin(a); }
 vec4 asin(vec4 a) { return _builtin_asin(a); }
-#if __VERSION__ >= 400
-double asin(double a) { return _builtin_asin(a); }
-dvec2 asin(dvec2 a) { return _builtin_asin(a); }
-dvec3 asin(dvec3 a) { return _builtin_asin(a); }
-dvec4 asin(dvec4 a) { return _builtin_asin(a); }
-#endif
 
 ///=====================================================================
 /// overload acos()
@@ -440,23 +332,11 @@ float _builtin_acos(float a) { return acos(a); }
 vec2 _builtin_acos(vec2 a) { return acos(a); }
 vec3 _builtin_acos(vec3 a) { return acos(a); }
 vec4 _builtin_acos(vec4 a) { return acos(a); }
-#if __VERSION__ >= 400
-double _builtin_acos(double a) { return acos(a); }
-dvec2 _builtin_acos(dvec2 a) { return acos(a); }
-dvec3 _builtin_acos(dvec3 a) { return acos(a); }
-dvec4 _builtin_acos(dvec4 a) { return acos(a); }
-#endif
 
 float acos(float a) { return _builtin_acos(a); }
 vec2 acos(vec2 a) { return _builtin_acos(a); }
 vec3 acos(vec3 a) { return _builtin_acos(a); }
 vec4 acos(vec4 a) { return _builtin_acos(a); }
-#if __VERSION__ >= 400
-double acos(double a) { return _builtin_acos(a); }
-dvec2 acos(dvec2 a) { return _builtin_acos(a); }
-dvec3 acos(dvec3 a) { return _builtin_acos(a); }
-dvec4 acos(dvec4 a) { return _builtin_acos(a); }
-#endif
 
 ///=====================================================================
 /// overload atan()
@@ -465,43 +345,21 @@ float _builtin_atan(float a) { return atan(a); }
 vec2 _builtin_atan(vec2 a) { return atan(a); }
 vec3 _builtin_atan(vec3 a) { return atan(a); }
 vec4 _builtin_atan(vec4 a) { return atan(a); }
-#if __VERSION__ >= 400
-double _builtin_atan(double a) { return atan(a); }
-dvec2 _builtin_atan(dvec2 a) { return atan(a); }
-dvec3 _builtin_atan(dvec3 a) { return atan(a); }
-dvec4 _builtin_atan(dvec4 a) { return atan(a); }
-#endif
+
 float _builtin_atan(float a, float b) { return atan(a, b); }
 vec2 _builtin_atan(vec2 a, vec2 b) { return atan(a, b); }
 vec3 _builtin_atan(vec3 a, vec3 b) { return atan(a, b); }
 vec4 _builtin_atan(vec4 a, vec4 b) { return atan(a, b); }
-#if __VERSION__ >= 400
-double _builtin_atan(double a, double b) { return atan(a, b); }
-dvec2 _builtin_atan(dvec2 a, dvec2 b) { return atan(a, b); }
-dvec3 _builtin_atan(dvec3 a, dvec3 b) { return atan(a, b); }
-dvec4 _builtin_atan(dvec4 a, dvec4 b) { return atan(a, b); }
-#endif
 
 float atan(float a) { return _builtin_atan(a); }
 vec2 atan(vec2 a) { return _builtin_atan(a); }
 vec3 atan(vec3 a) { return _builtin_atan(a); }
 vec4 atan(vec4 a) { return _builtin_atan(a); }
-#if __VERSION__ >= 400
-double atan(double a) { return _builtin_atan(a); }
-dvec2 atan(dvec2 a) { return _builtin_atan(a); }
-dvec3 atan(dvec3 a) { return _builtin_atan(a); }
-dvec4 atan(dvec4 a) { return _builtin_atan(a); }
-#endif
+
 float atan(float a, float b) { return _builtin_atan(a, b); }
 vec2 atan(vec2 a, vec2 b) { return _builtin_atan(a, b); }
 vec3 atan(vec3 a, vec3 b) { return _builtin_atan(a, b); }
 vec4 atan(vec4 a, vec4 b) { return _builtin_atan(a, b); }
-#if __VERSION__ >= 400
-double atan(double a, double b) { return _builtin_atan(a, b); }
-dvec2 atan(dvec2 a, dvec2 b) { return _builtin_atan(a, b); }
-dvec3 atan(dvec3 a, dvec3 b) { return _builtin_atan(a, b); }
-dvec4 atan(dvec4 a, dvec4 b) { return _builtin_atan(a, b); }
-#endif
 
 ///=====================================================================
 /// overload asinh()
@@ -510,23 +368,11 @@ float _builtin_asinh(float a) { return asinh(a); }
 vec2 _builtin_asinh(vec2 a) { return asinh(a); }
 vec3 _builtin_asinh(vec3 a) { return asinh(a); }
 vec4 _builtin_asinh(vec4 a) { return asinh(a); }
-#if __VERSION__ >= 400
-double _builtin_asinh(double a) { return asinh(a); }
-dvec2 _builtin_asinh(dvec2 a) { return asinh(a); }
-dvec3 _builtin_asinh(dvec3 a) { return asinh(a); }
-dvec4 _builtin_asinh(dvec4 a) { return asinh(a); }
-#endif
 
 float asinh(float a) { return _builtin_asinh(a); }
 vec2 asinh(vec2 a) { return _builtin_asinh(a); }
 vec3 asinh(vec3 a) { return _builtin_asinh(a); }
 vec4 asinh(vec4 a) { return _builtin_asinh(a); }
-#if __VERSION__ >= 400
-double asinh(double a) { return _builtin_asinh(a); }
-dvec2 asinh(dvec2 a) { return _builtin_asinh(a); }
-dvec3 asinh(dvec3 a) { return _builtin_asinh(a); }
-dvec4 asinh(dvec4 a) { return _builtin_asinh(a); }
-#endif
 
 ///=====================================================================
 /// overload acosh()
@@ -535,23 +381,11 @@ float _builtin_acosh(float a) { return acosh(a); }
 vec2 _builtin_acosh(vec2 a) { return acosh(a); }
 vec3 _builtin_acosh(vec3 a) { return acosh(a); }
 vec4 _builtin_acosh(vec4 a) { return acosh(a); }
-#if __VERSION__ >= 400
-double _builtin_acosh(double a) { return acosh(a); }
-dvec2 _builtin_acosh(dvec2 a) { return acosh(a); }
-dvec3 _builtin_acosh(dvec3 a) { return acosh(a); }
-dvec4 _builtin_acosh(dvec4 a) { return acosh(a); }
-#endif
 
 float acosh(float a) { return _builtin_acosh(a); }
 vec2 acosh(vec2 a) { return _builtin_acosh(a); }
 vec3 acosh(vec3 a) { return _builtin_acosh(a); }
 vec4 acosh(vec4 a) { return _builtin_acosh(a); }
-#if __VERSION__ >= 400
-double acosh(double a) { return _builtin_acosh(a); }
-dvec2 acosh(dvec2 a) { return _builtin_acosh(a); }
-dvec3 acosh(dvec3 a) { return _builtin_acosh(a); }
-dvec4 acosh(dvec4 a) { return _builtin_acosh(a); }
-#endif
 
 ///=====================================================================
 /// overload atanh()
@@ -560,23 +394,11 @@ float _builtin_atanh(float a) { return atanh(a); }
 vec2 _builtin_atanh(vec2 a) { return atanh(a); }
 vec3 _builtin_atanh(vec3 a) { return atanh(a); }
 vec4 _builtin_atanh(vec4 a) { return atanh(a); }
-#if __VERSION__ >= 400
-double _builtin_atanh(double a) { return atanh(a); }
-dvec2 _builtin_atanh(dvec2 a) { return atanh(a); }
-dvec3 _builtin_atanh(dvec3 a) { return atanh(a); }
-dvec4 _builtin_atanh(dvec4 a) { return atanh(a); }
-#endif
 
 float atanh(float a) { return _builtin_atanh(a); }
 vec2 atanh(vec2 a) { return _builtin_atanh(a); }
 vec3 atanh(vec3 a) { return _builtin_atanh(a); }
 vec4 atanh(vec4 a) { return _builtin_atanh(a); }
-#if __VERSION__ >= 400
-double atanh(double a) { return _builtin_atanh(a); }
-dvec2 atanh(dvec2 a) { return _builtin_atanh(a); }
-dvec3 atanh(dvec3 a) { return _builtin_atanh(a); }
-dvec4 atanh(dvec4 a) { return _builtin_atanh(a); }
-#endif
 
 ///=====================================================================
 /// overload pow()
@@ -585,23 +407,11 @@ float _builtin_pow(float a, float b) { return pow(a, b); }
 vec2 _builtin_pow(vec2 a, vec2 b) { return pow(a, b); }
 vec3 _builtin_pow(vec3 a, vec3 b) { return pow(a, b); }
 vec4 _builtin_pow(vec4 a, vec4 b) { return pow(a, b); }
-#if __VERSION__ >= 400
-double _builtin_pow(double a, double b) { return pow(a, b); }
-dvec2 _builtin_pow(dvec2 a, dvec2 b) { return pow(a, b); }
-dvec3 _builtin_pow(dvec3 a, dvec3 b) { return pow(a, b); }
-dvec4 _builtin_pow(dvec4 a, dvec4 b) { return pow(a, b); }
-#endif
 
 float pow(float a, float b) { return _builtin_pow(a, b); }
 vec2 pow(vec2 a, vec2 b) { return _builtin_pow(a, b); }
 vec3 pow(vec3 a, vec3 b) { return _builtin_pow(a, b); }
 vec4 pow(vec4 a, vec4 b) { return _builtin_pow(a, b); }
-#if __VERSION__ >= 400
-double pow(double a, double b) { return _builtin_pow(a, b); }
-dvec2 pow(dvec2 a, dvec2 b) { return _builtin_pow(a, b); }
-dvec3 pow(dvec3 a, dvec3 b) { return _builtin_pow(a, b); }
-dvec4 pow(dvec4 a, dvec4 b) { return _builtin_pow(a, b); }
-#endif
 
 ///=====================================================================
 /// overload max() // FIXME misses variations eg max(vec3, float)
