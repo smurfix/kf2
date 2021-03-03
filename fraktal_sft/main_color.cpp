@@ -90,6 +90,7 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		T(IDC_OPENGL_EXPORT, "Export OpenGL shader fragment")
 		T(IDC_OPENGL_ENABLED, "Enable colouring using OpenGL shader")
 		T(IDC_OPENGL_SRGB, "Convert input/output from/to sRGB colour space\nWhen activated, shader operates in linear light")
+		T(IDC_OPENGL_VERSION, "Reports the version of OpenGL currently in use\nThis is typically the highest supported on this machine\nShader GLSL should test __VERSION__ to adapt to the environment")
 		T(IDOK, "Apply changes and compile shader")
 		T(IDCANCEL, "Close the dialog")
 #undef T
@@ -166,6 +167,8 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			g_SFT.SetGLSL(GetDlgItemString(hWnd, IDC_OPENGL_GLSL));
 			SendMessage(g_hwColors, WM_COMMAND, IDOK, 0);
 			SetDlgItemText(hWnd, IDC_OPENGL_LOG, g_SFT.GetGLSLLog().c_str());
+			char version[] = { '0' + g_SFT.m_opengl_major, '.', '0' + g_SFT.m_opengl_minor, 0 };
+			SetDlgItemText(hWnd, IDC_OPENGL_VERSION, version);
 		}
 	}
 	else if (uMsg == WM_DROPFILES)

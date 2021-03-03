@@ -364,6 +364,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_OPENGL_LOG 1464
 #define IDC_OPENGL_DEFAULT 1465
 #define IDC_OPENGL_SRGB 1466
+#define IDC_OPENGL_VERSION 1467
 
 // menus
 #define ID_ACTIONS_SETTINGS             40001

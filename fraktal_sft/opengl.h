@@ -47,15 +47,11 @@ enum response_t
   response_render
 };
 
-struct request_init_t
-{
-  int major;
-  int minor;
-};
-
 struct response_init_t
 {
   bool success;
+  int major;
+  int minor;
 };
 
 struct request_compile_t
@@ -129,7 +125,6 @@ struct request
   request_t tag;
   struct
   {
-    request_init_t init;
     request_compile_t compile;
     request_configure_t configure;
     request_render_t render;

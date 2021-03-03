@@ -443,6 +443,8 @@ class CFraktalSFT
 	bool m_bUseSRGB;
 
 public:
+	int m_opengl_major;
+	int m_opengl_minor;
 	BOOL m_bRunning;
 	BOOL m_bInhibitColouring;
 	bool m_bInteractive;

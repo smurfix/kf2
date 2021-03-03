@@ -1215,13 +1215,13 @@ void CFraktalSFT::ApplyColors()
 			{
 				request req;
 				req.tag = request_init;
-				req.u.init.major = 3;
-				req.u.init.minor = 3;
 				fifo_write(to_opengl, req);
 				response resp;
 				fifo_read(from_opengl, resp);
 				assert(resp.tag == response_init);
 				opengl_initialized = resp.u.init.success;
+				m_opengl_major = resp.u.init.major;
+				m_opengl_minor = resp.u.init.minor;
 			}
 			if (opengl_initialized && ((! opengl_compiled) || m_bGLSLChanged))
 			{

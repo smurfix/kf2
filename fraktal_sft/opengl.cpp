@@ -159,37 +159,52 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
       case request_init:
       {
         response resp;
+        resp.tag = response_init;
         if (! glfwInit())
         {
-          resp.tag = response_init;
           resp.u.init.success = false;
           fifo_write(responses, resp);
           std::cerr << "error: glfwInit()" << std::endl;
           break;
         }
-        glfwDefaultWindowHints();
-        glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, req.u.init.major);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, req.u.init.minor);
-        if (req.u.init.major > 3 || (req.u.init.major == 3 && req.u.init.minor >= 3))
+        const int nversions = 12;
+        const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2 };
+        const int minor[] = { 6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0, 1 };
+        const int glslv[] = { 460, 450, 440, 430, 420, 410, 400, 330, 150, 140, 130, 120 };
+        resp.u.init.major = 0;
+        resp.u.init.minor = 0;
+        for (int k = 0; k < nversions; ++k)
         {
-          int v = 100 * req.u.init.major + 10 * req.u.init.minor;
-          std::ostringstream o;
-          o << "#version " << v << " core\n";
-          version = o.str();
+          glfwDefaultWindowHints();
+          glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
+          glfwWindowHint(GLFW_CLIENT_API, GLFW_OPENGL_API);
+          glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, major[k]);
+          glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, minor[k]);
+          if (major[k] > 3 || (major[k] == 3 && minor[k] >= 3))
+          {
+            glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+            glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
+            std::ostringstream o;
+            o << "#version " << glslv[k] << " core\n";
+            version = o.str();
+          }
+          else
+          {
+            std::ostringstream o;
+            o << "#version " << glslv[k] << "\n";
+            version = o.str();
+          }
+          window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
+          if (window)
+          {
+            resp.u.init.major = major[k];
+            resp.u.init.minor = minor[k];
+            break;
+          }
         }
-        else
-        {
-          version = "#version 120\n";
-        }
-        glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-        glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
-        glfwWindowHint(GLFW_VISIBLE, GLFW_FALSE);
-        window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
         if (! window)
         {
           glfwTerminate();
-          resp.tag = response_init;
           resp.u.init.success = false;
           fifo_write(responses, resp);
           std::cerr << "error: glfwCreateWindow()" << std::endl;
@@ -200,7 +215,6 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         {
           glfwDestroyWindow(window);
           glfwTerminate();
-          resp.tag = response_init;
           resp.u.init.success = false;
           fifo_write(responses, resp);
           std::cerr << "error: gladLoadGLLoader()" << std::endl;
@@ -333,9 +347,18 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
 
         std::string vertex_log, fragment_log, link_log;
         p_blit = vertex_fragment_shader(version.c_str(), blit_vert, blit_frag, "", vertex_log, fragment_log, link_log);
-        std::cerr << vertex_log << std::endl;
-        std::cerr << fragment_log << std::endl;
-        std::cerr << link_log << std::endl;
+        if (vertex_log != "")
+        {
+          std::cerr << vertex_log << std::endl;
+        }
+        if (fragment_log != "")
+        {
+          std::cerr << fragment_log << std::endl;
+        }
+        if (link_log != "")
+        {
+          std::cerr << link_log << std::endl;
+        }
         glUseProgram(p_blit);
         glUniform1i(glGetUniformLocation(p_blit, "t"), t_rgb16);
         D
@@ -344,7 +367,6 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glBindVertexArray(vao);
         D
 
-        resp.tag = response_init;
         resp.u.init.success = true;
         fifo_write(responses, resp);
         break;
