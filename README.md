@@ -1693,9 +1693,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 - the QD library is used under the QD License
   <https://sources.debian.org/src/qd/2.3.22+dfsg.1-3/COPYING/>
   <https://sources.debian.org/src/qd/2.3.22+dfsg.1-3/BSD-LBNL-License.doc/>
-
-KF versions between 2.14.7 (inclusive) and 2.15.1.3 (exclusive) used:
-
 - the MINGW-STD-THREADS library is used under the conditions of the Simplified
   BSD License
   <https://github.com/meganz/mingw-std-threads/blob/master/LICENSE>
@@ -1706,6 +1703,24 @@ service, you must also be prepared to distribute the source corresponding
 to those binaries.  To make this easier for you, the more recent zips
 include the source too (though you'll also need to get the third party
 library sources).
+
+Library sources can be obtained via:
+
+- [boost](https://boost.org)
+- [clew](https://github.com/martijnberger/clew)
+- [glad](https://github.com/Dav1dde/glad)
+- [glfw](https://www.glfw.org)
+- [glm](https://github.com/g-truc/glm)
+- [gmp](https://gmplib.org)
+- [gsl](https://ftp.gnu.org/gnu/gsl)
+- [jpeg](https://jpegclub.org/support)
+- [mingw-std-threads](https://github.com/meganz/mingw-std-threads)
+- [mpfr](https://www.mpfr.org/mpfr-current/#download)
+- [openexr](https://github.com/AcademySoftwareFoundation/openexr)
+- [pixman](https://www.cairographics.org/releases)
+- [png](http://www.libpng.org/pub/png/libpng.html)
+- [tiff](https://download.osgeo.org/libtiff)
+- [zlib](https://zlib.net)
 
 
 ## Acknowledgements
