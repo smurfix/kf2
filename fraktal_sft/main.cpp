@@ -75,7 +75,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <GLFW/glfw3.h>
 #include <iostream>
 #include <sstream>
+
+#ifdef __clang__
 #include <thread>
+#else
+#include <mingw-std-threads/mingw.thread.h>
+#endif
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;

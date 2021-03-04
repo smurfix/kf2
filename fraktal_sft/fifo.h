@@ -20,8 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_FIFO_H 1
 
 #include <queue>
+#ifdef __clang__
 #include <mutex>
 #include <condition_variable>
+#else
+#include <mingw-std-threads/mingw.mutex.h>
+#include <mingw-std-threads/mingw.condition_variable.h>
+#endif
 
 template <typename T>
 struct fifo
