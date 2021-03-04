@@ -33,6 +33,12 @@ then
 else
   PREPARE="$2"
 fi
+if [[ "x$3" = "x" ]]
+then
+  COMPILER="gcc"
+else
+  COMPILER="$3"
+fi
 if [[ "${ACTION}" =~ "-h" ]]
 then
   echo "usage:"
@@ -44,6 +50,9 @@ then
   echo "  $0 \$arch \$lib  # build one library for one architecture"
   echo "    # supported libraries:"
   echo "    ${ALL_LIBS}"
+  echo "  $0 \$arch \$lib \$compiler # build with a specific compiler"
+  echo "    # supported compilers:"
+  echo "    gcc llvm"
   exit 0
 fi
 if [[ "${ACTION}" =~ "dl" ]]
@@ -200,7 +209,10 @@ then
     cd ~/win/x86_64/src
     tar xaf ~/win/src/openexr-2.5.5.tar.gz
     cd openexr-2.5.5/
-    #patch -p1 < ~/win/src/openexr-2.4.0.patch
+    if [[ "x${COMPILER}" = "xgcc" ]]
+    then
+      patch -p1 < ~/win/src/openexr-2.4.0.patch
+    fi
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     mkdir -p build
     cd build
@@ -357,7 +369,10 @@ then
     cd ~/win/i686/src
     tar xf ~/win/src/openexr-2.5.5.tar.gz
     cd openexr-2.5.5/
-    #patch -p1 < ~/win/src/openexr-2.4.0.patch
+    if [[ "x${COMPILER}" = "xgcc" ]]
+    then
+      patch -p1 < ~/win/src/openexr-2.4.0.patch
+    fi
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/i686/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
@@ -518,7 +533,10 @@ then
     cd ~/win/aarch64/src
     tar xaf ~/win/src/openexr-2.5.5.tar.gz
     cd openexr-2.5.5/
-    #patch -p1 < ~/win/src/openexr-2.4.0.patch
+    if [[ "x${COMPILER}" = "xgcc" ]]
+    then
+      patch -p1 < ~/win/src/openexr-2.4.0.patch
+    fi
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/aarch64/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
@@ -678,7 +696,10 @@ then
     cd ~/win/armv7/src
     tar xf ~/win/src/openexr-2.5.5.tar.gz
     cd openexr-2.5.5/
-    #patch -p1 < ~/win/src/openexr-2.4.0.patch
+    if [[ "x${COMPILER}" = "xgcc" ]]
+    then
+      patch -p1 < ~/win/src/openexr-2.4.0.patch
+    fi
     sed -i "s/#ifdef _WIN32/#if 0/g" OpenEXR/IlmImf/ImfStdIO.cpp
     sed -i "s/x86_64/armv7/g" cmake/Toolchain-mingw.cmake
     mkdir -p build
