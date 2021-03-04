@@ -1,0 +1,47 @@
+Re: -0.4547650395810100111895768
+Im: 0.1409063623928685365926938
+Zoom: 1.0000000000000000E0
+Iterations: 1100
+IterDiv: 0.0200000000000000004
+SmoothMethod: 0
+SmoothingMethod: 0
+BailoutRadiusPreset: 0
+BailoutRadiusCustom: 2
+BailoutNormPreset: 1
+BailoutNormCustom: 2
+ColorMethod: 7
+Differences: 7
+ColorOffset: 0
+ColorPhaseStrength: 0
+Colors: 255,255,255,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
+InteriorColor: 0,0,0,
+Smooth: 1
+Flat: 0
+MultiColor: 0
+BlendMC: 1
+MultiColors: 100	0	0,111	0	1,123	0	2,
+Power: 2
+FractalType: 0
+Slopes: 0
+SlopePower: 50
+SlopeRatio: 20
+SlopeAngle: 60
+real: 1
+imag: 1
+SeedR: 0
+SeedI: 0
+FactorAR: 1
+FactorAI: 0
+Period: 0
+TextureEnabled: 0
+TextureMerge: 1
+TexturePower: 200
+TextureRatio: 100
+TextureFile: 
+RotateAngle: 0
+StretchAngle: 0
+StretchAmount: 0
+UseOpenGL: 1
+GLSL: vec3\ colour()\ {\ return\ KF_Colour();\ }\n
+UseSRGB: 0
+Version: 2150200
