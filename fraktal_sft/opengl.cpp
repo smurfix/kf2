@@ -124,7 +124,11 @@ const char *blit_vert =
       "}\n"
   ;
 const char *blit_frag =
+      "#if __VERSION__ >= 330\n"
       "layout(location = 0, index = 0) out vec4 colour;\n"
+      "#else\n"
+      "#define colour gl_FragColor\n"
+      "#endif\n"
       "uniform sampler2D t;\n"
       "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
   ;
@@ -167,10 +171,10 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           std::cerr << "error: glfwInit()" << std::endl;
           break;
         }
-        const int nversions = 12;
-        const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3, 2 };
-        const int minor[] = { 6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0, 1 };
-        const int glslv[] = { 460, 450, 440, 430, 420, 410, 400, 330, 150, 140, 130, 120 };
+        const int nversions = 11;
+        const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3 };
+        const int minor[] = { 6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0 };
+        const int glslv[] = { 460, 450, 440, 430, 420, 410, 400, 330, 150, 140, 130 };
         resp.u.init.major = 0;
         resp.u.init.minor = 0;
         for (int k = 0; k < nversions; ++k)

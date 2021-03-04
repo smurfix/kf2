@@ -75,7 +75,11 @@ uniform bool KFP_sRGB;
 /// end of public API
 ///=====================================================================
 
+#if __VERSION__ >= 330
 layout(location = 0, index = 0) out vec4 Internal_Colour;
+#else
+#define Internal_Colour gl_FragColor
+#endif
 
 uniform usampler2D Internal_N1;
 uniform usampler2D Internal_N0;
