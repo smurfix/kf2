@@ -5657,7 +5657,11 @@ vec3 KF_InfiniteWaves(bool Smooth, float49 iter)
     nS /= float(nDG);
   if (nDB > 0)
     nB /= float(nDB);
-  vec3 nRGB = /*srgb2lrgb*/(hsv2rgb(vec3(nH, nS, nB)).bgr);
+  vec3 nRGB = hsv2rgb(vec3(nH, nS, nB));
+  if (KFP_sRGB)
+  {
+    nRGB = srgb2lrgb(nRGB);
+  }
   return nRGB;
 }
 
