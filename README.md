@@ -2676,7 +2676,8 @@ f49_2pi f49_pi f49_3pi4 f49_pi2 f49_pi4 f49_pi16
 f49_eps f49_min_normalized f49_max
 ```
 
-You can convert a `float49` to float by `.x[0]`.
+You can convert a `float49` to `float` by `f.x[0]`, and to `double` by
+`double(f.x[0]) + double(f.x[1])`.
 
 ### Accessing pixel data
 
@@ -2820,7 +2821,6 @@ The size of the final image.
 
 The key colours of the palette.  The function `KF_Palette` interpolates
 the palette emulating KF's regular implementation, input is in \[0..1).
-
 
 #### `vec3 KFP_InteriorColor`
 
