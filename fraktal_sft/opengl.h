@@ -52,6 +52,7 @@ struct response_init_t
   bool success;
   int major;
   int minor;
+  std::string message;
 };
 
 struct request_compile_t

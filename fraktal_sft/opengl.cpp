@@ -210,8 +210,8 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         {
           glfwTerminate();
           resp.u.init.success = false;
+          resp.u.init.message = "error: could not create OpenGL context with version 3.0 or greater\n";
           fifo_write(responses, resp);
-          std::cerr << "error: glfwCreateWindow()" << std::endl;
           break;
         }
         glfwMakeContextCurrent(window);
@@ -220,10 +220,31 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           glfwDestroyWindow(window);
           glfwTerminate();
           resp.u.init.success = false;
+          resp.u.init.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
           fifo_write(responses, resp);
-          std::cerr << "error: gladLoadGLLoader()" << std::endl;
           break;
         }
+
+        std::string vertex_log, fragment_log, link_log;
+        p_blit = vertex_fragment_shader(version.c_str(), blit_vert, blit_frag, "", vertex_log, fragment_log, link_log);
+        if (! p_blit)
+        {
+          const std::string nl = "\n";
+          glfwDestroyWindow(window);
+          glfwTerminate();
+          resp.u.init.success = false;
+          resp.u.init.message =
+            "error: could not compile internal shader:\n" +
+            vertex_log + nl +
+            fragment_log + nl +
+            link_log + nl;
+          fifo_write(responses, resp);
+          break;
+        }
+        glUseProgram(p_blit);
+        glUniform1i(glGetUniformLocation(p_blit, "t"), t_rgb16);
+        D
+
         const GLuint zeroui = 0;
         const GLfloat zerof = 0;
 
@@ -347,24 +368,6 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glBindFramebuffer(GL_FRAMEBUFFER, f_srgb);
         glFramebufferTexture2D(GL_FRAMEBUFFER, GL_COLOR_ATTACHMENT0, GL_TEXTURE_2D, t_rgb8, 0);
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
-        D
-
-        std::string vertex_log, fragment_log, link_log;
-        p_blit = vertex_fragment_shader(version.c_str(), blit_vert, blit_frag, "", vertex_log, fragment_log, link_log);
-        if (vertex_log != "")
-        {
-          std::cerr << vertex_log << std::endl;
-        }
-        if (fragment_log != "")
-        {
-          std::cerr << fragment_log << std::endl;
-        }
-        if (link_log != "")
-        {
-          std::cerr << link_log << std::endl;
-        }
-        glUseProgram(p_blit);
-        glUniform1i(glGetUniformLocation(p_blit, "t"), t_rgb16);
         D
 
         glGenVertexArrays(1, &vao);

@@ -166,6 +166,7 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 			}
 			g_SFT.SetGLSL(GetDlgItemString(hWnd, IDC_OPENGL_GLSL));
 			SendMessage(g_hwColors, WM_COMMAND, IDOK, 0);
+			SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_SETCHECK, g_SFT.GetUseOpenGL() ? 1 : 0, 0);
 			SetDlgItemText(hWnd, IDC_OPENGL_LOG, g_SFT.GetGLSLLog().c_str());
 			char version[] = { '0' + g_SFT.m_opengl_major, '.', '0' + g_SFT.m_opengl_minor, 0 };
 			SetDlgItemText(hWnd, IDC_OPENGL_VERSION, version);

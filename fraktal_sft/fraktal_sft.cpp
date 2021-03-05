@@ -1222,6 +1222,11 @@ void CFraktalSFT::ApplyColors()
 				opengl_initialized = resp.u.init.success;
 				m_opengl_major = resp.u.init.major;
 				m_opengl_minor = resp.u.init.minor;
+				SetGLSLLog(resp.u.init.message);
+				if (! opengl_initialized)
+				{
+					SetUseOpenGL(false);
+				}
 			}
 			if (opengl_initialized && ((! opengl_compiled) || m_bGLSLChanged))
 			{
