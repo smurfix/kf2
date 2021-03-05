@@ -218,6 +218,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
         {
           glfwDestroyWindow(window);
+          window = nullptr;
           glfwTerminate();
           resp.u.init.success = false;
           resp.u.init.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
@@ -231,6 +232,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         {
           const std::string nl = "\n";
           glfwDestroyWindow(window);
+          window = nullptr;
           glfwTerminate();
           resp.u.init.success = false;
           resp.u.init.message =
