@@ -242,7 +242,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           break;
         }
         glUseProgram(p_blit);
-        glUniform1i(glGetUniformLocation(p_blit, "t"), t_rgb16);
+        glUniform1i(glGetUniformLocation(p_blit, "t"), tu_rgb16);
         D
 
         const GLuint zeroui = 0;
