@@ -493,6 +493,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform1i(glGetUniformLocation(p_colour, "KFP_ColorMethod"), req.u.configure.color_method);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Differences"), req.u.configure.differences);
         glUniform1f(glGetUniformLocation(p_colour, "KFP_PhaseColorStrength"), req.u.configure.color_phase_strength);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_ZoomLog2"), req.u.configure.zoom_log2);
         D
         sRGB = req.u.configure.use_srgb;
         glActiveTexture(GL_TEXTURE0 + tu_rgb8);

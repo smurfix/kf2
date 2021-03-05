@@ -104,6 +104,7 @@ struct request_configure_t
   int64_t texture_height;
   unsigned char *texture;
   bool use_srgb;
+  double zoom_log2;
 };
 
 struct request_render_t

@@ -2817,6 +2817,14 @@ The following `uniform` variables are set from the Colors dialog:
 
 The size of the final image.
 
+#### `float KFP_ZoomLog2`
+
+The base-2 logarithm of the current zoom level.  Unzoomed is 1.0, deeper
+zooms are larger.
+
+See `palettes/claude/text-overlay.glsl` for an example using this to
+display text.
+
 #### `sampler1D KFP_Palette`
 
 The key colours of the palette.  The function `KF_Palette` interpolates

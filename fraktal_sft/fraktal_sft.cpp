@@ -1300,6 +1300,11 @@ void CFraktalSFT::ApplyColors()
 					req.u.configure.texture = m_lpTextureBits; // FIXME row alignment?
 				}
 				req.u.configure.use_srgb = GetUseSRGB();
+				{
+					CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
+					floatexp zoomFE; zoomFE = zoom;
+					req.u.configure.zoom_log2 = double(log2(zoomFE));
+				}
 				fifo_write(to_opengl, req);
 				response resp;
 				fifo_read(from_opengl, resp);

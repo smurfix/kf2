@@ -72,6 +72,8 @@ uniform float KFP_TextureRatio;
 
 uniform bool KFP_sRGB;
 
+uniform float KFP_ZoomLog2;
+
 /// end of public API
 ///=====================================================================
 
