@@ -288,7 +288,7 @@ vec3 colour(void)
   vec2 p = ((vec2(getCoord()) / vec2(KFP_ImageSize)) * vec2(16.0, 16.0) + vec2(-16.0, -15.0)) * 2.0;
   vec2 dx = vec2(1.0 / KFP_ImageSize.x *  16.0 * 2.0, 0.0);
   vec2 dy = vec2(0.0, 1.0 / KFP_ImageSize.y * 16.0 * 2.0);
-  float value = 1480.90035835234048;
+  float value = KFP_ZoomLog2;
 
   // draw number distance field
   float dist = 1.0/0.0;
