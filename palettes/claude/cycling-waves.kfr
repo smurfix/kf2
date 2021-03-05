@@ -1,0 +1,47 @@
+Re: 0.00000000000000000000000
+Im: 0.00000000000000000000000
+Zoom: 1.0000000000000000E0
+Iterations: 1000
+IterDiv: 0.0100000000000000002
+SmoothMethod: 0
+SmoothingMethod: 0
+BailoutRadiusPreset: 0
+BailoutRadiusCustom: 2
+BailoutNormPreset: 1
+BailoutNormCustom: 2
+ColorMethod: 7
+Differences: 7
+ColorOffset: 147
+ColorPhaseStrength: 0
+Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,
+InteriorColor: 0,0,0,
+Smooth: 1
+Flat: 0
+MultiColor: 0
+BlendMC: 0
+MultiColors: 
+Power: 2
+FractalType: 0
+Slopes: 1
+SlopePower: 50
+SlopeRatio: 20
+SlopeAngle: 45
+real: 1
+imag: 1
+SeedR: 0
+SeedI: 0
+FactorAR: 1
+FactorAI: 0
+Period: 0
+TextureEnabled: 0
+TextureMerge: 1
+TexturePower: 200
+TextureRatio: 100
+TextureFile: 
+RotateAngle: 0
+StretchAngle: 0
+StretchAmount: 0
+UseOpenGL: 1
+GLSL: float\ wave(float\ p)\n{\n\ \ return\ 0.5\ +\ 0.5\ *\ cos(6.283185307179586\ *\ p);\n}\n\nvec3\ colour()\n{\n\ \ float\ time\ =\ KFP_ColorOffset\ /\ 1024.0;\n\ \ //\ interior\n\ \ if\ (getInterior())\n\ \ {\n\ \ \ \ return\ vec3(0.0);\n\ \ }\r\n\ \ float49\ NNF\ =\ getN();\n\ \ //\ colour\ cycling\n\ \ float\ C0\ =\ mod(time\ *\ 48000.0\ /\ 20197.0\ /\ 128.0,\ 1.0);\n\ \ float\ C1\ =\ mod(time\ *\ 48000.0\ /\ 20197.0\ /\ 512.0,\ 1.0);\n\ \ float\ C2\ =\ mod(time\ *\ 48000.0\ /\ 20197.0\ /\ 256.0,\ 1.0);\n\ \ float\ C3\ =\ mod(time\ *\ 48000.0\ /\ 20197.0\ /\ \ \ 4.0,\ 1.0);\n\ \ //\ repeating\ cycles\n\ \ float\ N0\ =\ wrap(div(floor(add(NNF,\ C0\ *\ 257.0)),\ 257.0)).x[0];\n\ \ float\ N1\ =\ wrap(div(floor(add(NNF,\ C1\ *\ 126.0)),\ 126.0)).x[0];\n\ \ float\ N2\ =\ wrap(div(floor(add(NNF,\ C2\ *\ \ 26.0)),\ 26.0)).x[0];\n\ \ float\ N3\ =\ wrap(div(floor(add(NNF,\ C3\ *\ \ \ 5.0)),\ 5.0)).x[0];\n\ \ //\ infinite\ waves\ colour\n\ \ vec3\ h\ =\ hsv2rgb(vec3\n\ \ \ \ (\ wave(N1)\n\ \ \ \ ,\ wave(N2)\n\ \ \ \ ,\ wave(N3)\n\ \ \ \ ));\n\ \ //\ slopes\r\n\ \ vec2\ DE\ =\ getDE();\n\ \ float\ slope\ =\ dot(normalize(DE),\ vec2(1.0,\ 1.0));\n\ \ float\ strength\ =\ abs(slope)\ /\ (1.0\ +\ length(DE));\n\ \ if\ (slope\ <\ 0.0)\ h\ =\ mix(h,\ vec3(0.0),\ vec3(clamp(strength,\ 0.0,\ 1.0)));\n\ \ if\ (slope\ >\ 0.0)\ h\ =\ mix(h,\ vec3(1.0),\ vec3(clamp(strength,\ 0.0,\ 1.0)));\n\ \ return\ h;\n}\n
+UseSRGB: 1
+Version: 2150200

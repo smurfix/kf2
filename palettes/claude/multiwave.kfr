@@ -1,0 +1,47 @@
+Re: 0.00000000000000000000000
+Im: 0.00000000000000000000000
+Zoom: 1.0000000000000000E0
+Iterations: 1000
+IterDiv: 0.0100000000000000002
+SmoothMethod: 0
+SmoothingMethod: 0
+BailoutRadiusPreset: 0
+BailoutRadiusCustom: 2
+BailoutNormPreset: 1
+BailoutNormCustom: 2
+ColorMethod: 7
+Differences: 7
+ColorOffset: 23
+ColorPhaseStrength: 0
+Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,
+InteriorColor: 0,0,0,
+Smooth: 1
+Flat: 0
+MultiColor: 0
+BlendMC: 0
+MultiColors: 
+Power: 2
+FractalType: 0
+Slopes: 1
+SlopePower: 50
+SlopeRatio: 20
+SlopeAngle: 45
+real: 1
+imag: 1
+SeedR: 0
+SeedI: 0
+FactorAR: 1
+FactorAI: 0
+Period: 0
+TextureEnabled: 0
+TextureMerge: 1
+TexturePower: 200
+TextureRatio: 100
+TextureFile: 
+RotateAngle: 0
+StretchAngle: 0
+StretchAmount: 0
+UseOpenGL: 1
+GLSL: uint\ palette_seed\ =\ uint(KFP_ColorOffset);\n\nvec2\ conj(vec2\ a)\n{\n\ \ return\ vec2(a.x,\ -a.y);\n}\n\nvec2\ cmul(vec2\ a,\ vec2\ b)\n{\n\ \ return\ vec2(a.x\ *\ b.x\ -\ a.y\ *\ b.y,\ a.x\ *\ b.y\ +\ a.y\ *\ b.x);\n}\n\nvec2\ cdiv(vec2\ a,\ vec2\ b)\n{\n\ \ return\ cmul(a,\ conj(b))\ /\ dot(b,\ b);\n}\n\nvec2\ clog(vec2\ a)\n{\n\ \ return\ vec2(log(length(a)),\ atan(a.y,\ a.x));\n}\n\nvec2\ cexp(vec2\ a)\n{\n\ \ return\ exp(a.x)\ *\ vec2(cos(a.y),\ sin(a.y));\n}\n\r\nuint\ hash(uint\ a)\r\n{\r\n\ \ return\ burtle_hash(a);\r\n}\r\n\nfloat\ U(uint\ a)\n{\n\ \ return\ float(hash(a))\ /\ 4294967296.0;\n}\n\nfloat\ U(uint\ a,\ int\ b)\n{\n\ \ return\ U(a\ ^\ hash(uint(b)));\n}\n\nfloat\ U(uint\ a,\ int\ b,\ int\ c)\n{\n\ \ return\ U(a\ ^\ hash(uint(b)),\ c);\n}\n\nvec3\ random_colour(uint\ seed,\ float\ sat_range,\ float\ val_range,\ float\ val_offset)\n{\n\ \ vec3\ c;\n\ \ float\ r\ =\ sat_range\ *\ U(seed,\ 1);\n\ \ float\ t\ =\ 2.0\ *\ 3.141592653589793\ *\ U(seed,\ 2);\n\ \ c[0]\ =\ r\ *\ cos(t);\n\ \ c[1]\ =\ r\ *\ sin(t);\n\ \ c[2]\ =\ val_range\ *\ U(seed,\ 3)\ -\ val_offset;\n\ \ return\ c;\n}\n\nvec3\ blend(vec3\ a,\ vec3\ b,\ float\ t)\n{\n\ \ //\ geometric\ interpolation\ of\ chroma\ to\ preserve\ saturation\n\ \ vec2\ cb\ =\ clog(cdiv(b.xy,\ a.xy));\n\ \ vec2\ ca\ =\ clog(a.xy);\n\ \ vec2\ cc\ =\ cexp(ca\ +\ cb\ *\ t);\n\ \ vec3\ c\ =\ vec3(cc.xy,\ mix(a.z,\ b.z,\ t));\n\ \ //\ linear\ interpolation\ of\ chroma\ without\ problems\ at\ opposite\ chroma\n\ \ vec3\ d\ =\ mix(a,\ b,\ t);\n\ \ //\ use\ cosine\ of\ chroma\ angle\ to\ blend\ between\ geometric\ and\ linear\n\ \ float\ s\ =\ dot(a.xy,\ b.xy)\ /\ (length(a.xy)\ *\ length(b.xy));\n\ \ return\ mix(c,\ d,\ (1.0\ -\ s)\ *\ 0.5);\n}\n\nvec3\ blend(vec3\ a,\ vec3\ b,\ vec3\ c,\ vec3\ d,\ float\ t)\n{\n\ \ vec4\ u\ =\ vec4(1.0,\ t,\ t\ *\ t,\ t\ *\ t\ *\ t);\n\ \ mat4\ M\ =\ mat4\n\ \ \ \ (\ \ 0.0,\ \ 2.0,\ \ 0.0,\ \ 0.0\n\ \ \ \ ,\ -1.0,\ \ 0.0,\ \ 1.0,\ \ 0.0\n\ \ \ \ ,\ \ 2.0,\ -5.0,\ \ 4.0,\ -1.0\n\ \ \ \ ,\ -1.0,\ \ 3.0,\ -3.0,\ \ 1.0\n\ \ \ \ );\n\ \ mat3x4\ p\ =\ mat3x4(a,\ b,\ c,\ d);\n\ \ return\ u\ *\ M\ *\ p\ *\ 0.5;\n}\n\nvec3\ to_linearRGB(vec3\ a)\n{\n\ \ vec3\ grey\ \ \ =\ vec3(0.5,\ 0.5,\ 0.5);\n\ \ vec3\ red\ \ \ \ =\ vec3(1.0,\ 0.0,\ 0.0);\n\ \ vec3\ green\ \ =\ vec3(0.0,\ 1.0,\ 0.0);\n\ \ vec3\ yellow\ =\ vec3(1.0,\ 1.0,\ 0.0);\n\ \ vec3\ blue\ \ \ =\ vec3(0.0,\ 0.0,\ 1.0);\n\ \ float\ r\ =\ length(a.xy);\n\ \ float\ s\ =\ tanh(r)\ /\ r;\n\ \ float\ u\ =\ s\ *\ a[0];\n\ \ float\ v\ =\ s\ *\ a[1];\n\ \ float\ l\ =\ exp2(a[2]);\n\ \ vec3\ c\ =\n\ \ \ \ \ \ mix(\ u\ <\ 0\ ?\ mix(grey,\ green,\ -u)\ :\ mix(grey,\ red,\ u)\n\ \ \ \ \ \ \ \ \ ,\ v\ <\ 0\ ?\ mix(grey,\ blue,\ -v)\ :\ mix(grey,\ yellow,\ v)\n\ \ \ \ \ \ \ \ \ ,\ 0.5)\ *\ l;\n\ \ return\ c;\n}\n\nfloat\ to_sRGB(float\ l)\n{\n\ \ l\ =\ min(max(l,\ 0.0),\ 1.0);\n\ \ if\ (l\ <=\ 0.0031308)\n\ \ \ \ return\ l\ *\ 12.92;\n\ \ return\ 1.055\ \ *\ pow(l,\ 1.0\ /\ 2.4)\ -\ 0.055;\n}\n\nvec3\ to_sRGB(vec3\ a)\n{\n\ \ vec3\ c;\n\ \ c[0]\ =\ to_sRGB(a[0]);\n\ \ c[1]\ =\ to_sRGB(a[1]);\n\ \ c[2]\ =\ to_sRGB(a[2]);\n\ \ return\ c;\n}\n\n#define\ MAX_COLOURS\ 8\n\nstruct\ wave\n{\n\ \ float\ offset;\n\ \ float\ period;\n\ \ int\ ncolours;\n\ \ vec3\ colours[MAX_COLOURS];\n};\n\nvec3\ wave_colour(wave\ w,\ float49\ n)\n{\n\ \ float49\ m\ =\ add(w.offset,\ div(n,\ w.period));\n\ \ int\ k\ =\ to_int(floor(m));\n\ \ float\ t\ =\ wrap(m).x[0];\n\ \ k\ -=\ 1;\n\ \ k\ %=\ w.ncolours;\n\ \ k\ +=\ w.ncolours;\ //\ in\ case\ of\ negatives\n\ \ k\ %=\ w.ncolours;\n\ \ return\ blend\n\ \ \ \ (\ w.colours[(k\ \ \ \ )\ \ \ \ \ \ \ \ \ \ \ \ \ ]\n\ \ \ \ ,\ w.colours[(k\ +\ 1)\ %\ w.ncolours]\n\ \ \ \ ,\ w.colours[(k\ +\ 2)\ %\ w.ncolours]\n\ \ \ \ ,\ w.colours[(k\ +\ 3)\ %\ w.ncolours]\n\ \ \ \ ,\ t\n\ \ \ \ );\n}\n\n#define\ MAX_WAVES\ 8\n\nstruct\ multiwave\n{\n\ \ int\ nwaves;\n\ \ vec3\ grey_point;\n\ \ float\ blend[MAX_WAVES];\n\ \ wave\ waves[MAX_WAVES];\n};\n\nvec3\ multiwave_colour(multiwave\ w,\ float49\ n)\n{\n\ \ vec3\ c\ =\ vec3(1.0e-6,\ 1.0e-6,\ 0);\n\ \ for\ (int\ k\ =\ w.nwaves\ -\ 1;\ k\ >=\ 0;\ --k)\n\ \ {\n\ \ \ \ c\ =\ blend(c,\ wave_colour(w.waves[k],\ n),\ w.blend[k]);\n\ \ }\n\ \ return\ to_linearRGB(c);\n}\n\nmultiwave\ random_multiwave(uint\ seed)\n{\n\ \ multiwave\ mw;\n\ \ mw.nwaves\ =\ MAX_WAVES;\n\ \ float\ period\ =\ 1.0;\n\ \ for\ (int\ w\ =\ 0;\ w\ <\ mw.nwaves;\ ++w)\n\ \ {\n\ \ \ \ mw.blend[w]\ =\ 0.5\ *\ U(seed,\ w,\ 1);\n\ \ \ \ mw.waves[w].ncolours\ =\ int(floor(3.0\ +\ U(seed,\ w,\ 2)\ *\ (float(MAX_COLOURS)\ -\ 3.0)));\n\ \ \ \ mw.waves[w].offset\ =\ U(seed,\ w,\ 3)\ *\ mw.waves[w].ncolours;\n\ \ \ \ mw.waves[w].period\ =\ period;\n\ \ \ \ period\ *=\ (2\ +\ 6\ *\ U(seed,\ w,\ 4));\n\ \ \ \ for\ (int\ k\ =\ 0;\ k\ <\ mw.waves[w].ncolours;\ ++k)\n\ \ \ \ {\n\ \ \ \ \ \ mw.waves[w].colours[k]\ =\ random_colour(hash(seed\ ^\ hash(w\ *\ MAX_COLOURS\ +\ k)),\ 16.0,\ 16.0,\ 8.0);\n\ \ \ \ }\n\ \ }\n\ \ int\ iters\ =\ 16;\n\ \ vec3\ l\ =\ vec3(0.0,\ 0.0,\ 0.0);\n\ \ for\ (int\ m\ =\ 0,\ n\ =\ 1;\ m\ <\ iters;\ ++m,\ n\ <<=\ 1)\n\ \ {\n\ \ \ \ l\ +=\ multiwave_colour(mw,\ float49_(uint(n)));\n\ \ }\n\ \ l\ /=\ float(iters);\n\ \ mw.grey_point\ =\ l;\n\ \ return\ mw;\n}\n\nstruct\ palette\n{\n\ \ multiwave\ n;\n\ \ multiwave\ s;\n\ \ float\ blend_ns;\n\ \ float\ slope_x;\n\ \ float\ slope_y;\n\ \ float\ slope_power;\n\ \ vec3\ slope_light;\n\ \ vec3\ slope_dark;\n\ \ vec3\ slope_grey;\n\ \ float\ blend_slope;\n};\n\npalette\ random_palette(uint\ seed)\n{\n\ \ palette\ p;\n\ \ p.n\ =\ random_multiwave(hash(seed\ ^\ 3951282789u));\n\ \ p.s\ =\ random_multiwave(hash(seed\ ^\ 1784947738u));\n\ \ p.blend_ns\ =\ U(seed,\ 1);\n\ \ float\ t\ =\ 2\ *\ 3.141592653589793\ *\ U(seed,\ 2);\n\ \ p.slope_x\ =\ cos(t);\n\ \ p.slope_y\ =\ sin(t);\n\ \ p.slope_power\ =\ U(seed,\ 3)\ *\ 10;\n\ \ p.slope_light\ =\ random_colour(hash(seed\ ^\ 1741549489u),\ 4,\ 8,\ -8);\n\ \ p.slope_dark\ \ =\ random_colour(hash(seed\ ^\ 3137718159u),\ 4,\ 8,\ -16);\n\ \ p.slope_grey\ =\ (p.slope_light\ +\ p.slope_dark)\ *\ 0.5;\n\ \ p.blend_slope\ =\ U(seed,\ 4);\n\ \ return\ p;\n}\n\nvec3\ palette_colour(palette\ p,\ float49\ n,\ float\ s,\ vec2\ de)\n{\n\ \ float\ d\ =\ p.slope_power\ *\ dot(cdiv(vec2(1.0,\ 0.0),\ de),\ vec2(p.slope_x,\ p.slope_y));\n\ \ vec3\ cslope;\n\ \ if\ (d\ >=\ 0)\n\ \ {\n\ \ \ \ d\ =\ atan(d)\ /\ (3.141592653589793\ /\ 2.0);\n\ \ \ \ cslope\ =\ p.slope_dark;\n\ \ }\n\ \ else\n\ \ {\n\ \ \ \ d\ =\ atan(-d)\ /\ (3.141592653589793\ /\ 2.0);\n\ \ \ \ cslope\ =\ p.slope_light;\n\ \ }\n\ \ if\ (isinf(d)\ ||\ isnan(d))\n\ \ {\n\ \ \ \ d\ =\ 1.0;\n\ \ }\n\ \ cslope\ =\ cslope\ /\ p.slope_grey;\n\ \ vec3\ cstripe\ =\ multiwave_colour(p.s,\ float49_(s));\n\ \ cstripe\ =\ cstripe\ /\ p.s.grey_point;\n\ \ vec3\ citer\ \ \ =\ multiwave_colour(p.n,\ n);\n\ \ citer\ =\ citer\ /\ p.n.grey_point;\n\ \ return\ blend\n\ \ \ \ (blend(citer,\ cstripe,\ p.blend_ns),\ cslope,\ p.blend_slope\ *\ d);\n}\n\npalette\ P\ =\ random_palette(palette_seed);\n\nvec3\ colour(void)\n{\n\ \ float49\ n\ =\ getN();\r\n\ \ vec2\ DE\ =\ getDE();\n\ \ float\ d\ =\ length(DE);\n\ \ float\ val\ =\ min(d\ *\ 0.5,\ 1.0);\n\ \ float\ avg\ =\ 0.0;\n\ \ float\ desat\ =\ min(pow(d\ /\ 1920.0,\ 4.0),\ 1.0);\n\ \ vec3\ c\ =\ palette_colour(P,\ mul(16.0,\ \ n),\ 4.0\ *\ avg,\ DE);\n\ \ return\ mix(c,\ vec3(1.0),\ desat)\ *\ val;\n}\n
+UseSRGB: 1
+Version: 2150200
