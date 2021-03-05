@@ -295,7 +295,37 @@ Feedback:
 
 - **kf-2.15.2** (????-??-??)
 
-    - experimental ARM builds using LLVM (64bit aarch64; no 32bit armv7 yet)
+    - new: custom OpenGL colouring algorithms
+      - button bottom left of the colors dialog or Ctrl+G in main window
+      - text area for GLSL editing, or import and export to `*.glsl` files
+      - GLSL is stored in KFP palettes, KFR files and image metadata
+      - user API allows access of KFP parameters within GLSL
+    - new: OpenGL implementation of colouring algorithm
+      - default shader gives similar results as the regular implementation
+      - there are tiny differences (1 or 2 ULP) due to different rounding
+      - uses portions of libqd ported to GLSL for higher precision
+        (49 bits, vs 24 bits for float and 53 bits for double on CPU)
+      - some features remain unimplemented in this version:
+        - least squares 2x2 numerical differencing algorithm
+        - least squares 3x3 numerical differencing algorithm
+    - new: experimental ARM builds are possible using llvm-mingw
+      - 64bit aarch64 can be built but crashes on start
+      - 32bit armv7 is blocked on a GMP bug(?) (missing symbols in library)
+      - still needs gcc windres because llvm windres is incomplete
+    - new: option to save EXR files without their 8bit RGBA preview images
+      (makes files smaller and saves faster)
+    - fix: removed special case for zooms less than 1e3, fixes rendering of
+      Redshifter 1 cubic a=2 z0=-4/3 (reported by gerrit)
+    - fix: make undo and redo refresh the colors dialog
+    - fix: remove warning about slow unused derivatives, because it is
+      hard to tell if GLSL colouring might need them
+    - fix: dependency preparation script adapted to new architectures
+    - fix: dependency preparation script can build subsets of libraries
+    - fix: correctly initialize "no glitch detection" vector in SIMD
+    - fix: use `delete[]` instead of `delete` in some places
+    - fix: use `static inline` to prevent redefinition errors in llvm
+    - upgrade to tiff 4.2.0
+    - upgrade to openexr 2.5.5
 
 - **kf-2.15.1.6** (2020-12-08)
 
