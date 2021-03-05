@@ -418,28 +418,68 @@ vec3 pow(vec3 a, vec3 b) { return _builtin_pow(a, b); }
 vec4 pow(vec4 a, vec4 b) { return _builtin_pow(a, b); }
 
 ///=====================================================================
-/// overload max() // FIXME misses variations eg max(vec3, float)
+/// overload max()
 
 float _builtin_max(float a, float b) { return max(a, b); }
 vec2 _builtin_max(vec2 a, vec2 b) { return max(a, b); }
 vec3 _builtin_max(vec3 a, vec3 b) { return max(a, b); }
 vec4 _builtin_max(vec4 a, vec4 b) { return max(a, b); }
+vec2 _builtin_max(vec2 a, float b) { return max(a, b); }
+vec3 _builtin_max(vec3 a, float b) { return max(a, b); }
+vec4 _builtin_max(vec4 a, float b) { return max(a, b); }
+int _builtin_max(int a, int b) { return max(a, b); }
+ivec2 _builtin_max(ivec2 a, ivec2 b) { return max(a, b); }
+ivec3 _builtin_max(ivec3 a, ivec3 b) { return max(a, b); }
+ivec4 _builtin_max(ivec4 a, ivec4 b) { return max(a, b); }
+ivec2 _builtin_max(ivec2 a, int b) { return max(a, b); }
+ivec3 _builtin_max(ivec3 a, int b) { return max(a, b); }
+ivec4 _builtin_max(ivec4 a, int b) { return max(a, b); }
+uint _builtin_max(uint a, uint b) { return max(a, b); }
+uvec2 _builtin_max(uvec2 a, uvec2 b) { return max(a, b); }
+uvec3 _builtin_max(uvec3 a, uvec3 b) { return max(a, b); }
+uvec4 _builtin_max(uvec4 a, uvec4 b) { return max(a, b); }
+uvec2 _builtin_max(uvec2 a, uint b) { return max(a, b); }
+uvec3 _builtin_max(uvec3 a, uint b) { return max(a, b); }
+uvec4 _builtin_max(uvec4 a, uint b) { return max(a, b); }
 #if __VERSION__ >= 400
 double _builtin_max(double a, double b) { return max(a, b); }
 dvec2 _builtin_max(dvec2 a, dvec2 b) { return max(a, b); }
 dvec3 _builtin_max(dvec3 a, dvec3 b) { return max(a, b); }
 dvec4 _builtin_max(dvec4 a, dvec4 b) { return max(a, b); }
+dvec2 _builtin_max(dvec2 a, double b) { return max(a, b); }
+dvec3 _builtin_max(dvec3 a, double b) { return max(a, b); }
+dvec4 _builtin_max(dvec4 a, double b) { return max(a, b); }
 #endif
 
 float max(float a, float b) { return _builtin_max(a, b); }
 vec2 max(vec2 a, vec2 b) { return _builtin_max(a, b); }
 vec3 max(vec3 a, vec3 b) { return _builtin_max(a, b); }
 vec4 max(vec4 a, vec4 b) { return _builtin_max(a, b); }
+vec2 max(vec2 a, float b) { return _builtin_max(a, b); }
+vec3 max(vec3 a, float b) { return _builtin_max(a, b); }
+vec4 max(vec4 a, float b) { return _builtin_max(a, b); }
+int max(int a, int b) { return _builtin_max(a, b); }
+ivec2 max(ivec2 a, ivec2 b) { return _builtin_max(a, b); }
+ivec3 max(ivec3 a, ivec3 b) { return _builtin_max(a, b); }
+ivec4 max(ivec4 a, ivec4 b) { return _builtin_max(a, b); }
+ivec2 max(ivec2 a, int b) { return _builtin_max(a, b); }
+ivec3 max(ivec3 a, int b) { return _builtin_max(a, b); }
+ivec4 max(ivec4 a, int b) { return _builtin_max(a, b); }
+uint max(uint a, uint b) { return _builtin_max(a, b); }
+uvec2 max(uvec2 a, uvec2 b) { return _builtin_max(a, b); }
+uvec3 max(uvec3 a, uvec3 b) { return _builtin_max(a, b); }
+uvec4 max(uvec4 a, uvec4 b) { return _builtin_max(a, b); }
+uvec2 max(uvec2 a, uint b) { return _builtin_max(a, b); }
+uvec3 max(uvec3 a, uint b) { return _builtin_max(a, b); }
+uvec4 max(uvec4 a, uint b) { return _builtin_max(a, b); }
 #if __VERSION__ >= 400
 double max(double a, double b) { return _builtin_max(a, b); }
 dvec2 max(dvec2 a, dvec2 b) { return _builtin_max(a, b); }
 dvec3 max(dvec3 a, dvec3 b) { return _builtin_max(a, b); }
 dvec4 max(dvec4 a, dvec4 b) { return _builtin_max(a, b); }
+dvec2 max(dvec2 a, double b) { return _builtin_max(a, b); }
+dvec3 max(dvec3 a, double b) { return _builtin_max(a, b); }
+dvec4 max(dvec4 a, double b) { return _builtin_max(a, b); }
 #endif
 
 ///=====================================================================
