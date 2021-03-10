@@ -898,7 +898,8 @@ BEGIN
         BEGIN
             MENUITEM "Fast",                        ID_IMAGE_SHRINK_FAST,MFT_STRING,MFS_ENABLED
             MENUITEM "Default",                     ID_IMAGE_SHRINK_DEFAULT,MFT_STRING,MFS_ENABLED
-            MENUITEM "Best",                        ID_IMAGE_SHRINK_BEST,MFT_STRING,MFS_ENABLED
+            MENUITEM "Good",                        ID_IMAGE_SHRINK_BEST,MFT_STRING,MFS_ENABLED
+            MENUITEM "sRGB",                        ID_IMAGE_SHRINK_SRGB,MFT_STRING,MFS_ENABLED
         END
     END
 

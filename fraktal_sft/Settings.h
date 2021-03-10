@@ -299,7 +299,7 @@ public:
   inline void   SetRadiusScale(double b) { m_RadiusScale = b; };
 
   inline int64_t    GetShrink() const { return m_Shrink; };
-  inline void   SetShrink(int64_t n) { m_Shrink = 0 <= n && n <= 2 ? n : 1; };
+  inline void   SetShrink(int64_t n) { m_Shrink = 0 <= n && n <= 3 ? n : 1; };
 
   inline bool   GetHalfColour() const { return m_HalfColour; };
   inline void   SetHalfColour(bool b) { m_HalfColour = b; };

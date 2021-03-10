@@ -518,12 +518,12 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 {
 	HDC hDC = GetDC(NULL);
 	HBITMAP bmDst = create_bitmap(hDC,nNewWidth,nNewHeight);
-  if (mode == 2) // best
+  if (mode >= 2) // best
 	{
 		BITMAP s, d;
 		GetObject(bmSrc, sizeof(BITMAP), &s);
 		GetObject(bmDst, sizeof(BITMAP), &d);
-		/*bool ok = */ scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight);
+		/*bool ok = */ scale_bitmap_rgb8((unsigned char *) d.bmBits, d.bmWidth, d.bmHeight, (const unsigned char *)s.bmBits, s.bmWidth, s.bmHeight, mode >= 3);
 		//assert(ok && "scale_bitmap_rgb8");
 	}
 	else
@@ -2420,7 +2420,7 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 	if (m_nX == nWidth && m_nY == nHeight)
 		return ::SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
 	else{
-		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, 2); // always use high quality shrinking when saving
+		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, 3); // always use high quality sRGB shrinking when saving
 		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
 		return nRet;

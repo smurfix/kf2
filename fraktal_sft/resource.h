@@ -489,6 +489,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_EXPONENTIAL_MAP 40153
 #define ID_TRANSFORMATION 40154
 #define ID_RESET_TRANSFORMATION 40155
+#define ID_IMAGE_SHRINK_SRGB 40156
 
 // OpenCL
 #ifdef KF_OPENCL

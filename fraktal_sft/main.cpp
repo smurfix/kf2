@@ -415,6 +415,7 @@ static void UpdateShrink(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_FAST,    MF_BYCOMMAND | (s == 0 ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_DEFAULT, MF_BYCOMMAND | (s == 1 ? MF_CHECKED : MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_BEST,    MF_BYCOMMAND | (s == 2 ? MF_CHECKED : MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd), ID_IMAGE_SHRINK_SRGB,    MF_BYCOMMAND | (s == 3 ? MF_CHECKED : MF_UNCHECKED));
 }
 
 static void UpdateZoomSize(HWND hWnd)
@@ -2381,7 +2382,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		BeginPaint(hWnd,&ps);
 		SetStretchBltMode(ps.hdc,HALFTONE);
 		HDC dcBmp = CreateCompatibleDC(ps.hdc);
-		// disable "Default" + "Best" shrinking when rendering is in progress
+		// use "Fast" shrinking when rendering is in progress
 		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetIsRendering() ? 0 : g_SFT.GetShrink());
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		if(g_bShowInflection){
@@ -4148,10 +4149,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_IMAGE_SHRINK_FAST ||
 			wParam==ID_IMAGE_SHRINK_DEFAULT ||
-			wParam==ID_IMAGE_SHRINK_BEST){
+			wParam==ID_IMAGE_SHRINK_BEST ||
+			wParam==ID_IMAGE_SHRINK_SRGB){
 			     if(wParam==ID_IMAGE_SHRINK_FAST)    g_SFT.SetShrink(0);
 			else if(wParam==ID_IMAGE_SHRINK_DEFAULT) g_SFT.SetShrink(1);
 			else if(wParam==ID_IMAGE_SHRINK_BEST)    g_SFT.SetShrink(2);
+			else if(wParam==ID_IMAGE_SHRINK_SRGB)    g_SFT.SetShrink(3);
 			UpdateShrink(hWnd);
 			InvalidateRect(hWnd,NULL,FALSE);
 		}

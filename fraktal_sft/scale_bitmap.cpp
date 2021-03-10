@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -58,14 +58,15 @@ static inline long long get_bitmap_stride(long long width, long long bpp)
 extern bool scale_bitmap_rgb8
   ( unsigned char *dp, int dw, int dh
   , const unsigned char *sp, int sw, int sh
+  , bool sRGB
   )
 {
   bool retval = false;
 
   int sstride = get_bitmap_stride(sw, 24);
-  pixman_image_t *src = pixman_image_create_bits(PIXMAN_r8g8b8, sw, sh, (uint32_t *) sp, sstride);
+  pixman_image_t *src = pixman_image_create_bits(sRGB ? PIXMAN_r8g8b8_sRGB : PIXMAN_r8g8b8, sw, sh, (uint32_t *) sp, sstride);
   int dstride = get_bitmap_stride(dw, 24);
-  pixman_image_t *dst = pixman_image_create_bits(PIXMAN_r8g8b8, dw, dh, (uint32_t *) dp, dstride);
+  pixman_image_t *dst = pixman_image_create_bits(sRGB ? PIXMAN_r8g8b8_sRGB : PIXMAN_r8g8b8, dw, dh, (uint32_t *) dp, dstride);
 
   double fscale_x = dw / (double) sw;
   double fscale_y = dh / (double) sh;
