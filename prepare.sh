@@ -70,10 +70,11 @@ then
   wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
   wget -c https://download.osgeo.org/libtiff/tiff-4.2.0.tar.gz
   wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
-  wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
+  #wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz -O openexr-2.5.5.tar.gz
   wget -c https://github.com/glfw/glfw/releases/download/3.3.3/glfw-3.3.3.zip
+  ( git clone https://gitlab.freedesktop.org/claudeha/pixman.git && cd pixman && git checkout kf ) || ( cd pixman && git pull )
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
 fi
@@ -167,12 +168,14 @@ then
     # pixman 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/pixman-0.38.4.tar.gz
-    cd pixman-0.38.4/
+    rm -rf pixman
+    cp -avf ~/win/src/pixman pixman
+    cd pixman/
+    NOCONFIGURE=true ./autogen.sh
     CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win/x86_64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/x86_64
-    make SUBDIRS="pixman test" -j $NCPUS
-    make SUBDIRS="pixman test" install
-    make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
+    make SUBDIRS="pixman" -j $NCPUS
+    make SUBDIRS="pixman" install
+    #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
   fi
   if [[ "${PREPARE}" =~ "boost" ]]
   then
@@ -326,13 +329,15 @@ then
     # pixman 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xaf ~/win/src/pixman-0.38.4.tar.gz
-    cd pixman-0.38.4/
+    rm -rf pixman
+    cp -avf ~/win/src/pixman pixman
+    cd pixman/
     patch -p1 < ~/win/src/pixman-0.38.4-i686.patch
+    NOCONFIGURE=true ./autogen.sh
     CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win/i686/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/i686
-    make SUBDIRS="pixman test" -j $NCPUS
-    make SUBDIRS="pixman test" install
-    make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
+    make SUBDIRS="pixman" -j $NCPUS
+    make SUBDIRS="pixman" install
+    #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
   fi
   if [[ "${PREPARE}" =~ "boost" ]]
   then
@@ -489,12 +494,14 @@ then
     # pixman 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/pixman-0.38.4.tar.gz
-    cd pixman-0.38.4/
+    rm -rf pixman
+    cp -avf ~/win/src/pixman pixman
+    cd pixman/
+    NOCONFIGURE=true ./autogen.sh
     LDFLAGS=-L$HOME/win/aarch64/lib ./configure --host aarch64-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/aarch64
-    make SUBDIRS="pixman test" -j $NCPUS
-    make SUBDIRS="pixman test" install
-    make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
+    make SUBDIRS="pixman" -j $NCPUS
+    make SUBDIRS="pixman" install
+    #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
   fi
   if [[ "${PREPARE}" =~ "boost" ]]
   then
@@ -654,12 +661,14 @@ then
     # pixman 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xaf ~/win/src/pixman-0.38.4.tar.gz
-    cd pixman-0.38.4/
+    rm -rf pixman
+    cp -avf ~/win/src/pixman pixman
+    cd pixman/
+    NOCONFIGURE=true ./autogen.sh
     LDFLAGS=-L${HOME}/win/armv7/lib ./configure --host armv7-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/armv7
-    make SUBDIRS="pixman test" -j $NCPUS
-    make SUBDIRS="pixman test" install
-    make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
+    make SUBDIRS="pixman" -j $NCPUS
+    make SUBDIRS="pixman" install
+    #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
   fi
   if [[ "${PREPARE}" =~ "boost" ]]
   then
