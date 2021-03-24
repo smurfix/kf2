@@ -55,6 +55,8 @@ Feedback:
 
   - Design your own hybrid fractal formula (Ctrl-H).
 
+  - Design your own colouring algorithm using GLSL (Ctrl-G).
+
 
 ## Limits
 
@@ -295,7 +297,7 @@ Feedback:
 
 - **kf-2.15.2** (????-??-??)
 
-    - new: custom OpenGL colouring algorithms
+    - new: custom OpenGL colouring algorithms (compatible with *zoomasm* 3.0)
       - button bottom left of the colors dialog or Ctrl+G in main window
       - text area for GLSL editing, or import and export to `*.glsl` files
       - GLSL is stored in KFP palettes, KFR files and image metadata
@@ -314,6 +316,7 @@ Feedback:
       - still needs gcc windres because llvm windres is incomplete
     - new: option to save EXR files without their 8bit RGBA preview images
       (makes files smaller and saves faster)
+    - new: sRGB gamma-correct downscaling (using patched pixman)
     - fix: removed special case for zooms less than 1e3, fixes rendering of
       Redshifter 1 cubic a=2 z0=-4/3 (reported by gerrit)
     - fix: make undo and redo refresh the colors dialog
@@ -324,6 +327,7 @@ Feedback:
     - fix: correctly initialize "no glitch detection" vector in SIMD
     - fix: use `delete[]` instead of `delete` in some places
     - fix: use `static inline` to prevent redefinition errors in llvm
+    - upgrade to pixman 0.40+git (claudeha/kf branch)
     - upgrade to tiff 4.2.0
     - upgrade to openexr 2.5.5
 
@@ -1297,8 +1301,6 @@ Feedback:
 
 ### Colouring
 
-- assume sRGB display and gamma-correct downscaling
-  (pixman currently supports 32bit sRGB+A, but no 24bit sRGB without alpha)
 - load/save palette to/from image
 - rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
@@ -1747,7 +1749,7 @@ Library sources can be obtained via:
 - [mingw-std-threads](https://github.com/meganz/mingw-std-threads)
 - [mpfr](https://www.mpfr.org/mpfr-current/#download)
 - [openexr](https://github.com/AcademySoftwareFoundation/openexr)
-- [pixman](https://www.cairographics.org/releases)
+- [pixman](https://gitlab.freedesktop.org/claudeha/pixman/-/tree/kf)
 - [png](http://www.libpng.org/pub/png/libpng.html)
 - [tiff](https://download.osgeo.org/libtiff)
 - [zlib](https://zlib.net)
@@ -2384,7 +2386,7 @@ At the very top right:
 
   - Seed: where to start iterating from
     (default `0 + 0 i`, for best semantics it should be a critical point
-    of the iteration formula, where it's `d/dz` derivative is zero).
+    of the iteration formula, where its `d/dz` derivative is zero).
 
   - Factor A: set the complex number `a` (denoted
     `f = d + e i` in the formula list below) for TheRedshiftRider formulas.
@@ -2769,6 +2771,14 @@ Returns a `vec2` combining the current (or offset) pixel's analytic `DEX` and `D
 
 Requires derivatives to be enabled in the Formula dialog.
 
+#### `getZoomLog2()`
+
+The base-2 logarithm of the current (or offset) pixel's zoom level.
+Unzoomed is 0.0, deeper zooms are larger.
+
+See `palettes/claude/text-overlay.glsl` for an example using this to
+display text.
+
 #### `inImage`
 
 Returns `true` when the provided offset relative to the current pixel
@@ -2777,13 +2787,17 @@ can be found in `uniform ivec2 ImageSize`.
 
 #### `getCoord`
 
-Return the `ivec2` absolute image coordinates of the current pixel.
+Get output coordinates, relative to the uniform variable `ImageSize`.
+Origin is bottom left per OpenGL conventions.
 
 #### `getJitter`
 
 Return the `vec2` jitter delta of the current (or offset) pixel.
 Uses the uniform variables `uint KFP_JitterSeed`, `int KFP_JitterShape`
 and `float KFP_JitterScale`.
+
+Not available in *zoomasm*.  Numerical (non-analytic) distance estimation
+also cannot use jitter.  Analytic DE with derivatives is recommended.
 
 #### `getN3x3`
 
@@ -2843,17 +2857,9 @@ Return DE via derivatives.
 
 The following `uniform` variables are set from the Colors dialog:
 
-#### `ivec2 KFP_ImageSize`
+#### `ivec2 ImageSize`
 
 The size of the final image.
-
-#### `float KFP_ZoomLog2`
-
-The base-2 logarithm of the current zoom level.  Unzoomed is 1.0, deeper
-zooms are larger.
-
-See `palettes/claude/text-overlay.glsl` for an example using this to
-display text.
 
 #### `sampler1D KFP_Palette`
 
@@ -3014,7 +3020,7 @@ default colouring.  Example usage:
 if (KFP_TextureEnabled)
 {
   vec2 tc = getCoord() + KF_TextureWarp(KFP_TexturePower, KFP_TextureRatio, KFP_SlopeDir);
-  tc /= vec2(KFP_ImageSize.xy);
+  tc /= vec2(ImageSize.xy);
   s = mix(s, texture(KFP_Texture, tc).rgb, KFP_TextureMerge);
 }
 ```

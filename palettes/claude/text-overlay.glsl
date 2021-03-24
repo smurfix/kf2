@@ -285,10 +285,10 @@ vec3 colour(void)
   vec3 RGB = KF_Colour();
   
   // position near the top right of 16:9 frame
-  vec2 p = ((vec2(getCoord()) / vec2(KFP_ImageSize)) * vec2(16.0, 16.0) + vec2(-16.0, -15.0)) * 2.0;
-  vec2 dx = vec2(1.0 / KFP_ImageSize.x *  16.0 * 2.0, 0.0);
-  vec2 dy = vec2(0.0, 1.0 / KFP_ImageSize.y * 16.0 * 2.0);
-  float value = KFP_ZoomLog2;
+  vec2 p = ((getCoord() / vec2(ImageSize)) * vec2(16.0, 16.0) + vec2(-16.0, -15.0)) * 2.0;
+  vec2 dx = vec2(1.0 / ImageSize.x *  16.0 * 2.0, 0.0);
+  vec2 dy = vec2(0.0, 1.0 / ImageSize.y * 16.0 * 2.0);
+  float value = getZoomLog2();
 
   // draw number distance field
   float dist = 1.0/0.0;

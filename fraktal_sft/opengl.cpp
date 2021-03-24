@@ -498,7 +498,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform1i(glGetUniformLocation(p_colour, "KFP_ColorMethod"), req.u.configure.color_method);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Differences"), req.u.configure.differences);
         glUniform1f(glGetUniformLocation(p_colour, "KFP_PhaseColorStrength"), req.u.configure.color_phase_strength);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_ZoomLog2"), req.u.configure.zoom_log2);
+        glUniform1f(glGetUniformLocation(p_colour, "Internal_ZoomLog2"), req.u.configure.zoom_log2);
         D
         sRGB = req.u.configure.use_srgb;
         glActiveTexture(GL_TEXTURE0 + tu_rgb8);
@@ -777,7 +777,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glBindFramebuffer(GL_FRAMEBUFFER, f_linear);
             glViewport(0, 0, tile_width - 2 * padding, tile_height - 2 * padding);
             glUseProgram(p_colour);
-            glUniform2i(glGetUniformLocation(p_colour, "KFP_ImageSize"), req.u.render.width, req.u.render.height);
+            glUniform2i(glGetUniformLocation(p_colour, "ImageSize"), req.u.render.width, req.u.render.height);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x + padding, req.u.render.height + padding - tile_y);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TilePadding"), padding, padding);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TileSize"), tile_width, tile_height);

@@ -42,6 +42,6 @@ RotateAngle: 0
 StretchAngle: 0
 StretchAmount: 0
 UseOpenGL: 1
-GLSL: //\ black\ on\ white\ with\ a\ rainbow\ fringe\nvec3\ colour(void)\n{\n\ \ vec2\ DE\ =\ getDE()\ /\ (float(KFP_ImageSize.x)\ /\ 640.0);\n\ \ float\ hue\ =\ atan(DE.y,\ DE.x)\ /\ (2.0\ *\ pi);\n\ \ hue\ -=\ floor(hue);\n\ \ float\ sat\ =\ clamp(1.0\ /\ (1.0\ +\ length(DE)),\ 0.0,\ 1.0);\n\ \ float\ val\ =\ clamp(length(DE),\ 0.0,\ 1.0);\n\ \ return\ hsv2rgb(vec3(hue,\ sat,\ val));\n}\n
+GLSL: //\ black\ on\ white\ with\ a\ rainbow\ fringe\nvec3\ colour(void)\n{\n\ \ vec2\ DE\ =\ getDE()\ /\ (float(ImageSize.x)\ /\ 640.0);\n\ \ float\ hue\ =\ atan(DE.y,\ DE.x)\ /\ (2.0\ *\ pi);\n\ \ hue\ -=\ floor(hue);\n\ \ float\ sat\ =\ clamp(1.0\ /\ (1.0\ +\ length(DE)),\ 0.0,\ 1.0);\n\ \ float\ val\ =\ clamp(length(DE),\ 0.0,\ 1.0);\n\ \ return\ hsv2rgb(vec3(hue,\ sat,\ val));\n}\n
 UseSRGB: 1
 Version: 2150200

@@ -4,7 +4,7 @@ vec3 colour(void);
 ///=====================================================================
 /// public API
 
-uniform ivec2 KFP_ImageSize;
+uniform ivec2 ImageSize;
 
 uniform sampler1D KFP_Palette;
 
@@ -72,8 +72,6 @@ uniform float KFP_TextureRatio;
 
 uniform bool KFP_sRGB;
 
-uniform float KFP_ZoomLog2;
-
 /// end of public API
 ///=====================================================================
 
@@ -93,6 +91,8 @@ uniform sampler2D Internal_DEY;
 uniform ivec2 Internal_TilePadding;
 uniform ivec2 Internal_TileOrigin;
 uniform ivec2 Internal_TileSize;
+
+uniform float Internal_ZoomLog2;
 
 // hack to force explicit evaluation order
 uniform float Internal_Zero;
@@ -903,7 +903,7 @@ void sub_set(inout float49 self, float49 a) {
   float s, e;
   s = two_diff(self.x[0], a.x[0], e);
   e = EXACT(e + self.x[1]);
-  e = EXACT(e - a.x[1];
+  e = EXACT(e - a.x[1]);
   self.x[0] = quick_two_sum(s, e, self.x[1]);
 #else
   float s1, s2, t1, t2;
@@ -5424,8 +5424,8 @@ vec2    getDE (void) { return getDE(ivec2(0, 0)); }
 bool inImage(ivec2 offset)
 {
   ivec2 pixel = Internal_PixelCoord + offset;
-  return 0 <= pixel.x && pixel.x < KFP_ImageSize.x &&
-         0 <= pixel.y && pixel.y < KFP_ImageSize.y;
+  return 0 <= pixel.x && pixel.x < ImageSize.x &&
+         0 <= pixel.y && pixel.y < ImageSize.y;
 }
 
 vec2 getJitter(ivec2 offset)
@@ -5445,9 +5445,19 @@ vec2 getJitter(void)
   return getJitter(ivec2(0, 0));
 }
 
-ivec2 getCoord(void)
+vec2 getCoord(void)
 {
-  return Internal_TileOrigin.xy + ivec2(int(gl_FragCoord.x), int(gl_FragCoord.y));
+  return vec2(Internal_TileOrigin.xy) + vec2(gl_FragCoord.x, ImageSize.y - (float(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y) - gl_FragCoord.y));
+}
+
+float getZoomLog2(void)
+{
+  return Internal_ZoomLog2;
+}
+
+float getZoomLog2(ivec2 offset)
+{
+  return Internal_ZoomLog2;
 }
 
 float49 getN3x3(inout mat3 p, inout mat3 px, inout mat3 py)
@@ -5740,7 +5750,7 @@ vec2 KF_TextureWarp(float TexturePower, float TextureRatio, vec2 SlopeDir)
 
 vec4 KF_Slopes(bool analytic, vec2 SlopeDir, float Power, float Ratio)
 {
-  Power *= float(KFP_ImageSize.x) / 640.0;
+  Power *= float(ImageSize.x) / 640.0;
   Ratio /= 100.0;
   vec2 vdiff;
   if (analytic)
@@ -5805,7 +5815,7 @@ float49 KF_IterTransform(float49 iter0)
     {
       iter = float49_(1.0 / KF_DE(KFP_Differences));
       // post differencing transfer functions
-      iter = mul(iter, float(KFP_ImageSize.x) / 640.0);
+      iter = mul(iter, float(ImageSize.x) / 640.0);
       if (KFP_ColorMethod == ColorMethod_DistanceSqrt || KFP_ColorMethod == ColorMethod_DEPlusStandard)
         iter = sqrt(max(0.0, iter));
       else if (KFP_ColorMethod == ColorMethod_DistanceLog)
@@ -5872,7 +5882,7 @@ vec3 KF_Colour(void)
   if (KFP_TextureEnabled)
   {
     vec2 tc = getCoord() + KF_TextureWarp(KFP_TexturePower, KFP_TextureRatio, KFP_SlopeDir);
-    tc /= vec2(KFP_ImageSize.xy);
+    tc /= vec2(ImageSize.xy);
     s = mix(s, texture(KFP_Texture, tc).rgb, KFP_TextureMerge);
   }
   if (KFP_Slopes)
@@ -5889,7 +5899,7 @@ vec3 KF_Colour(void)
 
 void main(void)
 {
-  Internal_One = Internal_Zero + KFP_ImageSize.x / KFP_ImageSize.x;
+  Internal_One = Internal_Zero + ImageSize.x / ImageSize.x;
   Internal_Colour = vec4(clamp(colour(), vec3(0.0), vec3(65504.0)), 1.0);
 }
 
