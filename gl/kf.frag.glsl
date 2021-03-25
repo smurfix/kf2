@@ -5330,7 +5330,7 @@ vec3 KF_Palette(float ix)
   }
 }
 
-uint burtle_hash(uint a)
+uint hash(uint a)
 {
   a = (a+0x7ed55d16u) + (a<<12);
   a = (a^0xc761c23cu) ^ (a>>19);
@@ -5344,7 +5344,7 @@ uint burtle_hash(uint a)
 // uniform in [0,1)
 float dither(int x, int y, int c)
 {
-  return float(burtle_hash(uint(x) + burtle_hash(uint(y) + burtle_hash(uint(c))))) / exp2(32.0);
+  return float(hash(uint(x) + hash(uint(y) + hash(uint(c))))) / exp2(32.0);
 }
 
 vec2 GetPixelOffset(ivec2 ix)

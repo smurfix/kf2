@@ -24,11 +24,6 @@ vec2 cexp(vec2 a)
 {
   return exp(a.x) * vec2(cos(a.y), sin(a.y));
 }
-
-uint hash(uint a)
-{
-  return burtle_hash(a);
-}
 
 float U(uint a)
 {
