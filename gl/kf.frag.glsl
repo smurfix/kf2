@@ -5447,7 +5447,7 @@ vec2 getJitter(void)
 
 vec2 getCoord(void)
 {
-  return vec2(Internal_TileOrigin.xy) + vec2(gl_FragCoord.x, ImageSize.y - (float(Internal_TileSize.y - 1 - 2 * Internal_TilePadding.y) - gl_FragCoord.y));
+  return vec2(Internal_TileOrigin.xy) + gl_FragCoord.xy;
 }
 
 float getZoomLog2(void)
