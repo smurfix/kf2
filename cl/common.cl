@@ -2680,6 +2680,7 @@ __kernel void perturbation_double
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+      if (phase) phase[ix] = 0;
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -2700,6 +2701,12 @@ __kernel void perturbation_double
       }
       if (dex) dex[ix] = de.re * de_multiplier;
       if (dey) dey[ix] = de.im * de_multiplier;
+      if (phase)
+      {
+        double p = atan2(Di, Dr) / (M_PI * 2);
+        p -= floor(p);
+        phase[ix] = p;
+      }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
@@ -2857,6 +2864,7 @@ __kernel void perturbation_floatexp
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+      if (phase) phase[ix] = 0;
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -2877,6 +2885,12 @@ __kernel void perturbation_floatexp
       }
       if (dex) dex[ix] = de.re * de_multiplier;
       if (dey) dey[ix] = de.im * de_multiplier;
+      if (phase)
+      {
+        double p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
+        p -= floor(p);
+        phase[ix] = p;
+      }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
@@ -3027,6 +3041,7 @@ __kernel void perturbation_softfloat
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+      if (phase) phase[ix] = 0;
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -3042,6 +3057,12 @@ __kernel void perturbation_softfloat
       }
       if (dex) dex[ix] = de.re * de_multiplier;
       if (dey) dey[ix] = de.im * de_multiplier;
+      if (phase)
+      {
+        double p = atan2(sf_double(Di), sf_double(Dr)) / (M_PI * 2);
+        p -= floor(p);
+        phase[ix] = p;
+      }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         double p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
