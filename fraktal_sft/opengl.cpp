@@ -818,6 +818,25 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glPixelStorei(GL_PACK_ROW_LENGTH, 0);
         D
+
+        // flip half image vertically (EXR origin top left, BMP bottom left)
+        if (req.u.render.rgb16)
+        {
+          int64_t count = 3 * req.u.render.width;
+          int64_t bytes = count * sizeof(half);
+          half *tmp = new half[count];
+          for (int64_t y1 = 0; y1 < req.u.render.height / 2; ++y1)
+          {
+            int64_t y2 = req.u.render.height - 1 - y1;
+            int64_t skip1 = y1 * count;
+            int64_t skip2 = y2 * count;
+            std::memcpy(tmp, req.u.render.rgb16 + skip1, bytes);
+            std::memcpy(req.u.render.rgb16 + skip1, req.u.render.rgb16 + skip2, bytes);
+            std::memcpy(req.u.render.rgb16 + skip2, tmp, bytes);
+          }
+          delete[] tmp;
+        }
+
         resp.tag = response_render;
         fifo_write(responses, resp);
         break;
