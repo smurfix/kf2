@@ -31,11 +31,11 @@ mkdir "${SRC}"
 
 make clean
 make formula/formula.cpp cl/formula.cpp
-cp -avit "${SRC}/" fraktal_sft formula cl common utils glad preprocessor.hs Makefile armv7.mk aarch64.mk i686.mk x86_64.mk x86_64+.mk x86_64+native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
+cp -avit "${SRC}/" fraktal_sft formula cl common palettes utils glad preprocessor.hs Makefile armv7.mk aarch64.mk i686.mk x86_64.mk x86_64+.mk x86_64+native.mk README.md LICENSE.md prepare.sh prepare-msys.sh "${0}"
 zip -0 -r "${SRC}.zip" "${SRC}/"
 BIN="${VERSION}"
 mkdir "${BIN}"
-cp -avit "${BIN}/" "${SRC}.zip" utils/stratify.m utils/resizeKFB.m
+cp -avit "${BIN}/" "${SRC}.zip" palettes
 
 if false
 then
