@@ -159,7 +159,7 @@ multiwave random_multiwave(uint seed)
     period *= (2 + 6 * U(seed, w, 4));
     for (int k = 0; k < mw.waves[w].ncolours; ++k)
     {
-      mw.waves[w].colours[k] = random_colour(hash(seed ^ hash(w * MAX_COLOURS + k)), 16.0, 16.0, 8.0);
+      mw.waves[w].colours[k] = random_colour(hash(seed ^ hash(uint(w * MAX_COLOURS + k))), 16.0, 16.0, 8.0);
     }
   }
   int iters = 16;
