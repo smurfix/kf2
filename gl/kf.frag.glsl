@@ -765,7 +765,7 @@ float49 f49_add(float a, float b) {
 }
 
 /* float-float + float */
-float49 add(float49 a, float b) {
+float49 add(const float49 a, float b) {
   float s1, s2;
   s1 = two_sum(a.x[0], b, s2);
   s2 = EXACT(s2 + a.x[1]);
@@ -774,7 +774,7 @@ float49 add(float49 a, float b) {
 }
 
 /* float-float + float-float */
-float49 ieee_add(float49 a, float49 b) {
+float49 ieee_add(const float49 a, const float49 b) {
   /* This one satisfies IEEE style error bound,
      due to K. Briggs and W. Kahan.                   */
   float s1, s2, t1, t2;
@@ -788,7 +788,7 @@ float49 ieee_add(float49 a, float49 b) {
   return float49_(s1, s2);
 }
 
-float49 sloppy_add(float49 a, float49 b) {
+float49 sloppy_add(const float49 a, const float49 b) {
   /* This is the less accurate version ... obeys Cray-style
      error bound. */
   float s, e;
@@ -799,7 +799,7 @@ float49 sloppy_add(float49 a, float49 b) {
   return float49_(s, e);
 }
 
-float49 add(float49 a, float49 b) {
+float49 add(const float49 a, const float49 b) {
 #ifndef QD_IEEE_ADD
   return sloppy_add(a, b);
 #else
@@ -808,7 +808,7 @@ float49 add(float49 a, float49 b) {
 }
 
 /* float + float-float */
-float49 add(float a, float49 b) {
+float49 add(float a, const float49 b) {
   return add(b, a);
 }
 
@@ -823,7 +823,7 @@ void add_set(inout float49 self, float a) {
 }
 
 /* float-float += float-float */
-void add_set(inout float49 self, float49 a) {
+void add_set(inout float49 self, const float49 a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_sum(self.x[0], a.x[0], e);
@@ -850,7 +850,7 @@ float49 f49_sub(float a, float b) {
 }
 
 /* float-float - float */
-float49 sub(float49 a, float b) {
+float49 sub(const float49 a, float b) {
   float s1, s2;
   s1 = two_diff(a.x[0], b, s2);
   s2 = EXACT(s2 + a.x[1]);
@@ -859,7 +859,7 @@ float49 sub(float49 a, float b) {
 }
 
 /* float-float - float-float */
-float49 sub(float49 a, float49 b) {
+float49 sub(const float49 a, const float49 b) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_diff(a.x[0], b.x[0], e);
@@ -880,7 +880,7 @@ float49 sub(float49 a, float49 b) {
 }
 
 /* float - float-float */
-float49 sub(float a, float49 b) {
+float49 sub(float a, const float49 b) {
   float s1, s2;
   s1 = two_diff(a, b.x[0], s2);
   s2 = EXACT(s2 - b.x[1]);
@@ -898,7 +898,7 @@ void sub_set(inout float49 self, float a) {
 }
 
 /* float-float -= float-float */
-void sub_set(inout float49 self, float49 a) {
+void sub_set(inout float49 self, const float49 a) {
 #ifndef QD_IEEE_ADD
   float s, e;
   s = two_diff(self.x[0], a.x[0], e);
@@ -917,7 +917,7 @@ void sub_set(inout float49 self, float49 a) {
 }
 
 /*********** Unary Minus ***********/
-float49 neg(float49 a) {
+float49 neg(const float49 a) {
   return float49_(-a.x[0], -a.x[1]);
 }
 
@@ -930,17 +930,17 @@ float49 f49_mul(float a, float b) {
 }
 
 /* float-float * (2.0 ^ exp) */
-float49 ldexp(float49 a, int exp) {
+float49 ldexp(const float49 a, int exp) {
   return float49_(ldexp(a.x[0], exp), ldexp(a.x[1], exp));
 }
 
 /* float-float * float,  where float is a power of 2. */
-float49 mul_pwr2(float49 a, float b) {
+float49 mul_pwr2(const float49 a, float b) {
   return float49_(a.x[0] * b, a.x[1] * b);
 }
 
 /* float-float * float */
-float49 mul(float49 a, float b) {
+float49 mul(const float49 a, float b) {
   float p1, p2;
 
   p1 = two_prod(a.x[0], b, p2);
@@ -950,7 +950,7 @@ float49 mul(float49 a, float b) {
 }
 
 /* float-float * float-float */
-float49 mul(float49 a, float49 b) {
+float49 mul(const float49 a, const float49 b) {
   float p1, p2;
 
   p1 = two_prod(a.x[0], b.x[0], p2);
@@ -960,7 +960,7 @@ float49 mul(float49 a, float49 b) {
 }
 
 /* float * float-float */
-float49 mul(float a, float49 b) {
+float49 mul(float a, const float49 b) {
   return mul(b, a);
 }
 
@@ -974,7 +974,7 @@ void mul_set(inout float49 self, float a) {
 }
 
 /* float-float *= float-float */
-void mul_set(inout float49 self, float49 a) {
+void mul_set(inout float49 self, const float49 a) {
   float p1, p2;
   p1 = two_prod(self.x[0], a.x[0], p2);
   p2 = EXACT(p2 + EXACT(a.x[1] * self.x[0]));
@@ -1004,7 +1004,7 @@ float49 f49_div(float a, float b) {
 }
 
 /* float-float / float */
-float49 div(float49 a, float b) {
+float49 div(const float49 a, float b) {
 
   float q1, q2;
   float p1, p2;
@@ -1028,7 +1028,7 @@ float49 div(float49 a, float b) {
   return r;
 }
 
-float49 sloppy_div(float49 a, float49 b) {
+float49 sloppy_div(const float49 a, const float49 b) {
   float s1, s2;
   float q1, q2;
   float49 r;
@@ -1049,7 +1049,7 @@ float49 sloppy_div(float49 a, float49 b) {
   return r;
 }
 
-float49 accurate_div(float49 a, float49 b) {
+float49 accurate_div(const float49 a, const float49 b) {
   float q1, q2, q3;
   float49 r;
 
@@ -1068,7 +1068,7 @@ float49 accurate_div(float49 a, float49 b) {
 }
 
 /* float-float / float-float */
-float49 div(float49 a, float49 b) {
+float49 div(const float49 a, const float49 b) {
 #ifdef QD_SLOPPY_DIV
   return sloppy_div(a, b);
 #else
@@ -1077,7 +1077,7 @@ float49 div(float49 a, float49 b) {
 }
 
 /* float / float-float */
-float49 div(float a, float49 b) {
+float49 div(float a, const float49 b) {
   return div(float49_(a), b);
 }
 
@@ -1092,12 +1092,12 @@ void div_set(inout float49 self, float a) {
 }
 
 /* float-float /= float-float */
-void div_set(inout float49 self, float49 a) {
+void div_set(inout float49 self, const float49 a) {
   self = div(self, a);
 }
 
 /*********** Squaring **********/
-float49 sqr(float49 a) {
+float49 sqr(const float49 a) {
   float p1, p2;
   float s1, s2;
   p1 = two_sqr(a.x[0], p2);
@@ -1115,38 +1115,38 @@ float49 f49_sqr(float a) {
 
 /*********** Micellaneous ************/
 /*  this == 0 */
-bool is_zero(float49 self) {
+bool is_zero(const float49 self) {
   return (self.x[0] == 0.0);
 }
 
 /*  this == 1 */
-bool is_one(float49 self) {
+bool is_one(const float49 self) {
   return (self.x[0] == 1.0 && self.x[1] == 0.0);
 }
 
 /*  this > 0 */
-bool is_positive(float49 self) {
+bool is_positive(const float49 self) {
   return (self.x[0] > 0.0);
 }
 
 /* this < 0 */
-bool is_negative(float49 self) {
+bool is_negative(const float49 self) {
   return (self.x[0] < 0.0);
 }
 
 /* Absolute value */
-float49 abs(float49 a) {
+float49 abs(const float49 a) {
   return (a.x[0] < 0.0) ? neg(a) : a;
 }
 
-float49 fabs(float49 a) {
+float49 fabs(const float49 a) {
   return abs(a);
 }
 
 
 /* Computes the n-th power of a float-float number.
    NOTE:  0^0 causes an error.                         */
-float49 npwr(float49 a, int n) {
+float49 npwr(const float49 a, int n) {
 
   if (n == 0) {
     if (is_zero(a)) {
@@ -1181,7 +1181,7 @@ float49 npwr(float49 a, int n) {
 }
 
 /********** Exponentiation **********/
-float49 pow(float49 a, int n) {
+float49 pow(const float49 a, int n) {
   return npwr(a, n);
 }
 
@@ -1195,102 +1195,102 @@ void set(out float49 self, float a) {
 
 /*********** Equality Comparisons ************/
 /* float-float == float */
-bool eq(float49 a, float b) {
+bool eq(const float49 a, float b) {
   return (a.x[0] == b && a.x[1] == 0.0);
 }
 
 /* float-float == float-float */
-bool eq(float49 a, float49 b) {
+bool eq(const float49 a, const float49 b) {
   return (a.x[0] == b.x[0] && a.x[1] == b.x[1]);
 }
 
 /* float == float-float */
-bool eq(float a, float49 b) {
+bool eq(float a, const float49 b) {
   return (a == b.x[0] && b.x[1] == 0.0);
 }
 
 /*********** Greater-Than Comparisons ************/
 /* float-float > float */
-bool gt(float49 a, float b) {
+bool gt(const float49 a, float b) {
   return (a.x[0] > b || (a.x[0] == b && a.x[1] > 0.0));
 }
 
 /* float-float > float-float */
-bool gt(float49 a, float49 b) {
+bool gt(const float49 a, const float49 b) {
   return (a.x[0] > b.x[0] || (a.x[0] == b.x[0] && a.x[1] > b.x[1]));
 }
 
 /* float > float-float */
-bool gt(float a, float49 b) {
+bool gt(float a, const float49 b) {
   return (a > b.x[0] || (a == b.x[0] && b.x[1] < 0.0));
 }
 
 /*********** Less-Than Comparisons ************/
 /* float-float < float */
-bool lt(float49 a, float b) {
+bool lt(const float49 a, float b) {
   return (a.x[0] < b || (a.x[0] == b && a.x[1] < 0.0));
 }
 
 /* float-float < float-float */
-bool lt(float49 a, float49 b) {
+bool lt(const float49 a, const float49 b) {
   return (a.x[0] < b.x[0] || (a.x[0] == b.x[0] && a.x[1] < b.x[1]));
 }
 
 /* float < float-float */
-bool lt(float a, float49 b) {
+bool lt(float a, const float49 b) {
   return (a < b.x[0] || (a == b.x[0] && b.x[1] > 0.0));
 }
 
 /*********** Greater-Than-Or-Equal-To Comparisons ************/
 /* float-float >= float */
-bool ge(float49 a, float b) {
+bool ge(const float49 a, float b) {
   return (a.x[0] > b || (a.x[0] == b && a.x[1] >= 0.0));
 }
 
 /* float-float >= float-float */
-bool ge(float49 a, float49 b) {
+bool ge(const float49 a, const float49 b) {
   return (a.x[0] > b.x[0] || (a.x[0] == b.x[0] && a.x[1] >= b.x[1]));
 }
 
 /*********** Less-Than-Or-Equal-To Comparisons ************/
 /* float-float <= float */
-bool le(float49 a, float b) {
+bool le(const float49 a, float b) {
   return (a.x[0] < b || (a.x[0] == b && a.x[1] <= 0.0));
 }
 
 /* float-float <= float-float */
-bool le(float49 a, float49 b) {
+bool le(const float49 a, const float49 b) {
   return (a.x[0] < b.x[0] || (a.x[0] == b.x[0] && a.x[1] <= b.x[1]));
 }
 
 /* float <= float-float */
-bool le(float a, float49 b) {
+bool le(float a, const float49 b) {
   return ge(b, a);
 }
 
 /* float >= float-float */
-bool ge(float a, float49 b) {
+bool ge(float a, const float49 b) {
   return le(b, a);
 }
 
 /*********** Not-Equal-To Comparisons ************/
 /* float-float != float */
-bool ne(float49 a, float b) {
+bool ne(const float49 a, float b) {
   return (a.x[0] != b || a.x[1] != 0.0);
 }
 
 /* float-float != float-float */
-bool ne(float49 a, float49 b) {
+bool ne(const float49 a, const float49 b) {
   return (a.x[0] != b.x[0] || a.x[1] != b.x[1]);
 }
 
 /* float != float-float */
-bool ne(float a, float49 b) {
+bool ne(float a, const float49 b) {
   return (a != b.x[0] || b.x[1] != 0.0);
 }
 
 
-float49 max(float a, float49 b)
+float49 max(float a, const float49 b)
 {
   if (gt(a, b))
   {
@@ -1302,7 +1302,7 @@ float49 max(float a, float49 b)
   }
 }
 
-float49 max(float49 b, float a)
+float49 max(const float49 b, float a)
 {
   if (gt(a, b))
   {
@@ -1314,7 +1314,7 @@ float49 max(float49 b, float a)
   }
 }
 
-float49 max(float49 a, float49 b)
+float49 max(const float49 a, const float49 b)
 {
   if (gt(a, b))
   {
@@ -1327,7 +1327,7 @@ float49 max(float49 a, float49 b)
 }
 
 /* Round to Nearest integer */
-float49 nint(float49 a) {
+float49 nint(const float49 a) {
   float hi = nint(a.x[0]);
   float lo;
 
@@ -1350,7 +1350,7 @@ float49 nint(float49 a) {
   return float49_(hi, lo);
 }
 
-float49 floor(float49 a) {
+float49 floor(const float49 a) {
   float hi = floor(a.x[0]);
   float lo = 0.0;
 
@@ -1363,7 +1363,7 @@ float49 floor(float49 a) {
   return float49_(hi, lo);
 }
 
-float49 ceil(float49 a) {
+float49 ceil(const float49 a) {
   float hi = ceil(a.x[0]);
   float lo = 0.0;
 
@@ -1376,29 +1376,29 @@ float49 ceil(float49 a) {
   return float49_(hi, lo);
 }
 
-float49 aint(float49 a) {
+float49 aint(const float49 a) {
   return (a.x[0] >= 0.0) ? floor(a) : ceil(a);
 }
 
 /********** Remainder **********/
-float49 drem(float49 a, float49 b) {
+float49 drem(const float49 a, const float49 b) {
   float49 n = nint(div(a, b));
   return sub(a, mul(n, b));
 }
 
-float49 divrem(float49 a, float49 b, out float49 r) {
+float49 divrem(const float49 a, const float49 b, out float49 r) {
   float49 n = nint(div(a, b));
   r = sub(a, mul(n, b));
   return n;
 }
 
 /* Cast to float. */
-float to_float(float49 a) {
+float to_float(const float49 a) {
   return a.x[0];
 }
 
 /* Cast to int. */
-int to_int(float49 a) {
+int to_int(const float49 a) {
   return int(a.x[0]);
 }
 
@@ -1421,7 +1421,7 @@ int to_int(float49 a) {
 
 /* Computes the square root of the float-float number dd.
    NOTE: dd must be a non-negative number.                   */
-float49 sqrt(float49 a) {
+float49 sqrt(const float49 a) {
   /* Strategy:  Use Karp's trick:  if x is an approximation
      to sqrt(a), then
 
@@ -1453,7 +1453,7 @@ float49 f49_sqrt(float d) {
 /* Computes the n-th root of the float-float number a.
    NOTE: n must be a positive integer.
    NOTE: If n is even, then a must not be negative.       */
-float49 nroot(float49 a, int n) {
+float49 nroot(const float49 a, int n) {
   /* Strategy:  Use Newton iteration for the function
 
           f(x) = x^(-n) - a
@@ -1516,7 +1516,7 @@ const float49 inv_fact[n_inv_fact] = float49[n_inv_fact]
   );
 
 /* Exponential.  Computes exp(x) in float-float precision. */
-float49 exp(float49 a) {
+float49 exp(const float49 a) {
   /* Strategy:  We first reduce the size of x by noting that
 
           exp(kr + m * log(2)) = 2^m * exp(r)^k
@@ -1575,7 +1575,7 @@ float49 exp(float49 a) {
 
 /* Logarithm.  Computes log(x) in float-float precision.
    This is a natural logarithm (i.e., base e).            */
-float49 log(float49 a) {
+float49 log(const float49 a) {
   /* Strategy.  The Taylor series for log converges much more
      slowly than that of exp, due to the lack of the factorial
      term in the denominator.  Hence this routine instead tries
@@ -1607,11 +1607,11 @@ float49 log(float49 a) {
   return x;
 }
 
-float49 log10(float49 a) {
+float49 log10(const float49 a) {
   return div(log(a), f49_log10);
 }
 
-float49 pow(float49 a, float49 b) {
+float49 pow(const float49 a, const float49 b) {
   return exp(mul(b, log(a)));
 }
 
@@ -1631,7 +1631,7 @@ const float49 cos_table[4] = float49[4]
 
 /* Computes sin(a) using Taylor series.
    Assumes |a| <= pi/32.                           */
-float49 sin_taylor(float49 a) {
+float49 sin_taylor(const float49 a) {
   float thresh = 0.5 * abs(to_float(a)) * f49_eps;
   float49 r, s, t, x;
 
@@ -1653,7 +1653,7 @@ float49 sin_taylor(float49 a) {
   return s;
 }
 
-float49 cos_taylor(float49 a) {
+float49 cos_taylor(const float49 a) {
   const float thresh = 0.5 * f49_eps;
   float49 r, s, t, x;
 
@@ -1675,7 +1675,7 @@ float49 cos_taylor(float49 a) {
   return s;
 }
 
-void sincos_taylor(float49 a, out float49 sin_a, out float49 cos_a) {
+void sincos_taylor(const float49 a, out float49 sin_a, out float49 cos_a) {
   if (is_zero(a)) {
     set(sin_a, 0.0);
     set(cos_a, 1.0);
@@ -1687,7 +1687,7 @@ void sincos_taylor(float49 a, out float49 sin_a, out float49 cos_a) {
 }
 
 
-float49 sin(float49 a) {
+float49 sin(const float49 a) {
 
   /* Strategy.  To compute sin(x), we choose integers a, b so that
 
@@ -1772,7 +1772,7 @@ float49 sin(float49 a) {
   return r;
 }
 
-float49 cos(float49 a) {
+float49 cos(const float49 a) {
 
   if (is_zero(a)) {
     return f49_1;
@@ -1847,7 +1847,7 @@ float49 cos(float49 a) {
   return r;
 }
 
-void sincos(float49 a, out float49 sin_a, out float49 cos_a) {
+void sincos(const float49 a, out float49 sin_a, out float49 cos_a) {
 
   if (is_zero(a)) {
     set(sin_a, 0.0);
@@ -1917,7 +1917,7 @@ void sincos(float49 a, out float49 sin_a, out float49 cos_a) {
 
 }
 
-float49 atan(float49 y, float49 x) {
+float49 atan(const float49 y, const float49 x) {
   /* Strategy: Instead of using Taylor series to compute
      arctan, we instead use Newton's iteration to solve
      the equation
@@ -1976,17 +1976,17 @@ float49 atan(float49 y, float49 x) {
   return z;
 }
 
-float49 atan(float49 a) {
+float49 atan(const float49 a) {
   return atan(a, f49_1);
 }
 
-float49 tan(float49 a) {
+float49 tan(const float49 a) {
   float49 s, c;
   sincos(a, s, c);
   return div(s, c);
 }
 
-float49 asin(float49 a) {
+float49 asin(const float49 a) {
   float49 abs_a = abs(a);
 
   if (gt(abs_a, 1.0)) {
@@ -2000,7 +2000,7 @@ float49 asin(float49 a) {
   return atan(a, sqrt(sub(1.0, sqr(a))));
 }
 
-float49 acos(float49 a) {
+float49 acos(const float49 a) {
   float49 abs_a = abs(a);
 
   if (gt(abs_a, 1.0)) {
@@ -2014,7 +2014,7 @@ float49 acos(float49 a) {
   return atan(sqrt(sub(1.0, sqr(a))), a);
 }
 
-float49 sinh(float49 a) {
+float49 sinh(const float49 a) {
   if (is_zero(a)) {
     return f49_0;
   }
@@ -2044,7 +2044,7 @@ float49 sinh(float49 a) {
 
 }
 
-float49 cosh(float49 a) {
+float49 cosh(const float49 a) {
   if (is_zero(a)) {
     return f49_1;
   }
@@ -2053,7 +2053,7 @@ float49 cosh(float49 a) {
   return mul_pwr2(add(ea, inv(ea)), 0.5);
 }
 
-float49 tanh(float49 a) {
+float49 tanh(const float49 a) {
   if (is_zero(a)) {
     return f49_0;
   }
@@ -2070,7 +2070,7 @@ float49 tanh(float49 a) {
   }
 }
 
-void sincosh(float49 a, out float49 s, out float49 c) {
+void sincosh(const float49 a, out float49 s, out float49 c) {
   if (abs(to_float(a)) <= 0.05) {
     s = sinh(a);
     c = sqrt(add(1.0, sqr(s)));
@@ -2082,11 +2082,11 @@ void sincosh(float49 a, out float49 s, out float49 c) {
   }
 }
 
-float49 asinh(float49 a) {
+float49 asinh(const float49 a) {
   return log(add(a, sqrt(add(sqr(a), 1.0))));
 }
 
-float49 acosh(float49 a) {
+float49 acosh(const float49 a) {
   if (lt(a, 1.0)) {
     return f49_nan;
   }
@@ -2094,7 +2094,7 @@ float49 acosh(float49 a) {
   return log(add(a, sqrt(sub(sqr(a), 1.0))));
 }
 
-float49 atanh(float49 a) {
+float49 atanh(const float49 a) {
   if (ge(abs(a), 1.0)) {
     return f49_nan;
   }
