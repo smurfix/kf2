@@ -295,7 +295,7 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.2** (????-??-??)
+- **kf-2.15.2** (2021-03-31)
 
     - new: custom OpenGL colouring algorithms (compatible with *zoomasm* 3.0)
       - button bottom left of the colors dialog or Ctrl+G in main window
