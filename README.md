@@ -39,7 +39,7 @@ Feedback:
   You need `7-zip` to unzip `.7z` archives, available from
   <https://www.7-zip.org/>.
 
-- Launch `kf.64.exe` for 64-bit (recommended), `kf.32.exe` for 32-bit.
+- Launch `kf.x86_64.exe` for 64-bit (recommended), `kf.i686.exe` for 32-bit.
 
 - Start exploring!
 
