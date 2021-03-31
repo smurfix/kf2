@@ -295,6 +295,10 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.2.1** (2021-03-31)
+
+    - fix: OpenGL shader errors on NVIDIA drivers
+
 - **kf-2.15.2** (2021-03-31)
 
     - new: custom OpenGL colouring algorithms (compatible with *zoomasm* 3.0)
