@@ -162,6 +162,9 @@ Feedback:
 - OpenCL runs on the main thread making the GUI less responsive
 - sometimes files are overwritten without confirmation, when the filename
   is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
+- derivative-based glitch test for power 2 Mandelbrot is buggy at some locations
+  (reported by Microfractal); workaround is to disable derivatives if possible,
+  or use OpenCL and/or Hybrid fractal designer (but that may be much slower).
 
 
 ## Differences From Upstream 2.11.1
