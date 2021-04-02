@@ -165,6 +165,8 @@ Feedback:
 - derivative-based glitch test for power 2 Mandelbrot is buggy at some locations
   (reported by Microfractal); workaround is to disable derivatives if possible,
   or use OpenCL and/or Hybrid fractal designer (but that may be much slower).
+- horizontal seams with OpenGL GLSL entropy colouring when image is larger
+  than the internal tile size.
 
 
 ## Differences From Upstream 2.11.1
