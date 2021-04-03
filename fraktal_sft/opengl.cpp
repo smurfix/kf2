@@ -798,7 +798,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb8)
             {
-              glReadPixels(0, 0, tile_width - 2, tile_height - 2, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
             }
             if (sRGB)
             {
