@@ -641,23 +641,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
     dey = 2.0 * neighbour - next; \
   }
 
-                if (x < 0 && y < 0)
-                {
-                  X(1, 1)
-                }
-                else if (x < 0 && y < req.u.render.height)
-                {
-                  X(1, 0)
-                }
-                else if (x < 0 && req.u.render.height <= y)
-                {
-                  X(1, -1)
-                }
-                else if (x < req.u.render.width && y < 0)
-                {
-                  X(0, 1)
-                }
-                else if (x < req.u.render.width && y < req.u.render.height)
+                if (0 <= x && x < req.u.render.width && 0 <= y && y < req.u.render.height)
                 {
                   // middle of tile
                   int64_t k0 = (x) * req.u.render.height + (y);
@@ -685,6 +669,22 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
                   {
                     dey = req.u.render.dey[k0];
                   }
+                }
+                else if (x < 0 && y < 0)
+                {
+                  X(1, 1)
+                }
+                else if (x < 0 && y < req.u.render.height)
+                {
+                  X(1, 0)
+                }
+                else if (x < 0 && req.u.render.height <= y)
+                {
+                  X(1, -1)
+                }
+                else if (x < req.u.render.width && y < 0)
+                {
+                  X(0, 1)
                 }
                 else if (x < req.u.render.width && req.u.render.height <= y)
                 {
