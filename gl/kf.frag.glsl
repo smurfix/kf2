@@ -2339,13 +2339,10 @@ float49 getN3x3(inout mat3 p, inout mat3 px, inout mat3 py)
     for (int di = -1; di <= 1; ++di)
     {
       ivec2 offset = ivec2(di, dj);
-      if (inImage(offset))
-      {
-        p[di + 1][dj + 1] = sub(getN(offset), N).x[0];
-        vec2 delta = getJitter(offset);
-        px[di + 1][dj + 1] = float(di) + delta.x;
-        py[di + 1][dj + 1] = float(dj) + delta.y;
-      }
+      p[di + 1][dj + 1] = sub(getN(offset), N).x[0];
+      vec2 delta = getJitter(offset);
+      px[di + 1][dj + 1] = float(di) + delta.x;
+      py[di + 1][dj + 1] = float(dj) + delta.y;
     }
   }
   // reflect at image boundaries if necessary
