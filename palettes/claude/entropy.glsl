@@ -15,7 +15,8 @@ vec3 colour()
   float count = 0.0;
   for (int i = 0; i < 3; ++i) for (int j = 0; j < 3; ++j)
   {
-    float s = N[i][j] * log(N[i][j]);
+    float s = N[i][j] * log(N[i][j]);
+    if (N[i][j] <= 0.0) s = 0.0;
     if (! isnan(s) && ! isinf(s))
     {
       total += s;

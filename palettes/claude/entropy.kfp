@@ -1,7 +1,7 @@
 Re: 0.00000000000000000000000
 Im: 0.00000000000000000000000
 Zoom: 1.0000000000000000E0
-Iterations: 3006
+Iterations: 200
 IterDiv: 0.0100000000000000002
 SmoothMethod: 0
 SmoothingMethod: 0
@@ -10,7 +10,7 @@ BailoutRadiusCustom: 2
 BailoutNormPreset: 1
 BailoutNormCustom: 2
 ColorMethod: 7
-Differences: 7
+Differences: 3
 ColorOffset: 0
 ColorPhaseStrength: 0
 Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,
@@ -42,6 +42,6 @@ RotateAngle: 0
 StretchAngle: 0
 StretchAmount: 0
 UseOpenGL: 1
-GLSL: vec3\ colour()\n{\n\ \ if\ (getInterior())\ return\ KFP_InteriorColor;\n\ \ mat3\ N\ =\ mat3(0.0);\n\ \ mat3\ x\ =\ mat3(0.0);\n\ \ mat3\ y\ =\ mat3(0.0);\n\ \ float49\ N_center\ =\ getN3x3(N,\ x,\ y);\n\ \ float\ minN\ =\ 1.0\ /\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ minN\ =\ min(minN,\ N[i][j]);\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ N[i][j]\ -=\ minN;\n\ \ float\ sumN\ =\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ sumN\ +=\ N[i][j];\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ N[i][j]\ /=\ sumN;\n\ \ float\ total\ =\ 0.0;\n\ \ float\ count\ =\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\n\ \ {\n\ \ \ \ float\ s\ =\ N[i][j]\ *\ log(N[i][j]);\n\ \ \ \ if\ (!\ isnan(s)\ &&\ !\ isinf(s))\n\ \ \ \ {\n\ \ \ \ \ \ total\ +=\ s;\n\ \ \ \ \ \ count\ +=\ 1.0;\n\ \ \ \ }\n\ \ }\n\ \ if\ (count\ <=\ 1.0)\ count\ =\ exp(1.0);\n\ \ total\ /=\ log(count);\n\ \ return\ KF_Palette(6.0\ *\ total);\n}\n
+GLSL: vec3\ colour()\n{\n\ \ if\ (getInterior())\ return\ KFP_InteriorColor;\n\ \ mat3\ N\ =\ mat3(0.0);\n\ \ mat3\ x\ =\ mat3(0.0);\n\ \ mat3\ y\ =\ mat3(0.0);\n\ \ float49\ N_center\ =\ getN3x3(N,\ x,\ y);\n\ \ float\ minN\ =\ 1.0\ /\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ minN\ =\ min(minN,\ N[i][j]);\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ N[i][j]\ -=\ minN;\n\ \ float\ sumN\ =\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ sumN\ +=\ N[i][j];\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\ N[i][j]\ /=\ sumN;\n\ \ float\ total\ =\ 0.0;\n\ \ float\ count\ =\ 0.0;\n\ \ for\ (int\ i\ =\ 0;\ i\ <\ 3;\ ++i)\ for\ (int\ j\ =\ 0;\ j\ <\ 3;\ ++j)\n\ \ {\n\ \ \ \ float\ s\ =\ N[i][j]\ *\ log(N[i][j]);\r\n\ \ \ \ if\ (N[i][j]\ <=\ 0.0)\ s\ =\ 0.0;\n\ \ \ \ if\ (!\ isnan(s)\ &&\ !\ isinf(s))\n\ \ \ \ {\n\ \ \ \ \ \ total\ +=\ s;\n\ \ \ \ \ \ count\ +=\ 1.0;\n\ \ \ \ }\n\ \ }\n\ \ if\ (count\ <=\ 1.0)\ count\ =\ exp(1.0);\n\ \ total\ /=\ log(count);\n\ \ return\ KF_Palette(6.0\ *\ total);\n}\n
 UseSRGB: 1
 Version: 2150200
