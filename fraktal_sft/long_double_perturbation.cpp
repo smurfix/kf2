@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -130,6 +130,7 @@ void CFraktalSFT::MandelCalcLDBL()
   const mat2 TK = GetTransformMatrix();
   const long double Cx = m_rref.ToLongDouble();
   const long double Cy = m_iref.ToLongDouble();
+  const bool noDerivativeGlitch = ! GetDerivativeGlitch();
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -225,7 +226,7 @@ void CFraktalSFT::MandelCalcLDBL()
       floatexp fJya = dya1;
       floatexp fJyb = dyb1;
       bool ok = derivatives
-	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, fJxa, fJxb, fJya, fJyb, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL)
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, fJxa, fJxb, fJya, fJyb, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL, noDerivativeGlitch)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
 	;
       assert(ok && "perturbation_long_double_scaled");
@@ -243,7 +244,7 @@ void CFraktalSFT::MandelCalcLDBL()
       long double dba = dba0.toLongDouble();
       long double dbb = dbb0.toLongDouble();
       bool ok = derivatives
-	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb)
+	? perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
 	: perturbation(m_nFractalType, m_nPower, m_ldxr, m_ldxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
 	;
       assert(ok && "perturbation_long_double");

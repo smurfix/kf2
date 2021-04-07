@@ -2,7 +2,7 @@
 <!--
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -420,6 +420,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , T &amp;Jxa0, T &amp;Jxb0, T &amp;Jya0, T &amp;Jyb0
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
+  , const bool noDerivativeGlitch
   )
 {
   (void) Jxa0; // -Wunused-parameter
@@ -477,7 +478,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr / h, di / h, e, h)) // FIXME matrix derivatives
+        if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr / h, di / h, e, h)) // FIXME matrix derivatives
         {
 </xsl:when>
 </xsl:choose>
@@ -607,6 +608,7 @@ bool perturbation
   , T &amp;Jxa, T &amp;Jxb, T &amp;Jya, T &amp;Jyb
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
+  , const bool noDerivativeGlitch
   )
 {
   switch (m_nFractalType)
@@ -630,6 +632,7 @@ bool perturbation
             , Jxa, Jxb, Jya, Jyb
             , e, h
             , daa, dab, dba, dbb
+            , noDerivativeGlitch
             );
       </xsl:for-each>
       }
@@ -651,6 +654,7 @@ template bool perturbation&lt;double&gt;
   , double &amp;Jxa0, double &amp;Jxb0, double &amp;Jya0, double &amp;Jyb0
   , const double &amp;e, const double &amp;h
   , const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb
+  , const bool noDerivativeGlitch
   );
 template bool perturbation&lt;long double&gt;
   ( int m_nFractalType, int m_nPower
@@ -664,6 +668,7 @@ template bool perturbation&lt;long double&gt;
   , long double &amp;Jxa0, long double &amp;Jxb0, long double &amp;Jya0, long double &amp;Jyb0
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
+  , const bool noDerivativeGlitch
   );
 template bool perturbation&lt;floatexp&gt;
   ( int m_nFractalType, int m_nPower
@@ -677,6 +682,7 @@ template bool perturbation&lt;floatexp&gt;
   , floatexp &amp;Jxa0, floatexp &amp;Jxb0, floatexp &amp;Jya0, floatexp &amp;Jyb0
   , const floatexp &amp;e, const floatexp &amp;h
   , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
+  , const bool noDerivativeGlitch
   );
 
 #endif
@@ -980,6 +986,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const double e, const double h
   , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
   , const int64_t chunksize
+  , const bool noDerivativeGlitch
   )
 {
   (void) Jxa0; // -Wunused-parameter
@@ -1181,7 +1188,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
 #ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa0[k] / h, dya0[k] / h, e, h)) // FIXME matrix derivatives
+        if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa0[k] / h, dya0[k] / h, e, h)) // FIXME matrix derivatives
         {
 #endif
 </xsl:when>
@@ -1331,6 +1338,7 @@ bool perturbation
   , const double e, const double h
   , const doubleN &amp;daa0, const doubleN &amp;dab0, const doubleN &amp;dba0, const doubleN &amp;dbb0
   , const int64_t chunk_size
+  , const bool noDerivativeGlitch
   )
 {
   switch (m_nFractalType)
@@ -1355,6 +1363,7 @@ bool perturbation
             , e, h
             , daa0, dab0, dba0, dbb0
             , chunk_size
+            , noDerivativeGlitch
             );
       </xsl:for-each>
       }
@@ -1378,6 +1387,7 @@ template bool perturbation&lt;int2, double2&gt;
   , const double e, const double h
   , const double2 &amp;daa0, const double2 &amp;dab0, const double2 &amp;dba0, const double2 &amp;dbb0
   , const int64_t chunk_size
+  , const bool noDerivativeGlitch
   );
 #endif
 
@@ -1395,6 +1405,7 @@ template bool perturbation&lt;int4, double4&gt;
   , const double e, const double h
   , const double4 &amp;daa0, const double4 &amp;dab0, const double4 &amp;dba0, const double4 &amp;dbb0
   , const int64_t chunk_size
+  , const bool noDerivativeGlitch
   );
 #endif
 
@@ -1412,6 +1423,7 @@ template bool perturbation&lt;int8, double8&gt;
   , const double e, const double h
   , const double8 &amp;daa0, const double8 &amp;dab0, const double8 &amp;dba0, const double8 &amp;dbb0
   , const int64_t chunk_sizes
+  , const bool noDerivativeGlitch
   );
 #endif
 
@@ -1429,6 +1441,7 @@ template bool perturbation&lt;int16, double16&gt;
   , const double e, const double h
   , const double16 &amp;daa0, const double16 &amp;dab0, const double16 &amp;dba0, const double16 &amp;dbb0
   , const int64_t chunk_size
+  , const bool noDerivativeGlitch
   );
 #endif
 
@@ -1859,6 +1872,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
   , const D &amp;e, const D &amp;h
   , const D &amp;daa, const D &amp;dab, const D &amp;dba, const D &amp;dbb
   , const Z &amp;s, const Z &amp;S
+  , const bool noDerivativeGlitch
   )
 {
   (void) Jxa0; // -Wunused-parameter
@@ -1917,7 +1931,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
 #ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
-        if (type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
+        if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
         {
 #endif
 </xsl:when>
@@ -2039,6 +2053,7 @@ bool perturbation
   , const D &amp;e, const D &amp;h
   , const D &amp;daa, const D &amp;dab, const D &amp;dba, const D &amp;dbb
   , const Z &amp;s, const Z &amp;S
+  , const bool noDerivativeGlitch
   )
 {
 <xsl:for-each select="//scaled/..">
@@ -2056,6 +2071,7 @@ bool perturbation
       , e, h
       , daa, dab, dba, dbb
       , s, S
+      , noDerivativeGlitch
       );
 </xsl:for-each>
   return false;
@@ -2074,6 +2090,7 @@ template bool perturbation&lt;long double, double&gt;
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
   , const double &amp;s, const double &amp;S
+  , const bool noDerivativeGlitch
   );
 template bool perturbation&lt;floatexp, long double&gt;
   ( int m_nFractalType, int m_nPower
@@ -2088,6 +2105,7 @@ template bool perturbation&lt;floatexp, long double&gt;
   , const floatexp &amp;e, const floatexp &amp;h
   , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
   , const long double &amp;s, const long double &amp;S
+  , const bool noDerivativeGlitch
   );
 
 #endif

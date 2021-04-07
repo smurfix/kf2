@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -361,6 +361,7 @@ bool perturbation
   , T &Jxa, T &Jxb, T &Jya, T &Jyb
   , const T &e, const T &h
   , const T &daa, const T &dab, const T &dba, const T &dbb
+  , const bool noDerivativeGlitch
   );
 
 // perturbation with SIMD
@@ -394,6 +395,7 @@ bool perturbation
   , const double e, const double h
   , const doubleN &daa, const doubleN &dab, const doubleN &dba, const doubleN &dbb
   , const int64_t chunksize
+  , const bool noDerivativeGlitch
   );
 
 // perturbation with scaling
@@ -443,6 +445,7 @@ bool perturbation
   , const D &e, const D &h
   , const D &daa, const D &dab, const D &dba, const D &dbb
   , const Z &s, const Z &S
+  , const bool noDerivativeGlitch
   );
 
 // miscellaneous

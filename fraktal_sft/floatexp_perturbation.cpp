@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -70,6 +70,7 @@ void CFraktalSFT::MandelCalcEXP()
 	const mat2 TK = GetTransformMatrix();
 	const floatexp Cx = floatexp(m_rref);
 	const floatexp Cy = floatexp(m_iref);
+	const bool noDerivativeGlitch = ! GetDerivativeGlitch();
 
 
 	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -235,7 +236,7 @@ void CFraktalSFT::MandelCalcEXP()
 		{
 
 			bool ok = derivatives
-			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dxa1, dxb1, dya1, dyb1, epsilon, m_fPixelSpacing, daa, dab, dba, dbb)
+			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dxa1, dxb1, dya1, dyb1, epsilon, m_fPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
 			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
 			  ;
 			assert(ok && "perturbation_floatexp()");

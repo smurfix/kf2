@@ -668,6 +668,7 @@ public:
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
+  BOOL(DerivativeGlitch)
 #undef DOUBLE
 #undef INT
 #undef BOOL

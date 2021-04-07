@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -38,6 +38,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     T(IDC_PTSATUNING_APPROXTOLERANCE, "Use low tolerance for series approximation.\nMay be slower but more accurate.")
     T(IDC_PTSATUNING_APPROXAUTO, "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.")
     T(IDC_PTSATUNING_APPROXTERMS, "Number of terms for series approximation.\nOnly used when automatic mode is disabled.")
+    T(IDC_PTSATUNING_DERIVATIVEGLITCH, "Use derivative-based glitch detection for power 2 Mandelbrot set.\nMay be faster, in rare cases may be inaccurate.")
     T(IDOK, "Apply and close")
     T(IDCANCEL, "Close and undo")
 #undef T
@@ -47,6 +48,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_SETCHECK, g_SFT.GetApproxLowTolerance() ? 1 : 0, 0);
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_SETCHECK, g_SFT.GetAutoApproxTerms() ? 1 : 0, 0);
     SetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, g_SFT.GetApproxTerms(), FALSE);
+    SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_SETCHECK, g_SFT.GetDerivativeGlitch() ? 1 : 0, 0);
 
     return 1;
   }
@@ -63,6 +65,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
         g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_GETCHECK, 0, 0));
         g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
         g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_GETCHECK, 0, 0));
+        g_SFT.SetDerivativeGlitch(SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_GETCHECK, 0, 0));
         retval = 1;
       }
       for (auto tooltip : tooltips)

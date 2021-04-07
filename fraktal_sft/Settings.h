@@ -91,6 +91,7 @@ private:
   bool m_EXRParallel;
   bool m_SaveNewtonProgress;
   bool m_ExponentialMap;
+  bool m_DerivativeGlitch;
 
 public:
 
@@ -149,6 +150,7 @@ public:
   , m_EXRParallel(true)
   , m_SaveNewtonProgress(false)
   , m_ExponentialMap(false)
+  , m_DerivativeGlitch(true)
   { };
 
   bool FromText(const std::string &text);
@@ -344,6 +346,9 @@ public:
 
   inline bool   GetExponentialMap() const { return m_ExponentialMap; };
   inline void   SetExponentialMap(bool b) { m_ExponentialMap = b; };
+
+  inline bool   GetDerivativeGlitch() const { return m_DerivativeGlitch; };
+  inline void   SetDerivativeGlitch(bool b) { m_DerivativeGlitch = b; };
 
 };
 
