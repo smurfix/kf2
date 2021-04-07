@@ -300,6 +300,13 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.2.2** (2021-04-07)
+
+    - new: entropy colouring example palette in OpenGL GLSL
+    - fix: tiling seams with certain colouring algorithms in OpenGL GLSL
+    - fix: checkbox to disable power 2 Mandelbrot derivative based glitch test
+      (failing location reported by Microfractal)
+
 - **kf-2.15.2.1** (2021-03-31)
 
     - fix: OpenGL shader errors on NVIDIA drivers
