@@ -2120,25 +2120,33 @@ Software license.
     a very large number of these tiny glitches, whose incorrect rendering may
     be invisible to the eye, and whose correct rendering may take forever.
 
-  - **Glitch low tolerance**
+  - **Perturbation and Series Approximation Tuning**
 
-    When checked, glitches are more likely to be
-    detected.  Disabling it can lead to bad images, but is faster.
+    - **Glitch low tolerance**
 
-  - **Series approximation low tolerance**
+      When checked, glitches are more likely to be
+      detected.  Disabling it can lead to bad images, but is faster.
 
-    When checked, series approximation
-    is stricter.  Disabling it can lead to bad images, but is faster.
+    - **Series approximation low tolerance**
 
-  - **Approximation terms**
+      When checked, series approximation
+      is stricter.  Disabling it can lead to bad images, but is faster.
 
-    Automatic (default, recommended) is based on number of pixels.
+    - **Approximation terms**
 
-  - **Max references**
+      Automatic (default, recommended) is based on number of pixels.
 
-    Sets limit of secondary reference points for automatic glitch
-    correction.  There is a hard limit of 10000, which is also the
-    default.
+    - **Max references**
+
+      Sets limit of secondary reference points for automatic glitch
+      correction.  There is a hard limit of 10000, which is also the
+      default.
+
+    - **Derivative glitch test**
+
+      Uses derivatives for a more accurate glitch test which can speed
+      up rendering.  Only for power 2 Mandelbrot, not yet implemented in
+      OpenCL.  Can be disabled for the rare cases where it fails.
 
   - **Set main reference**
 
