@@ -245,6 +245,11 @@ int fe_cmp(const floatexp a, const floatexp b)
   }
 }
 
+bool fe_lt(const floatexp a, const floatexp b)
+{
+  return fe_cmp(a, b) < 0;
+}
+
 floatexp fe_diffabs(const floatexp c, const floatexp d)
 {
   int s = d_cmp(c.val, 0.0);
@@ -1954,6 +1959,7 @@ typedef struct __attribute__((packed))
   double log_m_nPower;
   long m_nGlitchIter;
   long m_nMaxIter;
+  long m_nRSize;
   long nMaxIter;
   long nMinIter;
   short m_bNoGlitchDetection;
@@ -2375,18 +2381,22 @@ dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb,
 // forward declaration, defined per formula
 void perturbation_double_loop
 ( __global const p_config   *g
-, __global const double     *m_db_dxr
-, __global const double     *m_db_dxi
-, __global const double     *m_db_z
+, __global const double     *m_refx
+, __global const double     *m_refy
+, __global const double     *m_refz
 ,                p_status_d *l
 );
 
 // forward declaration, defined per formula
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const floatexp    *m_db_dxr
-, __global const floatexp    *m_db_dxi
-, __global const double      *m_db_z
+, __global const double      *m_refx
+, __global const double      *m_refy
+, __global const double      *m_refz
+, __global const long        *m_refN
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
 ,                p_status_fe *l
 );
 
@@ -2558,15 +2568,20 @@ __kernel void guessing
 // entry point
 __kernel void perturbation_double
 ( __global const p_config *g // configuration including series approximation coefficients
-, __global const double *m_db_dxr // reference orbit re
-, __global const double *m_db_dxi // reference orbit im
-, __global const double *m_db_z   // reference orbit (re^2+im^2)*glitch_threshold
+, __global const double *m_refx // reference orbit re
+, __global const double *m_refy // reference orbit im
+, __global const double *m_refz // reference orbit (re^2+im^2)*glitch_threshold
 , __global       uint   *n1  // iteration count msb, may be null
 , __global       uint   *n0  // iteration count lsb
 , __global       float  *nf  // iteration count fractional part
 , __global       float  *phase // final angle, may be null
 , __global       float  *dex // directional de x, may be null
 , __global       float  *dey // directional de y, may be null
+// unused but needed for compatibility
+, __global const long     *m_refN // reference orbit special iteration
+, __global const floatexp *m_refX // reference orbit special re
+, __global const floatexp *m_refY // reference orbit special im
+, __global const floatexp *m_refZ // reference orbit special (re^2+im^2)*glitch_threshold
 )
 {
   if (g->BYTES != sizeof(p_config)) return;
@@ -2658,7 +2673,7 @@ __kernel void perturbation_double
       , g->log_m_nPower
       };
     // core per pixel calculation
-    perturbation_double_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
+    perturbation_double_loop(g, m_refx, m_refy, m_refz, &l);
     // out
     double Dr = l.xr;
     double Di = l.xi;
@@ -2742,15 +2757,19 @@ __kernel void perturbation_double
 // entry point
 __kernel void perturbation_floatexp
 ( __global const p_config *g // configuration including series approximation coefficients
-, __global const floatexp *m_db_dxr // reference orbit re
-, __global const floatexp *m_db_dxi // reference orbit im
-, __global const double   *m_db_z   // reference orbit (re^2+im^2)*glitch_threshold
+, __global const double   *m_refx // reference orbit re
+, __global const double   *m_refy // reference orbit im
+, __global const double   *m_refz // reference orbit (re^2+im^2)*glitch_threshold
 , __global       uint     *n1  // iteration count msb, may be null
 , __global       uint     *n0  // iteration count lsb
 , __global       float    *nf  // iteration count fractional part
 , __global       float  *phase // final angle, may be null
 , __global       float    *dex // directional de x, may be null
 , __global       float    *dey // directional de y, may be null
+, __global const long     *m_refN // reference orbit special iteration
+, __global const floatexp *m_refX // reference orbit special re
+, __global const floatexp *m_refY // reference orbit special im
+, __global const floatexp *m_refZ // reference orbit special (re^2+im^2)*glitch_threshold
 )
 {
   if (g->BYTES != sizeof(p_config)) return;
@@ -2842,7 +2861,7 @@ __kernel void perturbation_floatexp
       , g->log_m_nPower
       };
     // core per pixel calculation
-    perturbation_floatexp_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
+    perturbation_floatexp_loop(g, m_refx, m_refy, m_refz, m_refN, m_refX, m_refY, m_refZ, &l);
     // out
     floatexp Dr = l.xr;
     floatexp Di = l.xi;

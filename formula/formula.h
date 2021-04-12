@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 #include "../fraktal_sft/floatexp.h"
+#include "../fraktal_sft/reference.h"
 
 // https://fractalforums.org/fractal-mathematics-and-new-theories/28/perturbation-theory/487/msg3170#msg3170
 // |2w'(w+z)+1|/|delta0|+|w|(|w+2z|+|w|+2|z|)<epsilon/h
@@ -320,10 +321,9 @@ F16(expm1)
 
 // reference
 
-template <typename T>
 bool reference
   ( const int m_nFractalType, const int m_nPower
-  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
+  , Reference *Reference
   , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
@@ -337,7 +337,7 @@ bool reference
 template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_dxr, const T *m_dxi, const double *m_db_z
+  , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -351,7 +351,7 @@ bool perturbation
 template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_dxr, const T *m_dxi, const double *m_db_z
+  , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -369,7 +369,7 @@ bool perturbation
 template <typename intN, typename doubleN>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *Reference
   , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -384,7 +384,7 @@ bool perturbation
 template <typename intN, typename doubleN>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_dxr, const double *m_dxi, const double *m_db_z
+  , const Reference *Reference
   , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -403,7 +403,7 @@ bool perturbation
 template <typename T>
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -418,7 +418,7 @@ bool perturbation
 template <typename intN, typename doubleN>
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *Reference
   , intN &antal0, doubleN &test10, doubleN &test20, doubleN &phase0, intN &bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -434,7 +434,7 @@ bool perturbation
 template <typename D, typename Z>
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
+  , const Reference *Reference
   , int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p

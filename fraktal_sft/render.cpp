@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
+#include "reference.h"
 #include "newton.h"
 #include "../common/StringVector.h"
 #include "../common/bitmap.h"
@@ -244,21 +245,10 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 	else if (m_nZoom>=g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
-		if (m_db_dxr){
-			delete[] m_db_dxr;
-			m_db_dxr = NULL;
-		}
-		if (m_db_dxi){
-			delete[] m_db_dxi;
-			m_db_dxi = NULL;
-		}
-		if (m_dxr){
-			delete[] m_dxr;
-			m_dxr = NULL;
-		}
-		if (m_dxi){
-			delete[] m_dxi;
-			m_dxi = NULL;
+		if (m_Reference)
+		{
+			reference_delete(m_Reference);
+			m_Reference = nullptr;
 		}
 #ifdef KF_OPENCL
 		if (cl)
@@ -274,45 +264,23 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 	else if (m_nZoom>=g_nLDBL){
-		if (m_db_dxr){
-			delete[] m_db_dxr;
-			m_db_dxr = NULL;
-		}
-		if (m_db_dxi){
-			delete[] m_db_dxi;
-			m_db_dxi = NULL;
-		}
-		if (m_ldxr){
-			delete[] m_ldxr;
-			m_ldxr = NULL;
-		}
-		if (m_ldxi){
-			delete[] m_ldxi;
-			m_ldxi = NULL;
+		if (m_Reference)
+		{
+			reference_delete(m_Reference);
+			m_Reference = nullptr;
 		}
 		RenderFractalEXP();
 		m_bIsRendering = false;
 		return;
 	}
-	if (m_ldxr){
-		delete[] m_ldxr;
-		m_ldxr = NULL;
-	}
-	if (m_ldxi){
-		delete[] m_ldxi;
-		m_ldxi = NULL;
-	}
-	if (m_dxr){
-		delete[] m_dxr;
-		m_dxr = NULL;
-	}
-	if (m_dxi){
-		delete[] m_dxi;
-		m_dxi = NULL;
+	if (m_Reference)
+	{
+		reference_delete(m_Reference);
+		m_Reference = nullptr;
 	}
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	int i;
-	if (!GetReuseReference() || !m_db_dxr){
+	if (!GetReuseReference() || !m_Reference){
 		if (m_bAddReference != 1){
 			{
 				m_rref = m_CenterRe;
@@ -436,7 +404,7 @@ void CFraktalSFT::RenderFractalLDBL()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	int i;
-	if (!GetReuseReference() || !m_ldxr){
+	if (!GetReuseReference() || !m_Reference){
 		if (m_bAddReference != 1){
 			{
 				m_rref = m_CenterRe;
@@ -451,7 +419,7 @@ void CFraktalSFT::RenderFractalLDBL()
 			m_nScalingOffsetL++;
 			m_nScalingL = m_nScalingL*.1L;
 		}
-		CalculateReferenceLDBL();
+		CalculateReference();
 	}
 
 	m_pixel_center_x = m_CenterRe - m_rref;
@@ -521,7 +489,7 @@ void CFraktalSFT::RenderFractalLDBL()
 void CFraktalSFT::RenderFractalEXP()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (!GetReuseReference() || !m_dxr){
+	if (!GetReuseReference() || !m_Reference){
 		if (m_bAddReference != 1){
 			{
 				m_rref = m_CenterRe;
@@ -530,7 +498,7 @@ void CFraktalSFT::RenderFractalEXP()
 				g_nAddRefY = -1;
 			}
 		}
-		CalculateReferenceEXP();
+		CalculateReference();
 	}
 	int i;
 

@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // THIS DISCLAIMER.
 
 #include "fraktal_sft.h"
+#include "reference.h"
 #include "../common/memory.h"
 #include "../common/parallell.h"
 #include "../common/StringVector.h"
@@ -197,10 +198,6 @@ CFraktalSFT::CFraktalSFT()
 	m_CenterRe = 0;
 	m_CenterIm = 0;
 	m_ZoomRadius = 2;
-	m_dxr = NULL;
-	m_dxi = NULL;
-	m_ldxr = NULL;
-	m_ldxi = NULL;
 	m_nZoom = 0;
 	m_nTrans = NULL;
 	m_nPhase = nullptr;
@@ -215,6 +212,10 @@ CFraktalSFT::CFraktalSFT()
 	m_nTotal = -1;
 	m_pnExpConsts = NULL;
 
+	m_Reference = nullptr;
+	m_NanoMB1Ref = nullptr;
+	m_NanoMB2Ref = nullptr;
+
 	m_nSmoothMethod = SmoothMethod_Log;
 	m_nBailoutRadiusPreset = BailoutRadius_High;
 	m_nBailoutRadiusCustom = 2;
@@ -225,9 +226,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nPhaseColorStrength = 0;
 
 	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
-
-	m_db_dxr = NULL;
-	m_db_dxi = NULL;
 
 	m_imageHalf = NULL;
 	m_lpBits = NULL;
@@ -1552,7 +1550,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	cl->run
+	cl->run<double>
   (
 	  // for pixel -> parameter mapping
 	  m_nX,
@@ -1599,11 +1597,16 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_APs,
 
 	  // reference orbit
-	  m_db_dxr,
-	  m_db_dxi,
-	  m_db_z,
+	  reference_ptr_x(m_Reference),
+	  reference_ptr_y(m_Reference),
+	  reference_ptr_z(m_Reference),
 	  antal,
 	  m_nMaxIter,
+	  reference_size_N(m_Reference),
+	  reference_ptr_N(m_Reference),
+	  reference_ptr_X(m_Reference),
+	  reference_ptr_Y(m_Reference),
+	  reference_ptr_Z(m_Reference),
 
 	  // formula selection
 	  0,
@@ -1643,7 +1646,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	cl->run
+	cl->run<floatexp>
   (
 	  // for pixel -> parameter mapping
 	  m_nX,
@@ -1690,11 +1693,16 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_APs,
 
 	  // reference orbit
-	  m_dxr,
-	  m_dxi,
-	  m_db_z,
+	  reference_ptr_x(m_Reference),
+	  reference_ptr_y(m_Reference),
+	  reference_ptr_z(m_Reference),
 	  antal,
 	  m_nMaxIter,
+	  reference_size_N(m_Reference),
+	  reference_ptr_N(m_Reference),
+	  reference_ptr_X(m_Reference),
+	  reference_ptr_Y(m_Reference),
+	  reference_ptr_Z(m_Reference),
 
 	  // formula selection
 	  2,

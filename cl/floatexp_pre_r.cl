@@ -1,8 +1,12 @@
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const floatexp    *m_db_dxr
-, __global const floatexp    *m_db_dxi
-, __global const double      *m_db_z
+, __global const double      *m_refx
+, __global const double      *m_refy
+, __global const double      *m_refz
+, __global const long        *m_refN
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
 ,                p_status_fe *l
 )
 {
@@ -26,18 +30,61 @@ void perturbation_floatexp_loop
   long antal = l->antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
+
+  long k = 0, n = 0;
+  floatexp Xrf, Xif, Xzf;
+  do
+  {
+    if (k < g->m_nRSize)
+    {
+      n = m_refN[k];
+      Xrf = m_refX[k];
+      Xif = m_refY[k];
+      Xzf = m_refZ[k];
+      k++;
+    }
+    else
+    {
+      n = g->nMaxIter;
+    }
+  }
+  while (n < antal);
   for (; antal < g->nMaxIter; antal++)
   {
-    const floatexp Xr = m_db_dxr[antal - g->nMinIter];
-    const floatexp Xi = m_db_dxi[antal - g->nMinIter];
-    const double   Xz = m_db_z  [antal - g->nMinIter];
+    floatexp Xr, Xi, Xz;
+    if (antal < n)
+    {
+      Xr = fe_floatexp(m_refx[antal - g->nMinIter], 0);
+      Xi = fe_floatexp(m_refy[antal - g->nMinIter], 0);
+      Xz = fe_floatexp(m_refz[antal - g->nMinIter], 0);
+    }
+    else
+    {
+      Xr = Xrf;
+      Xi = Xif;
+      Xz = Xzf;
+      if (k < g->m_nRSize)
+      {
+        n = m_refN[k];
+        Xrf = m_refX[k];
+        Xif = m_refY[k];
+        Xzf = m_refZ[k];
+        k++;
+      }
+      else
+      {
+        n = g->nMaxIter;
+      }
+    }
+
     Xxr = fe_add(Xr, xr);
     Xxi = fe_add(Xi, xi);
     const floatexp Xxr2 = fe_sqr(Xxr);
     const floatexp Xxi2 = fe_sqr(Xxi);
     test2 = test1;
-    test1 = fe_double(fe_add(Xxr2, Xxi2));
-    if (test1 < Xz)
+    const floatexp ftest1 = fe_add(Xxr2, Xxi2);
+    test1 = fe_double(ftest1);
+    if (fe_lt(ftest1, Xz))
     {
       l->bGlitch = true;
       if (! l->bNoGlitchDetection)

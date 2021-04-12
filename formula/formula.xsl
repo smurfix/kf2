@@ -24,6 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/CFixedFloat.h"
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/complex.h"
+#include "../fraktal_sft/reference.h"
 
 // hack for broadcasting in complex vector `op` complex scalar
 #define C(double,doubleN) \
@@ -50,10 +51,9 @@ C(long double,floatexp)
 
 <xsl:for-each select="formulas/group/formula">
 
-template &lt;typename T&gt;
 bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( const int m_nFractalType, const int m_nPower
-  , T *m_db_dxr, T *m_db_dxi, double *m_db_z
+  , Reference *m_Reference
   , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
@@ -76,8 +76,8 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
     mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
-    T Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN);
-    T Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN);
+    floatexp Xrd = mpfr_get_fe(Xr);
+    floatexp Xid = mpfr_get_fe(Xi);
     mpfr_t Xr2; mpfr_init2(Xr2, bits); mpfr_sqr(Xr2, Xr, MPFR_RNDN);
     mpfr_t Xi2; mpfr_init2(Xi2, bits); mpfr_sqr(Xi2, Xi, MPFR_RNDN);
     mpfr_t Xrn; mpfr_init2(Xrn, bits);
@@ -100,13 +100,11 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      Xrd = mpfr_get(Xr, T(0.0), MPFR_RNDN); \
-      Xid = mpfr_get(Xi, T(0.0), MPFR_RNDN); \
-      const double abs_val = double(Xrd * Xrd + Xid * Xid); \
-      const double Xz = abs_val * glitch; \
-      m_db_dxr[i] = Xrd; \
-      m_db_dxi[i] = Xid; \
-      m_db_z[i] = Xz; \
+      Xrd = mpfr_get_fe(Xr); \
+      Xid = mpfr_get_fe(Xi); \
+      const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
+      const floatexp Xz = abs_val * glitch; \
+      reference_append(m_Reference, Xrd, Xid, Xz); \
       if (abs_val &gt;= terminate){ \
         if (nMaxIter == m_nMaxIter){ \
           nMaxIter = i + 3; \
@@ -156,10 +154,9 @@ LOOP  }
 
 </xsl:for-each>
 
-template &lt;typename T&gt;
 bool reference
   ( const int m_nFractalType, const int m_nPower
-  , T *m_dxr, T *m_dxi, double *m_db_z
+  , Reference *m_Reference
   , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
   , const CFixedFloat &amp;Cr, const CFixedFloat &amp;Ci
   , const double g_SeedR, const double g_SeedI
@@ -179,7 +176,7 @@ bool reference
         case <xsl:value-of select="@power" />:
           return FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
             ( m_nFractalType, m_nPower
-            , m_dxr, m_dxi, m_db_z
+            , m_Reference
             , m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter
             , Cr, Ci
             , g_SeedR, g_SeedI
@@ -195,37 +192,6 @@ bool reference
   return false;
 }
 
-template bool reference&lt;double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , double *m_db_dxr, double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate
-  , const bool m_bGlitchLowTolerance
-  );
-template bool reference&lt;long double&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , long double *m_db_dxr, long double *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate
-  , const bool m_bGlitchLowTolerance
-  );
-template bool reference&lt;floatexp&gt;
-  ( const int m_nFractalType, const int m_nPower
-  , floatexp *m_db_dxr, floatexp *m_db_dxi, double *m_db_z
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
-  , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
-  , const double g_SeedR, const double g_SeedI
-  , const double g_FactorAR, const double g_FactorAI
-  , const double terminate
-  , const bool m_bGlitchLowTolerance
-  );
-
 #endif
 
 #ifdef PASS3 // perturbation
@@ -235,7 +201,7 @@ template bool reference&lt;floatexp&gt;
 template &lt;typename T&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -263,18 +229,46 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     T xi = xi0;
     T Xxr = 0;
     T Xxi = 0;
+    int64_t k = 0, n = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, k++, n, X, Y, Z))
+      {
+        n = nMaxIter;
+      }
+    }
+    while (n &lt; antal);
     for (; antal &lt; nMaxIter; antal++)
     {
-      const T Xr = m_db_dxr[antal];
-      const T Xi = m_db_dxi[antal];
-      const double Xz = m_db_z[antal];
+      T Xr, Xi, Xz;
+      if (antal &lt; n)
+      {
+        double x, y, z;
+        reference_get(m_Reference, antal, x, y, z);
+        Xr = x;
+        Xi = y;
+        Xz = z;
+      }
+      else
+      {
+        Xr = T(X);
+        Xi = T(Y);
+        Xz = T(Z);
+        if (! reference_get(m_Reference, k++, n, X, Y, Z))
+        {
+          n = nMaxIter;
+        }
+      }
+
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;
       const T Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr2 + Xxi2);
-      if (test1 &lt; Xz)
+      T ttest1 = Xxr2 + Xxi2;
+      test1 = double(ttest1);
+      if (ttest1 &lt; Xz)
       {
         bGlitch = true;
         if (! m_bNoGlitchDetection)
@@ -334,7 +328,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename T&gt;
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_dxr, const T *m_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -354,7 +348,7 @@ bool perturbation
         case <xsl:value-of select="@power" />:
           return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
             ( m_nFractalType, m_nPower
-            , m_dxr, m_dxi, m_db_z
+            , m_Reference
             , antal, test1, test2, phase, bGlitch
             , m_nBailout2, nMaxIter
             , m_bNoGlitchDetection, g_real, g_imag, p
@@ -372,7 +366,7 @@ bool perturbation
 
 template bool perturbation&lt;double&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_dxr, const double *m_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -382,7 +376,7 @@ template bool perturbation&lt;double&gt;
   );
 template bool perturbation&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const long double *m_dxr, const long double *m_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -392,7 +386,7 @@ template bool perturbation&lt;long double&gt;
   );
 template bool perturbation&lt;floatexp&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const floatexp *m_dxr, const floatexp *m_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -410,7 +404,7 @@ template bool perturbation&lt;floatexp&gt;
 template &lt;typename T&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -463,18 +457,46 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 </xsl:choose>
     T Xxr = 0;
     T Xxi = 0;
+    int64_t k = 0, n = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, k++, n, X, Y, Z))
+      {
+        n = nMaxIter;
+      }
+    }
+    while (n &lt; antal);
     for (; antal &lt; nMaxIter; antal++)
     {
-      const T Xr = m_db_dxr[antal];
-      const T Xi = m_db_dxi[antal];
-      const double Xz = m_db_z[antal];
+      T Xr, Xi, Xz;
+      if (antal &lt; n)
+      {
+        double x, y, z;
+        reference_get(m_Reference, antal, x, y, z);
+        Xr = x;
+        Xi = y;
+        Xz = z;
+      }
+      else
+      {
+        Xr = T(X);
+        Xi = T(Y);
+        Xz = T(Z);
+        if (! reference_get(m_Reference, k++, n, X, Y, Z))
+        {
+          n = nMaxIter;
+        }
+      }
+
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;
       const T Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr2 + Xxi2);
-      if (test1 &lt; Xz)
+      T ttest1 = Xxr2 + Xxi2;
+      test1 = double(ttest1);
+      if (ttest1 &lt; Xz)
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
@@ -598,7 +620,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename T&gt;
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -622,7 +644,7 @@ bool perturbation
         case <xsl:value-of select="@power" />:
           return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
             ( m_nFractalType, m_nPower
-            , m_db_dxr, m_db_dxi, m_db_z
+            , m_Reference
             , antal, test1, test2, phase, bGlitch
             , m_nBailout2, nMaxIter
             , m_bNoGlitchDetection, g_real, g_imag, p
@@ -644,7 +666,7 @@ bool perturbation
 
 template bool perturbation&lt;double&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -658,7 +680,7 @@ template bool perturbation&lt;double&gt;
   );
 template bool perturbation&lt;long double&gt;
   ( int m_nFractalType, int m_nPower
-  , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -672,7 +694,7 @@ template bool perturbation&lt;long double&gt;
   );
 template bool perturbation&lt;floatexp&gt;
   ( int m_nFractalType, int m_nPower
-  , const floatexp *m_db_dxr, const floatexp *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -694,7 +716,7 @@ template bool perturbation&lt;floatexp&gt;
 template &lt;typename intN, typename doubleN&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, doubleN &amp;phase0, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -723,19 +745,58 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     intN antal = antal0;
     intN bGlitch = bGlitch0;
     intN bBailed = test1 &gt; m_nBailout2;
+
+    int64_t K = 0, N = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, K++, N, X, Y, Z))
+      {
+        N = nMaxIter;
+      }
+    }
+    while (N &lt; antal[0]);
+    int64_t K_saved = K;
+    int64_t N_saved = N;
+    floatexp X_saved = X;
+    floatexp Y_saved = Y;
+    floatexp Z_saved = Z;
+
     // vectorized loop
     if (all(antal == antal[0]))
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
+        K_saved = K;
+        N_saved = N;
+        X_saved = X;
+        Y_saved = Y;
+        Z_saved = Z;
         doubleN xr_saved = xr0;
         doubleN xi_saved = xi0;
         doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
-          const double Xr = m_db_dxr[antal[0] + q];
-          const double Xi = m_db_dxi[antal[0] + q];
-          const double Xz = m_db_z[antal[0] + q];
+          double Xr, Xi, Xz;
+          if (antal[0] + q &lt; N)
+          {
+            double x, y, z;
+            reference_get(m_Reference, antal[0] + q, x, y, z);
+            Xr = x;
+            Xi = y;
+            Xz = z;
+          }
+          else
+          {
+            Xr = double(X);
+            Xi = double(Y);
+            Xz = double(Z);
+            if (! reference_get(m_Reference, K++, N, X, Y, Z))
+            {
+              N = nMaxIter;
+            }
+          }
+
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
           const doubleN Xxr2 = Xxr * Xxr;
@@ -791,15 +852,36 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     }
 
     // finish up unvectorized
-    const int64_t N = sizeof(doubleN) / sizeof(double);
-    for (int64_t k = 0; k &lt; N; ++k)
+    const int64_t M = sizeof(doubleN) / sizeof(double);
+    for (int64_t k = 0; k &lt; M; ++k)
     {
       double Xxr = 0, Xxi = 0;
+      K = K_saved;
+      N = N_saved;
+      X = X_saved;
+      Y = Y_saved;
+      Z = Z_saved;
       for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
       {
-        const double Xr = m_db_dxr[antal[k]];
-        const double Xi = m_db_dxi[antal[k]];
-        const double Xz = m_db_z[antal[k]];
+        double Xr, Xi, Xz;
+        if (antal[k] &lt; N)
+        {
+          double x, y, z;
+          reference_get(m_Reference, antal[k], x, y, z);
+          Xr = x;
+          Xi = y;
+          Xz = z;
+        }
+        else
+        {
+          Xr = double(X);
+          Xi = double(Y);
+          Xz = double(Z);
+          if (! reference_get(m_Reference, K++, N, X, Y, Z))
+          {
+            N = nMaxIter;
+          }
+        }
         Xxr = Xr + xr0[k];
         Xxi = Xi + xi0[k];
         const double Xxr2 = Xxr * Xxr;
@@ -870,7 +952,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename intN, typename doubleN&gt;
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal, doubleN &amp;test1, doubleN &amp;test2, doubleN &amp;phase, intN &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -891,7 +973,7 @@ bool perturbation
         case <xsl:value-of select="@power" />:
           return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
             ( m_nFractalType, m_nPower
-            , m_db_dxr, m_db_dxi, m_db_z
+            , m_Reference
             , antal, test1, test2, phase, bGlitch
             , m_nBailout2, nMaxIter
             , m_bNoGlitchDetection, g_real, g_imag, p
@@ -913,7 +995,7 @@ bool perturbation
 #if KF_SIMD >= 1
 template bool perturbation&lt;int2, double2&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int2 &amp;antal, double2 &amp;test1, double2 &amp;test2, double2 &amp;phase, int2 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const int2 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -927,7 +1009,7 @@ template bool perturbation&lt;int2, double2&gt;
 #if KF_SIMD >= 2
 template bool perturbation&lt;int4, double4&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int4 &amp;antal, double4 &amp;test1, double4 &amp;test2, double4 &amp;phase, int4 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const int4 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -941,7 +1023,7 @@ template bool perturbation&lt;int4, double4&gt;
 #if KF_SIMD >= 3
 template bool perturbation&lt;int8, double8&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int8 &amp;antal, double8 &amp;test1, double8 &amp;test2, double8 &amp;phase, int8 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const int8 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -955,7 +1037,7 @@ template bool perturbation&lt;int8, double8&gt;
 #if KF_SIMD >= 4
 template bool perturbation&lt;int16, double16&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int16 &amp;antal, double16 &amp;test1, double16 &amp;test2, double16 &amp;phase, int16 &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const int16 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -975,7 +1057,7 @@ template bool perturbation&lt;int16, double16&gt;
 template &lt;typename intN, typename doubleN&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, doubleN &amp;phase0, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1024,6 +1106,23 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     doubleN dxa0 = Jxa0, dxb0 = Jxb0, dya0 = Jya0, dyb0 = Jyb0;
 </xsl:when>
 </xsl:choose>
+
+    int64_t K = 0, N = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, K++, N, X, Y, Z))
+      {
+        N = nMaxIter;
+      }
+    }
+    while (N &lt; antal[0]);
+    int64_t K_saved = K;
+    int64_t N_saved = N;
+    floatexp X_saved = X;
+    floatexp Y_saved = Y;
+    floatexp Z_saved = Z;
+
     // vectorized loop
     if (all(antal == antal[0]))
     {
@@ -1032,6 +1131,11 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
       (void) di0;
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
+        K_saved = K;
+        N_saved = N;
+        X_saved = X;
+        Y_saved = Y;
+        Z_saved = Z;
         doubleN xr_saved = xr0;
         doubleN xi_saved = xi0;
 <xsl:choose>
@@ -1045,9 +1149,25 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
         doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
-          const double Xr = m_db_dxr[antal[0] + q];
-          const double Xi = m_db_dxi[antal[0] + q];
-          const double Xz = m_db_z[antal[0] + q];
+          double Xr, Xi, Xz;
+          if (antal[0] + q &lt; N)
+          {
+            double x, y, z;
+            reference_get(m_Reference, antal[0] + q, x, y, z);
+            Xr = x;
+            Xi = y;
+            Xz = z;
+          }
+          else
+          {
+            Xr = double(X);
+            Xi = double(Y);
+            Xz = double(Z);
+            if (! reference_get(m_Reference, K++, N, X, Y, Z))
+            {
+              N = nMaxIter;
+            }
+          }
           doubleN Xxr = Xr + xr0;
           doubleN Xxi = Xi + xi0;
           const doubleN Xxr2 = Xxr * Xxr;
@@ -1163,18 +1283,40 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     }
 
     // finish up unvectorized
-    const int64_t N = sizeof(doubleN) / sizeof(double);
-    for (int64_t k = 0; k &lt; N; ++k)
+    const int64_t M = sizeof(doubleN) / sizeof(double);
+    for (int64_t k = 0; k &lt; M; ++k)
     {
       const double dr0 = daa0[k], di0 = dba0[k];
       (void) dr0;
       (void) di0;
+
+      K = K_saved;
+      N = N_saved;
+      X = X_saved;
+      Y = Y_saved;
+      Z = Z_saved;
       double Xxr = 0, Xxi = 0;
       for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
       {
-        const double Xr = m_db_dxr[antal[k]];
-        const double Xi = m_db_dxi[antal[k]];
-        const double Xz = m_db_z[antal[k]];
+        double Xr, Xi, Xz;
+        if (antal[k] &lt; N)
+        {
+          double x, y, z;
+          reference_get(m_Reference, antal[k], x, y, z);
+          Xr = x;
+          Xi = y;
+          Xz = z;
+        }
+        else
+        {
+          Xr = double(X);
+          Xi = double(Y);
+          Xz = double(Z);
+          if (! reference_get(m_Reference, K++, N, X, Y, Z))
+          {
+            N = nMaxIter;
+          }
+        }
         const double cr = cr0[k], ci = ci0[k];
         double xr = xr0[k], xi = xi0[k];
         Xxr = Xr + xr;
@@ -1327,7 +1469,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename intN, typename doubleN&gt;
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, doubleN &amp;phase0, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1352,7 +1494,7 @@ bool perturbation
         case <xsl:value-of select="@power" />:
           return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
             ( m_nFractalType, m_nPower
-            , m_db_dxr, m_db_dxi, m_db_z
+            , m_Reference
             , antal0, test10, test20, phase0, bGlitch0
             , m_nBailout2, nMaxIter
             , m_bNoGlitchDetection, g_real, g_imag, p
@@ -1376,7 +1518,7 @@ bool perturbation
 #if KF_SIMD >= 1
 template bool perturbation&lt;int2, double2&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, double2 &amp;phase0, int2 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const int2 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1394,7 +1536,7 @@ template bool perturbation&lt;int2, double2&gt;
 #if KF_SIMD >= 2
 template bool perturbation&lt;int4, double4&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, double4 &amp;phase0, int4 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const int4 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1412,7 +1554,7 @@ template bool perturbation&lt;int4, double4&gt;
 #if KF_SIMD >= 3
 template bool perturbation&lt;int8, double8&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, double8 &amp;phase0, int8 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const int8 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1430,7 +1572,7 @@ template bool perturbation&lt;int8, double8&gt;
 #if KF_SIMD >= 4
 template bool perturbation&lt;int16, double16&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, double16 &amp;phase0, int16 &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const int16 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1454,7 +1596,7 @@ template bool perturbation&lt;int16, double16&gt;
 template &lt;typename T&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch0
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1484,18 +1626,46 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     bool bGlitch = bGlitch0;
     T Xxr = 0;
     T Xxi = 0;
-      for (; antal &lt; nMaxIter; antal = antal + 1)
+    int64_t k = 0, n = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, k++, n, X, Y, Z))
       {
-        const T Xr = m_db_dxr[antal];
-        const T Xi = m_db_dxi[antal];
-        const double Xz = m_db_z[antal];
+        n = nMaxIter;
+      }
+    }
+    while (n &lt; antal);
+    for (; antal &lt; nMaxIter; antal++)
+    {
+      T Xr, Xi, Xz;
+      if (antal &lt; n)
+      {
+        double x, y, z;
+        reference_get(m_Reference, antal, x, y, z);
+        Xr = x;
+        Xi = y;
+        Xz = z;
+      }
+      else
+      {
+        Xr = T(X);
+        Xi = T(Y);
+        Xz = T(Z);
+        if (! reference_get(m_Reference, k++, n, X, Y, Z))
+        {
+          n = nMaxIter;
+        }
+      }
+
         Xxr = Xr + xr0 * s;
         Xxi = Xi + xi0 * s;
         const T Xxr2 = Xxr * Xxr;
         const T Xxi2 = Xxi * Xxi;
         test2 = test1;
-        test1 = double(Xxr2 + Xxi2);
-        if (test1 &lt; Xz)
+        T ttest1 = Xxr2 + Xxi2;
+        test1 = double(ttest1);
+        if (ttest1 &lt; Xz)
         {
           bGlitch = true;
           if (! m_bNoGlitchDetection)
@@ -1546,7 +1716,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename T&gt;
 bool perturbation
   ( const int m_nFractalType, const int m_nPower
-  , const T *m_db_dxr, const T *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1560,7 +1730,7 @@ bool perturbation
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
     return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
       ( m_nFractalType, m_nPower
-      , m_db_dxr, m_db_dxi, m_db_z
+      , m_Reference
       , antal, test1, test2, phase, bGlitch
       , m_nBailout2, nMaxIter
       , m_bNoGlitchDetection, g_real, g_imag, p
@@ -1575,7 +1745,7 @@ bool perturbation
 
 template bool perturbation&lt;double&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1586,7 +1756,7 @@ template bool perturbation&lt;double&gt;
   );
 template bool perturbation&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
-  , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1605,7 +1775,7 @@ template bool perturbation&lt;long double&gt;
 template &lt;typename intN, typename doubleN&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, doubleN &amp;phase0, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1635,19 +1805,58 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     intN antal = antal0;
     intN bGlitch = bGlitch0;
     intN bBailed = test1 &gt; m_nBailout2;
+
+    int64_t K = 0, N = 0;
+    floatexp X = 0, Y = 0, Z = 0;
+    do
+    {
+      if (! reference_get(m_Reference, K++, N, X, Y, Z))
+      {
+        N = nMaxIter;
+      }
+    }
+    while (N &lt; antal[0]);
+    int64_t K_saved = K;
+    int64_t N_saved = N;
+    floatexp X_saved = X;
+    floatexp Y_saved = Y;
+    floatexp Z_saved = Z;
+
     // vectorized loop
     if (all(antal == antal[0]))
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
+        K_saved = K;
+        N_saved = N;
+        X_saved = X;
+        Y_saved = Y;
+        Z_saved = Z;
         doubleN xr_saved = xr0;
         doubleN xi_saved = xi0;
         doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
-          const double Xr = m_db_dxr[antal[0] + q];
-          const double Xi = m_db_dxi[antal[0] + q];
-          const double Xz = m_db_z[antal[0] + q];
+          double Xr, Xi, Xz;
+          if (antal[0] + q &lt; N)
+          {
+            double x, y, z;
+            reference_get(m_Reference, antal[0] + q, x, y, z);
+            Xr = x;
+            Xi = y;
+            Xz = z;
+          }
+          else
+          {
+            Xr = double(X);
+            Xi = double(Y);
+            Xz = double(Z);
+            if (! reference_get(m_Reference, K++, N, X, Y, Z))
+            {
+              N = nMaxIter;
+            }
+          }
+
           doubleN Xxr = Xr + xr0 * s;
           doubleN Xxi = Xi + xi0 * s;
           const doubleN Xxr2 = Xxr * Xxr;
@@ -1693,15 +1902,36 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     }
 
     // finish up unvectorized
-    int64_t N = sizeof(doubleN) / sizeof(double);
-    for (int64_t k = 0; k &lt; N; ++k)
+    int64_t M = sizeof(doubleN) / sizeof(double);
+    for (int64_t k = 0; k &lt; M; ++k)
     {
       double Xxr = 0, Xxi = 0;
+      K = K_saved;
+      N = N_saved;
+      X = X_saved;
+      Y = Y_saved;
+      Z = Z_saved;
       for (; antal[k] &lt; nMaxIter; antal[k] = antal[k] + 1)
       {
-        const double Xr = m_db_dxr[antal[k]];
-        const double Xi = m_db_dxi[antal[k]];
-        const double Xz = m_db_z[antal[k]];
+        double Xr, Xi, Xz;
+        if (antal[k] &lt; N)
+        {
+          double x, y, z;
+          reference_get(m_Reference, antal[k], x, y, z);
+          Xr = x;
+          Xi = y;
+          Xz = z;
+        }
+        else
+        {
+          Xr = double(X);
+          Xi = double(Y);
+          Xz = double(Z);
+          if (! reference_get(m_Reference, K++, N, X, Y, Z))
+          {
+            N = nMaxIter;
+          }
+        }
         Xxr = Xr + xr0[k] * s;
         Xxi = Xi + xi0[k] * s;
         const double Xxr2 = Xxr * Xxr;
@@ -1763,7 +1993,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename intN, typename doubleN&gt;
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , intN &amp;antal0, doubleN &amp;test10, doubleN &amp;test20, doubleN &amp;phase0, intN &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const intN &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1778,7 +2008,7 @@ bool perturbation
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
     return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
       ( m_nFractalType, m_nPower
-      , m_db_dxr, m_db_dxi, m_db_z
+      , m_Reference
       , antal0, test10, test20, phase0, bGlitch0
       , m_nBailout2, nMaxIter
       , m_bNoGlitchDetection, g_real, g_imag, p
@@ -1795,7 +2025,7 @@ bool perturbation
 #if KF_SIMD >= 1
 template bool perturbation&lt;int2, double2&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int2 &amp;antal0, double2 &amp;test10, double2 &amp;test20, double2 &amp;phase0, int2 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const int2 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1810,7 +2040,7 @@ template bool perturbation&lt;int2, double2&gt;
 #if KF_SIMD >= 2
 template bool perturbation&lt;int4, double4&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int4 &amp;antal0, double4 &amp;test10, double4 &amp;test20, double4 &amp;phase0, int4 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const int4 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1825,7 +2055,7 @@ template bool perturbation&lt;int4, double4&gt;
 #if KF_SIMD >= 3
 template bool perturbation&lt;int8, double8&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int8 &amp;antal0, double8 &amp;test10, double8 &amp;test20, double8 &amp;phase0, int8 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const int8 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1840,7 +2070,7 @@ template bool perturbation&lt;int8, double8&gt;
 #if KF_SIMD >= 4
 template bool perturbation&lt;int16, double16&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int16 &amp;antal0, double16 &amp;test10, double16 &amp;test20, double16 &amp;phase0, int16 &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const int16 &amp;m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1861,7 +2091,7 @@ template bool perturbation&lt;int16, double16&gt;
 template &lt;typename D, typename Z&gt;
 bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
-  , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -1915,18 +2145,48 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 </xsl:choose>
     Z Xxr = 0;
     Z Xxi = 0;
+
+    int64_t K = 0, N = 0;
+    floatexp X = 0, Y = 0, Z0 = 0;
+    do
+    {
+      if (! reference_get(m_Reference, K++, N, X, Y, Z0))
+      {
+        N = nMaxIter;
+      }
+    }
+    while (N &lt; antal);
+
     for (; antal &lt; nMaxIter; antal++)
     {
-      const Z Xr = m_db_dxr[antal];
-      const Z Xi = m_db_dxi[antal];
-      const double Xz = m_db_z[antal];
+      Z Xr, Xi, Xz;
+      if (antal &lt; N)
+      {
+        double x, y, z;
+        reference_get(m_Reference, antal, x, y, z);
+        Xr = x;
+        Xi = y;
+        Xz = z;
+      }
+      else
+      {
+        Xr = Z(X);
+        Xi = Z(Y);
+        Xz = Z(Z0);
+        if (! reference_get(m_Reference, K++, N, X, Y, Z0))
+        {
+          N = nMaxIter;
+        }
+      }
+
       Xxr = Xr + xr * s;
       Xxi = Xi + xi * s;
       const Z Xxr2 = Xxr * Xxr;
       const Z Xxi2 = Xxi * Xxi;
       test2 = test1;
-      test1 = double(Xxr2 + Xxi2);
-      if (test1 &lt; Xz)
+      Z ztest1 = Xxr2 + Xxi2;
+      test1 = double(ztest1);
+      if (ztest1 &lt; Xz)
       {
 <xsl:choose>
 <xsl:when test="../@type='0' and @power='2'">
@@ -2042,7 +2302,7 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 template &lt;typename D, typename Z&gt;
 bool perturbation
   ( int m_nFractalType, int m_nPower
-  , const Z *m_db_dxr, const Z *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -2060,7 +2320,7 @@ bool perturbation
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
     return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
       ( m_nFractalType, m_nPower
-      , m_db_dxr, m_db_dxi, m_db_z
+      , m_Reference
       , antal, test1, test2, phase, bGlitch
       , m_nBailout2, nMaxIter
       , m_bNoGlitchDetection, g_real, g_imag, p
@@ -2079,7 +2339,7 @@ bool perturbation
 
 template bool perturbation&lt;long double, double&gt;
   ( int m_nFractalType, int m_nPower
-  , const double *m_db_dxr, const double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
@@ -2094,7 +2354,7 @@ template bool perturbation&lt;long double, double&gt;
   );
 template bool perturbation&lt;floatexp, long double&gt;
   ( int m_nFractalType, int m_nPower
-  , const long double *m_db_dxr, const long double *m_db_dxi, const double *m_db_z
+  , const Reference *m_Reference
   , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p

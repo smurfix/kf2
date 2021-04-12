@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
+#include "reference.h"
 #include "complex.h"
 
 void CFraktalSFT::CalculateApproximation(int nType)
@@ -148,24 +149,44 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				APs->t[i][j] = m_APs->t[i][j];
 			}
 
+
+	int64_t K = 0, N = 0;
+	floatexp X = 0, Y = 0, Z = 0;
+	do
+	{
+	  if (! reference_get(m_Reference, K++, N, X, Y, Z))
+	  {
+	    N = m_nMaxIter;
+	    break;
+	  }
+	}
+	while (N < 0);
+
 	for (int64_t iteration = 0; iteration<m_nMaxIter - 1 && !m_bStop; iteration++){
 		m_nApprox++;
 
 		// get reference
 		int64_t n = iteration - 1;
-		if (iteration == 0)
+		if (iteration <= 0)
 			xr = xi = 0;
-		else if (nType == 0){
-			xr = m_db_dxr[n];
-			xi = m_db_dxi[n];
-		}
-		else if (nType == 1){
-			xr = m_ldxr[n];
-			xi = m_ldxi[n];
-		}
-		else{
-			xr = m_dxr[n];
-			xi = m_dxi[n];
+		else
+		{
+			if (n < N)
+			{
+				double x, y, z;
+				reference_get(m_Reference, n, x, y, z);
+				xr = x;
+				xi = y;
+			}
+			else
+			{
+				xr = X;
+				xi = Y;
+				if (! reference_get(m_Reference, K++, N, X, Y, Z))
+				{
+					N = m_nMaxIter;
+				}
+			}
 		}
 
 		// copy approximation
@@ -283,19 +304,20 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			Hn+1 = 2XnHn + 2AnGn + 2BnFn + 2CnEn + Dn2
 			In+1 = 2XnIn + 2AnHn + 2BnGn + 2CnFn + 2DnEn
 			*/
-			if (iteration<m_nMaxApproximation){
+			if (iteration<m_nMaxApproximation)
+		  {
 				floatexp dxr, dxi;
-				if (nType == 0){
-					dxr = m_db_dxr[iteration];
-					dxi = m_db_dxi[iteration];
+				if (iteration < N)
+				{
+					double x, y, z;
+					reference_get(m_Reference, iteration, x, y, z);
+					dxr = x;
+					dxi = y;
 				}
-				else if (nType == 1){
-					dxr = m_ldxr[iteration];
-					dxi = m_ldxi[iteration];
-				}
-				else{
-					dxr = m_dxr[iteration];
-					dxi = m_dxi[iteration];
+				else
+				{
+					dxr = X;
+					dxi = Y;
 				}
 				int j = 0;
 				for (j = 0; j<nProbe; j++){

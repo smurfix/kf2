@@ -1,8 +1,8 @@
 void perturbation_double_loop
 ( __global const p_config   *g
-, __global const double     *m_db_dxr
-, __global const double     *m_db_dxi
-, __global const double     *m_db_z
+, __global const double     *m_refx
+, __global const double     *m_refy
+, __global const double     *m_refz
 ,                p_status_d *l
 )
 {
@@ -22,9 +22,9 @@ void perturbation_double_loop
   double Xxi = 0;
   for (; antal < g->nMaxIter; antal++)
   {
-    const double Xr = m_db_dxr[antal - g->nMinIter];
-    const double Xi = m_db_dxi[antal - g->nMinIter];
-    const double Xz = m_db_z  [antal - g->nMinIter];
+    const double Xr = m_refx[antal - g->nMinIter];
+    const double Xi = m_refy[antal - g->nMinIter];
+    const double Xz = m_refz[antal - g->nMinIter];
     Xxr = Xr + x.re;
     Xxi = Xi + x.im;
     const double Xxr2 = Xxr * Xxr;

@@ -38,6 +38,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 extern std::vector<cldevice> cldevices;
 #endif
 
+struct Reference;
 struct NanoMB1_Reference;
 struct NanoMB2_Reference;
 
@@ -329,7 +330,6 @@ class CFraktalSFT
 
 	double m_xrd, m_xid;
 
-	floatexp *m_dxr, *m_dxi;
 	floatexp *m_APr;
 	floatexp *m_APi;
 	SeriesR2 *m_APs;
@@ -337,16 +337,10 @@ class CFraktalSFT
 	BOOL m_bMirrored;
 	int m_nFractalType;
 
-	long double *m_ldxr, *m_ldxi;
-
 	double m_nIterDiv;
 	int64_t m_nMaxApproximation;
 	int64_t m_nApprox;
 	RECT m_rApprox;
-
-	double *m_db_dxr;
-	double *m_db_dxi;
-	double *m_db_z;
 
 	floatexp m_pixel_center_x, m_pixel_center_y, m_pixel_scale;
 
@@ -384,6 +378,7 @@ class CFraktalSFT
 
 	std::vector< complex<CFixedFloat> > m_Inflections;
 
+	Reference *m_Reference;
 	NanoMB1_Reference *m_NanoMB1Ref;
 	NanoMB2_Reference *m_NanoMB2Ref;
 
@@ -402,8 +397,7 @@ class CFraktalSFT
 	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
 	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
 	void CalculateReference();
-	void CalculateReferenceEXP();
-	void CalculateReferenceLDBL();
+	bool CalculateReferenceThreaded();
 	void CalculateReferenceNANOMB1();
 	void CalculateReferenceNANOMB2();
 	void CalcStart();

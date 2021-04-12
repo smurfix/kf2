@@ -53,6 +53,7 @@ typedef struct __attribute__((packed))
   cl_double log_m_nPower;
   cl_long m_nGlitchIter;
   cl_long m_nMaxIter;
+  cl_long m_nRSize;
   cl_long nMaxIter;
   cl_long nMinIter;
   cl_short m_bNoGlitchDetection;
@@ -126,6 +127,10 @@ private:
   size_t refx_bytes; cl_mem refx;
   size_t refy_bytes; cl_mem refy;
   size_t refz_bytes; cl_mem refz;
+  size_t refN_bytes; cl_mem refN;
+  size_t refX_bytes; cl_mem refX;
+  size_t refY_bytes; cl_mem refY;
+  size_t refZ_bytes; cl_mem refZ;
 
   // pixel data (rw)
   size_t n1_bytes;  cl_mem n1;
@@ -195,11 +200,16 @@ public:
     SeriesR2 *APs,
 
     // reference orbit
-    const T *rx,
-    const T *ry,
+    const double *rx,
+    const double *ry,
     const double *rz,
     size_t roffset,
     size_t rcount,
+    size_t rN_size,
+    const int64_t *rN,
+    const floatexp *rX,
+    const floatexp *rY,
+    const floatexp *rZ,
 
     // formula selection
     int type,

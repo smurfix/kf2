@@ -31,23 +31,22 @@ LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsyst
 LIBS := -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 
 FRAKTAL_SOURCES_CPP = \
+fraktal_sft/calculate_reference.cpp \
+fraktal_sft/calculate_reference_threaded.cpp \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
 fraktal_sft/check_for_update.cpp \
 fraktal_sft/cmdline.cpp \
 fraktal_sft/double_perturbation.cpp \
-fraktal_sft/double_reference.cpp \
 fraktal_sft/exr.cpp \
 fraktal_sft/floatexp_approximation.cpp \
 fraktal_sft/floatexp_perturbation.cpp \
-fraktal_sft/floatexp_reference.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/gradient.cpp \
 fraktal_sft/hybrid.cpp \
 fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
 fraktal_sft/long_double_perturbation.cpp \
-fraktal_sft/long_double_reference.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/main_bailout.cpp \
 fraktal_sft/main_color.cpp \
@@ -65,6 +64,7 @@ fraktal_sft/newton.cpp \
 fraktal_sft/opengl.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
+fraktal_sft/reference.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/scale_bitmap.cpp \
 fraktal_sft/Settings.cpp \
@@ -104,6 +104,7 @@ fraktal_sft/nanomb2.inc \
 fraktal_sft/newton.h \
 fraktal_sft/opengl.h \
 fraktal_sft/png.h \
+fraktal_sft/reference.h \
 fraktal_sft/resource.h \
 fraktal_sft/scale_bitmap.h \
 fraktal_sft/Settings.h \

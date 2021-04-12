@@ -148,6 +148,10 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0)
 , refx_bytes(0), refx(0)
 , refy_bytes(0), refy(0)
 , refz_bytes(0), refz(0)
+, refN_bytes(0), refN(0)
+, refX_bytes(0), refX(0)
+, refY_bytes(0), refY(0)
+, refZ_bytes(0), refZ(0)
 , n1_bytes(0), n1(0)
 , n0_bytes(0), n0(0)
 , nf_bytes(0), nf(0)
@@ -180,6 +184,10 @@ OpenCL::~OpenCL()
   if (refx) { clReleaseMemObject(refx); refx = 0; }
   if (refy) { clReleaseMemObject(refy); refy = 0; }
   if (refz) { clReleaseMemObject(refz); refz = 0; }
+  if (refN) { clReleaseMemObject(refN); refN = 0; }
+  if (refX) { clReleaseMemObject(refX); refX = 0; }
+  if (refY) { clReleaseMemObject(refY); refY = 0; }
+  if (refZ) { clReleaseMemObject(refZ); refZ = 0; }
   if (n1) { clReleaseMemObject(n1); n1 = 0; }
   if (n0) { clReleaseMemObject(n0); n0 = 0; }
   if (nf) { clReleaseMemObject(nf); nf = 0; }
@@ -372,11 +380,16 @@ void OpenCL::run
   SeriesR2 *APs,
 
   // reference orbit
-  const T *rx,
-  const T *ry,
+  const double *rx,
+  const double *ry,
   const double *rz,
   size_t roffset,
   size_t rcount,
+  size_t rN_size,
+  const int64_t *rN,
+  const floatexp *rX,
+  const floatexp *rY,
+  const floatexp *rZ,
 
   // formula selection
   int type,
@@ -407,15 +420,37 @@ void OpenCL::run
 
   // upload reference
   cl_int err;
-  refy_bytes = refx_bytes  = sizeof(rx[0]) * (rcount - roffset);
-  refz_bytes = sizeof(rz[0]) * (rcount - roffset);
+  refz_bytes = refy_bytes = refx_bytes  = sizeof(rx[0]) * (rcount - roffset);
   refx = clCreateBuffer(context, CL_MEM_READ_ONLY, refx_bytes, nullptr, &err); if (! refx) { E(err); }
   refy = clCreateBuffer(context, CL_MEM_READ_ONLY, refy_bytes, nullptr, &err); if (! refy) { E(err); }
   refz = clCreateBuffer(context, CL_MEM_READ_ONLY, refz_bytes, nullptr, &err); if (! refz) { E(err); }
-  cl_event refx_uploaded, refy_uploaded, refz_uploaded;
+  refN_bytes = sizeof(rN[0]) * rN_size;
+  refZ_bytes = refY_bytes = refX_bytes = sizeof(rX[0]) * rN_size;
+  if (rN_size > 0)
+  {
+    refN = clCreateBuffer(context, CL_MEM_READ_ONLY, refN_bytes, nullptr, &err); if (! refN) { E(err); }
+    refX = clCreateBuffer(context, CL_MEM_READ_ONLY, refX_bytes, nullptr, &err); if (! refX) { E(err); }
+    refY = clCreateBuffer(context, CL_MEM_READ_ONLY, refY_bytes, nullptr, &err); if (! refY) { E(err); }
+    refZ = clCreateBuffer(context, CL_MEM_READ_ONLY, refZ_bytes, nullptr, &err); if (! refZ) { E(err); }
+  }
+  else
+  {
+    refN = 0;
+    refX = 0;
+    refY = 0;
+    refZ = 0;
+  }
+  cl_event refx_uploaded, refy_uploaded, refz_uploaded, refN_uploaded, refX_uploaded, refY_uploaded, refZ_uploaded;
   E(clEnqueueWriteBuffer(commands, refx, CL_FALSE, 0, refx_bytes, &rx[roffset], 0, 0, &refx_uploaded));
   E(clEnqueueWriteBuffer(commands, refy, CL_FALSE, 0, refy_bytes, &ry[roffset], 0, 0, &refy_uploaded));
   E(clEnqueueWriteBuffer(commands, refz, CL_FALSE, 0, refz_bytes, &rz[roffset], 0, 0, &refz_uploaded));
+  if (rN_size > 0)
+  {
+    E(clEnqueueWriteBuffer(commands, refN, CL_FALSE, 0, refN_bytes, &rN[0], 0, 0, &refN_uploaded));
+    E(clEnqueueWriteBuffer(commands, refX, CL_FALSE, 0, refX_bytes, &rX[0], 0, 0, &refX_uploaded));
+    E(clEnqueueWriteBuffer(commands, refY, CL_FALSE, 0, refY_bytes, &rY[0], 0, 0, &refY_uploaded));
+    E(clEnqueueWriteBuffer(commands, refZ, CL_FALSE, 0, refZ_bytes, &rZ[0], 0, 0, &refZ_uploaded));
+  }
 
   // reallocate output buffers if necessary
   {
@@ -684,6 +719,7 @@ void OpenCL::run
       log_m_nPower,
       m_nGlitchIter,
       m_nMaxIter,
+      int64_t(rN_size),
       nMaxIter,
       nMinIter,
       m_bNoGlitchDetection,
@@ -747,14 +783,22 @@ void OpenCL::run
   E(clSetKernelArg(formula->kernel, 7, sizeof(cl_mem), phase_p?&phase:nullptr));
   E(clSetKernelArg(formula->kernel, 8, sizeof(cl_mem), dex_p ? &dex : nullptr));
   E(clSetKernelArg(formula->kernel, 9, sizeof(cl_mem), dey_p ? &dey : nullptr));
+  E(clSetKernelArg(formula->kernel, 10, sizeof(cl_mem), refN ? &refN : nullptr));
+  E(clSetKernelArg(formula->kernel, 11, sizeof(cl_mem), refX ? &refX : nullptr));
+  E(clSetKernelArg(formula->kernel, 12, sizeof(cl_mem), refY ? &refY : nullptr));
+  E(clSetKernelArg(formula->kernel, 13, sizeof(cl_mem), refZ ? &refZ : nullptr));
   size_t global[2] = { (size_t) configdata.m_nY, (size_t) configdata.m_nX };
-  cl_event uploaded[4] =
+  cl_event uploaded[8] =
     { config_uploaded
     , refx_uploaded
     , refy_uploaded
     , refz_uploaded
+    , refN_uploaded
+    , refX_uploaded
+    , refY_uploaded
+    , refZ_uploaded
     };
-  E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, 4, uploaded, &formula_executed0));
+  E(clEnqueueNDRangeKernel(commands, formula->kernel, 2, nullptr, global, nullptr, rN_size > 0 ? 8 : 4, uploaded, &formula_executed0));
 
   // make copies for async uploads
   p_config configdata0 = configdata;
@@ -803,6 +847,17 @@ void OpenCL::run
   if (dey_p) E(clEnqueueReadBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 1, &formula_executed, 0));
 
   // clean up reference
+  if (refN_bytes > 0)
+  {
+    clReleaseMemObject(refZ);
+    refZ = 0;
+    clReleaseMemObject(refY);
+    refY = 0;
+    clReleaseMemObject(refX);
+    refX = 0;
+    clReleaseMemObject(refN);
+    refN = 0;
+  }
   clReleaseMemObject(refz);
   refz = 0;
   clReleaseMemObject(refy);
@@ -870,6 +925,11 @@ template void OpenCL::run<double>(
   const double *rz,
   size_t roffset,
   size_t rcount,
+  size_t rN_size,
+  const int64_t *rN,
+  const floatexp *rX,
+  const floatexp *rY,
+  const floatexp *rZ,
 
   // formula selection
   int type,
@@ -939,11 +999,16 @@ template void OpenCL::run<floatexp>(
   SeriesR2 *APs,
 
   // reference orbit
-  const floatexp *rx,
-  const floatexp *ry,
+  const double *rx,
+  const double *ry,
   const double *rz,
   size_t roffset,
   size_t rcount,
+  size_t rN_size,
+  const int64_t *rN,
+  const floatexp *rX,
+  const floatexp *rY,
+  const floatexp *rZ,
 
   // formula selection
   int type,

@@ -18,9 +18,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "fraktal_sft.h"
-#include <float.h>
 #include "complex.h"
-
+#include "reference.h"
 #include "../formula/formula.h"
 
 BOOL ISFLOATOK(double a);
@@ -115,13 +114,13 @@ void CFraktalSFT::MandelCalcEXP()
 				dual<2, floatexp> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
 				dual<2, floatexp> ddbD0r = D0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
 				dual<2, floatexp> ddbD0i = D0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
-				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power);
+				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power);
 				assert(ok && "perturbation_floatexp_dual_hybrid");
 				de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
 			}
 			else
 			{
-				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, D0r, D0i, power);
+				bool ok = perturbation(GetHybridFormula(), Cx, Cy, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, D0r, D0i, power);
 				assert(ok && "perturbation_floatexp_hybrid");
 			}
 			OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
@@ -131,16 +130,47 @@ void CFraktalSFT::MandelCalcEXP()
 		}
 		else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
+			int64_t k = 0, n = 0;
+			floatexp X = 0, Y = 0, Z = 0;
+			do
+			{
+			  if (! reference_get(m_Reference, k++, n, X, Y, Z))
+			  {
+			    n = m_nMaxIter;
+			  }
+			}
+			while (n < antal);
+
 			if (derivatives)
 			{
 			complex<floatexp> d(dxa1, dya1);
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
+				  floatexp dxr, dxi, dxz;
+				  if (antal < n)
+				  {
+				    double x, y, z;
+				    reference_get(m_Reference, antal, x, y, z);
+				    dxr = x;
+				    dxi = y;
+				    dxz = z;
+				  }
+				  else
+				  {
+				    dxr = X;
+				    dxi = Y;
+				    dxz = Z;
+				    if (! reference_get(m_Reference, k++, n, X, Y, Z))
+				    {
+				      n = m_nMaxIter;
+				    }
+				  }
+					yr = dxr + Dr;
+					yi = dxi + Di;
 					test2 = test1;
-					test1 = (yr*yr + yi*yi).todouble();
-					if (test1<m_db_z[antal]){
+					floatexp ftest1 = (yr*yr + yi*yi);
+					test1 = double(ftest1);
+					if (ftest1<dxz){
 						bGlitch = TRUE;
 						if (! bNoGlitchDetection)
 							break;
@@ -155,7 +185,7 @@ void CFraktalSFT::MandelCalcEXP()
 					}
 					complex<floatexp> y(yr, yi);
 					d = m_nPower * d * (y ^ (m_nPower - 1)) + 1;
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
+					complex<floatexp> X(dxr, dxi);
 					complex<floatexp> D(Dr, Di);
 					complex<floatexp> D0(D0r, D0i);
 					complex<floatexp> c(m_pnExpConsts[0], 0);
@@ -187,11 +217,31 @@ void CFraktalSFT::MandelCalcEXP()
 			} else {
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
-					yr = m_dxr[antal] + Dr;
-					yi = m_dxi[antal] + Di;
+					floatexp dxr, dxi, dxz;
+					if (antal < n)
+					{
+					  double x, y, z;
+					  reference_get(m_Reference, antal, x, y, z);
+					  dxr = x;
+					  dxi = y;
+					  dxz = z;
+					}
+					else
+					{
+					  dxr = X;
+					  dxi = Y;
+					  dxz = Z;
+					  if (! reference_get(m_Reference, k++, n, X, Y, Z))
+					  {
+					    n = m_nMaxIter;
+					  }
+					}
+					yr = dxr + Dr;
+					yi = dxi + Di;
 					test2 = test1;
-					test1 = (yr*yr + yi*yi).todouble();
-					if (test1<m_db_z[antal]){
+					floatexp ftest1 = (yr*yr + yi*yi);
+					test1 = double(ftest1);
+					if (ftest1<dxz){
 						bGlitch = TRUE;
 						if (! bNoGlitchDetection)
 							break;
@@ -205,7 +255,7 @@ void CFraktalSFT::MandelCalcEXP()
 						break;
 					}
 					complex<floatexp> y(yr, yi);
-					complex<floatexp> X(m_dxr[antal], m_dxi[antal]);
+					complex<floatexp> X(dxr, dxi);
 					complex<floatexp> D(Dr, Di);
 					complex<floatexp> D0(D0r, D0i);
 					complex<floatexp> c(m_pnExpConsts[0], 0);
@@ -236,8 +286,8 @@ void CFraktalSFT::MandelCalcEXP()
 		{
 
 			bool ok = derivatives
-			  ? perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dxa1, dxb1, dya1, dyb1, epsilon, m_fPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
-			  : perturbation(m_nFractalType, m_nPower, m_dxr, m_dxi, m_db_z, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
+			  ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i, dxa1, dxb1, dya1, dyb1, epsilon, m_fPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
+			  : perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, D0r, D0i)
 			  ;
 			assert(ok && "perturbation_floatexp()");
 			de = derivatives
