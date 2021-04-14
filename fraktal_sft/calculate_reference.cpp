@@ -77,7 +77,7 @@ void CFraktalSFT::CalculateReference()
 			reference_append(m_Reference, X0, Y0, Z0);
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 3;
+					nMaxIter = i + 10;
 					if (nMaxIter>m_nMaxIter)
 						nMaxIter = m_nMaxIter;
 					m_nGlitchIter = nMaxIter;

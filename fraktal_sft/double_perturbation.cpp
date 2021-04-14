@@ -36,7 +36,6 @@ void CFraktalSFT::MandelCalc()
   const double Cx = m_rref.ToDouble();
   const double Cy = m_iref.ToDouble();
   const double s = m_dPixelSpacing;
-  const long double ls = m_lPixelSpacing;
   const mat2 TK = GetTransformMatrix();
   const bool noDerivativeGlitch = ! GetDerivativeGlitch();
 
@@ -46,8 +45,9 @@ void CFraktalSFT::MandelCalc()
   int k = 0;
   const int64_t chunksize = GetSIMDChunkSize();
   const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
+  const bool scaled = m_nZoom > LONG_DOUBLE_THRESHOLD_DEFAULT;
   const bool derivatives = GetDerivatives();
-  const bool vectorized = (derivatives ? ! m_nScalingOffset : true) && (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1 && KF_SIMD > 0;
+  const bool vectorized = (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1 && KF_SIMD > 0 && ! scaled;
 
   int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -275,10 +275,10 @@ void CFraktalSFT::MandelCalc()
         y16[k] = y;
         w16[k] = w;
         h16[k] = h;
-        Dr16[k] = m_nScalingOffset ? TDnr.todouble(m_nScalingOffset) : Dr;
-        Di16[k] = m_nScalingOffset ? TDni.todouble(m_nScalingOffset) : Di;
-        dbD0r16[k] = m_nScalingOffset ? D0r.todouble(m_nScalingOffset) : dbD0r;
-        dbD0i16[k] = m_nScalingOffset ? D0i.todouble(m_nScalingOffset) : dbD0i;
+        Dr16[k] = Dr;
+        Di16[k] = Di;
+        dbD0r16[k] = dbD0r;
+        dbD0i16[k] = dbD0i;
         antal16[k] = antal;
         test116[k] = test1;
         test216[k] = test2;
@@ -324,9 +324,7 @@ void CFraktalSFT::MandelCalc()
                 dbbv[q] = dbb16[q]; \
               } \
             } \
-            ok = m_nScalingOffset \
-              ? perturbation(m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, g_real, g_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize, m_nScaling, 1 / m_nScaling) \
-              : derivatives \
+            ok = derivatives \
               ? perturbation(m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, g_real, g_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, Jxav, Jxbv, Jyav, Jybv, epsilon, m_dPixelSpacing, daav, dabv, dbav, dbbv, chunksize, noDerivativeGlitch) \
               : perturbation(m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, g_real, g_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize) \
               ; \
@@ -387,43 +385,30 @@ void CFraktalSFT::MandelCalc()
         }
 
       }
+      else if (scaled)
+      {
+
+        floatexp Xr = TDnr;
+        floatexp Xi = TDni;
+        bool ok = perturbation_scaled(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, D0r, D0i);
+        assert(ok && "perturbation_scaled");
+        de = compute_de(double(Xr), double(Xi), Jxa, Jxb, Jya, Jyb, s, TK);
+
+      }
       else
       {
 
-        if (m_nScalingOffset)
-        {
-          Dr = TDnr.todouble(m_nScalingOffset);
-          Di = TDni.todouble(m_nScalingOffset);
-          dbD0r = D0r.todouble(m_nScalingOffset);
-          dbD0i = D0i.todouble(m_nScalingOffset);
-          long double lJdxa = dxa1.toLongDouble();
-          long double lJdxb = dxb1.toLongDouble();
-          long double lJdya = dya1.toLongDouble();
-          long double lJdyb = dyb1.toLongDouble();
-          long double daa = daa0.toLongDouble();
-          long double dab = dab0.toLongDouble();
-          long double dba = dba0.toLongDouble();
-          long double dbb = dbb0.toLongDouble();
-          bool ok = derivatives
-            ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, lJdxa, lJdxb, lJdya, lJdyb, (long double)(m_epsilon), m_lPixelSpacing, daa, dab, dba, dbb, m_nScaling, 1 / m_nScaling, noDerivativeGlitch)
-            : perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
-            ;
-          assert(ok && "perturbation_double_scaled");
-          de = compute_de((long double)(Dr), (long double)(Di), lJdxa, lJdxb, lJdya, lJdyb, ls, TK);
-        }
-        else
-        {
-          double daa = daa0.todouble();
-          double dab = dab0.todouble();
-          double dba = dba0.todouble();
-          double dbb = dbb0.todouble();
-          bool ok = derivatives
-            ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, m_dPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
-            : perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
-            ;
-          assert(ok && "perturbation_double");
-          de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
-        }
+        double daa = daa0.todouble();
+        double dab = dab0.todouble();
+        double dba = dba0.todouble();
+        double dbb = dbb0.todouble();
+        bool ok = derivatives
+          ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, m_dPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
+          : perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+          ;
+        assert(ok && "perturbation_double");
+        de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
+
       }
     }
 
@@ -478,9 +463,7 @@ void CFraktalSFT::MandelCalc()
       double dab = dab16[k];
       double dba = dba16[k];
       double dbb = dbb16[k];
-      bool ok = m_nScalingOffset
-        ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScaling, 1 / m_nScaling)
-        : derivatives
+      bool ok = derivatives
         ? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, m_dPixelSpacing, daa, dab, dba, dbb, noDerivativeGlitch)
         : perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
         ;

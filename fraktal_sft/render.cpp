@@ -289,12 +289,6 @@ void CFraktalSFT::RenderFractal()
 				g_nAddRefY = -1;
 			}
 		}
-		m_nScalingOffset = 0;
-		m_nScaling = 1;
-		for (i = SCALED_DOUBLE_THRESHOLD; i<m_nZoom; i++){
-			m_nScalingOffset++;
-			m_nScaling = m_nScaling*.1;
-		}
 		CalculateReference();
 	}
 
@@ -412,12 +406,6 @@ void CFraktalSFT::RenderFractalLDBL()
 				g_nAddRefX = -1;
 				g_nAddRefY = -1;
 			}
-		}
-		m_nScalingOffsetL = 0;
-		m_nScalingL = 1;
-		for (i = 4900; i<m_nZoom; i++){
-			m_nScalingOffsetL++;
-			m_nScalingL = m_nScalingL*.1L;
 		}
 		CalculateReference();
 	}

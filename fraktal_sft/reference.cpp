@@ -70,19 +70,30 @@ void reference_append(Reference *R, const double x, const double y, const double
 
 void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const floatexp &Z)
 {
-  const double F = 2.2250738585072014e-308; // smallest normalized double
+  const double f = 2.2250738585072014e-308; // smallest normalized double
+  const double F = 8.98846567431158e307; // largest finite power of 2
   const double x = double(X);
   const double y = double(Y);
   const double z = double(Z);
-  if (std::abs(x) < F || std::abs(y) < F || std::abs(z) < F)
+  if (std::abs(x) < f || std::abs(y) < f || std::abs(z) < f)
   {
     R->X.push_back(X);
     R->Y.push_back(Y);
     R->Z.push_back(Z);
     R->N.push_back(R->x.size());
-    R->x.push_back(0.0);
-    R->y.push_back(0.0);
-    R->z.push_back(0.0);
+    R->x.push_back(x);
+    R->y.push_back(y);
+    R->z.push_back(z);
+  }
+  else if (F < std::abs(x) || F < std::abs(y) || F < std::abs(z))
+  {
+    R->X.push_back(X);
+    R->Y.push_back(Y);
+    R->Z.push_back(Z);
+    R->N.push_back(R->x.size());
+    R->x.push_back(x);
+    R->y.push_back(y);
+    R->z.push_back(z);
   }
   else
   {

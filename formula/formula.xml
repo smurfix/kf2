@@ -24,29 +24,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
       IMPORTANT NOTE:
 
-      Mandelbrot power 2 has separate threaded implementations for reference
-      calculations, which need to be updated by hand when you change the glitch
-      threshold (or the reference formula).  You can find those implementations
-      in these files:
-        - fraktal_sft/long_double_reference.cpp
-        - fraktal_sft/floatexp_reference.cpp
-
-      Mandelbrot power 2 and 3 have separate scaled (long) double
-      implementations for perturbation calculations.  You can find them in:
-        - fraktal_sft/double_perturbation.cpp
-        - fraktal_sft/long_double_perturbation.cpp
-
-      Mandelbrot power 2 and 3 have separate implementations for reference
-      calculations with scaled (long) double (that use long double or floatexp
-      for derivative to avoid overflow), which need to be updated by hand too.
-      You can find those implementations in:
-        - fraktal_sft/double_reference.cpp
-        - fraktal_sft/long_double_reference.cpp
+      Mandelbrot power 2 has a separate threaded implementation for reference
+      calculations, which needs to be updated by hand when you change the glitch
+      threshold (or the reference formula).  You can find that implementation
+      in this file:
+        - fraktal_sft/calculate_reference_threaded.cpp
 
       Mandelbrot power > 10 is implemented separately in various files.
 
       Mandelbrot series approximation is in:
         - fraktal_sft/floatexp_approximation.cpp
+
+      Scaled formulas have thresholds s="S" u="U" which means those expressions
+      apply when s<=S and |u|<=U, when s and |u| are rounded to double precision
+      (this reduces pointless work that would underflow in any case).
+      The cases must be ordered in lexicographically increasing (S,U).
 
     -->
     <formula power="2" glitch="0.0000001">
@@ -63,8 +55,22 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         din = 2 * (Xxi * dr + Xxr * di) + di0;
       </derivative>
       <scaled t="R">
-        xrn = (2 * Xr + xr * s) * xr - (2 * Xi + xi * s) * xi + cr;
-        xin = 2 * (Xxr * xi + Xi * xr) + ci;
+        <threshold s="0" u="0">
+          wrn = 2 * (Xr * wr - Xi * wi);
+          win = 2 * (Xr * wi + Xi * wr);
+        </threshold>
+        <threshold s="0" u="1e308">
+          wrn = 2 * (Xr * wr - Xi * wi) + ur;
+          win = 2 * (Xr * wi + Xi * wr) + ui;
+        </threshold>
+        <threshold s="1e308" u="0">
+          wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi;
+          win = 2 * ((Xr + wr * s) * wi + Xi * wr);
+        </threshold>
+        <threshold s="1e308" u="1e308">
+          wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi + ur;
+          win = 2 * ((Xr + wr * s) * wi + Xi * wr) + ui;
+        </threshold>
       </scaled>
     </formula>
 
@@ -82,8 +88,30 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
         din = (3 * (Xxr2 - Xxi2)) * di + (6 * (Xxi * Xxr)) * dr + di0;
       </derivative>
       <scaled t="R">
-        xrn = 3 * (Xr2 - Xi2) * xr - 6 * Xr * Xi * xi + 3 * (Xr * (xr2 - xi2) - 2 * Xi * xr * xi) * s + (xr2 - 3 * xi2) * xr * s * s + cr;
-        xin = 3 * (Xr2 - Xi2) * xi + 6 * Xr * Xi * xr + 3 * (2 * Xr * xr * xi + Xi * (xr2 - xi2)) * s + (3 * xr2 - xi2) * xi * s * s + ci;
+        <threshold s="0" u="0">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr;
+        </threshold>
+        <threshold s="0" u="1e308">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + ur;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + ui;
+        </threshold>
+        <threshold s="1e-154" u="0">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s;
+        </threshold>
+        <threshold s="1e-154" u="1e308">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + ur;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + ui;
+        </threshold>
+        <threshold s="1e308" u="0">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s;
+        </threshold>
+        <threshold s="1e308" u="1e308">
+          wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s + ur;
+          win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s + ui;
+        </threshold>
       </scaled>
     </formula>
 

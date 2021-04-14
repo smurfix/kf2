@@ -68,8 +68,8 @@ double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
-int g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-int g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
+int g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+int g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 #define APPROX_GRID 19
 #define TERM4
 #define TERM5
@@ -3310,15 +3310,15 @@ void CFraktalSFT::SetPower(int nPower)
 		m_nPower = 2;
 	if (m_nPower>70)
 		m_nPower = 70;
-//	if (m_nFractalType>4 && m_nPower>3)
-//		m_nPower = 3;
-	if (g_nLDBL>100){
-		if (! GetUseHybridFormula() && m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-		else if (! GetUseHybridFormula() && m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
-		else
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+	if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+	{
+		g_nLDBL = INT_MAX - 1;
+		g_nEXP = INT_MAX;
+	}
+	else
+	{
+		g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+		g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 	}
 	SetSmoothMethod(m_nSmoothMethod); // update bailout if necessary
 }
@@ -3457,13 +3457,18 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 	if (m_nFractalType>2 && m_nPower>2)
 		m_nPower = 2;
 
-	if (g_nLDBL>100){
-		if (! GetUseHybridFormula() && m_nPower == 2 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-		else if (! GetUseHybridFormula() && m_nPower == 3 && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
+	if (g_nLDBL > 100)
+	{
+		if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
+		{
+			g_nLDBL = INT_MAX - 1;
+			g_nEXP = INT_MAX;
+		}
 		else
+		{
 			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
+			g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
+		}
 	}
 }
 int CFraktalSFT::GetFractalType()

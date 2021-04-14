@@ -3632,20 +3632,20 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
 		if(g_nLDBL>100)
 		{
-			g_nLDBL=0;
+			g_nLDBL = 0;
 		}
 		else{
 			if(! g_SFT.GetUseHybridFormula() && scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
 			{
 				if (g_SFT.GetPower() == 2)
 				{
-					g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-					g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
+					g_nLDBL = INT_MAX - 1;
+					g_nEXP = INT_MAX;
 				}
 				if (g_SFT.GetPower() == 3)
 				{
-					g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
-					g_nEXP = FLOATEXP_THRESHOLD_POWER_3;
+					g_nLDBL = INT_MAX - 1;
+					g_nEXP = INT_MAX;
 				}
 			}
 			else
@@ -3661,21 +3661,21 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
 		if(g_nEXP>100){
-			g_nLDBL=2;
-			g_nEXP=2;
+			g_nLDBL = 0;
+			g_nEXP = 0;
 		}
 		else{
 			if(! g_SFT.GetUseHybridFormula() && scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
 			{
 				if (g_SFT.GetPower() == 2)
 				{
-					g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-					g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
+					g_nLDBL = INT_MAX - 1;
+					g_nEXP = INT_MAX;
 				}
 				if (g_SFT.GetPower() == 3)
 				{
-					g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
-					g_nEXP = FLOATEXP_THRESHOLD_POWER_3;
+					g_nLDBL = INT_MAX - 1;
+					g_nEXP = INT_MAX;
 				}
 			}
 			else

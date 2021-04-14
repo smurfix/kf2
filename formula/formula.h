@@ -400,19 +400,18 @@ bool perturbation
 
 // perturbation with scaling
 
-template <typename T>
-bool perturbation
+bool perturbation_scaled
   ( const int m_nFractalType, const int m_nPower
   , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
   , const double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
-  , T &xr, T &xi
-  , const T &cr, const T &ci
-  , const T &s, const T &S
+  , floatexp &xr, floatexp &xi
+  , const floatexp &cr, const floatexp &ci
   );
 
+#if 0
 // perturbation with SIMD and scaling
 
 template <typename intN, typename doubleN>
@@ -447,6 +446,8 @@ bool perturbation
   , const Z &s, const Z &S
   , const bool noDerivativeGlitch
   );
+
+#endif
 
 // miscellaneous
 

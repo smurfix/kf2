@@ -72,12 +72,8 @@ public:
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 // thresholds for switching to floatexp iterations
-#define FLOATEXP_THRESHOLD_POWER_2 9800
-#define FLOATEXP_THRESHOLD_POWER_3 6533
 #define FLOATEXP_THRESHOLD_DEFAULT 4900
 // thresholds for switching to long double iterations
-#define LONG_DOUBLE_THRESHOLD_POWER_2 590
-#define LONG_DOUBLE_THRESHOLD_POWER_3 390
 #define LONG_DOUBLE_THRESHOLD_DEFAULT 290
 // threshold for switching to scaled double iterations
 // this is lower than the theoretical maximum to avoid derivative overflow
@@ -357,10 +353,6 @@ class CFraktalSFT
 	bool m_bStop;
 	char *m_szPosition;
 	BOOL m_bReuseRef;
-	double m_nScaling;
-	int m_nScalingOffset;
-	long double m_nScalingL;
-	int m_nScalingOffsetL;
 	int m_nStatus;
 	int m_nFrameDone;
 	BOOL m_bAddReference;

@@ -489,16 +489,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	bool fe = GetFloatExpAlways();
 	if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
 	{
-		if (m_nPower == 2)
-		{
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_2;
-			g_nEXP = FLOATEXP_THRESHOLD_POWER_2;
-		}
-		if (m_nPower == 3)
-		{
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_POWER_3;
-			g_nEXP = FLOATEXP_THRESHOLD_POWER_3;
-		}
+		g_nLDBL = INT_MAX - 1;
+		g_nEXP = INT_MAX;
 	}
 	else
 	{

@@ -96,7 +96,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 				{
 					if (*p->nMaxIter == *p->m_nMaxIter)
 					{
-						*p->nMaxIter = i + 3;
+						*p->nMaxIter = i + 10;
 						if (*p->nMaxIter > *p->m_nMaxIter)
 						{
 							*p->nMaxIter = *p->m_nMaxIter;

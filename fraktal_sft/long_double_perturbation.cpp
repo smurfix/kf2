@@ -295,28 +295,6 @@ void CFraktalSFT::MandelCalcLDBL()
         ;
 
     }
-    else if (m_nScalingOffsetL)
-    {
-
-      Dr = TDnr.toLongDouble(m_nScalingOffsetL);
-      Di = TDni.toLongDouble(m_nScalingOffsetL);
-      dbD0r = D0r.toLongDouble(m_nScalingOffsetL);
-      dbD0i = D0i.toLongDouble(m_nScalingOffsetL);
-      floatexp fJxa = dxa1;
-      floatexp fJxb = dxb1;
-      floatexp fJya = dya1;
-      floatexp fJyb = dyb1;
-      bool ok = derivatives
-	? perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, fJxa, fJxb, fJya, fJyb, (floatexp)(m_epsilon), m_fPixelSpacing, daa0, dab0, dba0, dbb0, m_nScalingL, 1 / m_nScalingL, noDerivativeGlitch)
-	: perturbation(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, m_nScalingL, 1 / m_nScalingL)
-	;
-      assert(ok && "perturbation_long_double_scaled");
-      de = derivatives
-        ? compute_de(floatexp(Dr), floatexp(Di), fJxa, fJxb, fJya, fJyb, fs, TK)
-        : 0
-        ;
-
-    }
     else
     {
 
