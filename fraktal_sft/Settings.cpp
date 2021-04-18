@@ -107,6 +107,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
+  BOOL(ReferenceStrictZero)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -176,6 +177,7 @@ std::string Settings::ToText() const
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
+  BOOL(ReferenceStrictZero)
 #undef DOUBLE
 #undef INT
 #undef BOOL

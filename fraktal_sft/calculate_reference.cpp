@@ -37,7 +37,7 @@ void CFraktalSFT::CalculateReference()
 		reference_delete(m_Reference);
 		m_Reference = nullptr;
 	}
-	m_Reference = reference_new(m_nMaxIter);
+	m_Reference = reference_new(m_nMaxIter, GetReferenceStrictZero());
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;

@@ -3470,6 +3470,7 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 			g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 		}
 	}
+	SetReferenceStrictZero(nFractalType != 0);
 }
 int CFraktalSFT::GetFractalType()
 {

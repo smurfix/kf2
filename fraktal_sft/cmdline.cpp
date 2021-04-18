@@ -297,4 +297,4 @@ const std::string version = "2.15.2.2";
 
 // bump these when changing what is saved in KFR/KFS
 const int kfr_version_number = 2150200;
-const int kfs_version_number = 2150202;
+const int kfs_version_number = 2150300;

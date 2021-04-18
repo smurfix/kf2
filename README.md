@@ -2155,6 +2155,13 @@ Software license.
       up rendering.  Only for power 2 Mandelbrot, not yet implemented in
       OpenCL.  Can be disabled for the rare cases where it fails.
 
+    - **Reference strict zero**
+
+      Use strict zero test for reference dynamic range.  May be necessary
+      for some locations (e.g. Burning Ship near the needle).  Enabling
+      can be slower, but disabling can give inaccurate images.  Default
+      disabled for Mandelbrot set, enabled for other formulas.
+
   - **Set main reference**
 
     Let you click the image and select the main reference for the whole image.

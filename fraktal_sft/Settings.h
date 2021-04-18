@@ -92,6 +92,7 @@ private:
   bool m_SaveNewtonProgress;
   bool m_ExponentialMap;
   bool m_DerivativeGlitch;
+  bool m_ReferenceStrictZero;
 
 public:
 
@@ -151,6 +152,7 @@ public:
   , m_SaveNewtonProgress(false)
   , m_ExponentialMap(false)
   , m_DerivativeGlitch(true)
+  , m_ReferenceStrictZero(false)
   { };
 
   bool FromText(const std::string &text);
@@ -349,6 +351,9 @@ public:
 
   inline bool   GetDerivativeGlitch() const { return m_DerivativeGlitch; };
   inline void   SetDerivativeGlitch(bool b) { m_DerivativeGlitch = b; };
+
+  inline bool   GetReferenceStrictZero() const { return m_ReferenceStrictZero; };
+  inline void   SetReferenceStrictZero(bool b) { m_ReferenceStrictZero = b; };
 
 };
 

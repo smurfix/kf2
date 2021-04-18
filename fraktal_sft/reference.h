@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 struct floatexp;
 
 struct Reference;
-struct Reference *reference_new(const int64_t capacity);
+struct Reference *reference_new(const int64_t capacity, const bool strict_zero);
 void reference_delete(struct Reference *R);
 void reference_append(struct Reference *R, const double x, const double y, const double z);
 void reference_append(struct Reference *R, const floatexp &X, const floatexp &Y, const floatexp &Z);

@@ -39,6 +39,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     T(IDC_PTSATUNING_APPROXAUTO, "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.")
     T(IDC_PTSATUNING_APPROXTERMS, "Number of terms for series approximation.\nOnly used when automatic mode is disabled.")
     T(IDC_PTSATUNING_DERIVATIVEGLITCH, "Use derivative-based glitch detection for power 2 Mandelbrot set.\nMay be faster, in rare cases may be inaccurate.")
+    T(IDC_PTSATUNING_REFERENCESTRICTZERO, "Use strict zero test for reference dynamic range.\nMay be necessary for some locations (e.g. Burning Ship near the needle)\nEnabling can be slower, but disabling can give inaccurate images.")
     T(IDOK, "Apply and close")
     T(IDCANCEL, "Close and undo")
 #undef T
@@ -49,6 +50,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_SETCHECK, g_SFT.GetAutoApproxTerms() ? 1 : 0, 0);
     SetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, g_SFT.GetApproxTerms(), FALSE);
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_SETCHECK, g_SFT.GetDerivativeGlitch() ? 1 : 0, 0);
+    SendDlgItemMessage(hWnd, IDC_PTSATUNING_REFERENCESTRICTZERO, BM_SETCHECK, g_SFT.GetReferenceStrictZero() ? 1 : 0, 0);
 
     return 1;
   }
@@ -66,6 +68,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
         g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
         g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_GETCHECK, 0, 0));
         g_SFT.SetDerivativeGlitch(SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_GETCHECK, 0, 0));
+        g_SFT.SetReferenceStrictZero(SendDlgItemMessage(hWnd, IDC_PTSATUNING_REFERENCESTRICTZERO, BM_GETCHECK, 0, 0));
         retval = 1;
       }
       for (auto tooltip : tooltips)

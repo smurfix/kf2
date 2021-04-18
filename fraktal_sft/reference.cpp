@@ -24,20 +24,30 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 
 /*
+strict_zero:
 invariant:
   x[n], y[n], z[n] = 0 or denormal (underflow)
 <=>
   N[k] = n
   X[k], Y[k], Z[k] != 0 (prevented underflow)
+
+!strict_zero:
+invariant:
+  z[n] = 0 or denormal (underflow)
+<=>
+  N[k] = n
+  Z[k] != 0 (prevented underflow)
 */
 
 struct Reference
 {
+  bool strict_zero;
   std::vector<double> x, y, z;
   std::vector<int64_t> N;
   std::vector<floatexp> X, Y, Z;
-  Reference(int64_t capacity)
-  : x(0)
+  Reference(int64_t capacity, bool strict_zero)
+  : strict_zero(strict_zero)
+  , x(0)
   , y(0)
   , z(0)
   , N(0)
@@ -51,9 +61,9 @@ struct Reference
   }
 };
 
-Reference *reference_new(const int64_t capacity)
+Reference *reference_new(const int64_t capacity, const bool strict_zero)
 {
-  return new Reference(capacity);
+  return new Reference(capacity, strict_zero);
 }
 
 void reference_delete(Reference *R)
@@ -75,7 +85,10 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
   const double x = double(X);
   const double y = double(Y);
   const double z = double(Z);
-  if (std::abs(x) < f || std::abs(y) < f || std::abs(z) < f)
+  if ( R->strict_zero
+     ? (std::abs(x) < f || std::abs(y) < f || std::abs(z) < f)
+     : (std::abs(z) < f)
+     )
   {
     R->X.push_back(X);
     R->Y.push_back(Y);

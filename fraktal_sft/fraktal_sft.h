@@ -655,6 +655,7 @@ public:
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
+  BOOL(ReferenceStrictZero)
 #undef DOUBLE
 #undef INT
 #undef BOOL
