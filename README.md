@@ -2216,7 +2216,8 @@ Software license.
 
   - **No series approximation**
 
-    Turns the Series approximation function on or off.
+    Turns the series approximation function on or off.  May fix (or cause)
+    different bugs.
 
   - **Use long double always**
 
@@ -2292,6 +2293,8 @@ Software license.
 
     Enable interpolation of neighbouring pixel data when the iteration count
     is the same.  This speeds up rendering of interior regions and glitches.
+    However, it is recommended to disable guessing when using OpenCL in
+    exterior regions for speed reasons.
 
   - **'Save' overwrites existing file**
 
