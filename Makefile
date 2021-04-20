@@ -156,7 +156,7 @@ COMPILE_FLAGS := -xc++ -std=c++11 $(FLAGS) -Dclew_STATIC
 
 SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
-OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP)) formula/formula.1.o formula/formula.3.o formula/formula.4.o formula/formula.5.o formula/formula.6.o formula/formula.9.o formula/formula.a.o
+OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP)) formula/formula.1.o formula/formula.3.o formula/formula.4.o formula/formula.5.o formula/formula.6.o formula/formula.8.o formula/formula.9.o formula/formula.a.o
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 

@@ -390,10 +390,15 @@ void CFraktalSFT::MandelCalc()
 
         floatexp Xr = TDnr;
         floatexp Xi = TDni;
-        bool ok = perturbation_scaled(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, D0r, D0i);
+        floatexp JxaF = dxa1;
+        floatexp JxbF = dxb1;
+        floatexp JyaF = dya1;
+        floatexp JybF = dyb1;
+        bool ok = derivatives
+          ? perturbation_scaled(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, D0r, D0i, JxaF, JxbF, JyaF, JybF, daa0, dab0, dba0, dbb0)
+          : perturbation_scaled(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, D0r, D0i);
         assert(ok && "perturbation_scaled");
-        de = compute_de(double(Xr), double(Xi), Jxa, Jxb, Jya, Jyb, s, TK);
-
+        de = compute_de(Xr, Xi, JxaF, JxbF, JyaF, JybF, m_fPixelSpacing, TK);
       }
       else
       {

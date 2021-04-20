@@ -428,26 +428,22 @@ bool perturbation
   , const double s, const double S
   );
 
+#endif
+
 // perturbation with derivatives and scaling
 
-template <typename D, typename Z>
-bool perturbation
+bool perturbation_scaled
   ( int m_nFractalType, int m_nPower
-  , const Reference *Reference
-  , int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch
+  , const Reference *m_Reference
+  , int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
-  , Z &xr0, Z &xi0
-  , const Z &cr, const Z &ci
-  , D &Jxa, D &Jxb, D &Jya, D &Jyb
-  , const D &e, const D &h
-  , const D &daa, const D &dab, const D &dba, const D &dbb
-  , const Z &s, const Z &S
-  , const bool noDerivativeGlitch
+  , floatexp &xr0, floatexp &xi0
+  , const floatexp &cr, const floatexp &ci
+  , floatexp &Jxa0F, floatexp &Jxb0F, floatexp &Jya0F, floatexp &Jyb0F
+  , const floatexp &daaF, const floatexp &dabF, const floatexp &dbaF, const floatexp &dbbF
   );
-
-#endif
 
 // miscellaneous
 

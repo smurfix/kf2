@@ -2156,66 +2156,57 @@ template bool perturbation&lt;int16, double16&gt;
 #endif
 #endif
 
-#if 0
 #ifdef PASS8 // perturbation with derivatives and scaling
 
 <xsl:for-each select="//scaled/..">
 
-bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
   ( int m_nFractalType, int m_nPower
   , const Reference *m_Reference
-  , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
+  , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
   , floatexp &amp;xr0, floatexp &amp;xi0
   , const floatexp &amp;cr, const floatexp &amp;ci
-  , floatexp &amp;Jxa0, floatexp &amp;Jxb0, floatexp &amp;Jya0, floatexp &amp;Jyb0
-  , const floatexp &amp;e, const floatexp &amp;h
-  , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
-  , const bool noDerivativeGlitch
+  , floatexp &amp;Jxa0F, floatexp &amp;Jxb0F, floatexp &amp;Jya0F, floatexp &amp;Jyb0F
+  , const floatexp &amp;daaF, const floatexp &amp;dabF, const floatexp &amp;dbaF, const floatexp &amp;dbbF
   )
 {
-  (void) Jxa0; // -Wunused-parameter
-  (void) Jxb0; // -Wunused-parameter
-  (void) Jya0; // -Wunused-parameter
-  (void) Jyb0; // -Wunused-parameter
-  (void) h; // -Wunused-parameter
-  (void) e; // -Wunused-parameter
-  (void) daa; // -Wunused-parameter
-  (void) dab; // -Wunused-parameter
-  (void) dba; // -Wunused-parameter
-  (void) dbb; // -Wunused-parameter
+  (void) Jxa0F; // -Wunused-parameter
+  (void) Jxb0F; // -Wunused-parameter
+  (void) Jya0F; // -Wunused-parameter
+  (void) Jyb0F; // -Wunused-parameter
+  (void) daaF; // -Wunused-parameter
+  (void) dabF; // -Wunused-parameter
+  (void) dbaF; // -Wunused-parameter
+  (void) dbbF; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
-    const Z Ar = g_FactorAR;
-    const Z Ai = g_FactorAI;
-    const complex&lt;Z&gt; A = { Ar, Ai };
-    const complex&lt;Z&gt; c = { cr, ci };
+    const double Ar = g_FactorAR;
+    const double Ai = g_FactorAI;
     (void) Ar; // -Wunused-variable
     (void) Ai; // -Wunused-variable
-    (void) A; // -Wunused-variable
-    (void) c; // -Wunused-variable
-    int64_t antal = antal0;
+    bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     double test1 = test10;
     double test2 = test20;
     double phase = phase0;
-    floatexp xr = xr0;
-    floatexp xi = xi0;
+    int64_t antal = antal0;
+    bool bGlitch = bGlitch0;
+    floatexp XxrF = 0;
+    floatexp XxiF = 0;
 <xsl:choose>
-<xsl:when test="derivative/@t='C' or derivative/@t='R'">
-    floatexp Dr = Jxa0, di = Jya0;
-    const floatexp dr0 = daa, di0 = dba;
-    (void) dr0;
-    (void) di0;
+<xsl:when test="derivative/@t='C'">
+    assert(! "perturbation scaled derivative C implemented");
+</xsl:when>
+<xsl:when test="derivative/@t='R'">
+    floatexp drF = Jxa0F, diF = Jya0F;
+    const floatexp dr0F = daaF, di0F = dbaF;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    floatexp dxa = Jxa0, dxb = Jxb0, dya = Jya0, dyb = Jyb0;
+    floatexp dxaF = Jxa0F, dxbF = Jxb0F, dyaF = Jya0F, dybF = Jyb0F;
 </xsl:when>
 </xsl:choose>
-    floatexp Xxr = 0;
-    floatexp Xxi = 0;
 
     int64_t K = 0, N = 0;
     floatexp X = 0, Y = 0, Z0 = 0;
@@ -2228,140 +2219,363 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     }
     while (N &lt; antal);
 
+    // rescale
+    floatexp S = sqrt(xr0 * xr0 + xi0 * xi0);
+    if (S == 0)
+    {
+      S = sqrt(cr * cr + ci * ci);
+    }
+    if (S == 0)
+    {
+      S = 1;
+    }
+    double s = double(S);
+    double wr = double(xr0 / S);
+    double wi = double(xi0 / S);
+    double ur = double(cr / S);
+    double ui = double(ci / S);
+    double u = double(sqrt(cr * cr + ci * ci) / S);
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+    floatexp J0 = sqrt(drF * drF + diF * diF);
+    if (J0 &lt; 1)
+    {
+      J0 = 1;
+    }
+    floatexp J = J0;
+    double drD = double(drF / J);
+    double diD = double(diF / J);
+    double dr0D = double(dr0F / J);
+    double di0D = double(di0F / J);
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+    floatexp J0 = sqrt(dxaF * dxaF + dxbF * dxbF + dyaF * dyaF + dybF * dybF);
+    if (J0 &lt; 1)
+    {
+      J0 = 1;
+    }
+    floatexp J = J0;
+    double dxaD = double(dxaF / J);
+    double dyaD = double(dyaF / J);
+    double dxbD = double(dxbF / J);
+    double dybD = double(dybF / J);
+    double daaD = double(daaF / J);
+    double dbaD = double(dbaF / J);
+    double dabD = double(dabF / J);
+    double dbbD = double(dbbF / J);
+</xsl:when>
+</xsl:choose>
+
     const double *xptr = reference_ptr_x(m_Reference);
     const double *yptr = reference_ptr_y(m_Reference);
     const double *zptr = reference_ptr_z(m_Reference);
     for (; antal &lt; nMaxIter; antal++)
     {
-      floatexp Xr, Xi, Xz;
-      if (antal &lt; N)
+      bool full_iteration = antal == N;
+      if (full_iteration)
       {
-        Xr = xptr[antal];
-        Xi = yptr[antal];
-        Xz = zptr[antal];
-      }
-      else
-      {
-        Xr = Z(X);
-        Xi = Z(Y);
-        Xz = Z(Z0);
+        using T = floatexp;
+        T dummyT;
+        (void) dummyT;
+        using V = floatexp;
+        V dummyV;
+        (void) dummyV;
+        const floatexp Xr = X;
+        const floatexp Xi = Y;
+        const floatexp Xz = Z0;
         if (! reference_get(m_Reference, K++, N, X, Y, Z0))
         {
           N = nMaxIter;
         }
-      }
-
-      Xxr = Xr + xr * s;
-      Xxi = Xi + xi * s;
-      const Z Xxr2 = Xxr * Xxr;
-      const Z Xxi2 = Xxi * Xxi;
-      test2 = test1;
-      Z ztest1 = Xxr2 + Xxi2;
-      test1 = double(ztest1);
-      if (ztest1 &lt; Xz)
-      {
-<xsl:choose>
-<xsl:when test="../@type='0' and @power='2'">
-#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
-        if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dxa / h, dya / h, e, h)) // FIXME matrix derivatives
+        const floatexp xr = S * wr;
+        const floatexp xi = S * wi;
+        XxrF = Xr + xr;
+        XxiF = Xi + xi;
+        const floatexp Xxr2 = XxrF * XxrF;
+        const floatexp Xxi2 = XxiF * XxiF;
+        const floatexp xr2 = xr * xr;
+        const floatexp xi2 = xi * xi;
+        const floatexp Xr2 = Xr * Xr;
+        const floatexp Xi2 = Xi * Xi;
+        test2 = test1;
+        floatexp ftest1 = Xxr2 + Xxi2;
+        test1 = double(ftest1);
+        if (ftest1 &lt; Xz)
         {
-#endif
-</xsl:when>
-</xsl:choose>
-        bGlitch = true;
-        if (! m_bNoGlitchDetection)
-          break;
-<xsl:choose>
-<xsl:when test="../@type='0' and @power='2'">
-#ifdef KF_USE_TYPE_0_POWER_2_HAS_GLITCHED
+          bGlitch = true;
+          if (! m_bNoGlitchDetection)
+            break;
         }
-#endif
-</xsl:when>
-</xsl:choose>
-      }
-      if (! no_g)
-      {
-        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-      }
-      if (test1 &gt; m_nBailout2)
-      {
-        phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
-      }
-      Z xrn, xin;
-
+        if (! no_g)
+        {
+          test1 = double(pnorm(g_real, g_imag, p, XxrF, XxiF));
+        }
+        if (test1 &gt; m_nBailout2)
+        {
+          phase = atan2(double(XxiF), double(XxrF)) / M_PI / 2;
+          phase -= floor(phase);
+          break;
+        }
+        const floatexp Xxr = XxrF;
+        const floatexp Xxi = XxiF;
+        floatexp xrn, xin, drn, din, dxan, dyan, dxbn, dybn;
 <xsl:choose>
-<xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      D drn = 0, din = 0;
+<xsl:when test="derivative/@t='R'">
+        {
+          (void) dxan;
+          (void) dyan;
+          (void) dxbn;
+          (void) dybn;
+          const floatexp dr = drD * J;
+          const floatexp di = diD * J;
+          const floatexp dr0 = dr0F;
+          const floatexp di0 = di0F;
+@d        {
+            <xsl:value-of select="derivative" />
+          }
+        }
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      D dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
+        {
+          (void) drn;
+          (void) din;
+          const floatexp dxa = dxaD * J;
+          const floatexp dxb = dxbD * J;
+          const floatexp dya = dyaD * J;
+          const floatexp dyb = dybD * J;
+          const floatexp daa = daaF;
+          const floatexp dab = dabF;
+          const floatexp dba = dbaF;
+          const floatexp dbb = dbbF;
+@d        {
+            <xsl:value-of select="derivative" />
+          }
+        }
 </xsl:when>
-</xsl:choose>
-<xsl:choose>
-<xsl:when test="scaled/@t='R'">
-{
-  using T = D;
-  T dummyT;
-  (void) dummyT;
-  using V = D;
-  V dummyV;
-  (void) dummyV;
-<xsl:choose>
 <xsl:when test="derivative/@t='C'">
-      const complex&lt;Z&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
-      const complex&lt;D&gt; d = {dr, di}, d0 = {daa, dba}; <!-- FIXME matrix derivatives -->
-      complex&lt;D&gt; dn;
-      (void) X; (void) x; (void) Xx; (void) d;
-@dc   {
-        <xsl:value-of select="derivative" />
-      }
-      drn = dn.m_r; din = dn.m_i;
-</xsl:when>
-<xsl:when test="derivative/@t='R' or derivative/@t='M'">
-@d    {
-        <xsl:value-of select="derivative" />
-      }
+        {
+          assert(! "derivative type C implemented")
+        }
 </xsl:when>
 </xsl:choose>
-}
-  using T = Z;
-  T dummyT;
-  (void) dummyT;
-  using V = Z;
-  V dummyV;
-  (void) dummyV;
-
-@d    {
-        <xsl:value-of select="scaled" />
-      }
-</xsl:when>
-</xsl:choose>
-
-      xr = xrn;
-      xi = xin;
+        {
+@d      {
+          <xsl:value-of select="perturbation" />
+        }
+        }
+        // rescale
+        S = sqrt(xrn * xrn + xin * xin);
+        s = double(S);
+        wr = double(xrn / S);
+        wi = double(xin / S);
+        ur = double(cr / S);
+        ui = double(ci / S);
+        u = double(sqrt(cr * cr + ci * ci) / S);
 <xsl:choose>
-<xsl:when test="derivative/@t='M'">
-      dxa = dxan; dxb = dxbn; dya = dyan; dyb = dybn;
+<xsl:when test="derivative/@t='R'">
+        J = sqrt(drn * drn + din * din);
+        drD = double(drn / J);
+        diD = double(din / J);
+        dr0D = double(dr0F / J);
+        di0D = double(di0F / J);
 </xsl:when>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-      dr = drn; di = din;
+<xsl:when test="derivative/@t='M'">
+        J = sqrt(dxan * dxan + dyan * dyan + dxbn * dxbn + dybn * dybn);
+        dxaD = double(dxan / J);
+        dyaD = double(dyan / J);
+        dxbD = double(dxbn / J);
+        dybD = double(dybn / J);
+        daaD = double(daaF / J);
+        dbaD = double(dbaF / J);
+        dabD = double(dabF / J);
+        dbbD = double(dbbF / J);
 </xsl:when>
 </xsl:choose>
+      }
+      else
+      {
+        using T = double;
+        T dummyT;
+        (void) dummyT;
+        using V = double;
+        V dummyV;
+        (void) dummyV;
+        const double Xr = xptr[antal];
+        const double Xi = yptr[antal];
+        const double Xz = zptr[antal];
+        const double wr2 = wr * wr;
+        (void) wr2;
+        const double wi2 = wi * wi;
+        (void) wi2;
+        const double Xxrd = Xr + wr * s;
+        const double Xxid = Xi + wi * s;
+        const double Xxr2 = Xxrd * Xxrd;
+        const double Xxi2 = Xxid * Xxid;
+        test2 = test1;
+        test1 = Xxr2 + Xxi2;
+        if (test1 &lt; Xz)
+        {
+          bGlitch = true;
+          if (! m_bNoGlitchDetection)
+          {
+            XxrF = Xxrd;
+            XxiF = Xxid;
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, Xxrd, Xxid);
+        }
+        if (test1 &gt; m_nBailout2)
+        {
+          XxrF = Xxrd;
+          XxiF = Xxid;
+          phase = atan2(Xxid, Xxrd) / M_PI / 2;
+          phase -= floor(phase);
+          break;
+        }
+        const double Xxr = Xxrd;
+        const double Xxi = Xxid;
+        double drn, din, dxan, dyan, dxbn, dybn;
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+        {
+          (void) dxan;
+          (void) dyan;
+          (void) dxbn;
+          (void) dybn;
+          const double dr = drD;
+          const double di = diD;
+          const double dr0 = dr0D;
+          const double di0 = di0D;
+@d        {
+            <xsl:value-of select="derivative" />
+          }
+        }
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+        {
+          (void) drn;
+          (void) din;
+          const double dxa = dxaD;
+          const double dxb = dxbD;
+          const double dya = dyaD;
+          const double dyb = dybD;
+          const double daa = daaD;
+          const double dab = dabD;
+          const double dba = dbaD;
+          const double dbb = dbbD;
+@d        {
+            <xsl:value-of select="derivative" />
+          }
+        }
+</xsl:when>
+</xsl:choose>
+        double wrn, win;
+        if (false) { }
+<xsl:for-each select="scaled/threshold">
+        else if (s &lt;= <xsl:value-of select="@s" /> &amp;&amp; u &lt;= <xsl:value-of select="@u" />)
+        {
+@d      {
+          <xsl:value-of select="." />
+        }
+        }
+</xsl:for-each>
+        else
+        {
+          assert(! "scaled/threshold");
+          wrn = 0;
+          win = 0;
+        }
+        const double w2 = wrn * wrn + win * win;
+        if (w2 &lt; 1.0e100) // FIXME threshold depends on power
+        {
+          wr = wrn;
+          wi = win;
+        }
+        else
+        {
+          // rescale
+          floatexp xrn = S * wrn;
+          floatexp xin = S * win;
+          S = sqrt(xrn * xrn + xin * xin);
+          s = double(S);
+          wr = double(xrn / S);
+          wi = double(xin / S);
+          ur = double(cr / S);
+          ui = double(ci / S);
+          u = double(sqrt(cr * cr + ci * ci) / S);
+        }
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+        const double d2 = drn * drn + din * din;
+        if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+        {
+          drD = drn;
+          diD = din;
+        }
+        else
+        {
+          floatexp drF = J * drn;
+          floatexp diF = J * din;
+          J = sqrt(drF * drF + diF * diF);
+          drD = double(drF / J);
+          diD = double(diF / J);
+          dr0D = double(dr0F / J);
+          di0D = double(di0F / J);
+        }
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+        const double d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
+        if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+        {
+          dxaD = dxan;
+          dyaD = dyan;
+          dxbD = dxbn;
+          dybD = dybn;
+        }
+        else
+        {
+          floatexp dxaF = J * dxan;
+          floatexp dyaF = J * dyan;
+          floatexp dxbF = J * dxbn;
+          floatexp dybF = J * dybn;
+          J = sqrt(dxaF * dxaF + dyaF * dyaF + dxbF * dxbF + dybF * dybF);
+          dxaD = double(dxaF / J);
+          dxbD = double(dxbF / J);
+          dyaD = double(dyaF / J);
+          dybD = double(dybF / J);
+          daaD = double(daaF / J);
+          dbaD = double(dbaF / J);
+          dabD = double(dabF / J);
+          dbbD = double(dbbF / J);
+        }
+</xsl:when>
+</xsl:choose>
+      }
     }
+
+
     antal0 = antal;
+    bGlitch0 = bGlitch;
     test10 = test1;
     test20 = test2;
     phase0 = phase;
-    xr0 = Xxr;
-    xi0 = Xxi;
+    xr0 = XxrF;
+    xi0 = XxiF;
 <xsl:choose>
-<xsl:when test="derivative/@t='R' or derivative/@t='C'">
-    Jxa0 = dr; Jxb0 = -di; Jya0 = di; Jyb0 = dr;
+<xsl:when test="derivative/@t='R'">
+    Jxa0F =  drD * J;
+    Jxb0F = -diD * J;
+    Jya0F =  diD * J;
+    Jyb0F =  drD * J;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-    Jxa0 = dxa; Jxb0 = dxb; Jya0 = dya; Jyb0 = dyb;
+    Jxa0F = dxaD * J;
+    Jxb0F = dxbD * J;
+    Jya0F = dyaD * J;
+    Jyb0F = dybD * J;
 </xsl:when>
 </xsl:choose>
     return true;
@@ -2371,76 +2585,37 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 
 </xsl:for-each>
 
-template &lt;typename D, typename Z&gt;
-bool perturbation
+bool perturbation_scaled
   ( int m_nFractalType, int m_nPower
   , const Reference *m_Reference
-  , int64_t &amp;antal, double &amp;test1, double &amp;test2, double &amp;phase, bool &amp;bGlitch
+  , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch0
   , double m_nBailout2, const int64_t nMaxIter
   , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
   , const double g_FactorAR, const double g_FactorAI
-  , Z &amp;xr, Z &amp;xi
-  , const Z &amp;cr, const Z &amp;ci
-  , D &amp;Jxa0, D &amp;Jxb0, D &amp;Jya0, D &amp;Jyb0
-  , const D &amp;e, const D &amp;h
-  , const D &amp;daa, const D &amp;dab, const D &amp;dba, const D &amp;dbb
-  , const Z &amp;s, const Z &amp;S
-  , const bool noDerivativeGlitch
+  , floatexp &amp;xr0, floatexp &amp;xi0
+  , const floatexp &amp;cr, const floatexp &amp;ci
+  , floatexp &amp;Jxa0F, floatexp &amp;Jxb0F, floatexp &amp;Jya0F, floatexp &amp;Jyb0F
+  , const floatexp &amp;daaF, const floatexp &amp;dabF, const floatexp &amp;dbaF, const floatexp &amp;dbbF
   )
 {
 <xsl:for-each select="//scaled/..">
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
-    return FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+    return FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
       ( m_nFractalType, m_nPower
       , m_Reference
-      , antal, test1, test2, phase, bGlitch
+      , antal0, test10, test20, phase0, bGlitch0
       , m_nBailout2, nMaxIter
       , m_bNoGlitchDetection, g_real, g_imag, p
       , g_FactorAR, g_FactorAI
-      , xr, xi
+      , xr0, xi0
       , cr, ci
-      , Jxa0, Jxb0, Jya0, Jyb0
-      , e, h
-      , daa, dab, dba, dbb
-      , s, S
-      , noDerivativeGlitch
+      , Jxa0F, Jxb0F, Jya0F, Jyb0F
+      , daaF, dabF, dbaF, dbbF
       );
 </xsl:for-each>
   return false;
 }
 
-template bool perturbation&lt;long double, double&gt;
-  ( int m_nFractalType, int m_nPower
-  , const Reference *m_Reference
-  , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
-  , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
-  , double &amp;xr0, double &amp;xi0
-  , const double &amp;cr, const double &amp;ci
-  , long double &amp;Jxa0, long double &amp;Jxb0, long double &amp;Jya0, long double &amp;Jyb0
-  , const long double &amp;e, const long double &amp;h
-  , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
-  , const double &amp;s, const double &amp;S
-  , const bool noDerivativeGlitch
-  );
-template bool perturbation&lt;floatexp, long double&gt;
-  ( int m_nFractalType, int m_nPower
-  , const Reference *m_Reference
-  , int64_t &amp;antal0, double &amp;test10, double &amp;test20, double &amp;phase0, bool &amp;bGlitch
-  , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
-  , long double &amp;xr0, long double &amp;xi0
-  , const long double &amp;cr, const long double &amp;ci
-  , floatexp &amp;Jxa0, floatexp &amp;Jxb0, floatexp &amp;Jya0, floatexp &amp;Jyb0
-  , const floatexp &amp;e, const floatexp &amp;h
-  , const floatexp &amp;daa, const floatexp &amp;dab, const floatexp &amp;dba, const floatexp &amp;dbb
-  , const long double &amp;s, const long double &amp;S
-  , const bool noDerivativeGlitch
-  );
-
-#endif
 #endif
 
 #ifdef PASS9 // miscellaneous
