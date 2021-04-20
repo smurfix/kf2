@@ -44,6 +44,11 @@ double d_mul(const double a, const double b)
   return a * b;
 }
 
+double d_div(const double a, const double b)
+{
+  return a / b;
+}
+
 double d_pow(const double a, const int b)
 {
   double r = 1.0;
@@ -290,6 +295,13 @@ floatexp fe_pow(const floatexp a, int b)
   return r;
 }
 
+floatexp fe_sqrt(const floatexp a)
+{
+  return fe_floatexp
+    ( sqrt((a.exp & 1) ? 2.0 * a.val : a.val)
+    , (a.exp & 1) ? (a.exp - 1) / 2 : a.exp / 2
+    );
+}
 
 #if 0
 
