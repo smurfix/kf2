@@ -1758,7 +1758,7 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
         double wrn, win;
         if (false) { }
 <xsl:for-each select="scaled/threshold">
-        else if (s &lt;= <xsl:value-of select="@s" /> &amp;&amp; u &lt; <xsl:value-of select="@u" />)
+        else if (s &lt;= <xsl:value-of select="@s" /> &amp;&amp; u &lt;= <xsl:value-of select="@u" />)
         {
 @d      {
           <xsl:value-of select="." />
