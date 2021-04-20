@@ -18,6 +18,7 @@ extern std::string perturbation_opencl
 ( int m_nFractalType
 , int m_nPower
 , int derivatives
+, int scaled
 );
 
 extern std::string perturbation_opencl
@@ -105,6 +106,7 @@ struct clformula
   bool useHybrid;
   hybrid_formula hybrid;
   int derivatives;
+  bool scaled;
   cl_kernel kernel;
   cl_kernel guessing_kernel;
 };
@@ -153,7 +155,6 @@ public:
   void lock();
   void unlock();
 
-  template <typename T>
   void run(
     // for pixel -> parameter mapping
     int32_t m_nX,
@@ -216,6 +217,7 @@ public:
     int m_nFractalType,
     int m_nPower,
     int16_t derivatives,
+    bool scaled,
 
     bool UseHybrid,
     const hybrid_formula &hybrid,

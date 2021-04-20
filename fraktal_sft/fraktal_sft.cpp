@@ -1550,8 +1550,9 @@ void CFraktalSFT::RenderFractalOpenCL()
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	cl->run<double>
-  (
+	const bool scaled = m_nZoom > LONG_DOUBLE_THRESHOLD_DEFAULT;
+	cl->run
+	(
 	  // for pixel -> parameter mapping
 	  m_nX,
 	  m_nY,
@@ -1613,6 +1614,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_nFractalType,
 	  m_nPower,
 	  GetDerivatives(),
+	  scaled,
 
 	  m_UseHybridFormula,
 	  m_HybridFormula,
@@ -1628,7 +1630,7 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_nPhase ? &m_nPhase[0][0] : nullptr,
 	  m_nDEx ? &m_nDEx[0][0] : nullptr,
 	  m_nDEy ? &m_nDEy[0][0] : nullptr
-  );
+	);
 }
 
 void CFraktalSFT::RenderFractalOpenCLEXP()
@@ -1646,8 +1648,9 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	cl->run<floatexp>
-  (
+	const bool scaled = false;
+	cl->run
+	(
 	  // for pixel -> parameter mapping
 	  m_nX,
 	  m_nY,
@@ -1709,6 +1712,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_nFractalType,
 	  m_nPower,
 	  GetDerivatives(),
+	  scaled,
 
 	  m_UseHybridFormula,
 	  m_HybridFormula,
@@ -1724,7 +1728,7 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  &m_nPhase[0][0],
 	  &m_nDEx[0][0],
 	  &m_nDEy[0][0]
-  );
+	);
 }
 
 #endif

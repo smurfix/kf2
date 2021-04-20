@@ -332,7 +332,6 @@ softfloat sf_softfloat(const double f)
   return sf_from_double(f);
 }
 
-template <typename T>
 void OpenCL::run
 (
   // for pixel -> parameter mapping
@@ -396,6 +395,7 @@ void OpenCL::run
   int m_nFractalType,
   int m_nPower,
   int16_t derivatives,
+  bool scaled,
 
   bool UseHybrid,
   const hybrid_formula &hybrid,
@@ -636,11 +636,13 @@ void OpenCL::run
         && formulas[i].fractalType == m_nFractalType
         && formulas[i].power == m_nPower
         && formulas[i].derivatives == derivatives
+        && formulas[i].scaled == scaled
        ) || ( UseHybrid
         && formulas[i].useHybrid
         && formulas[i].type == type
         && formulas[i].hybrid == hybrid
         && formulas[i].derivatives == derivatives
+        && formulas[i].scaled == scaled
        ) )
     {
       formula = &formulas[i];
@@ -657,11 +659,13 @@ void OpenCL::run
     }
     else
     {
-      source = perturbation_opencl(m_nFractalType, m_nPower, derivatives);
+      source = perturbation_opencl(m_nFractalType, m_nPower, derivatives, scaled);
     }
     std::string name =
-      type == 0 ? "perturbation_double"   :
       type == 2 ? "perturbation_floatexp" :
+      type == 0 ?
+      scaled    ? "perturbation_scaled" :
+      "perturbation_double" :
       "#error unknown type\n";
     const char *src = source.c_str();
     program = clCreateProgramWithSource(context, 1, &src, 0, &err);
@@ -673,6 +677,7 @@ void OpenCL::run
             << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
             << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
+    std::cerr << source << std::endl;
     g_OpenCL_Error_Source = source;
     g_OpenCL_Error_Log = "";
     if (err != CL_SUCCESS) {
@@ -687,7 +692,7 @@ void OpenCL::run
     if (! kernel) { E(err); }
     cl_kernel guessing_kernel = clCreateKernel(program, "guessing", &err);
     if (! guessing_kernel) { E(err); }
-    clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel };
+    clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, scaled, kernel, guessing_kernel };
     formulas.push_back(newformula);
     formula = &formulas[ssize_t(formulas.size()) - 1];
   }
@@ -873,165 +878,6 @@ void OpenCL::run
   }
   unlock();
 }
-
-template void OpenCL::run<double>(
-  // for pixel -> parameter mapping
-  int32_t m_nX,
-  int32_t m_nY,
-  uint32_t JitterSeed,
-  int32_t JitterShape,
-  double JitterScale,
-  floatexp m_pixel_center_x,
-  floatexp m_pixel_center_y,
-  floatexp m_pixel_scale,
-  double transform00,
-  double transform01,
-  double transform10,
-  double transform11,
-  bool ExponentialMap,
-  // for result -> output mapping
-  int64_t stride_y,
-  int64_t stride_x,
-  int64_t stride_offset,
-  // for iteration control
-  double m_nBailout,
-  double m_nBailout2,
-  double log_m_nBailout,
-  double log_m_nPower,
-  int64_t m_nGlitchIter,
-  int64_t m_nMaxIter,
-  int64_t nMaxIter,
-  int64_t nMinIter,
-  int16_t m_bNoGlitchDetection,
-  int16_t m_bAddReference,
-  int16_t m_nSmoothMethod,
-  double g_real,
-  double g_imag,
-  double norm_p,
-  double g_FactorAR,
-  double g_FactorAI,
-  double m_epsilon,
-  // for series approximation
-  int64_t m_nMaxApproximation,
-  int32_t m_nApproxTerms,
-  int32_t approximation_type,
-  floatexp *APr,
-  floatexp *APi,
-  SeriesR2 *APs,
-
-  // reference orbit
-  const double *rx,
-  const double *ry,
-  const double *rz,
-  size_t roffset,
-  size_t rcount,
-  size_t rN_size,
-  const int64_t *rN,
-  const floatexp *rX,
-  const floatexp *rY,
-  const floatexp *rZ,
-
-  // formula selection
-  int type,
-  int m_nFractalType,
-  int m_nPower,
-  int16_t derivatives,
-
-  bool UseHybrid,
-  const hybrid_formula &hybrid,
-
-  bool UseGuessing,
-  int g_nAddRefX,
-  int g_nAddRefY,
-
-  // output arrays
-  uint32_t *n1_p,
-  uint32_t *n0_p,
-  float *nf_p,
-  float *phase_p,
-  float *dex_p,
-  float *dey_p
-);
-
-template void OpenCL::run<floatexp>(
-  // for pixel -> parameter mapping
-  int32_t m_nX,
-  int32_t m_nY,
-  uint32_t JitterSeed,
-  int32_t JitterShape,
-  double JitterScale,
-  floatexp m_pixel_center_x,
-  floatexp m_pixel_center_y,
-  floatexp m_pixel_scale,
-  double transform00,
-  double transform01,
-  double transform10,
-  double transform11,
-  bool ExponentialMap,
-  // for result -> output mapping
-  int64_t stride_y,
-  int64_t stride_x,
-  int64_t stride_offset,
-  // for iteration control
-  double m_nBailout,
-  double m_nBailout2,
-  double log_m_nBailout,
-  double log_m_nPower,
-  int64_t m_nGlitchIter,
-  int64_t m_nMaxIter,
-  int64_t nMaxIter,
-  int64_t nMinIter,
-  int16_t m_bNoGlitchDetection,
-  int16_t m_bAddReference,
-  int16_t m_nSmoothMethod,
-  double g_real,
-  double g_imag,
-  double norm_p,
-  double g_FactorAR,
-  double g_FactorAI,
-  double m_epsilon,
-  // for series approximation
-  int64_t m_nMaxApproximation,
-  int32_t m_nApproxTerms,
-  int32_t approximation_type,
-  floatexp *APr,
-  floatexp *APi,
-  SeriesR2 *APs,
-
-  // reference orbit
-  const double *rx,
-  const double *ry,
-  const double *rz,
-  size_t roffset,
-  size_t rcount,
-  size_t rN_size,
-  const int64_t *rN,
-  const floatexp *rX,
-  const floatexp *rY,
-  const floatexp *rZ,
-
-  // formula selection
-  int type,
-  int m_nFractalType,
-  int m_nPower,
-  int16_t derivatives,
-
-  bool UseHybrid,
-  const hybrid_formula &hybrid,
-
-  bool UseGuessing,
-  int g_nAddRefX,
-  int g_nAddRefY,
-
-  // output arrays
-  uint32_t *n1_p,
-  uint32_t *n0_p,
-  float *nf_p,
-  float *phase_p,
-  float *dex_p,
-  float *dey_p
-);
-
 
 extern const char *perturbation_opencl_common;
 extern const char *perturbation_opencl_double_pre;

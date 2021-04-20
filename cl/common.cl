@@ -2412,6 +2412,19 @@ void perturbation_floatexp_loop
 ,                p_status_fe *l
 );
 
+// forward declaration, defined per formula
+void perturbation_scaled_loop
+( __global const p_config    *g
+, __global const double      *m_refx
+, __global const double      *m_refy
+, __global const double      *m_refz
+, __global const long        *m_refN
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
+,                p_status_fe *l
+);
+
 #if 0
 // forward declaration, defined per formula
 void perturbation_softfloat_loop
@@ -2874,6 +2887,194 @@ __kernel void perturbation_floatexp
       };
     // core per pixel calculation
     perturbation_floatexp_loop(g, m_refx, m_refy, m_refz, m_refN, m_refX, m_refY, m_refZ, &l);
+    // out
+    floatexp Dr = l.xr;
+    floatexp Di = l.xi;
+    double test1 = l.test1;
+    double test2 = l.test2;
+    antal = l.antal;
+    long bGlitch = l.bGlitch;
+    dcomplex de = { 0.0, 0.0 };
+    if (g->derivatives)
+    {
+      const floatexp s = g->m_pixel_scale;
+      const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
+      de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
+    }
+    // output iteration data
+    if (antal == g->m_nGlitchIter)
+      bGlitch = true;
+    if (antal >= g->m_nMaxIter){
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      if (nf) nf[ix] = 0;
+      if (phase) phase[ix] = 0;
+      if (dex) dex[ix] = 0;
+      if (dey) dey[ix] = 0;
+    }
+    else{
+      if (x == g->g_nAddRefX && y == g->g_nAddRefY)
+      {
+        // never consider the pixel of the reference to be glitched
+        bGlitch = false;
+      }
+      if (n1) n1[ix] = antal >> 32;
+      if (n0) n0[ix] = antal;
+      double de_multiplier = 1;
+      if ((dex || dey) && g->ExponentialMap)
+      {
+        double dx = 0, dy = 0;
+        GetPixelOffset(g, x, y, &dx, &dy);
+        de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
+      }
+      if (dex) dex[ix] = de.re * de_multiplier;
+      if (dey) dey[ix] = de.im * de_multiplier;
+      if (phase)
+      {
+        double p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
+        p -= floor(p);
+        phase[ix] = p;
+      }
+      if (!bGlitch && g->m_nSmoothMethod == 1){
+        double p = g->norm_p;
+        if (! (p < 1.0 / 0.0)) p = 1;
+        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+        if (div != 0)
+        {
+          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
+        }
+        else
+        {
+          if (nf) nf[ix] = 0;
+        }
+      }
+      else if (!bGlitch && g->m_nSmoothMethod == 0){
+        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
+        if (!ISFLOATOK(t))
+          t = 0;
+        long i = floor(t);
+        antal -= i;
+        t -= i;
+        if (n1) n1[ix] = antal >> 32;
+        if (n0) n0[ix] = antal;
+        if (nf) nf[ix] = t;
+      }
+
+      if (bGlitch && !g->m_bNoGlitchDetection){
+        if (nf) nf[ix] = SET_TRANS_GLITCH(test1);
+      }
+    }
+  }
+}
+
+// entry point
+__kernel void perturbation_scaled
+( __global const p_config *g // configuration including series approximation coefficients
+, __global const double   *m_refx // reference orbit re
+, __global const double   *m_refy // reference orbit im
+, __global const double   *m_refz // reference orbit (re^2+im^2)*glitch_threshold
+, __global       uint     *n1  // iteration count msb, may be null
+, __global       uint     *n0  // iteration count lsb
+, __global       float    *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
+, __global       float    *dex // directional de x, may be null
+, __global       float    *dey // directional de y, may be null
+, __global const long     *m_refN // reference orbit special iteration
+, __global const floatexp *m_refX // reference orbit special re
+, __global const floatexp *m_refY // reference orbit special im
+, __global const floatexp *m_refZ // reference orbit special (re^2+im^2)*glitch_threshold
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  if (g->UseGuessing)
+  {
+    x *= 2;
+    y *= 2;
+    if ((g->GuessingPass & 1) == 1)
+    {
+      x += 1;
+    }
+    if ((g->GuessingPass & 2) == 2)
+    {
+      y += 1;
+    }
+  }
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  long orig = 0;
+  float origf = 0;
+  if (n1)
+  {
+    orig |= ((long)(int)(n1[ix])) << 32;
+    if (n0) orig |= n0[ix];
+  }
+  else
+  {
+    if (n0) orig = (long)(int)(n0[ix]); // sign extend
+  }
+  if (nf)
+  {
+    origf = nf[ix];
+  }
+  bool first = ! g->m_bAddReference;
+  if (g->UseGuessing)
+  {
+    first &= (g->GuessingPass == 0);
+  }
+  if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  {
+    const floatexp zero = fe_floatexp(0.0, 0);
+    const floatexp one  = fe_floatexp(1.0, 0);
+    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
+    // FIXME TODO mirroring, incremental rendering, guessing
+/*
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+    int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+    if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
+      SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+      continue;
+    }
+    if (GuessPixel(x, y, w, h))
+      continue;
+*/
+    // Series approximation
+    floatexp D0r = zero;
+    floatexp D0i = zero;
+    floatexp daa0 = one;
+    floatexp dab0 = zero;
+    floatexp dba0 = zero;
+    floatexp dbb0 = one;
+    GetPixelCoordinates(g, x, y, &D0r, &D0i);
+
+    long antal;
+    floatexp TDnr;
+    floatexp TDni;
+    floatexp dxa1, dxb1, dya1, dyb1;
+    DoApproximationM(g, &antal, D0r, D0i, &TDnr, &TDni, &dxa1, &dxb1, &dya1, &dyb1);
+    // in
+    p_status_fe l =
+      { D0r
+      , D0i
+      , TDnr
+      , TDni
+      , daa0
+      , dab0
+      , dba0
+      , dbb0
+      , dxa1
+      , dxb1
+      , dya1
+      , dyb1
+      , 0
+      , 0
+      , antal
+      , false
+      , g->m_bNoGlitchDetection || (x == g->g_nAddRefX && y == g->g_nAddRefY)
+      , g->log_m_nPower
+      };
+    // core per pixel calculation
+    perturbation_scaled_loop(g, m_refx, m_refy, m_refz, m_refN, m_refX, m_refY, m_refZ, &l);
     // out
     floatexp Dr = l.xr;
     floatexp Di = l.xi;
