@@ -677,7 +677,6 @@ void OpenCL::run
             << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
             << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
     err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
-    std::cerr << source << std::endl;
     g_OpenCL_Error_Source = source;
     g_OpenCL_Error_Log = "";
     if (err != CL_SUCCESS) {
