@@ -1598,9 +1598,9 @@ void CFraktalSFT::RenderFractalOpenCL()
 	  m_APs,
 
 	  // reference orbit
-	  reference_ptr_x(m_Reference),
-	  reference_ptr_y(m_Reference),
-	  reference_ptr_z(m_Reference),
+	  reference_ptr_x<double>(m_Reference),
+	  reference_ptr_y<double>(m_Reference),
+	  reference_ptr_z<double>(m_Reference),
 	  antal,
 	  m_nMaxIter,
 	  reference_size_N(m_Reference),
@@ -1696,9 +1696,9 @@ void CFraktalSFT::RenderFractalOpenCLEXP()
 	  m_APs,
 
 	  // reference orbit
-	  reference_ptr_x(m_Reference),
-	  reference_ptr_y(m_Reference),
-	  reference_ptr_z(m_Reference),
+	  reference_ptr_x<double>(m_Reference),
+	  reference_ptr_y<double>(m_Reference),
+	  reference_ptr_z<double>(m_Reference),
 	  antal,
 	  m_nMaxIter,
 	  reference_size_N(m_Reference),

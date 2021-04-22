@@ -25,48 +25,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, double &phase, double m_nBailout2, int64_t m_nMaxIter,bool &bGlitch,int m_nPower,const int *m_pnExpConsts, const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p)
 {
-  int64_t k = 0, n = 0;
-  floatexp X = 0, Y = 0, Z = 0;
-  do
-  {
-    if (! reference_get(R, k++, n, X, Y, Z))
-    {
-      n = m_nMaxIter;
-    }
-  }
-  while (n < antal);
-
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   long double yr, yi;
   bGlitch=FALSE;
+  const long double *dxr = reference_ptr_x<long double>(R);
+  const long double *dxi = reference_ptr_y<long double>(R);
+  const long double *dxz = reference_ptr_z<long double>(R);
+
   if(antal<m_nMaxIter && test1 <= m_nBailout2){
     for( ; antal < m_nMaxIter; ++antal)
     {
-      long double dxr, dxi, dxz;
-      if (antal < n)
-      {
-        double x = 0, y = 0, z = 0;
-        reference_get(R, antal, x, y, z);
-        dxr = x;
-        dxi = y;
-        dxz = z;
-      }
-      else
-      {
-        dxr = (long double)(X);
-        dxi = (long double)(Y);
-        dxz = (long double)(Z);
-        if (! reference_get(R, k++, n, X, Y, Z))
-        {
-          n = m_nMaxIter;
-        }
-      }
-
-      yr = dxr + Dr;
-      yi = dxi + Di;
+      yr = dxr[antal] + Dr;
+      yi = dxi[antal] + Di;
       test2 = test1;
       test1 = yr * yr + yi * yi;
-      if (test1 < dxz)
+      if (test1 < dxz[antal])
       {
         bGlitch = true;
         if (! m_bNoGlitchDetection)
@@ -80,7 +53,7 @@ static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, lo
       }
 
       complex<long double> y(yr, yi);
-      complex<long double> X(dxr,dxi);
+      complex<long double> X(dxr[antal],dxi[antal]);
       complex<long double> D(Dr,Di);
       complex<long double> D0(D0r,D0i);
       complex<long double> c(m_pnExpConsts[0],0);
@@ -106,16 +79,9 @@ static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, lo
 
 static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, long double Di, long double D0r, long double D0i,double &test1, double &test2, double &phase, int m_nBailout2, int64_t m_nMaxIter,bool &bGlitch,int m_nPower,const int *m_pnExpConsts, long double &dr, long double &di, const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p)
 {
-  int64_t k = 0, n = 0;
-  floatexp X = 0, Y = 0, Z = 0;
-  do
-  {
-    if (! reference_get(R, k++, n, X, Y, Z))
-    {
-      n = m_nMaxIter;
-    }
-  }
-  while (n < antal);
+  const long double *dxr = reference_ptr_x<long double>(R);
+  const long double *dxi = reference_ptr_y<long double>(R);
+  const long double *dxz = reference_ptr_z<long double>(R);
 
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   complex<long double> d(dr, di);
@@ -124,31 +90,11 @@ static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, lo
   if(antal<m_nMaxIter && test1 <= m_nBailout2){
     for( ; antal < m_nMaxIter; ++antal)
     {
-      long double dxr, dxi, dxz;
-      if (antal < n)
-      {
-        double x = 0, y = 0, z = 0;
-        reference_get(R, antal, x, y, z);
-        dxr = x;
-        dxi = y;
-        dxz = z;
-      }
-      else
-      {
-        dxr = (long double)(X);
-        dxi = (long double)(Y);
-        dxz = (long double)(Z);
-        if (! reference_get(R, k++, n, X, Y, Z))
-        {
-          n = m_nMaxIter;
-        }
-      }
-
-      yr = dxr + Dr;
-      yi = dxi + Di;
+      yr = dxr[antal] + Dr;
+      yi = dxi[antal] + Di;
       test2 = test1;
       test1 = yr * yr + yi * yi;
-      if (test1 < dxz)
+      if (test1 < dxz[antal])
       {
         bGlitch = true;
         if (! m_bNoGlitchDetection)
@@ -161,17 +107,9 @@ static int Perturbation_Var(int64_t antal,const Reference *R, long double Dr, lo
         test1 = pnorm(g_real, g_imag, p, yr, yi);
       }
 
-      if (! (antal < n))
-      {
-        if (! reference_get(R, k, n, X, Y, Z))
-        {
-          n = m_nMaxIter;
-        }
-      }
-
       complex<long double> y(yr, yi);
       d = m_nPower * d * (y ^ (m_nPower - 1)) + 1;
-      complex<long double> X(dxr,dxi);
+      complex<long double> X(dxr[antal],dxi[antal]);
       complex<long double> D(Dr,Di);
       complex<long double> D0(D0r,D0i);
       complex<long double> c(m_pnExpConsts[0],0);

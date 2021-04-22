@@ -45,6 +45,8 @@ struct Reference
   std::vector<double> x, y, z;
   std::vector<int64_t> N;
   std::vector<floatexp> X, Y, Z;
+  std::vector<long double> lx, ly, lz;
+  std::vector<floatexp> fx, fy, fz;
   Reference(int64_t capacity, bool strict_zero)
   : strict_zero(strict_zero)
   , x(0)
@@ -54,6 +56,12 @@ struct Reference
   , X(0)
   , Y(0)
   , Z(0)
+  , lx(0)
+  , ly(0)
+  , lz(0)
+  , fx(0)
+  , fy(0)
+  , fz(0)
   {
     x.reserve(capacity);
     y.reserve(capacity);
@@ -143,11 +151,62 @@ bool reference_get(const Reference *R, const int64_t k, int64_t &N, floatexp &X,
 }
 
 int64_t reference_size_x(const Reference *R) { return R->x.size(); }
-const double *reference_ptr_x(const Reference *R) { return &R->x[0]; }
-const double *reference_ptr_y(const Reference *R) { return &R->y[0]; }
-const double *reference_ptr_z(const Reference *R) { return &R->z[0]; }
 int64_t reference_size_N(const Reference *R) { return R->N.size(); }
 const int64_t *reference_ptr_N(const Reference *R) { return &R->N[0]; }
 const floatexp *reference_ptr_X(const Reference *R) { return &R->X[0]; }
 const floatexp *reference_ptr_Y(const Reference *R) { return &R->Y[0]; }
 const floatexp *reference_ptr_Z(const Reference *R) { return &R->Z[0]; }
+
+void reference_cook_long_double(Reference *R)
+{
+  const int64_t capacity = R->x.size();
+  R->lx.reserve(capacity);
+  R->ly.reserve(capacity);
+  R->lz.reserve(capacity);
+  for (int64_t k = 0; k < capacity; ++k)
+  {
+    R->lx[k] = R->x[k];
+    R->ly[k] = R->y[k];
+    R->lz[k] = R->z[k];
+  }
+  const int64_t full = R->N.size();
+  for (int64_t k = 0; k < full; ++k)
+  {
+    const int64_t n = R->N[k];
+    R->lx[n] = (long double)(R->X[k]);
+    R->ly[n] = (long double)(R->Y[k]);
+    R->lz[n] = (long double)(R->Z[k]);
+  }
+}
+
+void reference_cook_floatexp(Reference *R)
+{
+  const int64_t capacity = R->x.size();
+  R->fx.reserve(capacity);
+  R->fy.reserve(capacity);
+  R->fz.reserve(capacity);
+  for (int64_t k = 0; k < capacity; ++k)
+  {
+    R->fx[k] = R->x[k];
+    R->fy[k] = R->y[k];
+    R->fz[k] = R->z[k];
+  }
+  const int64_t full = R->N.size();
+  for (int64_t k = 0; k < full; ++k)
+  {
+    const int64_t n = R->N[k];
+    R->fx[n] = R->X[k];
+    R->fy[n] = R->Y[k];
+    R->fz[n] = R->Z[k];
+  }
+}
+
+template <> const double *reference_ptr_x<double>(const Reference *R) { return &R->x[0]; }
+template <> const double *reference_ptr_y<double>(const Reference *R) { return &R->y[0]; }
+template <> const double *reference_ptr_z<double>(const Reference *R) { return &R->z[0]; }
+template <> const long double *reference_ptr_x<long double>(const Reference *R) { return &R->lx[0]; }
+template <> const long double *reference_ptr_y<long double>(const Reference *R) { return &R->ly[0]; }
+template <> const long double *reference_ptr_z<long double>(const Reference *R) { return &R->lz[0]; }
+template <> const floatexp *reference_ptr_x<floatexp>(const Reference *R) { return &R->fx[0]; }
+template <> const floatexp *reference_ptr_y<floatexp>(const Reference *R) { return &R->fy[0]; }
+template <> const floatexp *reference_ptr_z<floatexp>(const Reference *R) { return &R->fz[0]; }

@@ -130,47 +130,21 @@ void CFraktalSFT::MandelCalcEXP()
 		}
 		else if (m_nFractalType == 0 && m_nPower > 10) // FIXME matrix derivatives
 		{
-			int64_t k = 0, n = 0;
-			floatexp X = 0, Y = 0, Z = 0;
-			do
-			{
-			  if (! reference_get(m_Reference, k++, n, X, Y, Z))
-			  {
-			    n = m_nMaxIter;
-			  }
-			}
-			while (n < antal);
+			const floatexp *dxr = reference_ptr_x<floatexp>(m_Reference);
+			const floatexp *dxi = reference_ptr_y<floatexp>(m_Reference);
+			const floatexp *dxz = reference_ptr_z<floatexp>(m_Reference);
 
 			if (derivatives)
 			{
 			complex<floatexp> d(dxa1, dya1);
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
-				  floatexp dxr, dxi, dxz;
-				  if (antal < n)
-				  {
-				    double x, y, z;
-				    reference_get(m_Reference, antal, x, y, z);
-				    dxr = x;
-				    dxi = y;
-				    dxz = z;
-				  }
-				  else
-				  {
-				    dxr = X;
-				    dxi = Y;
-				    dxz = Z;
-				    if (! reference_get(m_Reference, k++, n, X, Y, Z))
-				    {
-				      n = m_nMaxIter;
-				    }
-				  }
-					yr = dxr + Dr;
-					yi = dxi + Di;
+					yr = dxr[antal] + Dr;
+					yi = dxi[antal] + Di;
 					test2 = test1;
 					floatexp ftest1 = (yr*yr + yi*yi);
 					test1 = double(ftest1);
-					if (ftest1<dxz){
+					if (ftest1<dxz[antal]){
 						bGlitch = TRUE;
 						if (! bNoGlitchDetection)
 							break;
@@ -185,7 +159,7 @@ void CFraktalSFT::MandelCalcEXP()
 					}
 					complex<floatexp> y(yr, yi);
 					d = m_nPower * d * (y ^ (m_nPower - 1)) + 1;
-					complex<floatexp> X(dxr, dxi);
+					complex<floatexp> X(dxr[antal], dxi[antal]);
 					complex<floatexp> D(Dr, Di);
 					complex<floatexp> D0(D0r, D0i);
 					complex<floatexp> c(m_pnExpConsts[0], 0);
@@ -217,31 +191,12 @@ void CFraktalSFT::MandelCalcEXP()
 			} else {
 			if (antal<nMaxIter && test1 <= nBailout2){
 				for (; antal<nMaxIter; antal++){
-					floatexp dxr, dxi, dxz;
-					if (antal < n)
-					{
-					  double x, y, z;
-					  reference_get(m_Reference, antal, x, y, z);
-					  dxr = x;
-					  dxi = y;
-					  dxz = z;
-					}
-					else
-					{
-					  dxr = X;
-					  dxi = Y;
-					  dxz = Z;
-					  if (! reference_get(m_Reference, k++, n, X, Y, Z))
-					  {
-					    n = m_nMaxIter;
-					  }
-					}
-					yr = dxr + Dr;
-					yi = dxi + Di;
+					yr = dxr[antal] + Dr;
+					yi = dxi[antal] + Di;
 					test2 = test1;
 					floatexp ftest1 = (yr*yr + yi*yi);
 					test1 = double(ftest1);
-					if (ftest1<dxz){
+					if (ftest1<dxz[antal]){
 						bGlitch = TRUE;
 						if (! bNoGlitchDetection)
 							break;
@@ -255,7 +210,7 @@ void CFraktalSFT::MandelCalcEXP()
 						break;
 					}
 					complex<floatexp> y(yr, yi);
-					complex<floatexp> X(dxr, dxi);
+					complex<floatexp> X(dxr[antal], dxi[antal]);
 					complex<floatexp> D(Dr, Di);
 					complex<floatexp> D0(D0r, D0i);
 					complex<floatexp> c(m_pnExpConsts[0], 0);

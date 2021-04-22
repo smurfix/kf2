@@ -28,16 +28,31 @@ struct Reference *reference_new(const int64_t capacity, const bool strict_zero);
 void reference_delete(struct Reference *R);
 void reference_append(struct Reference *R, const double x, const double y, const double z);
 void reference_append(struct Reference *R, const floatexp &X, const floatexp &Y, const floatexp &Z);
+void reference_cook_long_double(struct Reference *R);
+void reference_cook_floatexp(struct Reference *R);
 bool reference_get(const struct Reference *R, const int64_t n, double &x, double &y, double &z);
 bool reference_get(const struct Reference *R, const int64_t k, int64_t &N, floatexp &X, floatexp &Y, floatexp &Z);
 int64_t reference_size_x(const struct Reference *R);
-const double *reference_ptr_x(const struct Reference *R);
-const double *reference_ptr_y(const struct Reference *R);
-const double *reference_ptr_z(const struct Reference *R);
+template <typename T>
+const T *reference_ptr_x(const struct Reference *R);
+template <typename T>
+const T *reference_ptr_y(const struct Reference *R);
+template <typename T>
+const T *reference_ptr_z(const struct Reference *R);
 int64_t reference_size_N(const struct Reference *R);
 const int64_t *reference_ptr_N(const struct Reference *R);
 const floatexp *reference_ptr_X(const struct Reference *R);
 const floatexp *reference_ptr_Y(const struct Reference *R);
 const floatexp *reference_ptr_Z(const struct Reference *R);
+
+template <> const double *reference_ptr_x<double>(const Reference *R);
+template <> const double *reference_ptr_y<double>(const Reference *R);
+template <> const double *reference_ptr_z<double>(const Reference *R);
+template <> const long double *reference_ptr_x<long double>(const Reference *R);
+template <> const long double *reference_ptr_y<long double>(const Reference *R);
+template <> const long double *reference_ptr_z<long double>(const Reference *R);
+template <> const floatexp *reference_ptr_x<floatexp>(const Reference *R);
+template <> const floatexp *reference_ptr_y<floatexp>(const Reference *R);
+template <> const floatexp *reference_ptr_z<floatexp>(const Reference *R);
 
 #endif

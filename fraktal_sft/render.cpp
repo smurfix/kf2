@@ -408,6 +408,7 @@ void CFraktalSFT::RenderFractalLDBL()
 			}
 		}
 		CalculateReference();
+		reference_cook_long_double(m_Reference);
 	}
 
 	m_pixel_center_x = m_CenterRe - m_rref;
@@ -487,6 +488,7 @@ void CFraktalSFT::RenderFractalEXP()
 			}
 		}
 		CalculateReference();
+		reference_cook_floatexp(m_Reference);
 	}
 	int i;
 

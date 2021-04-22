@@ -229,39 +229,14 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     T xi = xi0;
     T Xxr = 0;
     T Xxi = 0;
-    int64_t k = 0, n = 0;
-    floatexp X = 0, Y = 0, Z = 0;
-    do
-    {
-      if (! reference_get(m_Reference, k++, n, X, Y, Z))
-      {
-        n = nMaxIter;
-      }
-    }
-    while (n &lt; antal);
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
+    const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
+    const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
     for (; antal &lt; nMaxIter; antal++)
     {
-      T Xr, Xi, Xz;
-      if (antal &lt; n)
-      {
-        Xr = xptr[antal];
-        Xi = yptr[antal];
-        Xz = zptr[antal];
-      }
-      else
-      {
-        Xr = T(X);
-        Xi = T(Y);
-        Xz = T(Z);
-        if (! reference_get(m_Reference, k++, n, X, Y, Z))
-        {
-          n = nMaxIter;
-        }
-      }
-
+      const T Xr = xptr[antal];
+      const T Xi = yptr[antal];
+      const T Xz = zptr[antal];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;
@@ -458,39 +433,14 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
 </xsl:choose>
     T Xxr = 0;
     T Xxi = 0;
-    int64_t k = 0, n = 0;
-    floatexp X = 0, Y = 0, Z = 0;
-    do
-    {
-      if (! reference_get(m_Reference, k++, n, X, Y, Z))
-      {
-        n = nMaxIter;
-      }
-    }
-    while (n &lt; antal);
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
+    const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
+    const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
     for (; antal &lt; nMaxIter; antal++)
     {
-      T Xr, Xi, Xz;
-      if (antal &lt; n)
-      {
-        Xr = xptr[antal];
-        Xi = yptr[antal];
-        Xz = zptr[antal];
-      }
-      else
-      {
-        Xr = T(X);
-        Xi = T(Y);
-        Xz = T(Z);
-        if (! reference_get(m_Reference, k++, n, X, Y, Z))
-        {
-          n = nMaxIter;
-        }
-      }
-
+      const T Xr = xptr[antal];
+      const T Xi = yptr[antal];
+      const T Xz = zptr[antal];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;
@@ -765,9 +715,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     floatexp Z_saved = Z;
 
     // vectorized loop
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const double *xptr = reference_ptr_x&lt;double&gt;(m_Reference);
+    const double *yptr = reference_ptr_y&lt;double&gt;(m_Reference);
+    const double *zptr = reference_ptr_z&lt;double&gt;(m_Reference);
     if (all(antal == antal[0]))
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
@@ -1127,9 +1077,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     floatexp Z_saved = Z;
 
     // vectorized loop
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const double *xptr = reference_ptr_x&lt;double&gt;(m_Reference);
+    const double *yptr = reference_ptr_y&lt;double&gt;(m_Reference);
+    const double *zptr = reference_ptr_z&lt;double&gt;(m_Reference);
     if (all(antal == antal[0]))
     {
       const doubleN dr0 = daa0, di0 = dba0;
@@ -1647,9 +1597,9 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
     double ui = double(ci / S);
     double u = double(sqrt(cr * cr + ci * ci) / S);
 
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const double *xptr = reference_ptr_x&lt;double&gt;(m_Reference);
+    const double *yptr = reference_ptr_y&lt;double&gt;(m_Reference);
+    const double *zptr = reference_ptr_z&lt;double&gt;(m_Reference);
     for (; antal &lt; nMaxIter; antal++)
     {
       bool full_iteration = antal == n;
@@ -1893,9 +1843,9 @@ bool FORMULA(perturbation,<xsl:value-of select="../@type" />,<xsl:value-of selec
     floatexp Z_saved = Z;
 
     // vectorized loop
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const double *xptr = reference_ptr_x&lt;double&gt;(m_Reference);
+    const double *yptr = reference_ptr_y&lt;double&gt;(m_Reference);
+    const double *zptr = reference_ptr_z&lt;double&gt;(m_Reference);
     if (all(antal == antal[0]))
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
@@ -2266,9 +2216,9 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
 </xsl:when>
 </xsl:choose>
 
-    const double *xptr = reference_ptr_x(m_Reference);
-    const double *yptr = reference_ptr_y(m_Reference);
-    const double *zptr = reference_ptr_z(m_Reference);
+    const double *xptr = reference_ptr_x&lt;double&gt;(m_Reference);
+    const double *yptr = reference_ptr_y&lt;double&gt;(m_Reference);
+    const double *zptr = reference_ptr_z&lt;double&gt;(m_Reference);
     for (; antal &lt; nMaxIter; antal++)
     {
       bool full_iteration = antal == N;
