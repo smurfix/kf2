@@ -2394,10 +2394,15 @@ At the very top right:
 
 ### Left
 
-- D% pixels done with current reference.
-- G% pixels guessed by neighboring interior.
 - R% reference iterations vs maximum iteration count.
 - A% series approximation skipped vs maximum iteration count.
+- P% pixels done.
+- (% % % % %):
+  - guessed good
+  - good
+  - queued
+  - bad
+  - guessed bad
 
 ### Middle
 
@@ -2408,9 +2413,9 @@ At the very top right:
 
 ### Right
 
-- Pixel coordinates of mouse cursor.
 - Iteration count at mouse cursor.
-
+- Pixel coordinates of mouse cursor.
+- Smooth iteration part at mouse cursor.
 
 ## Formula dialog
 
