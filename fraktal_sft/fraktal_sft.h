@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <half.h>
 
+#include <atomic>
+
 #include "Settings.h"
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
@@ -236,6 +238,13 @@ enum Differences
 	Differences_Analytic = 7
 };
 
+enum Guess
+{
+	Guess_No = 0,
+	Guess_Interior = 1,
+	Guess_Glitch = 2
+};
+
 enum SeriesType
 {
 	SeriesType_None = 0,
@@ -347,8 +356,8 @@ class CFraktalSFT
 	bool m_bResized;
 	int m_nX, m_nXPrev;
 	int m_nY, m_nYPrev;
-	int m_nDone;
-	int m_nGuessed;
+	std::atomic<uint32_t> m_count_good_guessed, m_count_good, m_count_queued, m_count_bad, m_count_bad_guessed;
+
 	int64_t m_nRDone;
 	bool m_bStop;
 	char *m_szPosition;
@@ -464,7 +473,7 @@ public:
 	void Zoom(double nZoomSize);
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
-	double GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL, int *pnT = NULL);
+	double GetProgress(double *reference = nullptr, double *approximation = nullptr, double *good_guessed = nullptr, double *good = nullptr, double *queued = nullptr, double *bad = nullptr, double *bad_guessed = nullptr);
 	std::string GetPosition();
 	void GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
 	int64_t GetIterations();
@@ -576,8 +585,8 @@ public:
 
 	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de, int power);
 	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
-	bool GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
-	bool GuessPixel(int x, int y, int w, int h);
+	Guess GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
+	Guess GuessPixel(int x, int y, int w, int h);
 
 	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
 	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }

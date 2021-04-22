@@ -1941,26 +1941,26 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 }
 
 extern int g_bAutoGlitch;
-double CFraktalSFT::GetProgress(int *pnGuessed, int *pnRDone, int *pnAP, int *pnT)
+double CFraktalSFT::GetProgress(double *reference, double *approximation, double *good_guessed, double *good, double *queued, double *bad, double *bad_guessed)
 {
 	int64_t iters = m_nMaxIter;
-	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1)
-		iters = g_period;
-	if (iters <= 0)
-		iters = 1;
-	if (pnGuessed)
-		*pnGuessed = m_nGuessed * 100.0 / (m_nDone ? m_nDone : 1);
-	if (pnRDone)
-		*pnRDone = m_nRDone * 100.0 / iters;
-	if (pnAP)
-		*pnAP = m_nApprox * 100.0 / iters;
-	if (pnT)
-		*pnT = m_nTotal;
-	if (!m_bmi)
-		return 0;
-	if (!m_nTotal)
-		return 100;
-	return m_nDone * 100.0 / m_nTotal;
+	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1) iters = g_period;
+	if (iters <= 0) iters = 1;
+	if (reference) *reference = m_nRDone * 100.0 / iters;
+	if (approximation) *approximation = m_nApprox * 100.0 / iters;
+	int32_t good_guessed_0 = m_count_good_guessed;
+	int32_t good_0 = m_count_good;
+	int32_t queued_0 = m_count_queued;
+	int32_t bad_0 = m_count_bad;
+	int32_t bad_guessed_0 = m_count_bad_guessed;
+	int32_t total = good_guessed_0 + good_0 + queued_0 + bad_0 + bad_guessed_0;
+	if (total == 0) total = 1;
+	if (good_guessed) *good_guessed = good_guessed_0 * 100.0 / total;
+	if (good) *good = good_0 * 100.0 / total;
+	if (queued) *queued = queued_0 * 100.0 / total;
+	if (bad) *bad = bad_0 * 100.0 / total;
+	if (bad_guessed) *bad_guessed = bad_guessed_0 * 100.0 / total;
+	return (good_guessed_0 + good_0) * 100.0 / total;
 }
 
 int CFraktalSFT::CountFrames(int nProcent)
@@ -3789,7 +3789,7 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 		}
 }
 
-bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
+Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 {
 	if ( 0 <= x && x < m_nX && 0 <= x0 && x0 < m_nX && 0 <= x1 && x1 < m_nX &&
 	     0 <= y && y < m_nY && 0 <= y0 && y0 < m_nY && 0 <= y1 && y1 < m_nY &&
@@ -3831,28 +3831,27 @@ bool CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		m_lpBits[nIndex    ] = (m_lpBits[nIndex0    ] + m_lpBits[nIndex1    ]) / 2;
 		m_lpBits[nIndex + 1] = (m_lpBits[nIndex0 + 1] + m_lpBits[nIndex1 + 1]) / 2;
 		m_lpBits[nIndex + 2] = (m_lpBits[nIndex0 + 2] + m_lpBits[nIndex1 + 2]) / 2;
-		InterlockedIncrement((LPLONG)&m_nDone);
-		InterlockedIncrement((LPLONG)&m_nGuessed);
 		if (m_bMirrored)
 			Mirror(x, y);
-		return true;
+		return GET_TRANS_GLITCH(m_nTrans[x0][y0]) ? Guess_Glitch : Guess_Interior;
 	}
-	return false;
+	return Guess_No;
 }
 
-bool CFraktalSFT::GuessPixel(int x, int y, int w, int h)
+Guess CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 {
+	Guess g = Guess_No;
 	if (GetGuessing())
 	{
 		if (w == 1 && h <= 2)
-			if (GuessPixel(x, y, x - 1, y    , x + 1, y    )) return true;
+			if ((g = GuessPixel(x, y, x - 1, y    , x + 1, y    ))) return g;
 		if (w == 1 && h == 1) {
-			if (GuessPixel(x, y, x    , y - 1, x    , y + 1)) return true;
-			if (GuessPixel(x, y, x - 1, y - 1, x + 1, y + 1)) return true;
-			if (GuessPixel(x, y, x - 1, y + 1, x + 1, y - 1)) return true;
+			if ((g = GuessPixel(x, y, x    , y - 1, x    , y + 1))) return g;
+			if ((g = GuessPixel(x, y, x - 1, y - 1, x + 1, y + 1))) return g;
+			if ((g = GuessPixel(x, y, x - 1, y + 1, x + 1, y - 1))) return g;
 	  }
 	}
-	return false;
+	return Guess_No;
 }
 
 void CFraktalSFT::GetPixelOffset(const int i, const int j, double &x, double &y) const

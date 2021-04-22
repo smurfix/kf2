@@ -114,7 +114,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	if (! (m_nX == nX && m_nY == nY))
 		SetImageSize(nX, nY);
 	m_nMaxIter = nMaxIter;
-	m_nRDone = m_nDone = m_nGuessed = 0;
+	m_nRDone = 0;
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 	if (m_nPower>10 && m_nPrevPower != m_nPower){
@@ -232,6 +232,9 @@ void CFraktalSFT::RenderFractal()
 	}
 	else
 		m_nTotal = m_nX*m_nY;
+	m_count_queued = m_nTotal;
+	m_count_bad = 0;
+	m_count_bad_guessed = 0;
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
@@ -761,5 +764,10 @@ void CFraktalSFT::CalcStart()
 		P.Execute();
 		P.Reset();
 		delete[] pMan;
+		m_count_queued = m_nX * m_nY;
+		m_count_good_guessed = 0;
+		m_count_good = 0;
+		m_count_bad = 0;
+		m_count_bad_guessed = 0;
 	}
 }

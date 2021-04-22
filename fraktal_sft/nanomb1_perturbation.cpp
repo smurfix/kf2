@@ -36,8 +36,18 @@ void CFraktalSFT::MandelCalcNANOMB1()
 				Mirror(x, y);
 			continue;
 		}
-		if (GuessPixel(x, y, w, h))
-			continue;
+    m_count_queued--;
+    switch (GuessPixel(x, y, w, h))
+    {
+      case Guess_Glitch:
+        m_count_bad_guessed++;
+        continue;
+      case Guess_Interior:
+        m_count_good_guessed++;
+        continue;
+      case Guess_No:
+        break;
+    }
 
 		floatexp D0r = 0;
 		floatexp D0i = 0;
@@ -58,7 +68,7 @@ void CFraktalSFT::MandelCalcNANOMB1()
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
 		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
-		InterlockedIncrement((LPLONG)&m_nDone);
+		if (bGlitch) m_count_bad++; else m_count_good++;
 		OutputPixelData(x, y, w, h, bGlitch);
 	}
 }

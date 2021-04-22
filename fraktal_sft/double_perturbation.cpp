@@ -56,8 +56,18 @@ void CFraktalSFT::MandelCalc()
       SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
       continue;
     }
-    if (GuessPixel(x, y, w, h))
-      continue;
+    m_count_queued--;
+    switch (GuessPixel(x, y, w, h))
+    {
+      case Guess_Glitch:
+        m_count_bad_guessed++;
+        continue;
+      case Guess_Interior:
+        m_count_good_guessed++;
+        continue;
+      case Guess_No:
+        break;
+    }
 
     // Series approximation
     floatexp D0r = 0;
@@ -108,7 +118,7 @@ void CFraktalSFT::MandelCalc()
         assert(ok && "perturbation_double_hybrid");
       }
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
-      InterlockedIncrement((LPLONG)&m_nDone);
+      if (bGlitch) m_count_bad++; else m_count_good++;
       OutputPixelData(x, y, w, h, bGlitch);
 
     }
@@ -425,7 +435,7 @@ void CFraktalSFT::MandelCalc()
         {
           de = compute_de(Dr16[k], Di16[k], Jxa16[k], Jxb16[k], Jya16[k], Jyb16[k], s, TK);
           OutputIterationData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k], antal16[k], test116[k], test216[k], phase16[k], nBailout, de, m_nPower);
-          InterlockedIncrement((LPLONG)&m_nDone);
+          if (bGlitch) m_count_bad++; else m_count_good++;
           OutputPixelData(x16[k], y16[k], w16[k], h16[k], bGlitch16[k]);
         }
         k = 0;
@@ -436,7 +446,7 @@ void CFraktalSFT::MandelCalc()
       if (! GetUseHybridFormula())
       {
         OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
-        InterlockedIncrement((LPLONG)&m_nDone);
+        if (bGlitch) m_count_bad++; else m_count_good++;
         OutputPixelData(x, y, w, h, bGlitch);
       }
     }
@@ -475,7 +485,7 @@ void CFraktalSFT::MandelCalc()
       assert(ok && "perturbation_double");
       complex<double> de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
-      InterlockedIncrement((LPLONG)&m_nDone);
+      if (bGlitch) m_count_bad++; else m_count_good++;
       OutputPixelData(x, y, w, h, bGlitch);
     }
   }

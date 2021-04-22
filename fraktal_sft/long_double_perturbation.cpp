@@ -158,8 +158,18 @@ void CFraktalSFT::MandelCalcLDBL()
       SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
       continue;
     }
-    if (GuessPixel(x, y, w, h))
-      continue;
+    m_count_queued--;
+    switch (GuessPixel(x, y, w, h))
+    {
+      case Guess_Glitch:
+        m_count_bad_guessed++;
+        continue;
+      case Guess_Interior:
+        m_count_good_guessed++;
+        continue;
+      case Guess_No:
+        break;
+    }
 
     // Series approximation
     floatexp D0r = 0;
@@ -210,7 +220,7 @@ void CFraktalSFT::MandelCalcLDBL()
         assert(ok && "perturbation_long_double_hybrid");
       }
       OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
-      InterlockedIncrement((LPLONG)&m_nDone);
+      if (bGlitch) m_count_bad++; else m_count_good++;
       OutputPixelData(x, y, w, h, bGlitch);
 
     }
@@ -252,7 +262,7 @@ void CFraktalSFT::MandelCalcLDBL()
 
     }
     OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
-    InterlockedIncrement((LPLONG)&m_nDone);
+    if (bGlitch) m_count_bad++; else m_count_good++;
     OutputPixelData(x, y, w, h, bGlitch);
   }
 }

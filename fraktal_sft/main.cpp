@@ -671,7 +671,7 @@ static void UpdateWindowSize(HWND hWnd)
 	int b = g_SFT.GetWindowBottom();
 	MoveWindow(hWnd,l,t,r,b,TRUE);
 	int w = g_SFT.GetWindowWidth();
-	int widths[3] = { (180 * w) / 640, (430 * w) / 640, -1 };
+	int widths[3] = { int(0.4 * w), int((0.4 + 0.35) * w), -1 };
 	SendMessage(g_hwStatus,SB_SETPARTS,3,(LPARAM)&widths);
 }
 
@@ -1497,9 +1497,8 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 		}
 	}
 nPos=0;
-	int nG, nR, nA;
-	double nPd = g_SFT.GetProgress(&nG,&nR,&nA);
-	int nP = nPd;
+	double p_good_guessed = 0, p_good = 0, p_queued = 0, p_bad = 0, p_bad_guessed = 0, p_reference = 0, p_approximation = 0;
+	double p_progress = g_SFT.GetProgress(&p_reference, &p_approximation, &p_good_guessed, &p_good, &p_queued, &p_bad, &p_bad_guessed);
 	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
@@ -1507,7 +1506,7 @@ nPos=0;
 
 nPos=1;
 	char szTmp[1024];
-	wsprintf(szTmp,"%d%% R:%d%% G:%d%% A:%d%%",nP,nR,nG,nA);
+	wsprintf(szTmp,"R:%d%% A:%d%% P:%d%% (%d%% %d%% %d%% %d%% %d%%)", (int) p_reference, (int) p_approximation, (int) p_progress, (int) p_good_guessed, (int) p_good, (int) p_queued, (int) p_bad, (int) p_bad_guessed);
 	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
 	SYSTEMTIME st;
 	__int64 nTStop;
@@ -1560,7 +1559,7 @@ nPos=10;
 	}
 	if(g_hwExamine && uMsg==WM_USER+199)
 		PostMessage(g_hwExamine,uMsg,wParam,lParam);
-	if(nPd > 0.0 && (!g_bAnim || !g_SFT.GetAnimateZoom()))
+	if(p_progress > 0.0 && (!g_bAnim || !g_SFT.GetAnimateZoom()))
 		InvalidateRect(hWnd,NULL,FALSE);
 nPos=11;
 	if(uMsg==WM_USER+199){
@@ -2285,7 +2284,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT sr;
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
-		int widths[3]={180,430,-1};
+		int w = 640;
+		int widths[3] = { int(0.4 * w), int((0.4 + 0.35) * w), -1 };
 		SendMessage(g_hwStatus,SB_SETPARTS,3,(LPARAM)&widths);
 		SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)"");
 		SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)"1");
@@ -4651,11 +4651,11 @@ DWORD ThReportProgress(LPVOID arg)
 	while (ThReportProgress_running)
 	{
 		Sleep(1000);
-		int nG, nR, nA, nT;
-		int nP = g_SFT.GetProgress(&nG,&nR,&nA,&nT);
-		std::ostringstream status;
-		status << " P " << std::setw(3) << nP << "%  G " << std::setw(3) << nG << "%  R " << std::setw(3) << nR << "%  A " << std::setw(3) << nA << "%  T " << std::setw(8) << nT << "\r";
-		std::cerr << status.str();
+		double p_good_guessed = 0, p_good = 0, p_queued = 0, p_bad = 0, p_bad_guessed = 0, p_reference = 0, p_approximation = 0;
+		double p_progress = g_SFT.GetProgress(&p_reference, &p_approximation, &p_good_guessed, &p_good, &p_queued, &p_bad, &p_bad_guessed);
+		char status[1024];
+		wsprintf(status, "R:%3d%% A:%3d%% P:%3d%% (%3d%% %3d%% %3d%% %3d%% %3d%%)\r", (int) p_reference, (int) p_approximation, (int) p_progress, (int) p_good_guessed, (int) p_good, (int) p_queued, (int) p_bad, (int) p_bad_guessed);
+		std::cerr << std::string(status);
 	}
 	return 0;
 }
