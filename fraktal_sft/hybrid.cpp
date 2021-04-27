@@ -1,6 +1,6 @@
 /*
 Kalles Fraktaler 2
-Copyright (C) 2020 Claude Heiland-Allen
+Copyright (C) 2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -1114,10 +1114,10 @@ extern std::string hybrid_pf_opencl_double(const hybrid_operator &h, const std::
     return o.str();
   }
   o << "{\n";
-  o << "  double zX = " << Z << ".re;\n";
-  o << "  double zY = " << Z << ".im;\n";
-  o << "  double zx = " << z << ".re;\n";
-  o << "  double zy = " << z << ".im;\n";
+  o << "  mantissa zX = " << Z << ".re;\n";
+  o << "  mantissa zY = " << Z << ".im;\n";
+  o << "  mantissa zx = " << z << ".re;\n";
+  o << "  mantissa zy = " << z << ".im;\n";
   o << "  dcomplex W = dc_add(" << Z << ", " << z << ");\n";
   o << "  dcomplex B = " << Z << ";\n";
   if (h.abs_x)
@@ -1194,8 +1194,8 @@ extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const 
     return o.str();
   }
   o << "{\n";
-  o << "  double X = " << Z << ".re;\n";
-  o << "  double Y = " << Z << ".im;\n";
+  o << "  mantissa X = " << Z << ".re;\n";
+  o << "  mantissa Y = " << Z << ".im;\n";
   o << "  duald x = " << z << ".re;\n";
   o << "  duald y = " << z << ".im;\n";
   o << "  dualdcomplex W = dualdc_dcadd(" << Z << ", " << z << ");\n";
