@@ -230,12 +230,9 @@ void CFraktalSFT::MandelCalc1()
         de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
     }
 
-    if (! GetUseHybridFormula())
-    {
-      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
-      if (bGlitch) m_count_bad++; else m_count_good++;
-      OutputPixelData(x, y, w, h, bGlitch);
-    }
+    OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
+    if (bGlitch) m_count_bad++; else m_count_good++;
+    OutputPixelData(x, y, w, h, bGlitch);
   }
 }
 
