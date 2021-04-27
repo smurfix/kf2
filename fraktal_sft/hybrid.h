@@ -403,7 +403,7 @@ static inline int hybrid_power_inf(const hybrid_formula &h)
 }
 
 template <typename R>
-inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power)
+inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -433,7 +433,6 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
-  const complex<R> C(Cx, Cy);
   const complex<R> c(cr0, ci0);
   R xr = xr0;
   R xi = xi0;
@@ -441,42 +440,20 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   R Xxi = 0;
   int count = 0;
   int stanza = 0;
-  int64_t K = 0, n = 0;
-  floatexp Xrf, Xif, Xzf;
-  do
-  {
-    if (! reference_get(m_Reference, K++, n, Xrf, Xif, Xzf))
-    {
-      n = nMaxIter;
-    }
-  } while (n < antal);
+  const R *Xrd = reference_ptr_x<R>(m_Reference);
+  const R *Xid = reference_ptr_y<R>(m_Reference);
+  const R *Xzd = reference_ptr_z<R>(m_Reference);
   for (; antal < nMaxIter; ++antal)
   {
-    R Xr, Xi, Xz;
-    if (antal < n)
-    {
-      double Xrd, Xid, Xzd;
-      reference_get(m_Reference, antal, Xrd, Xid, Xzd);
-      Xr = Xrd;
-      Xi = Xid;
-      Xz = Xzd;
-    }
-    else
-    {
-      Xr = R(Xrf);
-      Xi = R(Xif);
-      Xz = R(Xzf);
-      if (! reference_get(m_Reference, K++, n, Xrf, Xif, Xzf))
-      {
-        n = nMaxIter;
-      }
-    }
+    const R Xr = Xrd[antal];
+    const R Xi = Xid[antal];
+    const R Xz = Xzd[antal];
     Xxr = Xr + xr;
     Xxi = Xi + xi;
     test2 = test1;
-    R rtest1 = Xxr * Xxr + Xxi * Xxi;
-    test1 = double(rtest1);
-    if (rtest1 < Xz)
+    const R ttest1 = Xxr * Xxr + Xxi * Xxi;
+    test1 = double(ttest1);
+    if (ttest1 < Xz)
     {
       bGlitch = true;
       if (! bNoGlitchDetection)
@@ -528,7 +505,7 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
 }
 
 template <typename R>
-inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power)
+inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -558,7 +535,6 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
-  const complex<R> C(Cx, Cy);
   const complex<dual<2, R>> c(cr0, ci0);
   dual<2, R> xr = xr0;
   dual<2, R> xi = xi0;
@@ -566,42 +542,20 @@ inline bool perturbation(const hybrid_formula &h, const R &Cx, const R &Cy, cons
   dual<2, R> Xxi = 0;
   int count = 0;
   int stanza = 0;
-  int64_t K = 0, n = 0;
-  floatexp Xrf, Xif, Xzf;
-  do
-  {
-    if (! reference_get(m_Reference, K++, n, Xrf, Xif, Xzf))
-    {
-      n = nMaxIter;
-    }
-  } while (n < antal);
+  const R *Xrd = reference_ptr_x<R>(m_Reference);
+  const R *Xid = reference_ptr_y<R>(m_Reference);
+  const R *Xzd = reference_ptr_z<R>(m_Reference);
   for (; antal < nMaxIter; ++antal)
   {
-    R Xr, Xi, Xz;
-    if (antal < n)
-    {
-      double Xrd, Xid, Xzd;
-      reference_get(m_Reference, antal, Xrd, Xid, Xzd);
-      Xr = Xrd;
-      Xi = Xid;
-      Xz = Xzd;
-    }
-    else
-    {
-      Xr = R(Xrf);
-      Xi = R(Xif);
-      Xz = R(Xzf);
-      if (! reference_get(m_Reference, K++, n, Xrf, Xif, Xzf))
-      {
-        n = nMaxIter;
-      }
-    }
+    const R Xr = Xrd[antal];
+    const R Xi = Xid[antal];
+    const R Xz = Xzd[antal];
     const R Xxr1 = Xr + xr.x;
     const R Xxi1 = Xi + xi.x;
     test2 = test1;
-    const R rtest1 = Xxr1 * Xxr1 + Xxi1 * Xxi1;
-    test1 = double(rtest1);
-    if (rtest1 < Xz)
+    const R ttest1 = Xxr1 * Xxr1 + Xxi1 * Xxi1;
+    test1 = double(ttest1);
+    if (ttest1 < Xz)
     {
       bGlitch = true;
       if (! bNoGlitchDetection)

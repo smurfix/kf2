@@ -132,7 +132,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	floatexp xi;
 	floatexp *APr = isC ? new floatexp[m_nTerms] : nullptr;
 	floatexp *APi = isC ? new floatexp[m_nTerms] : nullptr;
-	SeriesR2 *APs = isR ? new SeriesR2 : nullptr;
+	SeriesR2<double, int64_t> *APs = isR ? new SeriesR2<double, int64_t> : nullptr;
 
 	// copy approximation
 	if (isC)
@@ -149,19 +149,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				APs->t[i][j] = m_APs->t[i][j];
 			}
 
-
-	int64_t K = 0, N = 0;
-	floatexp X = 0, Y = 0, Z = 0;
-	do
-	{
-	  if (! reference_get(m_Reference, K++, N, X, Y, Z))
-	  {
-	    N = m_nMaxIter;
-	    break;
-	  }
-	}
-	while (N < 0);
-
+	int64_t K = 0;
 	for (int64_t iteration = 0; iteration<m_nMaxIter - 1 && !m_bStop; iteration++){
 		m_nApprox++;
 
@@ -171,22 +159,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			xr = xi = 0;
 		else
 		{
-			if (n < N)
-			{
-				double x, y, z;
-				reference_get(m_Reference, n, x, y, z);
-				xr = x;
-				xi = y;
-			}
-			else
-			{
-				xr = X;
-				xi = Y;
-				if (! reference_get(m_Reference, K++, N, X, Y, Z))
-				{
-					N = m_nMaxIter;
-				}
-			}
+			reference_get(m_Reference, K, n, xr, xi);
 		}
 
 		// copy approximation
@@ -307,18 +280,9 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			if (iteration<m_nMaxApproximation)
 		  {
 				floatexp dxr, dxi;
-				if (iteration < N)
-				{
-					double x, y, z;
-					reference_get(m_Reference, iteration, x, y, z);
-					dxr = x;
-					dxi = y;
-				}
-				else
-				{
-					dxr = X;
-					dxi = Y;
-				}
+				int64_t old_K = K;
+			  reference_get(m_Reference, K, iteration, dxr, dxi);
+			  K = old_K;
 				int j = 0;
 				for (j = 0; j<nProbe; j++){
 
@@ -341,8 +305,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 						m_nMaxApproximation = iteration;
 						break;
 					}
-					double yr = (dxr + Dnr).todouble();
-					double yi = (dxi + Dni).todouble();
+					double yr = double(dxr + Dnr);
+					double yi = double(dxi + Dni);
 					if (yr*yr + yi*yi>nBailout2){
 						m_nMaxApproximation = iteration;
 						break;

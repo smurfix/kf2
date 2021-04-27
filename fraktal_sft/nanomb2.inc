@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -552,10 +552,10 @@ static void iteratePtDE1( C_lo d0, const std::vector<biPolyClass> &SSAs, const r
 	if(p.haveEscaped())
 	{
 	  antal = p.getIters();
-	  test1 = p.getTest1().todouble();
-	  test2 = p.getTest2().todouble();
+	  test1 = double(p.getTest1());
+	  test2 = double(p.getTest2());
 	  phase = p.getPhase();
-	  de = complex<double>(p.getDE().m_r.todouble(), p.getDE().m_i.todouble());
+	  de = complex<double>(double(p.getDE().m_r), double(p.getDE().m_i));
     return;
 	}
 	else

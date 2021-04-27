@@ -31,28 +31,27 @@ LINK_FLAGS := -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsyst
 LIBS := -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleaut32 -lcomctl32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 
 FRAKTAL_SOURCES_CPP = \
+fraktal_sft/calculate_perturbation.cpp \
 fraktal_sft/calculate_reference.cpp \
 fraktal_sft/calculate_reference_threaded.cpp \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
 fraktal_sft/check_for_update.cpp \
 fraktal_sft/cmdline.cpp \
-fraktal_sft/double_perturbation.cpp \
 fraktal_sft/exr.cpp \
 fraktal_sft/floatexp_approximation.cpp \
-fraktal_sft/floatexp_perturbation.cpp \
 fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/gradient.cpp \
 fraktal_sft/hybrid.cpp \
 fraktal_sft/jpeg.cpp \
 fraktal_sft/listbox.cpp \
-fraktal_sft/long_double_perturbation.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/main_bailout.cpp \
 fraktal_sft/main_color.cpp \
 fraktal_sft/main_examine.cpp \
 fraktal_sft/main_formula.cpp \
 fraktal_sft/main_information.cpp \
+fraktal_sft/main_numbertype.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/main_ptsatuning.cpp \
 fraktal_sft/main_transformation.cpp \
@@ -94,6 +93,7 @@ fraktal_sft/main_color.h \
 fraktal_sft/main_examine.h \
 fraktal_sft/main_formula.h \
 fraktal_sft/main_information.h \
+fraktal_sft/main_numbertype.h \
 fraktal_sft/main_position.h \
 fraktal_sft/main_ptsatuning.h \
 fraktal_sft/main_transformation.h \

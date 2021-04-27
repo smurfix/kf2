@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -94,7 +94,7 @@ public:
 		return int(m_f);
 	};
 
-	inline double ToDouble(int nScaling = 0)
+	inline double ToDouble(int nScaling = 0) const
 	{
 		using std::pow;
 		unsigned p = LOW_PRECISION;
@@ -104,7 +104,8 @@ public:
 		f = m_f;
 		return double(FixedFloat(f * pow(FixedFloat(10), nScaling)));
 	};
-	inline long double ToLongDouble(int nScaling = 0)
+	inline explicit operator double () const { return ToDouble(); }
+	inline long double ToLongDouble(int nScaling = 0) const
 	{
 		using std::pow;
 		unsigned p = LOW_PRECISION;
@@ -114,6 +115,7 @@ public:
 		f = m_f;
 		return (long double)(FixedFloat(f * pow(FixedFloat(10), nScaling)));
 	};
+	inline explicit operator long double () const { return ToLongDouble(); }
 
 	inline CFixedFloat Add(const CFixedFloat &A) const
 	{
@@ -315,8 +317,6 @@ public:
 		return *this;
 	};
 
-	friend struct floatexp;
-	friend class floatexp2;
 };
 
 inline CFixedFloat abs(const CFixedFloat &A)

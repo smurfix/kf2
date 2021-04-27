@@ -1,57 +1,55 @@
-#pragma OPENCL EXTENSION cl_khr_fp64: enable
-
 #define assert(n) do{}while(0)
 
 #define COMMA ,
 
-double d_add(const double a, const double b)
+mantissa d_add(const mantissa a, const mantissa b)
 {
   return a + b;
 }
 
-double d_sub(const double a, const double b)
+mantissa d_sub(const mantissa a, const mantissa b)
 {
   return a - b;
 }
 
-double d_neg(const double a)
+mantissa d_neg(const mantissa a)
 {
   return -a;
 }
 
-double d_abs(const double a)
+mantissa d_abs(const mantissa a)
 {
   return a < 0.0 ? -a : a;
 }
 
-double d_sgn(const double a)
+mantissa d_sgn(const mantissa a)
 {
   return a < 0.0 ? -1.0 : 1.0;
 }
 
-double d_imul(const int a, const double b)
+mantissa d_imul(const int a, const mantissa b)
 {
   return a * b;
 }
 
-double d_muli(const double a, const int b)
+mantissa d_muli(const mantissa a, const int b)
 {
   return a * b;
 }
 
-double d_mul(const double a, const double b)
+mantissa d_mul(const mantissa a, const mantissa b)
 {
   return a * b;
 }
 
-double d_div(const double a, const double b)
+mantissa d_div(const mantissa a, const mantissa b)
 {
   return a / b;
 }
 
-double d_pow(const double a, const int b)
+mantissa d_pow(const mantissa a, const int b)
 {
-  double r = 1.0;
+  mantissa r = 1.0;
   for (int i = 0; i < b; ++i)
   {
     r *= a;
@@ -59,12 +57,12 @@ double d_pow(const double a, const int b)
   return r;
 }
 
-int d_cmp(const double a, const double b)
+int d_cmp(const mantissa a, const mantissa b)
 {
   return ((int)(a > b)) - ((int)(a < b));
 }
 
-double d_diffabs(const double c, const double d)
+mantissa d_diffabs(const mantissa c, const mantissa d)
 {
   int s = d_cmp(c, 0);
   if (s > 0)
@@ -94,32 +92,29 @@ double d_diffabs(const double c, const double d)
   return d_abs(d);
 }
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double val;
-  long exp;
+  mantissa val;
+  exponent exp;
 } floatexp;
 
-double fe_double(const floatexp f)
+mantissa fe_double(const floatexp f)
 {
-  if (f.exp < -1020)
+  if (f.exp < -LARGE_EXPONENT)
   {
-    return 0.0;
+    return 0;
   }
-  if (f.exp > 1020)
+  if (f.exp > LARGE_EXPONENT)
   {
-    return f.val / 0.0;
+    return f.val / 0;
   }
   return ldexp(f.val, f.exp);
-//  return as_double((as_long(f.val) & 0x800FFFFFFFFFFFFFL) | ((f.exp + 1023) << 52));
 }
 
-floatexp fe_floatexp(const double val, const long exp)
+floatexp fe_floatexp(const mantissa val, const exponent exp)
 {
   int f_exp = 0;
-  double f_val = frexp(val, &f_exp);
-  //long f_exp = ((as_long(val) & 0x7FF0000000000000L) >> 52) - 1023;
-  //double f_val = as_double((as_long(val) & 0x800FFFFFFFFFFFFFL) | 0x3FF0000000000000L);
+  mantissa f_val = frexp(val, &f_exp);
   floatexp fe = { f_val, f_exp + exp };
   return fe;
 }
@@ -147,12 +142,12 @@ floatexp fe_sqr(const floatexp a)
 }
 
 
-floatexp fe_muld(const floatexp a, const double b)
+floatexp fe_muld(const floatexp a, const mantissa b)
 {
   return fe_floatexp(a.val * b, a.exp);
 }
 
-floatexp fe_dmul(const double a, const floatexp b)
+floatexp fe_dmul(const mantissa a, const floatexp b)
 {
   return fe_floatexp(a * b.val, b.exp);
 }
@@ -172,7 +167,7 @@ floatexp fe_mul(const floatexp a, const floatexp b)
   return fe_floatexp(a.val * b.val, a.exp + b.exp);
 }
 
-floatexp fe_mul_2si(const floatexp a, const long b)
+floatexp fe_mul_2si(const floatexp a, const exponent b)
 {
   floatexp fe = { a.val, a.exp + b };
   return fe;
@@ -183,7 +178,7 @@ floatexp fe_div(const floatexp a, const floatexp b)
   return fe_floatexp(a.val / b.val, a.exp - b.exp);
 }
 
-floatexp fe_div_2si(const floatexp a, const long b)
+floatexp fe_div_2si(const floatexp a, const exponent b)
 {
   floatexp fe = { a.val, a.exp - b };
   return fe;
@@ -423,7 +418,7 @@ float sf_to_float(const softfloat f)
   }
 }
 
-double sf_to_double(const softfloat f)
+mantissa sf_to_double(const softfloat f)
 {
   if (sf_is_zero(f) || sf_is_denormal(f))
   {
@@ -439,7 +434,7 @@ double sf_to_double(const softfloat f)
   }
   else
   {
-    double x = sf_mantissa(f);
+    mantissa x = sf_mantissa(f);
     int e
       = convert_int_sat((long)(sf_biased_exponent(f))
       - (SF_EXPONENT_BIAS + SF_MANTISSA_BITS));
@@ -479,7 +474,7 @@ softfloat sf_from_float(const float x)
   }
 }
 
-softfloat sf_from_double(const double x)
+softfloat sf_from_double(const mantissa x)
 {
   if (isnan(x))
   {
@@ -499,8 +494,8 @@ softfloat sf_from_double(const double x)
   else
   {
     int e;
-    double y = frexp(fabs(x), &e);
-    double z = ldexp(y, SF_MANTISSA_BITS);
+    mantissa y = frexp(fabs(x), &e);
+    mantissa z = ldexp(y, SF_MANTISSA_BITS);
     uint mantissa = convert_uint_rtz(z); // rte might overflow rarely
     uint biased_e = convert_uint_sat(e + SF_EXPONENT_BIAS);
     assert(0 < biased_e);
@@ -927,13 +922,13 @@ softfloat sf_diffabs(const softfloat c, const softfloat d)
 
 #endif
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double x;
-  double dx[2];
+  mantissa x;
+  mantissa dx[2];
 } duald;
 
-duald dd(const double a, const double b, const double c)
+duald dd(const mantissa a, const mantissa b, const mantissa c)
 {
   duald r = { a, { b, c } };
   return r;
@@ -945,13 +940,13 @@ duald duald_add(duald a, duald b)
   return r;
 }
 
-duald duald_dadd(double a, duald b)
+duald duald_dadd(mantissa a, duald b)
 {
   duald r = { a + b.x, { b.dx[0], b.dx[1] } };
   return r;
 }
 
-duald duald_addd(duald a, double b)
+duald duald_addd(duald a, mantissa b)
 {
   duald r = { a.x + b, { a.dx[0], a.dx[1] } };
   return r;
@@ -963,13 +958,13 @@ duald duald_sub(duald a, duald b)
   return r;
 }
 
-duald duald_dsub(double a, duald b)
+duald duald_dsub(mantissa a, duald b)
 {
   duald r = { a - b.x, { -b.dx[0], -b.dx[1] } };
   return r;
 }
 
-duald duald_subd(duald a, double b)
+duald duald_subd(duald a, mantissa b)
 {
   duald r = { a.x - b, { a.dx[0], a.dx[1] } };
   return r;
@@ -981,13 +976,13 @@ duald duald_mul(duald a, duald b)
   return r;
 }
 
-duald duald_dmul(double a, duald b)
+duald duald_dmul(mantissa a, duald b)
 {
   duald r = { a * b.x, { a * b.dx[0], a * b.dx[1] } };
   return r;
 }
 
-duald duald_muld(duald a, double b)
+duald duald_muld(duald a, mantissa b)
 {
   duald r = { a.x * b, { a.dx[0] * b, a.dx[1] * b } };
   return r;
@@ -1003,13 +998,13 @@ duald duald_div(duald a, duald b)
 {
   duald r;
   r.x = a.x / b.x;
-  double den = 1.0 / (b.x * b.x);
+  mantissa den = 1.0 / (b.x * b.x);
   r.dx[0] = (a.dx[0] * b.x - a.x * b.dx[0]) * den;
   r.dx[1] = (a.dx[1] * b.x - a.x * b.dx[1]) * den;
   return r;
 }
 
-duald duald_divd(duald a, double b)
+duald duald_divd(duald a, mantissa b)
 {
   duald r = { a.x / b, { a.dx[0] / b, a.dx[1] / b } };
   return r;
@@ -1020,7 +1015,7 @@ bool duald_lt(duald a, duald b)
   return a.x < b.x;
 }
 
-bool duald_ltd(duald a, double b)
+bool duald_ltd(duald a, mantissa b)
 {
   return a.x < b;
 }
@@ -1030,7 +1025,7 @@ bool duald_gt(duald a, duald b)
   return a.x > b.x;
 }
 
-bool duald_gtd(duald a, double b)
+bool duald_gtd(duald a, mantissa b)
 {
   return a.x > b;
 }
@@ -1040,7 +1035,7 @@ bool duald_le(duald a, duald b)
   return a.x <= b.x;
 }
 
-bool duald_led(duald a, double b)
+bool duald_led(duald a, mantissa b)
 {
   return a.x <= b;
 }
@@ -1050,7 +1045,7 @@ bool duald_ge(duald a, duald b)
   return a.x >= b.x;
 }
 
-bool duald_ged(duald a, double b)
+bool duald_ged(duald a, mantissa b)
 {
   return a.x >= b;
 }
@@ -1079,7 +1074,7 @@ duald duald_cos(duald a)
 {
   duald r;
   r.x = cos(a.x);
-  double s = -sin(a.x);
+  mantissa s = -sin(a.x);
   r.dx[0] = a.dx[0] * s;
   r.dx[1] = a.dx[1] * s;
   return r;
@@ -1089,27 +1084,27 @@ duald duald_sin(duald a)
 {
   duald r;
   r.x = sin(a.x);
-  double c = cos(a.x);
+  mantissa c = cos(a.x);
   r.dx[0] = a.dx[0] * c;
   r.dx[1] = a.dx[1] * c;
   return r;
 }
 
-duald duald_ddiffabs(double c, duald d)
+duald duald_ddiffabs(mantissa c, duald d)
 {
-  const double cd = c + d.x;
+  const mantissa cd = c + d.x;
   const duald c2d = duald_dadd(2 * c, d);
   return c >= 0.0 ? cd >= 0.0 ? d : duald_neg(c2d) : cd > 0.0 ? c2d : duald_neg(d);
 }
 
 duald duald_diffabs(duald c, duald d)
 {
-  const double cd = c.x + d.x;
+  const mantissa cd = c.x + d.x;
   const duald c2d = duald_add(duald_dmul(2, c), d);
   return c.x >= 0.0 ? cd >= 0.0 ? d : duald_neg(c2d) : cd > 0.0 ? c2d : duald_neg(d);
 }
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   floatexp x;
   floatexp dx[2];
@@ -1175,13 +1170,13 @@ dualfe dualfe_mulfe(dualfe a, floatexp b)
   return r;
 }
 
-dualfe dualfe_dmul(double a, dualfe b)
+dualfe dualfe_dmul(mantissa a, dualfe b)
 {
   dualfe r = { fe_dmul(a, b.x), { fe_dmul(a, b.dx[0]), fe_dmul(a, b.dx[1]) } };
   return r;
 }
 
-dualfe dualfe_muld(dualfe a, double b)
+dualfe dualfe_muld(dualfe a, mantissa b)
 {
   dualfe r = { fe_muld(a.x, b), { fe_muld(a.dx[0], b), fe_muld(a.dx[1], b) } };
   return r;
@@ -1221,7 +1216,7 @@ bool duald_lt(duald a, duald b)
   return a.x < b.x;
 }
 
-bool duald_ltd(duald a, double b)
+bool duald_ltd(duald a, mantissa b)
 {
   return a.x < b;
 }
@@ -1231,7 +1226,7 @@ bool duald_gt(duald a, duald b)
   return a.x > b.x;
 }
 
-bool duald_gtd(duald a, double b)
+bool duald_gtd(duald a, mantissa b)
 {
   return a.x > b;
 }
@@ -1241,7 +1236,7 @@ bool duald_le(duald a, duald b)
   return a.x <= b.x;
 }
 
-bool duald_led(duald a, double b)
+bool duald_led(duald a, mantissa b)
 {
   return a.x <= b;
 }
@@ -1251,7 +1246,7 @@ bool duald_ge(duald a, duald b)
   return a.x >= b.x;
 }
 
-bool duald_ged(duald a, double b)
+bool duald_ged(duald a, mantissa b)
 {
   return a.x >= b;
 }
@@ -1313,24 +1308,24 @@ dualfe dualfe_diffabs(dualfe c, dualfe d)
   return c.x.val >= 0.0 ? cd.val >= 0.0 ? d : dualfe_neg(c2d) : cd.val > 0.0 ? c2d : dualfe_neg(d);
 }
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double re;
-  double im;
+  mantissa re;
+  mantissa im;
 } dcomplex;
 
-dcomplex dc(const double a, const double b)
+dcomplex dc(const mantissa a, const mantissa b)
 {
   dcomplex d = { a, b };
   return d;
 }
 
-double dc_norm(const dcomplex a)
+mantissa dc_norm(const dcomplex a)
 {
   return a.re * a.re + a.im * a.im;
 }
 
-double dc_abs(const dcomplex a)
+mantissa dc_abs(const dcomplex a)
 {
   return sqrt(dc_norm(a));
 }
@@ -1377,16 +1372,16 @@ dcomplex dc_sqr(const dcomplex a)
   return dc;
 }
 
-dcomplex dc_ddiv(const double a, const dcomplex b)
+dcomplex dc_ddiv(const mantissa a, const dcomplex b)
 {
-  double b2 = dc_norm(b);
+  mantissa b2 = dc_norm(b);
   dcomplex dc = { (a * b.re) / b2, (-a * b.im) / b2 };
   return dc;
 }
 
 dcomplex dc_div(const dcomplex a, const dcomplex b)
 {
-  double b2 = dc_norm(b);
+  mantissa b2 = dc_norm(b);
   dcomplex dc = { (a.re * b.re + a.im * b.im) / b2, (-a.re * b.im + a.im * b.re) / b2 };
   return dc;
 }
@@ -1420,7 +1415,7 @@ dcomplex dc_powi(dcomplex x, int n)
   }
 }
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   floatexp re;
   floatexp im;
@@ -1505,7 +1500,7 @@ fecomplex fec_powi(fecomplex x, int n)
 
 #if 0
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   softfloat re;
   softfloat im;
@@ -1559,7 +1554,7 @@ sfcomplex sfc_pow(const sfcomplex a, const int b)
 
 #endif
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   duald re;
   duald im;
@@ -1571,12 +1566,12 @@ dualdcomplex ddc(const duald a, const duald b)
   return r;
 }
 
-double dualdc_norm(const dualdcomplex a)
+mantissa dualdc_norm(const dualdcomplex a)
 {
   return a.re.x * a.re.x + a.im.x * a.im.x;
 }
 
-double dualdc_abs(const dualdcomplex a)
+mantissa dualdc_abs(const dualdcomplex a)
 {
   return sqrt(dualdc_norm(a));
 }
@@ -1617,13 +1612,13 @@ dualdcomplex dualdc_sub(const dualdcomplex a, const dualdcomplex b)
   return dc;
 }
 
-dualdcomplex dualdc_dmul(const double a, const dualdcomplex b)
+dualdcomplex dualdc_dmul(const mantissa a, const dualdcomplex b)
 {
   dualdcomplex dc = { duald_dmul(a, b.re), duald_dmul(a, b.im) };
   return dc;
 }
 
-dualdcomplex dualdc_muld(const dualdcomplex a, const double b)
+dualdcomplex dualdc_muld(const dualdcomplex a, const mantissa b)
 {
   dualdcomplex dc = { duald_muld(a.re, b), duald_muld(a.im, b) };
   return dc;
@@ -1657,9 +1652,9 @@ dualdcomplex dualdc_muldc(const dualdcomplex a, const dcomplex b)
 }
 
 #if 0
-dualdcomplex dualdc_ddiv(const double a, const dualdcomplex b) // FIXME verify
+dualdcomplex dualdc_ddiv(const mantissa a, const dualdcomplex b) // FIXME verify
 {
-  double b2 = dualdc_norm(b);
+  mantissa b2 = dualdc_norm(b);
   dualdcomplex dc =
     { duald_divd(duald_dmul(a, b.re), b2)
     , duald_divd(duald_dmul(-a, b.im), b2)
@@ -1669,7 +1664,7 @@ dualdcomplex dualdc_ddiv(const double a, const dualdcomplex b) // FIXME verify
 
 dualdcomplex dualdc_div(const dualdcomplex a, const dualdcomplex b) // FIXME verify
 {
-  double b2 = dualdc_norm(b);
+  mantissa b2 = dualdc_norm(b);
   dualdcomplex dc = dualdc_divd(dualdc_mul(a, dualdc_conj(b)), b2);
   return dc;
 }
@@ -1686,7 +1681,7 @@ dualdcomplex dualdc_pow(const dualdcomplex a, const int b)
 }
 
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   dualfe re;
   dualfe im;
@@ -1703,7 +1698,7 @@ floatexp dualfec_norm(const dualfecomplex a)
   return fe_add(fe_sqr(a.re.x), fe_sqr(a.im.x));
 }
 #if 0
-double dualdc_abs(const dualdcomplex a)
+mantissa dualdc_abs(const dualdcomplex a)
 {
   return sqrt(dualdc_norm(a));
 }
@@ -1758,13 +1753,13 @@ dualfecomplex dualfec_sub(const dualfecomplex a, const dualfecomplex b)
   return dc;
 }
 
-dualfecomplex dualfec_dmul(const double a, const dualfecomplex b)
+dualfecomplex dualfec_dmul(const mantissa a, const dualfecomplex b)
 {
   dualfecomplex dc = { dualfe_dmul(a, b.re), dualfe_dmul(a, b.im) };
   return dc;
 }
 
-dualfecomplex dualfec_muld(const dualfecomplex a, const double b)
+dualfecomplex dualfec_muld(const dualfecomplex a, const mantissa b)
 {
   dualfecomplex dc = { dualfe_muld(a.re, b), dualfe_muld(a.im, b) };
   return dc;
@@ -1816,9 +1811,9 @@ dualfecomplex dualfec_mulfec(const dualfecomplex a, const fecomplex b)
 }
 
 #if 0
-dualfecomplex dualfec_ddiv(const double a, const dualfecomplex b) // FIXME verify
+dualfecomplex dualfec_ddiv(const mantissa a, const dualfecomplex b) // FIXME verify
 {
-  double b2 = dualfec_norm(b);
+  mantissa b2 = dualfec_norm(b);
   dualfecomplex dc =
     { dualfe_divd(dualfe_dmul(a, b.re), b2)
     , dualfe_divd(dualfe_dmul(-a, b.im), b2)
@@ -1828,7 +1823,7 @@ dualfecomplex dualfec_ddiv(const double a, const dualfecomplex b) // FIXME verif
 
 dualfecomplex dualfec_div(const dualfecomplex a, const dualfecomplex b) // FIXME verify
 {
-  double b2 = dualfec_norm(b);
+  mantissa b2 = dualfec_norm(b);
   dualfecomplex dc = dualfec_divd(dualfec_mul(a, dualfec_conj(b)), b2);
   return dc;
 }
@@ -1875,29 +1870,29 @@ dualfecomplex dualfec_powi(dualfecomplex x, int n)
 }
 
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double cr;
-  double ci;
-  double xr;
-  double xi;
-  double daa;
-  double dab;
-  double dba;
-  double dbb;
-  double dxa;
-  double dxb;
-  double dya;
-  double dyb;
-  double test1;
-  double test2;
+  mantissa cr;
+  mantissa ci;
+  mantissa xr;
+  mantissa xi;
+  mantissa daa;
+  mantissa dab;
+  mantissa dba;
+  mantissa dbb;
+  mantissa dxa;
+  mantissa dxb;
+  mantissa dya;
+  mantissa dyb;
+  mantissa test1;
+  mantissa test2;
   long antal;
   long bGlitch;
   long bNoGlitchDetection;
-  double log_m_nPower;
+  mantissa log_m_nPower;
 } p_status_d;
 
-typedef struct
+typedef struct __attribute__((packed))
 {
   floatexp cr;
   floatexp ci;
@@ -1911,16 +1906,16 @@ typedef struct
   floatexp dxb;
   floatexp dya;
   floatexp dyb;
-  double test1;
-  double test2;
+  mantissa test1;
+  mantissa test2;
   long antal;
   long bGlitch;
   long bNoGlitchDetection;
-  double log_m_nPower;
+  mantissa log_m_nPower;
 } p_status_fe;
 
 #if 0
-typedef struct
+typedef struct __attribute__((packed))
 {
   softfloat cr;
   softfloat ci;
@@ -1951,24 +1946,24 @@ typedef struct __attribute__((packed))
   int m_nY;
   uint JitterSeed;
   int JitterShape;
-  double JitterScale;
+  mantissa JitterScale;
   floatexp m_pixel_center_x;
   floatexp m_pixel_center_y;
   floatexp m_pixel_scale;
-  double transform00;
-  double transform01;
-  double transform10;
-  double transform11;
+  mantissa transform00;
+  mantissa transform01;
+  mantissa transform10;
+  mantissa transform11;
   long ExponentialMap;
   // for result -> output mapping
   long stride_y;
   long stride_x;
   long stride_offset;
   // for iteration control
-  double m_nBailout;
-  double m_nBailout2;
-  double log_m_nBailout;
-  double log_m_nPower;
+  mantissa m_nBailout;
+  mantissa m_nBailout2;
+  mantissa log_m_nBailout;
+  mantissa log_m_nPower;
   long m_nGlitchIter;
   long m_nMaxIter;
   long m_nRSize;
@@ -1978,12 +1973,12 @@ typedef struct __attribute__((packed))
   short derivatives;
   short m_bAddReference;
   short m_nSmoothMethod;
-  double g_real;
-  double g_imag;
-  double norm_p;
-  double g_FactorAR;
-  double g_FactorAI;
-  double m_epsilon;
+  mantissa g_real;
+  mantissa g_imag;
+  mantissa norm_p;
+  mantissa g_FactorAR;
+  mantissa g_FactorAI;
+  mantissa m_epsilon;
   // for series approximation
   long m_nMaxApproximation;
   int m_nApproxTerms;
@@ -1997,8 +1992,8 @@ typedef struct __attribute__((packed))
   short hybrid_loop_start;
   short hybrid_nstanzas;
   int hybrid_repeats[MAX_HYBRID_STANZAS];
-  double hybrid_log_powers[MAX_HYBRID_STANZAS];
-  // 130kB data follows
+  mantissa hybrid_log_powers[MAX_HYBRID_STANZAS];
+  // 130kB (/2 for single) data follows
   floatexp m_APr[MAX_APPROX_TERMS + 1];
   floatexp m_APi[MAX_APPROX_TERMS + 1];
   floatexp m_APs_s[MAX_APPROX_TERMS + 1][MAX_APPROX_TERMS + 1];
@@ -2017,28 +2012,28 @@ uint burtle_hash(uint a)
 }
 
 // uniform in [0,1)
-double dither(uint x, uint y, uint c)
+mantissa dither(uint x, uint y, uint c)
 {
   return
     burtle_hash(x +
     burtle_hash(y +
-    burtle_hash(c))) / (double) (0x100000000L);
+    burtle_hash(c))) / (mantissa) (0x100000000L);
 }
 
 void GetPixelOffset
 ( __global const p_config *g
 , const int i
 , const int j
-, double *x
-, double *y
+, mantissa *x
+, mantissa *y
 )
 {
   uint c = g->JitterSeed;
   if (c != 0)
   {
-    double s = g->JitterScale;
-    double u = dither(i, j, 2 * c + 0);
-    double v = dither(i, j, 2 * c + 1);
+    mantissa s = g->JitterScale;
+    mantissa u = dither(i, j, 2 * c + 0);
+    mantissa v = dither(i, j, 2 * c + 1);
     switch (g->JitterShape)
     {
       default:
@@ -2052,8 +2047,8 @@ void GetPixelOffset
         {
           // FIXME cache slow trig functions for every pixel for every image?
           // https://en.wikipedia.org/wiki/Box%E2%80%93Muller_transform
-          double r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
-          double t = 2 * 3.141592653589793 * v;
+          mantissa r = 0 < u && u < 1 ? sqrt(-2 * log(u)) : 0;
+          mantissa t = 2 * 3.141592653589793 * v;
           s *= 0.5;
           *x = s * r * cos(t);
           *y = s * r * sin(t);
@@ -2083,19 +2078,19 @@ void GetPixelCoordinates
     w *= 2;
     h *= 2;
   }
-  double di = 0;
-  double dj = 0;
+  mantissa di = 0;
+  mantissa dj = 0;
   GetPixelOffset(g, i, j, &di, &dj);
-  double u = i + di;
-  double v = j + dj;
+  mantissa u = i + di;
+  mantissa v = j + dj;
   if (g->ExponentialMap)
   {
-    double re = -0.6931471805599453 * v / h; // log 2
-    double im = 6.283185307179586 * u / w; // 2 pi
-    double R = 0.5 * hypot((double)w, (double)h);
-    double r = exp(re);
-    double c = cos(im);
-    double s = sin(im);
+    mantissa re = -0.6931471805599453 * v / h; // log 2
+    mantissa im = 6.283185307179586 * u / w; // 2 pi
+    mantissa R = 0.5 * hypot((mantissa)w, (mantissa)h);
+    mantissa r = exp(re);
+    mantissa c = cos(im);
+    mantissa s = sin(im);
     u = R * r * c;
     v = R * r * s;
   }
@@ -2104,8 +2099,8 @@ void GetPixelCoordinates
     u -= w / 2;
     v -= h / 2;
   }
-  double p = g->transform00 * u + g->transform01 * v;
-  double q = g->transform10 * u + g->transform11 * v;
+  mantissa p = g->transform00 * u + g->transform01 * v;
+  mantissa q = g->transform10 * u + g->transform11 * v;
   *x = fe_add(g->m_pixel_center_x, fe_muld(g->m_pixel_scale, p));
   *y = fe_add(g->m_pixel_center_y, fe_muld(g->m_pixel_scale, q));
 }
@@ -2305,14 +2300,14 @@ void DoApproximation
 #define SET_TRANS_GLITCH(x) (-1.0)
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double v[2];
+  mantissa v[2];
 } vec2;
 
 vec2 v_normalize(const vec2 a)
 {
-  double l = sqrt(a.v[0] * a.v[0] + a.v[1] * a.v[1]);
+  mantissa l = sqrt(a.v[0] * a.v[0] + a.v[1] * a.v[1]);
   if (! (l != 0.0))
   {
     l = 1.0;
@@ -2321,9 +2316,9 @@ vec2 v_normalize(const vec2 a)
   return r;
 }
 
-typedef struct
+typedef struct __attribute__((packed))
 {
-  double m[2][2];
+  mantissa m[2][2];
 } mat2;
 
 vec2 vm_mul(const vec2 v, const mat2 m)
@@ -2353,12 +2348,12 @@ mat2 mm_mul(const mat2 a, const mat2 b)
   return r;
 }
 
-dcomplex d_compute_de(double Dr, double Di, double Jxa, double Jxb, double Jya, double Jyb, double s, const mat2 TK)
+dcomplex d_compute_de(mantissa Dr, mantissa Di, mantissa Jxa, mantissa Jxb, mantissa Jya, mantissa Jyb, mantissa s, const mat2 TK)
 {
   vec2 u = { { Dr, Di } };
   mat2 J = { { { Jxa * s, Jxb * s }, { Jya * s, Jyb * s } } };
   dcomplex v = { u.v[0], u.v[1] };
-  double num = dc_abs(v) * log(dc_abs(v));
+  mantissa num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
   dcomplex den = { denv.v[0], denv.v[1] };
   return dc_ddiv(num, den);
@@ -2369,7 +2364,7 @@ dcomplex fe_compute_de(floatexp Dr, floatexp Di, floatexp Jxa, floatexp Jxb, flo
   vec2 u = { { fe_double(Dr), fe_double(Di) } };
   mat2 J = { { { fe_double(fe_mul(Jxa, s)), fe_double(fe_mul(Jxb, s)) }, { fe_double(fe_mul(Jya, s)), fe_double(fe_mul(Jyb, s)) } } };
   dcomplex v = { u.v[0], u.v[1] };
-  double num = dc_abs(v) * log(dc_abs(v));
+  mantissa num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
   dcomplex den = { denv.v[0], denv.v[1] };
   return dc_ddiv(num, den);
@@ -2382,7 +2377,7 @@ dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb,
   vec2 u = { { sf_to_double(Dr), sf_to_double(Di) } };
   mat2 J = { { { sf_to_double(sf_mul(Jxa, s)), sf_to_double(sf_mul(Jxb, s)) }, { sf_to_double(sf_mul(Jya, s)), sf_to_double(sf_mul(Jyb, s)) } } };
   dcomplex v = { u.v[0], u.v[1] };
-  double num = dc_abs(v) * log(dc_abs(v));
+  mantissa num = dc_abs(v) * log(dc_abs(v));
   vec2 denv = vm_mul(v_normalize(u), mm_mul(m_transpose(J), TK));
   dcomplex den = { denv.v[0], denv.v[1] };
   return dc_ddiv(num, den);
@@ -2393,31 +2388,27 @@ dcomplex sf_compute_de(softfloat Dr, softfloat Di, softfloat Jxa, softfloat Jxb,
 // forward declaration, defined per formula
 void perturbation_double_loop
 ( __global const p_config   *g
-, __global const double     *m_refx
-, __global const double     *m_refy
-, __global const double     *m_refz
+, __global const mantissa   *m_refx
+, __global const mantissa   *m_refy
+, __global const mantissa   *m_refz
 ,                p_status_d *l
 );
 
 // forward declaration, defined per formula
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
-, __global const long        *m_refN
-, __global const floatexp    *m_refX
-, __global const floatexp    *m_refY
-, __global const floatexp    *m_refZ
+, __global const floatexp    *m_refx
+, __global const floatexp    *m_refy
+, __global const floatexp    *m_refz
 ,                p_status_fe *l
 );
 
 // forward declaration, defined per formula
 void perturbation_scaled_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 , __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
@@ -2593,9 +2584,9 @@ __kernel void guessing
 // entry point
 __kernel void perturbation_double
 ( __global const p_config *g // configuration including series approximation coefficients
-, __global const double *m_refx // reference orbit re
-, __global const double *m_refy // reference orbit im
-, __global const double *m_refz // reference orbit (re^2+im^2)*glitch_threshold
+, __global const mantissa *m_refx // reference orbit re
+, __global const mantissa *m_refy // reference orbit im
+, __global const mantissa *m_refz // reference orbit (re^2+im^2)*glitch_threshold
 , __global       uint   *n1  // iteration count msb, may be null
 , __global       uint   *n0  // iteration count lsb
 , __global       float  *nf  // iteration count fractional part
@@ -2700,16 +2691,16 @@ __kernel void perturbation_double
     // core per pixel calculation
     perturbation_double_loop(g, m_refx, m_refy, m_refz, &l);
     // out
-    double Dr = l.xr;
-    double Di = l.xi;
-    double test1 = l.test1;
-    double test2 = l.test2;
+    mantissa Dr = l.xr;
+    mantissa Di = l.xi;
+    mantissa test1 = l.test1;
+    mantissa test2 = l.test2;
     antal = l.antal;
     long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
     if (g->derivatives)
     {
-      const double s = fe_double(g->m_pixel_scale);
+      const mantissa s = fe_double(g->m_pixel_scale);
       const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
       de = d_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
@@ -2732,10 +2723,10 @@ __kernel void perturbation_double
       }
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      double de_multiplier = 1;
+      mantissa de_multiplier = 1;
       if ((dex || dey) && g->ExponentialMap)
       {
-        double dx = 0, dy = 0;
+        mantissa dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
         de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
       }
@@ -2743,14 +2734,14 @@ __kernel void perturbation_double
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
-        double p = atan2(Di, Dr) / (M_PI * 2);
+        mantissa p = atan2(Di, Dr) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
-        double p = g->norm_p;
+        mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
-        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+        mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
           if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
@@ -2761,7 +2752,7 @@ __kernel void perturbation_double
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
+        mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -2782,19 +2773,19 @@ __kernel void perturbation_double
 // entry point
 __kernel void perturbation_floatexp
 ( __global const p_config *g // configuration including series approximation coefficients
-, __global const double   *m_refx // reference orbit re
-, __global const double   *m_refy // reference orbit im
-, __global const double   *m_refz // reference orbit (re^2+im^2)*glitch_threshold
+, __global const floatexp *m_refx // reference orbit re
+, __global const floatexp *m_refy // reference orbit im
+, __global const floatexp *m_refz // reference orbit (re^2+im^2)*glitch_threshold
 , __global       uint     *n1  // iteration count msb, may be null
 , __global       uint     *n0  // iteration count lsb
 , __global       float    *nf  // iteration count fractional part
 , __global       float  *phase // final angle, may be null
 , __global       float    *dex // directional de x, may be null
 , __global       float    *dey // directional de y, may be null
-, __global const long     *m_refN // reference orbit special iteration
-, __global const floatexp *m_refX // reference orbit special re
-, __global const floatexp *m_refY // reference orbit special im
-, __global const floatexp *m_refZ // reference orbit special (re^2+im^2)*glitch_threshold
+, __global const long     *m_refN // unused
+, __global const floatexp *m_refX // unused
+, __global const floatexp *m_refY // unused
+, __global const floatexp *m_refZ // unused
 )
 {
   if (g->BYTES != sizeof(p_config)) return;
@@ -2886,12 +2877,12 @@ __kernel void perturbation_floatexp
       , g->log_m_nPower
       };
     // core per pixel calculation
-    perturbation_floatexp_loop(g, m_refx, m_refy, m_refz, m_refN, m_refX, m_refY, m_refZ, &l);
+    perturbation_floatexp_loop(g, m_refx, m_refy, m_refz, &l);
     // out
     floatexp Dr = l.xr;
     floatexp Di = l.xi;
-    double test1 = l.test1;
-    double test2 = l.test2;
+    mantissa test1 = l.test1;
+    mantissa test2 = l.test2;
     antal = l.antal;
     long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
@@ -2920,10 +2911,10 @@ __kernel void perturbation_floatexp
       }
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      double de_multiplier = 1;
+      mantissa de_multiplier = 1;
       if ((dex || dey) && g->ExponentialMap)
       {
-        double dx = 0, dy = 0;
+        mantissa dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
         de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
       }
@@ -2931,14 +2922,14 @@ __kernel void perturbation_floatexp
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
-        double p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
+        mantissa p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
-        double p = g->norm_p;
+        mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
-        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+        mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
           if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
@@ -2949,7 +2940,7 @@ __kernel void perturbation_floatexp
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
+        mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -2970,9 +2961,9 @@ __kernel void perturbation_floatexp
 // entry point
 __kernel void perturbation_scaled
 ( __global const p_config *g // configuration including series approximation coefficients
-, __global const double   *m_refx // reference orbit re
-, __global const double   *m_refy // reference orbit im
-, __global const double   *m_refz // reference orbit (re^2+im^2)*glitch_threshold
+, __global const mantissa   *m_refx // reference orbit re
+, __global const mantissa   *m_refy // reference orbit im
+, __global const mantissa   *m_refz // reference orbit (re^2+im^2)*glitch_threshold
 , __global       uint     *n1  // iteration count msb, may be null
 , __global       uint     *n0  // iteration count lsb
 , __global       float    *nf  // iteration count fractional part
@@ -3078,8 +3069,8 @@ __kernel void perturbation_scaled
     // out
     floatexp Dr = l.xr;
     floatexp Di = l.xi;
-    double test1 = l.test1;
-    double test2 = l.test2;
+    mantissa test1 = l.test1;
+    mantissa test2 = l.test2;
     antal = l.antal;
     long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
@@ -3108,10 +3099,10 @@ __kernel void perturbation_scaled
       }
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      double de_multiplier = 1;
+      mantissa de_multiplier = 1;
       if ((dex || dey) && g->ExponentialMap)
       {
-        double dx = 0, dy = 0;
+        mantissa dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
         de_multiplier = exp2((y + dy) / (g->UseGuessing ? g->m_nY * 2 : g->m_nY));
       }
@@ -3119,14 +3110,14 @@ __kernel void perturbation_scaled
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
-        double p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
+        mantissa p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
-        double p = g->norm_p;
+        mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
-        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+        mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
           if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
@@ -3137,7 +3128,7 @@ __kernel void perturbation_scaled
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
+        mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -3255,8 +3246,8 @@ __kernel void perturbation_softfloat
     // out
     softfloat Dr = l.xr;
     softfloat Di = l.xi;
-    double test1 = sf_to_double(l.test1);
-    double test2 = sf_to_double(l.test2);
+    mantissa test1 = sf_to_double(l.test1);
+    mantissa test2 = sf_to_double(l.test2);
     antal = l.antal;
     long bGlitch = l.bGlitch;
     dcomplex de = { 0.0, 0.0 };
@@ -3280,10 +3271,10 @@ __kernel void perturbation_softfloat
     else{
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
-      double de_multiplier = 1;
+      mantissa de_multiplier = 1;
       if ((dex || dey) && g->ExponentialMap)
       {
-        double dx = 0, dy = 0;
+        mantissa dx = 0, dy = 0;
         GetPixelOffset(g, x, y, &dx, &dy);
         de_multiplier = exp2((y + dy) / g->m_nY);
       }
@@ -3291,14 +3282,14 @@ __kernel void perturbation_softfloat
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
-        double p = atan2(sf_double(Di), sf_double(Dr)) / (M_PI * 2);
+        mantissa p = atan2(sf_double(Di), sf_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
-        double p = g->norm_p;
+        mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
-        double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+        mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
         if (div != 0)
         {
           if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
@@ -3309,7 +3300,7 @@ __kernel void perturbation_softfloat
         }
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
-        double t = log(log(sqrt(test1)) / g->log_m_nBailout) / sf_to_double(l.log_m_nPower);
+        mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / sf_to_double(l.log_m_nPower);
         if (!ISFLOATOK(t))
           t = 0;
         long i = floor(t);
@@ -3329,13 +3320,13 @@ __kernel void perturbation_softfloat
 
 #endif
 
-double pnorm(double g_real, double g_imag, double p, double x, double y)
+mantissa pnorm(mantissa g_real, mantissa g_imag, mantissa p, mantissa x, mantissa y)
 {
-  if (g_real == 1.0 && g_imag == 1.0 && p == 2.0)
+  if (g_real == 1 && g_imag == 1 && p == 2)
   {
     return x * x + y * y;
   }
-  if (p == 1.0)
+  if (p == 1)
   {
     return fabs(g_real * fabs(x) + g_imag * fabs(y));
   }

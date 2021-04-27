@@ -358,6 +358,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_TRANSFORMATION_STRETCHANGLE 1451
 #define IDC_TRANSFORMATION_STRETCHAMOUNT 1452
 
+// "OpenGL" dialog
 #define IDD_OPENGL 127
 #define IDC_OPENGL_ENABLED 1460
 #define IDC_OPENGL_IMPORT 1461
@@ -367,6 +368,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_OPENGL_DEFAULT 1465
 #define IDC_OPENGL_SRGB 1466
 #define IDC_OPENGL_VERSION 1467
+
+// "Number type" dialog
+#define IDD_NUMBERTYPE                 128
+#define IDC_NUMBERTYPE_SINGLE         1470
+#define IDC_NUMBERTYPE_RESCALEDSINGLE 1471
+#define IDC_NUMBERTYPE_DOUBLE         1472
+#define IDC_NUMBERTYPE_RESCALEDDOUBLE 1473
+#define IDC_NUMBERTYPE_LONGDOUBLE     1474
+#define IDC_NUMBERTYPE_FLOATEXPSINGLE 1475
+#define IDC_NUMBERTYPE_FLOATEXPDOUBLE 1476
 
 // menus
 #define ID_ACTIONS_SETTINGS             40001
@@ -414,12 +425,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_SPECIAL_SETMAINREFERENCE 40053
 #define ID_ACTIONS_SPECIAL_USEERRORDETECTION 40054
 #define ID_ACTIONS_SPECIAL_SHOWSMOOTHTRANSITIONCOLORS 40055
-#define ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART 40057
 #define ID_ACTIONS_SPECIAL_AUTOITERATION 40058
 #define ID_ACTIONS_ZOOMSIZE_1           40059
 #define ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD 40060
-#define ID_SPECIAL_USEFLOATEXPALWAYS    40061
-#define ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS 40062
 #define ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1 40064
 #define ID_ACTIONS_SHOWINFLECTION       40068
 #define ID_ACTIONS_ANIMATEZOOM          40072
@@ -492,6 +500,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_TRANSFORMATION 40154
 #define ID_RESET_TRANSFORMATION 40155
 #define ID_IMAGE_SHRINK_SRGB 40156
+#define ID_NUMBERTYPES 40157
 
 // OpenCL
 #ifdef KF_OPENCL
@@ -499,6 +508,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // OpenCL device selection dialog
 #define IDD_DIALOG_OPENCL         150
 #define IDC_COMBO_OPENCL_DEVICE  1500
+#define IDC_OPENCL_DOUBLE        1505
 #define ID_SPECIAL_OPENCL       40250
 
 // OpenCL error display dialog

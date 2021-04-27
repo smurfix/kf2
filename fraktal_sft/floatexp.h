@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -28,33 +28,32 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <limits>
 #include "CFixedFloat.h"
 
-#define MAX_PREC 1020
-// this has two fewer 0 than you might expect, this is to give headroom for
-// avoiding overflow in + and other functions. it is the exponent for 0.0
-#define EXP_MIN (-0x80000000000000LL)
-
-struct floatexp
+template <typename mantissa, typename exponent>
+struct tfloatexp
 {
 public:
-	floatexp() = default; // POD
-	floatexp(const floatexp &a) = default; // POD
-	floatexp(floatexp &&a) = default; // POD
-	floatexp &operator=(const floatexp &a) = default; // POD
-	floatexp &operator=(floatexp &&a) = default; // POD
-	~floatexp() = default; // POD;
+	tfloatexp() = default; // POD
+	tfloatexp(const tfloatexp &a) = default; // POD
+	tfloatexp(tfloatexp &&a) = default; // POD
+	tfloatexp &operator=(const tfloatexp &a) = default; // POD
+	tfloatexp &operator=(tfloatexp &&a) = default; // POD
+	~tfloatexp() = default; // POD;
 
-	double val;
-	int64_t exp;
+	mantissa val;
+	exponent exp;
+
+	static const exponent MAX_PREC = sizeof(mantissa) * CHAR_BIT;
+	// MIN_EXPONENT is smaller than you might expect, this is to give headroom for
+	// avoiding overflow in + and other functions. it is the exponent for 0.0
+	static const exponent EXP_MIN = -(exponent(1) << (sizeof(exponent) * CHAR_BIT - 8));
 
 	inline void align() noexcept
 	{
 		if (val != 0)
 		{
-			union { double d; int64_t i; } u;
-			u.d = val;
-			exp += ((u.i & 0x7FF0000000000000LL) >> 52) - 1023;
-			u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | 0x3FF0000000000000LL;
-			val = u.d;
+			int e = 0;
+			val = std::frexp(val, &e);
+			exp += e;
 		}
 		else
 		{
@@ -62,126 +61,142 @@ public:
 			exp = EXP_MIN;
 		}
 	}
-	inline floatexp &abs() noexcept
+
+	static inline mantissa setExp(mantissa a, exponent e) noexcept
 	{
-		if(val<0)
-			val=-val;
-		return *this;
+		int e0 = 0;
+		a	= std::frexp(a, &e0);
+		a	= std::ldexp(a, e);
+		return a;
 	}
-	inline void initFromDouble(double a) noexcept
+
+	tfloatexp(int32_t a) noexcept
 	{
-		val=a;
-		exp=0;
+		val = a;
+		exp = 0;
 		align();
 	}
-	inline void initFromLongDouble(long double a) noexcept
+	tfloatexp(int64_t a) noexcept
+	{
+		val = a;
+		exp = 0;
+		align();
+	}
+	tfloatexp(float a) noexcept
 	{
 		using std::frexp;
 		int e = 0;
 		a = frexp(a, &e);
-		val=double(a);
-		exp=e;
+		val = a;
+		exp = e;
 		align();
 	}
-	inline double setExp(double newval,int64_t newexp) const noexcept
+	tfloatexp(double a) noexcept
 	{
-//		int64_t tmpval = (*((int64_t*)&newval) & 0x800FFFFFFFFFFFFF) | ((newexp+1023)<<52);
-//		memcpy(&newval,&tmpval,sizeof(double));
-//		return newval;
-		union { double d; int64_t i; } u;
-		u.d = newval;
-		u.i = (u.i & 0x800FFFFFFFFFFFFFLL) | ((newexp + 1023) << 52);
-		newval = u.d;
-		return newval;
+		using std::frexp;
+		int e = 0;
+		a = frexp(a, &e);
+		val = a;
+		exp = e;
+		align();
 	}
-
-	inline floatexp(int a) noexcept
+	tfloatexp(long double a) noexcept
 	{
-		initFromDouble(a);
+		using std::frexp;
+		int e = 0;
+		a = frexp(a, &e);
+		val = a;
+		exp = e;
+		align();
 	}
-	inline floatexp(int64_t a) noexcept
-	{
-		initFromDouble(a);
-	}
-	inline floatexp(double a) noexcept
-	{
-		initFromDouble(a);
-	}
-	inline floatexp(double a, int64_t e) noexcept
+	inline tfloatexp(mantissa a, exponent e) noexcept
 	{
 		val = a;
 		exp = e;
 		align();
 	}
-	inline floatexp(double a, int64_t e, int dummy) noexcept
+	inline tfloatexp(mantissa a, exponent e, int dummy) noexcept
 	{
+		val = a;
+		exp = e;
 		(void) dummy;
-		val = a;
-		exp = e;
 	}
-	inline floatexp(long double a) noexcept
+	template <typename mantissa2, typename exponent2>
+	explicit inline tfloatexp(tfloatexp<mantissa2, exponent2> a) noexcept
+	: tfloatexp(mantissa(a.val), exponent(a.exp))
 	{
-		initFromLongDouble(a);
 	}
 
-	inline floatexp &operator =(int a) noexcept
+	inline tfloatexp &operator =(int32_t a) noexcept
 	{
-		initFromDouble((double)a);
+		*this = tfloatexp(a);
 		return *this;
 	}
-	inline floatexp &operator =(double a) noexcept
+	inline tfloatexp &operator =(int64_t a) noexcept
 	{
-		initFromDouble(a);
+		*this = tfloatexp(a);
 		return *this;
 	}
-	inline floatexp &operator =(long double a) noexcept
+	inline tfloatexp &operator =(float a) noexcept
 	{
-		initFromLongDouble(a);
+		*this = tfloatexp(a);
 		return *this;
 	}
-	inline floatexp operator *(const floatexp &a) const noexcept
+	inline tfloatexp &operator =(double a) noexcept
 	{
-		floatexp r;
-		r.val = a.val*val;
-		r.exp = a.exp+exp;
-		r.align();
-		return r;
+		*this = tfloatexp(a);
+		return *this;
 	}
-	inline floatexp operator /(const floatexp &a) const noexcept
+	inline tfloatexp &operator =(long double a) noexcept
 	{
-		floatexp r;
-		r.val = val/a.val;
-		r.exp = exp - a.exp;
-		r.align();
-		return r;
+		*this = tfloatexp(a);
+		return *this;
 	}
+
+	inline tfloatexp &operator *=(const tfloatexp a) noexcept
+	{
+		val *= a.val;
+		exp += a.exp;
+		align();
+		return *this;
+	}
+	inline tfloatexp operator *(const tfloatexp a) const noexcept
+	{
+		return tfloatexp(*this) *= a;
+	}
+
+	inline tfloatexp &operator /=(const tfloatexp a) noexcept
+	{
+		val /= a.val;
+		exp -= a.exp;
+		align();
+		return *this;
+	}
+	inline tfloatexp operator /(const tfloatexp a) const noexcept
+	{
+		return tfloatexp(*this) /= a;
+	}
+
 	__attribute__ ((warn_unused_result))
-	inline floatexp mul2() const noexcept
+	inline tfloatexp mul2() const noexcept
 	{
-		floatexp r;
+		tfloatexp r;
 		r.val = val;
 		r.exp = exp + 1;
 		return r;
 	}
-	__attribute__ ((warn_unused_result))
-	inline floatexp mul4() const noexcept
+
+	inline tfloatexp operator +(const tfloatexp a) const noexcept
 	{
-		floatexp r;
-		r.val = val;
-		r.exp = exp + 2;
-		return r;
-	}
-	inline floatexp operator +(const floatexp &a) const noexcept
-	{
-		floatexp r;
-		int64_t diff;
+		tfloatexp r;
+		exponent diff;
 		if(exp>a.exp){
 			diff = exp-a.exp;
 			r.exp = exp;
 			if(diff>MAX_PREC)
 				r.val=val;
 			else{
-				double aval = setExp(a.val,-diff);
+				mantissa aval = setExp(a.val,-diff);
 				r.val = val+aval;
 			}
 		}
@@ -191,35 +206,36 @@ public:
 			if(diff>MAX_PREC)
 				r.val=a.val;
 			else{
-				double aval = setExp(val,-diff);
+				mantissa aval = setExp(val,-diff);
 				r.val = a.val+aval;
 			}
 		}
 		r.align();
 		return r;
 	}
-	inline floatexp operator -() const noexcept
+
+	inline tfloatexp operator -() const noexcept
 	{
-		floatexp r=*this;
+		tfloatexp r=*this;
 		r.val=-r.val;
 		return r;
 	}
-	inline floatexp &operator +=(const floatexp &a) noexcept
+	inline tfloatexp &operator +=(const tfloatexp &a) noexcept
 	{
 		*this = *this+a;
 		return *this;
 	}
-	inline floatexp operator -(const floatexp &a) const noexcept
+	inline tfloatexp operator -(const tfloatexp &a) const noexcept
 	{
-		floatexp r;
-		int64_t diff;
+		tfloatexp r;
+		exponent diff;
 		if(exp>a.exp){
 			diff = exp-a.exp;
 			r.exp = exp;
 			if(diff>MAX_PREC)
 				r.val = val;
 			else{
-				double aval = setExp(a.val,-diff);
+				mantissa aval = setExp(a.val,-diff);
 				r.val = val-aval;
 			}
 		}
@@ -229,19 +245,19 @@ public:
 			if(diff>MAX_PREC)
 				r.val=-a.val;
 			else{
-				double aval = setExp(val,-diff);
+				mantissa aval = setExp(val,-diff);
 				r.val = aval-a.val;
 			}
 		}
 		r.align();
 		return r;
 	}
-	inline floatexp &operator -=(const floatexp &a) noexcept
+	inline tfloatexp &operator -=(const tfloatexp &a) noexcept
 	{
 		*this = *this-a;
 		return *this;
 	}
-	inline bool operator >(const floatexp &a) const noexcept
+	inline bool operator >(const tfloatexp &a) const noexcept
 	{
 		if(val>0){
 			if(a.val<0)
@@ -262,7 +278,7 @@ public:
 			return val>a.val;
 		}
 	}
-	inline bool operator <(const floatexp &a) const noexcept
+	inline bool operator <(const tfloatexp &a) const noexcept
 	{
 		if(val>0){
 			if(a.val<0)
@@ -283,11 +299,11 @@ public:
 			return val<a.val;
 		}
 	}
-	inline bool operator <=(const floatexp &a) const noexcept
+	inline bool operator <=(const tfloatexp &a) const noexcept
 	{
 		return (*this<a || *this==a);
 	}
-	inline bool operator >=(const floatexp &a) const noexcept
+	inline bool operator >=(const tfloatexp &a) const noexcept
 	{
 		return (*this>a || *this==a);
 	}
@@ -295,7 +311,7 @@ public:
 	{
 		return (*this<a || *this==a);
 	}
-	inline bool operator ==(const floatexp &a) const noexcept
+	inline bool operator ==(const tfloatexp &a) const noexcept
 	{
 		if(exp!=a.exp)
 			return false;
@@ -305,103 +321,69 @@ public:
 	{
 		return (val==0 && exp==0);
 	}
-	inline double todouble() const noexcept
+
+	inline explicit operator float () const noexcept
 	{
-		if(exp<-MAX_PREC || exp>MAX_PREC)
-			return 0;
-		return setExp(val,exp);
+		if (exp > exponent(INT_MAX))
+		{
+			return float(val) / 0.0; // overflow
+		}
+		if (exp < exponent(INT_MIN))
+		{
+			return float(val) * 0.0; // underflow
+		}
+		return std::ldexp(float(val), int(exp));
 	}
 	inline explicit operator double () const noexcept
 	{
-		return todouble();
+		if (exp > exponent(INT_MAX))
+		{
+			return double(val) / 0.0; // overflow
+		}
+		if (exp < exponent(INT_MIN))
+		{
+			return double(val) * 0.0; // underflow
+		}
+		return std::ldexp(double(val), int(exp));
 	}
-	inline double todouble(int nScaling) const noexcept
+	inline explicit operator long double () const noexcept
 	{
-		if(!nScaling)
-			return todouble();
-		floatexp ret = *this;
-		while(nScaling>9){
-			ret.val*=1e10;
-			ret.align();
-			nScaling-=10;
+		if (exp > exponent(INT_MAX))
+		{
+			return (long double)(val) / 0.0; // overflow
 		}
-		while(nScaling>2){
-			ret.val*=1e3;
-			ret.align();
-			nScaling-=3;
+		if (exp < exponent(INT_MIN))
+		{
+			return (long double)(val) * 0.0; // underflow
 		}
-		while(nScaling>0){
-			ret.val*=1e1;
-			ret.align();
-			nScaling--;
-		}
-		while(nScaling<-9){
-			ret.val/=1e10;
-			ret.align();
-			nScaling+=10;
-		}
-		while(nScaling<-2){
-			ret.val/=1e3;
-			ret.align();
-			nScaling+=3;
-		}
-		while(nScaling<0){
-			ret.val/=1e1;
-			ret.align();
-			nScaling++;
-		}
-		if(ret.exp<-MAX_PREC || ret.exp>MAX_PREC)
-			return 0;
-		return setExp(ret.val,ret.exp);
-	}
-	inline floatexp &operator /=(double a) noexcept
-	{
-		val/=a;
-		align();
-		return *this;
-	}
-	inline floatexp &operator *=(double a) noexcept
-	{
-		val*=a;
-		align();
-		return *this;
-	}
-	inline floatexp &operator *=(floatexp a) noexcept
-	{
-		return *this = *this * a;
-	}
-	inline floatexp &operator *=(long double a) noexcept
-	{
-		return *this *= floatexp(a);
+		return std::ldexp((long double)(val), int(exp));
 	}
 
-	inline floatexp &operator =(const CFixedFloat &a) noexcept
+	inline tfloatexp &operator =(const CFixedFloat &a) noexcept
 	{
 		signed long int e = 0;
-		val = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
-		exp = e;
-		align();
+		double v = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
+		*this = tfloatexp(v, e);
 		return *this;
 	}
-	inline floatexp(const CFixedFloat &a) noexcept
+	inline tfloatexp(const CFixedFloat &a) noexcept
 	{
 		*this = a;
 	}
-	inline floatexp(const CDecNumber &a) noexcept
+	inline tfloatexp(const CDecNumber &a) noexcept
 	{
 		signed long int e = 0;
-		val = mpfr_get_d_2exp(&e, a.m_dec.backend().data(), MPFR_RNDN);
-		exp = e;
-		align();
+		double v = mpfr_get_d_2exp(&e, a.m_dec.backend().data(), MPFR_RNDN);
+		*this = tfloatexp(v, e);
 	}
 	inline void ToFixedFloat(CFixedFloat &a) const noexcept
 	{
 		a = val;
-		if (exp > int64_t(UINT_MAX))
+		if (exp > exponent(INT_MAX))
 		{
 			a = 1.0 / 0.0;
 		}
-		else if (exp < -int64_t(UINT_MAX))
+		else if (exp < exponent(INT_MIN))
 		{
 			a = 0.0;
 		}
@@ -421,62 +403,6 @@ public:
 		return a;
 	}
 
-	inline floatexp setLongDouble(long double a) noexcept
-	{
-		int e = 0;
-		val = double(std::frexp(a, &e));
-		exp = e;
-		align();
-		return *this;
-	}
-	inline long double toLongDouble() const noexcept
-	{
-		if (val == 0.0L)
-			return 0.0L;
-		if (exp >= INT_MAX)
-			return (val / 0.0L); // infinity
-		if (exp <= INT_MIN)
-			return (val * 0.0L); // zero
-		return std::ldexp((long double) val, exp);
-	}
-	inline long double toLongDouble(int nScaling) const noexcept
-	{
-		if(!nScaling)
-			return toLongDouble();
-		floatexp ret = *this;
-		// FIXME risky to go higher than this? 1e300 might be ok?
-		while(nScaling>99){
-			ret.val*=1e100;
-			ret.align();
-			nScaling-=100;
-		}
-		while(nScaling>29){
-			ret.val*=1e30;
-			ret.align();
-			nScaling-=30;
-		}
-		while(nScaling>9){
-			ret.val*=1e10;
-			ret.align();
-			nScaling-=10;
-		}
-		while(nScaling>2){
-			ret.val*=1e3;
-			ret.align();
-			nScaling-=3;
-		}
-		while(nScaling){
-			ret.val*=1e1;
-			ret.align();
-			nScaling--;
-		}
-		return ret.toLongDouble();
-	}
-	inline explicit operator long double () const noexcept
-	{
-		return toLongDouble();
-	}
-
   inline std::string toString(int digits = 0) const noexcept
   {
 		/*
@@ -486,89 +412,103 @@ public:
 		  d10 = 10^(log10 f - e10)
 		  d10 \in [1, 10)
 		*/
-		double lf = std::log10(std::abs(val)) + exp * std::log10(2.0);
-		int64_t e10 = int64_t(std::floor(lf));
-		double d10 = std::pow(10, lf - e10) * ((val > 0) - (val < 0));
+		mantissa lf = std::log10(std::abs(val)) + exp * std::log10(2.0);
+		exponent e10 = exponent(std::floor(lf));
+		mantissa d10 = std::pow(10, lf - e10) * ((val > 0) - (val < 0));
 		if (val == 0) { d10 = 0; e10 = 0; }
 		std::ostringstream os; os
-		  << std::setprecision(digits ? digits : (std::numeric_limits<double>::digits10 + 1))
+		  << std::setprecision(digits ? digits : (std::numeric_limits<mantissa>::digits10 + 1))
 		  << std::fixed
 		  << d10 << 'E' << e10;
 		return os.str();
 	}
 } __attribute__((packed));
 
-inline std::ostream& operator<<(std::ostream& a, const floatexp& b) noexcept
+template <typename mantissa, typename exponent>
+inline std::ostream& operator<<(std::ostream& a, const tfloatexp<mantissa, exponent>& b) noexcept
 {
 	return a << b.toString();
 }
 
-inline floatexp operator*(double a, floatexp b) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(double a, tfloatexp<mantissa, exponent> b) noexcept
 {
-	return floatexp(a) * b;
+	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
-inline floatexp operator*(floatexp b, double a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, double a) noexcept
 {
-	return floatexp(a) * b;
+	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
-inline floatexp operator*(long double a, floatexp b) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(long double a, tfloatexp<mantissa, exponent> b) noexcept
 {
-	return floatexp(a) * b;
+	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
-inline floatexp operator*(floatexp b, long double a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, long double a) noexcept
 {
-	return floatexp(a) * b;
+	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
-inline floatexp operator+(double a, floatexp b) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator+(double a, tfloatexp<mantissa, exponent> b) noexcept
 {
-	return floatexp(a) + b;
+	return tfloatexp<mantissa, exponent>(a) + b;
 }
 
-inline floatexp operator+(floatexp b, double a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator+(tfloatexp<mantissa, exponent> b, double a) noexcept
 {
-	return floatexp(a) + b;
+	return tfloatexp<mantissa, exponent>(a) + b;
 }
 
-inline floatexp operator*(int a, floatexp b) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(int a, tfloatexp<mantissa, exponent> b) noexcept
 {
 	return double(a) * b;
 }
 
-inline floatexp operator*(floatexp b, int a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, int a) noexcept
 {
 	return double(a) * b;
 }
 
-inline floatexp operator-(int a, floatexp b) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator-(int a, tfloatexp<mantissa, exponent> b) noexcept
 {
-	return floatexp(a) - b;
+	return tfloatexp<mantissa, exponent>(a) - b;
 }
 
-inline floatexp abs(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> abs(tfloatexp<mantissa, exponent> a) noexcept
 {
-	return a.abs();
+	return a.val < 0 ? -a : a;
 }
 
-inline floatexp sqrt(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> sqrt(tfloatexp<mantissa, exponent> a) noexcept
 {
-  return floatexp
-    ( std::sqrt((a.exp & 1) ? 2.0 * a.val : a.val)
+  return tfloatexp<mantissa, exponent>
+    ( std::sqrt((a.exp & 1) ? 2 * a.val : a.val)
     , (a.exp & 1) ? (a.exp - 1) / 2 : a.exp / 2
     );
 }
 
-inline floatexp log(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> log(tfloatexp<mantissa, exponent> a) noexcept
 {
-	return floatexp(std::log(a.val) + std::log(2.0) * a.exp);
+	return tfloatexp<mantissa, exponent>(std::log(a.val) + std::log(mantissa(2)) * a.exp);
 }
 
-inline floatexp log2(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> log2(tfloatexp<mantissa, exponent> a) noexcept
 {
-	return floatexp(std::log2(a.val) + a.exp);
+	return tfloatexp<mantissa, exponent>(std::log2(a.val) + a.exp);
 }
 
 inline double sqr(double a) noexcept
@@ -581,7 +521,8 @@ inline long double sqr(long double a) noexcept
 	return a * a;
 }
 
-inline floatexp sqr(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> sqr(tfloatexp<mantissa, exponent> a) noexcept
 {
 	return a * a;
 }
@@ -614,72 +555,95 @@ template <typename T> T pow(T x, uint64_t n) noexcept
 	}
 }
 
-inline bool isnan(const floatexp &a) noexcept
+template <typename mantissa, typename exponent>
+inline bool isnan(const tfloatexp<mantissa, exponent> &a) noexcept
 {
 	return isnan(a.val);
 }
 
-inline bool isinf(const floatexp &a) noexcept
+template <typename mantissa, typename exponent>
+inline bool isinf(const tfloatexp<mantissa, exponent> &a) noexcept
 {
 	return isinf(a.val);
 }
 
-inline floatexp infnan_to_zero(const floatexp &a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> infnan_to_zero(const tfloatexp<mantissa, exponent> &a) noexcept
 {
-	return isinf(a.val) ? floatexp(copysign(1e30, a.val)) : isnan(a.val) ? floatexp(0) : a;
+	return isinf(a.val) ? tfloatexp<mantissa, exponent>(copysign(1e30, a.val)) : isnan(a.val) ? tfloatexp<mantissa, exponent>(0) : a;
 }
 
-inline floatexp exp(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> exp(tfloatexp<mantissa, exponent> a) noexcept;
+template <>
+inline tfloatexp<float, int32_t> exp(tfloatexp<float, int32_t> a) noexcept
 {
 	using std::exp;
 	using std::ldexp;
 	using std::pow;
-  if (-53 <= a.exp && a.exp <= 8) return floatexp(exp(ldexp(a.val, a.exp)));
-  if (61 <= a.exp) return floatexp(a.val > 0.0 ? a.val / 0.0 : 0.0);
-  if (a.exp < -53) return floatexp(1.0);
-  return pow(floatexp(exp(a.val)), 1ULL << a.exp);
+  if (-53 <= a.exp && a.exp <= 8) return tfloatexp<float, int32_t>(exp(ldexp(a.val, a.exp)));
+  if (61 <= a.exp) return tfloatexp<float, int32_t>(a.val > 0.0f ? a.val / 0.0f : 0.0f);
+  if (a.exp < -53) return tfloatexp<float, int32_t>(1.0f);
+  return pow(tfloatexp<float, int32_t>(exp(a.val)), 1ULL << a.exp);
+}
+template <>
+inline tfloatexp<double, int64_t> exp(tfloatexp<double, int64_t> a) noexcept
+{
+	using std::exp;
+	using std::ldexp;
+	using std::pow;
+  if (-53 <= a.exp && a.exp <= 8) return tfloatexp<double, int64_t>(exp(ldexp(a.val, a.exp)));
+  if (61 <= a.exp) return tfloatexp<double, int64_t>(a.val > 0.0 ? a.val / 0.0 : 0.0);
+  if (a.exp < -53) return tfloatexp<double, int64_t>(1.0);
+  return pow(tfloatexp<double, int64_t>(exp(a.val)), 1ULL << a.exp);
 }
 
-inline floatexp expm1(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> expm1(tfloatexp<mantissa, exponent> a) noexcept
 {
 	using std::expm1;
 	using std::ldexp;
-  if (a.exp <= -1020) return a;
+  if (a.exp <= -120) return a; // FIXME threshold depends on number type
   if (8 <= a.exp) return exp(a) - 1;
-  return floatexp(expm1(ldexp(a.val, a.exp)));
+  return tfloatexp<mantissa, exponent>(expm1(ldexp(a.val, a.exp)));
 }
 
-inline floatexp sin(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> sin(tfloatexp<mantissa, exponent> a) noexcept
 {
 	using std::sin;
-	if (a.exp <= -1020) return a;
-	return floatexp(sin(ldexp(a.val, a.exp)));
+  if (a.exp <= -120) return a; // FIXME threshold depends on number type
+	return tfloatexp<mantissa, exponent>(sin(ldexp(a.val, a.exp)));
 }
 
-inline floatexp cos(floatexp a) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> cos(tfloatexp<mantissa, exponent> a) noexcept
 {
 	using std::cos;
-	if (a.exp <= -1020) return floatexp(1.0);
-	return floatexp(cos(ldexp(a.val, a.exp)));
+  if (a.exp <= -120) return 1; // FIXME threshold depends on number type
+	return tfloatexp<mantissa, exponent>(cos(ldexp(a.val, a.exp)));
 }
 
-inline floatexp diffabs(const floatexp &c, const floatexp &d) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> diffabs(const tfloatexp<mantissa, exponent> &c, const tfloatexp<mantissa, exponent> &d) noexcept
 {
-  const floatexp cd = c + d;
-  const floatexp c2d = c.mul2() + d;
+  const tfloatexp<mantissa, exponent> cd = c + d;
+  const tfloatexp<mantissa, exponent> c2d = c.mul2() + d;
   return c.val >= 0.0 ? cd.val >= 0.0 ? d : -c2d : cd.val > 0.0 ? c2d : -d;
 }
 
-inline floatexp mpfr_get_fe(const mpfr_t value) noexcept
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> mpfr_get_tfe(const mpfr_t value) noexcept
 {
 	signed long int e = 0;
 	double l = mpfr_get_d_2exp(&e, value, MPFR_RNDN);
-	return floatexp(l, e);
+	return tfloatexp<mantissa, exponent>(l, e);
 }
 
-inline void mpfr_set_fe(mpfr_t value, floatexp fe) noexcept
+template <typename mantissa, typename exponent>
+inline void mpfr_set_fe(mpfr_t value, tfloatexp<mantissa, exponent> fe) noexcept
 {
-	mpfr_set_d(value, fe.val, MPFR_RNDN);
+	mpfr_set_ld(value, fe.val, MPFR_RNDN);
 	if (fe.exp >= 0)
 	{
 		mpfr_mul_2ui(value, value, fe.exp, MPFR_RNDN);
@@ -704,5 +668,11 @@ inline long double mpfr_get_ld(const mpfr_t value) noexcept
 	l = ldexp(l, e);
 	return l;
 }
+
+using floatexp = tfloatexp<double, int64_t>;
+inline floatexp mpfr_get_fe(const mpfr_t value) { return mpfr_get_tfe<double, int64_t>(value); }
+
+using floatexpf = tfloatexp<float, int32_t>;
+inline floatexpf mpfr_get_fef(const mpfr_t value) { return mpfr_get_tfe<float, int32_t>(value); }
 
 #endif

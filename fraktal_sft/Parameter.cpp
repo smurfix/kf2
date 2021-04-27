@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -481,30 +481,6 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		StretchAmount = atof(stParams[i][1]);
 	}
 	SetTransformPolar(polar2(1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
-	}
-
-	if (! bNoLocation)
-	{
-	bool ld = GetLongDoubleAlways();
-	bool fe = GetFloatExpAlways();
-	if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-	{
-		g_nLDBL = INT_MAX - 1;
-		g_nEXP = INT_MAX;
-	}
-	else
-	{
-		g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-		g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-	}
-	if (ld)
-	{
-		g_nLDBL = 3;
-	}
-	if (fe)
-	{
-		g_nEXP = 2;
-	}
 	}
 
 	if (! bNoLocation)

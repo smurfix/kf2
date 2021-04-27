@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 
 #include "exr.h"
+#include "main_numbertype.h"
 
 // this sets the maximum number of references per image
 #define OLD_GLITCH 10000
@@ -86,6 +87,7 @@ private:
   int64_t m_SIMDChunkSize;
   int64_t m_GlitchCenterMethod;
   bool m_UseOpenCL;
+  bool m_OpenCLSingle;
   int64_t m_OpenCLPlatform;
   int64_t m_EXRChannels;
   bool m_EXRParallel;
@@ -93,6 +95,7 @@ private:
   bool m_ExponentialMap;
   bool m_DerivativeGlitch;
   bool m_ReferenceStrictZero;
+  int64_t m_NumberType;
 
 public:
 
@@ -146,6 +149,7 @@ public:
   , m_SIMDChunkSize(64)
   , m_GlitchCenterMethod(0)
   , m_UseOpenCL(false)
+  , m_OpenCLSingle(false)
   , m_OpenCLPlatform(0)
   , m_EXRChannels(~0)
   , m_EXRParallel(true)
@@ -153,6 +157,7 @@ public:
   , m_ExponentialMap(false)
   , m_DerivativeGlitch(true)
   , m_ReferenceStrictZero(false)
+  , m_NumberType(~0)
   { };
 
   bool FromText(const std::string &text);
@@ -337,6 +342,9 @@ public:
   inline int64_t GetOpenCLPlatform() const { return m_OpenCLPlatform; };
   inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = n; };
 
+  inline bool   GetOpenCLSingle() const { return m_OpenCLSingle; };
+  inline void   SetOpenCLSingle(bool b) { m_OpenCLSingle = b; };
+
   inline EXRChannels GetEXRChannels() const { return unpack_exr_channels(m_EXRChannels); };
   inline void SetEXRChannels(const EXRChannels n) { m_EXRChannels = pack_exr_channels(n); };
 
@@ -354,6 +362,9 @@ public:
 
   inline bool   GetReferenceStrictZero() const { return m_ReferenceStrictZero; };
   inline void   SetReferenceStrictZero(bool b) { m_ReferenceStrictZero = b; };
+
+  inline NumberType GetNumberType() const { return unpack_number_type(m_NumberType); };
+  inline void SetNumberType(const NumberType n) { m_NumberType = pack_number_type(n); };
 
 };
 

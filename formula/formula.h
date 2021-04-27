@@ -50,6 +50,13 @@ static inline bool type_0_power_2_pixel_has_glitched(R cr, R ci, R zr, R zi, R Z
   return a * h < b * e;
 }
 
+static inline float diffabs(const float &c, const float &d)
+{
+  const float cd = c + d;
+  const float c2d = 2 * c + d;
+  return c >= 0 ? cd >= 0 ? d : -c2d : cd > 0 ? c2d : -d;
+}
+
 static inline double diffabs(const double &c, const double &d)
 {
   const double cd = c + d;
@@ -335,13 +342,13 @@ bool reference
 // perturbation
 
 template <typename T>
-bool perturbation
+bool perturbation_simple
   ( const int m_nFractalType, const int m_nPower
   , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
-  , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
+  , const double &m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p
+  , const double &g_FactorAR, const double &g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
   );
@@ -349,13 +356,13 @@ bool perturbation
 // perturbation with derivatives
 
 template <typename T>
-bool perturbation
+bool perturbation_simple_derivatives
   ( const int m_nFractalType, const int m_nPower
   , const Reference *Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
-  , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
+  , const double &m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p
+  , const double &g_FactorAR, const double &g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
   , T &Jxa, T &Jxb, T &Jya, T &Jyb
@@ -366,14 +373,14 @@ bool perturbation
 
 // perturbation with SIMD
 
-template <typename intN, typename doubleN>
-bool perturbation
+template <typename double1, typename intN, typename doubleN>
+bool perturbation_SIMD
   ( const int m_nFractalType, const int m_nPower
   , const Reference *Reference
   , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
-  , const double m_nBailout2, const int64_t nMaxIter
-  , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
+  , const double1 &m_nBailout2, const int64_t nMaxIter
+  , const intN &m_bNoGlitchDetection, const double1 &g_real, const double1 &g_imag, const double1 &p
+  , const double1 &g_FactorAR, const double1 &g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
   , const int64_t chunksize
@@ -381,18 +388,18 @@ bool perturbation
 
 // perturbation with SIMD and derivatives
 
-template <typename intN, typename doubleN>
-bool perturbation
+template <typename double1, typename intN, typename doubleN>
+bool perturbation_SIMD_derivatives
   ( const int m_nFractalType, const int m_nPower
   , const Reference *Reference
   , intN &antal, doubleN &test1, doubleN &test2, doubleN &phase, intN &bGlitch
-  , const double m_nBailout2, const int64_t nMaxIter
-  , const intN &m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
+  , const double1 &m_nBailout2, const int64_t nMaxIter
+  , const intN &m_bNoGlitchDetection, const double1 &g_real, const double1 &g_imag, const double1 &p
+  , const double1 &g_FactorAR, const double1 &g_FactorAI
   , doubleN &xr, doubleN &xi
   , const doubleN &cr, const doubleN &ci
   , doubleN &Jxa, doubleN &Jxb, doubleN &Jya, doubleN &Jyb
-  , const double e, const double h
+  , const double1 &e, const double1 &h
   , const doubleN &daa, const doubleN &dab, const doubleN &dba, const doubleN &dbb
   , const int64_t chunksize
   , const bool noDerivativeGlitch
@@ -400,15 +407,16 @@ bool perturbation
 
 // perturbation with scaling
 
+template <typename mantissa, typename exponent>
 bool perturbation_scaled
   ( const int m_nFractalType, const int m_nPower
-  , const Reference *Reference
+  , const Reference *m_Reference
   , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
-  , const double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
-  , floatexp &xr, floatexp &xi
-  , const floatexp &cr, const floatexp &ci
+  , const double &m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p
+  , const double &g_FactorAR, const double &g_FactorAI
+  , tfloatexp<mantissa, exponent> &xr00, tfloatexp<mantissa, exponent> &xi00
+  , const tfloatexp<mantissa, exponent> &cr0, const tfloatexp<mantissa, exponent> &ci0
   );
 
 #if 0
@@ -432,17 +440,18 @@ bool perturbation
 
 // perturbation with derivatives and scaling
 
-bool perturbation_scaled
+template <typename mantissa, typename exponent>
+bool perturbation_scaled_derivatives
   ( int m_nFractalType, int m_nPower
   , const Reference *m_Reference
-  , int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch0
-  , double m_nBailout2, const int64_t nMaxIter
-  , const bool m_bNoGlitchDetection, const double g_real, const double g_imag, const double p
-  , const double g_FactorAR, const double g_FactorAI
-  , floatexp &xr0, floatexp &xi0
-  , const floatexp &cr, const floatexp &ci
-  , floatexp &Jxa0F, floatexp &Jxb0F, floatexp &Jya0F, floatexp &Jyb0F
-  , const floatexp &daaF, const floatexp &dabF, const floatexp &dbaF, const floatexp &dbbF
+  , int64_t &antal, double &test1, double &test2, double &phase, bool &bGlitch
+  , const double &m_nBailout2, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p
+  , const double &g_FactorAR, const double &g_FactorAI
+  , tfloatexp<mantissa, exponent> &xr0, tfloatexp<mantissa, exponent> &xi0
+  , const tfloatexp<mantissa, exponent> &cr, const tfloatexp<mantissa, exponent> &ci
+  , tfloatexp<mantissa, exponent> &Jxa0F, tfloatexp<mantissa, exponent> &Jxb0F, tfloatexp<mantissa, exponent> &Jya0F, tfloatexp<mantissa, exponent> &Jyb0F
+  , const tfloatexp<mantissa, exponent> &daaF, const tfloatexp<mantissa, exponent> &dabF, const tfloatexp<mantissa, exponent> &dbaF, const tfloatexp<mantissa, exponent> &dbbF
   );
 
 // miscellaneous

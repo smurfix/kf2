@@ -67,6 +67,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_examine.h"
 #include "main_information.h"
 #include "main_formula.h"
+#include "main_numbertype.h"
 #include "main_position.h"
 #include "main_ptsatuning.h"
 #include "main_transformation.h"
@@ -137,9 +138,6 @@ HWND g_hwOpenCL = NULL;
 
 double g_nMinDiff=0;
 
-extern BOOL g_LDBL;
-extern int g_nLDBL;
-extern int g_nEXP;
 #ifdef _WIN64
 #define GCL_WNDPROC -24
 #define GWL_WNDPROC -4
@@ -502,18 +500,6 @@ static void UpdateMirror(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
-static void UpdateLongDoubleAlways(HWND hWnd)
-{
-	bool b = g_SFT.GetLongDoubleAlways();
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
-}
-
-static void UpdateFloatExpAlways(HWND hWnd)
-{
-	bool b = g_SFT.GetFloatExpAlways();
-	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
-}
-
 static void UpdateUseNanoMB1(HWND hWnd)
 {
 	bool b = g_SFT.GetUseNanoMB1();
@@ -644,8 +630,6 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateGlitchCenterMethod(hWnd);
 	UpdateNoApprox(hWnd);
 	UpdateMirror(hWnd);
-	UpdateLongDoubleAlways(hWnd);
-	UpdateFloatExpAlways(hWnd);
 	UpdateUseNanoMB1(hWnd);
 	UpdateUseNanoMB2(hWnd);
 	UpdateInteriorChecking(hWnd);
@@ -1648,17 +1632,6 @@ nPos=15;
 		}
 		if(g_bFirstDone){
 nPos=16;
-			if(!g_LDBL)
-				MessageBox(hWnd,"The library "
-				"kf.dll"
-				" could not be loaded. You may continue to use this application, but the speed of rendering images on depths between 1e600 and 1e4900 will be significantly slower without this library","Missing file",MB_OK|MB_ICONWARNING);
-
-nPos=17;
-			if(g_LDBL==2){
-				MessageBox(hWnd,"The library "
-				"kf.dll"
-				" is old. Please update this file.","Old file",MB_OK|MB_ICONWARNING);
-			}
 			g_bFirstDone=FALSE;
 nPos=18;
 			HANDLE hFile = CreateFile(g_szRecovery,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,0,OPEN_EXISTING,0,NULL);
@@ -1995,8 +1968,10 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (wParam == IDOK)
 			{
 				int ix = SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1;
+				bool single = SendDlgItemMessage(hWnd, IDC_OPENCL_DOUBLE, BM_GETCHECK, 0, 0) ? false : true;
 				try
 				{
+					g_SFT.SetOpenCLSingle(single);
 					g_SFT.SetOpenCLDeviceIndex(ix);
 				}
 				catch (OpenCLException &e)
@@ -3629,66 +3604,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetGuessing(!g_SFT.GetGuessing());
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_GUESSING,MF_BYCOMMAND|(g_SFT.GetGuessing()?MF_CHECKED:MF_UNCHECKED));
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USELONGDOUBLEFROMSTART){
-		if(g_nLDBL>100)
-		{
-			g_nLDBL = 0;
-		}
-		else{
-			if(! g_SFT.GetUseHybridFormula() && scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
-			{
-				if (g_SFT.GetPower() == 2)
-				{
-					g_nLDBL = INT_MAX - 1;
-					g_nEXP = INT_MAX;
-				}
-				if (g_SFT.GetPower() == 3)
-				{
-					g_nLDBL = INT_MAX - 1;
-					g_nEXP = INT_MAX;
-				}
-			}
-			else
-			{
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-				g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-			}
-		}
-		g_SFT.SetFloatExpAlways(false);
-		g_SFT.SetLongDoubleAlways(g_nLDBL < 100);
-		UpdateLongDoubleAlways(hWnd);
-		UpdateFloatExpAlways(hWnd);
-	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USEFLOATEXPALWAYS){
-		if(g_nEXP>100){
-			g_nLDBL = 0;
-			g_nEXP = 0;
-		}
-		else{
-			if(! g_SFT.GetUseHybridFormula() && scaling_supported(g_SFT.GetFractalType(), g_SFT.GetPower(), g_SFT.GetDerivatives()))
-			{
-				if (g_SFT.GetPower() == 2)
-				{
-					g_nLDBL = INT_MAX - 1;
-					g_nEXP = INT_MAX;
-				}
-				if (g_SFT.GetPower() == 3)
-				{
-					g_nLDBL = INT_MAX - 1;
-					g_nEXP = INT_MAX;
-				}
-			}
-			else
-			{
-				g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-				g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-			}
-		}
-		g_SFT.SetLongDoubleAlways(false);
-		g_SFT.SetFloatExpAlways(g_nEXP < 3);
-		UpdateLongDoubleAlways(hWnd);
-		UpdateFloatExpAlways(hWnd);
-	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB1){
 		g_SFT.SetUseNanoMB1(! g_SFT.GetUseNanoMB1());
 		if (g_SFT.GetUseNanoMB1()) g_SFT.SetUseNanoMB2(false);
@@ -4102,6 +4017,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_ACTIONS_PTSATUNING){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_PTSATUNING),hWnd,PTSATuningProc,0);
+			if(n > 0){
+				SetTimer(hWnd,0,500,NULL);
+				g_SFT.Stop();
+				g_bAnim=false;
+				g_SFT.UndoStore();
+				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+			}
+		}
+		else if(wParam==ID_NUMBERTYPES){
+			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_NUMBERTYPE),hWnd,NumberTypeProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
 				g_SFT.Stop();

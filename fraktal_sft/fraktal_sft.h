@@ -34,11 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "itercount_array.h"
 #include "colour.h"
 #include "hybrid.h"
-
-#ifdef KF_OPENCL
-#include "../cl/opencl.h"
-extern std::vector<cldevice> cldevices;
-#endif
+#include "main_numbertype.h"
 
 struct Reference;
 struct NanoMB1_Reference;
@@ -74,12 +70,11 @@ public:
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 // thresholds for switching to floatexp iterations
-#define FLOATEXP_THRESHOLD_DEFAULT 4900
+#define FLOATEXP_THRESHOLD_DEFAULT 4924 // 4900
 // thresholds for switching to long double iterations
-#define LONG_DOUBLE_THRESHOLD_DEFAULT 290
-// threshold for switching to scaled double iterations
-// this is lower than the theoretical maximum to avoid derivative overflow
-#define SCALED_DOUBLE_THRESHOLD 290
+#define LONG_DOUBLE_THRESHOLD_DEFAULT 300 // 290
+// threshold for switching to double iterations
+#define DOUBLE_THRESHOLD_DEFAULT 30
 
 #define SMOOTH_BAILOUT 10000
 struct MC
@@ -252,10 +247,11 @@ enum SeriesType
 	SeriesType_Real = 2
 };
 
+template<typename mantissa, typename exponent>
 struct SeriesR2
 {
-	floatexp s[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
-	floatexp t[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
+	tfloatexp<mantissa, exponent> s[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
+	tfloatexp<mantissa, exponent> t[MAX_APPROX_TERMS+1][MAX_APPROX_TERMS+1];
 };
 
 
@@ -269,6 +265,11 @@ struct TextureParams
 };
 
 struct TH_FIND_CENTER;
+
+#ifdef KF_OPENCL
+#include "../cl/opencl.h"
+extern std::vector<cldevice> cldevices;
+#endif
 
 class CFraktalSFT
 {
@@ -337,7 +338,7 @@ class CFraktalSFT
 
 	floatexp *m_APr;
 	floatexp *m_APi;
-	SeriesR2 *m_APs;
+	SeriesR2<double,int64_t> *m_APs;
 
 	BOOL m_bMirrored;
 	int m_nFractalType;
@@ -397,20 +398,17 @@ class CFraktalSFT
 	void DoApproximation(int64_t &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
 	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
 	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
-	void CalculateReference();
+	void CalculateReference(enum Reference_Type reftype);
 	bool CalculateReferenceThreaded();
 	void CalculateReferenceNANOMB1();
 	void CalculateReferenceNANOMB2();
 	void CalcStart();
 	void CreateLists();
 	std::string ToZoom(const CDecNumber &z, int &zoom);
-	void RenderFractalEXP();
-	void RenderFractalLDBL();
 	void RenderFractalNANOMB1();
 	void RenderFractalNANOMB2();
 #ifdef KF_OPENCL
-	void RenderFractalOpenCL();
-	void RenderFractalOpenCLEXP();
+	void RenderFractalOpenCL(Reference_Type reftype);
 #endif
 	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize);
 
@@ -444,9 +442,10 @@ public:
 	BOOL m_bInhibitColouring;
 	bool m_bInteractive;
 	int nPos;
-	void MandelCalc();
-	void MandelCalcEXP();
-	void MandelCalcLDBL();
+	void MandelCalc(const Reference_Type reftype);
+	void MandelCalcSIMD();
+	template <typename mantissa> void MandelCalc1();
+	template <typename mantissa, typename exponent> void MandelCalcScaled();
 	void MandelCalcNANOMB1();
 	void MandelCalcNANOMB2();
 	HWND m_hWnd;
@@ -630,8 +629,6 @@ public:
   BOOL(SolveGlitchNear)
   BOOL(NoApprox)
   BOOL(Mirror)
-  BOOL(LongDoubleAlways)
-  BOOL(FloatExpAlways)
   BOOL(AutoIterations)
   BOOL(ShowGlitches)
   BOOL(NoReuseCenter)
@@ -657,6 +654,7 @@ public:
   INT(GlitchCenterMethod)
   inline bool GetUseArgMinAbsZAsGlitchCenter() const { return m_Settings.GetUseArgMinAbsZAsGlitchCenter(); };
   BOOL(UseOpenCL)
+  BOOL(OpenCLSingle)
   INT(OpenCLPlatform)
   inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };
   inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };
@@ -665,9 +663,12 @@ public:
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
+  inline NumberType GetNumberType() const { return m_Settings.GetNumberType(); };
+  inline void SetNumberType(const NumberType x) { return m_Settings.SetNumberType(x); };
 #undef DOUBLE
 #undef INT
 #undef BOOL
+  Reference_Type GetReferenceType(int64_t exponent10);
 
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;
@@ -715,6 +716,7 @@ struct TH_PARAMS
 	int nXStart;
 	int nXStop;
 	CFraktalSFT *p;
+	Reference_Type reftype;
 };
 
 extern int g_nAddRefX;
@@ -726,11 +728,6 @@ extern double g_SeedR;
 extern double g_SeedI;
 extern double g_FactorAR;
 extern double g_FactorAI;
-
-extern int g_nLDBL;
-extern int g_nEXP;
-
-extern BOOL g_LDBL;
 
 const double pi = 3.141592653589793;
 

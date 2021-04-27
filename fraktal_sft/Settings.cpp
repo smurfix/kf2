@@ -101,6 +101,7 @@ bool Settings::FromText(const std::string &text)
   if (m_UseArgMinAbsZAsGlitchCenter) m_GlitchCenterMethod = 1;
   INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
+  BOOL(OpenCLSingle)
   INT(OpenCLPlatform)
   INT(EXRChannels)
   BOOL(EXRParallel)
@@ -108,6 +109,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
+  INT(NumberType)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -171,6 +173,7 @@ std::string Settings::ToText() const
   BOOL(UseArgMinAbsZAsGlitchCenter)
   INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
+  BOOL(OpenCLSingle)
   INT(OpenCLPlatform)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
   BOOL(EXRParallel)
@@ -178,6 +181,7 @@ std::string Settings::ToText() const
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberType())); }
 #undef DOUBLE
 #undef INT
 #undef BOOL

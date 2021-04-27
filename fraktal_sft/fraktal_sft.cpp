@@ -68,8 +68,6 @@ double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
-int g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-int g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 #define APPROX_GRID 19
 #define TERM4
 #define TERM5
@@ -78,7 +76,6 @@ int g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
 int g_nAddRefX = -1, g_nAddRefY = -1;
 
 double g_Degree = 0;
-BOOL g_LDBL = TRUE;
 #if 0
 void(SetParts)(double,double);
 int(SizeOfLD)();
@@ -190,7 +187,7 @@ CFraktalSFT::CFraktalSFT()
 	int m_nTerms = GetApproxTerms();
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
-	m_APs = new SeriesR2;
+	m_APs = new SeriesR2<double, int64_t>;
 
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 	m_bRunning = FALSE;
@@ -1535,7 +1532,7 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 
 #ifdef KF_OPENCL
 
-void CFraktalSFT::RenderFractalOpenCL()
+void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 {
 	m_bIterChanged = TRUE;
 	int64_t antal = 0;
@@ -1550,185 +1547,409 @@ void CFraktalSFT::RenderFractalOpenCL()
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	const bool scaled = m_nZoom > LONG_DOUBLE_THRESHOLD_DEFAULT;
-	cl->run
-	(
-	  // for pixel -> parameter mapping
-	  m_nX,
-	  m_nY,
-	  GetJitterSeed(),
-	  GetJitterShape(),
-	  GetJitterScale(),
-	  m_pixel_center_x,
-	  m_pixel_center_y,
-	  m_pixel_scale,
-	  transform[0][0],
-	  transform[0][1],
-	  transform[1][0],
-	  transform[1][1],
-	  GetExponentialMap(),
-	  // for result -> output mapping
-	  stride_y,
-	  stride_x,
-	  stride_offset,
-	  // for iteration control
-	  nBailout,
-	  nBailout2,
-	  log(nBailout),
-	  log(m_nPower),
-	  m_nGlitchIter,
-	  m_nMaxIter,
-	  m_nMaxIter,
-	  antal,
-	  m_bNoGlitchDetection,
-	  m_bAddReference,
-	  m_nSmoothMethod,
-	  g_real,
-	  g_imag,
-	  norm_p,
-	  g_FactorAR,
-	  g_FactorAI,
-	  m_epsilon,
-	  // for series approximation
-	  m_nMaxApproximation,
-	  GetApproxTerms(),
-	  GetApproximationType(),
-	  m_APr,
-	  m_APi,
-	  m_APs,
-
-	  // reference orbit
-	  reference_ptr_x<double>(m_Reference),
-	  reference_ptr_y<double>(m_Reference),
-	  reference_ptr_z<double>(m_Reference),
-	  antal,
-	  m_nMaxIter,
-	  reference_size_N(m_Reference),
-	  reference_ptr_N(m_Reference),
-	  reference_ptr_X(m_Reference),
-	  reference_ptr_Y(m_Reference),
-	  reference_ptr_Z(m_Reference),
-
-	  // formula selection
-	  0,
-	  m_nFractalType,
-	  m_nPower,
-	  GetDerivatives(),
-	  scaled,
-
-	  m_UseHybridFormula,
-	  m_HybridFormula,
-
-	  GetGuessing(),
-	  g_nAddRefX,
-	  g_nAddRefY,
-
-	  // output arrays
-	  m_nPixels_MSB,
-	  m_nPixels_LSB,
-	  &m_nTrans[0][0],
-	  m_nPhase ? &m_nPhase[0][0] : nullptr,
-	  m_nDEx ? &m_nDEx[0][0] : nullptr,
-	  m_nDEy ? &m_nDEy[0][0] : nullptr
-	);
-}
-
-void CFraktalSFT::RenderFractalOpenCLEXP()
-{
-	m_bIterChanged = TRUE;
-	int64_t antal = 0;
-	if (m_nMaxApproximation)
+	const bool scaled = reftype == Reference_ScaledFloat || reftype == Reference_ScaledDouble;
+	if (cl->single && (reftype == Reference_Float || reftype == Reference_ScaledFloat))
 	{
-		antal = m_nMaxApproximation - 1;
+		tfloatexp<float, int32_t> *APr = nullptr;
+		tfloatexp<float, int32_t> *APi = nullptr;
+		SeriesR2<float, int32_t> *APs = nullptr;
+		int terms = GetApproxTerms();
+		if (m_APr)
+		{
+		  APr = new tfloatexp<float, int32_t>[terms];
+		  for (int i = 0; i < terms; ++i)
+		  {
+		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
+		  }
+		}
+		if (m_APi)
+		{
+		  APi = new tfloatexp<float, int32_t>[terms];
+		  for (int i = 0; i < terms; ++i)
+		  {
+		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
+		  }
+		}
+		if (m_APs)
+		{
+		  APs = new SeriesR2<float, int32_t>;
+		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
+		  {
+		    for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
+		    {
+		      APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
+		      APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
+		    }
+		  }
+		}
+		cl->run<float, int32_t, float>
+		(
+		  // for pixel -> parameter mapping
+		  m_nX,
+		  m_nY,
+		  GetJitterSeed(),
+		  GetJitterShape(),
+		  GetJitterScale(),
+		  tfloatexp<float, int32_t>(m_pixel_center_x),
+		  tfloatexp<float, int32_t>(m_pixel_center_y),
+		  tfloatexp<float, int32_t>(m_pixel_scale),
+		  transform[0][0],
+		  transform[0][1],
+		  transform[1][0],
+		  transform[1][1],
+		  GetExponentialMap(),
+		  // for result -> output mapping
+		  stride_y,
+		  stride_x,
+		  stride_offset,
+		  // for iteration control
+		  nBailout,
+		  nBailout2,
+		  log(nBailout),
+		  log(m_nPower),
+		  m_nGlitchIter,
+		  m_nMaxIter,
+		  m_nMaxIter,
+		  antal,
+		  m_bNoGlitchDetection,
+		  m_bAddReference,
+		  m_nSmoothMethod,
+		  g_real,
+		  g_imag,
+		  norm_p,
+		  g_FactorAR,
+		  g_FactorAI,
+		  m_epsilon,
+		  // for series approximation
+		  m_nMaxApproximation,
+		  GetApproxTerms(),
+		  GetApproximationType(),
+		  APr,
+		  APi,
+		  APs,
+
+		  // reference orbit
+		  reference_ptr_x<float>(m_Reference),
+		  reference_ptr_y<float>(m_Reference),
+		  reference_ptr_z<float>(m_Reference),
+		  antal,
+		  m_nMaxIter,
+		  reference_size_N(m_Reference),
+		  reference_ptr_N(m_Reference),
+		  reference_ptr_X<float, int32_t>(m_Reference),
+		  reference_ptr_Y<float, int32_t>(m_Reference),
+		  reference_ptr_Z<float, int32_t>(m_Reference),
+
+		  // formula selection
+		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
+		  m_nFractalType,
+		  m_nPower,
+		  GetDerivatives(),
+		  scaled,
+
+		  m_UseHybridFormula,
+		  m_HybridFormula,
+
+		  GetGuessing(),
+		  g_nAddRefX,
+		  g_nAddRefY,
+
+		  // output arrays
+		  m_nPixels_MSB,
+		  m_nPixels_LSB,
+		  &m_nTrans[0][0],
+		  m_nPhase ? &m_nPhase[0][0] : nullptr,
+		  m_nDEx ? &m_nDEx[0][0] : nullptr,
+		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		);
+		if (APr) delete[] APr;
+		if (APi) delete[] APi;
+		if (APs) delete   APs;
 	}
-	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
-	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
-	size_t stride_offset = 0;
-	const double nBailout = GetBailoutRadius();
-	const double norm_p = GetBailoutNorm();
-	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
-	mat2 transform = GetTransformMatrix();
-	const bool scaled = false;
-	cl->run
-	(
-	  // for pixel -> parameter mapping
-	  m_nX,
-	  m_nY,
-	  GetJitterSeed(),
-	  GetJitterShape(),
-	  GetJitterScale(),
-	  m_pixel_center_x,
-	  m_pixel_center_y,
-	  m_pixel_scale,
-	  transform[0][0],
-	  transform[0][1],
-	  transform[1][0],
-	  transform[1][1],
-	  GetExponentialMap(),
-	  // for result -> output mapping
-	  stride_y,
-	  stride_x,
-	  stride_offset,
-	  // for iteration control
-	  nBailout,
-	  nBailout2,
-	  log(nBailout),
-	  log(m_nPower),
-	  m_nGlitchIter,
-	  m_nMaxIter,
-	  m_nMaxIter,
-	  antal,
-	  m_bNoGlitchDetection,
-	  m_bAddReference,
-	  m_nSmoothMethod,
-	  g_real,
-	  g_imag,
-	  norm_p,
-	  g_FactorAR,
-	  g_FactorAI,
-	  m_epsilon,
-	  // for series approximation
-	  m_nMaxApproximation,
-	  GetApproxTerms(),
-	  GetApproximationType(),
-	  m_APr,
-	  m_APi,
-	  m_APs,
+	else if (cl->single && reftype == Reference_FloatExpFloat)
+	{
+		tfloatexp<float, int32_t> *APr = nullptr;
+		tfloatexp<float, int32_t> *APi = nullptr;
+		SeriesR2<float, int32_t> *APs = nullptr;
+		int terms = GetApproxTerms();
+		if (m_APr)
+		{
+		  APr = new tfloatexp<float, int32_t>[terms];
+		  for (int i = 0; i < terms; ++i)
+		  {
+		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
+		  }
+		}
+		if (m_APi)
+		{
+		  APi = new tfloatexp<float, int32_t>[terms];
+		  for (int i = 0; i < terms; ++i)
+		  {
+		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
+		  }
+		}
+		if (m_APs)
+		{
+		  APs = new SeriesR2<float, int32_t>;
+		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
+		  {
+		    for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
+		    {
+		      APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
+		      APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
+		    }
+		  }
+		}
+		cl->run<float, int32_t, tfloatexp<float, int32_t>>
+		(
+		  // for pixel -> parameter mapping
+		  m_nX,
+		  m_nY,
+		  GetJitterSeed(),
+		  GetJitterShape(),
+		  GetJitterScale(),
+		  tfloatexp<float, int32_t>(m_pixel_center_x),
+		  tfloatexp<float, int32_t>(m_pixel_center_y),
+		  tfloatexp<float, int32_t>(m_pixel_scale),
+		  transform[0][0],
+		  transform[0][1],
+		  transform[1][0],
+		  transform[1][1],
+		  GetExponentialMap(),
+		  // for result -> output mapping
+		  stride_y,
+		  stride_x,
+		  stride_offset,
+		  // for iteration control
+		  nBailout,
+		  nBailout2,
+		  log(nBailout),
+		  log(m_nPower),
+		  m_nGlitchIter,
+		  m_nMaxIter,
+		  m_nMaxIter,
+		  antal,
+		  m_bNoGlitchDetection,
+		  m_bAddReference,
+		  m_nSmoothMethod,
+		  g_real,
+		  g_imag,
+		  norm_p,
+		  g_FactorAR,
+		  g_FactorAI,
+		  m_epsilon,
+		  // for series approximation
+		  m_nMaxApproximation,
+		  GetApproxTerms(),
+		  GetApproximationType(),
+		  APr,
+		  APi,
+		  APs,
 
-	  // reference orbit
-	  reference_ptr_x<double>(m_Reference),
-	  reference_ptr_y<double>(m_Reference),
-	  reference_ptr_z<double>(m_Reference),
-	  antal,
-	  m_nMaxIter,
-	  reference_size_N(m_Reference),
-	  reference_ptr_N(m_Reference),
-	  reference_ptr_X(m_Reference),
-	  reference_ptr_Y(m_Reference),
-	  reference_ptr_Z(m_Reference),
+		  // reference orbit
+		  reference_ptr_x<tfloatexp<float, int32_t>>(m_Reference),
+		  reference_ptr_y<tfloatexp<float, int32_t>>(m_Reference),
+		  reference_ptr_z<tfloatexp<float, int32_t>>(m_Reference),
+		  antal,
+		  m_nMaxIter,
+		  reference_size_N(m_Reference),
+		  reference_ptr_N(m_Reference),
+		  reference_ptr_X<float, int32_t>(m_Reference),
+		  reference_ptr_Y<float, int32_t>(m_Reference),
+		  reference_ptr_Z<float, int32_t>(m_Reference),
 
-	  // formula selection
-	  2,
-	  m_nFractalType,
-	  m_nPower,
-	  GetDerivatives(),
-	  scaled,
+		  // formula selection
+		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
+		  m_nFractalType,
+		  m_nPower,
+		  GetDerivatives(),
+		  scaled,
 
-	  m_UseHybridFormula,
-	  m_HybridFormula,
+		  m_UseHybridFormula,
+		  m_HybridFormula,
 
-	  GetGuessing(),
-	  g_nAddRefX,
-	  g_nAddRefY,
+		  GetGuessing(),
+		  g_nAddRefX,
+		  g_nAddRefY,
 
-	  // output arrays
-	  m_nPixels_MSB,
-	  m_nPixels_LSB,
-	  &m_nTrans[0][0],
-	  &m_nPhase[0][0],
-	  &m_nDEx[0][0],
-	  &m_nDEy[0][0]
-	);
+		  // output arrays
+		  m_nPixels_MSB,
+		  m_nPixels_LSB,
+		  &m_nTrans[0][0],
+		  m_nPhase ? &m_nPhase[0][0] : nullptr,
+		  m_nDEx ? &m_nDEx[0][0] : nullptr,
+		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		);
+		if (APr) delete[] APr;
+		if (APi) delete[] APi;
+		if (APs) delete   APs;
+	}
+	else if (reftype == Reference_Double || reftype == Reference_ScaledDouble)
+	{
+		cl->run<double, int64_t, double>
+		(
+		  // for pixel -> parameter mapping
+		  m_nX,
+		  m_nY,
+		  GetJitterSeed(),
+		  GetJitterShape(),
+		  GetJitterScale(),
+		  m_pixel_center_x,
+		  m_pixel_center_y,
+		  m_pixel_scale,
+		  transform[0][0],
+		  transform[0][1],
+		  transform[1][0],
+		  transform[1][1],
+		  GetExponentialMap(),
+		  // for result -> output mapping
+		  stride_y,
+		  stride_x,
+		  stride_offset,
+		  // for iteration control
+		  nBailout,
+		  nBailout2,
+		  log(nBailout),
+		  log(m_nPower),
+		  m_nGlitchIter,
+		  m_nMaxIter,
+		  m_nMaxIter,
+		  antal,
+		  m_bNoGlitchDetection,
+		  m_bAddReference,
+		  m_nSmoothMethod,
+		  g_real,
+		  g_imag,
+		  norm_p,
+		  g_FactorAR,
+		  g_FactorAI,
+		  m_epsilon,
+		  // for series approximation
+		  m_nMaxApproximation,
+		  GetApproxTerms(),
+		  GetApproximationType(),
+		  m_APr,
+		  m_APi,
+		  m_APs,
+
+		  // reference orbit
+		  reference_ptr_x<double>(m_Reference),
+		  reference_ptr_y<double>(m_Reference),
+		  reference_ptr_z<double>(m_Reference),
+		  antal,
+		  m_nMaxIter,
+		  reference_size_N(m_Reference),
+		  reference_ptr_N(m_Reference),
+		  reference_ptr_X<double, int64_t>(m_Reference),
+		  reference_ptr_Y<double, int64_t>(m_Reference),
+		  reference_ptr_Z<double, int64_t>(m_Reference),
+
+		  // formula selection
+		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
+		  m_nFractalType,
+		  m_nPower,
+		  GetDerivatives(),
+		  scaled,
+
+		  m_UseHybridFormula,
+		  m_HybridFormula,
+
+		  GetGuessing(),
+		  g_nAddRefX,
+		  g_nAddRefY,
+
+		  // output arrays
+		  m_nPixels_MSB,
+		  m_nPixels_LSB,
+		  &m_nTrans[0][0],
+		  m_nPhase ? &m_nPhase[0][0] : nullptr,
+		  m_nDEx ? &m_nDEx[0][0] : nullptr,
+		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		);
+	}
+	else if (reftype == Reference_FloatExpDouble)
+	{
+		cl->run<double, int64_t, floatexp>
+		(
+		  // for pixel -> parameter mapping
+		  m_nX,
+		  m_nY,
+		  GetJitterSeed(),
+		  GetJitterShape(),
+		  GetJitterScale(),
+		  m_pixel_center_x,
+		  m_pixel_center_y,
+		  m_pixel_scale,
+		  transform[0][0],
+		  transform[0][1],
+		  transform[1][0],
+		  transform[1][1],
+		  GetExponentialMap(),
+		  // for result -> output mapping
+		  stride_y,
+		  stride_x,
+		  stride_offset,
+		  // for iteration control
+		  nBailout,
+		  nBailout2,
+		  log(nBailout),
+		  log(m_nPower),
+		  m_nGlitchIter,
+		  m_nMaxIter,
+		  m_nMaxIter,
+		  antal,
+		  m_bNoGlitchDetection,
+		  m_bAddReference,
+		  m_nSmoothMethod,
+		  g_real,
+		  g_imag,
+		  norm_p,
+		  g_FactorAR,
+		  g_FactorAI,
+		  m_epsilon,
+		  // for series approximation
+		  m_nMaxApproximation,
+		  GetApproxTerms(),
+		  GetApproximationType(),
+		  m_APr,
+		  m_APi,
+		  m_APs,
+
+		  // reference orbit
+		  reference_ptr_x<floatexp>(m_Reference),
+		  reference_ptr_y<floatexp>(m_Reference),
+		  reference_ptr_z<floatexp>(m_Reference),
+		  antal,
+		  m_nMaxIter,
+		  reference_size_N(m_Reference),
+		  reference_ptr_N(m_Reference),
+		  reference_ptr_X<double, int64_t>(m_Reference),
+		  reference_ptr_Y<double, int64_t>(m_Reference),
+		  reference_ptr_Z<double, int64_t>(m_Reference),
+
+		  // formula selection
+		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
+		  m_nFractalType,
+		  m_nPower,
+		  GetDerivatives(),
+		  scaled,
+
+		  m_UseHybridFormula,
+		  m_HybridFormula,
+
+		  GetGuessing(),
+		  g_nAddRefX,
+		  g_nAddRefY,
+
+		  // output arrays
+		  m_nPixels_MSB,
+		  m_nPixels_LSB,
+		  &m_nTrans[0][0],
+		  m_nPhase ? &m_nPhase[0][0] : nullptr,
+		  m_nDEx ? &m_nDEx[0][0] : nullptr,
+		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		);
+	}
 }
 
 #endif
@@ -3314,16 +3535,6 @@ void CFraktalSFT::SetPower(int nPower)
 		m_nPower = 2;
 	if (m_nPower>70)
 		m_nPower = 70;
-	if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-	{
-		g_nLDBL = INT_MAX - 1;
-		g_nEXP = INT_MAX;
-	}
-	else
-	{
-		g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-		g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-	}
 	SetSmoothMethod(m_nSmoothMethod); // update bailout if necessary
 }
 
@@ -3461,19 +3672,6 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 	if (m_nFractalType>2 && m_nPower>2)
 		m_nPower = 2;
 
-	if (g_nLDBL > 100)
-	{
-		if (! GetUseHybridFormula() && scaling_supported(m_nFractalType, m_nPower, GetDerivatives()))
-		{
-			g_nLDBL = INT_MAX - 1;
-			g_nEXP = INT_MAX;
-		}
-		else
-		{
-			g_nLDBL = LONG_DOUBLE_THRESHOLD_DEFAULT;
-			g_nEXP = FLOATEXP_THRESHOLD_DEFAULT;
-		}
-	}
 	SetReferenceStrictZero(nFractalType != 0);
 }
 int CFraktalSFT::GetFractalType()
@@ -3590,7 +3788,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 		if (0 <= i && i < (int) cldevices.size())
 		{
 			clid = i;
-			cl = new OpenCL(cldevices[i].pid, cldevices[i].did);
+			cl = new OpenCL(cldevices[i].pid, cldevices[i].did, GetOpenCLSingle());
 			SetUseOpenCL(true);
 			SetOpenCLPlatform(i);
 		}
@@ -3975,4 +4173,18 @@ void CFraktalSFT::SetTransformMatrix(const mat2 &M)
 mat2 CFraktalSFT::GetTransformMatrix() const
 {
 	return m_TransformMatrix;
+}
+
+Reference_Type CFraktalSFT::GetReferenceType(int64_t e)
+{
+	NumberType n = GetNumberType();
+	bool scalable = scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
+	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { std::cerr << "f" << std::endl; return Reference_Float; }
+	if (scalable && n.RescaledSingle) { std::cerr << "sf" << std::endl; return Reference_ScaledFloat; }
+	if (! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { std::cerr << "d" << std::endl; return Reference_Double; }
+	if (scalable && n.RescaledDouble) { std::cerr << "sd" << std::endl; return Reference_ScaledDouble; }
+	if (! cl && ! (e > FLOATEXP_THRESHOLD_DEFAULT) && n.LongDouble) { std::cerr << "l" << std::endl; return Reference_LongDouble; }
+	if (n.FloatExpSingle) { std::cerr << "F" << std::endl; return Reference_FloatExpFloat; }
+	if (n.FloatExpDouble) { std::cerr << "D" << std::endl; return Reference_FloatExpDouble; }
+	return Reference_FloatExpDouble; // FIXME fallback
 }

@@ -39,13 +39,28 @@
 
 #define STR(s) #s
 
+const char *perturbation_decl_float =
+  "#define mantissa float\n"
+  "#define exponent int\n"
+  "#define LARGE_MANTISSA 1.0e12\n"
+  "#define LARGE_EXPONENT 120\n"
+;
+
+const char *perturbation_decl_double =
+  "#pragma OPENCL EXTENSION cl_khr_fp64: enable\n"
+  "#define mantissa double\n"
+  "#define exponent long\n"
+  "#define LARGE_MANTISSA 1.0e100\n"
+  "#define LARGE_EXPONENT 1020\n"
+;
+
 static const char *perturbation_scaled_loop_empty = STR(
 
 void perturbation_scaled_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 , __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
@@ -247,9 +262,9 @@ static const char *perturbation_opencl_scaled_loop_<xsl:value-of select="../@typ
 
 void perturbation_double_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 ,                p_status_d  *l
 )
 {
@@ -257,10 +272,6 @@ void perturbation_double_loop
 
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
-, __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
 , __global const floatexp    *m_refZ
@@ -271,9 +282,9 @@ void perturbation_floatexp_loop
 
 void perturbation_scaled_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 , __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
@@ -283,8 +294,8 @@ void perturbation_scaled_loop
 {
   const floatexp zero = fe_floatexp(0.0, 0);
   const floatexp one = fe_floatexp(1.0, 0);
-  const double Ar = g->g_FactorAR;
-  const double Ai = g->g_FactorAI;
+  const mantissa Ar = g->g_FactorAR;
+  const mantissa Ai = g->g_FactorAI;
   const bool no_g = g->g_real == 1.0 &amp;&amp; g->g_imag == 1.0 &amp;&amp; g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;
@@ -294,8 +305,8 @@ void perturbation_scaled_loop
   int count = 0;
   int stanza = 0;
   // conditions
-  double test1 = l->test1;
-  double test2 = l->test2;
+  mantissa test1 = l->test1;
+  mantissa test2 = l->test2;
   long antal = l->antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
@@ -321,29 +332,29 @@ void perturbation_scaled_loop
 
   // rescale
   floatexp S = fe_sqrt(fe_add(fe_sqr(xr), fe_sqr(xi)));
-  double s = fe_double(S);
-  double wr = fe_double(fe_div(xr, S));
-  double wi = fe_double(fe_div(xi, S));
-  double ur = fe_double(fe_div(cr, S));
-  double ui = fe_double(fe_div(ci, S));
-  double u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
+  mantissa s = fe_double(S);
+  mantissa wr = fe_double(fe_div(xr, S));
+  mantissa wi = fe_double(fe_div(xi, S));
+  mantissa ur = fe_double(fe_div(cr, S));
+  mantissa ui = fe_double(fe_div(ci, S));
+  mantissa u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
 
   for (; antal &lt; g->nMaxIter; antal++)
   {
     if (antal &lt; n)
     {
       const long antal_min = antal - g->nMinIter;
-      const double Xr = m_refx[antal_min];
-      const double Xi = m_refy[antal_min];
-      const double Xz = m_refz[antal_min];
-      const double wr2 = wr * wr;
+      const mantissa Xr = m_refx[antal_min];
+      const mantissa Xi = m_refy[antal_min];
+      const mantissa Xz = m_refz[antal_min];
+      const mantissa wr2 = wr * wr;
       (void) wr2;
-      const double wi2 = wi * wi;
+      const mantissa wi2 = wi * wi;
       (void) wi2;
-      const double Xxrd = Xr + wr * s;
-      const double Xxid = Xi + wi * s;
-      const double Xxr2 = Xxrd * Xxrd;
-      const double Xxi2 = Xxid * Xxid;
+      const mantissa Xxrd = Xr + wr * s;
+      const mantissa Xxid = Xi + wi * s;
+      const mantissa Xxr2 = Xxrd * Xxrd;
+      const mantissa Xxi2 = Xxid * Xxid;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
       if (test1 &lt; Xz)
@@ -366,7 +377,7 @@ void perturbation_scaled_loop
         Xxi = fe_floatexp(Xxid, 0);
         break;
       }
-      double wrn; double win;
+      mantissa wrn; mantissa win;
       if (false) { }
 <xsl:for-each select="scaled/threshold">
       else if (s &lt;= <xsl:value-of select="@s" /> &amp;&amp; u &lt;= <xsl:value-of select="@u" />)
@@ -382,8 +393,8 @@ void perturbation_scaled_loop
         wrn = 0;
         win = 0;
       }
-      const double w2 = wrn * wrn + win * win;
-      if (w2 &lt; 1.0e100) // FIXME threshold depends on power
+      const mantissa w2 = wrn * wrn + win * win;
+      if (w2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
       {
         wr = wrn;
         wi = win;
@@ -477,9 +488,9 @@ static const char *perturbation_opencl_scaled_derivatives_loop_<xsl:value-of sel
 
 void perturbation_double_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 ,                p_status_d  *l
 )
 {
@@ -487,10 +498,6 @@ void perturbation_double_loop
 
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
-, __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
 , __global const floatexp    *m_refZ
@@ -501,9 +508,9 @@ void perturbation_floatexp_loop
 
 void perturbation_scaled_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
 , __global const long        *m_refN
 , __global const floatexp    *m_refX
 , __global const floatexp    *m_refY
@@ -513,16 +520,16 @@ void perturbation_scaled_loop
 {
   const floatexp zero = fe_floatexp(0.0, 0);
   const floatexp one = fe_floatexp(1.0, 0);
-  const double Ar = g->g_FactorAR;
-  const double Ai = g->g_FactorAI;
+  const mantissa Ar = g->g_FactorAR;
+  const mantissa Ai = g->g_FactorAI;
   const bool no_g = g->g_real == 1.0 &amp;&amp; g->g_imag == 1.0 &amp;&amp; g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;
   floatexp xr = l->xr;
   floatexp xi = l->xi;
 
-  double test1 = l->test1;
-  double test2 = l->test2;
+  mantissa test1 = l->test1;
+  mantissa test2 = l->test2;
   long antal = l->antal;
   bool bGlitch = l->bGlitch;
   floatexp XxrF = zero;
@@ -569,12 +576,12 @@ void perturbation_scaled_loop
   {
     S = one;
   }
-  double s = fe_double(S);
-  double wr = fe_double(fe_div(xr, S));
-  double wi = fe_double(fe_div(xi, S));
-  double ur = fe_double(fe_div(cr, S));
-  double ui = fe_double(fe_div(ci, S));
-  double u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
+  mantissa s = fe_double(S);
+  mantissa wr = fe_double(fe_div(xr, S));
+  mantissa wi = fe_double(fe_div(xi, S));
+  mantissa ur = fe_double(fe_div(cr, S));
+  mantissa ui = fe_double(fe_div(ci, S));
+  mantissa u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
   floatexp J0 = fe_sqrt(fe_add(fe_sqr(drF), fe_sqr(diF)));
@@ -583,10 +590,10 @@ void perturbation_scaled_loop
     J0 = one;
   }
   floatexp J = J0;
-  double drD = fe_double(fe_div(drF, J));
-  double diD = fe_double(fe_div(diF, J));
-  double dr0D = fe_double(fe_div(dr0F, J));
-  double di0D = fe_double(fe_div(di0F, J));
+  mantissa drD = fe_double(fe_div(drF, J));
+  mantissa diD = fe_double(fe_div(diF, J));
+  mantissa dr0D = fe_double(fe_div(dr0F, J));
+  mantissa di0D = fe_double(fe_div(di0F, J));
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
   floatexp J0 = fe_sqrt(fe_add(fe_add(fe_add(fe_sqr(dxaF), fe_sqr(dxbF)), fe_sqr(dyaF)), fe_sqr(dybF)));
@@ -595,14 +602,14 @@ void perturbation_scaled_loop
     J0 = one;
   }
   floatexp J = J0;
-  double dxaD = fe_double(fe_div(dxaF, J));
-  double dyaD = fe_double(fe_div(dyaF, J));
-  double dxbD = fe_double(fe_div(dxbF, J));
-  double dybD = fe_double(fe_div(dybF, J));
-  double daaD = fe_double(fe_div(l->daa, J));
-  double dbaD = fe_double(fe_div(l->dba, J));
-  double dabD = fe_double(fe_div(l->dab, J));
-  double dbbD = fe_double(fe_div(l->dbb, J));
+  mantissa dxaD = fe_double(fe_div(dxaF, J));
+  mantissa dyaD = fe_double(fe_div(dyaF, J));
+  mantissa dxbD = fe_double(fe_div(dxbF, J));
+  mantissa dybD = fe_double(fe_div(dybF, J));
+  mantissa daaD = fe_double(fe_div(l->daa, J));
+  mantissa dbaD = fe_double(fe_div(l->dba, J));
+  mantissa dabD = fe_double(fe_div(l->dab, J));
+  mantissa dbbD = fe_double(fe_div(l->dbb, J));
 </xsl:when>
 </xsl:choose>
 
@@ -732,17 +739,17 @@ void perturbation_scaled_loop
     else
     {
       long antal_min = antal - g->nMinIter;
-      const double Xr = m_refx[antal_min];
-      const double Xi = m_refy[antal_min];
-      const double Xz = m_refz[antal_min];
-      const double wr2 = wr * wr;
+      const mantissa Xr = m_refx[antal_min];
+      const mantissa Xi = m_refy[antal_min];
+      const mantissa Xz = m_refz[antal_min];
+      const mantissa wr2 = wr * wr;
       (void) wr2;
-      const double wi2 = wi * wi;
+      const mantissa wi2 = wi * wi;
       (void) wi2;
-      const double Xxrd = Xr + wr * s;
-      const double Xxid = Xi + wi * s;
-      const double Xxr2 = Xxrd * Xxrd;
-      const double Xxi2 = Xxid * Xxid;
+      const mantissa Xxrd = Xr + wr * s;
+      const mantissa Xxid = Xi + wi * s;
+      const mantissa Xxr2 = Xxrd * Xxrd;
+      const mantissa Xxi2 = Xxid * Xxid;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
       if (test1 &lt; Xz)
@@ -765,9 +772,9 @@ void perturbation_scaled_loop
         XxiF = fe_floatexp(Xxid, 0);
         break;
       }
-      const double Xxr = Xxrd;
-      const double Xxi = Xxid;
-      double drn; double din; double dxan; double dyan; double dxbn; double dybn;
+      const mantissa Xxr = Xxrd;
+      const mantissa Xxi = Xxid;
+      mantissa drn; mantissa din; mantissa dxan; mantissa dyan; mantissa dxbn; mantissa dybn;
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
       {
@@ -775,10 +782,10 @@ void perturbation_scaled_loop
         (void) dyan;
         (void) dxbn;
         (void) dybn;
-        const double dr = drD;
-        const double di = diD;
-        const double dr0 = dr0D;
-        const double di0 = di0D;
+        const mantissa dr = drD;
+        const mantissa di = diD;
+        const mantissa dr0 = dr0D;
+        const mantissa di0 = di0D;
 @cld      {
           <xsl:value-of select="derivative" />
         }
@@ -788,21 +795,21 @@ void perturbation_scaled_loop
       {
         (void) drn;
         (void) din;
-        const double dxa = dxaD;
-        const double dxb = dxbD;
-        const double dya = dyaD;
-        const double dyb = dybD;
-        const double daa = daaD;
-        const double dab = dabD;
-        const double dba = dbaD;
-        const double dbb = dbbD;
+        const mantissa dxa = dxaD;
+        const mantissa dxb = dxbD;
+        const mantissa dya = dyaD;
+        const mantissa dyb = dybD;
+        const mantissa daa = daaD;
+        const mantissa dab = dabD;
+        const mantissa dba = dbaD;
+        const mantissa dbb = dbbD;
 @cld      {
           <xsl:value-of select="derivative" />
         }
       }
 </xsl:when>
 </xsl:choose>
-      double wrn; double win;
+      mantissa wrn; mantissa win;
       if (false) { }
 <xsl:for-each select="scaled/threshold">
       else if (s &lt;= <xsl:value-of select="@s" /> &amp;&amp; u &lt;= <xsl:value-of select="@u" />)
@@ -814,12 +821,12 @@ void perturbation_scaled_loop
 </xsl:for-each>
       else
       {
-        assert(! "scaled/threshold");
+        // assert(! "scaled/threshold");
         wrn = 0;
         win = 0;
       }
-      const double w2 = wrn * wrn + win * win;
-      if (w2 &lt; 1.0e100) // FIXME threshold depends on power
+      const mantissa w2 = wrn * wrn + win * win;
+      if (w2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
       {
         wr = wrn;
         wi = win;
@@ -839,8 +846,8 @@ void perturbation_scaled_loop
       }
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
-      const double d2 = drn * drn + din * din;
-      if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+      const mantissa d2 = drn * drn + din * din;
+      if (d2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
       {
         drD = drn;
         diD = din;
@@ -857,8 +864,8 @@ void perturbation_scaled_loop
       }
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      const double d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
-      if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+      const mantissa d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
+      if (d2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
       {
         dxaD = dxan;
         dyaD = dyan;
@@ -913,7 +920,7 @@ void perturbation_scaled_loop
 
 static const std::string perturbation_opencl_error = "#error unsupported fractal type and power\n";
 
-extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int derivatives, int scaled)
+extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int derivatives, int scaled, int single)
 {
   switch (m_nFractalType)
   {
@@ -926,6 +933,7 @@ extern std::string perturbation_opencl(int m_nFractalType, int m_nPower, int der
         case <xsl:value-of select="@power" />:
         {
           std::ostringstream o;
+          o &lt;&lt; (single ? perturbation_decl_float : perturbation_decl_double);
           o &lt;&lt; perturbation_opencl_common;
 
           if (scaled)

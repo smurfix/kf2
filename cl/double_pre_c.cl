@@ -1,13 +1,13 @@
 void perturbation_double_loop
 ( __global const p_config   *g
-, __global const double     *m_refx
-, __global const double     *m_refy
-, __global const double     *m_refz
+, __global const mantissa   *m_refx
+, __global const mantissa   *m_refy
+, __global const mantissa   *m_refz
 ,                p_status_d *l
 )
 {
-  const double Ar = g->g_FactorAR;
-  const double Ai = g->g_FactorAI;
+  const mantissa Ar = g->g_FactorAR;
+  const mantissa Ai = g->g_FactorAI;
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   // type C formulas
   const dcomplex c = {l->cr, l->ci};
@@ -15,20 +15,20 @@ void perturbation_double_loop
   dcomplex d = {l->dxa, l->dya};
   const dcomplex d0 = {l->daa, l->dba};
   // conditions
-  double test1 = l->test1;
-  double test2 = l->test2;
+  mantissa test1 = l->test1;
+  mantissa test2 = l->test2;
   long antal = l->antal;
-  double Xxr = 0;
-  double Xxi = 0;
+  mantissa Xxr = 0;
+  mantissa Xxi = 0;
   for (; antal < g->nMaxIter; antal++)
   {
-    const double Xr = m_refx[antal - g->nMinIter];
-    const double Xi = m_refy[antal - g->nMinIter];
-    const double Xz = m_refz[antal - g->nMinIter];
+    const mantissa Xr = m_refx[antal - g->nMinIter];
+    const mantissa Xi = m_refy[antal - g->nMinIter];
+    const mantissa Xz = m_refz[antal - g->nMinIter];
     Xxr = Xr + x.re;
     Xxi = Xi + x.im;
-    const double Xxr2 = Xxr * Xxr;
-    const double Xxi2 = Xxi * Xxi;
+    const mantissa Xxr2 = Xxr * Xxr;
+    const mantissa Xxi2 = Xxi * Xxi;
     test2 = test1;
     test1 = Xxr2 + Xxi2;
     if (test1 < Xz)

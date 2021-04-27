@@ -54,7 +54,7 @@ static int ThMandelCalc(TH_PARAMS *pMan)
 #ifndef _DEBUG
 	try{
 #endif
-		pMan->p->MandelCalc();
+		pMan->p->MandelCalc(pMan->reftype);
 #ifndef _DEBUG
 	}
 	catch (...) {
@@ -62,20 +62,6 @@ static int ThMandelCalc(TH_PARAMS *pMan)
 MessageBox(GetActiveWindow(),"Krash - 1","Krash",MB_OK);
 	}
 #endif
-	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
-}
-
-static int ThMandelCalcEXP(TH_PARAMS *pMan)
-{
-	pMan->p->MandelCalcEXP();
-	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
-}
-
-static int ThMandelCalcLDBL(TH_PARAMS *pMan)
-{
-	pMan->p->MandelCalcLDBL();
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
@@ -196,8 +182,8 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = pixel_spacing;
-	m_dPixelSpacing = m_fPixelSpacing.todouble();
-	m_lPixelSpacing = m_fPixelSpacing.toLongDouble();
+	m_dPixelSpacing = double(m_fPixelSpacing);
+	m_lPixelSpacing = (long double)(m_fPixelSpacing);
 
 	if (bNoThread || cl){
 		if (m_hWnd)
@@ -235,6 +221,7 @@ void CFraktalSFT::RenderFractal()
 	m_count_queued = m_nTotal;
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
+	Reference_Type reftype = GetReferenceType(m_nZoom);
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
@@ -247,35 +234,7 @@ void CFraktalSFT::RenderFractal()
 		m_bIsRendering = false;
 		return;
 	}
-	else if (m_nZoom>=g_nLDBL && g_LDBL && m_nZoom <= g_nEXP && m_nPower<8){// && !(m_nFractalType==1 && m_nPower==3)){
-		if (m_Reference)
-		{
-			reference_delete(m_Reference);
-			m_Reference = nullptr;
-		}
-#ifdef KF_OPENCL
-		if (cl)
-		{
-			RenderFractalEXP();
-		}
-		else
-#endif
-		{
-			RenderFractalLDBL();
-		}
-		m_bIsRendering = false;
-		return;
-	}
-	else if (m_nZoom>=g_nLDBL){
-		if (m_Reference)
-		{
-			reference_delete(m_Reference);
-			m_Reference = nullptr;
-		}
-		RenderFractalEXP();
-		m_bIsRendering = false;
-		return;
-	}
+
 	if (m_Reference)
 	{
 		reference_delete(m_Reference);
@@ -292,7 +251,7 @@ void CFraktalSFT::RenderFractal()
 				g_nAddRefY = -1;
 			}
 		}
-		CalculateReference();
+		CalculateReference(reftype);
 	}
 
 	m_pixel_center_x = m_CenterRe - m_rref;
@@ -331,7 +290,7 @@ void CFraktalSFT::RenderFractal()
 		m_rApprox.bottom = m_nY;
 	}
 */
-	CalculateApproximation(0);
+	CalculateApproximation(reftype);
 
        if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
                m_bNoGlitchDetection = FALSE;
@@ -341,7 +300,7 @@ void CFraktalSFT::RenderFractal()
 #ifdef KF_OPENCL
 	if (cl)
 	{
-		RenderFractalOpenCL();
+		RenderFractalOpenCL(reftype);
 	}
 	else
 #endif
@@ -366,6 +325,7 @@ void CFraktalSFT::RenderFractal()
 		nXStart = 0;
 		for (i = 0; i<nParallel; i++){
 			pMan[i].p = this;
+			pMan[i].reftype = reftype;
 			pMan[i].nXStart = nXStart;
 			nXStart += nStep;
 			if (nXStart>m_nX)
@@ -395,182 +355,6 @@ void CFraktalSFT::RenderFractal()
 	m_bRunning = FALSE;
 
 	m_bIsRendering = false;
-}
-
-void CFraktalSFT::RenderFractalLDBL()
-{
-	m_P.Init(m_nX, m_nY, m_bInteractive);
-	int i;
-	if (!GetReuseReference() || !m_Reference){
-		if (m_bAddReference != 1){
-			{
-				m_rref = m_CenterRe;
-				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-		}
-		CalculateReference();
-		reference_cook_long_double(m_Reference);
-	}
-
-	m_pixel_center_x = m_CenterRe - m_rref;
-	m_pixel_center_y = m_CenterIm - m_iref;
-	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
-
-	m_rApprox.left = 0;
-	m_rApprox.top = 0;
-	m_rApprox.right = m_nX;
-	m_rApprox.bottom = m_nY;
-	CalculateApproximation(1);
-
-	CalcStart();
-
-	SYSTEM_INFO sysinfo;
-	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-	if (nParallel < 1) nParallel = 1;
-
-	CParallell P(
-#ifdef _DEBUG
-		1
-#else
-		nParallel
-#endif
-		);
-	TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-	int nStep = m_nX / nParallel;
-	if (nStep<2)
-		nStep = 2;
-	else
-		nStep++;
-	int nXStart = 0;
-	for (i = 0; i<nParallel; i++){
-		pMan[i].p = this;
-		pMan[i].nXStart = nXStart;
-		nXStart += nStep;
-		if (nXStart>m_nX)
-			nXStart = m_nX;
-		if (i == nParallel - 1)
-			pMan[i].nXStop = m_nX;
-		else
-			pMan[i].nXStop = nXStart;
-		P.AddFunction((LPEXECUTE)ThMandelCalcLDBL, &pMan[i]);
-		if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-			pMan[i].nXStop--;
-			nXStart = pMan[i].nXStop;
-		}
-		if (pMan[i].nXStop == m_nX){
-			break;
-		}
-	}
-	P.Execute();
-	P.Reset();
-	delete[] pMan;
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-	m_bRunning = FALSE;
-}
-
-void CFraktalSFT::RenderFractalEXP()
-{
-	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (!GetReuseReference() || !m_Reference){
-		if (m_bAddReference != 1){
-			{
-				m_rref = m_CenterRe;
-				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
-		}
-		CalculateReference();
-		reference_cook_floatexp(m_Reference);
-	}
-	int i;
-
-	m_pixel_center_x = m_CenterRe - m_rref;
-	m_pixel_center_y = m_CenterIm - m_iref;
-	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
-
-	m_rApprox.left = 0;
-	m_rApprox.top = 0;
-	m_rApprox.right = m_nX;
-	m_rApprox.bottom = m_nY;
-	CalculateApproximation(2);
-
-	CalcStart();
-
-#ifdef KF_OPENCL
-  if (cl)
-  {
-
-    RenderFractalOpenCLEXP();
-
-	}
-	else
-#endif
-	{
-
-		SYSTEM_INFO sysinfo;
-		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-		if (nParallel < 1) nParallel = 1;
-	
-		CParallell P(
-#ifdef _DEBUG
-			1
-#else
-			nParallel
-#endif
-			);
-		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-		int nStep = m_nX / nParallel;
-		if (nStep<2)
-			nStep = 2;
-		else
-			nStep++;
-		int nXStart = 0;
-		for (i = 0; i<nParallel; i++){
-			pMan[i].p = this;
-			pMan[i].nXStart = nXStart;
-			nXStart += nStep;
-			if (nXStart>m_nX)
-				nXStart = m_nX;
-			if (i == nParallel - 1)
-				pMan[i].nXStop = m_nX;
-			else
-				pMan[i].nXStop = nXStart;
-			P.AddFunction((LPEXECUTE)ThMandelCalcEXP, &pMan[i]);
-			if (pMan[i].nXStop == m_nX && pMan[i].nXStop - pMan[i].nXStart>1 && i<nParallel - 1){
-				pMan[i].nXStop--;
-				nXStart = pMan[i].nXStop;
-			}
-			if (pMan[i].nXStop == m_nX){
-				break;
-			}
-		}
-		P.Execute();
-		P.Reset();
-		delete[] pMan;
-
-	}
-
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-	m_bRunning = FALSE;
 }
 
 void CFraktalSFT::RenderFractalNANOMB1()
