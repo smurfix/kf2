@@ -4179,12 +4179,12 @@ Reference_Type CFraktalSFT::GetReferenceType(int64_t e)
 {
 	NumberType n = GetNumberType();
 	bool scalable = scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
-	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { std::cerr << "f" << std::endl; return Reference_Float; }
-	if (scalable && n.RescaledSingle) { std::cerr << "sf" << std::endl; return Reference_ScaledFloat; }
-	if (! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { std::cerr << "d" << std::endl; return Reference_Double; }
-	if (scalable && n.RescaledDouble) { std::cerr << "sd" << std::endl; return Reference_ScaledDouble; }
-	if (! cl && ! (e > FLOATEXP_THRESHOLD_DEFAULT) && n.LongDouble) { std::cerr << "l" << std::endl; return Reference_LongDouble; }
-	if (n.FloatExpSingle) { std::cerr << "F" << std::endl; return Reference_FloatExpFloat; }
-	if (n.FloatExpDouble) { std::cerr << "D" << std::endl; return Reference_FloatExpDouble; }
+	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { return Reference_Float; }
+	if (scalable && n.RescaledSingle) { return Reference_ScaledFloat; }
+	if (! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { return Reference_Double; }
+	if (scalable && n.RescaledDouble) { return Reference_ScaledDouble; }
+	if (! cl && ! (e > FLOATEXP_THRESHOLD_DEFAULT) && n.LongDouble) { return Reference_LongDouble; }
+	if (n.FloatExpSingle) { return Reference_FloatExpFloat; }
+	if (n.FloatExpDouble) { return Reference_FloatExpDouble; }
 	return Reference_FloatExpDouble; // FIXME fallback
 }

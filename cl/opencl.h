@@ -296,8 +296,6 @@ public:
       if (rZ) E(clEnqueueWriteBuffer(commands, refZ, CL_FALSE, 0, refZ_bytes, &rZ[0], 0, 0, &uploaded[uploaded_n++]));
     }
 
-std::cerr << (void*)rx << " " << (void*)ry << " " << (void*)rz << " " << (void*)rN << " " << (void*)rX << " " << (void*)rY << " " << (void*)rZ << std::endl;
-
     // reallocate output buffers if necessary
     {
       if (n1_p)

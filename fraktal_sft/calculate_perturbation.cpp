@@ -555,7 +555,6 @@ void CFraktalSFT::MandelCalc(const Reference_Type reftype)
   {
     case Reference_Float:
     {
-std::cerr << "pf" << std::endl;
       MandelCalc1<float>();
       break;
     }
@@ -565,43 +564,36 @@ std::cerr << "pf" << std::endl;
       const bool vectorized = (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1 && KF_SIMD > 0;
       if (vectorized)
       {
-std::cerr << "pdd" << std::endl;
         MandelCalcSIMD();
       }
       else
       {
-std::cerr << "pd" << std::endl;
         MandelCalc1<double>();
       }
       break;
     }
     case Reference_LongDouble:
     {
-std::cerr << "pl" << std::endl;
       MandelCalc1<long double>();
       break;
     }
     case Reference_FloatExpFloat:
     {
-std::cerr << "pF" << std::endl;
       MandelCalc1<tfloatexp<float, int32_t>>();
       break;
     }
     case Reference_FloatExpDouble:
     {
-std::cerr << "pD" << std::endl;
       MandelCalc1<tfloatexp<double, int64_t>>();
       break;
     }
     case Reference_ScaledFloat:
     {
-std::cerr << "psf" << std::endl;
       MandelCalcScaled<float, int32_t>();
       break;
     }
     case Reference_ScaledDouble:
     {
-std::cerr << "psd" << std::endl;
       MandelCalcScaled<double, int64_t>();
       break;
     }
