@@ -508,7 +508,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // OpenCL device selection dialog
 #define IDD_DIALOG_OPENCL         150
 #define IDC_COMBO_OPENCL_DEVICE  1500
-#define IDC_OPENCL_DOUBLE        1505
 #define ID_SPECIAL_OPENCL       40250
 
 // OpenCL error display dialog

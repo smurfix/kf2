@@ -25,6 +25,7 @@ extern std::string perturbation_opencl
 extern std::string perturbation_opencl
 ( const hybrid_formula &hybrid
 , int derivatives
+, bool single
 );
 
 template <typename mantissa, typename exponent>
@@ -102,14 +103,12 @@ struct cldevice
 
 struct clformula
 {
-  int type;
+  Reference_Type reftype;
   int fractalType;
   int power;
   bool useHybrid;
   hybrid_formula hybrid;
   int derivatives;
-  bool scaled;
-  bool single;
   cl_kernel kernel;
   cl_kernel guessing_kernel;
 };
@@ -134,13 +133,12 @@ public:
 
   cl_platform_id platform_id;
   cl_device_id device_id;
-  bool single;
+  bool supports_double;
   cl_context context;
   cl_command_queue commands;
   cl_program program;
 
   // config (r)
-  size_t config_bytes;
   cl_mem config;
 
   // reference (r)
@@ -165,7 +163,7 @@ public:
   // formula kernels
   std::vector<clformula> formulas;
 
-  OpenCL(cl_platform_id platform, cl_device_id device_id, bool single);
+  OpenCL(cl_platform_id platform, cl_device_id device_id, bool supports_double);
   ~OpenCL();
 
   void lock();
@@ -176,6 +174,7 @@ public:
   template<typename mantissa, typename exponent, typename R>
   void run
   (
+    Reference_Type reftype,
     // for pixel -> parameter mapping
     int32_t m_nX,
     int32_t m_nY,
@@ -233,11 +232,9 @@ public:
     const tfloatexp<mantissa, exponent> *rZ,
 
     // formula selection
-    int type,
     int m_nFractalType,
     int m_nPower,
     int16_t derivatives,
-    bool scaled,
 
     bool UseHybrid,
     const hybrid_formula &hybrid,
@@ -256,7 +253,9 @@ public:
   )
   {
     assert(roffset < rcount);
-    assert(single ? (sizeof(mantissa) == sizeof(float)) : (sizeof(mantissa) == sizeof(double)));
+    const bool scaled = reftype == Reference_ScaledFloat || reftype == Reference_ScaledDouble;
+    const bool single = reftype == Reference_Float || reftype == Reference_ScaledFloat || reftype == Reference_FloatExpFloat;
+    const bool extended = reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble;
     lock();
     try
     {
@@ -476,19 +475,15 @@ public:
     {
       if ( ( ! UseHybrid
           && ! formulas[i].useHybrid
-          && formulas[i].type == type
+          && formulas[i].reftype == reftype
           && formulas[i].fractalType == m_nFractalType
           && formulas[i].power == m_nPower
           && formulas[i].derivatives == derivatives
-          && formulas[i].scaled == scaled
-          && formulas[i].single == single
          ) || ( UseHybrid
           && formulas[i].useHybrid
-          && formulas[i].type == type
+          && formulas[i].reftype == reftype
           && formulas[i].hybrid == hybrid
           && formulas[i].derivatives == derivatives
-          && formulas[i].scaled == scaled
-          && formulas[i].single == single
          ) )
       {
         formula = &formulas[i];
@@ -501,18 +496,16 @@ public:
       // build program
       if (UseHybrid)
       {
-        source = perturbation_opencl(hybrid, derivatives);
+        source = perturbation_opencl(hybrid, derivatives, single);
       }
       else
       {
         source = perturbation_opencl(m_nFractalType, m_nPower, derivatives, scaled, single);
       }
       std::string name =
-        type == 2 ? "perturbation_floatexp" :
-        type == 0 ?
-        scaled    ? "perturbation_scaled" :
-        "perturbation_double" :
-        "#error unknown type\n";
+        extended ? "perturbation_floatexp" :
+        scaled   ? "perturbation_scaled" :
+                   "perturbation_double";
       const char *src = source.c_str();
       program = clCreateProgramWithSource(context, 1, &src, 0, &err);
       if (! program) { E(err); }
@@ -537,7 +530,7 @@ public:
       if (! kernel) { E(err); }
       cl_kernel guessing_kernel = clCreateKernel(program, "guessing", &err);
       if (! guessing_kernel) { E(err); }
-      clformula newformula = { type, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, scaled, single, kernel, guessing_kernel };
+      clformula newformula = { reftype, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel };
       formulas.push_back(newformula);
       formula = &formulas[ssize_t(formulas.size()) - 1];
     }

@@ -654,7 +654,6 @@ public:
   INT(GlitchCenterMethod)
   inline bool GetUseArgMinAbsZAsGlitchCenter() const { return m_Settings.GetUseArgMinAbsZAsGlitchCenter(); };
   BOOL(UseOpenCL)
-  BOOL(OpenCLSingle)
   INT(OpenCLPlatform)
   inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };
   inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };

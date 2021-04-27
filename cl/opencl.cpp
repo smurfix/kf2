@@ -134,14 +134,13 @@ std::vector<cldevice> initialize_opencl(HWND hWnd)
 }
 
 
-OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool single)
+OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool supports_double)
 : platform_id(platform_id0)
 , device_id(device_id0)
-, single(single)
+, supports_double(supports_double)
 , context(0)
 , commands(0)
 , program(0)
-, config_bytes(0)
 , config(0)
 , refx_bytes(0), refx(0)
 , refy_bytes(0), refy(0)
@@ -171,8 +170,8 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool single
   if (! context) { E(err); }
   commands = clCreateCommandQueue(context, device_id, 0, &err);
   if (! commands) { E(err); }
-  config_bytes = single ? sizeof(p_config<float, int32_t>) : sizeof(p_config<double, int64_t>);
-  config = clCreateBuffer(context, CL_MEM_READ_ONLY, config_bytes, 0, &err); if (! config) { E(err); }
+  size_t max_config_bytes = supports_double ? sizeof(p_config<double, int64_t>) : sizeof(p_config<float, int32_t>);
+  config = clCreateBuffer(context, CL_MEM_READ_ONLY, max_config_bytes, 0, &err); if (! config) { E(err); }
 }
 
 OpenCL::~OpenCL()
@@ -332,6 +331,7 @@ softfloat sf_softfloat(const double f)
 
 extern const char *perturbation_decl_float;
 extern const char *perturbation_decl_double;
+extern const char *perturbation_scaled_loop_empty;
 extern const char *perturbation_opencl_common;
 extern const char *perturbation_opencl_double_pre;
 extern const char *perturbation_opencl_double_pre_m;
@@ -347,10 +347,17 @@ extern const char *perturbation_opencl_softfloat_post;
 extern const char *perturbation_opencl_softfloat_post_m;
 #endif
 
-extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
+extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives, bool single)
 {
   std::ostringstream o;
-  o << perturbation_decl_double;
+  if (single)
+  {
+    o << perturbation_decl_float;
+  }
+  else
+  {
+    o << perturbation_decl_double;
+  }
   o << perturbation_opencl_common;
   // double
   if (derivatives)
@@ -370,6 +377,8 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives)
   {
     o << perturbation_opencl_double_post;
   }
+  // scaled
+  o << perturbation_scaled_loop_empty;
   // floatexp
   if (derivatives)
   {

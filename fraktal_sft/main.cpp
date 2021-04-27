@@ -1968,10 +1968,8 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			if (wParam == IDOK)
 			{
 				int ix = SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1;
-				bool single = SendDlgItemMessage(hWnd, IDC_OPENCL_DOUBLE, BM_GETCHECK, 0, 0) ? false : true;
 				try
 				{
-					g_SFT.SetOpenCLSingle(single);
 					g_SFT.SetOpenCLDeviceIndex(ix);
 				}
 				catch (OpenCLException &e)

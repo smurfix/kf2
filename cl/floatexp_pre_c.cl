@@ -1,12 +1,8 @@
 void perturbation_floatexp_loop
 ( __global const p_config    *g
-, __global const double      *m_refx
-, __global const double      *m_refy
-, __global const double      *m_refz
-, __global const long        *m_refN
-, __global const floatexp    *m_refX
-, __global const floatexp    *m_refY
-, __global const floatexp    *m_refZ
+, __global const floatexp    *m_refx
+, __global const floatexp    *m_refy
+, __global const floatexp    *m_refz
 ,                p_status_fe *l
 )
 {
@@ -26,53 +22,11 @@ void perturbation_floatexp_loop
   long antal = l->antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
-
-  long k = 0, n = 0;
-  floatexp Xrf, Xif, Xzf;
-  do
-  {
-    if (k < g->m_nRSize)
-    {
-      n = m_refN[k];
-      Xrf = m_refX[k];
-      Xif = m_refY[k];
-      Xzf = m_refZ[k];
-      k++;
-    }
-    else
-    {
-      n = g->nMaxIter;
-    }
-  }
-  while (n < antal);
   for (; antal < g->nMaxIter; antal++)
   {
-    floatexp Xr, Xi, Xz;
-    if (antal < n)
-    {
-      Xr = fe_floatexp(m_refx[antal - g->nMinIter], 0);
-      Xi = fe_floatexp(m_refy[antal - g->nMinIter], 0);
-      Xz = fe_floatexp(m_refz[antal - g->nMinIter], 0);
-    }
-    else
-    {
-      Xr = Xrf;
-      Xi = Xif;
-      Xz = Xzf;
-      if (k < g->m_nRSize)
-      {
-        n = m_refN[k];
-        Xrf = m_refX[k];
-        Xif = m_refY[k];
-        Xzf = m_refZ[k];
-        k++;
-      }
-      else
-      {
-        n = g->nMaxIter;
-      }
-    }
-
+    const floatexp Xr = fe_floatexp(m_refx[antal - g->nMinIter], 0);
+    const floatexp Xi = fe_floatexp(m_refy[antal - g->nMinIter], 0);
+    const floatexp Xz = fe_floatexp(m_refz[antal - g->nMinIter], 0);
     Xxr = fe_add(Xr, x.re);
     Xxi = fe_add(Xi, x.im);
     const floatexp Xxr2 = fe_sqr(Xxr);

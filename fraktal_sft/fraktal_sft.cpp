@@ -1547,8 +1547,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
 	mat2 transform = GetTransformMatrix();
-	const bool scaled = reftype == Reference_ScaledFloat || reftype == Reference_ScaledDouble;
-	if (cl->single && (reftype == Reference_Float || reftype == Reference_ScaledFloat))
+	if (reftype == Reference_Float || reftype == Reference_ScaledFloat)
 	{
 		tfloatexp<float, int32_t> *APr = nullptr;
 		tfloatexp<float, int32_t> *APi = nullptr;
@@ -1584,6 +1583,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		}
 		cl->run<float, int32_t, float>
 		(
+		  reftype,
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
@@ -1641,11 +1641,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  reference_ptr_Z<float, int32_t>(m_Reference),
 
 		  // formula selection
-		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
-		  scaled,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -1666,7 +1664,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		if (APi) delete[] APi;
 		if (APs) delete   APs;
 	}
-	else if (cl->single && reftype == Reference_FloatExpFloat)
+	else if (reftype == Reference_FloatExpFloat)
 	{
 		tfloatexp<float, int32_t> *APr = nullptr;
 		tfloatexp<float, int32_t> *APi = nullptr;
@@ -1702,6 +1700,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		}
 		cl->run<float, int32_t, tfloatexp<float, int32_t>>
 		(
+		  reftype,
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
@@ -1759,11 +1758,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  reference_ptr_Z<float, int32_t>(m_Reference),
 
 		  // formula selection
-		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
-		  scaled,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -1788,6 +1785,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	{
 		cl->run<double, int64_t, double>
 		(
+		  reftype,
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
@@ -1845,11 +1843,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  reference_ptr_Z<double, int64_t>(m_Reference),
 
 		  // formula selection
-		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
-		  scaled,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -1871,6 +1867,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	{
 		cl->run<double, int64_t, floatexp>
 		(
+		  reftype,
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
@@ -1928,11 +1925,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  reference_ptr_Z<double, int64_t>(m_Reference),
 
 		  // formula selection
-		  (reftype == Reference_FloatExpFloat || reftype == Reference_FloatExpDouble) ? 2 : 0,
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
-		  scaled,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -3788,7 +3783,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 		if (0 <= i && i < (int) cldevices.size())
 		{
 			clid = i;
-			cl = new OpenCL(cldevices[i].pid, cldevices[i].did, GetOpenCLSingle());
+			cl = new OpenCL(cldevices[i].pid, cldevices[i].did, cldevices[i].supports_double);
 			SetUseOpenCL(true);
 			SetOpenCLPlatform(i);
 		}
@@ -4178,13 +4173,15 @@ mat2 CFraktalSFT::GetTransformMatrix() const
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e)
 {
 	NumberType n = GetNumberType();
-	bool scalable = scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
+	bool scalable = GetUseHybridFormula() ? false : scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
+	bool supports_long_double = ! cl;
+	bool supports_double = cl ? cl->supports_double : true;
 	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { return Reference_Float; }
 	if (scalable && n.RescaledSingle) { return Reference_ScaledFloat; }
-	if (! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { return Reference_Double; }
-	if (scalable && n.RescaledDouble) { return Reference_ScaledDouble; }
-	if (! cl && ! (e > FLOATEXP_THRESHOLD_DEFAULT) && n.LongDouble) { return Reference_LongDouble; }
+	if (supports_double && ! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { return Reference_Double; }
+	if (supports_double && scalable && n.RescaledDouble) { return Reference_ScaledDouble; }
+	if (supports_long_double && ! (e > FLOATEXP_THRESHOLD_DEFAULT) && n.LongDouble) { return Reference_LongDouble; }
 	if (n.FloatExpSingle) { return Reference_FloatExpFloat; }
-	if (n.FloatExpDouble) { return Reference_FloatExpDouble; }
-	return Reference_FloatExpDouble; // FIXME fallback
+	if (supports_double && n.FloatExpDouble) { return Reference_FloatExpDouble; }
+	return Reference_FloatExpFloat; // FIXME fallback
 }

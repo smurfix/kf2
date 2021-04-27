@@ -54,7 +54,7 @@ const char *perturbation_decl_double =
   "#define LARGE_EXPONENT 1020\n"
 ;
 
-static const char *perturbation_scaled_loop_empty = STR(
+const char *perturbation_scaled_loop_empty = STR(
 
 void perturbation_scaled_loop
 ( __global const p_config    *g
