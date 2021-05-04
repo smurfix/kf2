@@ -1501,10 +1501,10 @@ nPos=1;
 	if(st.wDay>1)
 		st.wHour+=(st.wDay-1)*24;
 	std::string z = g_SFT.ToZoom();
-	wsprintf(szTmp,"Zoom:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+	wsprintf(szTmp,"Z:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
 nPos=9;
 	if(g_bAutoGlitch){
-		wsprintf(szTmp+strlen(szTmp)," Ref: %d",g_bAutoGlitch);
+		wsprintf(szTmp+strlen(szTmp)," R:%d",g_bAutoGlitch);
 	}
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
