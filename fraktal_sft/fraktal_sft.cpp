@@ -1644,7 +1644,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
-
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
@@ -2736,6 +2735,7 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		for (x = 0; x<m_nX; x++)
 		for (y = 0; y<m_nY; y++)
 			m_nPixels[x][y] = PIXEL_UNEVALUATED;
+		nCount = m_nX * m_nY;
 	}
 /*	else if (bNP){
 		int **Node = new int*[m_nX];
@@ -2771,6 +2771,9 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		}
 	}
 
+	m_count_queued = nCount;
+	m_count_bad = 0;
+	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, m_hWnd == nullptr, FALSE);
 	return TRUE;

@@ -1481,31 +1481,12 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 		}
 	}
 nPos=0;
-	double p_good_guessed = 0, p_good = 0, p_queued = 0, p_bad = 0, p_bad_guessed = 0, p_reference = 0, p_approximation = 0;
-	double p_progress = g_SFT.GetProgress(&p_reference, &p_approximation, &p_good_guessed, &p_good, &p_queued, &p_bad, &p_bad_guessed);
 	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
 
 nPos=1;
-	char szTmp[1024];
-	wsprintf(szTmp,"R:%d%% A:%d%% P:%d%% (%d%% %d%% %d%% %d%% %d%%)", (int) p_reference, (int) p_approximation, (int) p_progress, (int) p_good_guessed, (int) p_good, (int) p_queued, (int) p_bad, (int) p_bad_guessed);
-	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
-	SYSTEMTIME st;
-	__int64 nTStop;
-	GetLocalTime(&st);
-	SystemTimeToFileTime(&st,(LPFILETIME)&nTStop);
-	nTStop-=g_nTStart;
-	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
-	if(st.wDay>1)
-		st.wHour+=(st.wDay-1)*24;
-	std::string z = g_SFT.ToZoom();
-	wsprintf(szTmp,"Z:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
-nPos=9;
-	if(g_bAutoGlitch){
-		wsprintf(szTmp+strlen(szTmp)," R:%d",g_bAutoGlitch);
-	}
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
 nPos=3;
@@ -1521,7 +1502,6 @@ nPos=6;
 					if (! g_bInteractive)
 					{
 						std::cerr << "add reference " << g_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
-						SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
 					}
 					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
@@ -1530,9 +1510,31 @@ nPos=7;
 				}
 			}
 			else
+			{
 				g_bAutoGlitch--;
+				g_SFT.Done();
+			}
 nPos=8;
 		}
+	}
+	char szTmp[1024];
+	double p_good_guessed = 0, p_good = 0, p_queued = 0, p_bad = 0, p_bad_guessed = 0, p_reference = 0, p_approximation = 0;
+	double p_progress = g_SFT.GetProgress(&p_reference, &p_approximation, &p_good_guessed, &p_good, &p_queued, &p_bad, &p_bad_guessed);
+	wsprintf(szTmp,"R:%d%% A:%d%% P:%d%% (%d%% %d%% %d%% %d%% %d%%)", (int) (p_reference + 0.5), (int) (p_approximation + 0.5), (int) (p_progress + 0.5), (int) (p_good_guessed + 0.5), (int) (p_good + 0.5), (int) (p_queued + 0.5), (int) (p_bad + 0.5), (int) (p_bad_guessed + 0.5));
+	SendMessage(g_hwStatus,SB_SETTEXT,0,(LPARAM)szTmp);
+	SYSTEMTIME st;
+	__int64 nTStop;
+	GetLocalTime(&st);
+	SystemTimeToFileTime(&st,(LPFILETIME)&nTStop);
+	nTStop-=g_nTStart;
+	FileTimeToSystemTime((LPFILETIME)&nTStop,&st);
+	if(st.wDay>1)
+		st.wHour+=(st.wDay-1)*24;
+	std::string z = g_SFT.ToZoom();
+	wsprintf(szTmp,"Z:%s T:%02d:%02d:%02d.%03d",z.c_str(),st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
+nPos=9;
+	if(g_bAutoGlitch){
+		wsprintf(szTmp+strlen(szTmp)," R:%d",g_bAutoGlitch);
 	}
 	if(g_bAutoGlitch){
 		wsprintf(szTmp+strlen(szTmp)," %s", uMsg==WM_USER+199?"Done":"");

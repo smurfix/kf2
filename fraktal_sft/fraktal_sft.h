@@ -448,6 +448,19 @@ public:
 	template <typename mantissa, typename exponent> void MandelCalcScaled();
 	void MandelCalcNANOMB1();
 	void MandelCalcNANOMB2();
+	void Done()
+	{
+#ifdef KF_OPENCL
+		if (cl)
+		{
+			m_count_good_guessed = 0;
+			m_count_good = m_nX * m_nY;
+			m_count_queued = 0;
+			m_count_bad = 0;
+			m_count_bad_guessed = 0;
+		}
+#endif
+	}
 	HWND m_hWnd;
 
 	CFraktalSFT();

@@ -208,19 +208,7 @@ void CFraktalSFT::RenderFractal()
 		f.precision(LOW_PRECISION);
 		ToZoom(CDecNumber(FixedFloat(4 / f)), m_nZoom);
 	}
-	if (m_bAddReference){
-		int x, y;
-		m_nTotal = 0;
-		for (x = 0; x<m_nX; x++)
-		for (y = 0; y<m_nY; y++)
-		if (m_nPixels[x][y] == PIXEL_UNEVALUATED)
-			m_nTotal++;
-	}
-	else
-		m_nTotal = m_nX*m_nY;
-	m_count_queued = m_nTotal;
-	m_count_bad = 0;
-	m_count_bad_guessed = 0;
+	m_nTotal = m_count_queued;
 	Reference_Type reftype = GetReferenceType(m_nZoom);
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
@@ -300,6 +288,8 @@ void CFraktalSFT::RenderFractal()
 #ifdef KF_OPENCL
 	if (cl)
 	{
+		m_count_good_guessed = 0; // FIXME OpenCL progress doesn't track guessing
+		m_count_good = m_nX * m_nY - m_count_queued;
 		RenderFractalOpenCL(reftype);
 	}
 	else
