@@ -32,12 +32,12 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-    T(IDC_NUMBERTYPE_SINGLE        , "Use single precision floating point\nuntil zoom depth 1e38")
-    T(IDC_NUMBERTYPE_DOUBLE        , "Use double precision floating point\nuntil zoom depth 1e308\nnot supported by all OpenCL devices")
-    T(IDC_NUMBERTYPE_LONGDOUBLE    , "Use x87 long double floating point\nuntil zoom depth 1e4932\nnot supported by any OpenCL devices")
-    T(IDC_NUMBERTYPE_FLOATEXPSINGLE, "Use single precision with extended exponent")
+    T(IDC_NUMBERTYPE_SINGLE        , "Use single precision floating point\nuntil zoom depth 1e20\nbe vigilant: undetected glitches may occur")
+    T(IDC_NUMBERTYPE_DOUBLE        , "Use double precision floating point\nuntil zoom depth 1e290\nnot supported by all OpenCL devices")
+    T(IDC_NUMBERTYPE_LONGDOUBLE    , "Use x87 long double floating point\nuntil zoom depth 1e4900\nnot supported by any OpenCL devices")
+    T(IDC_NUMBERTYPE_FLOATEXPSINGLE, "Use single precision with extended exponent\nbe vigilant: undetected glitches may occur")
     T(IDC_NUMBERTYPE_FLOATEXPDOUBLE, "Use double precision with extended exponent\nnot supported by all OpenCL devices")
-    T(IDC_NUMBERTYPE_RESCALEDSINGLE, "Use single precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, and Burning Ship power 2")
+    T(IDC_NUMBERTYPE_RESCALEDSINGLE, "Use single precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, and Burning Ship power 2\nbe vigilant: undetected glitches may occur")
     T(IDC_NUMBERTYPE_RESCALEDDOUBLE, "Use double precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, and Burning Ship power 2\nnot supported by all OpenCL devices")
     T(IDOK, "Apply and close")
     T(IDCANCEL, "Close and undo")

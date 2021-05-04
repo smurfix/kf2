@@ -155,7 +155,7 @@ public:
   , m_ExponentialMap(false)
   , m_DerivativeGlitch(true)
   , m_ReferenceStrictZero(false)
-  , m_NumberType(~0)
+  , m_NumberType(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
   { };
 
   bool FromText(const std::string &text);
