@@ -145,7 +145,10 @@ Feedback:
 - crosshair window contents is misaligned if OS window scaling is changed
   - workaround for Windows 10: "You can quickly open the Magnifier by using the
     keyboard shortcut Windows key with the plus sign (+) to zoom in and Windows
-    key with minus sign (-) to zoom out. Use Windows key and Esc to exit the magnifier."
+    key with minus sign (-) to zoom out. Use Windows key and Esc to exit the
+    magnifier."
+  - workaround for Linux/XFCE: hold Alt and use the mouse scroll wheel to zoom
+    the whole desktop.
   - workaround for Linux/Wine: third-party magnifiers include
     `kmag`, `magnus`, `vmg`, `xmag`, `xzoom`;
     I had best results with `kmag`.
@@ -2161,6 +2164,20 @@ Software license.
       for some locations (e.g. Burning Ship near the needle).  Enabling
       can be slower, but disabling can give inaccurate images.  Default
       disabled for Mandelbrot set, enabled for other formulas.
+
+  - **Number Type Selection**
+
+    Configure which number types KF is allowed to choose from.  Number
+    types near the top are typically faster than number types near the
+    bottom.
+
+    Single precision may be faster, especially on GPUs with OpenCL.
+    Single precision is disabled by default because of undetected
+    glitches at some locations: if you enable it, inspect your images
+    carefully.
+
+    Rescaled iterations are only available for Mandelbrot set
+    power 2, Mandelbrot power 3, and Burning Ship power 2.
 
   - **Set main reference**
 
