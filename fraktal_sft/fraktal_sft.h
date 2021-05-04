@@ -553,7 +553,7 @@ public:
 	double GetBailoutNormCustom();
 	void SetBailoutNormCustom(double nBailoutNormCustom);
 	double GetBailoutNorm();
-	int GetPower();
+	int GetPower() const;
 	void SetPower(int nPower);
 	void SetColorMethod(int nColorMethod);
 	ColorMethod GetColorMethod();
@@ -578,7 +578,7 @@ public:
 
 	int64_t GetMaxExceptCenter();
 	void SetFractalType(int nFractalType);
-	int GetFractalType();
+	int GetFractalType() const;
 
 	int GetExponent();
 
@@ -674,14 +674,30 @@ public:
   BOOL(EXRParallel)
   BOOL(SaveNewtonProgress)
   BOOL(ExponentialMap)
-  BOOL(DerivativeGlitch)
+  inline bool GetDerivativeGlitch() const
+  {
+		switch (GetReferenceType(m_nZoom))
+		{
+			// disable for single precision (does not work properly)
+			case Reference_Float:
+			case Reference_ScaledFloat:
+			case Reference_FloatExpFloat:
+				return false;
+			default:
+				return m_Settings.GetDerivativeGlitch();
+		}
+	};
+	inline void SetDerivativeGlitch(bool x)
+	{
+		return m_Settings.SetDerivativeGlitch(x);
+	};
   BOOL(ReferenceStrictZero)
   inline NumberType GetNumberType() const { return m_Settings.GetNumberType(); };
   inline void SetNumberType(const NumberType x) { return m_Settings.SetNumberType(x); };
 #undef DOUBLE
 #undef INT
 #undef BOOL
-  Reference_Type GetReferenceType(int64_t exponent10);
+  Reference_Type GetReferenceType(int64_t exponent10) const;
 
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
 	void GetPixelCoordinates(const int i, const int j, floatexp &x, floatexp &y) const;

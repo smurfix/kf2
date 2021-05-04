@@ -3522,7 +3522,7 @@ double CFraktalSFT::GetBailoutNorm()
 	}
 }
 
-int CFraktalSFT::GetPower()
+int CFraktalSFT::GetPower() const
 {
 	return m_nPower;
 }
@@ -3672,7 +3672,7 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 
 	SetReferenceStrictZero(nFractalType != 0);
 }
-int CFraktalSFT::GetFractalType()
+int CFraktalSFT::GetFractalType() const
 {
 	return m_nFractalType;
 }
@@ -4173,7 +4173,7 @@ mat2 CFraktalSFT::GetTransformMatrix() const
 	return m_TransformMatrix;
 }
 
-Reference_Type CFraktalSFT::GetReferenceType(int64_t e)
+Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 {
 	NumberType n = GetNumberType();
 	bool scalable = GetUseHybridFormula() ? false : scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
