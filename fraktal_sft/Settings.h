@@ -153,7 +153,7 @@ public:
   , m_EXRParallel(true)
   , m_SaveNewtonProgress(false)
   , m_ExponentialMap(false)
-  , m_DerivativeGlitch(true)
+  , m_DerivativeGlitch(false)
   , m_ReferenceStrictZero(false)
   , m_NumberType(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
   { };
