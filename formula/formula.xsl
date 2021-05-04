@@ -1501,6 +1501,7 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+    const mantissa w2threshold = sizeof(mantissa) == 4 ? 1.0e10 : 1.0e100; // FIXME hardcoded to power &lt;= 3
     const mantissa Ar = g_FactorAR;
     const mantissa Ai = g_FactorAI;
     const complex&lt;mantissa&gt; A = { Ar, Ai };
@@ -1685,7 +1686,7 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
           win = 0;
         }
         const mantissa w2 = wrn * wrn + win * win;
-        if (w2 &lt; 1.0e100)
+        if (w2 &lt; w2threshold)
         {
           wr = wrn;
           wi = win;
@@ -2148,6 +2149,8 @@ bool FORMULA(perturbation_scaled_derivatives,<xsl:value-of select="../@type" />,
   (void) dbbF; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+    const mantissa w2threshold = sizeof(mantissa) == 4 ? 1.0e10 : 1.0e100; // FIXME hardcoded to power &lt;= 3
+    const mantissa d2threshold = sizeof(mantissa) == 4 ? 1.0e15 : 1.0e150; // FIXME hardcoded to power &lt;= 3
     const mantissa Ar = g_FactorAR;
     const mantissa Ai = g_FactorAI;
     (void) Ar; // -Wunused-variable
@@ -2475,7 +2478,7 @@ bool FORMULA(perturbation_scaled_derivatives,<xsl:value-of select="../@type" />,
           win = 0;
         }
         const mantissa w2 = wrn * wrn + win * win;
-        if (w2 &lt; 1.0e100) // FIXME threshold depends on power
+        if (w2 &lt; w2threshold) // FIXME threshold depends on power
         {
           wr = wrn;
           wi = win;
@@ -2496,7 +2499,7 @@ bool FORMULA(perturbation_scaled_derivatives,<xsl:value-of select="../@type" />,
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
         const mantissa d2 = drn * drn + din * din;
-        if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+        if (d2 &lt; d2threshold) // FIXME threshold depends on power
         {
           drD = drn;
           diD = din;
@@ -2514,7 +2517,7 @@ bool FORMULA(perturbation_scaled_derivatives,<xsl:value-of select="../@type" />,
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
         const mantissa d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
-        if (d2 &lt; 1.0e100) // FIXME threshold depends on power
+        if (d2 &lt; d2threshold) // FIXME threshold depends on power
         {
           dxaD = dxan;
           dyaD = dyan;
