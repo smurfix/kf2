@@ -69,12 +69,13 @@ public:
 #endif
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
+// these are smaller than expected due to risk of derivative overflow
 // thresholds for switching to floatexp iterations
-#define FLOATEXP_THRESHOLD_DEFAULT 4924 // 4900
+#define FLOATEXP_THRESHOLD_DEFAULT 4900
 // thresholds for switching to long double iterations
-#define LONG_DOUBLE_THRESHOLD_DEFAULT 300 // 290
+#define LONG_DOUBLE_THRESHOLD_DEFAULT 290
 // threshold for switching to double iterations
-#define DOUBLE_THRESHOLD_DEFAULT 30
+#define DOUBLE_THRESHOLD_DEFAULT 20
 
 #define SMOOTH_BAILOUT 10000
 struct MC
