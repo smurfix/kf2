@@ -391,7 +391,7 @@ class CFraktalSFT
 			return SeriesType_None;
 		if (m_nFractalType == 0)
 			return SeriesType_Complex;
-		if (m_nFractalType == 1 && m_nPower == 2)
+		if (m_nFractalType == 1 && m_nPower == 2 && ! GetUseOpenCL())
 			return SeriesType_Real;
 		return SeriesType_None;
 	}
