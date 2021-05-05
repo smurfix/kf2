@@ -165,11 +165,10 @@ Feedback:
 - OpenCL runs on the main thread making the GUI less responsive
 - sometimes files are overwritten without confirmation, when the filename
   is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
-- derivative-based glitch test for power 2 Mandelbrot is buggy at some locations
-  (reported by Microfractal); workaround is to disable derivatives if possible,
-  or use OpenCL and/or Hybrid fractal designer (but that may be much slower).
-- horizontal seams with OpenGL GLSL entropy colouring when image is larger
-  than the internal tile size.
+- some formulas have bad appearance with analytic DE because derivatives
+  overflow (e.g. "Cubic Partial BS Real", "4th Burning Ship Partial Imag",
+  etc); workaround: use numerical differences-based DE, or force number
+  type to one with larger range (long double, floatexp)
 
 
 ## Differences From Upstream 2.11.1
