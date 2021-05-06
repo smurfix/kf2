@@ -1,6 +1,6 @@
 /*
 Kalles Fraktaler 2
-Copyright (C) 2020 Claude Heiland-Allen
+Copyright (C) 2020,2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -42,12 +42,12 @@ struct dual
     }
   }
   template <typename S>
-  inline dual(const dual<D, S> &a) noexcept
-  : x(a.x)
+  explicit inline dual(const dual<D, S> &a) noexcept
+  : x(T(a.x))
   {
     for (int d = 0; d < D; ++d)
     {
-      dx[d] = a.dx[d];
+      dx[d] = T(a.dx[d]);
     }
   }
 };
