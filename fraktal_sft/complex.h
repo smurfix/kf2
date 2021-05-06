@@ -99,22 +99,16 @@ public:
 	}
 };
 
-template <class tt>
-inline complex<tt> operator*(int a, const complex<tt> &b) noexcept
+template <typename S, typename T>
+inline complex<T> operator*(const S &a, const complex<T> &b) noexcept
 {
-	return complex<tt>(a * b.m_r, a * b.m_i);
+	return complex<T>(a * b.m_r, a * b.m_i);
 }
 
-template <class tt>
-inline complex<tt> operator*(const complex<tt> &b, int a) noexcept
+template <typename S, typename T>
+inline complex<T> operator*(const complex<T> &b, const S &a) noexcept
 {
-	return complex<tt>(a * b.m_r, a * b.m_i);
-}
-
-template <class tt>
-inline complex<tt> operator*(const tt &a, const complex<tt> &b) noexcept
-{
-	return complex<tt>(a * b.m_r, a * b.m_i);
+	return complex<T>(b.m_r * a, b.m_i * a);
 }
 
 template <class tt>
