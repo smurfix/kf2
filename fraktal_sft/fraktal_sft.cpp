@@ -4176,7 +4176,7 @@ mat2 CFraktalSFT::GetTransformMatrix() const
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 {
 	NumberType n = GetNumberType();
-	bool scalable = GetUseHybridFormula() ? false : scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
+	bool scalable = GetUseHybridFormula() ? true : scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
 	bool supports_long_double = ! cl;
 	bool supports_double = cl ? cl->supports_double : true;
 	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { return Reference_Float; }

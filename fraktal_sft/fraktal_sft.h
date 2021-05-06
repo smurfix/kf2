@@ -720,6 +720,7 @@ public:
 	inline bool GetUseHybridFormula() const { return m_UseHybridFormula; };
 	inline void SetUseHybridFormula(bool b)
 	{
+		SetReferenceStrictZero(true);
 		m_UseHybridFormula = b;
 	}
 	const hybrid_formula &GetHybridFormula() const

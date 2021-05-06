@@ -358,6 +358,170 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_stanza &h, complex<R> Z, comple
   return z + c;
 }
 
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf_scaled(const hybrid_operator &h, const complex<R> &Z, const complex<dual<2, R>> &z, const R &s)
+{
+  using std::pow;
+  if (h.pow == 0)
+  {
+    return complex<dual<2, R>>();
+  }
+  R X = Z.m_r;
+  R Y = Z.m_i;
+  dual<2, R> x = z.m_r;
+  dual<2, R> y = z.m_i;
+  complex<dual<2, R>> W = Z + z * s;
+  complex<R> B = Z;
+  if (h.abs_x)
+  {
+    x = diffabs(X / s, x);
+    W.m_r = abs(W.m_r);
+    B.m_r = abs(B.m_r);
+  }
+  if (h.abs_y)
+  {
+    y = diffabs(Y / s, y);
+    W.m_i = abs(W.m_i);
+    B.m_i = abs(B.m_i);
+  }
+  if (h.neg_x)
+  {
+    x = -x;
+    W.m_r = -W.m_r;
+    B.m_r = -B.m_r;
+  }
+  if (h.neg_y)
+  {
+    y = -y;
+    W.m_i = -W.m_i;
+    B.m_i = -B.m_i;
+  }
+  complex<dual<2, R>> P(x, y);
+  complex<dual<2, R>> S((complex<dual<2, R>>()));
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+    S += pow(W, i) * pow(B, j); // FIXME cache reference with powers? or for SIMD?
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    return P * S;
+  }
+  else
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a * P * S;
+  }
+}
+
+template <typename R>
+inline complex<R> hybrid_pf_scaled(const hybrid_operator &h, const complex<R> &Z, const complex<R> &z, const R &s)
+{
+  complex<R> a(h.mul_re, h.mul_im);
+  if (h.pow == 0)
+  {
+    return complex<R>(R(0), R(0));
+  }
+  R X = Z.m_r;
+  R Y = Z.m_i;
+  R x = z.m_r;
+  R y = z.m_i;
+  complex<R> W = Z + z * s;
+  complex<R> B = Z;
+  if (h.abs_x)
+  {
+    x = diffabs(X / s, x);
+    W.m_r = abs(W.m_r);
+    B.m_r = abs(B.m_r);
+  }
+  if (h.abs_y)
+  {
+    y = diffabs(Y / s, y);
+    W.m_i = abs(W.m_i);
+    B.m_i = abs(B.m_i);
+  }
+  if (h.neg_x)
+  {
+    x = -x;
+    W.m_r = -W.m_r;
+    B.m_r = -B.m_r;
+  }
+  if (h.neg_y)
+  {
+    y = -y;
+    W.m_i = -W.m_i;
+    B.m_i = -B.m_i;
+  }
+  complex<R> P(x, y);
+  complex<R> S((complex<R>()));
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+    S += pow(W, i) * pow(B, j); // FIXME cache reference with powers? or for SIMD?
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    return P * S;
+  }
+  else
+  {
+    complex<R> a(h.mul_re, h.mul_im);
+    return a * P * S;
+  }
+}
+
+template <typename R>
+inline complex<R> hybrid_pf_scaled(const hybrid_line &h, const complex<R> &Z, const complex<R> &z, const R &s)
+{
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    return hybrid_pf_scaled(h.one, Z, z, s);
+  }
+  switch (h.mode)
+  {
+    case hybrid_combine_add: return hybrid_pf_scaled(h.one, Z, z, s) + hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_sub: return hybrid_pf_scaled(h.one, Z, z, s) - hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_mul: return hybrid_pf_scaled(h.one, Z, z, s) * hybrid_f(h.two, Z + z * s) + hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s);
+  }
+  return complex<R>();
+}
+
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf_scaled(const hybrid_line &h, const complex<R> &Z, const complex<dual<2,R>> &z, const R &s)
+{
+  switch (h.mode)
+  {
+    case hybrid_combine_add: return hybrid_pf_scaled(h.one, Z, z, s) + hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_sub: return hybrid_pf_scaled(h.one, Z, z, s) - hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_mul: return hybrid_pf_scaled(h.one, Z, z, s) * hybrid_f(h.two, Z + z * s) + hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s);
+  }
+  return complex<dual<2,R>>();
+}
+
+template <typename R>
+inline complex<R> hybrid_pf_scaled(const hybrid_stanza &h, complex<R> Z, complex<R> z, const complex<R> &c, const R &s)
+{
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    z = hybrid_pf_scaled(h.lines[i], Z, z, s);
+    Z = hybrid_f(h.lines[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+  }
+  return z + c;
+}
+
+template <typename R>
+inline complex<dual<2,R>> hybrid_pf_scaled(const hybrid_stanza &h, complex<R> Z, complex<dual<2,R>> z, const complex<dual<2,R>> &c, const R &s)
+{
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    z = hybrid_pf_scaled(h.lines[i], Z, z, s);
+    Z = hybrid_f(h.lines[i], Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+  }
+  return z + c;
+}
+
 static inline int hybrid_power_inf(const hybrid_operator &h)
 {
   if (h.mul_re == 0 && h.mul_im == 0)
@@ -606,6 +770,490 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
     }
     xr = z.m_r;
     xi = z.m_i;
+  }
+  power = hybrid_power_inf(h.stanzas[stanza]);
+  antal0 = antal;
+  test10 = test1;
+  test20 = test2;
+  phase0 = phase;
+  xr0 = Xxr;
+  xi0 = Xxi;
+  return true;
+}
+
+template <typename R, typename I>
+inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, tfloatexp<R, I> &xr0, tfloatexp<R, I> &xi0, const tfloatexp<R, I> &cr0, const tfloatexp<R, I> &ci0, int &power)
+{
+  using mantissa = R;
+  using exponent = I;
+  const R w2threshold = std::exp(std::log(sizeof(R) == sizeof(double) ? 1.0e300 : 1.0e30) / hybrid_power_inf(h));
+  if (h.stanzas.size() == 0)
+  {
+    return false;
+  }
+  const bool simple1 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 1 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0;
+  const bool simple2 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 2 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0 &&
+    h.stanzas[0].lines[1].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[1].two.mul_re == 0 &&
+    h.stanzas[0].lines[1].two.mul_im == 0;
+  hybrid_operator op1 = {0}, op2 = {0};
+  if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
+  if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
+  const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
+  int64_t antal = antal0;
+  double test1 = test10;
+  double test2 = test20;
+  double phase = phase0;
+  tfloatexp<R, I> Xxr = 0;
+  tfloatexp<R, I> Xxi = 0;
+  int count = 0;
+  int stanza = 0;
+  const R *xptr = reference_ptr_x<R>(m_Reference);
+  const R *yptr = reference_ptr_y<R>(m_Reference);
+  const R *zptr = reference_ptr_z<R>(m_Reference);
+  const int64_t size_N = reference_size_N(m_Reference);
+  const int64_t *Nptr = reference_ptr_N(m_Reference);
+  const tfloatexp<mantissa, exponent> *Xptr = reference_ptr_X<mantissa, exponent>(m_Reference);
+  const tfloatexp<mantissa, exponent> *Yptr = reference_ptr_Y<mantissa, exponent>(m_Reference);
+  const tfloatexp<mantissa, exponent> *Zptr = reference_ptr_Z<mantissa, exponent>(m_Reference);
+  int64_t K = 0, N = 0;
+  tfloatexp<mantissa, exponent> X = 0, Y = 0, Z0 = 0;
+  do
+  {
+    if (K < size_N)
+    {
+      N = Nptr[K];
+      X = Xptr[K];
+      Y = Yptr[K];
+      Z0 = Zptr[K];
+      ++K;
+    }
+    else
+    {
+      N = nMaxIter;
+    }
+  }
+  while (N < antal);
+  // rescale
+  tfloatexp<mantissa, exponent> S = sqrt(xr0 * xr0 + xi0 * xi0);
+  mantissa s = mantissa(S);
+  mantissa wr = mantissa(xr0 / S);
+  mantissa wi = mantissa(xi0 / S);
+  mantissa ur = mantissa(cr0 / S);
+  mantissa ui = mantissa(ci0 / S);
+  for (; antal < nMaxIter; ++antal)
+  {
+    bool full_iteration = antal == N;
+    if (full_iteration)
+    {
+      const tfloatexp<mantissa, exponent> Xr = X;
+      const tfloatexp<mantissa, exponent> Xi = Y;
+      const tfloatexp<mantissa, exponent> Xz = Z0;
+      if (K < size_N)
+      {
+        N = Nptr[K];
+        X = Xptr[K];
+        Y = Yptr[K];
+        Z0 = Zptr[K];
+        ++K;
+      }
+      else
+      {
+        N = nMaxIter;
+      }
+      const tfloatexp<mantissa, exponent> xr = S * tfloatexp<mantissa, exponent>(wr);
+      const tfloatexp<mantissa, exponent> xi = S * tfloatexp<mantissa, exponent>(wi);
+      Xxr = Xr + xr;
+      Xxi = Xi + xi;
+      const tfloatexp<mantissa, exponent> Xxr2 = Xxr * Xxr;
+      const tfloatexp<mantissa, exponent> Xxi2 = Xxi * Xxi;
+      test2 = test1;
+      tfloatexp<mantissa, exponent> ftest1 = Xxr2 + Xxi2;
+      test1 = double(ftest1);
+      if (ftest1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+          break;
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+        phase -= floor(phase);
+        break;
+      }
+      tfloatexp<mantissa, exponent> xrn, xin;
+
+      complex<tfloatexp<mantissa, exponent>> Z(Xr, Xi);
+      complex<tfloatexp<mantissa, exponent>> z(xr, xi);
+      complex<tfloatexp<mantissa, exponent>> c(cr0, ci0);
+      if (simple1)
+      {
+        z = hybrid_pf(op1, Z, z) + c;
+      }
+      else if (simple2)
+      {
+        z = hybrid_pf(op2, hybrid_f(op1, Z), hybrid_pf(op1, Z, z)) + c;
+      }
+      else
+      {
+        if (++count >= h.stanzas[stanza].repeats)
+        {
+          count = 0;
+          if (++stanza >= (ssize_t) h.stanzas.size())
+          {
+            stanza = h.loop_start;
+          }
+        }
+        z = hybrid_pf(h.stanzas[stanza], Z, z, c);
+      }
+      xrn = z.m_r;
+      xin = z.m_i;
+
+      // rescale
+      S = sqrt(xrn * xrn + xin * xin);
+      s = mantissa(S);
+      wr = mantissa(xrn / S);
+      wi = mantissa(xin / S);
+      ur = mantissa(cr0 / S);
+      ui = mantissa(ci0 / S);
+    }
+    else
+    {
+      const mantissa Xr = xptr[antal];
+      const mantissa Xi = yptr[antal];
+      const mantissa Xz = zptr[antal];
+      const mantissa Xxrd = Xr + wr * s;
+      const mantissa Xxid = Xi + wi * s;
+      Xxr = Xxrd;
+      Xxi = Xxid;
+      const mantissa Xxr2 = Xxrd * Xxrd;
+      const mantissa Xxi2 = Xxid * Xxid;
+      test2 = test1;
+      test1 = Xxr2 + Xxi2;
+      if (test1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+        phase -= floor(phase);
+        break;
+      }
+      mantissa wrn, win;
+
+      complex<R> Z(Xr, Xi);
+      complex<R> z(wr, wi);
+      complex<R> c(ur, ui);
+      if (simple1)
+      {
+        z = hybrid_pf_scaled(op1, Z, z, s) + c;
+      }
+      else if (simple2)
+      {
+        z = hybrid_pf_scaled(op2, hybrid_f(op1, Z), hybrid_pf_scaled(op1, Z, z, s), s) + c;
+      }
+      else
+      {
+        if (++count >= h.stanzas[stanza].repeats)
+        {
+          count = 0;
+          if (++stanza >= (ssize_t) h.stanzas.size())
+          {
+            stanza = h.loop_start;
+          }
+        }
+        z = hybrid_pf_scaled(h.stanzas[stanza], Z, z, c, s);
+      }
+      wrn = z.m_r;
+      win = z.m_i;
+
+      const mantissa w2 = wrn * wrn + win * win;
+      if (w2 < w2threshold)
+      {
+        wr = wrn;
+        wi = win;
+      }
+      else
+      {
+        // rescale
+        tfloatexp<mantissa, exponent> xrn = S * tfloatexp<mantissa, exponent>(wrn);
+        tfloatexp<mantissa, exponent> xin = S * tfloatexp<mantissa, exponent>(win);
+        S = sqrt(xrn * xrn + xin * xin);
+        s = mantissa(S);
+        wr = mantissa(xrn / S);
+        wi = mantissa(xin / S);
+        ur = mantissa(cr0 / S);
+        ui = mantissa(ci0 / S);
+      }
+    }
+  }
+  power = hybrid_power_inf(h.stanzas[stanza]);
+  antal0 = antal;
+  test10 = test1;
+  test20 = test2;
+  phase0 = phase;
+  xr0 = Xxr;
+  xi0 = Xxi;
+  return true;
+}
+
+template <typename R, typename I>
+inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, tfloatexp<R, I>> &xr0, dual<2, tfloatexp<R, I>> &xi0, const dual<2, tfloatexp<R, I>> &cr0, const dual<2, tfloatexp<R, I>> &ci0, int &power)
+{
+  using mantissa = R;
+  using exponent = I;
+  using RR = tfloatexp<R, I>;
+  using D = dual<2, R>;
+  using DD = dual<2, RR>;
+  const R w2threshold = std::exp(std::log(sizeof(R) == sizeof(double) ? 1.0e300 : 1.0e30) / hybrid_power_inf(h));
+  if (h.stanzas.size() == 0)
+  {
+    return false;
+  }
+  const bool simple1 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 1 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0;
+  const bool simple2 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 2 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0 &&
+    h.stanzas[0].lines[1].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[1].two.mul_re == 0 &&
+    h.stanzas[0].lines[1].two.mul_im == 0;
+  hybrid_operator op1 = {0}, op2 = {0};
+  if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
+  if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
+  const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
+  int64_t antal = antal0;
+  double test1 = test10;
+  double test2 = test20;
+  double phase = phase0;
+  DD Xxr = 0;
+  DD Xxi = 0;
+  int count = 0;
+  int stanza = 0;
+  const R *xptr = reference_ptr_x<R>(m_Reference);
+  const R *yptr = reference_ptr_y<R>(m_Reference);
+  const R *zptr = reference_ptr_z<R>(m_Reference);
+  const int64_t size_N = reference_size_N(m_Reference);
+  const int64_t *Nptr = reference_ptr_N(m_Reference);
+  const tfloatexp<mantissa, exponent> *Xptr = reference_ptr_X<mantissa, exponent>(m_Reference);
+  const tfloatexp<mantissa, exponent> *Yptr = reference_ptr_Y<mantissa, exponent>(m_Reference);
+  const tfloatexp<mantissa, exponent> *Zptr = reference_ptr_Z<mantissa, exponent>(m_Reference);
+  int64_t K = 0, N = 0;
+  tfloatexp<mantissa, exponent> X = 0, Y = 0, Z0 = 0;
+  do
+  {
+    if (K < size_N)
+    {
+      N = Nptr[K];
+      X = Xptr[K];
+      Y = Yptr[K];
+      Z0 = Zptr[K];
+      ++K;
+    }
+    else
+    {
+      N = nMaxIter;
+    }
+  }
+  while (N < antal);
+  // rescale
+  tfloatexp<mantissa, exponent> S = sqrt(xr0.x * xr0.x + xi0.x * xi0.x);
+  R s = R(S);
+  D wr = D(xr0 / S);
+  D wi = D(xi0 / S);
+  D ur = D(cr0 / S);
+  D ui = D(ci0 / S);
+  for (; antal < nMaxIter; ++antal)
+  {
+    bool full_iteration = antal == N;
+    if (full_iteration)
+    {
+      const tfloatexp<mantissa, exponent> Xr = X;
+      const tfloatexp<mantissa, exponent> Xi = Y;
+      const tfloatexp<mantissa, exponent> Xz = Z0;
+      if (K < size_N)
+      {
+        N = Nptr[K];
+        X = Xptr[K];
+        Y = Yptr[K];
+        Z0 = Zptr[K];
+        ++K;
+      }
+      else
+      {
+        N = nMaxIter;
+      }
+      const DD xr = S * DD(wr);
+      const DD xi = S * DD(wi);
+      Xxr = Xr + xr;
+      Xxi = Xi + xi;
+      const RR Xxr2 = Xxr.x * Xxr.x;
+      const RR Xxi2 = Xxi.x * Xxi.x;
+      test2 = test1;
+      RR ftest1 = Xxr2 + Xxi2;
+      test1 = double(ftest1);
+      if (ftest1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+          break;
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
+        phase -= floor(phase);
+        break;
+      }
+      DD xrn, xin;
+
+      complex<RR> Z(Xr, Xi);
+      complex<DD> z(xr, xi);
+      complex<DD> c(cr0, ci0);
+      if (simple1)
+      {
+        z = hybrid_pf(op1, Z, z) + c;
+      }
+      else if (simple2)
+      {
+        z = hybrid_pf(op2, hybrid_f(op1, Z), hybrid_pf(op1, Z, z)) + c;
+      }
+      else
+      {
+        if (++count >= h.stanzas[stanza].repeats)
+        {
+          count = 0;
+          if (++stanza >= (ssize_t) h.stanzas.size())
+          {
+            stanza = h.loop_start;
+          }
+        }
+        z = hybrid_pf(h.stanzas[stanza], Z, z, c);
+      }
+      xrn = z.m_r;
+      xin = z.m_i;
+
+      // rescale
+      S = sqrt(xrn.x * xrn.x + xin.x * xin.x);
+      s = R(S);
+      wr = D(xrn / S);
+      wi = D(xin / S);
+      ur = D(cr0 / S);
+      ui = D(ci0 / S);
+    }
+    else
+    {
+      const mantissa Xr = xptr[antal];
+      const mantissa Xi = yptr[antal];
+      const mantissa Xz = zptr[antal];
+      const D Xxrd = Xr + wr * s;
+      const D Xxid = Xi + wi * s;
+      Xxr = DD(Xxrd);
+      Xxi = DD(Xxid);
+      const R Xxr2 = Xxrd.x * Xxrd.x;
+      const R Xxi2 = Xxid.x * Xxid.x;
+      test2 = test1;
+      test1 = Xxr2 + Xxi2;
+      if (test1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxrd.x, Xxid.x));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = atan2(double(Xxid.x), double(Xxrd.x)) / M_PI / 2;
+        phase -= floor(phase);
+        break;
+      }
+      D wrn, win;
+
+      complex<R> Z(Xr, Xi);
+      complex<D> z(wr, wi);
+      complex<D> c(ur, ui);
+      if (simple1)
+      {
+        z = hybrid_pf_scaled(op1, Z, z, s) + c;
+      }
+      else if (simple2)
+      {
+        z = hybrid_pf_scaled(op2, hybrid_f(op1, Z), hybrid_pf_scaled(op1, Z, z, s), s) + c;
+      }
+      else
+      {
+        if (++count >= h.stanzas[stanza].repeats)
+        {
+          count = 0;
+          if (++stanza >= (ssize_t) h.stanzas.size())
+          {
+            stanza = h.loop_start;
+          }
+        }
+        z = hybrid_pf_scaled(h.stanzas[stanza], Z, z, c, s);
+      }
+      wrn = z.m_r;
+      win = z.m_i;
+
+      const mantissa w2 = wrn.x * wrn.x + win.x * win.x;
+      if (w2 < w2threshold)
+      {
+        wr = wrn;
+        wi = win;
+      }
+      else
+      {
+        // rescale
+        DD xrn = S * DD(wrn);
+        DD xin = S * DD(win);
+        S = sqrt(xrn.x * xrn.x + xin.x * xin.x);
+        s = R(S);
+        wr = D(xrn / S);
+        wi = D(xin / S);
+        ur = D(cr0 / S);
+        ui = D(ci0 / S);
+      }
+    }
+    // FIXME antal == nMaxIter - 1 should set Xxr?
   }
   power = hybrid_power_inf(h.stanzas[stanza]);
   antal0 = antal;

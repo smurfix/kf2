@@ -290,8 +290,8 @@ void CFraktalSFT::MandelCalcScaled()
 
     complex<double> de = 0;
 
-    tfloatexp<mantissa, exponent> Dr = tfloatexp<mantissa, exponent>(D0r);
-    tfloatexp<mantissa, exponent> Di = tfloatexp<mantissa, exponent>(D0i);
+    tfloatexp<mantissa, exponent> Cr = tfloatexp<mantissa, exponent>(D0r);
+    tfloatexp<mantissa, exponent> Ci = tfloatexp<mantissa, exponent>(D0i);
     tfloatexp<mantissa, exponent> Xr = tfloatexp<mantissa, exponent>(TDnr);
     tfloatexp<mantissa, exponent> Xi = tfloatexp<mantissa, exponent>(TDni);
     tfloatexp<mantissa, exponent> JxaF = tfloatexp<mantissa, exponent>(dxa1);
@@ -302,13 +302,37 @@ void CFraktalSFT::MandelCalcScaled()
     tfloatexp<mantissa, exponent> dabF = tfloatexp<mantissa, exponent>(dab0);
     tfloatexp<mantissa, exponent> dbaF = tfloatexp<mantissa, exponent>(dba0);
     tfloatexp<mantissa, exponent> dbbF = tfloatexp<mantissa, exponent>(dbb0);
-    bool ok = derivatives
-      ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Dr, Di, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF)
-      : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Dr, Di);
-    assert(ok && "perturbation_scaled");
-    de = compute_de(Xr, Xi, JxaF, JxbF, JyaF, JybF, s, TK);
+    int power = m_nPower;
 
-    OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);
+    if (GetUseHybridFormula())
+    {
+      power = 1;
+      if (derivatives)
+      {
+        dual<2, tfloatexp<mantissa, exponent>> dCr = Cr; dCr.dx[0] = 1; dCr.dx[1] = 0;
+        dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = 1;
+        dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = 1; dXr.dx[1] = 0;
+        dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = 1;
+        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dXr, dXi, dCr, dCi, power);
+        assert(ok && "perturbation_dual_hybrid");
+        de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], s, TK);
+      }
+      else
+      {
+        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Xr, Xi, Cr, Ci, power);
+        assert(ok && "perturbation_hybrid");
+      }
+    }
+    else
+    {
+      bool ok = derivatives
+        ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF)
+        : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci);
+      assert(ok && "perturbation_scaled");
+      de = compute_de(Xr, Xi, JxaF, JxbF, JyaF, JybF, s, TK);
+    }
+
+    OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
     if (bGlitch) m_count_bad++; else m_count_good++;
     OutputPixelData(x, y, w, h, bGlitch);
   }
