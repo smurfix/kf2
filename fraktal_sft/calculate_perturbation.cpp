@@ -309,13 +309,13 @@ void CFraktalSFT::MandelCalcScaled()
       power = 1;
       if (derivatives)
       {
-        dual<2, tfloatexp<mantissa, exponent>> dCr = Cr; dCr.dx[0] = 1; dCr.dx[1] = 0;
-        dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = 1;
-        dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = 1; dXr.dx[1] = 0;
-        dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = 1;
+        dual<2, tfloatexp<mantissa, exponent>> dCr = Cr; dCr.dx[0] = s; dCr.dx[1] = 0;
+        dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = s;
+        dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = s; dXr.dx[1] = 0;
+        dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = s;
         bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dXr, dXi, dCr, dCi, power);
         assert(ok && "perturbation_dual_hybrid");
-        de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], s, TK);
+        de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], tfloatexp<mantissa, exponent>(1), TK);
       }
       else
       {

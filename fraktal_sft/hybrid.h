@@ -1029,7 +1029,9 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
   using RR = tfloatexp<R, I>;
   using D = dual<2, R>;
   using DD = dual<2, RR>;
-  const R w2threshold = std::exp(std::log(sizeof(R) == sizeof(double) ? 1.0e300 : 1.0e30) / hybrid_power_inf(h));
+  const int pwr = hybrid_power_inf(h);
+  const R w2threshold = std::exp(std::log(sizeof(R) == sizeof(double) ? 1.0e300 : 1.0e30) / pwr);
+  const R d2threshold = std::exp(std::log(sizeof(R) == sizeof(double) ? 1.0e300 : 1.0e30) / (pwr - 1));
   if (h.stanzas.size() == 0)
   {
     return false;
@@ -1235,7 +1237,8 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
       win = z.m_i;
 
       const mantissa w2 = wrn.x * wrn.x + win.x * win.x;
-      if (w2 < w2threshold)
+      const mantissa d2 = wrn.dx[0] * wrn.dx[0] + wrn.dx[1] * wrn.dx[1] + win.dx[0] * win.dx[0] + win.dx[1] * win.dx[1];
+      if (w2 < w2threshold && d2 < d2threshold)
       {
         wr = wrn;
         wi = win;
