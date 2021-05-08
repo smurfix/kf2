@@ -3071,10 +3071,10 @@ __kernel void perturbation_scaled
     // Series approximation
     floatexp D0r = zero;
     floatexp D0i = zero;
-    floatexp daa0 = one;
+    floatexp daa0 = g->m_pixel_scale; // one
     floatexp dab0 = zero;
     floatexp dba0 = zero;
-    floatexp dbb0 = one;
+    floatexp dbb0 = g->m_pixel_scale; // one
     GetPixelCoordinates(g, x, y, &D0r, &D0i);
 
     long antal;
@@ -3092,10 +3092,10 @@ __kernel void perturbation_scaled
       , dab0
       , dba0
       , dbb0
-      , dxa1
-      , dxb1
-      , dya1
-      , dyb1
+      , fe_mul(dxa1, g->m_pixel_scale)
+      , fe_mul(dxb1, g->m_pixel_scale)
+      , fe_mul(dya1, g->m_pixel_scale)
+      , fe_mul(dyb1, g->m_pixel_scale)
       , 0
       , 0
       , antal
@@ -3115,7 +3115,7 @@ __kernel void perturbation_scaled
     dcomplex de = { 0.0, 0.0 };
     if (g->derivatives)
     {
-      const floatexp s = g->m_pixel_scale;
+      const floatexp s = one; // g->m_pixel_scale;
       const mat2 TK = { { { g->transform00, g->transform01 }, { g->transform10, g->transform11 } } };
       de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
