@@ -34,7 +34,7 @@ void perturbation_floatexp_loop
     test2 = test1;
     const floatexp ftest1 = fe_add(Xxr2, Xxi2);
     test1 = fe_double(ftest1);
-    if (fe_le(ftest1, Xz))
+    if (fe_lt(ftest1, Xz))
     {
       l->bGlitch = true;
       if (! l->bNoGlitchDetection)
