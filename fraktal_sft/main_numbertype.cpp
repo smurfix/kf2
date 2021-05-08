@@ -42,7 +42,7 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     T(IDOK, "Apply and close")
     T(IDCANCEL, "Close and undo")
 #undef T
-    NumberType n = g_SFT.GetNumberType();
+    NumberType n = g_SFT.GetNumberTypes();
     SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_SINGLE,         BM_SETCHECK, n.Single         ? 1 : 0, 0);
     SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_DOUBLE,         BM_SETCHECK, n.Double         ? 1 : 0, 0);
     SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_LONGDOUBLE,     BM_SETCHECK, n.LongDouble     ? 1 : 0, 0);
@@ -71,7 +71,7 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         n.FloatExpDouble = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_FLOATEXPDOUBLE, BM_GETCHECK, 0, 0);
         n.RescaledSingle = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_RESCALEDSINGLE, BM_GETCHECK, 0, 0);
         n.RescaledDouble = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_RESCALEDDOUBLE, BM_GETCHECK, 0, 0);
-        g_SFT.SetNumberType(n);
+        g_SFT.SetNumberTypes(n);
         retval = 1;
       }
       for (auto tooltip : tooltips)

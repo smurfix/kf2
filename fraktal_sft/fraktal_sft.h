@@ -692,8 +692,8 @@ public:
 		return m_Settings.SetDerivativeGlitch(x);
 	};
   BOOL(ReferenceStrictZero)
-  inline NumberType GetNumberType() const { return m_Settings.GetNumberType(); };
-  inline void SetNumberType(const NumberType x) { return m_Settings.SetNumberType(x); };
+  inline NumberType GetNumberTypes() const { return m_Settings.GetNumberTypes(); };
+  inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
 #undef DOUBLE
 #undef INT
 #undef BOOL

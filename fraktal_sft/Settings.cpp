@@ -108,7 +108,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
-  INT(NumberType)
+  INT(NumberTypes)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -179,7 +179,7 @@ std::string Settings::ToText() const
   BOOL(ExponentialMap)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
-  { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberType())); }
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberTypes())); }
 #undef DOUBLE
 #undef INT
 #undef BOOL

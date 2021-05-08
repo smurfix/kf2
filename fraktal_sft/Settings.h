@@ -94,7 +94,7 @@ private:
   bool m_ExponentialMap;
   bool m_DerivativeGlitch;
   bool m_ReferenceStrictZero;
-  int64_t m_NumberType;
+  int64_t m_NumberTypes;
 
 public:
 
@@ -155,7 +155,7 @@ public:
   , m_ExponentialMap(false)
   , m_DerivativeGlitch(false)
   , m_ReferenceStrictZero(false)
-  , m_NumberType(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
+  , m_NumberTypes(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
   { };
 
   bool FromText(const std::string &text);
@@ -358,8 +358,8 @@ public:
   inline bool   GetReferenceStrictZero() const { return m_ReferenceStrictZero; };
   inline void   SetReferenceStrictZero(bool b) { m_ReferenceStrictZero = b; };
 
-  inline NumberType GetNumberType() const { return unpack_number_type(m_NumberType); };
-  inline void SetNumberType(const NumberType n) { m_NumberType = pack_number_type(n); };
+  inline NumberType GetNumberTypes() const { return unpack_number_type(m_NumberTypes); };
+  inline void SetNumberTypes(const NumberType n) { m_NumberTypes = pack_number_type(n); };
 
 };
 
