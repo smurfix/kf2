@@ -2691,7 +2691,6 @@ __kernel void perturbation_double
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
-    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -2875,7 +2874,6 @@ __kernel void perturbation_floatexp
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
-    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -3059,7 +3057,6 @@ __kernel void perturbation_scaled
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
-    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
@@ -3233,7 +3230,6 @@ __kernel void perturbation_softfloat
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
-    long nMaxIter = g->m_nGlitchIter < g->m_nMaxIter ? g->m_nGlitchIter : g->m_nMaxIter;
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
