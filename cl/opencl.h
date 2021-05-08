@@ -512,8 +512,8 @@ public:
       if (! program) { E(err); }
       // FIXME synchronous program building, async would be better
       std::ostringstream options;
-      options << "-cl-fast-relaxed-math"
-              << " -D DERIVATIVES=" << (derivatives ? 1 : 0)
+      options << (single ? "-cl-single-precision-constant" : "")
+              << " -cl-fast-relaxed-math"
               << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
               << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
       err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
