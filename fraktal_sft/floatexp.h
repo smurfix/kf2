@@ -26,6 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iomanip>
 #include <cmath>
 #include <limits>
+#include <algorithm>
 #include "CFixedFloat.h"
 
 template <typename mantissa, typename exponent>
@@ -46,19 +47,27 @@ public:
 	// MIN_EXPONENT is smaller than you might expect, this is to give headroom for
 	// avoiding overflow in + and other functions. it is the exponent for 0.0
 	static const exponent EXP_MIN = -(exponent(1) << (sizeof(exponent) * CHAR_BIT - 8));
+	static const exponent EXP_MAX = -EXP_MIN;
 
 	inline void align() noexcept
 	{
-		if (val != 0)
+		if (val == 0)
+		{
+			exp = EXP_MIN;
+		}
+		else if (std::isnan(val))
+		{
+			exp = EXP_MIN;
+		}
+		else if (std::isinf(val))
+		{
+			exp = EXP_MAX;
+		}
+		else
 		{
 			int e = 0;
 			val = std::frexp(val, &e);
 			exp += e;
-		}
-		else
-		{
-			val = 0;
-			exp = EXP_MIN;
 		}
 	}
 
@@ -122,8 +131,8 @@ public:
 		(void) dummy;
 	}
 	template <typename mantissa2, typename exponent2>
-	explicit inline tfloatexp(tfloatexp<mantissa2, exponent2> a) noexcept
-	: tfloatexp(mantissa(a.val), exponent(a.exp))
+	explicit inline tfloatexp(const tfloatexp<mantissa2, exponent2> &a) noexcept
+	: tfloatexp(mantissa(a.val), exponent(std::min(std::max(a.exp, exponent2(EXP_MIN)), exponent2(EXP_MAX))))
 	{
 	}
 
@@ -317,11 +326,6 @@ public:
 			return false;
 		return val==a.val;
 	}
-	inline bool iszero() const noexcept
-	{
-		return (val==0 && exp==0);
-	}
-
 	inline explicit operator float () const noexcept
 	{
 		if (exp > exponent(INT_MAX))
@@ -412,6 +416,8 @@ public:
 		  d10 = 10^(log10 f - e10)
 		  d10 \in [1, 10)
 		*/
+		if (std::isnan(val)) return "nan";
+		if (std::isinf(val)) return val > 0 ? "+inf" : "-inf";
 		mantissa lf = std::log10(std::abs(val)) + exp * std::log10(2.0);
 		exponent e10 = exponent(std::floor(lf));
 		mantissa d10 = std::pow(10, lf - e10) * ((val > 0) - (val < 0));

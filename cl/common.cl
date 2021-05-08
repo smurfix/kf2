@@ -113,10 +113,29 @@ mantissa fe_double(const floatexp f)
 
 floatexp fe_floatexp(const mantissa val, const exponent exp)
 {
-  int f_exp = 0;
-  mantissa f_val = frexp(val, &f_exp);
-  floatexp fe = { f_val, f_exp + exp };
-  return fe;
+  if (val == 0)
+  {
+    floatexp fe = { val, EXP_MIN };
+    return fe;
+  }
+  else if (isnan(val))
+  {
+    floatexp fe = { val, EXP_MIN };
+    return fe;
+  }
+  else if (isinf(val))
+  {
+    floatexp fe = { val, EXP_MAX };
+    return fe;
+  }
+  else
+  {
+    int e = 0;
+    mantissa f_val = frexp(val, &e);
+    exponent f_exp = e + exp;
+    floatexp fe = { f_val, f_exp };
+    return fe;
+  }
 }
 
 floatexp fe_abs(const floatexp f)
@@ -247,6 +266,7 @@ int fe_cmp(const floatexp a, const floatexp b)
 
 bool fe_lt(const floatexp a, const floatexp b)
 {
+  if (isnan(a.val) || isnan(b.val)) return false;
   return fe_cmp(a, b) < 0;
 }
 
