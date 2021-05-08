@@ -1555,7 +1555,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		int terms = GetApproxTerms();
 		if (m_APr)
 		{
-		  APr = new tfloatexp<float, int32_t>[terms];
+		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
 		  {
 		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
@@ -1563,7 +1563,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		}
 		if (m_APi)
 		{
-		  APi = new tfloatexp<float, int32_t>[terms];
+		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
 		  {
 		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
@@ -1671,7 +1671,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		int terms = GetApproxTerms();
 		if (m_APr)
 		{
-		  APr = new tfloatexp<float, int32_t>[terms];
+		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
 		  {
 		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
@@ -1679,7 +1679,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		}
 		if (m_APi)
 		{
-		  APi = new tfloatexp<float, int32_t>[terms];
+		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
 		  {
 		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
