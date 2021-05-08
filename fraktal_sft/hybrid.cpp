@@ -1982,3 +1982,930 @@ extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, 
   o << "  }\n";
   return o.str();
 }
+
+// scaled double opencl
+
+extern std::string hybrid_pf_opencl_double_scaled(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &s)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " = dc(0.0, 0.0);\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  mantissa zX = " << Z << ".re;\n";
+  o << "  mantissa zY = " << Z << ".im;\n";
+  o << "  mantissa zx = " << z << ".re;\n";
+  o << "  mantissa zy = " << z << ".im;\n";
+  o << "  dcomplex W = dc_add(" << Z << ", dc_muld(" << z << ", " << s << "));\n";
+  o << "  dcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  zx = d_diffabs(d_div(zX, " << s << "), zx);\n";
+  o << "  W.re = d_abs(W.re);\n";
+  o << "  B.re = d_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  zy = d_diffabs(d_div(zY, " << s << "), zy);\n";
+  o << "  W.im = d_abs(W.im);\n";
+  o << "  B.im = d_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  zx = d_neg(zx);\n";
+  o << "  W.re = d_neg(W.re);\n";
+  o << "  B.re = d_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  zy = d_neg(zy);\n";
+  o << "  W.im = d_neg(W.im);\n";
+  o << "  B.im = d_neg(B.im);\n";
+  }
+  o << "  dcomplex P = { zx, zy };\n";
+  o << "  dcomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex S = { 0.0, 0.0 };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = dc_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+extern std::string hybrid_pf_opencl_double_dual_scaled(const hybrid_operator &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &s)
+{
+  std::ostringstream o;
+  if (h.pow == 0)
+  {
+    o << ret << " = ddc(dd(0.0,0.0,0.0),dd(0.0,0.0,0.0))\n";
+    return o.str();
+  }
+  o << "{\n";
+  o << "  mantissa X = " << Z << ".re;\n";
+  o << "  mantissa Y = " << Z << ".im;\n";
+  o << "  duald x = " << z << ".re;\n";
+  o << "  duald y = " << z << ".im;\n";
+  o << "  dualdcomplex W = dualdc_dcadd(" << Z << ", dualdc_muld(" << z << "," << s <<"));\n";
+  o << "  dcomplex B = " << Z << ";\n";
+  if (h.abs_x)
+  {
+  o << "  x = duald_ddiffabs(d_div(X, " << s << "), x);\n";
+  o << "  W.re = duald_abs(W.re);\n";
+  o << "  B.re = d_abs(B.re);\n";
+  }
+  if (h.abs_y)
+  {
+  o << "  y = duald_ddiffabs(d_div(Y, " << s << "), y);\n";
+  o << "  W.im = duald_abs(W.im);\n";
+  o << "  B.im = d_abs(B.im);\n";
+  }
+  if (h.neg_x)
+  {
+  o << "  x = duald_neg(x);\n";
+  o << "  W.re = duald_neg(W.re);\n";
+  o << "  B.re = d_neg(B.re);\n";
+  }
+  if (h.neg_y)
+  {
+  o << "  y = duald_neg(y);\n";
+  o << "  W.im = duald_neg(W.im);\n";
+  o << "  B.im = d_neg(B.im);\n";
+  }
+  o << "  dualdcomplex P = { x, y };\n";
+  o << "  dualdcomplex Wp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dualdcomplex M = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
+  o << "    Wp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dualdc_mul(M, W);\n";
+    o << "    Wp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dcomplex Bp[" << h.pow << "];\n";
+  o << "  {";
+  o << "    dcomplex M = { 1.0, 0.0 };\n";
+  o << "    Bp[0] = M;\n";
+  for (int i = 1; i < h.pow; ++i)
+  {
+    o << "    M = dc_mul(M, B);\n";
+    o << "    Bp[" << i << "] = M;\n";
+  }
+  o << "  }";
+  o << "  dualdcomplex S = { { 0.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
+  for (int i = 0; i <= h.pow - 1; ++i)
+  {
+    int j = h.pow - 1 - i;
+//  S += pow(W, i) * pow(B, j);
+    o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+  }
+  if (h.mul_re == 1.0 && h.mul_im == 0.0)
+  {
+    o << "  " << ret << " = dualdc_mul(P, S);\n";
+  }
+  else
+  {
+    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+    o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_scaled(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &s)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dcomplex pfone;\n";
+  o << hybrid_pf_opencl_double_scaled(h.one, "pfone", Z, z, s);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dcomplex pftwo;\n";
+  o << hybrid_pf_opencl_double_scaled(h.two, "pftwo", Z, z, s);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dc_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dc_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  dcomplex Zz = dc_add(" << Z << ", dc_muld(" << z << ", " << s << "));\n";
+      o << "  dcomplex ftwo;\n";
+      o << hybrid_f_opencl_double(h.two, "ftwo", "Zz");
+      o << "  dcomplex fone;\n";
+      o << hybrid_f_opencl_double(h.two, "fone", Z);
+      o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_dual_scaled(const hybrid_line &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &s)
+{
+  std::ostringstream o;
+  o << "{\n";
+  o << "  dualdcomplex pfone;\n";
+  o << hybrid_pf_opencl_double_dual_scaled(h.one, "pfone", Z, z, s);
+  if (h.two.pow == 0 && h.two.mul_re == 0.0 && h.two.mul_im == 0.0 && (h.mode == hybrid_combine_add || h.mode == hybrid_combine_sub))
+  {
+    o << "  " << ret << " = pfone;\n";
+  o << "}\n";
+    return o.str();
+  }
+  o << "  dualdcomplex pftwo;\n";
+  o << hybrid_pf_opencl_double_dual_scaled(h.two, "pftwo", Z, z, s);
+  switch (h.mode)
+  {
+    case hybrid_combine_add:
+    {
+      o << "  " << ret << " = dualdc_add(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_sub:
+    {
+      o << "  " << ret << " = dualdc_sub(pfone, pftwo);\n";
+      break;
+    }
+    case hybrid_combine_mul:
+    {
+      o << "  dualdcomplex Zz = dualdc_dcadd(" << Z << ", dualdc_dcmuld(" << z << ", " << s << "));\n";
+      o << "  dualdcomplex ftwo;\n";
+      o << hybrid_f_opencl_double_dual(h.two, "ftwo", "Zz");
+      o << "  dcomplex fone;\n";
+      o << hybrid_f_opencl_double(h.one, "fone", Z);
+      o << "  " << ret << " = dualdc_add(dualdc_mul(pfone, ftwo), dualdc_dcmul(fone, pftwo));\n";
+      break;
+    }
+  }
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_scaled(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c, const std::string &s)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    dcomplex znext;\n";
+    o << hybrid_pf_opencl_double_scaled(h.lines[i], "znext", Z, z, s);
+    o << "    " << z << " = znext;\n";
+    o << "    dcomplex Znext;\n";
+    o << hybrid_f_opencl_double(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " = dc_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+std::string hybrid_pf_opencl_double_dual_scaled(const hybrid_stanza &h, const std::string &ret, const std::string &Z, const std::string &z, const std::string &c, const std::string &s)
+{
+  std::ostringstream o;
+  o << "{\n";
+  const int k = h.lines.size();
+  for (int i = 0; i < k; ++i)
+  {
+    o << "  {\n";
+    o << "    dualdcomplex znext;\n";
+    o << hybrid_pf_opencl_double_dual_scaled(h.lines[i], "znext", Z, z, s);
+    o << "    " << z << " = znext;\n";
+    o << "    dcomplex Znext;\n";
+    o << hybrid_f_opencl_double(h.lines[i], "Znext", Z); // space vs work tradeoff; should be fine at low precision as there is no +C ?
+    o << "    " << Z << " = Znext;\n";
+    o << "  }\n";
+  }
+  o << "  " << ret << " = dualdc_add(" << z << ", " << c << ");\n";
+  o << "}\n";
+  return o.str();
+}
+
+#define STR(s) #s
+
+extern std::string hybrid_perturbation_scaled_opencl(const hybrid_formula &h, const bool derivatives)
+{
+  const bool simple1 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 1 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0;
+  const bool simple2 =
+    h.stanzas.size() == 1 &&
+    h.stanzas[0].lines.size() == 2 &&
+    h.stanzas[0].lines[0].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[0].two.mul_re == 0 &&
+    h.stanzas[0].lines[0].two.mul_im == 0 &&
+    h.stanzas[0].lines[1].mode == hybrid_combine_add &&
+    h.stanzas[0].lines[1].two.mul_re == 0 &&
+    h.stanzas[0].lines[1].two.mul_im == 0;
+  hybrid_operator op1 = {0}, op2 = {0};
+  if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
+  if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
+
+  if (derivatives)
+  {
+
+  std::ostringstream o;
+  o << STR(
+
+void perturbation_double_loop
+( __global const p_config    *g
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
+,                p_status_d  *l
+)
+{
+}
+
+void perturbation_floatexp_loop
+( __global const p_config    *g
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
+,                p_status_fe *l
+)
+{
+}
+
+void perturbation_scaled_loop
+( __global const p_config    *g
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
+, __global const long        *m_refN
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
+,                p_status_fe *l
+)
+{
+  const int pwr =
+
+  ) << hybrid_power_inf(h) << STR(;
+
+  const mantissa w2threshold = exp(log(LARGE_MANTISSA) / pwr);
+  const mantissa d2threshold = exp(log(LARGE_MANTISSA) / (pwr - 1));
+  const floatexp zero = fe_floatexp(0.0, 0);
+  const floatexp one = fe_floatexp(1.0, 0);
+  const bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
+  const dualfe cr = dfe(l->cr, l->daa, l->dab);
+  const dualfe ci = dfe(l->ci, l->dba, l->dbb);
+  dualfe xr = dfe(l->xr, l->dxa, l->dxb);
+  dualfe xi = dfe(l->xi, l->dya, l->dyb);
+  int count = 0;
+  int stanza = 0;
+  mantissa test1 = l->test1;
+  mantissa test2 = l->test2;
+  long antal = l->antal;
+  dualfe Xxr = dfe(zero, zero, zero);
+  dualfe Xxi = dfe(zero, zero, zero);
+  long k = 0; long n = 0;
+  floatexp Xrf; floatexp Xif; floatexp Xzf;
+  do
+  {
+    if (k < g->m_nRSize)
+    {
+      n = m_refN[k];
+      Xrf = m_refX[k];
+      Xif = m_refY[k];
+      Xzf = m_refZ[k];
+      k++;
+    }
+    else
+    {
+      n = g->nMaxIter;
+    }
+  }
+  while (n < antal);
+  floatexp S = fe_sqrt(fe_add(fe_sqr(xr.x), fe_sqr(xi.x)));
+  mantissa s = fe_double(S);
+  duald wr = dualfe_double(dualfe_divfe(xr, S));
+  duald wi = dualfe_double(dualfe_divfe(xi, S));
+  duald ur = dualfe_double(dualfe_divfe(cr, S));
+  duald ui = dualfe_double(dualfe_divfe(ci, S));
+  for (; antal < g->nMaxIter; antal++)
+  {
+    const bool full_iteration = antal == n;
+    if (full_iteration)
+    {
+      const floatexp Xr = Xrf;
+      const floatexp Xi = Xif;
+      const floatexp Xz = Xzf;
+      if (k < g->m_nRSize)
+      {
+        n = m_refN[k];
+        Xrf = m_refX[k];
+        Xif = m_refY[k];
+        Xzf = m_refZ[k];
+        k++;
+      }
+      else
+      {
+        n = g->nMaxIter;
+      }
+      const dualfe xr = dualfe_femulduald(S, wr);
+      const dualfe xi = dualfe_femulduald(S, wi);
+      Xxr = dualfe_feadd(Xr, xr);
+      Xxi = dualfe_feadd(Xi, xi);
+      const floatexp Xxr2 = fe_sqr(Xxr.x);
+      const floatexp Xxi2 = fe_sqr(Xxi.x);
+      test2 = test1;
+      const floatexp ftest1 = fe_add(Xxr2, Xxi2);
+      test1 = fe_double(ftest1);
+      if (fe_lt(ftest1, Xz))
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        break;
+      }
+      const fecomplex Z = fec(Xr, Xi);
+      const dualfecomplex z = dfec(xr, xi);
+      const dualfecomplex c = dfec(cr, ci);
+      dualfecomplex zn;
+  );
+
+      if (simple1)
+      {
+        o << hybrid_pf_opencl_floatexp_dual(op1, "zn", "Z", "z");
+        o << "zn = dualfec_add(zn, c);\n";
+      }
+      else if (simple2)
+      {
+        o << "fecomplex Z1;\n";
+        o << "dualfecomplex z1;\n";
+        o << hybrid_f_opencl_floatexp(op1, "Z1", "Z");
+        o << hybrid_pf_opencl_floatexp_dual(op1, "z1", "Z", "z");
+        o << hybrid_pf_opencl_floatexp_dual(op2, "zn", "Z1", "z1");
+        o << "zn = dualfec_add(zn, c);\n";
+      }
+      else
+      {
+        o << STR(
+
+        if (++count >= g->hybrid_repeats[stanza])
+        {
+          count = 0;
+          if (++stanza >= g->hybrid_nstanzas)
+          {
+            stanza = g->hybrid_loop_start;
+          }
+        }
+        l->log_m_nPower = g->hybrid_log_powers[stanza];
+        switch (stanza)
+        {
+
+        );
+        for (size_t stanza = 0; stanza < h.stanzas.size(); ++stanza)
+        {
+          o << "case " << stanza << ": {\n"
+            << hybrid_pf_opencl_floatexp_dual(h.stanzas[stanza], "zn", "Z", "z", "c")
+            << "break;}\n";
+        }
+        o << STR(
+
+        }
+
+        );
+      }
+
+  o << STR(
+
+      const dualfe xrn = zn.re;
+      const dualfe xin = zn.im;
+      S = fe_sqrt(fe_add(fe_sqr(xrn.x), fe_sqr(xin.x)));
+      s = fe_double(S);
+      wr = dualfe_double(dualfe_divfe(xrn, S));
+      wi = dualfe_double(dualfe_divfe(xin, S));
+      ur = dualfe_double(dualfe_divfe(cr, S));
+      ui = dualfe_double(dualfe_divfe(ci, S));
+    }
+    else
+    {
+      long antal_min = antal - g->nMinIter;
+      const mantissa Xr = m_refx[antal_min];
+      const mantissa Xi = m_refy[antal_min];
+      const mantissa Xz = m_refz[antal_min];
+      const duald Xxrd = duald_dadd(Xr, duald_muld(wr, s));
+      const duald Xxid = duald_dadd(Xi, duald_muld(wi, s));
+      Xxr = dualfe_from_duald(Xxrd);
+      Xxi = dualfe_from_duald(Xxid);
+      const mantissa Xxr2 = Xxrd.x * Xxrd.x;
+      const mantissa Xxi2 = Xxid.x * Xxid.x;
+      test2 = test1;
+      test1 = Xxr2 + Xxi2;
+      if (test1 < Xz)
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd.x, Xxid.x);
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        break;
+      }
+      dcomplex Z = dc(Xr, Xi);
+      dualdcomplex w = ddc(wr, wi);
+      dualdcomplex u = ddc(ur, ui);
+      dualdcomplex wn;
+
+  );
+
+      if (simple1)
+      {
+        o << hybrid_pf_opencl_double_dual_scaled(op1, "wn", "Z", "w", "s");
+        o << "wn = dualdc_add(wn, u);\n";
+      }
+      else if (simple2)
+      {
+        o << "dcomplex Z1;\n";
+        o << "dualdcomplex w1;\n";
+        o << hybrid_f_opencl_double(op1, "Z1", "Z");
+        o << hybrid_pf_opencl_double_dual_scaled(op1, "w1", "Z", "w", "s");
+        o << hybrid_pf_opencl_double_dual_scaled(op2, "wn", "Z1", "w1", "s");
+        o << "wn = dualfec_add(wn, u);\n";
+      }
+      else
+      {
+        o << STR(
+
+        if (++count >= g->hybrid_repeats[stanza])
+        {
+          count = 0;
+          if (++stanza >= g->hybrid_nstanzas)
+          {
+            stanza = g->hybrid_loop_start;
+          }
+        }
+        l->log_m_nPower = g->hybrid_log_powers[stanza];
+        switch (stanza)
+        {
+
+        );
+        for (size_t stanza = 0; stanza < h.stanzas.size(); ++stanza)
+        {
+          o << "case " << stanza << ": {\n"
+            << hybrid_pf_opencl_double_scaled(h.stanzas[stanza], "wn", "Z", "w", "u", "s")
+            << "break;}\n";
+        }
+        o << STR(
+
+        }
+
+        );
+
+      }
+
+  o << STR(
+
+      const duald wrn = wn.re;
+      const duald win = wn.im;
+
+      const mantissa w2 = wrn.x * wrn.x + win.x * win.x;
+      const mantissa d2 = wrn.dx[0] * wrn.dx[0] + wrn.dx[1] * wrn.dx[1] + win.dx[0] * win.dx[0] + win.dx[1] * win.dx[1];
+      if (w2 < w2threshold && d2 < d2threshold)
+      {
+        wr = wrn;
+        wi = win;
+      }
+      else
+      {
+        dualfe xrn = dualfe_femulduald(S, wrn);
+        dualfe xin = dualfe_femulduald(S, win);
+        S = fe_sqrt(fe_add(fe_sqr(xrn.x), fe_sqr(xin.x)));
+        s = fe_double(S);
+        wr = dualfe_double(dualfe_divfe(xrn, S));
+        wi = dualfe_double(dualfe_divfe(xin, S));
+        ur = dualfe_double(dualfe_divfe(cr, S));
+        ui = dualfe_double(dualfe_divfe(ci, S));
+      }
+    }
+  }
+  l->antal = antal;
+  l->test1 = test1;
+  l->test2 = test2;
+  l->xr = Xxr.x;
+  l->xi = Xxi.x;
+  l->dxa = Xxr.dx[0];
+  l->dxb = Xxr.dx[1];
+  l->dya = Xxi.dx[0];
+  l->dyb = Xxi.dx[1];
+}
+
+  );
+  return o.str();
+
+  }
+  else
+  {
+
+  std::ostringstream o;
+  o << STR(
+
+void perturbation_double_loop
+( __global const p_config    *g
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
+,                p_status_d  *l
+)
+{
+}
+
+void perturbation_floatexp_loop
+( __global const p_config    *g
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
+,                p_status_fe *l
+)
+{
+}
+
+void perturbation_scaled_loop
+( __global const p_config    *g
+, __global const mantissa    *m_refx
+, __global const mantissa    *m_refy
+, __global const mantissa    *m_refz
+, __global const long        *m_refN
+, __global const floatexp    *m_refX
+, __global const floatexp    *m_refY
+, __global const floatexp    *m_refZ
+,                p_status_fe *l
+)
+{
+  const int pwr =
+
+  ) << hybrid_power_inf(h) << STR(;
+
+  const mantissa w2threshold = exp(log(LARGE_MANTISSA) / pwr);
+  const floatexp zero = fe_floatexp(0.0, 0);
+  const floatexp one = fe_floatexp(1.0, 0);
+  const bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
+  const floatexp cr = l->cr;
+  const floatexp ci = l->ci;
+  floatexp xr = l->xr;
+  floatexp xi = l->xi;
+  int count = 0;
+  int stanza = 0;
+  mantissa test1 = l->test1;
+  mantissa test2 = l->test2;
+  long antal = l->antal;
+  floatexp Xxr = zero;
+  floatexp Xxi = zero;
+  long k = 0; long n = 0;
+  floatexp Xrf; floatexp Xif; floatexp Xzf;
+  do
+  {
+    if (k < g->m_nRSize)
+    {
+      n = m_refN[k];
+      Xrf = m_refX[k];
+      Xif = m_refY[k];
+      Xzf = m_refZ[k];
+      k++;
+    }
+    else
+    {
+      n = g->nMaxIter;
+    }
+  }
+  while (n < antal);
+  floatexp S = fe_sqrt(fe_add(fe_sqr(xr), fe_sqr(xi)));
+  mantissa s = fe_double(S);
+  mantissa wr = fe_double(fe_div(xr, S));
+  mantissa wi = fe_double(fe_div(xi, S));
+  mantissa ur = fe_double(fe_div(cr, S));
+  mantissa ui = fe_double(fe_div(ci, S));
+  mantissa u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
+  for (; antal < g->nMaxIter; antal++)
+  {
+    const bool full_iteration = antal == n;
+    if (full_iteration)
+    {
+      const floatexp Xr = Xrf;
+      const floatexp Xi = Xif;
+      const floatexp Xz = Xzf;
+      if (k < g->m_nRSize)
+      {
+        n = m_refN[k];
+        Xrf = m_refX[k];
+        Xif = m_refY[k];
+        Xzf = m_refZ[k];
+        k++;
+      }
+      else
+      {
+        n = g->nMaxIter;
+      }
+      const floatexp xr = fe_muld(S, wr);
+      const floatexp xi = fe_muld(S, wi);
+      Xxr = fe_add(Xr, xr);
+      Xxi = fe_add(Xi, xi);
+      const floatexp Xxr2 = fe_sqr(Xxr);
+      const floatexp Xxi2 = fe_sqr(Xxi);
+      test2 = test1;
+      const floatexp ftest1 = fe_add(Xxr2, Xxi2);
+      test1 = fe_double(ftest1);
+      if (fe_lt(ftest1, Xz))
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        break;
+      }
+      const fecomplex Z = fec(Xr, Xi);
+      const fecomplex z = fec(xr, xi);
+      const fecomplex c = fec(cr, ci);
+      fecomplex zn;
+  );
+
+      if (simple1)
+      {
+        o << hybrid_pf_opencl_floatexp(op1, "zn", "Z", "z");
+        o << "zn = fec_add(zn, c);\n";
+      }
+      else if (simple2)
+      {
+        o << "fecomplex Z1;\n";
+        o << "fecomplex z1;\n";
+        o << hybrid_f_opencl_floatexp(op1, "Z1", "Z");
+        o << hybrid_pf_opencl_floatexp(op1, "z1", "Z", "z");
+        o << hybrid_pf_opencl_floatexp(op2, "zn", "Z1", "z1");
+        o << "zn = fec_add(zn, c);\n";
+      }
+      else
+      {
+        o << STR(
+
+        if (++count >= g->hybrid_repeats[stanza])
+        {
+          count = 0;
+          if (++stanza >= g->hybrid_nstanzas)
+          {
+            stanza = g->hybrid_loop_start;
+          }
+        }
+        l->log_m_nPower = g->hybrid_log_powers[stanza];
+        switch (stanza)
+        {
+
+        );
+        for (size_t stanza = 0; stanza < h.stanzas.size(); ++stanza)
+        {
+          o << "case " << stanza << ": {\n"
+            << hybrid_pf_opencl_floatexp(h.stanzas[stanza], "zn", "Z", "z", "c")
+            << "break;}\n";
+        }
+        o << STR(
+
+        }
+
+        );
+      }
+
+  o << STR(
+
+      const floatexp xrn = zn.re;
+      const floatexp xin = zn.im;
+      S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
+      s = fe_double(S);
+      wr = fe_double(fe_div(xrn, S));
+      wi = fe_double(fe_div(xin, S));
+      ur = fe_double(fe_div(cr, S));
+      ui = fe_double(fe_div(ci, S));
+    }
+    else
+    {
+      size_t antal_min = antal - g->nMinIter;
+      const mantissa Xr = m_refx[antal_min];
+      const mantissa Xi = m_refy[antal_min];
+      const mantissa Xz = m_refz[antal_min];
+      const mantissa Xxrd = Xr + wr * s;
+      const mantissa Xxid = Xi + wi * s;
+      Xxr = fe_floatexp(Xxrd, 0);
+      Xxi = fe_floatexp(Xxid, 0);
+      const mantissa Xxr2 = Xxrd * Xxrd;
+      const mantissa Xxi2 = Xxid * Xxid;
+      test2 = test1;
+      test1 = Xxr2 + Xxi2;
+      if (test1 < Xz)
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+        {
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd, Xxid);
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        Xxr = fe_floatexp(Xxrd, 0);
+        Xxi = fe_floatexp(Xxid, 0);
+        break;
+      }
+      dcomplex Z = dc(Xr, Xi);
+      dcomplex w = dc(wr, wi);
+      dcomplex u = dc(ur, ui);
+      dcomplex wn;
+
+  );
+
+      if (simple1)
+      {
+        o << hybrid_pf_opencl_double_scaled(op1, "wn", "Z", "w", "s");
+        o << "wn = dc_add(wn, u);\n";
+      }
+      else if (simple2)
+      {
+        o << "dcomplex Z1;\n";
+        o << "dcomplex w1;\n";
+        o << hybrid_f_opencl_double(op1, "Z1", "Z");
+        o << hybrid_pf_opencl_double_scaled(op1, "w1", "Z", "w", "s");
+        o << hybrid_pf_opencl_double_scaled(op2, "wn", "Z1", "w1", "s");
+        o << "wn = fec_add(wn, u);\n";
+      }
+      else
+      {
+        o << STR(
+
+        if (++count >= g->hybrid_repeats[stanza])
+        {
+          count = 0;
+          if (++stanza >= g->hybrid_nstanzas)
+          {
+            stanza = g->hybrid_loop_start;
+          }
+        }
+        l->log_m_nPower = g->hybrid_log_powers[stanza];
+        switch (stanza)
+        {
+
+        );
+        for (size_t stanza = 0; stanza < h.stanzas.size(); ++stanza)
+        {
+          o << "case " << stanza << ": {\n"
+            << hybrid_pf_opencl_double_scaled(h.stanzas[stanza], "wn", "Z", "w", "u", "s")
+            << "break;}\n";
+        }
+        o << STR(
+
+        }
+
+        );
+
+      }
+
+  o << STR(
+
+      const mantissa wrn = wn.re;
+      const mantissa win = wn.im;
+
+      const mantissa w2 = wrn * wrn + win * win;
+      if (w2 < w2threshold)
+      {
+        wr = wrn;
+        wi = win;
+      }
+      else
+      {
+        floatexp xrn = fe_muld(S, wrn);
+        floatexp xin = fe_muld(S, win);
+        S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
+        s = fe_double(S);
+        wr = fe_double(fe_div(xrn, S));
+        wi = fe_double(fe_div(xin, S));
+        ur = fe_double(fe_div(cr, S));
+        ui = fe_double(fe_div(ci, S));
+      }
+    }
+  }
+  l->antal = antal;
+  l->test1 = test1;
+  l->test2 = test2;
+  l->xr = Xxr;
+  l->xi = Xxi;
+}
+
+  );
+  return o.str();
+  }
+}

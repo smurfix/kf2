@@ -26,6 +26,7 @@ extern std::string perturbation_opencl
 ( const hybrid_formula &hybrid
 , int derivatives
 , bool single
+, bool scaled
 );
 
 template <typename mantissa, typename exponent>
@@ -496,7 +497,7 @@ public:
       // build program
       if (UseHybrid)
       {
-        source = perturbation_opencl(hybrid, derivatives, single);
+        source = perturbation_opencl(hybrid, derivatives, single, scaled);
       }
       else
       {

@@ -347,7 +347,7 @@ extern const char *perturbation_opencl_softfloat_post;
 extern const char *perturbation_opencl_softfloat_post_m;
 #endif
 
-extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives, bool single)
+extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives, bool single, bool scaled)
 {
   std::ostringstream o;
   if (single)
@@ -359,6 +359,12 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives,
     o << perturbation_decl_double;
   }
   o << perturbation_opencl_common;
+  if (scaled)
+  {
+    o << hybrid_perturbation_scaled_opencl(h, derivatives);
+  }
+  else
+  {
   // double
   if (derivatives)
   {
@@ -410,6 +416,7 @@ extern std::string perturbation_opencl(const hybrid_formula &h, int derivatives,
     o << perturbation_opencl_softfloat_post;
   }
 #endif
+  }
   return o.str();
 }
 

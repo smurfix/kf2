@@ -1332,5 +1332,6 @@ extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber 
 
 extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bool derivatives);
 extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives);
+extern std::string hybrid_perturbation_scaled_opencl(const hybrid_formula &h, bool derivatives);
 
 #endif
