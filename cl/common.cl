@@ -1116,6 +1116,18 @@ dualfe dfe(const floatexp a, const floatexp b, const floatexp c)
   return r;
 }
 
+duald dualfe_double(const dualfe a)
+{
+  duald r = { fe_double(a.x), { fe_double(a.dx[0]), fe_double(a.dx[1]) } };
+  return r;
+}
+
+dualfe dualfe_from_duald(const duald a)
+{
+  dualfe r = { fe_floatexp(a.x, 0), { fe_floatexp(a.dx[0], 0), fe_floatexp(a.dx[1], 0) } };
+  return r;
+}
+
 dualfe dualfe_add(dualfe a, dualfe b)
 {
   dualfe r = { fe_add(a.x, b.x), { fe_add(a.dx[0], b.dx[0]), fe_add(a.dx[1], b.dx[1]) } };
@@ -1185,6 +1197,12 @@ dualfe dualfe_muld(dualfe a, mantissa b)
 dualfe dualfe_mul_2si(dualfe a, int b)
 {
   dualfe r = { fe_mul_2si(a.x, b), { fe_mul_2si(a.dx[0], b), fe_mul_2si(a.dx[1], b) } };
+  return r;
+}
+
+dualfe dualfe_femulduald(const floatexp a, const duald b)
+{
+  dualfe r = { fe_muld(a, b.x), { fe_muld(a, b.dx[0]), fe_muld(a, b.dx[1]) } };
   return r;
 }
 
@@ -1355,6 +1373,18 @@ dcomplex dc_imul(const int a, const dcomplex b)
 }
 
 dcomplex dc_muli(const dcomplex a, const int b)
+{
+  dcomplex dc = { a.re * b, a.im * b };
+  return dc;
+}
+
+dcomplex dc_dmul(const mantissa a, const dcomplex b)
+{
+  dcomplex dc = { a * b.re, a * b.im };
+  return dc;
+}
+
+dcomplex dc_muld(const dcomplex a, const mantissa b)
 {
   dcomplex dc = { a.re * b, a.im * b };
   return dc;
