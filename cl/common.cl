@@ -2772,14 +2772,10 @@ __kernel void perturbation_double
         mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
         mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
-        if (div != 0)
-        {
-          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
-        }
-        else
-        {
-          if (nf) nf[ix] = 0;
-        }
+        mantissa f = (pow(test1, 1 / p) - g->m_nBailout) / div;
+        if (!ISFLOATOK(f))
+          f = 0;
+        if (nf) nf[ix] = f;
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
         mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
@@ -2960,14 +2956,10 @@ __kernel void perturbation_floatexp
         mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
         mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
-        if (div != 0)
-        {
-          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
-        }
-        else
-        {
-          if (nf) nf[ix] = 0;
-        }
+        mantissa f = (pow(test1, 1 / p) - g->m_nBailout) / div;
+        if (!ISFLOATOK(f))
+          f = 0;
+        if (nf) nf[ix] = f;
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
         mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
@@ -3148,14 +3140,10 @@ __kernel void perturbation_scaled
         mantissa p = g->norm_p;
         if (! (p < 1.0 / 0.0)) p = 1;
         mantissa div = pow(test1, 1 / p) - pow(test2, 1 / p);
-        if (div != 0)
-        {
-          if (nf) nf[ix] = (pow(test1, 1 / p) - g->m_nBailout) / div;
-        }
-        else
-        {
-          if (nf) nf[ix] = 0;
-        }
+        mantissa f = (pow(test1, 1 / p) - g->m_nBailout) / div;
+        if (!ISFLOATOK(f))
+          f = 0;
+        if (nf) nf[ix] = f;
       }
       else if (!bGlitch && g->m_nSmoothMethod == 0){
         mantissa t = log(log(sqrt(test1)) / g->log_m_nBailout) / l.log_m_nPower;
