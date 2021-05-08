@@ -40,18 +40,23 @@
 #define STR(s) #s
 
 const char *perturbation_decl_float =
+  "#pragma OPENCL EXTENSION cl_khr_fp64: disable\n"
   "#define mantissa float\n"
   "#define exponent int\n"
-  "#define LARGE_MANTISSA 1.0e12\n"
-  "#define LARGE_EXPONENT 120\n"
+  "#define LARGE_MANTISSA 1.0e30\n"
+  "#define LARGE_EXPONENT 2000\n"
+  "#define EXP_MIN (-((exponent)1 &lt;&lt; 24))\n"
+  "#define EXP_MAX   ((exponent)1 &lt;&lt; 24)\n"
 ;
 
 const char *perturbation_decl_double =
   "#pragma OPENCL EXTENSION cl_khr_fp64: enable\n"
   "#define mantissa double\n"
   "#define exponent long\n"
-  "#define LARGE_MANTISSA 1.0e100\n"
-  "#define LARGE_EXPONENT 1020\n"
+  "#define LARGE_MANTISSA 1.0e300\n"
+  "#define LARGE_EXPONENT 2000\n"
+  "#define EXP_MIN (-((exponent)1 &lt;&lt; 56))\n"
+  "#define EXP_MAX   ((exponent)1 &lt;&lt; 56)\n"
 ;
 
 const char *perturbation_scaled_loop_empty = STR(
@@ -292,6 +297,7 @@ void perturbation_scaled_loop
 ,                p_status_fe *l
 )
 {
+  const mantissa w2threshold = exp(log(LARGE_MANTISSA) / <xsl:value-of select="@power" />);
   const floatexp zero = fe_floatexp(0.0, 0);
   const floatexp one = fe_floatexp(1.0, 0);
   const mantissa Ar = g->g_FactorAR;
@@ -394,7 +400,7 @@ void perturbation_scaled_loop
         win = 0;
       }
       const mantissa w2 = wrn * wrn + win * win;
-      if (w2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
+      if (w2 &lt; w2threshold)
       {
         wr = wrn;
         wi = win;
@@ -518,6 +524,8 @@ void perturbation_scaled_loop
 ,                p_status_fe *l
 )
 {
+  const mantissa w2threshold = exp(log(LARGE_MANTISSA) / <xsl:value-of select="@power" />);
+  const mantissa d2threshold = exp(log(LARGE_MANTISSA) / (<xsl:value-of select="@power" /> - 1));
   const floatexp zero = fe_floatexp(0.0, 0);
   const floatexp one = fe_floatexp(1.0, 0);
   const mantissa Ar = g->g_FactorAR;
@@ -826,7 +834,7 @@ void perturbation_scaled_loop
         win = 0;
       }
       const mantissa w2 = wrn * wrn + win * win;
-      if (w2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
+      if (w2 &lt; w2threshold)
       {
         wr = wrn;
         wi = win;
@@ -847,7 +855,7 @@ void perturbation_scaled_loop
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
       const mantissa d2 = drn * drn + din * din;
-      if (d2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
+      if (d2 &lt; d2threshold)
       {
         drD = drn;
         diD = din;
@@ -865,7 +873,7 @@ void perturbation_scaled_loop
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
       const mantissa d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
-      if (d2 &lt; LARGE_MANTISSA) // FIXME threshold depends on power
+      if (d2 &lt; d2threshold) // FIXME threshold depends on power
       {
         dxaD = dxan;
         dyaD = dyan;
