@@ -603,8 +603,8 @@ public:
     const tfloatexp<mantissa, exponent> zero(0);
     for (int i = 0; i < MAX_APPROX_TERMS + 1; ++i)
     {
-      configdata.m_APr[i] = APr ? tfloatexp<mantissa, exponent>(APr[i]) : zero;
-      configdata.m_APi[i] = APi ? tfloatexp<mantissa, exponent>(APi[i]) : zero;
+      configdata.m_APr[i] = APr && i < m_nApproxTerms ? tfloatexp<mantissa, exponent>(APr[i]) : zero;
+      configdata.m_APi[i] = APi && i < m_nApproxTerms ? tfloatexp<mantissa, exponent>(APi[i]) : zero;
       for (int j = 0; j < MAX_APPROX_TERMS + 1; ++j)
       {
         configdata.m_APs_s[i][j] = APs ? tfloatexp<mantissa, exponent>(APs->s[i][j]) : zero;
