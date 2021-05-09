@@ -437,55 +437,43 @@ inline std::ostream& operator<<(std::ostream& a, const tfloatexp<mantissa, expon
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(double a, tfloatexp<mantissa, exponent> b) noexcept
+inline tfloatexp<mantissa, exponent> operator*(mantissa a, const tfloatexp<mantissa, exponent> &b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, double a) noexcept
+inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponent> &b, mantissa a) noexcept
+{
+	return b * tfloatexp<mantissa, exponent>(a);
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(int a, const tfloatexp<mantissa, exponent> &b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(long double a, tfloatexp<mantissa, exponent> b) noexcept
+inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponent> &b, int a) noexcept
 {
-	return tfloatexp<mantissa, exponent>(a) * b;
+	return b * tfloatexp<mantissa, exponent>(a);
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, long double a) noexcept
-{
-	return tfloatexp<mantissa, exponent>(a) * b;
-}
-
-template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator+(double a, tfloatexp<mantissa, exponent> b) noexcept
+inline tfloatexp<mantissa, exponent> operator+(double a, const tfloatexp<mantissa, exponent> &b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) + b;
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator+(tfloatexp<mantissa, exponent> b, double a) noexcept
+inline tfloatexp<mantissa, exponent> operator+(const tfloatexp<mantissa, exponent> &b, double a) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) + b;
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(int a, tfloatexp<mantissa, exponent> b) noexcept
-{
-	return double(a) * b;
-}
-
-template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(tfloatexp<mantissa, exponent> b, int a) noexcept
-{
-	return double(a) * b;
-}
-
-template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator-(int a, tfloatexp<mantissa, exponent> b) noexcept
+inline tfloatexp<mantissa, exponent> operator-(mantissa a, tfloatexp<mantissa, exponent> b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) - b;
 }
