@@ -1501,7 +1501,10 @@ bool FORMULA(perturbation_scaled,<xsl:value-of select="../@type" />,<xsl:value-o
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    const mantissa w2threshold = sizeof(mantissa) == 4 ? 1.0e10 : 1.0e100; // FIXME hardcoded to power &lt;= 3
+    const mantissa LARGE_MANTISSA = sizeof(mantissa) == 4 ? 1e30 : 1e300;
+    const mantissa SMALL_MANTISSA = sizeof(mantissa) == 4 ? 1e-18 : 1e-154;
+    (void) SMALL_MANTISSA;
+    const mantissa w2threshold = exp(log(LARGE_MANTISSA) / <xsl:value-of select="@power" />);
     const mantissa Ar = g_FactorAR;
     const mantissa Ai = g_FactorAI;
     const complex&lt;mantissa&gt; A = { Ar, Ai };
@@ -2149,8 +2152,11 @@ bool FORMULA(perturbation_scaled_derivatives,<xsl:value-of select="../@type" />,
   (void) dbbF; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
-    const mantissa w2threshold = sizeof(mantissa) == 4 ? 1.0e10 : 1.0e100; // FIXME hardcoded to power &lt;= 3
-    const mantissa d2threshold = sizeof(mantissa) == 4 ? 1.0e15 : 1.0e150; // FIXME hardcoded to power &lt;= 3
+    const mantissa LARGE_MANTISSA = sizeof(mantissa) == 4 ? 1e30 : 1e300;
+    const mantissa SMALL_MANTISSA = sizeof(mantissa) == 4 ? 1e-18 : 1e-154;
+    (void) SMALL_MANTISSA;
+    const mantissa w2threshold = exp(log(LARGE_MANTISSA) / <xsl:value-of select="@power" />);
+    const mantissa d2threshold = exp(log(LARGE_MANTISSA) / (<xsl:value-of select="@power" /> - 1));
     const mantissa Ar = g_FactorAR;
     const mantissa Ai = g_FactorAI;
     (void) Ar; // -Wunused-variable

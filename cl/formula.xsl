@@ -44,6 +44,7 @@ const char *perturbation_decl_float =
   "#define mantissa float\n"
   "#define exponent int\n"
   "#define LARGE_MANTISSA 1.0e30\n"
+  "#define SMALL_MANTISSA 1.0e-18\n"
   "#define LARGE_EXPONENT 2000\n"
   "#define EXP_MIN (-((exponent)1 &lt;&lt; 24))\n"
   "#define EXP_MAX   ((exponent)1 &lt;&lt; 24)\n"
@@ -54,6 +55,7 @@ const char *perturbation_decl_double =
   "#define mantissa double\n"
   "#define exponent long\n"
   "#define LARGE_MANTISSA 1.0e300\n"
+  "#define SMALL_MANTISSA 1.0e-154\n"
   "#define LARGE_EXPONENT 2000\n"
   "#define EXP_MIN (-((exponent)1 &lt;&lt; 56))\n"
   "#define EXP_MAX   ((exponent)1 &lt;&lt; 56)\n"
@@ -592,24 +594,14 @@ void perturbation_scaled_loop
   mantissa u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
-  floatexp J0 = fe_sqrt(fe_add(fe_sqr(drF), fe_sqr(diF)));
-  if (fe_cmp(J0, one) &lt; 0)
-  {
-    J0 = one;
-  }
-  floatexp J = J0;
+  floatexp J = S;
   mantissa drD = fe_double(fe_div(drF, J));
   mantissa diD = fe_double(fe_div(diF, J));
   mantissa dr0D = fe_double(fe_div(dr0F, J));
   mantissa di0D = fe_double(fe_div(di0F, J));
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-  floatexp J0 = fe_sqrt(fe_add(fe_add(fe_add(fe_sqr(dxaF), fe_sqr(dxbF)), fe_sqr(dyaF)), fe_sqr(dybF)));
-  if (fe_cmp(J0, one) &lt; 0)
-  {
-    J0 = one;
-  }
-  floatexp J = J0;
+  floatexp J = S;
   mantissa dxaD = fe_double(fe_div(dxaF, J));
   mantissa dyaD = fe_double(fe_div(dyaF, J));
   mantissa dxbD = fe_double(fe_div(dxbF, J));
@@ -725,14 +717,14 @@ void perturbation_scaled_loop
       u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
 <xsl:choose>
 <xsl:when test="derivative/@t='R'">
-      J = fe_sqrt(fe_add(fe_sqr(drn), fe_sqr(din)));
+      J = S;
       drD = fe_double(fe_div(drn, J));
       diD = fe_double(fe_div(din, J));
       dr0D = fe_double(fe_div(dr0F, J));
       di0D = fe_double(fe_div(di0F, J));
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      J = fe_sqrt(fe_add(fe_add(fe_add(fe_sqr(dxan), fe_sqr(dyan)), fe_sqr(dxbn)), fe_sqr(dybn)));
+      J = S;
       dxaD = fe_double(fe_div(dxan, J));
       dyaD = fe_double(fe_div(dyan, J));
       dxbD = fe_double(fe_div(dxbn, J));
@@ -834,16 +826,23 @@ void perturbation_scaled_loop
         win = 0;
       }
       const mantissa w2 = wrn * wrn + win * win;
-      if (w2 &lt; w2threshold)
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+      const mantissa d2 = drn * drn + din * din;
+      if (w2 &lt; w2threshold &amp;&amp; d2 &lt; d2threshold)
       {
         wr = wrn;
         wi = win;
+        drD = drn;
+        diD = din;
       }
       else
       {
         // rescale
         floatexp xrn = fe_muld(S, wrn);
         floatexp xin = fe_muld(S, win);
+        floatexp drF = fe_muld(J, drn);
+        floatexp diF = fe_muld(J, din);
         S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
         s = fe_double(S);
         wr = fe_double(fe_div(xrn, S));
@@ -851,20 +850,7 @@ void perturbation_scaled_loop
         ur = fe_double(fe_div(cr, S));
         ui = fe_double(fe_div(ci, S));
         u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
-      }
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-      const mantissa d2 = drn * drn + din * din;
-      if (d2 &lt; d2threshold)
-      {
-        drD = drn;
-        diD = din;
-      }
-      else
-      {
-        floatexp drF = fe_muld(J, drn);
-        floatexp diF = fe_muld(J, din);
-        J = fe_sqrt(fe_add(fe_sqr(drF), fe_sqr(diF)));
+        J = S;
         drD = fe_double(fe_div(drF, J));
         diD = fe_double(fe_div(diF, J));
         dr0D = fe_double(fe_div(dr0F, J));
@@ -873,8 +859,10 @@ void perturbation_scaled_loop
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
       const mantissa d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
-      if (d2 &lt; d2threshold) // FIXME threshold depends on power
+      if (w2 &lt; w2threshold &amp;&amp; d2 &lt; d2threshold)
       {
+        wr = wrn;
+        wi = win;
         dxaD = dxan;
         dyaD = dyan;
         dxbD = dxbn;
@@ -882,11 +870,21 @@ void perturbation_scaled_loop
       }
       else
       {
+        // rescale
+        floatexp xrn = fe_muld(S, wrn);
+        floatexp xin = fe_muld(S, win);
         floatexp dxaF = fe_muld(J, dxan);
         floatexp dyaF = fe_muld(J, dyan);
         floatexp dxbF = fe_muld(J, dxbn);
         floatexp dybF = fe_muld(J, dybn);
-        J = fe_sqrt(fe_add(fe_add(fe_add(fe_sqr(dxaF), fe_sqr(dxbF)), fe_sqr(dyaF)), fe_sqr(dybF)));
+        S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
+        s = fe_double(S);
+        wr = fe_double(fe_div(xrn, S));
+        wi = fe_double(fe_div(xin, S));
+        ur = fe_double(fe_div(cr, S));
+        ui = fe_double(fe_div(ci, S));
+        u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
+        J = S;
         dxaD = fe_double(fe_div(dxaF, J));
         dxbD = fe_double(fe_div(dxbF, J));
         dyaD = fe_double(fe_div(dyaF, J));

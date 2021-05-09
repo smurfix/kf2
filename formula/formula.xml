@@ -59,15 +59,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           wrn = 2 * (Xr * wr - Xi * wi);
           win = 2 * (Xr * wi + Xi * wr);
         </threshold>
-        <threshold s="0" u="1e308">
+        <threshold s="0" u="LARGE_MANTISSA">
           wrn = 2 * (Xr * wr - Xi * wi) + ur;
           win = 2 * (Xr * wi + Xi * wr) + ui;
         </threshold>
-        <threshold s="1e308" u="0">
+        <threshold s="LARGE_MANTISSA" u="0">
           wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi;
           win = 2 * ((Xr + wr * s) * wi + Xi * wr);
         </threshold>
-        <threshold s="1e308" u="1e308">
+        <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
           wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi + ur;
           win = 2 * ((Xr + wr * s) * wi + Xi * wr) + ui;
         </threshold>
@@ -92,23 +92,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr;
         </threshold>
-        <threshold s="0" u="1e308">
+        <threshold s="0" u="LARGE_MANTISSA">
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + ur;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + ui;
         </threshold>
-        <threshold s="1e-154" u="0">
+        <threshold s="SMALL_MANTISSA" u="0">
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s;
         </threshold>
-        <threshold s="1e-154" u="1e308">
+        <threshold s="SMALL_MANTISSA" u="LARGE_MANTISSA">
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + ur;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + ui;
         </threshold>
-        <threshold s="1e308" u="0">
+        <threshold s="LARGE_MANTISSA" u="0">
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s;
         </threshold>
-        <threshold s="1e308" u="1e308">
+        <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
           wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s + ur;
           win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s + ui;
         </threshold>
@@ -222,15 +222,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
           wrn = 2 * (Xr * wr - Xi * wi);
           win = 2 * sgn(Xr) * sgn(Xi) * (Xr * wi + wr * Xi);
         </threshold>
-        <threshold s="0" u="1e308">
+        <threshold s="0" u="LARGE_MANTISSA">
           wrn = 2 * (Xr * wr - Xi * wi) + ur;
           win = 2 * sgn(Xr) * sgn(Xi) * (Xr * wi + wr * Xi) + ui;
         </threshold>
-        <threshold s="1e308" u="0">
+        <threshold s="LARGE_MANTISSA" u="0">
           wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi;
           win = 2 * diffabs(Xr * Xi / s, Xr * wi + wr * (Xi + wi * s));
         </threshold>
-        <threshold s="1e308" u="1e308">
+        <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
           wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi + ur;
           win = 2 * diffabs(Xr * Xi / s, Xr * wi + wr * (Xi + wi * s)) + ui;
         </threshold>
