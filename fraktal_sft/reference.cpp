@@ -46,8 +46,9 @@ struct Reference
   std::vector<float> fx, fy, fz;
   std::vector<double> dx, dy, dz;
   std::vector<long double> lx, ly, lz;
-  std::vector<int64_t> N;
+  std::vector<int64_t> fN;
   std::vector<tfloatexp<float, int32_t>> fX, fY, fZ;
+  std::vector<int64_t> dN;
   std::vector<tfloatexp<double, int64_t>> dX, dY, dZ;
   Reference(int64_t capacity, bool strict_zero, enum Reference_Type reftype)
   : strict_zero(strict_zero)
@@ -61,10 +62,11 @@ struct Reference
   , lx(0)
   , ly(0)
   , lz(0)
-  , N(0)
+  , fN(0)
   , fX(0)
   , fY(0)
   , fZ(0)
+  , dN(0)
   , dX(0)
   , dY(0)
   , dZ(0)
@@ -133,6 +135,13 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
       R->fz.push_back(float(Z));
       break;
     }
+    case Reference_Double:
+    {
+      R->dx.push_back(double(X));
+      R->dy.push_back(double(Y));
+      R->dz.push_back(double(Z));
+      break;
+    }
     case Reference_ScaledFloat:
     {
       float x = float(X);
@@ -147,19 +156,14 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
         R->fX.push_back(tfloatexp<float, int32_t>(X));
         R->fY.push_back(tfloatexp<float, int32_t>(Y));
         R->fZ.push_back(tfloatexp<float, int32_t>(Z));
-        R->N.push_back(R->fx.size());
+        R->fN.push_back(R->fx.size());
       }
       R->fx.push_back(x);
       R->fy.push_back(y);
       R->fz.push_back(z);
+#if 0
       break;
-    }
-    case Reference_Double:
-    {
-      R->dx.push_back(double(X));
-      R->dy.push_back(double(Y));
-      R->dz.push_back(double(Z));
-      break;
+#endif
     }
     case Reference_ScaledDouble:
     {
@@ -175,7 +179,7 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
         R->dX.push_back(X);
         R->dY.push_back(Y);
         R->dZ.push_back(Z);
-        R->N.push_back(R->dx.size());
+        R->dN.push_back(R->dx.size());
       }
       R->dx.push_back(x);
       R->dy.push_back(y);
@@ -194,7 +198,9 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
       R->fX.push_back(tfloatexp<float, int32_t>(X));
       R->fY.push_back(tfloatexp<float, int32_t>(Y));
       R->fZ.push_back(tfloatexp<float, int32_t>(Z));
+#if 0
       break;
+#endif
     }
     case Reference_FloatExpDouble:
     {
@@ -226,7 +232,7 @@ int64_t reference_size_x(const Reference *R)
   return 0;
 }
 
-int64_t reference_size_N(const Reference *R) { return R->N.size(); }
+int64_t reference_size_N(const Reference *R) { return (R->reftype == Reference_Float || R->reftype == Reference_FloatExpFloat || R->reftype == Reference_ScaledFloat) ? R->fN.size() : R->dN.size(); }
 template <> const float *reference_ptr_x<float>(const Reference *R) { return (R->reftype == Reference_Float || R->reftype == Reference_ScaledFloat) ? &R->fx[0] : nullptr; }
 template <> const float *reference_ptr_y<float>(const Reference *R) { return (R->reftype == Reference_Float || R->reftype == Reference_ScaledFloat) ? &R->fy[0] : nullptr; }
 template <> const float *reference_ptr_z<float>(const Reference *R) { return (R->reftype == Reference_Float || R->reftype == Reference_ScaledFloat) ? &R->fz[0] : nullptr; }
@@ -242,7 +248,7 @@ template <> const tfloatexp<float, int32_t> *reference_ptr_z<tfloatexp<float, in
 template <> const tfloatexp<double, int64_t> *reference_ptr_x<tfloatexp<double, int64_t>>(const Reference *R) { return (R->reftype == Reference_FloatExpDouble) ? &R->dX[0] : nullptr; }
 template <> const tfloatexp<double, int64_t> *reference_ptr_y<tfloatexp<double, int64_t>>(const Reference *R) { return (R->reftype == Reference_FloatExpDouble) ? &R->dY[0] : nullptr; }
 template <> const tfloatexp<double, int64_t> *reference_ptr_z<tfloatexp<double, int64_t>>(const Reference *R) { return (R->reftype == Reference_FloatExpDouble) ? &R->dZ[0] : nullptr; }
-const int64_t *reference_ptr_N(const Reference *R) { return (R->reftype == Reference_ScaledFloat || R->reftype == Reference_ScaledDouble) ? &R->N[0] : nullptr; }
+const int64_t *reference_ptr_N(const Reference *R) { return (R->reftype == Reference_ScaledFloat) ? &R->fN[0] : (R->reftype == Reference_ScaledDouble) ? &R->dN[0] : nullptr; }
 template <> const tfloatexp<float, int32_t> *reference_ptr_X<float, int32_t>(const Reference *R) { return (R->reftype == Reference_ScaledFloat) ? &R->fX[0] : nullptr; }
 template <> const tfloatexp<float, int32_t> *reference_ptr_Y<float, int32_t>(const Reference *R) { return (R->reftype == Reference_ScaledFloat) ? &R->fY[0] : nullptr; }
 template <> const tfloatexp<float, int32_t> *reference_ptr_Z<float, int32_t>(const Reference *R) { return (R->reftype == Reference_ScaledFloat) ? &R->fZ[0] : nullptr; }
@@ -273,11 +279,13 @@ void reference_get(const Reference *R, int64_t &k, int64_t n, tfloatexp<double, 
       break;
     }
     case Reference_FloatExpFloat:
+#if 0
     {
       x = tfloatexp<double, int64_t>(R->fX[n]);
       y = tfloatexp<double, int64_t>(R->fY[n]);
       break;
     }
+#endif
     case Reference_FloatExpDouble:
     {
       x = tfloatexp<double, int64_t>(R->dX[n]);
@@ -285,8 +293,9 @@ void reference_get(const Reference *R, int64_t &k, int64_t n, tfloatexp<double, 
       break;
     }
     case Reference_ScaledFloat:
+#if 0
     {
-      if (k < int64_t(R->N.size()) && R->N[k] == n)
+      if (k < int64_t(R->fN.size()) && R->fN[k] == n)
       {
         x = tfloatexp<double, int64_t>(R->fX[k]);
         y = tfloatexp<double, int64_t>(R->fY[k]);
@@ -299,9 +308,10 @@ void reference_get(const Reference *R, int64_t &k, int64_t n, tfloatexp<double, 
       }
       break;
     }
+#endif
     case Reference_ScaledDouble:
     {
-      if (k < int64_t(R->N.size()) && R->N[k] == n)
+      if (k < int64_t(R->dN.size()) && R->dN[k] == n)
       {
         x = tfloatexp<double, int64_t>(R->dX[k]);
         y = tfloatexp<double, int64_t>(R->dY[k]);
