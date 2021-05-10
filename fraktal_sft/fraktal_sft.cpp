@@ -37,6 +37,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/parallell.h"
 #include "../common/StringVector.h"
 #include "../common/getimage.h"
+#include "../common/timer.h"
 #include <float.h>
 #include <malloc.h>
 #include "complex.h"
@@ -4187,4 +4188,28 @@ Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 	if (n.FloatExpSingle) { return Reference_FloatExpFloat; }
 	if (supports_double && n.FloatExpDouble) { return Reference_FloatExpDouble; }
 	return Reference_FloatExpFloat; // FIXME fallback
+}
+
+void CFraktalSFT::ResetTimers()
+{
+	m_timer_total_wall_start = get_wall_time();
+	m_timer_total_cpu_start = get_cpu_time();
+	m_timer_reference_wall = 0;
+	m_timer_reference_cpu = 0;
+	m_timer_approximation_wall = 0;
+	m_timer_approximation_cpu = 0;
+	m_timer_perturbation_wall = 0;
+	m_timer_perturbation_cpu = 0;
+}
+
+void CFraktalSFT::GetTimers(double *total_wall, double *total_cpu, double *reference_wall, double *reference_cpu, double *approximation_wall, double *approximation_cpu, double *perturbation_wall, double *perturbation_cpu)
+{
+	if (total_wall) *total_wall = get_wall_time() - m_timer_total_wall_start;
+	if (total_cpu) *total_cpu = get_cpu_time() - m_timer_total_cpu_start;
+	if (reference_wall) *reference_wall = m_timer_reference_wall;
+	if (reference_cpu) *reference_cpu = m_timer_reference_cpu;
+	if (approximation_wall) *approximation_wall = m_timer_approximation_wall;
+	if (approximation_cpu) *approximation_cpu = m_timer_approximation_cpu;
+	if (perturbation_wall) *perturbation_wall = m_timer_perturbation_wall;
+	if (perturbation_cpu) *perturbation_cpu = m_timer_perturbation_cpu;
 }

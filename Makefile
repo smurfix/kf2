@@ -117,7 +117,8 @@ common/getimage.cpp \
 common/parallell.cpp \
 common/StringVector.cpp \
 common/bitmap.cpp \
-common/matrix.cpp
+common/matrix.cpp \
+common/timer.cpp
 
 COMMON_SOURCES_H = \
 common/FolderBrowser.h \
@@ -126,7 +127,8 @@ common/parallell.h \
 common/StringVector.h \
 common/bitmap.h \
 common/matrix.h \
-common/memory.h
+common/memory.h \
+common/timer.h
 
 FORMULA_SOURCES_CPP = formula/formula.cpp
 
