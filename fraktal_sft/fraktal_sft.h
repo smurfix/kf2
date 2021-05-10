@@ -359,6 +359,16 @@ class CFraktalSFT
 	int m_nY, m_nYPrev;
 	int m_nDone;
 	int m_nGuessed;
+	double
+	  m_timer_total_wall_start,
+	  m_timer_total_cpu_start,
+	  m_timer_reference_wall,
+	  m_timer_reference_cpu,
+	  m_timer_approximation_wall,
+	  m_timer_approximation_cpu,
+	  m_timer_perturbation_wall,
+	  m_timer_perturbation_cpu;
+
 	int64_t m_nRDone;
 	bool m_bStop;
 	char *m_szPosition;
@@ -479,6 +489,8 @@ public:
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	double GetProgress(int *pnGuessed = NULL, int *pnRDone = NULL, int *pnAP = NULL, int *pnT = NULL);
+	void ResetTimers();
+	void GetTimers(double *total_wall, double *total_cpu = nullptr, double *reference_wall = nullptr, double *reference_cpu = nullptr, double *approximation_wall = nullptr, double *approximation_cpu = nullptr, double *perturbation_wall = nullptr, double *perturbation_cpu = nullptr);
 	std::string GetPosition();
 	void GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated = NULL, int *pnType = NULL, BOOL bSkipMaxIter = FALSE);
 	int64_t GetIterations();

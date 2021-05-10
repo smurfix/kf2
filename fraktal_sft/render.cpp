@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/StringVector.h"
 #include "../common/bitmap.h"
 #include "../common/parallell.h"
+#include "../common/timer.h"
 #include "main.h"
 
 #include <cstring>
@@ -327,7 +328,11 @@ void CFraktalSFT::RenderFractal()
 			m_nScalingOffset++;
 			m_nScaling = m_nScaling*.1;
 		}
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
 		CalculateReference();
+		m_timer_reference_wall += get_wall_time() - wall;
+		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 
 	m_pixel_center_x = m_CenterRe - m_rref;
@@ -366,7 +371,16 @@ void CFraktalSFT::RenderFractal()
 		m_rApprox.bottom = m_nY;
 	}
 */
-	CalculateApproximation(0);
+
+  {
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
+		CalculateApproximation(0);
+		m_timer_approximation_wall += get_wall_time() - wall;
+		m_timer_approximation_cpu += get_cpu_time() - cpu;
+	}
+	double wall = get_wall_time();
+	double cpu = get_cpu_time();
 
        if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
                m_bNoGlitchDetection = FALSE;
@@ -430,6 +444,8 @@ void CFraktalSFT::RenderFractal()
 	m_bRunning = FALSE;
 
 	m_bIsRendering = false;
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
 
 void CFraktalSFT::RenderFractalLDBL()
@@ -451,7 +467,11 @@ void CFraktalSFT::RenderFractalLDBL()
 			m_nScalingOffsetL++;
 			m_nScalingL = m_nScalingL*.1L;
 		}
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
 		CalculateReferenceLDBL();
+		m_timer_reference_wall += get_wall_time() - wall;
+		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 
 	m_pixel_center_x = m_CenterRe - m_rref;
@@ -462,7 +482,15 @@ void CFraktalSFT::RenderFractalLDBL()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	CalculateApproximation(1);
+	{
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
+		CalculateApproximation(1);
+		m_timer_approximation_wall += get_wall_time() - wall;
+		m_timer_approximation_cpu += get_cpu_time() - cpu;
+	}
+	double wall = get_wall_time();
+	double cpu = get_cpu_time();
 
 	CalcStart();
 
@@ -515,6 +543,8 @@ void CFraktalSFT::RenderFractalLDBL()
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 	m_bRunning = FALSE;
 }
 
@@ -530,7 +560,11 @@ void CFraktalSFT::RenderFractalEXP()
 				g_nAddRefY = -1;
 			}
 		}
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
 		CalculateReferenceEXP();
+		m_timer_reference_wall += get_wall_time() - wall;
+		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 	int i;
 
@@ -542,7 +576,15 @@ void CFraktalSFT::RenderFractalEXP()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	CalculateApproximation(2);
+	{
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
+		CalculateApproximation(2);
+		m_timer_approximation_wall += get_wall_time() - wall;
+		m_timer_approximation_cpu += get_cpu_time() - cpu;
+	}
+	double wall = get_wall_time();
+	double cpu = get_cpu_time();
 
 	CalcStart();
 
@@ -609,6 +651,8 @@ void CFraktalSFT::RenderFractalEXP()
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 	m_bRunning = FALSE;
 }
 
@@ -622,8 +666,14 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		g_nAddRefX = -1;
 		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
 		CalculateReferenceNANOMB1();
+		m_timer_reference_wall += get_wall_time() - wall;
+		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
+	double wall = get_wall_time();
+	double cpu = get_cpu_time();
 	int i;
 	m_pixel_center_x = m_CenterRe - m_rref;
 	m_pixel_center_y = m_CenterIm - m_iref;
@@ -683,6 +733,8 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
 
 void CFraktalSFT::RenderFractalNANOMB2()
@@ -695,8 +747,14 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		g_nAddRefX = -1;
 		g_nAddRefY = -1;
 		g_bJustDidNewton = false;
+		double wall = get_wall_time();
+		double cpu = get_cpu_time();
 		CalculateReferenceNANOMB2();
+		m_timer_reference_wall += get_wall_time() - wall;
+		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
+	double wall = get_wall_time();
+	double cpu = get_cpu_time();
 	int i;
 	m_pixel_center_x = m_CenterRe - m_rref;
 	m_pixel_center_y = m_CenterIm - m_iref;
@@ -756,6 +814,8 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
 
 void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
