@@ -64,7 +64,7 @@ public:
 #define PIXEL_UNEVALUATED INT_MIN
 // magic value stored in m_nTrans[][] when a glitch is detected
 #if 1
-#define SET_TRANS_GLITCH(x) (fmin(log2((x) + 2.2250738585072014e-308) - 1024.0, -1.0))
+#define SET_TRANS_GLITCH(x) (((x > 0) ? log2(x) : -1024.0) - 2048.0)
 #else
 #define SET_TRANS_GLITCH(x) (-1.0)
 #endif
