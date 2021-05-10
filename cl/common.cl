@@ -2347,7 +2347,7 @@ void DoApproximation
 
 #define PIXEL_UNEVALUATED (-2147483648L)
 #define ISFLOATOK(x) ((! isnan(x)) && (! isinf(x)))
-#define SET_TRANS_GLITCH(x) (-1.0)
+#define SET_TRANS_GLITCH(x) (((x > 0) ? log2(x) : -1024.0) - 2048.0)
 #define GET_TRANS_GLITCH(x) ((x) < 0.0f)
 
 typedef struct __attribute__((packed))
