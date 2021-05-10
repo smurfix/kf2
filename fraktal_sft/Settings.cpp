@@ -101,6 +101,7 @@ bool Settings::FromText(const std::string &text)
   if (m_UseArgMinAbsZAsGlitchCenter) m_GlitchCenterMethod = 1;
   INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
+  BOOL(OpenCLThreaded)
   INT(OpenCLPlatform)
   INT(EXRChannels)
   BOOL(EXRParallel)
@@ -172,6 +173,7 @@ std::string Settings::ToText() const
   BOOL(UseArgMinAbsZAsGlitchCenter)
   INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
+  BOOL(OpenCLThreaded)
   INT(OpenCLPlatform)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
   BOOL(EXRParallel)

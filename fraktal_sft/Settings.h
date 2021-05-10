@@ -87,6 +87,7 @@ private:
   int64_t m_SIMDChunkSize;
   int64_t m_GlitchCenterMethod;
   bool m_UseOpenCL;
+  bool m_OpenCLThreaded;
   int64_t m_OpenCLPlatform;
   int64_t m_EXRChannels;
   bool m_EXRParallel;
@@ -148,6 +149,7 @@ public:
   , m_SIMDChunkSize(64)
   , m_GlitchCenterMethod(0)
   , m_UseOpenCL(false)
+  , m_OpenCLThreaded(true)
   , m_OpenCLPlatform(0)
   , m_EXRChannels(~0)
   , m_EXRParallel(true)
@@ -339,6 +341,9 @@ public:
 
   inline int64_t GetOpenCLPlatform() const { return m_OpenCLPlatform; };
   inline void    SetOpenCLPlatform(int64_t n) { m_OpenCLPlatform = n; };
+
+  inline bool   GetOpenCLThreaded() const { return m_OpenCLThreaded; };
+  inline void   SetOpenCLThreaded(bool b) { m_OpenCLThreaded = b; };
 
   inline EXRChannels GetEXRChannels() const { return unpack_exr_channels(m_EXRChannels); };
   inline void SetEXRChannels(const EXRChannels n) { m_EXRChannels = pack_exr_channels(n); };

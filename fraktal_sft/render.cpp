@@ -186,7 +186,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	m_dPixelSpacing = double(m_fPixelSpacing);
 	m_lPixelSpacing = (long double)(m_fPixelSpacing);
 
-	if (bNoThread || cl){
+	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
 		ThRenderFractal(this);

@@ -1964,12 +1964,14 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SelectObject(hDC, hfOld);
 
 			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_SETCURSEL, g_SFT.GetOpenCLDeviceIndex() + 1, 0);
+			SendDlgItemMessage(hWnd, IDC_OPENCL_THREADED, BM_SETCHECK, g_SFT.GetOpenCLThreaded() ? 1 : 0, 0);
 		  break;
 		}
 		case WM_COMMAND:
 		{
 			if (wParam == IDOK)
 			{
+				g_SFT.SetOpenCLThreaded(SendDlgItemMessage(hWnd, IDC_OPENCL_THREADED, BM_GETCHECK, 0, 0));
 				int ix = SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_GETCURSEL, 0, 0) - 1;
 				try
 				{
