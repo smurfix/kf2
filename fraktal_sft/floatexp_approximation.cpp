@@ -94,7 +94,8 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		dbTr[j] = dbTr0[j];
 		dbTi[j] = dbTi0[j];
 	}
-	m_nMaxApproximation = m_nMaxIter;
+	int64_t maxIter = reference_size_x(m_Reference);
+	m_nMaxApproximation = maxIter;
 	//floatexp mindiff = (m_nBailout==2?0.000001:0.001);
 	floatexp mindiff;
 	if (GetApproxLowTolerance())
@@ -150,7 +151,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			}
 
 	int64_t K = 0;
-	for (int64_t iteration = 0; iteration<m_nMaxIter - 1 && !m_bStop; iteration++){
+	for (int64_t iteration = 0; iteration<maxIter - 1 && !m_bStop; iteration++){
 		m_nApprox++;
 
 		// get reference
