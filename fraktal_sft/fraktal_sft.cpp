@@ -1535,6 +1535,10 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 
 void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 {
+	if (m_bStop)
+	{
+		return;
+	}
 	m_bIterChanged = TRUE;
 	int64_t antal = 0;
 	if (m_nMaxApproximation)
