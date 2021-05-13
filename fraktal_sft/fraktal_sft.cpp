@@ -212,6 +212,7 @@ CFraktalSFT::CFraktalSFT()
 	m_pnExpConsts = NULL;
 
 	m_Reference = nullptr;
+	m_ReferenceReuse = nullptr;
 	m_NanoMB1Ref = nullptr;
 	m_NanoMB2Ref = nullptr;
 

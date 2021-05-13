@@ -3573,14 +3573,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_SFT.SetAutoSolveGlitches(g_bAutoGlitch);
 		UpdateAutoSolveGlitches(hWnd);
-		if(g_bAutoGlitch){
-			g_SFT.SetReuseReference(!g_bAutoGlitch);
-			UpdateReuseReference(hWnd);
-		}
-		else{
-			g_SFT.SetSolveGlitchNear(false);
-			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD,MF_BYCOMMAND|(g_SFT.GetSolveGlitchNear()?MF_CHECKED:MF_UNCHECKED));
-		}
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_AUTOITERATION){
 		g_SFT.SetAutoIterations(! g_SFT.GetAutoIterations());
@@ -4127,10 +4119,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_ACTIONS_REUSEREFERENCE){
 			g_SFT.SetReuseReference(! g_SFT.GetReuseReference());
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_REUSEREFERENCE,MF_BYCOMMAND|(g_SFT.GetReuseReference()?MF_CHECKED:MF_UNCHECKED));
-			if(g_SFT.GetReuseReference()){
-				g_SFT.SetAutoSolveGlitches(!g_SFT.GetReuseReference());
-				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_AUTOSOLVEGLITCHES,MF_BYCOMMAND|(g_SFT.GetAutoSolveGlitches()?MF_CHECKED:MF_UNCHECKED));
-			}
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
 			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_szSettingsFile)){

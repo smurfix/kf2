@@ -224,25 +224,50 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 
+	if (m_ReferenceReuse && (! GetReuseReference() || g_bJustDidNewton))
+	{
+		if (m_Reference == m_ReferenceReuse)
+		{
+			m_Reference = nullptr;
+		}
+		reference_delete(m_ReferenceReuse);
+		m_ReferenceReuse = nullptr;
+		g_bJustDidNewton = false;
+	}
 	if (m_Reference)
 	{
-		reference_delete(m_Reference);
+		if (m_Reference != m_ReferenceReuse)
+		{
+			reference_delete(m_Reference);
+		}
 		m_Reference = nullptr;
+	}
+	if (m_bAddReference == 0 && GetReuseReference())
+	{
+		m_Reference = m_ReferenceReuse;
+		m_rref = m_rrefReuse;
+		m_iref = m_irefReuse;
 	}
 	m_P.Init(m_nX, m_nY, m_bInteractive);
 	int i;
-	if (!GetReuseReference() || !m_Reference){
-		if (m_bAddReference != 1){
-			{
-				m_rref = m_CenterRe;
-				m_iref = m_CenterIm;
-				g_nAddRefX = -1;
-				g_nAddRefY = -1;
-			}
+	if (! m_Reference)
+	{
+		if (m_bAddReference == 0)
+		{
+			m_rref = m_CenterRe;
+			m_iref = m_CenterIm;
+			g_nAddRefX = -1;
+			g_nAddRefY = -1;
 		}
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
 		CalculateReference(reftype);
+		if (! m_ReferenceReuse && GetReuseReference())
+		{
+			m_ReferenceReuse = m_Reference;
+			m_rrefReuse = m_rref;
+			m_irefReuse = m_iref;
+		}
 		m_timer_reference_wall += get_wall_time() - wall;
 		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}

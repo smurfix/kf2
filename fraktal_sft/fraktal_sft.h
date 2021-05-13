@@ -396,6 +396,9 @@ class CFraktalSFT
 	NanoMB1_Reference *m_NanoMB1Ref;
 	NanoMB2_Reference *m_NanoMB2Ref;
 
+	Reference *m_ReferenceReuse;
+	CFixedFloat m_rrefReuse, m_irefReuse;
+
 	SeriesType GetApproximationType()
 	{
 		if (GetUseHybridFormula())
