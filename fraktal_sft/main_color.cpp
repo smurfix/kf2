@@ -97,6 +97,8 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 
 		SendDlgItemMessage(hWnd, IDC_OPENGL_GLSL, EM_SETLIMITTEXT, 0, 0);
 		SendDlgItemMessage(hWnd, IDC_OPENGL_LOG, EM_SETLIMITTEXT, 0, 0);
+		SendDlgItemMessage(hWnd, IDC_OPENGL_GLSL, WM_SETFONT, WPARAM(g_monospaced_font), 1);
+		SendDlgItemMessage(hWnd, IDC_OPENGL_LOG, WM_SETFONT, WPARAM(g_monospaced_font), 1);
 		DragAcceptFiles(hWnd, TRUE);
   }
   if (uMsg == WM_SHOWWINDOW || uMsg == WM_USER + 99)

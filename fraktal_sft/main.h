@@ -47,6 +47,7 @@ extern bool g_bEraser;
 extern bool g_bWaitRead;
 
 extern HICON g_hIcon;
+extern HFONT g_monospaced_font;
 
 extern HWND g_hwStatus;
 extern HWND g_hwExamine;

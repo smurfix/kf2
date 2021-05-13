@@ -63,6 +63,8 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		SendDlgItemMessage(hWnd,IDC_EDIT1,EM_SETLIMITTEXT,0,0);
 		SendDlgItemMessage(hWnd,IDC_EDIT3,EM_SETLIMITTEXT,0,0);
+		SendDlgItemMessage(hWnd, IDC_EDIT1, WM_SETFONT, WPARAM(g_monospaced_font), 1);
+		SendDlgItemMessage(hWnd, IDC_EDIT3, WM_SETFONT, WPARAM(g_monospaced_font), 1);
     std::string re = g_SFT.GetRe();
     std::string im = g_SFT.GetIm();
     std::string z = g_SFT.GetZoom();

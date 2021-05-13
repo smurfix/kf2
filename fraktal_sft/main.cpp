@@ -126,7 +126,8 @@ HWND g_hwNewton=NULL;
 BOOL g_bResizing=FALSE;
 BOOL g_bTrackSelect=FALSE;
 POINT g_pTrackStart;
-HICON g_hIcon;
+HICON g_hIcon = nullptr;
+HFONT g_monospaced_font = nullptr;
 
 bool g_bAddReference=false;
 bool g_bEraser=false;
@@ -1885,6 +1886,8 @@ LRESULT CALLBACK OpenCLErrorProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 
 		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_SOURCE, EM_SETLIMITTEXT, 0, 0);
 		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_MESSAGE, EM_SETLIMITTEXT, 0, 0);
+		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_SOURCE, WM_SETFONT, WPARAM(g_monospaced_font), 1);
+		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_MESSAGE, WM_SETFONT, WPARAM(g_monospaced_font), 1);
 		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_SOURCE,  g_OpenCL_Error_Source.c_str());
 		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LOG,     g_OpenCL_Error_Log.c_str());
 		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_MESSAGE, g_OpenCL_Error_Message.c_str());
@@ -4731,6 +4734,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		wc.hCursor = LoadCursor(NULL,IDC_CROSS);
 		wc.hIcon = LoadIcon(hInstance,MAKEINTRESOURCE(IDI_ICON1));
 		g_hIcon = wc.hIcon;
+		g_monospaced_font = CreateFont(0, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_DONTCARE, nullptr);
 		RegisterClass(&wc);
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 		g_SFT.SetWindow(hWnd);
