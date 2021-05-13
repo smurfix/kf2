@@ -161,10 +161,8 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
       R->fx.push_back(x);
       R->fy.push_back(y);
       R->fz.push_back(z);
-#if 0
-      break;
-#endif
     }
+    // fall through
     case Reference_ScaledDouble:
     {
       double x = double(X);
@@ -198,10 +196,8 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
       R->fX.push_back(tfloatexp<float, int32_t>(X));
       R->fY.push_back(tfloatexp<float, int32_t>(Y));
       R->fZ.push_back(tfloatexp<float, int32_t>(Z));
-#if 0
-      break;
-#endif
     }
+    // fall through
     case Reference_FloatExpDouble:
     {
       R->dX.push_back(X);
@@ -210,6 +206,11 @@ void reference_append(Reference *R, const floatexp &X, const floatexp &Y, const 
       break;
     }
   }
+}
+
+enum Reference_Type reference_type(const struct Reference *R)
+{
+  return R->reftype;
 }
 
 int64_t reference_size_x(const Reference *R)

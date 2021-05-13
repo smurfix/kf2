@@ -224,7 +224,7 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 
-	if (m_ReferenceReuse && (! GetReuseReference() || g_bJustDidNewton))
+	if (m_ReferenceReuse && (! GetReuseReference() || g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
 	{
 		if (m_Reference == m_ReferenceReuse)
 		{

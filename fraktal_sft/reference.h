@@ -36,6 +36,8 @@ struct Reference;
 struct Reference *reference_new(const int64_t capacity, const bool strict_zero, const enum Reference_Type reftype);
 void reference_delete(struct Reference *R);
 void reference_append(struct Reference *R, const floatexp &X, const floatexp &Y, const floatexp &Z);
+enum Reference_Type reference_type(const struct Reference *R);
+
 int64_t reference_size_x(const struct Reference *R);
 template <typename T> const T *reference_ptr_x(const struct Reference *R);
 template <typename T> const T *reference_ptr_y(const struct Reference *R);

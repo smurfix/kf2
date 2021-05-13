@@ -98,9 +98,6 @@ Feedback:
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom sequence
 - minimizing window during zoom sequence rendering corrupts image (saves blank
   image or repeated frame) (reported by gerrit and CFJH)
-- with "reuse reference", corrupt image at transition between number types
-  (eg e600) (reported by CFJH) - workaround is to render in segments or limit
-  the used number types (e.g. only "rescaled double" or only "long double")
 - on special locations kf renders endless references and comes to no end
   (reported by CFJH) (happens also sometimes in exponential map rendering)
   (untested workaround may be to adjust glitch center method to random)
@@ -2194,18 +2191,12 @@ Software license.
 
     Do not re-calculate the reference for further zooming. This can be useful
     when during automatic zoom-out and to test different reference points.
-    Since KF version 2.15.3 it can be used together with the Auto solve glitches
-    function active.
+    A new reference is calculated automatically after each Newton zooming,
+    whatever the setting of Reuse Reference.
 
-    Note: reuse reference cannot be used for zoom sequences in which the number
-    type used for calculations changes (which can happen near 1e4900, 1e290, 1e20).
-    To avoid problems when reuse reference is enabled, limit the number types
-    available, for example enabling only "floatexp" for zooms deeper than 1e4900,
-    enabling only "long double" for zooms deeper than 1e290, and enabling only
-    "double" for zooms deeper than 1e20.  If the formula supports it, enabling
-    only "rescaled float" or only "rescaled double" should work for arbitrary
-    zooms.  Alternatively, render the zoom out sequence in several segments, one
-    for each number type (floatexp, long double, double, float).
+    Since KF version 2.15.3 it can be used with the "auto solve glitches"
+    function active: the primary reference is stored separately to the
+    secondary references.  This uses more memory.
 
   - **No reuse center**
 
