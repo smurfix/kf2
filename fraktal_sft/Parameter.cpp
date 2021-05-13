@@ -152,9 +152,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 
 	int nID = stParams.FindString(0, "IterDiv");
-	if (nID == -1)
-		m_nIterDiv = 1;
-	else
+	if (nID != -1)
 		m_nIterDiv = atof(stParams[nID][1]);
 
 	nID = stParams.FindString(0, "ColorMethod");
@@ -164,8 +162,6 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 			m = 0;
 		m_nColorMethod = ColorMethod(m);
 	}
-	else
-		m_nColorMethod = ColorMethod_Standard;
 	nID = stParams.FindString(0, "Differences");
 	if (nID != -1)
 	{
@@ -174,35 +170,25 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 			m = 0;
 		m_nDifferences = Differences(m);
 	}
-	else
-		m_nDifferences = Differences_Traditional;
 	nID = stParams.FindString(0, "ColorOffset");
 	if (nID != -1){
 		m_nColorOffset = atoi(stParams[nID][1]);
 		if (m_nColorOffset<0 || m_nColorOffset>1023)
 			m_nColorOffset = 0;
 	}
-	else
-		m_nColorOffset = 0;
 	nID = stParams.FindString(0, "ColorPhaseStrength");
 	if (nID != -1){
 		m_nPhaseColorStrength = atof(stParams[nID][1]);
 	}
-	else
-		m_nPhaseColorStrength = 0;
 
 	if (! bNoLocation)
 	{
 	nID = stParams.FindString(0, "FractalType");
 	if (nID != -1)
 		SetFractalType(atoi(stParams[nID][1]));
-	else
-		SetFractalType(0);
 	nID = stParams.FindString(0, "Power");
 	if (nID != -1)
 		SetPower(atoi(stParams[nID][1]));
-	else
-		SetPower(2);
 	}
 
 	int nT = stParams.FindString(0, "Smooth");
@@ -267,29 +253,21 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	nID = stParams.FindString(0, "Slopes");
 	if (nID != -1)
 		m_bSlopes = atoi(stParams[nID][1]);
-	else
-		m_bSlopes = FALSE;
 	nID = stParams.FindString(0, "SlopePower");
 	if (nID != -1){
 		m_nSlopePower = atoi(stParams[nID][1]);
 		if (m_nSlopePower<1)
 			m_nSlopePower = 1;
 	}
-	else
-		m_nSlopePower = 100;
 	nID = stParams.FindString(0, "SlopeRatio");
 	if (nID != -1){
 		m_nSlopeRatio = atoi(stParams[nID][1]);
 		if (m_nSlopeRatio<0)
 			m_nSlopeRatio = 0;
 	}
-	else
-		m_nSlopeRatio = 50;
 	nID = stParams.FindString(0, "SlopeAngle");
 	if (nID != -1)
 		m_nSlopeAngle = atoi(stParams[nID][1]);
-	else
-		m_nSlopeAngle = 45;
 
 	SetSlopes(m_bSlopes, m_nSlopePower, m_nSlopeRatio, m_nSlopeAngle);
 
@@ -300,18 +278,10 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	{
 		g_real = atof(stParams[nID][1]);
 	}
-	else
-	{
-		g_real = 1;
-	}
 	nID = stParams.FindString(0, "imag");
 	if (nID != -1)
 	{
 		g_imag = atof(stParams[nID][1]);
-	}
-	else
-	{
-		g_imag = 1;
 	}
 
 	nID = stParams.FindString(0, "BailoutNormPreset");
@@ -324,41 +294,25 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		}
 		SetBailoutNormPreset(BailoutNormPreset(m));
 	}
-	else
-	{
-		SetBailoutNormPreset(BailoutNorm_2);
-	}
 
 	nID = stParams.FindString(0, "BailoutNormCustom");
 	if (nID != -1)
 	{
 		SetBailoutNormCustom(atof(stParams[nID][1]));
 	}
-	else
-	{
-		SetBailoutNormCustom(2);
-	}
 
 	nID = stParams.FindString(0, "SeedR");
 	if (nID != -1)
 		g_SeedR = atof(stParams[nID][1]);
-	else
-		g_SeedR = 0;
 	nID = stParams.FindString(0, "SeedI");
 	if (nID != -1)
 		g_SeedI = atof(stParams[nID][1]);
-	else
-		g_SeedI = 0;
 	nID = stParams.FindString(0, "FactorAR");
 	if (nID != -1)
 		g_FactorAR = atof(stParams[nID][1]);
-	else
-		g_FactorAR = 1;
 	nID = stParams.FindString(0, "FactorAI");
 	if (nID != -1)
 		g_FactorAI = atof(stParams[nID][1]);
-	else
-		g_FactorAI = 0;
 
 	nID = stParams.FindString(0, "Period");
 	if (nID != -1)
