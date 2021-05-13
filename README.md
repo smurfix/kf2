@@ -2651,7 +2651,9 @@ shortcut `Ctrl+C` in the main window.
   - **Texture**
 
     A background image can be loaded, which is distorted by a slope effect.
-    Only BMP, JPEG, GIF files can be loaded so far.
+    Only BMP, JPEG, PNG files can be loaded so far.  By default the texture
+    is resized to match the image size, this can be disabled so you can
+    access the actual image pixels in OpenGL GLSL shaders.
 
     Privacy note: the full file system path to the texture file is saved
     in the parameter files (including saved image metadata).

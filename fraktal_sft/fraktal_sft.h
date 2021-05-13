@@ -263,6 +263,7 @@ struct TextureParams
 	double m_nImgPower;
 	int m_nX;
 	int m_nY;
+	bool m_bTextureResize;
 };
 
 struct TH_FIND_CENTER;
@@ -383,6 +384,7 @@ class CFraktalSFT
 	double m_nImgPower;
 	int m_nImgRatio;
 	std::string m_szTexture;
+	bool m_bTextureResize;
 	BYTE *m_lpTextureBits;
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
@@ -598,6 +600,9 @@ public:
 
 	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture);
 	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture);
+
+	bool GetTextureResize() const { return m_bTextureResize; }
+	void SetTextureResize(bool resize) { m_bTextureResize = resize; }
 
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();

@@ -170,6 +170,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nImgPower=200;
 	m_nImgRatio=100;
 	m_szTexture="";
+	m_bTextureResize = true;
 
 	m_bSlopes = FALSE;
 	m_nSlopePower = 50;
@@ -551,12 +552,13 @@ bool operator==(const TextureParams &a, const TextureParams &b)
     a.m_szTexture == b.m_szTexture &&
     a.m_nImgPower == b.m_nImgPower &&
     a.m_nX == b.m_nX &&
-    a.m_nY == b.m_nY;
+    a.m_nY == b.m_nY &&
+    a.m_bTextureResize == b.m_bTextureResize;
 }
 void CFraktalSFT::LoadTexture()
 {
 	TextureParams currentTextureParams =
-	  { m_bTexture, m_szTexture, m_nImgPower, m_nX, m_nY };
+	  { m_bTexture, m_szTexture, m_nImgPower, m_nX, m_nY, m_bTextureResize };
 	if (currentTextureParams == m_ActiveTextureParams)
 	{
 		return;
@@ -573,10 +575,19 @@ void CFraktalSFT::LoadTexture()
 	}
 	int nImgOffs=m_nImgPower/64;
 	HBITMAP bmBitmapIn = GetImage(m_szTexture);
-	SIZE scImg;
-	scImg.cx = m_nX+(nImgOffs+m_nImgPower)/64;
-	scImg.cy = m_nY+(m_nImgPower+nImgOffs)/64;
-	HBITMAP bmBitmap = ShrinkBitmap(bmBitmapIn,scImg.cx,scImg.cy);
+	HBITMAP bmBitmap = nullptr;
+	if (GetTextureResize())
+	{
+		SIZE scImg;
+		scImg.cx = m_nX+(nImgOffs+m_nImgPower)/64;
+		scImg.cy = m_nY+(m_nImgPower+nImgOffs)/64;
+		bmBitmap = ShrinkBitmap(bmBitmapIn,scImg.cx,scImg.cy);
+	}
+	else
+	{
+		bmBitmap = bmBitmapIn;
+		bmBitmapIn = nullptr;
+	}
 	HDC hDC = GetDC(NULL);
 	memset(&m_bmiBkg,0,sizeof(BITMAPINFOHEADER));
 	m_bmiBkg.biSize=sizeof(BITMAPINFOHEADER);
@@ -591,7 +602,7 @@ void CFraktalSFT::LoadTexture()
 			(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
 		Beep(1000,10);
 	DeleteObject(bmBitmap);
-	DeleteObject(bmBitmapIn);
+	if (bmBitmapIn) DeleteObject(bmBitmapIn);
 	ReleaseDC(NULL,hDC);
 }
 void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)

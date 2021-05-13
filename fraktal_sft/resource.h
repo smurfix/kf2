@@ -163,6 +163,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_NEWTON_PROGRESS             1115
 #define IDC_EXR_PREVIEW                 1116
 #define IDC_COLOR_OPENGL                1117
+#define IDC_COLOR_TEXTURE_RESIZE        1118
 
 // "Formula" dialog
 #define IDD_FORMULA                     120

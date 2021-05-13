@@ -284,6 +284,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		T(1053, "Texture strength/ratio")
 		T(1054, "Browse for image")
 		T(1055, "Texture image")
+		T(IDC_COLOR_TEXTURE_RESIZE, "Resize texture to match image")
 #undef T2
 #undef T
 
@@ -297,6 +298,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		BOOL bTexture = g_SFT.GetTexture(nRatio,nPower,nMerge,szTexture);
 		SetDlgItemText(hWnd,IDC_EDIT29,szTexture.c_str());
 		SendDlgItemMessage(hWnd,IDC_CHECK8,BM_SETCHECK,bTexture,0);
+		SendDlgItemMessage(hWnd,IDC_COLOR_TEXTURE_RESIZE,BM_SETCHECK,g_SFT.GetTextureResize(),0);
 		SetDlgItemFloat(hWnd,IDC_EDIT26,nPower);
 		SetDlgItemInt(hWnd,IDC_EDIT27,nRatio*100,FALSE);
 		SetDlgItemFloat(hWnd, IDC_COLOR_PHASE_STRENGTH, g_SFT.GetPhaseColorStrength());
@@ -542,7 +544,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			char buffer[1024] = {0};
 			GetDlgItemText(hWnd,IDC_EDIT29,buffer,sizeof(buffer));
 			std::string szFile = buffer;
-			if(BrowseFile(hWnd,TRUE,"Select texture","Jpg\0*.jpg\0\0",szFile)){
+			if(BrowseFile(hWnd,TRUE,"Select texture","Supported Images\0*.bmp;*.jpeg;*.jpg;*.png\0\0",szFile)){
 				SetDlgItemText(hWnd,IDC_EDIT29,szFile.c_str());
 				g_AutoUpdate++;
 				SendMessage(hWnd,WM_COMMAND,IDOK,0);
@@ -569,6 +571,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			BOOL bTexture = SendDlgItemMessage(hWnd,IDC_CHECK8,BM_GETCHECK,0,0);
 			nPower = GetDlgItemFloat(hWnd,IDC_EDIT26);
 			nRatio = GetDlgItemInt(hWnd,IDC_EDIT27,NULL,0);
+			g_SFT.SetTextureResize(SendDlgItemMessage(hWnd,IDC_COLOR_TEXTURE_RESIZE,BM_GETCHECK,0,0));
 			g_SFT.SetTexture(bTexture,(double)nRatio/100,nPower,100,szTexture);
 
 			int nColors = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0);

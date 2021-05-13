@@ -422,6 +422,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	if (i != -1) m_nImgRatio = atoi(stParams[i][1]);
 	i = stParams.FindString(0, "TextureFile");
 	if (i != -1) m_szTexture = stParams[i][1];
+	i = stParams.FindString(0, "TextureResize");
+	if (i != -1) m_bTextureResize = atoi(stParams[i][1]);
 
 	i = stParams.FindString(0, "UseOpenGL");
 	if (i != -1) SetUseOpenGL(atoi(stParams[i][1]));
@@ -612,6 +614,7 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("TexturePower", m_nImgPower)
 	INT("TextureRatio", m_nImgRatio)
 	STRING("TextureFile", m_szTexture)
+	INT("TextureResize", m_bTextureResize)
 
 	// KFR version >= 3
 	if (GetUseHybridFormula())
