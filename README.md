@@ -162,7 +162,6 @@ Feedback:
   instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple of 2
 - if hybrid formula is invalid, Ok button does the same as Cancel
-- OpenCL runs on the main thread making the GUI less responsive
 - sometimes files are overwritten without confirmation, when the filename
   is entered without extension (eg "test" vs "test.jpg") (reported by CFJH).
 - some formulas have bad appearance with analytic DE because derivatives
@@ -2383,15 +2382,23 @@ Software license.
 
     Select which device to use for OpenCL, or "(none)" to use the regular old
     implementation on CPU.  Currently OpenCL is used for perturbation
-    iterations only, and needs a device with double precision (fp64) support.
+    iterations only.  Support for double precision (fp64) is detected
+    automatically, though many devices (especially GPUs) will be much faster
+    with single precision (fp32, float).
+
     On some operating systems you might need to adjust GPU timeout behaviour
     if the calculations take too long and are interrupted.
 
     OpenCL may or may not be faster, depending on device, location, etc.  For
     zooms between ~1e300 and ~1e4900, the regular old CPU implementation is
-    likely to be significantly faster because OpenCL does not support x87 long
-    double (which has more range compared to double), and thus OpenCL has to
-    use the very much slower floatexp number type.
+    likely to be significantly faster for most built in formulas because
+    OpenCL does not support x87 long double (which has more range compared to
+    double), and thus OpenCL has to use the much slower floatexp number type.
+
+    For hybrid formulas, OpenCL is much faster becasue it can handle all the
+    branching once at compile time, instead of checking what to do on every
+    iteration.  Hybrid formulas support rescaled iterations, so zooms past
+    the range of float and/or double can still be fast.
 
 
 ## About
@@ -2484,7 +2491,7 @@ At the very top right:
     - Abs Y
     - Neg X
     - Neg Y
-    - Power
+    - Power (positive integer)
     - A Real
     - A Imag
 
@@ -2494,9 +2501,10 @@ At the very top right:
     validation it has the same effect as the **Cancel** button.  This
     is not ideal...
 
-  - Hybrid formulas are significantly slower (up to 5x) than the built
-    in formulas for the same formula, so use the built in ones if you
-    can.  Sometimes using OpenCL can reduce the slowdown.
+  - Hybrid formulas are significantly slower than the builtin formulas
+    for the same formula, so use the built in ones if you can.  However
+    using OpenCL can vastly reduce the slowdown, and support for rescaled
+    number types means they can sometimes be faster at deeper zooms.
 
 
 ## Bailout dialog
