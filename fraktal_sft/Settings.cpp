@@ -110,6 +110,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
   INT(NumberTypes)
+  BOOL(UseRescaledSeries)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -182,6 +183,7 @@ std::string Settings::ToText() const
   BOOL(DerivativeGlitch)
   BOOL(ReferenceStrictZero)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberTypes())); }
+  BOOL(UseRescaledSeries)
 #undef DOUBLE
 #undef INT
 #undef BOOL

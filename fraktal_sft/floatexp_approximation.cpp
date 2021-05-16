@@ -135,13 +135,34 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	floatexp *APi = isC ? new floatexp[m_nTerms] : nullptr;
 	SeriesR2<double, int64_t> *APs = isR ? new SeriesR2<double, int64_t> : nullptr;
 
+	const bool rescaled = isC && m_nFractalType == 0 && m_nPower == 2 && GetUseRescaledSeries();
+	floatexp T = 1;
+	double one_over_t = double(floatexp(1) / T);
+	complex<double> a[2][MAX_APPROX_TERMS+1];
+	complex<floatexp> A[2][MAX_APPROX_TERMS+1];
+	int src = 0, dst = 1;
 	// copy approximation
 	if (isC)
-		for (int i = 0; i < m_nTerms; i++)
+	{
+		if (rescaled)
 		{
-			APr[i] = m_APr[i];
-			APi[i] = m_APi[i];
+			for (int k = 0; k < m_nTerms; ++k)
+			{
+				a[src][k] = 0;
+				a[dst][k] = 0;
+				A[src][k] = complex<floatexp>(0);
+				A[dst][k] = complex<floatexp>(0);
+			}
 		}
+		else
+		{
+			for (int i = 0; i < m_nTerms; i++)
+			{
+				APr[i] = m_APr[i];
+				APi[i] = m_APi[i];
+			}
+		}
+	}
 	if (isR)
 		for (int i = 0; i <= m_nTerms; ++i)
 			for (int j = 0; j <= m_nTerms - i; ++j)
@@ -165,11 +186,20 @@ void CFraktalSFT::CalculateApproximation(int nType)
 
 		// copy approximation
 		if (isC)
-			for (int i = 0; i < m_nTerms; i++)
+		{
+			if (rescaled)
 			{
-				APr[i] = m_APr[i];
-				APi[i] = m_APi[i];
+				std::swap(src, dst);
 			}
+			else
+			{
+				for (int i = 0; i < m_nTerms; i++)
+				{
+					APr[i] = m_APr[i];
+					APi[i] = m_APi[i];
+				}
+			}
+		}
 		if (isR)
 			for (int i = 0; i <= m_nTerms; ++i)
 				for (int j = 0; j <= m_nTerms - i; ++j)
@@ -181,26 +211,156 @@ void CFraktalSFT::CalculateApproximation(int nType)
 		// step approximation
 		if (m_nFractalType == 0 && isC)
 		{
-			if (m_nPower == 2){
-				m_APr[0] = (xr*APr[0] - xi*APi[0]).mul2() + _1;
-				m_APi[0] = (xi*APr[0] + xr*APi[0]).mul2();
-				for (int k = 1; k<m_nTerms; k++){
-					m_APr[k] = (xr*APr[k] - xi*APi[k]).mul2();
-					m_APi[k] = (xi*APr[k] + xr*APi[k]).mul2();
-					int n = k / 2;
-					int q = n;
-					int f = 0;
-					int r = k - 1;
-					while (q){
-						m_APr[k] += (APr[f] * APr[r] - APi[f] * APi[r]).mul2();
-						m_APi[k] += (APi[f] * APr[r] + APr[f] * APi[r]).mul2();
-						q--;
-						f++;
-						r--;
-					}
-					if (k % 2){
-						m_APr[k] += APr[n] * APr[n] - APi[n] * APi[n];
-						m_APi[k] += (APr[n] * APi[n]).mul2();
+			if (m_nPower == 2)
+			{
+				if (rescaled)
+				{
+					const complex<floatexp> Z(xr, xi);
+					const complex<double> z((double(xr)), (double(xi)));
+					bool ok = false;
+					bool retry_full = false;
+					do
+					{
+						ok = true;
+						// do a full iteration if any of z and a[src][k] are small
+						bool full = retry_full || (std::abs(z.m_r) < 1e-300 && std::abs(z.m_i) < 1e-300);
+						for (int k = 0; k < m_nTerms; ++k)
+						{
+							if (full)
+							{
+								break;
+							}
+							full |= std::abs(a[src][k].m_r) < 1e-300 && std::abs(a[src][k].m_i) < 1e-300;
+						}
+						if (full)
+						{
+							// full iteration
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								A[dst][k] = complex<floatexp>(0);
+								int q = k / 2;
+								int i = 0;
+								int j = k - 1;
+								while (q)
+								{
+									A[dst][k] += A[src][i] * A[src][j];
+									q--;
+									i++;
+									j--;
+								}
+								A[dst][k].m_r = A[dst][k].m_r.mul2();
+								A[dst][k].m_i = A[dst][k].m_i.mul2();
+								if (k % 2)
+								{
+									A[dst][k] += A[src][k/2] * A[src][k/2];
+								}
+								A[dst][k] += 2 * Z * A[src][k];
+							}
+							A[dst][0].m_r += 1;
+							// rescale
+							T = 0;
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
+								if (Ak2 > 0)
+								{
+									T = std::max(T, exp(log(Ak2) / (2 * (k + 1))));
+								}
+							}
+							one_over_t = double(floatexp(1) / T);
+							floatexp Tk = 1;
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								Tk *= T;
+								a[dst][k] = complex<double>(A[dst][k] / Tk);
+							}
+						}
+						else
+						{
+							// rescaled iteration
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								a[dst][k] = 0;
+								int q = k / 2;
+								int i = 0;
+								int j = k - 1;
+								while (q)
+								{
+									a[dst][k] += a[src][i] * a[src][j];
+									q--;
+									i++;
+									j--;
+								}
+								a[dst][k] *= 2;
+								if (k % 2)
+								{
+									a[dst][k] += a[src][k/2] * a[src][k/2];
+								}
+								a[dst][k] += 2 * z * a[src][k];
+							}
+							a[dst][0].m_r += one_over_t;
+							// rescale
+							floatexp Tk = 1;
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								Tk *= T;
+								A[dst][k] = complex<floatexp>(a[dst][k]) * Tk;
+							}
+							T = 0;
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
+								if (Ak2 > 0)
+								{
+									T = std::max(T, exp(log(Ak2) / (2 * (k + 1))));
+								}
+							}
+							one_over_t = double(floatexp(1) / T);
+							Tk = 1;
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								Tk *= T;
+								a[dst][k] = complex<double>(A[dst][k] / Tk);
+							}
+							// some a[dst][k] can underflow at small Z even with rescaling
+							// if that happens, do a full iteration instead
+							for (int k = 0; k < m_nTerms; ++k)
+							{
+								if (retry_full)
+								{
+									break;
+								}
+								retry_full |= std::abs(a[dst][k].m_r) < 1e-300 && std::abs(a[dst][k].m_i) < 1e-300;
+							}
+							if (retry_full)
+							{
+								ok = false; // retry
+							}
+						}
+					} while (! ok);
+				}
+				else
+				{
+					m_APr[0] = (xr*APr[0] - xi*APi[0]).mul2() + _1;
+					m_APi[0] = (xi*APr[0] + xr*APi[0]).mul2();
+					for (int k = 1; k<m_nTerms; k++){
+						m_APr[k] = (xr*APr[k] - xi*APi[k]).mul2();
+						m_APi[k] = (xi*APr[k] + xr*APi[k]).mul2();
+						int n = k / 2;
+						int q = n;
+						int f = 0;
+						int r = k - 1;
+						while (q){
+							m_APr[k] += (APr[f] * APr[r] - APi[f] * APi[r]).mul2();
+							m_APi[k] += (APi[f] * APr[r] + APr[f] * APi[r]).mul2();
+							q--;
+							f++;
+							r--;
+						}
+						if (k % 2){
+							m_APr[k] += APr[n] * APr[n] - APi[n] * APi[n];
+							m_APi[k] += (APr[n] * APi[n]).mul2();
+						}
 					}
 				}
 			}
@@ -288,10 +448,36 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				for (j = 0; j<nProbe; j++){
 
 					// do approximation
-					int64_t antal_;
-					floatexp Dnr, Dni, DDnr_, DDni_;
+					floatexp Dnr, Dni;
 					if (isC)
-						DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
+					{
+						if (rescaled)
+						{
+							if (m_nMaxApproximation)
+							{
+								const complex<floatexp> C(dbTr0[j], dbTi0[j]);
+								complex<floatexp> Z(0);
+								for (int k = m_nTerms - 1; k >= 0; --k)
+								{
+									Z += A[dst][k];
+									Z *= C;
+								}
+								Dnr = Z.m_r;
+								Dni = Z.m_i;
+							}
+							else
+							{
+								Dnr = dbTr0[j];
+								Dni = dbTi0[j];
+							}
+						}
+						else
+						{
+							int64_t antal_;
+							floatexp DDnr_, DDni_;
+							DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
+						}
+					}
 					if (isR)
 						DoApproximation(dbTr0[j], dbTi0[j], Dnr, Dni);
 
@@ -427,10 +613,23 @@ void CFraktalSFT::CalculateApproximation(int nType)
 
 	// store last-but-one approximation
 	if (isC)
-		for (int i = 0; i<m_nTerms; i++){
-			m_APr[i] = APr[i];
-			m_APi[i] = APi[i];
+	{
+		if (rescaled)
+		{
+			for (int k = 0; k < m_nTerms; ++k)
+			{
+				m_APr[k] = A[src][k].m_r;
+				m_APi[k] = A[src][k].m_i;
+			}
 		}
+		else
+		{
+			for (int i = 0; i<m_nTerms; i++){
+				m_APr[i] = APr[i];
+				m_APi[i] = APi[i];
+			}
+		}
+	}
 	if (isR)
 	{
 //		bool isZero = true;

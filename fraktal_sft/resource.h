@@ -206,6 +206,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_PTSATUNING_APPROXTERMS      1235
 #define IDC_PTSATUNING_DERIVATIVEGLITCH 1236
 #define IDC_PTSATUNING_REFERENCESTRICTZERO 1237
+#define IDC_PTSATUNING_RESCALEDSERIES   1238
 
 // "Custom Zoom Size" dialog
 #define IDD_ZOOMSIZE                    124

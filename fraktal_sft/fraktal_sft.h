@@ -714,6 +714,7 @@ public:
   BOOL(ReferenceStrictZero)
   inline NumberType GetNumberTypes() const { return m_Settings.GetNumberTypes(); };
   inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
+  BOOL(UseRescaledSeries)
 #undef DOUBLE
 #undef INT
 #undef BOOL

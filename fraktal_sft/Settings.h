@@ -96,6 +96,7 @@ private:
   bool m_DerivativeGlitch;
   bool m_ReferenceStrictZero;
   int64_t m_NumberTypes;
+  bool m_UseRescaledSeries;
 
 public:
 
@@ -158,6 +159,7 @@ public:
   , m_DerivativeGlitch(false)
   , m_ReferenceStrictZero(false)
   , m_NumberTypes(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
+  , m_UseRescaledSeries(false)
   { };
 
   bool FromText(const std::string &text);
@@ -366,6 +368,8 @@ public:
   inline NumberType GetNumberTypes() const { return unpack_number_type(m_NumberTypes); };
   inline void SetNumberTypes(const NumberType n) { m_NumberTypes = pack_number_type(n); };
 
+  inline bool   GetUseRescaledSeries() const { return m_UseRescaledSeries; };
+  inline void   SetUseRescaledSeries(bool b) { m_UseRescaledSeries = b; };
 };
 
 #endif
