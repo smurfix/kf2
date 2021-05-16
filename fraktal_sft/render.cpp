@@ -201,7 +201,14 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 void CFraktalSFT::RenderFractal()
 {
 	m_bIsRendering = true;
-
+	if (! m_bAddReference)
+	{
+		m_count_queued = m_nX * m_nY;
+		m_count_good_guessed = 0;
+		m_count_good = 0;
+		m_count_bad = 0;
+		m_count_bad_guessed = 0;
+	}
 	{
 		CFixedFloat div = m_ZoomRadius * 2;
 		Precision q(LOW_PRECISION);
@@ -595,10 +602,5 @@ void CFraktalSFT::CalcStart()
 		P.Execute();
 		P.Reset();
 		delete[] pMan;
-		m_count_queued = m_nX * m_nY;
-		m_count_good_guessed = 0;
-		m_count_good = 0;
-		m_count_bad = 0;
-		m_count_bad_guessed = 0;
 	}
 }

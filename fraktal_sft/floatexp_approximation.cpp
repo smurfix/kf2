@@ -107,7 +107,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	if (GetNoApprox())
 		mindiff = 0;
 	if (GetAutoApproxTerms()){
-		int nT = sqrt((double)m_nTotal)*0.021;
+		int nT = sqrt((double)m_count_queued)*0.021;
 		if ((GetFractalType() == 0 && GetPower() > 2) || (GetFractalType() == 1 && GetPower() == 2))
 			nT = 3;
 		SetApproxTerms(nT);
