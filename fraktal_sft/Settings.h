@@ -160,7 +160,7 @@ public:
   , m_DerivativeGlitch(false)
   , m_ReferenceStrictZero(false)
   , m_NumberTypes(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
-  , m_UseRescaledSeries(false)
+  , m_UseRescaledSeries(true)
   , m_OpenResetsParameters(true)
   { };
 
