@@ -1141,6 +1141,12 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			{
 				g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
 				g_SFT.SetIterations(g_iterations);
+				char s[256];
+				GetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, s, sizeof(s));
+				if (std::string(s) != "")
+				{
+					SetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, floatexp(CDecNumber(g_szZoom)).toString(5).c_str());
+				}
 				g_bJustDidNewton = true;
 			}
 			else if (g_nr_action >= 1)
