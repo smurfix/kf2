@@ -125,9 +125,6 @@ Feedback:
 - burning ship series approximation probe points might miss some folds near
   the edges of the image (need to increase probe point density?)
 - bad combinations of skew, distance estimation, and series approximation
-- scaled (long) double yr,yi can underflow to 0, eventually causing derivatives
-  to be too small and de overflows to infinity -> blank screen: workaround is to
-  force long double or floatexp as appropriate
 - auto skew (escape) button doesn't work well with some formulas (eg SimonBrot)
 - navigation with scroll wheel and -/+ keys is hardcoded to factor of 2 instead
   of using the zoom size set in the View menu
