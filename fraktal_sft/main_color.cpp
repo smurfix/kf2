@@ -803,7 +803,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==IDC_BUTTON22){
 			std::string szFile;
-			if(!BrowseFile(hWnd,TRUE,"Open image","Image\0*.bmp;*.jp*g;*.gif\0\0",szFile))
+			if(!BrowseFile(hWnd,TRUE,"Open image","Supported Images\0*.bmp;*.gif;*.jpeg;*.jpg;*.png\0\0",szFile))
 				return 0;
 			HBITMAP bmBmp = GetImage(szFile.c_str());
 			HDC hDC = GetDC(NULL);
