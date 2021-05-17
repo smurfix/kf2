@@ -27,4 +27,15 @@ extern bool g_bJustDidNewton;
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 
+struct progress_t
+{
+	int counters[4];
+	volatile bool running;
+	HWND hWnd;
+	HANDLE hDone;
+	double start_time, elapsed_time;
+};
+
+const struct formula *get_formula(int type, int power);
+
 #endif

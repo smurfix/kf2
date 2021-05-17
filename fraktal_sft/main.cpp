@@ -3287,7 +3287,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_hwNewton=NULL;
 		}
 		else{
-			g_hwNewton = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG12),hWnd,(DLGPROC)NewtonProc);
+			g_hwNewton = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_NEWTON),hWnd,(DLGPROC)NewtonProc);
 			ShowWindow(g_hwNewton,SW_SHOW);
 		}
 	}

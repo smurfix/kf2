@@ -355,10 +355,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_HYBRID_LOOP_START_4 1423
 
 // "Transformation" dialog
-#define IDD_TRANSFORMATION 126
-#define IDC_TRANSFORMATION_ROTATEANGLE 1450
-#define IDC_TRANSFORMATION_STRETCHANGLE 1451
-#define IDC_TRANSFORMATION_STRETCHAMOUNT 1452
+#define IDD_TRANSFORMATION                     126
+#define IDC_TRANSFORMATION_ROTATEANGLE        1450
+#define IDC_TRANSFORMATION_STRETCHANGLE       1451
+#define IDC_TRANSFORMATION_STRETCHAMOUNT      1452
+#define IDC_TRANSFORMATION_AUTOSKEW           1453
+#define IDC_TRANSFORMATION_USEDDZ             1454
+#define IDC_TRANSFORMATION_STATUS             1455
+#define IDC_TRANSFORMATION_ROTATEANGLE_SPIN   1456
+#define IDC_TRANSFORMATION_STRETCHANGLE_SPIN  1457
+#define IDC_TRANSFORMATION_STRETCHAMOUNT_SPIN 1458
 
 // "OpenGL" dialog
 #define IDD_OPENGL 127
@@ -380,6 +386,42 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_NUMBERTYPE_LONGDOUBLE     1474
 #define IDC_NUMBERTYPE_FLOATEXPSINGLE 1475
 #define IDC_NUMBERTYPE_FLOATEXPDOUBLE 1476
+
+// "Newton-Raphson Zooming" dialog
+#define IDD_NEWTON                       129
+#define IDC_NR_TARGET_MINIBROT_RELATIVE 1700
+#define IDC_NR_TARGET_MINIBROT_ABSOLUTE 1701
+#define IDC_NR_TARGET_DOMAIN_ABSOLUTE   1702
+#define IDC_NR_RELATIVE_START_ZOOM         1703
+#define IDC_NR_RELATIVE_START_ZOOM_CAPTURE 1704
+#define IDC_NR_FOLDING_2                1710
+#define IDC_NR_FOLDING_4                1711
+#define IDC_NR_FOLDING_8                1712
+#define IDC_NR_FOLDING_16               1713
+#define IDC_NR_FOLDING_MINIBROT         1714
+#define IDC_NR_FOLDING_CUSTOM           1715
+#define IDC_NR_FOLDING_CUSTOM_EDIT      1716
+#define IDC_NR_SIZE_POWER_075           1720
+#define IDC_NR_SIZE_POWER_0875          1721
+#define IDC_NR_SIZE_POWER_1             1723
+#define IDC_NR_SIZE_POWER_1125          1724
+#define IDC_NR_SIZE_POWER_125           1725
+#define IDC_NR_SIZE_POWER_CUSTOM        1726
+#define IDC_NR_SIZE_POWER_CUSTOM_EDIT   1727
+#define IDC_NR_SIZE_FACTOR_10           1730
+#define IDC_NR_SIZE_FACTOR_4            1731
+#define IDC_NR_SIZE_FACTOR_1            1732
+#define IDC_NR_SIZE_FACTOR_025          1733
+#define IDC_NR_SIZE_FACTOR_01           1734
+#define IDC_NR_SIZE_FACTOR_CUSTOM       1735
+#define IDC_NR_SIZE_FACTOR_CUSTOM_EDIT  1736
+#define IDC_NR_ACTION_PERIOD            1740
+#define IDC_NR_ACTION_CENTER            1741
+#define IDC_NR_ACTION_SIZE              1742
+#define IDC_NR_ACTION_AUTOSKEW          1743
+#define IDC_NR_BALL_METHOD              1750
+#define IDC_NR_SAVE_PROGRESS            1751
+#define IDC_NR_STATUS                   1752
 
 // menus
 #define ID_ACTIONS_SETTINGS             40001
