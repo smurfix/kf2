@@ -813,13 +813,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetDIBits(hDC,bmBmp,0,bmi.biHeight,lpBits,
 					(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
 
-			double woffs = (double)bmi.biWidth/(double)1024;
-			int nParts = bmi.biWidth;
-			if(nParts>1024)
-				nParts=1024;
-			else
-				woffs=1;
-			double hoffs = (double)bmi.biHeight/(double)nParts;
+			int nParts = std::min(std::max(bmi.biWidth, bmi.biHeight), 1024L);
+			double woffs = (double) bmi.biWidth  / (double) nParts;
+			double hoffs = (double) bmi.biHeight / (double) nParts;
 			g_SFT.ChangeNumOfColors(nParts);
 			int i;
 			for(i=0;i<nParts;i++){
