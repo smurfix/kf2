@@ -847,6 +847,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)"");
 			}
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
+			SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetNumOfColors(),FALSE);
 		}
 		else if(wParam==IDC_CHECK1){
 			if(SendDlgItemMessage(hWnd,IDC_CHECK1,BM_GETCHECK,0,0)){
