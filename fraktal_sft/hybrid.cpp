@@ -1003,6 +1003,53 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   return false;
 }
 
+extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, volatile int *running, int *progress)
+{
+  using R = dual<2, CDecNumber>;
+  using C = complex<R>;
+  R x(A); x.dx[0] = 1;
+  R y(B); y.dx[1] = 1;
+  C c(x, y);
+  C z(c);
+  int j = 2;
+  int count = 0;
+  int stanza = 0;
+  CDecNumber zq2 = sqr(z.m_r.x) + sqr(z.m_i.x);
+  while (j <= period && *running)
+  {
+    progress[0] = period;
+    progress[1] = j;
+    // formula
+    if (++count >= h.stanzas[stanza].repeats)
+    {
+      count = 0;
+      if (++stanza >= (ssize_t) h.stanzas.size())
+      {
+        stanza = h.loop_start;
+      }
+    }
+    z = hybrid_f(h.stanzas[stanza], z, c);
+    // capture penultimate maximum |z|
+    CDecNumber zp2 = sqr(z.m_r.x) + sqr(z.m_i.x);
+    if (j < period && zp2 < zq2)
+    {
+      zq2 = zp2;
+    }
+    ++j;
+  }
+  if (*running)
+  {
+    const CDecNumber &lxa = z.m_r.dx[0];
+    const CDecNumber &lxb = z.m_r.dx[1];
+    const CDecNumber &lya = z.m_i.dx[0];
+    const CDecNumber &lyb = z.m_i.dx[1];
+    const CDecNumber det = lxa * lyb - lxb * lya;
+    S = sqrt(zq2) / sqrt(abs(det));
+    return true;
+  }
+  return false;
+}
+
 // double opencl
 
 extern std::string hybrid_f_opencl_double(const hybrid_operator &h, const std::string &ret, const std::string &Z)
