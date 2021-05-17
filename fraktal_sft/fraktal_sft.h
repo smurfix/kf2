@@ -528,6 +528,7 @@ public:
 	COLOR14 GetColor(int i);
 	COLOR14 GetInteriorColor() { return m_cInterior; };
 	void SetInteriorColor(const COLOR14 &c) { m_cInterior = c; };
+	void ResetParameters();
 	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
 	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
 	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
@@ -715,6 +716,7 @@ public:
   inline NumberType GetNumberTypes() const { return m_Settings.GetNumberTypes(); };
   inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
   BOOL(UseRescaledSeries)
+  BOOL(OpenResetsParameters)
 #undef DOUBLE
 #undef INT
 #undef BOOL

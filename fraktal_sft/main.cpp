@@ -563,6 +563,12 @@ static void UpdateHalfColour(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
 }
 
+static void UpdateOpenResetsParameters(HWND hWnd)
+{
+	bool b = g_SFT.GetOpenResetsParameters();
+	CheckMenuItem(GetMenu(hWnd),ID_OPEN_RESETS_PARAMETERS,MF_BYCOMMAND|(b?MF_CHECKED:MF_UNCHECKED));
+}
+
 static void UpdateSaveOverwrites(HWND hWnd)
 {
 	bool b = g_SFT.GetSaveOverwrites();
@@ -640,6 +646,7 @@ static void UpdateMenusFromSettings(HWND hWnd)
 	UpdateIsolatedGlitchNeighbourhood(hWnd);
 	UpdateShowCrossHair(hWnd);
 	UpdateHalfColour(hWnd);
+	UpdateOpenResetsParameters(hWnd);
 	UpdateSaveOverwrites(hWnd);
 	UpdateThreadedReference(hWnd);
 	UpdateEXRParallel(hWnd);
@@ -3614,6 +3621,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_HALFCOLOUR){
 		g_SFT.SetHalfColour(!g_SFT.GetHalfColour());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(g_SFT.GetHalfColour()?MF_CHECKED:MF_UNCHECKED));
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_OPEN_RESETS_PARAMETERS){
+		g_SFT.SetOpenResetsParameters(!g_SFT.GetOpenResetsParameters());
+		CheckMenuItem(GetMenu(hWnd),ID_OPEN_RESETS_PARAMETERS,MF_BYCOMMAND|(g_SFT.GetOpenResetsParameters()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SAVE_OVERWRITES){
 		g_SFT.SetSaveOverwrites(!g_SFT.GetSaveOverwrites());

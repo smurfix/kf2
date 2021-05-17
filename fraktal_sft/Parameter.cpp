@@ -142,6 +142,10 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 			}
 		}
 	}
+	if (GetOpenResetsParameters())
+	{
+		ResetParameters();
+	}
 	int nR = -1, nI = -1, nZ = -1, nIterations = -1;
 	if (! bNoLocation)
 	{
@@ -610,4 +614,25 @@ BOOL CFraktalSFT::SaveFile(const std::string &szFile, bool overwrite)
 	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
 	CloseHandle(hFile);
 	return TRUE;
+}
+
+void CFraktalSFT::ResetParameters()
+{
+	// required for backward compatibility with older parameter files
+	SetIterDiv(1);
+	SetColorMethod(ColorMethod_Standard);
+	SetDifferences(Differences_Traditional);
+	SetColorOffset(0);
+	SetPhaseColorStrength(0);
+	SetFractalType(0);
+	SetPower(2);
+	SetSlopes(false, 50, 20, 45);
+	g_real = 1;
+	g_imag = 1;
+	SetBailoutNormPreset(BailoutNorm_2);
+	SetBailoutNormCustom(2);
+	g_SeedR = 0;
+	g_SeedI = 0;
+	g_FactorAR = 1;
+	g_FactorAI = 0;
 }

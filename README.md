@@ -2304,6 +2304,14 @@ Software license.
     However, it is recommended to disable guessing when using OpenCL in
     exterior regions for speed reasons.
 
+  - **'Open' resets default parameters**
+
+    When this is checked, Open resets parameters to default before loading,
+    for compatibility with older KFR files.  When this is unchecked, Open
+    only affects the parameters that are specified in the file, allowing
+    more minimal KFR files to be created outside KF.  The default is enabled,
+    for compatibility.
+
   - **'Save' overwrites existing file**
 
     When this is checked, Save (Ctrl-S) overwrites the current file without

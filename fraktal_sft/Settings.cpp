@@ -111,6 +111,7 @@ bool Settings::FromText(const std::string &text)
   BOOL(ReferenceStrictZero)
   INT(NumberTypes)
   BOOL(UseRescaledSeries)
+  BOOL(OpenResetsParameters)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -184,6 +185,7 @@ std::string Settings::ToText() const
   BOOL(ReferenceStrictZero)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberTypes())); }
   BOOL(UseRescaledSeries)
+  BOOL(OpenResetsParameters)
 #undef DOUBLE
 #undef INT
 #undef BOOL

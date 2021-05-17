@@ -97,6 +97,7 @@ private:
   bool m_ReferenceStrictZero;
   int64_t m_NumberTypes;
   bool m_UseRescaledSeries;
+  bool m_OpenResetsParameters;
 
 public:
 
@@ -160,6 +161,7 @@ public:
   , m_ReferenceStrictZero(false)
   , m_NumberTypes(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
   , m_UseRescaledSeries(false)
+  , m_OpenResetsParameters(true)
   { };
 
   bool FromText(const std::string &text);
@@ -370,6 +372,10 @@ public:
 
   inline bool   GetUseRescaledSeries() const { return m_UseRescaledSeries; };
   inline void   SetUseRescaledSeries(bool b) { m_UseRescaledSeries = b; };
+
+  inline bool   GetOpenResetsParameters() const { return m_OpenResetsParameters; };
+  inline void   SetOpenResetsParameters(bool b) { m_OpenResetsParameters = b; };
+
 };
 
 #endif

@@ -503,6 +503,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_RESET_TRANSFORMATION 40155
 #define ID_IMAGE_SHRINK_SRGB 40156
 #define ID_NUMBERTYPES 40157
+#define ID_OPEN_RESETS_PARAMETERS 40158
 
 // OpenCL
 #ifdef KF_OPENCL
