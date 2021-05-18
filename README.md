@@ -2161,6 +2161,12 @@ Software license.
       can be slower, but disabling can give inaccurate images.  Default
       disabled for Mandelbrot set, enabled for other formulas.
 
+    - **Rescaled series approximation**
+
+      Use rescaling for series approximation calculations.
+      Enabling can be faster, but may lead to inaccurate images.
+      Only for power 2 Mandelbrot set.
+
   - **Number Type Selection**
 
     Configure which number types KF is allowed to choose from.  Number
@@ -2173,7 +2179,7 @@ Software license.
     carefully.
 
     Rescaled iterations are only available for Mandelbrot set
-    power 2, Mandelbrot power 3, and Burning Ship power 2.
+    power 2, Mandelbrot power 3, Burning Ship power 2, and hybrid formulas.
 
   - **Set main reference**
 
@@ -2401,6 +2407,10 @@ Software license.
     branching once at compile time, instead of checking what to do on every
     iteration.  Hybrid formulas support rescaled iterations, so zooms past
     the range of float and/or double can still be fast.
+
+    With the "threaded" option enabled, OpenCL runs in a background thread so
+    the user interface is more responsive.  With it disabled, it runs on the
+    main thread blocking interactions (but this might work around some bugs).
 
 
 ## About
