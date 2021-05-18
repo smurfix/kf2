@@ -1996,9 +1996,12 @@ Software license.
   - **Transformation**
 
     Activate transformation dialog.
-    Left mouse drag to rotate the image.
+    Left mouse drag to rotate and zoom the image.
     Right mouse drag to skew the image.
-    Automatic skew is available via the Newton-Raphson zooming dialog.
+    Automatic skew works on the center pixel using derivatives.  The derivative
+    with respect to C is always used, the derivative with respect to Z is
+    optional.  Automatic skew for minibrots is available via the Newton-Raphson
+    zooming dialog.
 
   - **Reset Transformation**
 
@@ -2007,7 +2010,8 @@ Software license.
   - **Exponential Map**
 
     Apply exponential map coordinate transform.  For best (more conformal)
-    results use a wide aspect ratio (9:1 works well, window size 1152x128).
+    results use a wide aspect ratio (9:1 works well, window size 1152x128
+    or 1536x170).
 
     You can store exponential map zoom out sequences (set zoom size to 2)
     and combine them into a movie with the *zoomasm* zoom video assembler.
@@ -2016,28 +2020,55 @@ Software license.
   - **Shrink quality**
 
     Set quality of image scaling.  "Fast" and "Default" are better suited
-    for exploring, but "Best" looks much better at the cost of slower colouring
-    (it does properly filtered anti-aliasing).
+    for exploring, but "Good" looks much better at the cost of slower colouring
+    (it does properly filtered anti-aliasing).  "sRGB" is even better, doing
+    gamma-correct scaling.
 
     You shouldn't need to adjust this unless you set the image size larger than
     the window size, or intend saving image files at smaller resolutions than the
     image size.
-
-    Note: this feature is still a bit experimental and subject to change in
-    future versions.
 
 
 ## Navigation
 
   - **Newton-Raphson zooming**
 
-    When activated, a dialog will be displayed, which allows you to select if
-    the zoom should jump directly to the minibrot, or to 3/4 zooms to the
-    minibrot, where the current pattern is doubled, etc.
+    Activates the Newton-Raphson zooming dialog, which allows you to zoom
+    directly centered on a minibrot (or other miniset, for other formulas).
 
-    The zoom level of the current pattern is set when opening the dialog, and
-    can be changed with the capture button (which gets the current zoom level
-    from the image view).
+    There are 4 Actions possible, each applies the previous ones.  Period
+    calculates the period of the minibrot (useful for NanoMB1/NanoMB2).
+    The Ball Method is used by default, otherwise the Box Method is used.
+    Center calculates the period and also centers the view on the minibrot.
+    Save Progress saves snapshots to KFR files, but resuming is not possible
+    yet.  Size calculates the size of the minibrot and zooms the view
+    according to the remaining controls.  Skew automatically skews the view
+    to make features near the minibrot look round.
+
+    Progress is displayed on the top right, where there is a button to stop
+    the processes (for example if the ETA for Center gets very high, which
+    indicates that it might not be converging).
+
+    Minibrot (Relative) is familiar from KF version 2.15.2 and earlier.
+    The Relative Folding controls allow you to zoom to a factor between
+    the start zoom level (which can be captured explicitly or left blank
+    to use the current value) and the minibrot zoom level.  For power 2
+    formulas, 0.5 makes the current pattern doubled, 0.75 quadrupled, and
+    so on.  For power 3, 0.666 makes the current pattern tripled, and in
+    general power P needs factors like 1-(1/P)^M for folding.
+
+    Minibrot (Absolute) zooms relative to the size of the minibrot only.
+    The Absolute Power controls allow you to control this, 0.75 is typically
+    near an embedded Julia set, 1 is at the minibrot.  Larger than 1 is not
+    useful here.
+
+    Atom Domain (Absolute) zooms relative to the size of the atom domain of
+    the minibrot, which is typically around the size of an embedded Julia
+    set.  Absolute Power 1 is at the atom domain, 1.125 is sometimes near
+    a Julia morphing.
+
+    The Size Factor in the bottom right corner is applied after zooming in
+    all modes, for fine tuning of the zoomed view.
 
     Click on the fractal to specify the start point of the search of the
     minibrot. The current zoom size is used to set the boundaries of search
@@ -2050,15 +2081,8 @@ Software license.
     in the view, or with the automatic search of minibrot that is also using
     the pattern center.
 
-    When "auto skew (newton)" is enabled before activating, the view will be
-    skewed to make features near the minibrot approximately circular.
-
-    When "auto skew (escape)" is activated, the view will be skewed to make
-    features in the current view approximately circular (without zooming).
-
-    "Auto skew escape" has an option to take into account d/dz derivatives as
-    well as d/dc, some fractals work better with it enabled, some without.
-    Experiment and report back!
+    "Auto skew escape" has been moved to the Transformation dialog
+    in KF version 2.15.3.
 
   - **Find Minibrot**
 
