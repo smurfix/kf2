@@ -32,15 +32,15 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-    T(IDC_NUMBERTYPE_SINGLE        , "Use single precision floating point\nuntil zoom depth 1e20\nbe vigilant: undetected glitches may occur")
-    T(IDC_NUMBERTYPE_DOUBLE        , "Use double precision floating point\nuntil zoom depth 1e290\nnot supported by all OpenCL devices")
-    T(IDC_NUMBERTYPE_LONGDOUBLE    , "Use x87 long double floating point\nuntil zoom depth 1e4900\nnot supported by any OpenCL devices")
-    T(IDC_NUMBERTYPE_FLOATEXPSINGLE, "Use single precision with extended exponent\nbe vigilant: undetected glitches may occur")
-    T(IDC_NUMBERTYPE_FLOATEXPDOUBLE, "Use double precision with extended exponent\nnot supported by all OpenCL devices")
-    T(IDC_NUMBERTYPE_RESCALEDSINGLE, "Use single precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, and Burning Ship power 2\nbe vigilant: undetected glitches may occur")
-    T(IDC_NUMBERTYPE_RESCALEDDOUBLE, "Use double precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, and Burning Ship power 2\nnot supported by all OpenCL devices")
-    T(IDOK, "Apply and close")
-    T(IDCANCEL, "Close and undo")
+    T(IDC_NUMBERTYPE_SINGLE        , "Use single precision floating point.\nUntil zoom depth 1e20.\nBe vigilant: undetected glitches may occur.")
+    T(IDC_NUMBERTYPE_DOUBLE        , "Use double precision floating point.\nUntil zoom depth 1e290.\nNot supported by all OpenCL devices.")
+    T(IDC_NUMBERTYPE_LONGDOUBLE    , "Use x87 long double floating point.\nUntil zoom depth 1e4900.\nNot supported by any OpenCL devices.")
+    T(IDC_NUMBERTYPE_FLOATEXPSINGLE, "Use single precision with extended exponent.\nBe vigilant: undetected glitches may occur.")
+    T(IDC_NUMBERTYPE_FLOATEXPDOUBLE, "Use double precision with extended exponent.\nNot supported by all OpenCL devices.")
+    T(IDC_NUMBERTYPE_RESCALEDSINGLE, "Use single precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, Burning Ship power 2, and hybrid formulas.\nBe vigilant: undetected glitches may occur.")
+    T(IDC_NUMBERTYPE_RESCALEDDOUBLE, "Use double precision with rescaled iterations\nonly Mandelbrot power 2, Mandelbrot power 3, Burning Ship power 2, and hybrid formulas.\nNot supported by all OpenCL devices.")
+    T(IDOK, "Apply and close.")
+    T(IDCANCEL, "Close and undo.")
 #undef T
     NumberType n = g_SFT.GetNumberTypes();
     SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_SINGLE,         BM_SETCHECK, n.Single         ? 1 : 0, 0);
