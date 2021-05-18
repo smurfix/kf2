@@ -2131,10 +2131,12 @@ Software license.
       Setting to 0 can lead to bad images, but is faster.
       Fractional values can be used since KF version 2.15.3.
 
-    - **Series approximation low tolerance**
+    - **Series approximation tolerance**
 
-      When checked, series approximation
-      is stricter.  Disabling it can lead to bad images, but is faster.
+      Series approximation is stricter the higher this value is.
+      Setting to 1 should lead to good images, but is slow.
+      Setting to 0 can lead to bad images, but is faster.
+      Fractional values can be used since KF version 2.15.3.
 
     - **Approximation terms**
 

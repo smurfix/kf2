@@ -641,7 +641,7 @@ public:
   DOUBLE(ZoomSize)
   INT(MaxReferences)
   DOUBLE(GlitchLowTolerance)
-  BOOL(ApproxLowTolerance)
+  DOUBLE(ApproxLowTolerance)
   BOOL(AutoApproxTerms)
 	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
 	       void   SetApproxTerms(int64_t t);

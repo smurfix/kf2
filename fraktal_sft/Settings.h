@@ -41,7 +41,7 @@ private:
   double m_ZoomSize;
   int64_t m_MaxReferences;
   double m_GlitchLowTolerance;
-  bool m_ApproxLowTolerance;
+  double m_ApproxLowTolerance;
   bool m_AutoApproxTerms;
   int64_t m_ApproxTerms;
   int64_t m_WindowWidth;
@@ -105,7 +105,7 @@ public:
   : m_ZoomSize(2.0)
   , m_MaxReferences(10000)
   , m_GlitchLowTolerance(0.0)
-  , m_ApproxLowTolerance(false)
+  , m_ApproxLowTolerance(0.0)
   , m_AutoApproxTerms(true)
   , m_ApproxTerms(10)
   , m_WindowWidth(640)
@@ -183,8 +183,8 @@ public:
   inline double GetGlitchLowTolerance() const { return m_GlitchLowTolerance; };
   inline void   SetGlitchLowTolerance(double b) { m_GlitchLowTolerance = b; };
 
-  inline bool   GetApproxLowTolerance() const { return m_ApproxLowTolerance; };
-  inline void   SetApproxLowTolerance(bool b) { m_ApproxLowTolerance = b; }
+  inline double GetApproxLowTolerance() const { return m_ApproxLowTolerance; };
+  inline void   SetApproxLowTolerance(double b) { m_ApproxLowTolerance = b; }
 
   inline bool   GetAutoApproxTerms() const { return m_AutoApproxTerms; };
   inline void   SetAutoApproxTerms(bool b) { m_AutoApproxTerms = b; };

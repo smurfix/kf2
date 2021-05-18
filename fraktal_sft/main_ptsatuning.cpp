@@ -35,7 +35,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
     T(IDC_PTSATUNING_GLITCHTOLERANCE, "Set tolerance for glitch detection.\n0 is fast but may miss glitches.\n1 is slow but should catch all glitches.\nFractional values can be used.")
     T(IDC_PTSATUNING_MAXREFERENCES, "Maximum number of references for glitch correction.\nHard upper limit is 10000.")
-    T(IDC_PTSATUNING_APPROXTOLERANCE, "Use low tolerance for series approximation.\nMay be slower but more accurate.")
+    T(IDC_PTSATUNING_APPROXTOLERANCE, "Set tolerance for series approximation.\n0 is fast but may be distorted.\n1 is slow but should be more accurate.\nFractional values can be used.")
     T(IDC_PTSATUNING_APPROXAUTO, "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.")
     T(IDC_PTSATUNING_APPROXTERMS, "Number of terms for series approximation.\nOnly used when automatic mode is disabled.")
     T(IDC_PTSATUNING_DERIVATIVEGLITCH, "Use derivative-based glitch detection for power 2 Mandelbrot set.\nMay be faster, in rare cases may be inaccurate.")
@@ -47,7 +47,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
 
     SetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, g_SFT.GetGlitchLowTolerance());
     SetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, g_SFT.GetMaxReferences(), FALSE);
-    SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_SETCHECK, g_SFT.GetApproxLowTolerance() ? 1 : 0, 0);
+    SetDlgItemFloat(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, g_SFT.GetApproxLowTolerance());
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_SETCHECK, g_SFT.GetAutoApproxTerms() ? 1 : 0, 0);
     SetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, g_SFT.GetApproxTerms(), FALSE);
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_SETCHECK, g_SFT.GetDerivativeGlitch() ? 1 : 0, 0);
@@ -66,7 +66,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
         g_bExamineDirty=TRUE;
         g_SFT.SetGlitchLowTolerance(GetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE));
         g_SFT.SetMaxReferences(GetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, NULL, FALSE));
-        g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_GETCHECK, 0, 0));
+        g_SFT.SetApproxLowTolerance(GetDlgItemFloat(hWnd, IDC_PTSATUNING_APPROXTOLERANCE));
         g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
         g_SFT.SetAutoApproxTerms(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_GETCHECK, 0, 0));
         g_SFT.SetDerivativeGlitch(SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_GETCHECK, 0, 0));

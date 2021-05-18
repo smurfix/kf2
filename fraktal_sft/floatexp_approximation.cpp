@@ -97,11 +97,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 	int64_t maxIter = reference_size_x(m_Reference);
 	m_nMaxApproximation = maxIter;
 	//floatexp mindiff = (m_nBailout==2?0.000001:0.001);
-	floatexp mindiff;
-	if (GetApproxLowTolerance())
-		mindiff = 0.00001;
-	else
-		mindiff = 0.001;
+	floatexp mindiff = std::exp(std::log(0.001) + (std::log(0.00001) - std::log(0.001)) * GetApproxLowTolerance());
 	//	if(dbTr[0]<0 && dbTi[0]<1e-16 && dbTi[0]>-1e-16)
 	//		mindiff = 0.0000001;
 	if (GetNoApprox())

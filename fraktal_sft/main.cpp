@@ -4076,7 +4076,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetGuessing(true);
 			UpdateGuessing(hWnd);
 			g_SFT.SetGlitchLowTolerance(0.0);
-			g_SFT.SetApproxLowTolerance(false);
+			g_SFT.SetApproxLowTolerance(0.0);
 			if (g_SFT.GetDifferences() != Differences_Analytic)
 			{
 				g_SFT.SetDerivatives(false);
@@ -4088,7 +4088,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetGuessing(false);
 			UpdateGuessing(hWnd);
 			g_SFT.SetGlitchLowTolerance(1.0);
-			g_SFT.SetApproxLowTolerance(true);
+			g_SFT.SetApproxLowTolerance(1.0);
 			g_SFT.SetJitterSeed(1);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1_4){
