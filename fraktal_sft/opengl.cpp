@@ -568,16 +568,14 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         float    *n_dex = req.u.render.dex   ? new float   [max_tile_width * max_tile_height] : nullptr;
         float    *n_dey = req.u.render.dey   ? new float   [max_tile_width * max_tile_height] : nullptr;
 
-        glPixelStorei(GL_PACK_ALIGNMENT, 1);
-        glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
-        D
         for (int64_t tile_y = req.u.render.height + padding; tile_y > 0 - padding; tile_y -= (max_tile_height - 2 * padding))
         {
           const int tile_height = std::min(max_tile_height, tile_y + padding);
           for (int64_t tile_x = 0 - padding; tile_x < req.u.render.width + padding; tile_x += (max_tile_width - 2 * padding))
           {
             const int tile_width = std::min(max_tile_width, req.u.render.width - tile_x + padding);
-            const int64_t skip = 3 * ((tile_x + padding) + (req.u.render.height + padding - tile_y) * req.u.render.width);
+            const int64_t skipX = tile_x + padding;
+            const int64_t skipY = req.u.render.height + padding - tile_y;
 
             // copy from arrays to tile; reflect data at image boundaries
             // FIXME assumes tile size >= 3x3
@@ -784,7 +782,11 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb16)
             {
-              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_RGB, GL_HALF_FLOAT, req.u.render.rgb16 + skip);
+              glPixelStorei(GL_PACK_ALIGNMENT, 1);
+              glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
+              glPixelStorei(GL_PACK_SKIP_PIXELS, skipX);
+              glPixelStorei(GL_PACK_SKIP_ROWS, skipY);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_RGB, GL_HALF_FLOAT, req.u.render.rgb16);
             }
             D
 
@@ -798,7 +800,11 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
             if (req.u.render.rgb8)
             {
-              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8 + skip);
+              glPixelStorei(GL_PACK_ALIGNMENT, 4);
+              glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
+              glPixelStorei(GL_PACK_SKIP_PIXELS, skipX);
+              glPixelStorei(GL_PACK_SKIP_ROWS, skipY);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8);
             }
             if (sRGB)
             {
@@ -817,6 +823,8 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
 
         glPixelStorei(GL_PACK_ALIGNMENT, 4);
         glPixelStorei(GL_PACK_ROW_LENGTH, 0);
+        glPixelStorei(GL_PACK_SKIP_PIXELS, 0);
+        glPixelStorei(GL_PACK_SKIP_ROWS, 0);
         D
 
         // flip half image vertically (EXR origin top left, BMP bottom left)
