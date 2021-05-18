@@ -99,6 +99,7 @@ extern double g_FactorAI;
 HWND g_hwTransformationDialog = nullptr;
 bool g_bTransformationDialogIsOpen = false;
 static polar2 g_transformation_delta = polar2(1, 0, 1, 0);
+static double g_transformation_zoom_delta = 1;
 
 enum RotateMode
 {
@@ -108,6 +109,7 @@ enum RotateMode
 };
 static RotateMode g_bRotate = RotateMode_Idle;
 static double g_transformation_rotate_start = 0;
+static double g_transformation_zoom_start = 0;
 
 enum StretchMode
 {
@@ -2423,6 +2425,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_transformation_stretch_angle_start = std::atan2(dy, dx);
 		g_transformation_stretch_radius_start = std::hypot(dx, dy);
 		g_transformation_delta = polar2(1, 0, 1, 0);
+		g_transformation_zoom_delta = 1;
 		g_bStretch = StretchMode_Started;
 		SetCapture(hWnd);
 		return 0;
@@ -2455,7 +2458,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetCursorPos(&p);
 			ScreenToClient(hWnd,&p);
 			g_transformation_rotate_start = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+			g_transformation_zoom_start = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
 			g_transformation_delta = polar2(1, 0, 1, 0);
+			g_transformation_zoom_delta = 1;
 			g_bRotate = RotateMode_Started;
 			SetCapture(hWnd);
 			return 0;
@@ -2597,8 +2602,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
 				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+				double length = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
 				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
-				TransformRefresh(g_transformation_delta);
+				g_transformation_zoom_delta = std::min(std::max(g_transformation_zoom_start / length, 0.01), 100.0);
+				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 			}
@@ -2624,7 +2631,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				double radius = std::hypot(dx, dy);
 				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
 				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
-				TransformRefresh(g_transformation_delta);
+				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 			}
@@ -2732,13 +2739,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
 				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
+				double length = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
 				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
-				TransformRefresh(g_transformation_delta);
+				g_transformation_zoom_delta = std::min(std::max(g_transformation_zoom_start / length, 0.01), 100.0);
+				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 
-		TransformApply(g_transformation_delta);
+		TransformApply(g_transformation_delta, g_transformation_zoom_delta);
 		g_transformation_delta = polar2(1, 0, 1, 0);
+		g_transformation_zoom_delta = 1;
 	}
 	else if (uMsg == WM_RBUTTONUP && g_bStretch != StretchMode_Idle){
 		ReleaseCapture();
@@ -2761,12 +2771,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				double radius = std::hypot(dx, dy);
 				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
 				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
-				TransformRefresh(g_transformation_delta);
+				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 
-		TransformApply(g_transformation_delta);
+		TransformApply(g_transformation_delta, g_transformation_zoom_delta);
 		g_transformation_delta = polar2(1, 0, 1, 0);
+		g_transformation_zoom_delta = 1;
 	}
 	else if(g_bTrackSelect==1 && (uMsg==WM_CAPTURECHANGED || uMsg==WM_RBUTTONUP || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE))){
 		g_bTrackSelect=FALSE;

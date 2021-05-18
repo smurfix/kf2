@@ -26,8 +26,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 extern void TransformImage(HBITMAP bmBmp);
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm);
-extern void TransformApply(const polar2 &P);
-extern void TransformRefresh(const polar2 &P);
+extern void TransformApply(const polar2 &P, double zoom_amount);
+extern void TransformRefresh(const polar2 &P, double zoom_amount);
 extern void TransformBlit(HDC hDC, int w, int h);
 
 extern HWND g_hwTransformationDialog;
