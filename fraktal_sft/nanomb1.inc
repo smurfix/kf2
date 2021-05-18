@@ -542,11 +542,10 @@ struct NanoMB1_Reference
   { };
 };
 
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, bool lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, double lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
 {
   double glitch_threshold = 0.0000001;
-  if (lowGlitchTol)
-    glitch_threshold = sqrt(glitch_threshold);
+  glitch_threshold = std::exp(std::log(glitch_threshold) * (1 - lowGlitchTol / 2));
   //Compute bivariate polynomial approximating period iterations--------------------------
   biPolyClass fp(bm,bn);
   refClass ref(glitch_threshold);

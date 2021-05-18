@@ -60,9 +60,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 		double threashold = 0.0001;
 		for (int i = 7; i <= m_nPower; i += 2)
 			threashold *= 10;
-		if (GetGlitchLowTolerance()) {
-			threashold = sqrt(threashold);
-		}
+		threashold = std::exp(std::log(threashold) * (1 - GetGlitchLowTolerance() / 2));
 		if (threashold>.5)
 			threashold = .5;
 		for (int64_t i = 0; i<nMaxIter && !m_bStop; i++){

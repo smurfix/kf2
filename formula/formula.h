@@ -336,7 +336,7 @@ bool reference
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const bool m_bGlitchLowTolerance
+  , const double m_bGlitchLowTolerance
   );
 
 // perturbation

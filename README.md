@@ -2124,10 +2124,12 @@ Software license.
 
   - **Perturbation and Series Approximation Tuning**
 
-    - **Glitch low tolerance**
+    - **Glitch tolerance**
 
-      When checked, glitches are more likely to be
-      detected.  Disabling it can lead to bad images, but is faster.
+      Glitches are more likely to be detected the higher this value is.
+      Setting to 1 should lead to good images, but is very slow.
+      Setting to 0 can lead to bad images, but is faster.
+      Fractional values can be used since KF version 2.15.3.
 
     - **Series approximation low tolerance**
 

@@ -640,7 +640,7 @@ public:
 	inline void   Set##KEY(bool x) { return m_Settings.Set##KEY(x); };
   DOUBLE(ZoomSize)
   INT(MaxReferences)
-  BOOL(GlitchLowTolerance)
+  DOUBLE(GlitchLowTolerance)
   BOOL(ApproxLowTolerance)
   BOOL(AutoApproxTerms)
 	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };

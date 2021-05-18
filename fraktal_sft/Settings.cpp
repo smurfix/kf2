@@ -50,7 +50,7 @@ bool Settings::FromText(const std::string &text)
 #define BOOL(KEY)   { int n = s.FindString(0, #KEY); if (n != -1) { m_ ## KEY = atoll(s[n][1]); } }
   DOUBLE(ZoomSize)
   INT(MaxReferences)
-  BOOL(GlitchLowTolerance)
+  DOUBLE(GlitchLowTolerance)
   BOOL(ApproxLowTolerance)
   BOOL(AutoApproxTerms)
   INT(ApproxTerms)
@@ -127,7 +127,7 @@ std::string Settings::ToText() const
 #define BOOL(KEY)   { s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddInt(s.GetCount() - 1, Get ## KEY ()); }
   DOUBLE(ZoomSize)
   INT(MaxReferences)
-  BOOL(GlitchLowTolerance)
+  DOUBLE(GlitchLowTolerance)
   BOOL(ApproxLowTolerance)
   BOOL(AutoApproxTerms)
   INT(ApproxTerms)

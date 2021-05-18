@@ -59,7 +59,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const bool m_bGlitchLowTolerance
+  , const double m_bGlitchLowTolerance
   )
 {
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
@@ -68,9 +68,7 @@ bool FORMULA(reference,<xsl:value-of select="../@type" />,<xsl:value-of select="
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
     double glitch = <xsl:value-of select="@glitch" />;
-    if (m_bGlitchLowTolerance) {
-      glitch = sqrt(glitch);
-    }
+    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
     mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
     mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
@@ -162,7 +160,7 @@ bool reference
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const bool m_bGlitchLowTolerance
+  , const double m_bGlitchLowTolerance
   )
 {
   switch (m_nFractalType)

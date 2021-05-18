@@ -139,9 +139,7 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		int64_t nMaxIter = m_nMaxIter;
 
 		double glitch_threshold = 0.0000001;
-		if (GetGlitchLowTolerance()) {
-			glitch_threshold = sqrt(glitch_threshold);
-		}
+		glitch_threshold = std::exp(std::log(glitch_threshold) * (1 - GetGlitchLowTolerance() / 2));
 
 		// initialize
 		mcthread mc[3];

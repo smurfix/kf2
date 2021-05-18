@@ -4075,7 +4075,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			UpdateIsolatedGlitchNeighbourhood(hWnd);
 			g_SFT.SetGuessing(true);
 			UpdateGuessing(hWnd);
-			g_SFT.SetGlitchLowTolerance(false);
+			g_SFT.SetGlitchLowTolerance(0.0);
 			g_SFT.SetApproxLowTolerance(false);
 			if (g_SFT.GetDifferences() != Differences_Analytic)
 			{
@@ -4087,7 +4087,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			UpdateIsolatedGlitchNeighbourhood(hWnd);
 			g_SFT.SetGuessing(false);
 			UpdateGuessing(hWnd);
-			g_SFT.SetGlitchLowTolerance(true);
+			g_SFT.SetGlitchLowTolerance(1.0);
 			g_SFT.SetApproxLowTolerance(true);
 			g_SFT.SetJitterSeed(1);
 		}

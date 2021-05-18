@@ -1275,7 +1275,7 @@ inline bool reference
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate
-  , const bool m_bGlitchLowTolerance
+  , const double m_bGlitchLowTolerance
   )
 {
     m_nGlitchIter = m_nMaxIter + 1;
@@ -1284,9 +1284,7 @@ inline bool reference
     int power = hybrid_power_inf(h);
     double glitches[] = { 1e-7, 1e-6, 1e-5, 1e-4, 1e-4, 1e-3, 1e-3, 1e-2 };
     double glitch = glitches[std::min(std::max(0, power - 2), 7)];
-    if (m_bGlitchLowTolerance) {
-      glitch = std::sqrt(glitch);
-    }
+    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
     complex<CFixedFloat> C, X;
     mpfr_set(C.m_r.m_f.backend().data(), Cr0.m_f.backend().data(), MPFR_RNDN);
     mpfr_set(C.m_i.m_f.backend().data(), Ci0.m_f.backend().data(), MPFR_RNDN);

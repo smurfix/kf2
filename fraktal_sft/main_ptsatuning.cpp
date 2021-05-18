@@ -33,7 +33,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-    T(IDC_PTSATUNING_GLITCHTOLERANCE, "Use low tolerance for glitch detection.\nMay be slower but more accurate.")
+    T(IDC_PTSATUNING_GLITCHTOLERANCE, "Set tolerance for glitch detection.\n0 is fast but may miss glitches.\n1 is slow but should catch all glitches.\nFractional values can be used.")
     T(IDC_PTSATUNING_MAXREFERENCES, "Maximum number of references for glitch correction.\nHard upper limit is 10000.")
     T(IDC_PTSATUNING_APPROXTOLERANCE, "Use low tolerance for series approximation.\nMay be slower but more accurate.")
     T(IDC_PTSATUNING_APPROXAUTO, "Use automatic number of terms for series approximation.\nBased on number of pixels remaining.")
@@ -45,7 +45,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
     T(IDCANCEL, "Close and undo")
 #undef T
 
-    SendDlgItemMessage(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, BM_SETCHECK, g_SFT.GetGlitchLowTolerance() ? 1 : 0, 0);
+    SetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, g_SFT.GetGlitchLowTolerance());
     SetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, g_SFT.GetMaxReferences(), FALSE);
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_SETCHECK, g_SFT.GetApproxLowTolerance() ? 1 : 0, 0);
     SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXAUTO, BM_SETCHECK, g_SFT.GetAutoApproxTerms() ? 1 : 0, 0);
@@ -64,7 +64,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
       {
         g_SFT.UndoStore();
         g_bExamineDirty=TRUE;
-        g_SFT.SetGlitchLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE, BM_GETCHECK, 0, 0));
+        g_SFT.SetGlitchLowTolerance(GetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE));
         g_SFT.SetMaxReferences(GetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, NULL, FALSE));
         g_SFT.SetApproxLowTolerance(SendDlgItemMessage(hWnd, IDC_PTSATUNING_APPROXTOLERANCE, BM_GETCHECK, 0, 0));
         g_SFT.SetApproxTerms(GetDlgItemInt(hWnd, IDC_PTSATUNING_APPROXTERMS, NULL, FALSE));
