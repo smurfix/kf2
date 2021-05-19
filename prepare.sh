@@ -64,7 +64,7 @@ then
   wget -c https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.7z
   wget -c https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz
   wget -c https://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.xz
-  wget -c https://www.mpfr.org/mpfr-current/allpatches
+  #wget -c https://www.mpfr.org/mpfr-current/allpatches
   wget -c https://zlib.net/zlib-1.2.11.tar.xz
   wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
   wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
@@ -99,7 +99,7 @@ then
     cd ~/win/x86_64/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    patch -N -Z -p1 < ../allpatches
+    #patch -N -Z -p1 < ~/win/src/allpatches
     ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -260,7 +260,7 @@ then
     cd ~/win/i686/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    patch -N -Z -p1 < ../allpatches
+    #patch -N -Z -p1 < ~/win/src/allpatches
     ./configure --host=i686-w64-mingw32 --prefix=$HOME/win/i686 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -423,7 +423,7 @@ then
     cd ~/win/aarch64/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    patch -N -Z -p1 < ../allpatches
+    #patch -N -Z -p1 < ~/win/src/allpatches
     ./configure --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -590,7 +590,7 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    patch -N -Z -p1 < ../allpatches
+    #patch -N -Z -p1 < ~/win/src/allpatches
     ./configure --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
