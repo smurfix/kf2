@@ -61,19 +61,19 @@ then
   cp -avft ~/win/src *.patch
   # download
   cd ~/win/src
-  wget -c https://dl.bintray.com/boostorg/release/1.75.0/source/boost_1_75_0.7z
+  wget -c https://boostorg.jfrog.io/artifactory/main/release/1.76.0/source/boost_1_76_0.7z
   wget -c https://gmplib.org/download/gmp/gmp-6.2.1.tar.lz
   wget -c https://www.mpfr.org/mpfr-current/mpfr-4.1.0.tar.xz
-  #wget -c https://www.mpfr.org/mpfr-current/allpatches
+  wget -c https://www.mpfr.org/mpfr-current/allpatches
   wget -c https://zlib.net/zlib-1.2.11.tar.xz
   wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
   wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
-  wget -c https://download.osgeo.org/libtiff/tiff-4.2.0.tar.gz
+  wget -c https://download.osgeo.org/libtiff/tiff-4.3.0.tar.gz
   wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
   #wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
-  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/v2.5.5.tar.gz -O openexr-2.5.5.tar.gz
-  wget -c https://github.com/glfw/glfw/releases/download/3.3.3/glfw-3.3.3.zip
+  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.6.tar.gz -O openexr-2.5.6.tar.gz
+  wget -c https://github.com/glfw/glfw/releases/download/3.3.4/glfw-3.3.4.zip
   ( git clone https://gitlab.freedesktop.org/claudeha/pixman.git && cd pixman && git checkout kf ) || ( cd pixman && git pull )
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
@@ -99,7 +99,7 @@ then
     cd ~/win/x86_64/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    #patch -N -Z -p1 < ../allpatches
+    patch -N -Z -p1 < ../allpatches
     ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -143,8 +143,8 @@ then
     # tiff 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/tiff-4.2.0.tar.gz
-    cd tiff-4.2.0/
+    tar xaf ~/win/src/tiff-4.3.0.tar.gz
+    cd tiff-4.3.0/
     ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64
     make -j $NCPUS
     make install
@@ -182,10 +182,10 @@ then
     # boost 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    7zr x ~/win/src/boost_1_75_0.7z
+    7zr x ~/win/src/boost_1_76_0.7z
     cd ~/win/x86_64/include
     rm -f boost
-    ln -s ../src/boost_1_75_0/boost/
+    ln -s ../src/boost_1_76_0/boost/
   fi
   if [[ "${PREPARE}" =~ "glm" ]]
   then
@@ -210,8 +210,8 @@ then
     # openexr 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/openexr-2.5.5.tar.gz
-    cd openexr-2.5.5/
+    tar xaf ~/win/src/openexr-2.5.6.tar.gz
+    cd openexr-2.5.6/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -228,8 +228,8 @@ then
     # glfw 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    unzip ~/win/src/glfw-3.3.3.zip
-    cd glfw-3.3.3/
+    unzip ~/win/src/glfw-3.3.4.zip
+    cd glfw-3.3.4/
     mkdir -p build
     cd build
     cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/x86_64-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/x86_64/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
@@ -260,7 +260,7 @@ then
     cd ~/win/i686/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    #patch -N -Z -p1 < ../allpatches
+    patch -N -Z -p1 < ../allpatches
     ./configure --host=i686-w64-mingw32 --prefix=$HOME/win/i686 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -304,8 +304,8 @@ then
     # tiff 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xaf ~/win/src/tiff-4.2.0.tar.gz
-    cd tiff-4.2.0/
+    tar xaf ~/win/src/tiff-4.3.0.tar.gz
+    cd tiff-4.3.0/
     ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win/i686
     make -j $NCPUS
     make install
@@ -344,10 +344,10 @@ then
     # boost 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    7zr x ~/win/src/boost_1_75_0.7z
+    7zr x ~/win/src/boost_1_76_0.7z
     cd ~/win/i686/include
     rm -f boost
-    ln -s ../src/boost_1_75_0/boost/
+    ln -s ../src/boost_1_76_0/boost/
   fi
   if [[ "${PREPARE}" =~ "glm" ]]
   then
@@ -372,8 +372,8 @@ then
     # openexr 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xf ~/win/src/openexr-2.5.5.tar.gz
-    cd openexr-2.5.5/
+    tar xf ~/win/src/openexr-2.5.6.tar.gz
+    cd openexr-2.5.6/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -391,8 +391,8 @@ then
     # glfw 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    unzip ~/win/src/glfw-3.3.3.zip
-    cd glfw-3.3.3/
+    unzip ~/win/src/glfw-3.3.4.zip
+    cd glfw-3.3.4/
     mkdir -p build
     cd build
     cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/i686-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/i686/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
@@ -423,7 +423,7 @@ then
     cd ~/win/aarch64/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    #patch -N -Z -p1 < ../allpatches
+    patch -N -Z -p1 < ../allpatches
     ./configure --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -469,8 +469,8 @@ then
     # tiff 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/tiff-4.2.0.tar.gz
-    cd tiff-4.2.0/
+    tar xaf ~/win/src/tiff-4.3.0.tar.gz
+    cd tiff-4.3.0/
     ./configure --disable-shared --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64
     make -j $NCPUS
     make install
@@ -509,10 +509,10 @@ then
     mkdir -p ~/win/aarch64/src
     mkdir -p ~/win/aarch64/include
     cd ~/win/aarch64/src
-    7zr x ~/win/src/boost_1_75_0.7z
+    7zr x ~/win/src/boost_1_76_0.7z
     cd ~/win/aarch64/include
     rm -f boost
-    ln -s ../src/boost_1_75_0/boost/
+    ln -s ../src/boost_1_76_0/boost/
   fi
   if [[ "${PREPARE}" =~ "glm" ]]
   then
@@ -538,8 +538,8 @@ then
     # openexr 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/openexr-2.5.5.tar.gz
-    cd openexr-2.5.5/
+    tar xaf ~/win/src/openexr-2.5.6.tar.gz
+    cd openexr-2.5.6/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -557,8 +557,8 @@ then
     # glfw 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    unzip ~/win/src/glfw-3.3.3.zip
-    cd glfw-3.3.3/
+    unzip ~/win/src/glfw-3.3.4.zip
+    cd glfw-3.3.4/
     sed -i "s/x86_64/aarch64/g" CMake/x86_64-w64-mingw32.cmake
     mkdir -p build
     cd build
@@ -590,7 +590,7 @@ then
     cd ~/win/armv7/src
     tar xaf ~/win/src/mpfr-4.1.0.tar.xz
     cd mpfr-4.1.0/
-    #patch -N -Z -p1 < ../allpatches
+    patch -N -Z -p1 < ../allpatches
     ./configure --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7 --with-gmp-build=../gmp-6.2.1 --enable-static --disable-shared
     make -j $NCPUS
     make install
@@ -636,8 +636,8 @@ then
     # tiff 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xaf ~/win/src/tiff-4.2.0.tar.gz
-    cd tiff-4.2.0/
+    tar xaf ~/win/src/tiff-4.3.0.tar.gz
+    cd tiff-4.3.0/
     ./configure --disable-shared --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7
     make -j $NCPUS
     make install
@@ -675,10 +675,10 @@ then
     # boost 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    7zr x ~/win/src/boost_1_75_0.7z
+    7zr x ~/win/src/boost_1_76_0.7z
     cd ~/win/armv7/include
     rm -f boost
-    ln -s ../src/boost_1_75_0/boost/
+    ln -s ../src/boost_1_76_0/boost/
   fi
   if [[ "${PREPARE}" =~ "glm" ]]
   then
@@ -703,8 +703,8 @@ then
     # openexr 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xf ~/win/src/openexr-2.5.5.tar.gz
-    cd openexr-2.5.5/
+    tar xf ~/win/src/openexr-2.5.6.tar.gz
+    cd openexr-2.5.6/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -722,8 +722,8 @@ then
     # glfw 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    unzip ~/win/src/glfw-3.3.3.zip
-    cd glfw-3.3.3/
+    unzip ~/win/src/glfw-3.3.4.zip
+    cd glfw-3.3.4/
     sed -i "s/i686/armv7/g" CMake/i686-w64-mingw32.cmake
     mkdir -p build
     cd build
