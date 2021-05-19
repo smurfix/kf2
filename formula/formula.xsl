@@ -752,9 +752,9 @@ bool FORMULA(perturbation_SIMD,<xsl:value-of select="../@type" />,<xsl:value-of 
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
-        doubleN xr_saved = xr0;
-        doubleN xi_saved = xi0;
-        doubleN test1_saved = test1;
+        const doubleN xr_saved = xr0;
+        const doubleN xi_saved = xi0;
+        const doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
           int64_t antal_q = antal[0] + q;
@@ -762,8 +762,8 @@ bool FORMULA(perturbation_SIMD,<xsl:value-of select="../@type" />,<xsl:value-of 
           const double1 Xi = yptr[antal_q];
           const double1 Xz = zptr[antal_q];
 
-          doubleN Xxr = Xr + xr0;
-          doubleN Xxi = Xi + xi0;
+          const doubleN Xxr = Xr + xr0;
+          const doubleN Xxi = Xi + xi0;
           const doubleN Xxr2 = Xxr * Xxr;
           const doubleN Xxi2 = Xxi * Xxi;
           test2 = test1;
@@ -794,7 +794,7 @@ bool FORMULA(perturbation_SIMD,<xsl:value-of select="../@type" />,<xsl:value-of 
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
-      doubleN cr = cr0, ci = ci0, xr = xr0, xi = xi0;
+      const doubleN cr = cr0, ci = ci0, xr = xr0, xi = xi0;
 @d    {
         <xsl:value-of select="perturbation" />
       }
@@ -868,7 +868,7 @@ bool FORMULA(perturbation_SIMD,<xsl:value-of select="../@type" />,<xsl:value-of 
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
 <xsl:when test="perturbation/@t='R'">
-      double1 cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
+      const double1 cr = cr0[k], ci = ci0[k], xr = xr0[k], xi = xi0[k];
 @d    {
         <xsl:value-of select="perturbation" />
       }
@@ -1063,25 +1063,25 @@ bool FORMULA(perturbation_SIMD_derivatives,<xsl:value-of select="../@type" />,<x
       (void) di0;
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
       {
-        doubleN xr_saved = xr0;
-        doubleN xi_saved = xi0;
+        const doubleN xr_saved = xr0;
+        const doubleN xi_saved = xi0;
 <xsl:choose>
 <xsl:when test="derivative/@t='M'">
-        doubleN dxa_saved = dxa0, dxb_saved = dxb0, dya_saved = dya0, dyb_saved = dyb0;
+        const doubleN dxa_saved = dxa0, dxb_saved = dxb0, dya_saved = dya0, dyb_saved = dyb0;
 </xsl:when>
 <xsl:when test="derivative/@t='R' or derivative/@t='C'">
-        doubleN dr_saved = dr_0, di_saved = di_0;
+        const doubleN dr_saved = dr_0, di_saved = di_0;
 </xsl:when>
 </xsl:choose>
-        doubleN test1_saved = test1;
+        const doubleN test1_saved = test1;
         for (int64_t q = 0; q &lt; chunksize; ++q)
         {
           int64_t antal_q = antal[0] + q;
           const double1 Xr = xptr[antal_q];
           const double1 Xi = yptr[antal_q];
           const double1 Xz = zptr[antal_q];
-          doubleN Xxr = Xr + xr0;
-          doubleN Xxi = Xi + xi0;
+          const doubleN Xxr = Xr + xr0;
+          const doubleN Xxi = Xi + xi0;
           const doubleN Xxr2 = Xxr * Xxr;
           const doubleN Xxi2 = Xxi * Xxi;
           test2 = test1;
@@ -1092,16 +1092,16 @@ bool FORMULA(perturbation_SIMD_derivatives,<xsl:value-of select="../@type" />,<x
             test1 = pnorm(g_real, g_imag, p, Xxr, Xxi);
           }
           bBailed |= test1 &gt; m_nBailout2;
-      doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
+      const doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
       doubleN xrn, xin;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      doubleN dr = dr_0, di = di_0;
+      const doubleN dr = dr_0, di = di_0;
       doubleN drn, din;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      doubleN daa = daa0, dab = dab0, dba = dba0, dbb = dbb0;
-      doubleN dxa = dxa0, dxb = dxb0, dya = dya0, dyb = dyb0;
+      const doubleN daa = daa0, dab = dab0, dba = dba0, dbb = dbb0;
+      const doubleN dxa = dxa0, dxb = dxb0, dya = dya0, dyb = dyb0;
       doubleN dxan, dxbn, dyan, dybn;
 </xsl:when>
 </xsl:choose>
@@ -1210,7 +1210,7 @@ bool FORMULA(perturbation_SIMD_derivatives,<xsl:value-of select="../@type" />,<x
         const double1 Xi = yptr[antal_k];
         const double1 Xz = zptr[antal_k];
         const double1 cr = cr0[k], ci = ci0[k];
-        double1 xr = xr0[k], xi = xi0[k];
+        const double1 xr = xr0[k], xi = xi0[k];
         Xxr = Xr + xr;
         Xxi = Xi + xi;
         const double1 Xxr2 = Xxr * Xxr;
@@ -1258,12 +1258,12 @@ bool FORMULA(perturbation_SIMD_derivatives,<xsl:value-of select="../@type" />,<x
       (void) dummyV;
 <xsl:choose>
 <xsl:when test="derivative/@t='C' or derivative/@t='R'">
-      double1 dr = dr_0[k], di = di_0[k];
+      const double1 dr = dr_0[k], di = di_0[k];
       double1 drn = 0, din = 0;
 </xsl:when>
 <xsl:when test="derivative/@t='M'">
-      double1 daa = daa0[k], dab = dab0[k], dba = dba0[k], dbb = dbb0[k];
-      double1 dxa = dxa0[k], dxb = dxb0[k], dya = dya0[k], dyb = dyb0[k];
+      const double1 daa = daa0[k], dab = dab0[k], dba = dba0[k], dbb = dbb0[k];
+      const double1 dxa = dxa0[k], dxb = dxb0[k], dya = dya0[k], dyb = dyb0[k];
       double1 dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
 </xsl:when>
 </xsl:choose>
