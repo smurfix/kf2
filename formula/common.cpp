@@ -22,11 +22,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/floatexp.h"
 #include "formula.h"
 
-template <typename T> T sgn(const T &a)
-{
-  return (a > 0) - (a < 0);
-}
-
 #if 0
 
 static inline double d_add(const double a, const double b)
