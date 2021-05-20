@@ -206,7 +206,8 @@ BOOL g_bSaveMap=FALSE;
 BOOL g_bInteractive=TRUE;
 const CommandLineArguments *g_args = 0;
 
-char g_szRecovery[256];
+char g_szRecoveryKFR[1024];
+char g_szRecoveryKFS[1024];
 
 BOOL g_bResetReference=FALSE;
 BOOL g_bFindMinibrot=FALSE;
@@ -1475,6 +1476,8 @@ static HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 double g_length=0;
 double g_degree=0;
 
+static long OpenSettings(HWND hWnd, bool &ret, bool warn = true);
+
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
@@ -1647,13 +1650,22 @@ nPos=15;
 nPos=16;
 			g_bFirstDone=FALSE;
 nPos=18;
-			HANDLE hFile = CreateFile(g_szRecovery,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,0,OPEN_EXISTING,0,NULL);
+			HANDLE hFile = CreateFile(g_szRecoveryKFR,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,0,OPEN_EXISTING,0,NULL);
 			if(hFile!=INVALID_HANDLE_VALUE && MessageBox(hWnd,"Kalle's Fraktaler was not closed properly last session. Do you want to recover your last location?","Kalle's Fraktaler",MB_YESNO)==IDYES){
 nPos=19;
 				CloseHandle(hFile);
 				g_SFT.Stop();
 				g_bAnim=false;
-				g_SFT.OpenFile(g_szRecovery);
+				hFile = CreateFile(g_szRecoveryKFS,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,0,OPEN_EXISTING,0,NULL);
+				if(hFile!=INVALID_HANDLE_VALUE && MessageBox(hWnd,"Do you want to recover your last settings too?","Kalle's Fraktaler",MB_YESNO)==IDYES){
+					CloseHandle(hFile);
+					std::string old = g_szSettingsFile;
+					g_szSettingsFile = g_szRecoveryKFS;
+					bool r;
+					OpenSettings(hWnd, r);
+					g_szSettingsFile = old;
+				}
+				g_SFT.OpenFile(g_szRecoveryKFR);
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 			else if(hFile!=INVALID_HANDLE_VALUE)
@@ -1662,7 +1674,8 @@ nPos=20;
 		}
 		else{
 nPos=21;
-			g_SFT.SaveFile(g_szRecovery, true);
+			g_SFT.SaveFile(g_szRecoveryKFR, true);
+			g_SFT.SaveSettings(g_szRecoveryKFS, true);
 		}
 
 nPos=22;
@@ -2082,7 +2095,7 @@ static long OpenMap(HWND hWnd, bool &ret, const std::string &szFile)
 	return 0;
 }
 
-static long OpenSettings(HWND hWnd, bool &ret, bool warn = true)
+static long OpenSettings(HWND hWnd, bool &ret, bool warn)
 {
 				g_SFT.Stop();
 				g_bAnim=false;
@@ -4734,8 +4747,10 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	if (interactive)
 	{
 		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
-		GetModuleFileName(GetModuleHandle(NULL),g_szRecovery,sizeof(g_szRecovery));
-		strcpy(strrchr(g_szRecovery,'.'),".rec");
+		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFR,sizeof(g_szRecoveryKFR));
+		strcpy(strrchr(g_szRecoveryKFR,'.'),".rec_kfr");
+		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFS,sizeof(g_szRecoveryKFS));
+		strcpy(strrchr(g_szRecoveryKFS,'.'),".rec_kfs");
 
 		WNDCLASS wc={0};
 		wc.hInstance = hInstance;
@@ -4763,7 +4778,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			TranslateMessage(&msg);
 			DispatchMessage(&msg);
 		}
-		DeleteFile(g_szRecovery);
+		DeleteFile(g_szRecoveryKFR);
+		DeleteFile(g_szRecoveryKFS);
 		request req;
 		req.tag = request_quit;
 		fifo_write(to_opengl, req);
