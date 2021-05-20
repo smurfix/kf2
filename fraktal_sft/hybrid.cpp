@@ -2956,3 +2956,216 @@ void perturbation_scaled_loop
   return o.str();
   }
 }
+
+static void pow(mpfr_t X, mpfr_t Y, int p, mpfr_t T1, mpfr_t T2, mpfr_t T3, mpfr_t T4, mpfr_t R, mpfr_t S)
+{
+  bool rs_initialized = false;
+  // r = 1, s = 0
+  while (p)
+  {
+    if (p & 1)
+    {
+      // rs *= xy
+      if (rs_initialized)
+      {
+        mpfr_mul(T1, R, X, MPFR_RNDN);
+        mpfr_mul(T2, S, Y, MPFR_RNDN);
+        mpfr_mul(T3, R, Y, MPFR_RNDN);
+        mpfr_mul(T4, S, X, MPFR_RNDN);
+        mpfr_sub(R, T1, T2, MPFR_RNDN);
+        mpfr_add(S, T3, T4, MPFR_RNDN);
+      }
+      else
+      {
+        rs_initialized = true;
+        mpfr_set(R, X, MPFR_RNDN);
+        mpfr_set(S, Y, MPFR_RNDN);
+      }
+    }
+    p /= 2;
+    if (p)
+    {
+      // xy = xy^2
+      mpfr_sqr(T1, X, MPFR_RNDN);
+      mpfr_sqr(T2, Y, MPFR_RNDN);
+      mpfr_mul(T3, X, Y, MPFR_RNDN);
+      mpfr_sub(X, T1, T2, MPFR_RNDN);
+      mpfr_mul_2exp(Y, T3, 1, MPFR_RNDN);
+    }
+  }
+  // return rs
+  if (rs_initialized)
+  {
+    mpfr_set(X, R, MPFR_RNDN);
+    mpfr_set(Y, S, MPFR_RNDN);
+  }
+  else
+  {
+    mpfr_set_ui(X, 1, MPFR_RNDN);
+    mpfr_set_ui(Y, 0, MPFR_RNDN);
+  }
+}
+
+extern bool reference_hybrid
+  ( const hybrid_formula &h
+  , Reference *m_Reference
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
+  , const CFixedFloat &Cr0, const CFixedFloat &Ci0
+  , const double g_SeedR, const double g_SeedI
+  , const double terminate
+  , const double m_bGlitchLowTolerance
+  )
+{
+    m_nGlitchIter = m_nMaxIter + 1;
+    int64_t nMaxIter = m_nMaxIter;
+    int64_t i;
+    int power = hybrid_power_inf(h);
+    double glitches[] = { 1e-7, 1e-6, 1e-5, 1e-4, 1e-4, 1e-3, 1e-3, 1e-2 };
+    double glitch = glitches[std::min(std::max(0, power - 2), 7)];
+    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
+    mpfr_prec_t prec = mpfr_get_prec(Cr0.m_f.backend().data());
+    mpfr_t A, B, X, Y, X1, Y1, X2, Y2, T1, T2, T3, T4, T5, T6;
+    mpfr_init2(A, prec); mpfr_set(A, Cr0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_init2(B, prec); mpfr_set(B, Ci0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_init2(X, prec); mpfr_set_d(X, g_SeedR, MPFR_RNDN);
+    mpfr_init2(Y, prec); mpfr_set_d(Y, g_SeedI, MPFR_RNDN);
+    mpfr_init2(X1, prec);
+    mpfr_init2(Y1, prec);
+    mpfr_init2(X2, prec);
+    mpfr_init2(Y2, prec);
+    mpfr_init2(T1, prec);
+    mpfr_init2(T2, prec);
+    mpfr_init2(T3, prec);
+    mpfr_init2(T4, prec);
+    mpfr_init2(T5, prec);
+    mpfr_init2(T6, prec);
+    int count = 0;
+    int stanza = 0;
+    for (i = 0; i < nMaxIter && !m_bStop; ++i)
+    {
+      // X = hybrid_f(h.stanzas[stanza], X, C); // formula
+      for (auto line : h.stanzas[stanza].lines)
+      {
+        // X, Y contains input to line
+        // operator 1
+        if (line.one.mul_re == 0 && line.one.mul_im == 0)
+        {
+          mpfr_set_ui(X1, 0, MPFR_RNDN);
+          mpfr_set_ui(Y1, 0, MPFR_RNDN);
+        }
+        else
+        {
+          mpfr_set(X1, X, MPFR_RNDN);
+          mpfr_set(Y1, Y, MPFR_RNDN);
+          if (line.one.abs_x) mpfr_abs(X1, X1, MPFR_RNDN);
+          if (line.one.abs_y) mpfr_abs(Y1, Y1, MPFR_RNDN);
+          if (line.one.neg_x) mpfr_neg(X1, X1, MPFR_RNDN);
+          if (line.one.neg_y) mpfr_neg(Y1, Y1, MPFR_RNDN);
+          pow(X1, Y1, line.one.pow, T1, T2, T3, T4, T5, T6);
+          if (line.one.mul_re == 1 && line.one.mul_im == 0)
+          {
+            // nop
+          }
+          else
+          {
+            mpfr_mul_d(T1, X1, line.one.mul_re, MPFR_RNDN);
+            mpfr_mul_d(T2, Y1, line.one.mul_im, MPFR_RNDN);
+            mpfr_mul_d(T3, X1, line.one.mul_im, MPFR_RNDN);
+            mpfr_mul_d(T4, Y1, line.one.mul_re, MPFR_RNDN);
+            mpfr_sub(X1, T1, T2, MPFR_RNDN);
+            mpfr_add(Y1, T3, T4, MPFR_RNDN);
+          }
+        }
+        // X1, Y1 contains operator 1 result
+        // operator 2
+        if (line.two.mul_re == 0 && line.two.mul_im == 0)
+        {
+          mpfr_set_ui(X2, 0, MPFR_RNDN);
+          mpfr_set_ui(Y2, 0, MPFR_RNDN);
+        }
+        else
+        {
+          mpfr_set(X2, X, MPFR_RNDN);
+          mpfr_set(Y2, Y, MPFR_RNDN);
+          if (line.two.abs_x) mpfr_abs(X2, X2, MPFR_RNDN);
+          if (line.two.abs_y) mpfr_abs(Y2, Y2, MPFR_RNDN);
+          if (line.two.neg_x) mpfr_neg(X2, X2, MPFR_RNDN);
+          if (line.two.neg_y) mpfr_neg(Y2, Y2, MPFR_RNDN);
+          pow(X2, Y2, line.two.pow, T1, T2, T3, T4, T5, T6);
+          if (line.two.mul_re == 1 && line.two.mul_im == 0)
+          {
+            // nop
+          }
+          else
+          {
+            mpfr_mul_d(T1, X2, line.two.mul_re, MPFR_RNDN);
+            mpfr_mul_d(T2, Y2, line.two.mul_im, MPFR_RNDN);
+            mpfr_mul_d(T3, X2, line.two.mul_im, MPFR_RNDN);
+            mpfr_mul_d(T4, Y2, line.two.mul_re, MPFR_RNDN);
+            mpfr_sub(X2, T1, T2, MPFR_RNDN);
+            mpfr_add(Y2, T3, T4, MPFR_RNDN);
+          }
+        }
+        // X2, Y2 contains operator 2 result
+        switch (line.mode)
+        {
+          case hybrid_combine_add:
+            mpfr_add(X, X1, X2, MPFR_RNDN);
+            mpfr_add(Y, Y1, Y2, MPFR_RNDN);
+            break;
+          case hybrid_combine_sub:
+            mpfr_sub(X, X1, X2, MPFR_RNDN);
+            mpfr_sub(Y, Y1, Y2, MPFR_RNDN);
+            break;
+          case hybrid_combine_mul:
+            mpfr_mul(T1, X1, X2, MPFR_RNDN);
+            mpfr_mul(T2, Y1, Y2, MPFR_RNDN);
+            mpfr_mul(T3, X1, Y2, MPFR_RNDN);
+            mpfr_mul(T4, Y1, X2, MPFR_RNDN);
+            mpfr_sub(X, T1, T2, MPFR_RNDN);
+            mpfr_add(Y, T3, T4, MPFR_RNDN);
+            break;
+        }
+        // X,Y contains output from line
+      }
+      mpfr_add(X, X, A, MPFR_RNDN);
+      mpfr_add(Y, Y, B, MPFR_RNDN);
+      if (++count >= h.stanzas[stanza].repeats)
+      {
+        count = 0;
+        if (++stanza >= (ssize_t) h.stanzas.size())
+        {
+          stanza = h.loop_start;
+        }
+      }
+      m_nRDone++;
+      const floatexp Xrd = mpfr_get_fe(X);
+      const floatexp Xid = mpfr_get_fe(Y);
+      const floatexp abs_val = Xrd * Xrd + Xid * Xid;
+      const floatexp Xz = abs_val * glitch;
+      reference_append(m_Reference, Xrd, Xid, Xz);
+      if (double(abs_val) >= terminate){
+        if (nMaxIter == m_nMaxIter){
+          nMaxIter = i + 3;
+          if (nMaxIter > m_nMaxIter)
+            nMaxIter = m_nMaxIter;
+          m_nGlitchIter = nMaxIter;
+        }
+      }
+    }
+    mpfr_clear(A);
+    mpfr_clear(B);
+    mpfr_clear(X);
+    mpfr_clear(Y);
+    mpfr_clear(X1);
+    mpfr_clear(Y1);
+    mpfr_clear(X2);
+    mpfr_clear(Y2);
+    mpfr_clear(T1);
+    mpfr_clear(T2);
+    mpfr_clear(T3);
+    mpfr_clear(T4);
+    mpfr_clear(T5);
+    mpfr_clear(T6);
+    return true;
+}

@@ -45,7 +45,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 
 	if (GetUseHybridFormula())
 	{
-		bool ok = reference(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
+		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference_hybrid");
 	}
 

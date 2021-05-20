@@ -1268,7 +1268,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
   return true;
 }
 
-inline bool reference
+extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
   , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
@@ -1276,50 +1276,7 @@ inline bool reference
   , const double g_SeedR, const double g_SeedI
   , const double terminate
   , const double m_bGlitchLowTolerance
-  )
-{
-    m_nGlitchIter = m_nMaxIter + 1;
-    int64_t nMaxIter = m_nMaxIter;
-    int64_t i;
-    int power = hybrid_power_inf(h);
-    double glitches[] = { 1e-7, 1e-6, 1e-5, 1e-4, 1e-4, 1e-3, 1e-3, 1e-2 };
-    double glitch = glitches[std::min(std::max(0, power - 2), 7)];
-    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
-    complex<CFixedFloat> C, X;
-    mpfr_set(C.m_r.m_f.backend().data(), Cr0.m_f.backend().data(), MPFR_RNDN);
-    mpfr_set(C.m_i.m_f.backend().data(), Ci0.m_f.backend().data(), MPFR_RNDN);
-    mpfr_set_d(X.m_r.m_f.backend().data(), g_SeedR, MPFR_RNDN);
-    mpfr_set_d(X.m_i.m_f.backend().data(), g_SeedI, MPFR_RNDN);
-    int count = 0;
-    int stanza = 0;
-    for (i = 0; i < nMaxIter && !m_bStop; ++i)
-    {
-      X = hybrid_f(h.stanzas[stanza], X, C); // formula
-      if (++count >= h.stanzas[stanza].repeats)
-      {
-        count = 0;
-        if (++stanza >= (ssize_t) h.stanzas.size())
-        {
-          stanza = h.loop_start;
-        }
-      }
-      m_nRDone++;
-      const floatexp Xrd = mpfr_get_fe(X.m_r.m_f.backend().data());
-      const floatexp Xid = mpfr_get_fe(X.m_i.m_f.backend().data());
-      const floatexp abs_val = Xrd * Xrd + Xid * Xid;
-      const floatexp Xz = abs_val * glitch;
-      reference_append(m_Reference, Xrd, Xid, Xz);
-      if (double(abs_val) >= terminate){
-        if (nMaxIter == m_nMaxIter){
-          nMaxIter = i + 3;
-          if (nMaxIter > m_nMaxIter)
-            nMaxIter = m_nMaxIter;
-          m_nGlitchIter = nMaxIter;
-        }
-      }
-    }
-    return true;
-}
+  );
 
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 
