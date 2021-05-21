@@ -80,6 +80,10 @@ struct p_config
   cl_int GuessingPass;
   cl_int g_nAddRefX;
   cl_int g_nAddRefY;
+  // for glitch selection
+  cl_int glitch_select_argminz;
+  // for ignore isolated glitches
+  cl_int ignore_isolated_neighbourhood; // 4 or 8
   // for hybrid
   cl_short hybrid_loop_start;
   cl_short hybrid_nstanzas;
@@ -90,6 +94,14 @@ struct p_config
   tfloatexp<mantissa, exponent> m_APi[MAX_APPROX_TERMS + 1];
   tfloatexp<mantissa, exponent> m_APs_s[MAX_APPROX_TERMS + 1][MAX_APPROX_TERMS + 1];
   tfloatexp<mantissa, exponent> m_APs_t[MAX_APPROX_TERMS + 1][MAX_APPROX_TERMS + 1];
+} __attribute__((packed));
+
+struct p_glitch
+{
+  cl_long count;
+  cl_int x;
+  cl_int y;
+  cl_float f;
 } __attribute__((packed));
 
 struct cldevice
@@ -112,6 +124,9 @@ struct clformula
   int derivatives;
   cl_kernel kernel;
   cl_kernel guessing_kernel;
+  cl_kernel glitch_select_2d;
+  cl_kernel glitch_select_1d;
+  cl_kernel ignore_isolated_glitches;
 };
 
 class OpenCLException : public std::exception
@@ -158,6 +173,12 @@ public:
   size_t phase_bytes;cl_mem phase;
   size_t dex_bytes; cl_mem dex;
   size_t dey_bytes; cl_mem dey;
+
+  // glitch selection
+  size_t glitch_f_bytes; cl_mem glitch_f;
+  size_t glitch_x_bytes; cl_mem glitch_x;
+  size_t counts_bytes; cl_mem counts;
+  size_t glitch_out_bytes; cl_mem glitch_out;
 
   HANDLE mutex;
 
@@ -244,13 +265,23 @@ public:
     int g_nAddRefX,
     int g_nAddRefY,
 
+    int glitch_selection_method,
+    int ignore_isolated_neighbourhood,
+
     // output arrays
     uint32_t *n1_p,
     uint32_t *n0_p,
     float *nf_p,
     float *phase_p,
     float *dex_p,
-    float *dey_p
+    float *dey_p,
+
+    bool interactive,
+
+    bool &glitched,
+    int &glitched_x,
+    int &glitched_y,
+    int64_t &glitched_count
   )
   {
     assert(roffset < rcount);
@@ -462,13 +493,18 @@ public:
     }
 
     // upload buffers
-    // FIXME synchronous, async would be better
-    if (n1_p)  E(clEnqueueWriteBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  0, 0, 0));
-    if (n0_p)  E(clEnqueueWriteBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  0, 0, 0));
-    if (nf_p)  E(clEnqueueWriteBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  0, 0, 0));
-    if (phase_p)E(clEnqueueWriteBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,0,0,0));
-    if (dex_p) E(clEnqueueWriteBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 0, 0, 0));
-    if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
+    bool upload = m_bAddReference == 0 || glitch_selection_method == 0;
+    if (upload)
+    {
+      std::cerr << "upload" << std::endl;
+      // FIXME synchronous, async would be better
+      if (n1_p)  E(clEnqueueWriteBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  0, 0, 0));
+      if (n0_p)  E(clEnqueueWriteBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  0, 0, 0));
+      if (nf_p)  E(clEnqueueWriteBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  0, 0, 0));
+      if (phase_p)E(clEnqueueWriteBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,0,0,0));
+      if (dex_p) E(clEnqueueWriteBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 0, 0, 0));
+      if (dey_p) E(clEnqueueWriteBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 0, 0, 0));
+    }
 
     // compile formula or retrieve kernel from cache
     clformula *formula = nullptr;
@@ -524,6 +560,7 @@ public:
         buf[0] = 0;
         E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
         g_OpenCL_Error_Log = buf;
+std::cerr << g_OpenCL_Error_Log << std::endl;
         free(buf);
         E(err);
       }
@@ -531,7 +568,13 @@ public:
       if (! kernel) { E(err); }
       cl_kernel guessing_kernel = clCreateKernel(program, "guessing", &err);
       if (! guessing_kernel) { E(err); }
-      clformula newformula = { reftype, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel };
+      cl_kernel k_glitch_select_2d = clCreateKernel(program, "glitch_select_2d", &err);
+      if (! k_glitch_select_2d) { E(err); }
+      cl_kernel k_glitch_select_1d = clCreateKernel(program, "glitch_select_1d", &err);
+      if (! k_glitch_select_1d) { E(err); }
+      cl_kernel k_ignore_isolated_glitches = clCreateKernel(program, "ignore_isolated_glitches", &err);
+      if (! k_ignore_isolated_glitches) { E(err); }
+      clformula newformula = { reftype, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel, k_glitch_select_2d, k_glitch_select_1d, k_ignore_isolated_glitches };
       formulas.push_back(newformula);
       formula = &formulas[ssize_t(formulas.size()) - 1];
     }
@@ -583,6 +626,8 @@ public:
         0,
         g_nAddRefX,
         g_nAddRefY,
+        glitch_selection_method == 1,
+        ignore_isolated_neighbourhood,
         (int16_t) hybrid.loop_start,
         (int16_t) hybrid.stanzas.size(),
         // arrays go here
@@ -670,14 +715,100 @@ public:
     }
     cl_event formula_executed = UseGuessing ? formula_executed3 : formula_executed0;
 
+    cl_event ignored;
+    if (ignore_isolated_neighbourhood > 0)
+    {
+      size_t global[2] = { (size_t) configdata0.m_nY, (size_t) configdata0.m_nX };
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 0, sizeof(cl_mem), &config));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 1, sizeof(cl_mem), n1_p  ? &n1  : nullptr));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 2, sizeof(cl_mem), n0_p  ? &n0  : nullptr));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 3, sizeof(cl_mem), nf_p  ? &nf  : nullptr));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 4, sizeof(cl_mem), phase_p?&phase:nullptr));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 5, sizeof(cl_mem), dex_p ? &dex : nullptr));
+      E(clSetKernelArg(formula->ignore_isolated_glitches, 6, sizeof(cl_mem), dey_p ? &dey : nullptr));
+      E(clEnqueueNDRangeKernel(commands, formula->ignore_isolated_glitches, 2, nullptr, global, nullptr, 1, &formula_executed, &ignored));
+    }
+    else
+    {
+      ignored = formula_executed;
+    }
+
+    glitched = true;
+    if (glitch_selection_method != 0)
+    {
+      if (glitch_f_bytes != sizeof(cl_float) * m_nX)
+      {
+        if (glitch_f)
+        {
+          clReleaseMemObject(glitch_f);
+        }
+        glitch_f_bytes = sizeof(cl_float) * m_nX;
+        glitch_f = clCreateBuffer(context, CL_MEM_READ_WRITE, glitch_f_bytes, nullptr, &err); if (! glitch_f) { E(err); }
+      }
+      if (glitch_x_bytes != sizeof(cl_int) * m_nX)
+      {
+        if (glitch_x)
+        {
+          clReleaseMemObject(glitch_x);
+        }
+        glitch_x_bytes = sizeof(cl_int) * m_nX;
+        glitch_x = clCreateBuffer(context, CL_MEM_READ_WRITE, glitch_x_bytes, nullptr, &err); if (! glitch_f) { E(err); }
+      }
+      if (counts_bytes != sizeof(cl_int) * m_nX)
+      {
+        if (counts)
+        {
+          clReleaseMemObject(counts);
+        }
+        counts_bytes = sizeof(cl_int) * m_nX;
+        counts = clCreateBuffer(context, CL_MEM_READ_WRITE, counts_bytes, nullptr, &err); if (! counts) { E(err); }
+      }
+      if (glitch_out_bytes != sizeof(p_glitch))
+      {
+        if (glitch_out)
+        {
+          clReleaseMemObject(glitch_out);
+        }
+        glitch_out_bytes = sizeof(p_glitch);
+        glitch_out = clCreateBuffer(context, CL_MEM_WRITE_ONLY, glitch_out_bytes, nullptr, &err); if (! glitch_out) { E(err); }
+      }
+      cl_event glitch_selected_2d;
+      size_t rows[1] = { (size_t) configdata0.m_nY };
+      E(clSetKernelArg(formula->glitch_select_2d, 0, sizeof(cl_mem), &config));
+      E(clSetKernelArg(formula->glitch_select_2d, 1, sizeof(cl_mem), nf_p ? &nf : nullptr));
+      E(clSetKernelArg(formula->glitch_select_2d, 2, sizeof(cl_mem), &glitch_f));
+      E(clSetKernelArg(formula->glitch_select_2d, 3, sizeof(cl_mem), &glitch_x));
+      E(clSetKernelArg(formula->glitch_select_2d, 4, sizeof(cl_mem), &counts));
+      E(clEnqueueNDRangeKernel(commands, formula->glitch_select_2d, 1, nullptr, rows, nullptr, 1, &ignored, &glitch_selected_2d));
+      cl_event glitch_selected_1d;
+      size_t singleton[1] = { (size_t) 1 };
+      E(clSetKernelArg(formula->glitch_select_1d, 0, sizeof(cl_mem), &config));
+      E(clSetKernelArg(formula->glitch_select_1d, 1, sizeof(cl_mem), &glitch_f));
+      E(clSetKernelArg(formula->glitch_select_1d, 2, sizeof(cl_mem), &glitch_x));
+      E(clSetKernelArg(formula->glitch_select_1d, 3, sizeof(cl_mem), &counts));
+      E(clSetKernelArg(formula->glitch_select_1d, 4, sizeof(cl_mem), &glitch_out));
+      E(clEnqueueNDRangeKernel(commands, formula->glitch_select_1d, 1, nullptr, singleton, nullptr, 1, &glitch_selected_2d, &glitch_selected_1d));
+      p_glitch glitch_out_p = { 0, -1, -1, 1.0f / 0.0f };
+      E(clEnqueueReadBuffer(commands, glitch_out,  CL_TRUE, 0, glitch_out_bytes, &glitch_out_p, 1, &glitch_selected_1d, 0));
+      glitched = glitch_out_p.f < 1.0f / 0.0f;
+      glitched_x = glitch_out_p.x;
+      glitched_y = glitch_out_p.y;
+      glitched_count = glitch_out_p.count;
+    }
+
     // download results
-    // FIXME synchronous, async would be better
-    if (n1_p)  E(clEnqueueReadBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  1, &formula_executed, 0));
-    if (n0_p)  E(clEnqueueReadBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  1, &formula_executed, 0));
-    if (nf_p)  E(clEnqueueReadBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  1, &formula_executed, 0));
-    if (phase_p)E(clEnqueueReadBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,1,&formula_executed,0));
-    if (dex_p) E(clEnqueueReadBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 1, &formula_executed, 0));
-    if (dey_p) E(clEnqueueReadBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 1, &formula_executed, 0));
+    bool download = interactive || glitch_selection_method == 0 || ! glitched;
+    if (download)
+    {
+      std::cerr << "download" << std::endl;
+      // FIXME synchronous, async would be better
+      if (n1_p)  E(clEnqueueReadBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  1, &ignored, 0));
+      if (n0_p)  E(clEnqueueReadBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  1, &ignored, 0));
+      if (nf_p)  E(clEnqueueReadBuffer(commands, nf,  CL_TRUE, 0, nf_bytes,  nf_p,  1, &ignored, 0));
+      if (phase_p)E(clEnqueueReadBuffer(commands,phase,CL_TRUE,0, phase_bytes,phase_p,1,&ignored,0));
+      if (dex_p) E(clEnqueueReadBuffer(commands, dex, CL_TRUE, 0, dex_bytes, dex_p, 1, &ignored, 0));
+      if (dey_p) E(clEnqueueReadBuffer(commands, dey, CL_TRUE, 0, dey_bytes, dey_p, 1, &ignored, 0));
+    }
 
     // clean up reference
     if (refN_bytes > 0)

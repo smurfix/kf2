@@ -435,6 +435,10 @@ class CFraktalSFT
 #ifdef KF_OPENCL
 	int clid;
   OpenCL *cl;
+  bool m_OpenCL_Glitched;
+  int m_OpenCL_Glitched_X;
+  int m_OpenCL_Glitched_Y;
+  int64_t m_OpenCL_Glitched_Count;
 #endif
 
 	std::vector<std::string> m_undo;

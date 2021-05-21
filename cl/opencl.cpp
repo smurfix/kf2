@@ -155,6 +155,11 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool suppor
 , phase_bytes(0), phase(0)
 , dex_bytes(0), dex(0)
 , dey_bytes(0), dey(0)
+, glitch_f_bytes(0), glitch_f(0)
+, glitch_x_bytes(0), glitch_x(0)
+, counts_bytes(0), counts(0)
+, glitch_out_bytes(0), glitch_out(0)
+
 {
   mutex = CreateMutex(0,0,0);
   platform_id = platform_id0;
@@ -191,6 +196,10 @@ OpenCL::~OpenCL()
   if (phase) { clReleaseMemObject(phase); phase = 0; }
   if (dex) { clReleaseMemObject(dex); dex = 0; }
   if (dey) { clReleaseMemObject(dey); dey = 0; }
+  if (glitch_f) { clReleaseMemObject(glitch_f); glitch_f = 0; }
+  if (glitch_x) { clReleaseMemObject(glitch_x); glitch_x = 0; }
+  if (counts) { clReleaseMemObject(counts); counts = 0; }
+  if (glitch_out) { clReleaseMemObject(glitch_out); glitch_out = 0; }
   if (commands) { clReleaseCommandQueue(commands); commands = 0; }
   if (context) { clReleaseContext(context); context = 0; }
   unlock();

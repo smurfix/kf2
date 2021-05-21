@@ -1551,6 +1551,10 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	{
 		return;
 	}
+	m_OpenCL_Glitched = false;
+	m_OpenCL_Glitched_X = -1;
+	m_OpenCL_Glitched_Y = -1;
+	m_OpenCL_Glitched_Count = 0;
 	m_bIterChanged = TRUE;
 	int64_t antal = 0;
 	if (m_nMaxApproximation)
@@ -1668,13 +1672,22 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  g_nAddRefX,
 		  g_nAddRefY,
 
+		  GetGlitchCenterMethod(),
+		  GetIsolatedGlitchNeighbourhood(),
+
 		  // output arrays
 		  m_nPixels_MSB,
 		  m_nPixels_LSB,
 		  &m_nTrans[0][0],
 		  m_nPhase ? &m_nPhase[0][0] : nullptr,
 		  m_nDEx ? &m_nDEx[0][0] : nullptr,
-		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		  m_nDEy ? &m_nDEy[0][0] : nullptr,
+
+		  m_bInteractive,
+		  m_OpenCL_Glitched,
+		  m_OpenCL_Glitched_X,
+		  m_OpenCL_Glitched_Y,
+		  m_OpenCL_Glitched_Count
 		);
 		if (APr) delete[] APr;
 		if (APi) delete[] APi;
@@ -1785,13 +1798,22 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  g_nAddRefX,
 		  g_nAddRefY,
 
+		  GetGlitchCenterMethod(),
+		  GetIsolatedGlitchNeighbourhood(),
+
 		  // output arrays
 		  m_nPixels_MSB,
 		  m_nPixels_LSB,
 		  &m_nTrans[0][0],
 		  m_nPhase ? &m_nPhase[0][0] : nullptr,
 		  m_nDEx ? &m_nDEx[0][0] : nullptr,
-		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		  m_nDEy ? &m_nDEy[0][0] : nullptr,
+
+		  m_bInteractive,
+		  m_OpenCL_Glitched,
+		  m_OpenCL_Glitched_X,
+		  m_OpenCL_Glitched_Y,
+		  m_OpenCL_Glitched_Count
 		);
 		if (APr) delete[] APr;
 		if (APi) delete[] APi;
@@ -1870,13 +1892,22 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  g_nAddRefX,
 		  g_nAddRefY,
 
+		  GetGlitchCenterMethod(),
+		  GetIsolatedGlitchNeighbourhood(),
+
 		  // output arrays
 		  m_nPixels_MSB,
 		  m_nPixels_LSB,
 		  &m_nTrans[0][0],
 		  m_nPhase ? &m_nPhase[0][0] : nullptr,
 		  m_nDEx ? &m_nDEx[0][0] : nullptr,
-		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		  m_nDEy ? &m_nDEy[0][0] : nullptr,
+
+		  m_bInteractive,
+		  m_OpenCL_Glitched,
+		  m_OpenCL_Glitched_X,
+		  m_OpenCL_Glitched_Y,
+		  m_OpenCL_Glitched_Count
 		);
 	}
 	else if (reftype == Reference_FloatExpDouble)
@@ -1952,13 +1983,22 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  g_nAddRefX,
 		  g_nAddRefY,
 
+		  GetGlitchCenterMethod(),
+		  GetIsolatedGlitchNeighbourhood(),
+
 		  // output arrays
 		  m_nPixels_MSB,
 		  m_nPixels_LSB,
 		  &m_nTrans[0][0],
 		  m_nPhase ? &m_nPhase[0][0] : nullptr,
 		  m_nDEx ? &m_nDEx[0][0] : nullptr,
-		  m_nDEy ? &m_nDEy[0][0] : nullptr
+		  m_nDEy ? &m_nDEy[0][0] : nullptr,
+
+		  m_bInteractive,
+		  m_OpenCL_Glitched,
+		  m_OpenCL_Glitched_X,
+		  m_OpenCL_Glitched_Y,
+		  m_OpenCL_Glitched_Count
 		);
 	}
 }
@@ -2733,27 +2773,33 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		g_nAddRefX = nXPos;
 		g_nAddRefY = nYPos;
 	}
-	int x, y;
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
-#else
-	int i = 0;
-#endif
-	if(nXPos>=0 && nXPos<m_nX && nYPos>=0 && nYPos<m_nY)
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
-		;
-#else
-		i = Pixels[nXPos][nYPos];
-#endif
-	else
-		bResuming=TRUE;
-
-	int nCount = 0;
-	if (bEraseAll){
-		for (x = 0; x<m_nX; x++)
-		for (y = 0; y<m_nY; y++)
-			m_nPixels[x][y] = PIXEL_UNEVALUATED;
-		nCount = m_nX * m_nY;
+	if (cl && GetGlitchCenterMethod() != 0)
+	{
+		m_count_queued = m_OpenCL_Glitched_Count;
 	}
+	else
+	{
+		int x, y;
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
+#else
+		int i = 0;
+#endif
+		if(nXPos>=0 && nXPos<m_nX && nYPos>=0 && nYPos<m_nY)
+#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
+			;
+#else
+			i = Pixels[nXPos][nYPos];
+#endif
+		else
+			bResuming=TRUE;
+
+		int nCount = 0;
+		if (bEraseAll){
+			for (x = 0; x<m_nX; x++)
+			for (y = 0; y<m_nY; y++)
+				m_nPixels[x][y] = PIXEL_UNEVALUATED;
+			nCount = m_nX * m_nY;
+		}
 /*	else if (bNP){
 		int **Node = new int*[m_nX];
 		for (i = 0; i<m_nX; i++)
@@ -2767,28 +2813,28 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		if (Node[x][y] == -1)
 			m_nPixels[x][y] = -1;
 	}
-*/	else if (!bResuming){
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
+*/		else if (!bResuming){
+			for (x = 0; x<m_nX; x++){
+				for (y = 0; y<m_nY; y++){
 #ifdef KF_RERENDER_ONLY_ALL_GLITCHES
-				// re-render all and only glitched pixels
-				if (GET_TRANS_GLITCH(m_nTrans[x][y]))
-				{
-					m_nPixels[x][y] = PIXEL_UNEVALUATED;
-					nCount++;
-				}
+					// re-render all and only glitched pixels
+					if (GET_TRANS_GLITCH(m_nTrans[x][y]))
+					{
+						m_nPixels[x][y] = PIXEL_UNEVALUATED;
+						nCount++;
+					}
 #else
-				// re-render all and only pixels with the same integer iteration count
-				if (IsEqual(i, Pixels[x][y], 1)){// && IsEqual(t, (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]), 4)){
-					m_nPixels[x][y] = PIXEL_UNEVALUATED;
-					nCount++;
-				}
+					// re-render all and only pixels with the same integer iteration count
+					if (IsEqual(i, Pixels[x][y], 1)){// && IsEqual(t, (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]), 4)){
+						m_nPixels[x][y] = PIXEL_UNEVALUATED;
+						nCount++;
+					}
 #endif
+				}
 			}
 		}
+		m_count_queued = nCount;
 	}
-
-	m_count_queued = nCount;
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
@@ -2955,7 +3001,7 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 								break;
 							}
 							int64_t p = m_nPixels[x2][y2];
-							double i = double(p) + double(t);
+							double i = double(p) + double(1 - t);
 							sum += i;
 							if (m_nPhase)
 							{
@@ -3043,7 +3089,7 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 				}
 				else // mode = 2 // random
 				{
-					double random = dither(uint32_t(x), uint32_t(y), uint32_t(g_bAutoGlitch));
+					double random = dither(uint32_t(x), uint32_t(y), uint32_t(m_bAddReference));
 					glitch_id me = { random, x, y };
 					us = min_glitch(us, me);
 				}
@@ -3058,7 +3104,36 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 #undef KF_CENTER_VIA_TRANS
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
-	IgnoreIsolatedGlitches();
+	if (cl && GetUseOpenCL())
+	{
+		// OpenCL has already ignored isolated glitches
+		if (0 != GetGlitchCenterMethod())
+		{
+			// OpenCL has already selected a new reference
+			if (m_OpenCL_Glitched)
+			{
+				ret_x = m_OpenCL_Glitched_X;
+				ret_y = m_OpenCL_Glitched_Y;
+				return m_OpenCL_Glitched_Count;
+			}
+			else
+			{
+				ret_x = -1;
+				ret_y = -1;
+				return 0;
+			}
+		}
+		else
+		{
+			// arrays have already been downloaded from OpenCL
+			// for processing below
+		}
+	}
+	else
+	{
+		// regular CPU path
+		IgnoreIsolatedGlitches();
+	}
 	if (1 == GetGlitchCenterMethod() || 2 == GetGlitchCenterMethod())
 	{
 		SYSTEM_INFO sysinfo;

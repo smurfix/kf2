@@ -2038,6 +2038,10 @@ typedef struct __attribute__((packed))
   int GuessingPass;
   int g_nAddRefX;
   int g_nAddRefY;
+  // for glitch selection
+  int glitch_select_argminz;
+  // for ignore isolated glitches
+  int ignore_isolated_neighbourhood; // 0 or 4 or 8
   // for hybrid
   short hybrid_loop_start;
   short hybrid_nstanzas;
@@ -2632,6 +2636,182 @@ __kernel void guessing
 }
 
 // entry point
+__kernel void glitch_select_2d
+( __global const p_config *g // configuration
+, __global const float    *nf // iteration count fractional part
+, __global       float    *glitch_f // for each y, glitch flag, 1.0/0.0 = no glitch in this row
+, __global       int      *glitch_x // for each y, x coordinate of selected glitch
+, __global       int      *counts // for each y, number of glitches in row
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  float sel_f = 1.0/0.0;
+  int sel_x = 0;
+  int count = 0;
+  for (int x = 0; x < g->m_nX; ++x)
+  {
+    long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+    float f = nf[ix];
+    if (GET_TRANS_GLITCH(f))
+    {
+      ++count;
+      if (g->glitch_select_argminz)
+      {
+        if (f < sel_f)
+        {
+          sel_f = f;
+          sel_x = x;
+        }
+      }
+      else
+      {
+        float random = dither((uint)(x), (uint)(y), (uint)(g->m_bAddReference));
+        if (random < sel_f)
+        {
+          sel_f = random;
+          sel_x = x;
+        }
+      }
+    }
+  }
+  glitch_f[y] = sel_f;
+  glitch_x[y] = sel_x;
+  counts[y] = count;
+}
+
+typedef struct __attribute__((packed))
+{
+  long count;
+  int x;
+  int y;
+  float f;
+} p_glitch;
+
+__kernel void glitch_select_1d
+( __global const p_config *g // configuration
+, __global const float    *glitch_f // for each y, glitch flag, 1.0/0.0 = no glitch in this row
+, __global const int      *glitch_x // for each y, x coordinate of selected glitch
+, __global const int      *counts // for each y, count of glitches
+, __global       p_glitch *out
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  long count = 0;
+  float sel_f = 1.0/0.0;
+  int sel_x = 0;
+  int sel_y = 0;
+  for (int y = 0; y < g->m_nY; ++y)
+  {
+    count += (long)(counts[y]);
+    float f = glitch_f[y];
+    if (f < sel_f)
+    {
+      sel_f = f;
+      sel_x = glitch_x[y];
+      sel_y = y;
+    }
+  }
+  out->count = count;
+  out->x = sel_x;
+  out->y = sel_y;
+  out->f = sel_f;
+}
+
+// entry point
+__kernel void ignore_isolated_glitches
+( __global const p_config *g // configuration
+, __global       uint   *n1  // iteration count msb, may be null
+, __global       uint   *n0  // iteration count lsb
+, __global       float  *nf  // iteration count fractional part
+, __global       float  *phase // final angle, may be null
+, __global       float  *dex // directional de x, may be null
+, __global       float  *dey // directional de y, may be null
+)
+{
+  if (g->BYTES != sizeof(p_config)) return;
+  int y = get_global_id(0);
+  int x = get_global_id(1);
+  long ix = y * g->stride_y + x * g->stride_x + g->stride_offset;
+  if (! GET_TRANS_GLITCH(nf[ix])) return; // not glitched, nothing to do
+  int sum = 0;
+  for (int dy = -1; dy <= 1; ++dy)
+  {
+    int y1 = y + dy;
+    if (y1 < 0) continue;
+    if (y1 >= g->m_nY) continue;
+    for (int dx = -1; dx <= 1; ++dx)
+    {
+      int x1 = x + dx;
+      if (x1 < 0) continue;
+      if (x1 >= g->m_nX) continue;
+      if (g->ignore_isolated_neighbourhood == 4 && dy && dx) continue;
+      if (dy == 0 && dx == 0) continue;
+      long ix1 = y1 * g->stride_y + x1 * g->stride_x + g->stride_offset;
+      sum += GET_TRANS_GLITCH(nf[ix1]) ? 1 : 0;
+    }
+  }
+  if (sum > 0) return; // glitches in neighbourhood, nothing to do
+  // average neighbours
+  sum = 0;
+  ulong sum_n = 0;
+  float sum_nf = 0;
+  float sum_phase_cos = 0;
+  float sum_phase_sin = 0;
+  float sum_dex = 0;
+  float sum_dey = 0;
+  for (int dy = -1; dy <= 1; ++dy)
+  {
+    int y1 = y + dy;
+    if (y1 < 0) continue;
+    if (y1 >= g->m_nY) continue;
+    for (int dx = -1; dx <= 1; ++dx)
+    {
+      int x1 = x + dx;
+      if (x1 < 0) continue;
+      if (x1 >= g->m_nX) continue;
+      if (g->ignore_isolated_neighbourhood == 4 && dy && dx) continue;
+      if (dy == 0 && dx == 0) continue;
+      long ix1 = y1 * g->stride_y + x1 * g->stride_x + g->stride_offset;
+      uint  my_n1 = 0; if (n1) my_n1 = n1[ix1];
+      uint  my_n0 = 0; if (n0) my_n0 = n0[ix1];
+      float my_nf = 0; if (nf) my_nf = nf[ix1];
+      float my_phase_cos = 0, my_phase_sin = 0; if (phase)
+      {
+        float my_phase = phase[ix1];
+        my_phase_cos = cos(6.283185307179586 * my_phase);
+        my_phase_sin = sin(6.283185307179586 * my_phase);
+      }
+      float my_dex = 0; if (dex) my_dex = dex[ix1];
+      float my_dey = 0; if (dey) my_dey = dey[ix1];
+      sum += 1;
+      sum_n += (my_n1 << 32) + my_n0;
+      sum_nf += my_nf;
+      sum_phase_cos += my_phase_cos;
+      sum_phase_sin += my_phase_sin;
+      sum_dex += my_dex;
+      sum_dey += my_dey;
+    }
+  }
+  if (sum == 0) return;
+  float s = 1.0 / (float)(sum);
+  float avg_nf = s * ((float)(sum_n % sum) + sum_nf);
+  ulong avg_n = (sum_n / sum) + (ulong)(floor(avg_nf));
+  avg_nf -= floor(avg_nf);
+  uint avg_n1 = avg_n >> 32;
+  uint avg_n0 = avg_n & 0xFFFFFFFFU;
+  float avg_phase = atan2(sum_phase_sin, sum_phase_cos);
+  float avg_dex = sum_dex * s;
+  float avg_dey = sum_dey * s;
+  if (n1) n1[ix] = avg_n1;
+  if (n0) n0[ix] = avg_n0;
+  if (nf) nf[ix] = avg_nf;
+  if (phase) phase[ix] = avg_phase;
+  if (dex) dex[ix] = avg_dex;
+  if (dey) dey[ix] = avg_dey;
+}
+
+// entry point
 __kernel void perturbation_double
 ( __global const p_config *g // configuration including series approximation coefficients
 , __global const mantissa *m_refx // reference orbit re
@@ -2687,7 +2867,7 @@ __kernel void perturbation_double
   {
     first &= (g->GuessingPass == 0);
   }
-  if (first || orig == PIXEL_UNEVALUATED || origf < 0) // first or fresh or glitch
+  if (first || orig == PIXEL_UNEVALUATED || GET_TRANS_GLITCH(origf)) // first or fresh or glitch
   {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);

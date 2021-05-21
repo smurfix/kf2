@@ -337,6 +337,11 @@ void CFraktalSFT::RenderFractal()
 		m_count_good_guessed = 0; // FIXME OpenCL progress doesn't track guessing
 		m_count_good = m_nX * m_nY - m_count_queued;
 		RenderFractalOpenCL(reftype);
+		if (GetGlitchCenterMethod() != 0)
+		{
+			m_count_good += m_count_queued - m_OpenCL_Glitched_Count;
+			m_count_queued = m_OpenCL_Glitched_Count;
+		}
 	}
 	else
 #endif
