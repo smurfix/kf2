@@ -244,4 +244,7 @@ fraktal_sft/opengl.o: fraktal_sft/opengl.cpp fraktal_sft/opengl.h gl/kf_vert_gls
 %.pdf: %.md
 	pandoc -f markdown -t latex -V "toc=true" -V "papersize=a4" -V "geometry=margin=1.2in" < $< -o $@
 
+manual.html: README.md
+	pandoc README.md -F pandoc-self-links.pl -s --toc --css kf.css -o manual.html
+
 -include $(DEPENDS)
