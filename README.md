@@ -300,6 +300,22 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.2.3** (????-??-??)
+
+    - fix SIMD implementation of sgn()
+    - fix opengl pack alignment for non-multiple-of-4 width bitmaps
+    - fix palette From Image not updating number of colours
+    - use maximum of width and height in palette From Image
+    - add PNG to supported images for From Image in colors dialog
+    - fix argmin|z| glitch correction for OpenCL
+    - report detailed timing information in command line mode
+    - floatexp correctness fixes
+    - update dependencies
+      - boost to 1.76.0
+      - tiff to 4.3.0
+      - openexr to 2.5.6
+      - glfw to 3.3.4
+
 - **kf-2.15.2.2** (2021-04-07)
 
     - new: entropy colouring example palette in OpenGL GLSL
