@@ -345,8 +345,6 @@ earlier).
 
   - new: updated progress reporting in status bar to include more
     information
-  - new: detailed wall clock and CPU time reporting for command line
-    rendering
   - new: texture resize control in colouring dialog (disable to get
     actual image pixels in OpenGL GLSL shaders)
   - new: texture browse dialog allows selecting BMP and PNG images as
@@ -410,16 +408,6 @@ earlier).
   - new: "glitch low tolerance" can be a fraction between 0 and 1
   - new: "approx low tolerance" can be a fraction between 0 and 1
   - new: crash recovery offers to restore settings as well as parameters
-  - fix: argmin|z| reference selection method now works when using
-    OpenCL
-  - fix: "from image" in colors dialog updates number of colours
-    correctly (reported by Microfractal)
-  - fix: "from image" in colors dialog works better with tall images
-    (uses maximum of width and height for number of colours, instead of
-    just width)
-  - fix: OpenGL pack alignment now correct for Windows bitmaps
-    (previously it only worked properly for multiple-of-4 pixels wide)
-  - fix: vectorized sgn() in SIMD code was buggy
   - fix: documentation uses subsections instead of lists for improved
     navigation and table of contents
   - known issue: some locations (especially Burning Ship "deep needle")
@@ -433,7 +421,20 @@ earlier).
       number type selection dialog; or
     - enable "glitch low tolerance" in perturbation and series
       approximation tuning dialog
-  - upgrade dependencies
+
+### kf-2.15.2.3 (2021-05-22)
+
+  - fix SIMD implementation of sgn()
+    (test location by FractalAlex)
+  - fix opengl pack alignment for non-multiple-of-4 width bitmaps
+  - fix palette From Image not updating number of colours
+    (reported by Microfractal)
+  - fix palette From Image to use maximum of width and height
+  - add PNG to supported images for palette From Image
+    (reported by Microfractal)
+  - fix argmin|z| glitch correction for OpenCL
+  - report detailed timing information in command line mode
+  - update dependencies
     - boost to 1.76.0
     - tiff to 4.3.0
     - openexr to 2.5.6
