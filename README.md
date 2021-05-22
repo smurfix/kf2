@@ -300,16 +300,18 @@ Feedback:
 
 ## Change Log
 
-- **kf-2.15.2.3** (????-??-??)
+- **kf-2.15.2.3** (2021-05-22)
 
     - fix SIMD implementation of sgn()
+      (test location by FractalAlex)
     - fix opengl pack alignment for non-multiple-of-4 width bitmaps
     - fix palette From Image not updating number of colours
-    - use maximum of width and height in palette From Image
-    - add PNG to supported images for From Image in colors dialog
+      (reported by Microfractal)
+    - fix palette From Image to use maximum of width and height
+    - add PNG to supported images for palette From Image
+      (reported by Microfractal)
     - fix argmin|z| glitch correction for OpenCL
     - report detailed timing information in command line mode
-    - floatexp correctness fixes
     - update dependencies
       - boost to 1.76.0
       - tiff to 4.3.0
