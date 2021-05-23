@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2018 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -20,10 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include "bitmap.h"
 
-// based on: https://source.winehq.org/git/wine.git/blob/39935fe5ad889d537d828cc82771bdb969cdb2d4:/dlls/gdi32/gdi_private.h#l561
+// <https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader#calculating-surface-stride>
 static inline long long get_bitmap_stride(long long width, long long bpp)
 {
-  return ((width * bpp + 15LL) >> 3LL) & ~1LL;
+  return ((width * bpp + 31LL) & ~31LL) >> 3LL;
 }
 
 // workaround https://bugs.winehq.org/show_bug.cgi?id=42727
