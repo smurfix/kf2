@@ -49,10 +49,10 @@ This file based in part on `pixman-0.38.4/demos/scale.c`:
 #include <pixman.h>
 #include <stdlib.h>
 
-// based on: https://source.winehq.org/git/wine.git/blob/39935fe5ad889d537d828cc82771bdb969cdb2d4:/dlls/gdi32/gdi_private.h#l561
+// <https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader#calculating-surface-stride>
 static inline long long get_bitmap_stride(long long width, long long bpp)
 {
-  return ((width * bpp + 15LL) >> 3LL) & ~1LL;
+  return ((width * bpp + 31LL) & ~31LL) >> 3LL;
 }
 
 extern bool scale_bitmap_rgb8
