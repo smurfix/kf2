@@ -300,6 +300,12 @@ Feedback:
 
 ## Change Log
 
+- **kf-2.15.2.4** (2021-05-23)
+
+    - regression fix: restore built-in formula Newton-Raphson zooming
+    - fix: use bitmap stride calculations from Microsoft documentation
+      (4 byte row alignment)
+
 - **kf-2.15.2.3** (2021-05-22)
 
     - fix SIMD implementation of sgn()
