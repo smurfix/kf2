@@ -277,6 +277,8 @@ public:
     float *dey_p,
 
     bool interactive,
+    int reference_number,
+    int max_references,
 
     bool &glitched,
     int &glitched_x,
@@ -797,7 +799,11 @@ std::cerr << g_OpenCL_Error_Log << std::endl;
     }
 
     // download results
-    bool download = interactive || glitch_selection_method == 0 || ! glitched;
+    bool download
+      = interactive
+      || glitch_selection_method == 0
+      || ! glitched
+      || reference_number == max_references;
     if (download)
     {
       std::cerr << "download" << std::endl;

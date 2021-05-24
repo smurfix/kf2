@@ -1545,6 +1545,8 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 
 #ifdef KF_OPENCL
 
+extern int g_bAutoGlitch;
+
 void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 {
 	if (m_bStop)
@@ -1684,6 +1686,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
+		  g_bAutoGlitch,
+		  GetMaxReferences(),
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -1810,6 +1814,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
+		  g_bAutoGlitch,
+		  GetMaxReferences(),
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -1904,6 +1910,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
+		  g_bAutoGlitch,
+		  GetMaxReferences(),
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -1995,6 +2003,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
+		  g_bAutoGlitch,
+		  GetMaxReferences(),
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
