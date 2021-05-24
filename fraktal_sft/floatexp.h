@@ -20,14 +20,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_FLOATEXP_H
 #define KF_FLOATEXP_H
 
-#include <math.h>
-#include <stdint.h>
+#include <cmath>
+#include <cstdint>
 #include <iostream>
 #include <iomanip>
 #include <cmath>
 #include <limits>
 #include <algorithm>
 #include "CFixedFloat.h"
+
+// #define KF_FLOATEXP_ACCURATE 1
 
 template <typename mantissa, typename exponent>
 struct tfloatexp
@@ -43,40 +45,69 @@ public:
 	mantissa val;
 	exponent exp;
 
-	static const exponent MAX_PREC = sizeof(mantissa) * CHAR_BIT;
+	static constexpr exponent EXPONENT_MASK   = sizeof(mantissa) == 8 ? 0x7FF0000000000000LL : 0x7F800000;
+	static constexpr exponent EXPONENT_UNMASK = sizeof(mantissa) == 8 ? 0x800FFFFFFFFFFFFFLL : 0x803FFFFF;
+	static constexpr exponent EXPONENT_SET    = sizeof(mantissa) == 8 ? 0x3FF0000000000000LL : 0x3F800000;
+	static constexpr int      EXPONENT_SHIFT  = sizeof(mantissa) == 8 ?                   52 :         23;
+	static constexpr int      EXPONENT_BIAS   = sizeof(mantissa) == 8 ?                 1023 :        127;
+
+	static constexpr exponent MAX_PREC = sizeof(mantissa) == 8 ? 53 : 24;
 	// MIN_EXPONENT is smaller than you might expect, this is to give headroom for
 	// avoiding overflow in + and other functions. it is the exponent for 0.0
-	static const exponent EXP_MIN = -(exponent(1) << (sizeof(exponent) * CHAR_BIT - 8));
-	static const exponent EXP_MAX = -EXP_MIN;
+	static constexpr exponent EXP_MIN = sizeof(exponent) == 8 ? exponent(-0x800000000000000LL) : exponent(-0x800000);
+	static constexpr exponent EXP_MAX = -EXP_MIN;
 
 	inline void align() noexcept
 	{
-		if (val == 0)
+		exponent val_i;
+		__builtin_memcpy(&val_i, &val, sizeof(val_i));
+		const exponent e = val_i & EXPONENT_MASK;
+		if (__builtin_expect(e == 0, 0)) // zero, denormalized
 		{
+			val = 0; // no denormals
 			exp = EXP_MIN;
 		}
-		else if (std::isnan(val))
+#ifdef KF_FLOATEXP_ACCURATE
+		else
+		if (__builtin_expect(e == EXPONENT_MASK, 0)) // inf, nan
 		{
+			val = 0; // no inf, nan
 			exp = EXP_MIN;
 		}
-		else if (std::isinf(val))
-		{
-			exp = EXP_MAX;
-		}
+#endif
 		else
 		{
-			int e = 0;
-			val = std::frexp(val, &e);
-			exp += e;
+			exp += (e >> EXPONENT_SHIFT) - EXPONENT_BIAS;
+#ifdef KF_FLOATEXP_ACCURATE
+			if (__builtin_expect(exp < EXP_MIN, 0))
+			{
+				// underflow
+				val = 0;
+				exp = EXP_MIN;
+			}
+			else
+			if (__builtin_expect(EXP_MAX < exp, 0))
+			{
+				// overflow
+				val = 0; // no inf
+				exp = EXP_MIN;
+			}
+			else
+#endif
+			{
+				val_i = (val_i & EXPONENT_UNMASK) | EXPONENT_SET;
+				__builtin_memcpy(&val, &val_i, sizeof(val));
+			}
 		}
 	}
 
-	static inline mantissa setExp(mantissa a, exponent e) noexcept
+	static inline mantissa setExp(mantissa val, exponent exp) noexcept
 	{
-		int e0 = 0;
-		a	= std::frexp(a, &e0);
-		a	= std::ldexp(a, e);
-		return a;
+		exponent val_i;
+		__builtin_memcpy(&val_i, &val, sizeof(val_i));
+		val_i = (val_i & EXPONENT_UNMASK) | ((exp + EXPONENT_BIAS) << EXPONENT_SHIFT);
+		__builtin_memcpy(&val, &val_i, sizeof(val));
+		return val;
 	}
 
 	tfloatexp(int32_t a) noexcept
@@ -165,7 +196,7 @@ public:
 	inline tfloatexp &operator *=(const tfloatexp a) noexcept
 	{
 		val *= a.val;
-		exp += a.exp;
+		exp += a.exp; // saturated in align below
 		align();
 		return *this;
 	}
@@ -177,7 +208,7 @@ public:
 	inline tfloatexp &operator /=(const tfloatexp a) noexcept
 	{
 		val /= a.val;
-		exp -= a.exp;
+		exp -= a.exp; // saturated in align below
 		align();
 		return *this;
 	}
@@ -191,7 +222,7 @@ public:
 	{
 		tfloatexp r;
 		r.val = val;
-		r.exp = exp + 1;
+		r.exp = exp + 1; // FIXME saturate
 		return r;
 	}
 
@@ -322,7 +353,7 @@ public:
 	}
 	inline bool operator ==(const tfloatexp &a) const noexcept
 	{
-		if(exp!=a.exp)
+		if (val != 0 && ! std::isinf(val) && exp != a.exp)
 			return false;
 		return val==a.val;
 	}
@@ -570,7 +601,7 @@ inline tfloatexp<mantissa, exponent> infnan_to_zero(const tfloatexp<mantissa, ex
 template <typename mantissa, typename exponent>
 inline tfloatexp<mantissa, exponent> exp(tfloatexp<mantissa, exponent> a) noexcept;
 template <>
-inline tfloatexp<float, int32_t> exp(tfloatexp<float, int32_t> a) noexcept
+inline tfloatexp<float, int32_t> exp(tfloatexp<float, int32_t> a) noexcept // FIXME magic numbers
 {
 	using std::exp;
 	using std::ldexp;
