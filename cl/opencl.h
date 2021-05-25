@@ -498,7 +498,6 @@ public:
     bool upload = m_bAddReference == 0 || glitch_selection_method == 0;
     if (upload)
     {
-      std::cerr << "upload" << std::endl;
       // FIXME synchronous, async would be better
       if (n1_p)  E(clEnqueueWriteBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  0, 0, 0));
       if (n0_p)  E(clEnqueueWriteBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  0, 0, 0));
@@ -562,7 +561,6 @@ public:
         buf[0] = 0;
         E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
         g_OpenCL_Error_Log = buf;
-std::cerr << g_OpenCL_Error_Log << std::endl;
         free(buf);
         E(err);
       }
@@ -806,7 +804,6 @@ std::cerr << g_OpenCL_Error_Log << std::endl;
       || reference_number == max_references;
     if (download)
     {
-      std::cerr << "download" << std::endl;
       // FIXME synchronous, async would be better
       if (n1_p)  E(clEnqueueReadBuffer(commands, n1,  CL_TRUE, 0, n1_bytes,  n1_p,  1, &ignored, 0));
       if (n0_p)  E(clEnqueueReadBuffer(commands, n0,  CL_TRUE, 0, n0_bytes,  n0_p,  1, &ignored, 0));
