@@ -3665,7 +3665,7 @@ Formulas:
 
 ### 4th Celtic Burning Ship Partial Real Mbar
 
-    w := (|x| - i |y|)^4
+    w := (|x| - i y)^4
     z := (|u| + i v) + c
 
 ### 4th Buffalo Partial Imag
