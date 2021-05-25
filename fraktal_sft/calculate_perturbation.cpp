@@ -531,6 +531,7 @@ void CFraktalSFT::MandelCalcSIMD()
           k = 0;
         }
     }
+  }
 
     int leftover = k;
     for (k = 0; k < leftover; ++k)
@@ -567,7 +568,6 @@ void CFraktalSFT::MandelCalcSIMD()
       if (bGlitch) m_count_bad++; else m_count_good++;
       OutputPixelData(x, y, w, h, bGlitch);
     }
-  }
 }
 
 void CFraktalSFT::MandelCalc(const Reference_Type reftype)
