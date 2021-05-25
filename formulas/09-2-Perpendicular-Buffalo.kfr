@@ -1,0 +1,4 @@
+Power: 2
+FractalType: 9
+UseHybridFormula: 1
+HybridFormula: 0/1|0,1,0,1,2,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0
