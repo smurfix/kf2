@@ -54,7 +54,7 @@ public:
 	static constexpr exponent MAX_PREC = sizeof(mantissa) == 8 ? 53 : 24;
 	// MIN_EXPONENT is smaller than you might expect, this is to give headroom for
 	// avoiding overflow in + and other functions. it is the exponent for 0.0
-	static constexpr exponent EXP_MIN = sizeof(exponent) == 8 ? exponent(-0x800000000000000LL) : exponent(-0x800000);
+	static constexpr exponent EXP_MIN = sizeof(exponent) == 8 ? exponent(-0x800000000000000LL) : exponent(-0x8000000);
 	static constexpr exponent EXP_MAX = -EXP_MIN;
 
 	inline void align() noexcept
