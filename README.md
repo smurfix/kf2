@@ -343,7 +343,7 @@ earlier).
 
 ### kf-2.15.3
 
-(????-??-??)
+????-??-??
 
   - new: updated progress reporting in status bar to include more
     information
@@ -1911,7 +1911,9 @@ alignment fix mentioned above) has:
     warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 
 
-## Building on Windows 64-bit (may be adaptable to 32-bit)
+## Building on Windows
+
+64-bit (may be adaptable to 32-bit)
 
 **Note** these instructions are out of date.
 
@@ -2819,7 +2821,7 @@ bugs).
 
 At the very top right:
 
-### ?
+### ? {#question-mark}
 
 Open about dialog, with version information and credits.
 
