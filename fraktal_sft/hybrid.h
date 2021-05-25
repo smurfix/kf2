@@ -526,7 +526,7 @@ static inline int hybrid_power_inf(const hybrid_operator &h)
 {
   if (h.mul_re == 0 && h.mul_im == 0)
   {
-    return 1;
+    return 0;
   }
   return h.pow;
 }
@@ -539,7 +539,7 @@ static inline int hybrid_power_inf(const hybrid_line &h)
     case hybrid_combine_sub:
       return std::max(hybrid_power_inf(h.one), hybrid_power_inf(h.two));
     case hybrid_combine_mul:
-      return hybrid_power_inf(h.one) * hybrid_power_inf(h.two);
+      return hybrid_power_inf(h.one) + hybrid_power_inf(h.two);
   }
   return 1;
 }
