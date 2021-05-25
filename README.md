@@ -341,7 +341,9 @@ earlier).
 
 ## Change Log
 
-### kf-2.15.3 (????-??-??)
+### kf-2.15.3
+
+(????-??-??)
 
   - new: updated progress reporting in status bar to include more
     information
@@ -422,13 +424,17 @@ earlier).
     - enable "glitch low tolerance" in perturbation and series
       approximation tuning dialog
 
-### kf-2.15.2.4 (2021-05-23)
+### kf-2.15.2.4
+
+2021-05-23
 
   - regression fix: restore built-in formula Newton-Raphson zooming
   - fix: use bitmap stride calculations from Microsoft documentation
     (4 byte row alignment)
 
-### kf-2.15.2.3 (2021-05-22)
+### kf-2.15.2.3
+
+2021-05-22
 
   - fix SIMD implementation of sgn()
     (test location by FractalAlex)
@@ -446,18 +452,24 @@ earlier).
     - openexr to 2.5.6
     - glfw to 3.3.4
 
-### kf-2.15.2.2 (2021-04-07)
+### kf-2.15.2.2
+
+2021-04-07
 
   - new: entropy colouring example palette in OpenGL GLSL
   - fix: tiling seams with certain colouring algorithms in OpenGL GLSL
   - fix: checkbox to disable power 2 Mandelbrot derivative based glitch
     test (failing location reported by Microfractal)
 
-### kf-2.15.2.1 (2021-03-31)
+### kf-2.15.2.1
+
+2021-03-31
 
   - fix: OpenGL shader errors on NVIDIA drivers
 
-### kf-2.15.2 (2021-03-31)
+### kf-2.15.2
+
+2021-03-31
 
   - new: custom OpenGL colouring algorithms (compatible with *zoomasm*
     3.0)
@@ -495,17 +507,23 @@ earlier).
   - upgrade to tiff 4.2.0
   - upgrade to openexr 2.5.5
 
-### kf-2.15.1.6 (2020-12-08)
+### kf-2.15.1.6
+
+2020-12-08
 
   - merge changes from kf-2.14.10.7
 
-### kf-2.14.10.7 (2020-12-08)
+### kf-2.14.10.7
+
+2020-12-08
 
   - revert 2.14.10.4's threading model change: back to win32 from posix
     (fixes weirdness like zooming out resetting zoom to infinity or 0)
     (reported by Dinkydau)
 
-### kf-2.15.1.5 (2020-11-24)
+### kf-2.15.1.5
+
+2020-11-24
 
   - fix long double rendering for hybrid formulas with abs
   - fix typos breaking OpenCL floatexp bailout checks
@@ -513,7 +531,9 @@ earlier).
   - fix endless reference loop in OpenCL
   - merge changes from kf-2.14.10.6
 
-### kf-2.14.10.6 (2020-11-24)
+### kf-2.14.10.6
+
+2020-11-24
 
   - fix long double rendering for formulas with abs (reported by Mr
     Rebooted)
@@ -524,18 +544,24 @@ earlier).
   - patch OpenEXR to try to fix issues with non-ASCII paths on Windows
     (reported by Ookamitada Shirohi)
 
-### kf-2.15.1.4 (2020-11-18)
+### kf-2.15.1.4
+
+2020-11-18
 
   - merge changes from kf-2.14.10.5
 
-### kf-2.14.10.5 (2020-11-18)
+### kf-2.14.10.5
+
+2020-11-18
 
   - fix scaled long double rendering (broken since 2.14.8)
     (reported by CFJH)
   - fix SIMD assertion failure in 32bit build (reported by gerson)
   - upgrade to gmp 6.2.1
 
-### kf-2.15.1.3 (2020-11-12)
+### kf-2.15.1.3
+
+2020-11-12
 
   - fix hybrid perturbation logic (perturbing a constant (power 0)
     should give 0 not the constant again) (thanks Foxxie)
@@ -545,7 +571,9 @@ earlier).
     zoomasm)
   - merge changes from kf-2.14.10.4
 
-### kf-2.14.10.4 (2020-11-10)
+### kf-2.14.10.4
+
+2020-11-10
 
   - fix "solve glitches by random choice" not having enough entropy in
     command line rendering (picking the same point over and over with
@@ -564,20 +592,26 @@ earlier).
     (native Windows build instructions and scripts are out of date)
   - documentation improvements (thanks to FractalAlex)
 
-### kf-2.15.1.2 (2020-11-08)
+### kf-2.15.1.2
+
+2020-11-08
 
   - refactor OpenCL error handling to display errors in the GUI without
     exiting
   - OpenCL hybrids: fix breaking typo in neg x (reported by
     Microfractal)
 
-### kf-2.15.1.1 (2020-10-28)
+### kf-2.15.1.1
+
+2020-10-28
 
   - fix OpenCL support for NVIDIA GPUs (reported by bezo97)
   - fix crash in aligned memory (de)allocation (reported by gerrit)
   - documentation improvements (thanks to FractalAlex)
 
-### kf-2.15.1 (2020-10-28)
+### kf-2.15.1
+
+2020-10-28
 
   - OpenCL support for perturbation iterations (requires double
     precision support on device: CPUs should work, some GPUs might not)
@@ -599,7 +633,9 @@ earlier).
   - smooth (log) iteration count is offset so dwell bands match up
     with the phase channel
 
-### kf-2.14.10.3 (2020-10-08)
+### kf-2.14.10.3
+
+2020-10-08
 
   - fixes
 
@@ -621,7 +657,9 @@ earlier).
     - upgrade compiler to g++-mingw-w64 10.1.0-3+23
       (Debian Bullseye/testing) and rebuild everything
 
-### kf-2.14.10.2 (2020-07-12)
+### kf-2.14.10.2
+
+2020-07-12
 
   - fixes
 
@@ -658,7 +696,9 @@ earlier).
     - don't upgrade to pixman 0.40.0
       (<https://gitlab.freedesktop.org/pixman/pixman/-/issues/43>)
 
-### kf-2.14.10.1 (2020-06-01)
+### kf-2.14.10.1
+
+2020-06-01
 
   - fixes
 
@@ -679,7 +719,9 @@ earlier).
     - crash when invoking resume zoom sequence while rendering in
       progress
 
-### kf-2.14.10 (2020-05-25)
+### kf-2.14.10
+
+2020-05-25
 
   - speed boosts
 
@@ -791,7 +833,9 @@ earlier).
     - upgrade compiler to g++-mingw-w64 9.3.0-8+22 and rebuild
       everything
 
-### kf-2.14.9 (2019-12-31)
+### kf-2.14.9
+
+2019-12-31
 
   - feature: new formula `z^2 exp(2 a / z) + c` (suggested by gerrit);
     set seed to `0` (default) for singular orbit;
@@ -828,7 +872,9 @@ earlier).
   - feature: experimental OpenCL support for GPU rendering (not built by
     default, enable it at build time with `make clean && make OPENCL=1`)
 
-### kf-2.14.8 (2019-09-23)
+### kf-2.14.8
+
+2019-09-23
 
   - feature: SIMD support.  Adjustable tuning parameters SIMD vector
     size (default 2) and chunk size (default 64) settings in the
@@ -858,7 +904,9 @@ earlier).
   - upgrade to mingw64 g++ 9.2.1-8+22~exp1 (Debian experimental)
     and rebuild everything
 
-### kf-2.14.7.1 (2019-08-30)
+### kf-2.14.7.1
+
+2019-08-30
 
   - bugfix: iteration data channels are no longer incorrectly vertically
     flipped when saving and loading EXR files; they now should match the
@@ -867,7 +915,9 @@ earlier).
   - bugfix: the 20% performance regression vs kf-2.12 has been fixed
   - bugfix: "save overwrites" now saved in .kfs settings files
 
-### kf-2.14.7 (2019-08-29)
+### kf-2.14.7
+
+2019-08-29
 
   - feature: save EXR (combined image with iteration map data and
     metadata) and open EXR (as settings, location or iteration map
@@ -897,12 +947,16 @@ earlier).
   - upgrade to boost 1.71.0
   - upgrade to gsl 2.6
 
-### kf-2.14.6.1 (2019-07-19)
+### kf-2.14.6.1
+
+2019-07-19
 
   - bugfix: load palette after map in command line rendering so that the
     colours from the palette are actually used (reported by blob)
 
-### kf-2.14.6 (2019-07-18)
+### kf-2.14.6
+
+2019-07-18
 
   - new feature: high quality image downscaling with anti-aliasing using
     the Pixman library
@@ -920,7 +974,9 @@ earlier).
   - upgrade to glm 0.9.9.5
   - upgrade to mingw64 g++ 8.3-win32 20190406 and rebuild everything
 
-### kf-2.14.5 (2019-03-20)
+### kf-2.14.5
+
+2019-03-20
 
   - new feature: command line zoom sequence rendering with `-z NFRAMES`
     flag
@@ -934,7 +990,9 @@ earlier).
   - upgrade to mpfr 4.0.2
   - upgrade to glm 0.9.9.4
 
-### kf-2.14.4 (2019-01-18)
+### kf-2.14.4
+
+2019-01-18
 
   - new feature: nanomb1 algorithm for power 2 Mandelbrot (experimental)
     (originally by knighty) (not quite as experimental as nanomb2,
@@ -954,7 +1012,9 @@ earlier).
   - upgrade to libmpfr 4.0.1-p14
   - upgrade to boost 1.69.0
 
-### kf-2.14.3 (2018-10-29)
+### kf-2.14.3
+
+2018-10-29
 
   - new feature: nanomb2 algorithm for power 2 Mandelbrot (experimental)
     (originally by knighty)
@@ -974,7 +1034,9 @@ earlier).
     out sequence).
   - merged changes from 2.13.11
 
-### kf-2.13.11 (2018-10-29)
+### kf-2.13.11
+
+2018-10-29
 
   - bugfix: make preprocessor compatible with ghc-8.6 (MonadFail)
   - bugfix: fix translation with reuse reference enabled
@@ -982,7 +1044,9 @@ earlier).
   - bugfix: don't add additional references if autosolve is disabled
   - upgrade to libpng 1.6.35
 
-### kf-2.14.2 (2018-10-23)
+### kf-2.14.2
+
+2018-10-23
 
   - bugfix: initial window size was off by a few pixels
   - new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by
@@ -996,7 +1060,9 @@ earlier).
   - internal: refactor series approximation for Mandelbrot power > 2
   - merged changes from 2.13.10
 
-### kf-2.13.10 (2018-10-23)
+### kf-2.13.10
+
+2018-10-23
 
   - bugfix: corrupt image at transition between number types (eg near
     e600) (reported by CFJH)
@@ -1006,7 +1072,9 @@ earlier).
   - bugfix: fix floatexp toString for negative values and 0
   - internal: update to et-kf API version 5
 
-### kf-2.14.1 (2018-09-27)
+### kf-2.14.1
+
+2018-09-27
 
   - new feature: series approximation for Burning Ship power 2, using
     case analysis to know how it gets reflected at each iteration
@@ -1021,7 +1089,9 @@ earlier).
   - new feature: optional use of d/dZ in autoskew escape (suggested by
     gerrit)
 
-### kf-2.13.9 (2018-09-06)
+### kf-2.13.9
+
+2018-09-06
 
   - new feature: auto skew without miniset: new button in Newton-Raphson
     zooming dialog, "Auto Skew (Escape)", that skews at the center
@@ -1034,7 +1104,9 @@ earlier).
     gerrit)
   - bugfix: fix 4th False Quasi formulas Newton-Raphson zooming
 
-### kf-2.13.8 (2018-08-28)
+### kf-2.13.8
+
+2018-08-28
 
   - new feature: auto skew (via Newton-Raphson zooming dialog)
   - new feature: show/hide crosshair window (suggested by gerrit and
@@ -1055,7 +1127,9 @@ earlier).
   - major documentation improvements
   - new dependency: GLM 0.9.9.0
 
-### kf-2.13.7 (2018-08-14)
+### kf-2.13.7
+
+2018-08-14
 
   - export to uncompressed TIFF images (faster than PNG, but larger)
     (suggested by gerrit)
@@ -1063,7 +1137,9 @@ earlier).
   - upgrade to Boost 1.68.0
   - upgrade to MPFR 4.0.1-p13
 
-### kf-2.13.6 (2018-08-02)
+### kf-2.13.6
+
+2018-08-02
 
   - fix for "a single dot appears in the middle of a mini"
     (reported by gerrit)
@@ -1074,7 +1150,9 @@ earlier).
     image (ignoring the warning about a KFB map existing with the same
     name)
 
-### kf-2.13.5 (2018-06-26)
+### kf-2.13.5
+
+2018-06-26
 
   - colouring is parallelized for speedup when multiple cores are
     available
@@ -1083,23 +1161,31 @@ earlier).
   - interior colour can be set now, defaults to black
   - upgrade to GSL 2.5
 
-### kf-2.13.4 (2018-06-21)
+### kf-2.13.4
+
+2018-06-21
 
   - derivative computations can be switched off in the iterations
     dialog (increases rendering speed, breaks analytic DE colouring)
 
-### kf-2.12.13.1 (2018-06-04)
+### kf-2.12.13.1
+
+2018-06-04
 
   - fix severe performance bug introduced in previous version
   - upgrade to Boost 1.67.0
   - upgrade to MPFR 4.0.1-p6
 
-### kf-2.12.13 (2018-05-15)
+### kf-2.12.13
+
+2018-05-15
 
   - fix crasher bug relating to series approximation memory allocation
     (reported by gerrit)
 
-### kf-2.13.3 (2018-05-08)
+### kf-2.13.3
+
+2018-05-08
 
   - Newton-Raphson zooming precision loss bug fix (reported by gerrit)
   - Newton-Raphson zooming for Mandelbrot powers 6 7 8 9 10
@@ -1110,7 +1196,9 @@ earlier).
   - Mandelbrot power 6 7 8 9 10 analytic distance estimation bug fixes
     (reported by gerrit)
 
-### kf-2.13.2 (2018-05-01)
+### kf-2.13.2
+
+2018-05-01
 
   - Newton-Raphson zooming for all formulas (using code generated by
     'et') (no progress reporting yet, nor convergence detection for
@@ -1121,7 +1209,9 @@ earlier).
   - fix assertion failed popup (race condition between parameter changes
     and colouring during rendering) (reported by gerrit)
 
-### kf-2.13.1 (2018-03-30)
+### kf-2.13.1
+
+2018-03-30
 
   - added derivative calculations
   - known bug: calculated even if not needed for colouring
@@ -1135,7 +1225,9 @@ earlier).
     (minor optimisation)
   - default settings are best-quality by default
 
-### kf-2.12.12 (2018-03-30)
+### kf-2.12.12
+
+2018-03-30
 
   - Free Software under GNU Affero General Public License, version 3 or
     greater
@@ -1145,7 +1237,9 @@ earlier).
   - (possibly stratified) tiled settings/parameters generator program
   - stratified tiling reassembler GNU Octave script
 
-### kf-2.12.11 (2018-03-12)
+### kf-2.12.11
+
+2018-03-12
 
   - uniform jitter by default (suggested by gerrit)
   - Gaussian jitter available as an option
@@ -1159,7 +1253,9 @@ earlier).
   - fix "color method and infinite waves are immediately applied" even
     when colouring is disabled (reported by gerrit)
 
-### kf-2.12.10 (2018-02-22)
+### kf-2.12.10
+
+2018-02-22
 
   - upgrade to MPFR 4.0.1
   - removed some build instructions from README (see the prepare.sh
@@ -1177,14 +1273,18 @@ earlier).
     then click "Apply" or re-enable to see the results (discussed with
     gerrit)
 
-### kf-2.12.9.1 (2018-01-24)
+### kf-2.12.9.1
+
+2018-01-24
 
   - fixed broken "approx low tolerance" checkbox (thanks to Dinkydau)
   - fixed NR-zoom dialog to remember custom zoom factor between
     reopenings (reported by gerrit)
   - fixed initialization of some menu item state on load
 
-### kf-2.12.9 (2018-01-24)
+### kf-2.12.9
+
+2018-01-24
 
   - improved Newton-Raphson zooming dialog, now zooms to a factor
     between current zoom and minibrot size (suggested by Dinkydau)
@@ -1208,7 +1308,9 @@ earlier).
   - added shell script containing some of the build instructions from
     the documentation
 
-### kf-2.12.8 (2017-12-22)
+### kf-2.12.8
+
+2017-12-22
 
   - fixed the fix for hang in normalisation (was generating bad images)
     (reported by gerrit with bug7.png)
@@ -1230,7 +1332,9 @@ earlier).
   - use Taylor intervals in ball-period method (code copied from
     knighty)
 
-### kf-2.12.7 (2017-12-07)
+### kf-2.12.7
+
+2017-12-07
 
   - renabled guessing conditional on menu option (was disabled in 2.12.4
     as enabling it made some random speckles, possibly due to a race
@@ -1247,7 +1351,9 @@ earlier).
     (speeds up Newton-Raphson zooming a bit) (idea from knighty and
     gerrit)
 
-### kf-2.12.6 (2017-11-24)
+### kf-2.12.6
+
+2017-11-24
 
   - fix central differences (reported by gerrit)
   - fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
@@ -1263,7 +1369,9 @@ earlier).
     some Newton-Raphson zoom failures - bug involved incorrect
     normalization) (reported by Kalles Fraktaler and gerrit)
 
-### kf-2.12.5 (2017-11-02)
+### kf-2.12.5
+
+2017-11-02
 
   - preferences (rendering settings not related to location) save and
     load (.kfs files and PNG/JPEG comments too)
@@ -1304,7 +1412,9 @@ earlier).
   - major code refactoring into multiple files for ease of maintenance
   - delete no-longer-used single-threaded Newton-Raphson zooming code
 
-### kf-2.12.4 (2017-10-06)
+### kf-2.12.4
+
+2017-10-06
 
   - "glitch low tolerance" checkbox that can be enabled to detect
     glitches more aggressively (enabling it allows "Olbaid-ST-023.kfr"
@@ -1340,7 +1450,9 @@ earlier).
   - delete obsolete VS build system
   - fix "infinite waves" colouring (reported by gerrit)
 
-### kf-2.12.3 (2017-09-25)
+### kf-2.12.3
+
+2017-09-25
 
   - multiple finite difference methods for distance colouring
     (suggested by gerrit)
@@ -1351,7 +1463,9 @@ earlier).
   - settable number of references per pass for examine zoom sequence
     auto solve glitches (default still 10)
 
-### kf-2.12.2 (2017-09-20)
+### kf-2.12.2
+
+2017-09-20
 
   - PNG image saving support using libpng and zlib;
   - JPEG default quality to 100 (was 99);
@@ -1366,7 +1480,9 @@ earlier).
     variable (re)allocations out of the inner loops: one test Burning
     Ship location is 30% faster;
 
-### kf-2.12.1 (2017-09-19)
+### kf-2.12.1
+
+2017-09-19
 
   - simplified version numbering;
   - built for 64bit (as before) and 32bit (new);
