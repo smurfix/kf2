@@ -1,0 +1,1486 @@
+<!DOCTYPE html>
+<html>
+<head profile="http://www.w3.org/2005/10/profile">
+<title>Kalles Fraktaler 2 +</title>
+<meta name="description" content="Fast deep zooming Free Software for fractal graphics (Mandelbrot, Burning Ship, etc)." />
+<link rel="shortcut icon" href="kf.ico" />
+<link rel="icon" type="image/png" href="kf.png" />
+<style type='text/css'>
+html { color: black; background-color: white; font-family: sans-serif; text-align: justify; }
+body { max-width: 40em; margin: 0em auto; padding-left: 2em; padding-right: 2em; padding-top: 1em; padding-bottom: 1em; border-left: 3px solid #844; border-right: 3px solid #844; }
+h1, h2 { background-color: #fdd; }
+.noisy { font-variant: small-caps; font-weight: bold; }
+.latest, dt { font-weight: bold; }
+.latest blockquote, .latest ul { font-weight: normal; }
+dt, dd, li { margin: 1em; }
+dd { margin-left: 3em; }
+pre { overflow: auto; }
+a { color: #844; }
+a:visited { color: #422; }
+a:hover { text-decoration: underline; }
+table { text-align: left; font-size: 80%; width: 100%; font-family: monospace; }
+ul li ul { font-size: 80%; }
+ul li ul li ul { font-size: 100%; }
+.gallery a { display: block; float: left; }
+</style>
+</head>
+<body>
+<h1 id='top'><a href='#top'>Kalles Fraktaler 2 +</a></h1>
+<p><a href="#limits" title="limits">limits</a>
+ | <a href="#videos" title="videos">videos</a>
+ | <a href="#download" title="download">download</a>
+ | <a href="#source" title="source">source</a>
+ | <a href="#benchmarks" title="benchmarks">benchmarks</a>
+ | <a href="#gallery" title="gallery">gallery</a>
+ | <a href="manual.html" title="manual">manual</a></p>
+<hr />
+<p>As the orginal <a href='http://www.chillheimer.de/kallesfraktaler/' title='Kalles Fraktaler 2'>upstream</a> author Karl Runmo says:</p>
+<blockquote>Want to create DEEP Mandelbrot fractals 100 times faster than the commercial programs, for FREE? One hour or one minute? Three months or one day? Try Kalles Fraktaler!</blockquote>
+<p>It works by using perturbation techniques and series approximation, to allow faster lower precision number types to be used for pixel iterations, based on a high precision reference.</p>
+<p>I (<a href='/' title='mathr.co.uk'>Claude Heiland-Allen</a>) forked the code and swapped out the custom arbitrary precision floating point code for highly optimized libraries, making it even faster.  Cross-compiled to Windows from Linux MINGW64.  Now with many other enhancements.</p>
+<h2 id='donate'><a href='#donate' title='Donate'>Donate</a></h2>
+<p>You can donate to support my work at <a href='https://ko-fi.com/claudeha' title='ko-fi.com/claudeha'>ko-fi.com/claudeha</a>.</p>
+<h2 id='limits'><a href='#limits' title='Limits'>Limits</a></h2>
+<ul>
+<li>Windows limits bitmap images to 2 giga-bytes (~715 M-pixel)</li>
+<li>Windows limits longest bitmap dimension to 64 kilo-pixels</li>
+<li>KF limits iteration count to 9 exa-iterations</li>
+<li>KF limits periods to 2 giga-iterations</li>
+<li>MPFR limits precision to 2 giga-bits (~646 million base-10 digits)</li>
+<li>KF needs up to ~50 bytes per pixel (typically uses half that)</li>
+<li>KF needs up to ~40 bytes per reference iteration (depends on type)</li>
+<li>KF cannot currently make use of more than 64 CPU threads</li>
+</ul>
+<h2 id='videos'><a href='#videos' title='Videos'>Videos</a></h2>
+<dl>
+<dt>Making fractal zoom videos with kf-2.15 and zoomasm-1.0</dt><dd><a href="https://archive.org/details/making-fractal-zoom-videos-with-kf-2.15-and-zoomasm-1.0" class="uri">https://archive.org/details/making-fractal-zoom-videos-with-kf-2.15-and-zoomasm-1.0</a></dd><dd><a href="https://www.youtube.com/watch?v=72IIn7C3UeI" class="uri">https://www.youtube.com/watch?v=72IIn7C3UeI</a></dd>
+<dt>Charred Bard</dt><dd><a href="https://archive.org/details/charred-bard" class="uri">https://archive.org/details/charred-bard</a></dd><dd><a href="https://www.youtube.com/watch?v=NMKBBk-yf_4" class="uri">https://www.youtube.com/watch?v=NMKBBk-yf_4</a></dd>
+<dt>Special Branch</dt><dd><a href="https://archive.org/details/special-branch" class="uri">https://archive.org/details/special-branch</a></dd><dd><a href="https://www.youtube.com/watch?v=uQDV87vVIxk" class="uri">https://www.youtube.com/watch?v=uQDV87vVIxk</a></dd>
+</dl>
+<h2 id='download'><a href='#download' title='Download'>Binary downloads</a></h2>
+<p>Note on versions:</p>
+<dl>
+<dt><a href="#kf-2.15">kf-2.15</a></dt><dd>current development branch,
+with OpenCL acceleration, hybrid formula designer, exponential map, transformations, ...</dd>
+<dt><a href="#kf-2.14">kf-2.14</a></dt><dd>stable branch (only bugfixes),
+features series approximation for more formulas, SIMD acceleration, and user
+interface improvements</dd>
+<dt><a href="#kf-2.13">kf-2.13</a></dt><dd>old stable branch (only bugfixes),
+features Newton-Raphson zooming for all formulas and analytic distance estimation
+(no reason to use this branch any more as kf-2.14.7.1 and later are faster)
+</dd>
+<dt><a href="#kf-2.12">kf-2.12</a></dt><dd>older stable branch (only bugfixes)
+(no reason to use this branch any more as kf-2.14.7.1 and later are just as fast now)
+</dd>
+<dt><a href="#kf-2.11">kf-2.11</a></dt><dd>legacy releases, still provided for bisecting bugs etc</dd>
+</dl>
+<p><span class='noisy'>Legal note</span>: these binaries are released
+under AGPLv3+ license.  If you redistribute the
+binaries (or provide access to the binaries as a service)
+you must also be prepared to distribute the source corresponding to
+those binaries to anyone you distribute the binary to.  To make this easier
+for you, the more recent zips include the source too (though you'll also need
+to get the library sources - check the about dialog ("?" menu) for details).
+And of course insert here the usual legal disclaimers about
+<span class='noisy'>no warranty of any kind</span>.</p>
+<p>Binary downloads for Windows (64bit recommended, includes 32bit too for some releases)
+which also work in Wine on Linux
+(you need <a href="https://7-zip.org" title="7-zip.org">7-zip</a> to unpack recent releases):</p>
+<ul>
+<li class="latest" id="kf-2.15"><a id="kf-2.15.2.4" href='kf-2.15.2.4.7z' title='kf-2.15.2.3.7z'>kf-2.15.2.4.7z (9.7M)</a> (<a href='kf-2.15.2.4.7z.sig' title='kf-2.15.2.4.7z.sig'>sig</a>) (2021-05-23)
+<ul ><li>
+regression fix: restore built-in formula Newton-Raphson zooming
+</li><li>
+fix: use bitmap stride calculations from Microsoft documentation (4 byte row alignment)
+</li></ul></li>
+<li><a id="kf-2.15.2.3" href='kf-2.15.2.3.7z' title='kf-2.15.2.3.7z'>kf-2.15.2.3.7z (8.5M)</a> (<a href='kf-2.15.2.3.7z.sig' title='kf-2.15.2.3.7z.sig'>sig</a>) (2021-05-22)
+<ul ><li>
+     fix SIMD implementation of sgn()
+      (test location by FractalAlex)
+</li><li>
+     fix opengl pack alignment for non-multiple-of-4 width bitmaps
+</li><li>
+     fix palette From Image not updating number of colours
+      (reported by Microfractal)
+</li><li>
+     fix palette From Image to use maximum of width and height
+</li><li>
+     add PNG to supported images for palette From Image
+      (reported by Microfractal)
+</li><li>
+     fix argmin|z| glitch correction for OpenCL
+</li><li>
+     report detailed timing information in command line mode
+</li><li>
+     update dependencies
+<ul ><li>
+       boost to 1.76.0
+</li><li>
+       tiff to 4.3.0
+</li><li>
+       openexr to 2.5.6
+</li><li>
+       glfw to 3.3.4
+</li></ul>
+</li></ul></li>
+<li><a id="kf-2.15.2.2" href='kf-2.15.2.2.7z' title='kf-2.15.2.2.7z'>kf-2.15.2.2.7z (9.7M)</a> (<a href='kf-2.15.2.2.7z.sig' title='kf-2.15.2.2.7z.sig'>sig</a>) (2021-04-07)
+<ul ><li>
+      new: entropy colouring example palette in OpenGL GLSL
+</li><li>
+      fix: tiling seams with certain colouring algorithms in OpenGL GLSL
+</li><li>
+      fix: checkbox to disable power 2 Mandelbrot derivative based glitch test
+      (failing location reported by Microfractal)
+</li></ul></li>
+<li><a id="kf-2.15.2.1" href='kf-2.15.2.1.7z' title='kf-2.15.2.1.7z'>kf-2.15.2.1.7z (9.7M)</a> (<a href='kf-2.15.2.1.7z.sig' title='kf-2.15.2.1.7z.sig'>sig</a>) (2021-03-31)
+<ul ><li>
+     fix: OpenGL shader compilation on NVIDIA
+</li></ul></li>
+<li><a id="kf-2.15.2" href='kf-2.15.2.7z' title='kf-2.15.2.7z'>kf-2.15.2.7z (9.7M)</a> (<a href='kf-2.15.2.7z.sig' title='kf-2.15.2.7z.sig'>sig</a>) (2021-03-31)
+<ul ><li>
+     new: custom OpenGL colouring algorithms (compatible with <strong>zoomasm 3.0</strong>)
+<ul ><li>
+       button bottom left of the colors dialog or Ctrl+G in main window
+</li><li>
+       text area for GLSL editing, or import and export to `*.glsl` files
+</li><li>
+       GLSL is stored in KFP palettes, KFR files and image metadata
+</li><li>
+       user API allows access of KFP parameters within GLSL
+</li></ul>
+</li><li>
+     new: OpenGL implementation of colouring algorithm
+<ul ><li>
+       default shader gives similar results as the regular implementation
+</li><li>
+       there are tiny differences (1 or 2 ULP) due to different rounding
+</li><li>
+       uses portions of libqd ported to GLSL for higher precision
+       (49 bits, vs 24 bits for float and 53 bits for double on CPU)
+</li><li>
+       some features remain unimplemented in this version:
+<ul ><li>
+         least squares 2x2 numerical differencing algorithm
+</li><li>
+         least squares 3x3 numerical differencing algorithm
+</li></ul>
+</li></ul>
+</li><li>
+     new: experimental ARM builds are possible using llvm-mingw
+<ul ><li>
+       64bit aarch64 can be built but crashes on start
+</li><li>
+       32bit armv7 is blocked on a GMP bug(?) (missing symbols in library)
+</li><li>
+       still needs gcc windres because llvm windres is incomplete
+</li></ul>
+</li><li>
+     new: option to save EXR files without their 8bit RGBA preview images
+     (makes files smaller and saves faster)
+</li><li>
+     new: sRGB gamma-correct downscaling (using patched pixman)
+</li><li>
+     fix: removed special case for zooms less than 1e3, fixes rendering of
+     Redshifter 1 cubic a=2 z0=-4/3 (reported by gerrit)
+</li><li>
+     fix: make undo and redo refresh the colors dialog
+</li><li>
+     fix: remove warning about slow unused derivatives, because it is
+     hard to tell if GLSL colouring might need them
+</li><li>
+     fix: dependency preparation script adapted to new architectures
+</li><li>
+     fix: dependency preparation script can build subsets of libraries
+</li><li>
+     fix: correctly initialize "no glitch detection" vector in SIMD
+</li><li>
+     fix: use `delete[]` instead of `delete` in some places
+</li><li>
+     fix: use `static inline` to prevent redefinition errors in llvm
+</li><li>
+     upgrade to pixman 0.40+git (claudeha/kf branch)
+</li><li>
+     upgrade to tiff 4.2.0
+</li><li>
+     upgrade to openexr 2.5.5
+</li></ul></li>
+<li><a id="kf-2.15.1.6" href='kf-2.15.1.6.7z' title='kf-2.15.1.6.7z'>kf-2.15.1.6.7z (9.4M)</a> (<a href='kf-2.15.1.6.7z.sig' title='kf-2.15.1.6.7z.sig'>sig</a>) (2020-12-08)
+<ul ><li>
+     merge changes from kf-2.14.10.7
+</li></ul></li>
+<li class="latest" id="kf-2.14"><a id="kf-2.14.10.7" href='kf-2.14.10.7.7z' title='kf-2.14.10.7.7z'>kf-2.14.10.7.7z (9.3M)</a> (<a href='kf-2.14.10.7.7z.sig' title='kf-2.14.10.7.7z.sig'>sig</a>) (2020-12-08)
+<ul ><li>
+     revert 2.14.10.4's threading model change: back to win32 from posix
+     (fixes weirdness like zooming out resetting zoom to infinity or 0)
+</li></ul></li>
+<li><a id="kf-2.15.1.5" href='kf-2.15.1.5.7z' title='kf-2.15.1.5.7z'>kf-2.15.1.5.7z (9.3M)</a> (<a href='kf-2.15.1.5.7z.sig' title='kf-2.15.1.5.7z.sig'>sig</a>) (2020-11-24)
+<ul ><li>
+     fix long double rendering for hybrid formulas with abs
+</li><li>
+     fix typos breaking OpenCL floatexp bailout checks
+</li><li>
+     fix guessing for OpenCL floatexp
+</li><li>
+     fix endless reference loop in OpenCL
+</li><li>
+     merge changes from kf-2.14.10.6
+</li></ul></li>
+<li><a id="kf-2.14.10.6" href='kf-2.14.10.6.7z' title='kf-2.14.10.6.7z'>kf-2.14.10.6.7z (9.3M)</a> (<a href='kf-2.14.10.6.7z.sig' title='kf-2.14.10.6.7z.sig'>sig</a>) (2020-11-24)
+<ul ><li>
+     fix long double rendering for formulas with abs
+</li><li>
+     fix floatexp rendering for fractional bailout norm power
+</li><li>
+     fix some float conversion warnings and potential problems
+</li><li>
+     make prepare script modular (second argument determines libraries
+     to build, default is all libraries)
+</li><li>
+     patch OpenEXR to try to fix issues with non-ASCII paths on Windows
+</li></ul></li>
+<li><a id="kf-2.15.1.4" href='kf-2.15.1.4.7z' title='kf-2.15.1.4.7z'>kf-2.15.1.4.7z (9.3M)</a> (<a href='kf-2.15.1.4.7z.sig' title='kf-2.15.1.4.7z.sig'>sig</a>) (2020-11-18)
+<ul ><li>
+merge changes from kf-2.14.10.5
+</li></ul></li>
+<li><a id="kf-2.14.10.5" href='kf-2.14.10.5.7z' title='kf-2.14.10.5.7z'>kf-2.14.10.5.7z (9.3M)</a> (<a href='kf-2.14.10.5.7z.sig' title='kf-2.14.10.5.7z.sig'>sig</a>) (2020-11-18)
+<ul ><li>
+fix scaled long double rendering (broken since 2.14.8) (reported by CFJH)
+</li><li>
+fix SIMD assertion failure in 32bit build (reported by gerson)
+</li><li>
+upgrade to gmp 6.2.1
+</li></ul></li>
+<li><a id="kf-2.15.1.3" href='kf-2.15.1.3.7z' title='kf-2.15.1.3.7z'>kf-2.15.1.3.7z (9.3M)</a> (<a href='kf-2.15.1.3.7z.sig' title='kf-2.15.1.3.7z.sig'>sig</a>) (2020-11-12)
+<ul ><li>
+      fix hybrid perturbation logic (perturbing a constant (power 0) should
+      give 0 not the constant again) (thanks Foxxie)
+</li><li>
+      fix more typo breakage in OpenCL hybrids
+</li><li>
+      fix OpenCL enablement when loading settings from command line
+</li><li>
+      fix OpenCL exponential map DE scaling (fixes visible rings in zoomasm)
+</li><li>
+      merge changes from kf-2.14.10.4
+</li></ul></li>
+<li><a id="kf-2.14.10.4" href='kf-2.14.10.4.7z' title='kf-2.14.10.4.7z'>kf-2.14.10.4.7z (9.3M)</a> (<a href='kf-2.14.10.4.7z.sig' title='kf-2.14.10.4.7z.sig'>sig</a>) (2020-11-10)
+<ul ><li>
+      fix "solve glitches by random choice" not having enough entropy in
+      command line rendering (picking the same point over and over with
+      no progress)
+</li><li>
+      switch MinGW compiler threading model from win32 to posix: no longer
+      need to patch `OpenEXR` to use `mingw-std-threads` (the latter is no
+      longer needed at all)
+</li><li>
+      rebuild all dependencies for the win32 to posix switch
+</li><li>
+      patch OpenEXR to avoid calling `_wsopen_s` which does not exist in
+      ReactOS' `msvcrt.dll`
+</li><li>
+      adjust build system to ensure `stdc++` and `pthread` libraries are
+      statically linked
+</li><li>
+      explicitly target Win32 API version 0x501 (Windows XP)
+</li><li>
+      return of 32bit builds to the distribution
+</li><li>
+      updated Linux build documentation and scripts
+      (native Windows build instructions and scripts are out of date)
+</li><li>
+      documentation improvements (thanks to FractalAlex)
+</li></ul></li>
+<li><a id="kf-2.15.1.2" href='kf-2.15.1.2.7z' title='kf-2.15.1.2.7z'>kf-2.15.1.2.7z (5.7M)</a> (<a href='kf-2.15.1.2.7z.sig' title='kf-2.15.1.2.7z.sig'>sig</a>) (2020-11-08)
+<ul ><li>
+refactor OpenCL error handling to display errors in the GUI without exiting
+</li><li>
+OpenCL hybrids: fix breaking typo in neg x (reported by Microfractal)
+</li></ul></li>
+<li><a id="kf-2.15.1.1" href='kf-2.15.1.1.7z' title='kf-2.15.1.1.7z'>kf-2.15.1.1.7z (5.7M)</a> (<a href='kf-2.15.1.1.7z.sig' title='kf-2.15.1.1.7z.sig'>sig</a>) (2020-10-28)
+<ul ><li>
+      fix OpenCL support for NVIDIA GPUs (reported by bezo97)
+</li><li>
+      fix crash in aligned memory (de)allocation (reported by gerrit)
+</li><li>
+      documentation improvements (thanks to FractalAlex)
+</li></ul></li>
+<li><a id="kf-2.15.1" href='kf-2.15.1.7z' title='kf-2.15.1.7z'>kf-2.15.1.7z (5.7M)</a> (<a href='kf-2.15.1.7z.sig' title='kf-2.15.1.7z.sig'>sig</a>) (2020-10-28)
+<ul ><li>
+      OpenCL support for perturbation iterations (requires double precision
+      support on device: CPUs should work, some GPUs might not)
+</li><li>
+      hybrid formula editor (design your own fractal formula)
+</li><li>
+      exponential map coordinate transformation
+      (useful for export to
+      <a href="https://mathr.co.uk/zoomasm" title="zoomasm">zoomasm</a>
+      for efficient video assembly)
+</li><li>
+      rotation and skew transformations are rewritten to be more flexible
+      (but old skewed/rotated KFR locations will not load correctly)
+</li><li>
+      kf-tile.exe tool supports the new rotation and skew transformations
+</li><li>
+      the bitrotten skew animation feature is removed
+</li><li>
+      a few speed changes in built in formulas (one example, RedShiftRider 4
+      with derivatives is almost 2x faster due to using complex analytic
+      derivatives instead of 2x2 Jacobian matrix derivatives)
+</li><li>
+      flip imaginary part of Buffalo power 2
+      (to match other powers; derivative was flipped already)
+</li><li>
+      slope implementation rewritten (appearance is different but it
+      is now independent of zoom level and iteration count)
+</li><li>
+      smooth (log) iteration count is offset so dwell bands match up
+      with the phase channel
+</li></ul></li>
+<li><a id="kf-2.14.10.3" href='kf-2.14.10.3.7z' title='kf-2.14.10.3.7z'>kf-2.14.10.3.7z (5.5M)</a> (<a href='kf-2.14.10.3.7z.sig' title='kf-2.14.10.3.7z.sig'>sig</a>) (2020-10-08)
+<ul ><li>
+fixes
+<ul ><li>
+assertion failure loading some formulas (reported by panzerboy)
+</li><li>
+bailout iteration count is reset to 1000 when zooming in quickly
+after toggling fullscreen (reported by FK68)
+</li><li>
+guessing exterior gives poor quality images
+(reported by PrinceOfCreation)
+</li><li>
+crash when zooming too quickly near interior black regions
+(reported by Foxxie)
+(may have already been fixed in an earlier version)
+</li><li>
+speckles when rendering zoom out sequence
+(may have already been fixed in an earlier version)
+</li></ul>
+</li><li>
+library upgrades
+<ul ><li>
+upgrade to boost 1.74.0
+</li><li>
+upgrade to openexr 2.5.3
+</li><li>
+upgrade compiler to g++-mingw-w64 10.1.0-3+23
+(Debian Bullseye/testing) and rebuild everything
+</li></ul>
+</li></ul></li>
+<li><a id="kf-2.14.10.2" href='kf-2.14.10.2.7z' title='kf-2.14.10.2.7z'>kf-2.14.10.2.7z (5.5M)</a> (<a href='kf-2.14.10.2.7z.sig' title='kf-2.14.10.2.7z.sig'>sig</a>) (2020-07-12)
+<ul ><li>
+       store zoom out sequence was saving JPEG contents in PNG filenames
+       sometimes
+</li><li>
+       store zoom out sequence was forcing some kind of center reuse even
+       when not requested (reported by saka and Azula)
+</li><li>
+       store zoom out sequence was sometimes not saving metadata in image
+       files correctly
+</li><li>
+       setting bad SIMD vector size in KFS could crash (reported by FractalAlex)
+</li><li>
+       setting window size/image size from KFS should be better behaved now
+</li><li>
+       refactor default loading (now it loads default location kf.kfr from
+       next to EXE, as well as default settings kf.kfs; defaults are only
+       loaded when respective command line options are not given)
+</li><li>
+       don't recalculate fractal when changing window size (reported by FK68)
+</li><li>
+       fix buffer overflow crash in iterdiv -> string for GUI,
+       also fix loss of precision (reported by FK68)
+</li><li>
+       fix typos causing last few pixels to be corrupt in SIMD
+</li><li>
+       remove annoying dialogs about derivatives (requested by gerrit)
+</li><li>
+       upgrade to boost 1.73.0
+</li><li>
+       upgrade to mpfr 4.1.0
+</li><li>
+       upgrade to tiff 4.1.0
+</li><li>
+       upgrade to glm 0.9.9.8
+</li><li>
+       upgrade to openexr 2.4.2
+</li><li>  
+       don't upgrade to pixman 0.40.0
+       (<a href="https://gitlab.freedesktop.org/pixman/pixman/-/issues/43">bug #43</a>)
+</li></ul></li>
+<li><a id="kf-2.14.10.1" href='kf-2.14.10.1.7z' title='kf-2.14.10.1.7z'>kf-2.14.10.1.7z (5.4M)</a> (<a href='kf-2.14.10.1.7z.sig' title='kf-2.14.10.1.7z.sig'>sig</a>) (2020-06-01)
+<ul ><li>
+     fixes
+<ul><li>
+       location dialog is smaller (by popular request)
+</li><li>
+       inverse colour transition (reported by FractalAlex)
+</li><li>
+       information dialog shortcut (reported by gerrit)
+</li><li>
+       information dialog close (reported by gerrit)
+</li><li>
+       information dialog OK button (reported by gerrit)
+</li><li>
+       Newton progress backup autosave can be disabled (reported by gerrit)
+</li><li>
+       can again set custom max references and series approximation terms
+        (in new Perturbation and Series Approximation Tuning dialog)
+        (reported by gerrit)
+</li><li>
+       crash when loading default settings with non-standard image size
+</li><li>
+       replaced custom buggy tooltip code with standard Windows controls
+</li><li>
+       resume zoom sequence works with no recovery.kfb (reported by Azula)
+</li><li>
+       crash when invoking resume zoom sequence while rendering in progress
+</li></ul>
+</li></ul></li>
+<li><a id="kf-2.14.10" href='kf-2.14.10.7z' title='kf-2.14.10.7z'>kf-2.14.10.7z (5.4M)</a> (<a href='kf-2.14.10.7z.sig' title='kf-2.14.10.7z.sig'>sig</a>) (2020-05-25)
+<ul ><li>
+     speed boosts
+<ul><li>
+       Mandelbrot power 3+ and TheRedshiftRider formulas Newton zooming:
+        twice as fast
+</li><li>
+       Mandelbrot power 3 perturbation: 50% faster
+</li><li>
+       Mandelbrot power 3 rescaled perturbation: 7.5% faster
+</li><li>
+       "find glitch center using argmin|z|" is now parallelized
+        (suggested by gerrit)
+</li><li>
+       "find glitch center" (using original method) memory (de)allocation
+        floated out of inner loop (slowness reported by gerrit)
+</li><li>
+       OpenEXR usage is now optionally parallelized (enabled by default)
+        (disabling reduces memory consumption and total work performed,
+        but usually increases wall-clock time significantly)
+</li></ul>
+</li><li>
+     enhancements
+<ul><li>
+       Show Inflection generalized to arbitrary power Mandelbrot
+        (behaviour for power 2 is slightly different, but more correct)
+</li><li>
+       better progress reporting for Newton-Raphson zooming
+        (especially noticable for formulas other than Mandelbrot power 2)
+</li><li>
+       use ball method for Newton-Raphson period finding by default
+        (works much better than box method in skewed locations)
+</li><li>
+       new setting "Save As -> Set EXR save channels" for choosing which
+        channels to store in EXR files (for conserving disk space when
+        not all of the data is needed in later processing)
+</li><li>
+       default settings loaded from next to EXE file (`kf.exe` -> `kf.kfs`)
+</li><li>
+       "Save KFR" option for Store Zoom Out Sequence, also `--save-kfr`
+        command line flag (suggested by Fluoroantimonic_Acid)
+        (note that metadata is already saved in all formats apart from KFB)
+</li><li>
+       "Save KFR" is fast if no images will be saved
+        (currently only fast in command line mode, and auto-iterations does
+        not work because no images are rendered to be analysed)
+</li><li>
+       split up Iterations dialog into Formula, Bailout and Information,
+        with some controls going to the Advanced menu. keyboard shortcuts
+        changed: Ctrl+F formula dialog, Ctrl+B bailout dialog, Ctrl+I
+        information dialog (previously iterations dialog), Ctrl+Shift+F
+        find center of glitch (previously Ctrl+F), Ctrl+Shift+B skew
+        animation (previously Ctrl+B)
+</li><li>
+       new p-norm options in the Bailout dialog, radius is tested against
+        $$\sqrt[p]{\left|b_x |z_x|^p + b_y |z_y|^p \right|}$$
+        (suggested by FractalAlex)
+</li><li>
+       new Flat colouring mode for when disabling Smooth is not enough
+        (Linear smooth method is recommended; Log can give seams)
+</li><li>
+       "Random" method for choosing new references among glitched pixels,
+        is sometimes better/worse than the "Original" and "argmin|z|" methods
+        (suggested by gerrit)
+</li><li>
+       Colors dialog has filename of last loaded file in its title
+        (suggested by gerrit)
+</li><li>
+       Fourth Root color method (iteration count transfer function)
+        (ported from Mandel Machine, suggested by FractalAlex)
+</li><li>
+       new phase channel (`T` in EXR) based on argument angle of final
+        iterate
+</li><li>
+       "Phase Strength" colouring control uses new phase channel
+        ("chrome effect" colouring suggested by FractalAlex)
+</li></ul>
+</li><li>
+     fixes
+<ul><li>
+       stopping rendering with ESC leaves image as-is, instead of
+        recolouring from scratch (badly) (reported by CFJH)
+</li><li>
+       status bar correctly resets when zooming before the previous
+        image is completed
+</li><li>
+       multiline widgets in location dialog fixes editing problems
+        (reported by CFJH)
+</li><li>
+       newton-raphson zooming increases maxiters more suitably
+</li><li>
+       clamp crosshair window read region to screen size
+        (prevent strobing display of uninitialized memory)
+</li><li>
+       fix crash when zooming out by a huge custom zoom factor (2^25)
+        (reported by CFJH) (divide by zero in `StretchBlt()`)
+</li><li>
+       fix crashes when resizing window by dragging frame corner by
+        setting a minimum size
+</li><li>
+       glitches are detected with 2-norm always (regardless of p-norm)
+</li><li>
+       series approximation uses low bailout radius (fixes far exterior)
+</li><li>
+       store zoom out dialog does not proceed to ask for size when cancelled
+        (reported by saka)
+</li><li>
+       add prepare-msys.sh to release bundle (reported by PieMan597)
+</li><li>
+       fixed -Wnarrowing warnings
+</li><li>
+       fixed loading of power setting for fractal types 1-4 (e.g. power 5
+        burning ship now loads correctly) (bug found thanks to FractalAlex)
+</li><li>
+       fixed texture option in colouring settings (broken for years)
+        (reported by FractalAlex)
+</li><li>
+       simplified by enforcing "reference pixel is never glitched"
+        in a different way than duplicating pixel iterations in the
+        reference code
+</li><li>
+       NanoMB1+2 support directional DE
+</li><li>
+       NanoMB1 iteration count was off-by-one compared to the regular way
+</li><li>
+       EXR input and output uses much less memory as it no longer needs
+        to copy so many of the data arrays; overhead for output is now
+        8 bytes per pixel (12 bytes for more than 4G iteration count images)
+        plus 6 bytes per pixel if RGB is used (tip: enabling the half colour
+        buffer preallocates this and saves an extra colouring pass)
+</li><li>
+       "Fast" shrinking is used while rendering is still ongoing (prevents
+        denial of service when updates are queued faster than they can be
+        handled)
+</li><li>
+       "Best" shrinking is always used when saving images
+</li><li>
+       image size adjuster uses aspect ratio from window, instead of the
+        current image size (prevents weird heights after setting width to
+        odd values like 463) (reported by saka)
+</li></ul>
+</li><li>
+     library upgrades
+<ul><li>
+       upgrade to openexr-2.4.1
+</li><li>
+       upgrade to glm-0.9.9.7
+</li><li>
+       upgrade to gmp-6.2.0
+</li><li>
+       upgrade compiler to g++-mingw-w64 9.3.0-8+22 and rebuild everything
+</li></ul>
+</li></ul></li>
+<li><a id="kf-2.14.9" href='kf-2.14.9.7z' title='kf-2.14.9.7z'>kf-2.14.9.7z (6.1M)</a> (<a href='kf-2.14.9.7z.sig' title='kf-2.14.9.7z.sig'>sig</a>) (2019-12-31)
+<ul ><li>
+      feature: new formula `z^2 exp(2 a / z) + c` (suggested by gerrit);
+      set seed to `0` (default) for singular orbit;
+      set seed to `a` for critical orbit (large `|a|` bugs at zooms &lt;= 1e3);
+      no Newton zooming yet;
+      thread: &lt;https://fractalforums.org/f/28/t/3234&gt;
+</li><li>
+      feature: use minimum `|z|` pixels for new references (suggested by quaz0r)
+      (option disabled by default as it is not always faster)
+</li><li>
+      feature: save file format version number with parameters and settings
+</li><li>
+      feature: documentation improvements (references to third-party software
+      and EXR map file semantics)
+</li><li>
+      bugfix: don't set zoom size when resuming zoom out sequence (now you
+      need to set it manually before resuming) (fixes issue where it was
+      clamped to integer; reported by david)
+</li><li>
+      bugfix: clamp half-precision colour output in EXR (fixes issue with NaNs)
+</li><li>
+      bugfix: interpolate neighbourhood when ignoring isolated glitches
+      (appearance should be smoother, especially analytic DE was broken before)
+</li><li>
+      bugfix: avoid assertion failure when loading a parameter with fractal type
+      out of range (instead unknown formulas appear incorrectly as Mandelbrot)
+      (reported by gerrit)
+</li><li>
+      bugfix: remove -pipe from Makefile to allow builds with smaller RAM
+</li><li>
+      bugfix: updated Windows/MSYS2 build instructions (thanks to Patrick Owen)
+</li><li>
+      upgrade to boost 1.72.0
+</li><li>
+      upgrade to glm 0.9.9.6
+</li><li>
+      update openexr repository url
+</li><li>
+      update pixman build to skip demos
+</li><li>
+      enable fat gmp build (with runtime CPU detection for faster reference
+      calculations)
+</li><li>
+      feature: experimental OpenCL support for GPU rendering (not built by
+      default, enable it at build time with `make clean && make OPENCL=1`)
+</li></ul></li>
+<li><a id="kf-2.14.8" href='kf-2.14.8.7z' title='kf-2.14.8.7z'>kf-2.14.8.7z (5.6M)</a> (<a href='kf-2.14.8.7z.sig' title='kf-2.14.8.7z.sig'>sig</a>) (2019-09-23)
+<ul ><li>
+  feature: SIMD support.  Adjustable tuning parameters SIMD vector size
+  (default 2) and chunk size (default 64) settings in the Advanced menu.
+  Should speed up perturbation calculations in double precision (up to
+  zoom depth 1e300 or so).  SIMD is also supported in scaled double for
+  Mandelbrot power 2 (zoom depth 1e600 or so) and power 3 (zoom depth
+  1e400 or so).  SIMD is not yet implemented for scaled double with
+  derivatives.  Compile KF yourself with optimisations for your own
+  specific CPU for a bigger speed boost.
+</li><li>
+  feature: Newton-Raphson zooming completion estimate (number of steps)
+</li><li>
+  feature: Newton-Raphson zooming progress backups (after each step)
+</li><li>
+  feature: fewer required fields when loading location parameters (allows
+  loading the NR-zoom backups)
+</li><li>
+  feature: directional DE stored in EXR as `DEX` and `DEY` channels,
+  and used for slopes colouring with `Analytic` differences (requires
+  derivatives, fixes noisy texture when jitter is enabled)
+</li><li>
+  feature: 64bit iteration count support (limit is now 9 exa-iterations
+  up from 2 giga-iterations), use EXR for export.  This feature is very
+  experimental, I haven't had the patience to test it properly.  Please
+  report back success or failure.
+</li><li>
+  note: periods are still 32bit and limited to 2 giga-iterations
+</li><li>
+  bugfix: command line --save-exr now sets non-interactive mode flag.
+</li><li>
+  note: built for 64bit only; 32bit hardware is obsolete by now.
+</li><li>
+  note: distribution package compressed with 7-zip for smaller size.
+</li><li>
+  upgrade to openexr 2.4.0
+</li><li>
+  upgrade to mingw64 g++ 9.2.1-8+22~exp1 (Debian experimental)
+  and rebuild everything
+</li></ul></li>
+<li><a id="kf-2.14.7.1" href='kf-2.14.7.1.zip' title='kf-2.14.7.1.zip'>kf-2.14.7.1.zip (17M)</a> (<a href='kf-2.14.7.1.zip.sig' title='kf-2.14.7.1.zip.sig'>sig</a>) (2019-08-30)
+<ul ><li>
+      bugfix: iteration data channels are no longer incorrectly vertically
+      flipped when saving and loading EXR files; they now should match the
+      RGB orientation
+</li><li>
+      feature: optionally disable threaded reference calculations
+</li><li>
+      bugfix: the 20% performance regression vs kf-2.12 has been fixed
+</li><li>
+      bugfix: "save overwrites" now saved in .kfs settings files
+</li></ul></li>
+<li><a id="kf-2.14.7" href='kf-2.14.7.zip' title='kf-2.14.7.zip'>kf-2.14.7.zip (17M)</a> (<a href='kf-2.14.7.zip.sig' title='kf-2.14.7.zip.sig'>sig</a>) (2019-08-29)
+<ul ><li>
+     feature: save EXR (combined image with iteration map data and metadata)
+      and open EXR (as settings, location or iteration map data).  For
+      motivation and specifications see <a href="https://fractalforums.org/f/11/t/3017">fractalforums.org thread</a>.
+</li><li>
+     feature: LogLog and ATan color methods (iteration count transfer
+      functions) (ported from Mandel Machine, suggested by Dinkydau)
+</li><li>
+     feature: option to control overwriting existing files with Save/Ctrl-S.
+      With overwrite disabled by default, KF will save files with a
+      timestamp before the .kfr extension, preventing accidental data loss
+      (suggested by fractal).  The previous behaviour can be restored in
+      the Advanced menu.
+</li><li>
+     feature: option to reduce thread count by 1 (suggested by saka)
+</li><li>
+     bugfix: set thread background mode for improved responsiveness
+      (reported by saka)
+</li><li>
+     bugfix: remove annoying warning dialogs from store zoom out sequence
+      (reported by saka)
+</li><li>
+     bugfix: size status bar sections proportionally to window width
+      (fixes accessibility issues with non-standard system font size)
+      (reported by fractal)
+</li><li>
+     bugfix: make Octave/Matlab scripts into function files for broader
+      compatibility (usage example: <code>stratify("tile",4)</code>) (bug reported
+      by Chronicler1701, fix suggested by gerrit).
+</li><li>
+     new dependency: mingw-std-threads git
+</li><li>
+     new dependency: ilmbase 2.3.0
+</li><li>
+     new dependency: openexr 2.3.0
+</li><li>
+     upgrade to boost 1.71.0
+</li><li>
+     upgrade to gsl 2.6
+</li></ul></li>
+<li><a id="kf-2.14.6.1" href='kf-2.14.6.1.zip' title='kf-2.14.6.1.zip'>kf-2.14.6.1.zip (16M)</a> (<a href='kf-2.14.6.1.zip.sig' title='kf-2.14.6.1.zip.sig'>sig</a>) (2019-07-19)
+<ul ><li>
+    bugfix: load palette after map in command line rendering so that the
+    colours from the palette are actually used (reported by blob)
+</li></ul></li>
+<li><a id="kf-2.14.6" href='kf-2.14.6.zip' title='kf-2.14.6.zip'>kf-2.14.6.zip (16M)</a> (<a href='kf-2.14.6.zip.sig' title='kf-2.14.6.zip.sig'>sig</a>) (2019-07-18)
+<ul ><li>
+    new feature: high quality image downscaling with anti-aliasing using
+    the Pixman library
+</li><li>
+    new feature: ball method for period detection in Newton-Raphson zoom
+</li><li>
+    new feature: command line KFB map colouring
+</li><li>
+    bugfix: image is refreshed from first calculated pixels, instead of 1%
+    (reported by Fluoroantimonic_Acid)
+</li><li>
+    bugfix: don't read Iteration Divisor from KFB map files (for historical
+    reasons this is an integer in the file format, instead of the floating
+    point value that it can take now in the rest of the program)
+</li><li>
+    upgrade to boost 1.70.0
+</li><li>
+    upgrade to mpfr 4.0.2p1
+</li><li>
+    upgrade to png 1.6.37
+</li><li>
+    upgrade to glm 0.9.9.5
+</li><li>
+    upgrade to mingw64 g++ 8.3-win32 20190406 and rebuild everything
+</li></ul></li>
+<li><a id="kf-2.14.5" href='kf-2.14.5.zip' title='kf-2.14.5.zip'>kf-2.14.5.zip (16M)</a> (<a href='kf-2.14.5.zip.sig' title='kf-2.14.5.zip.sig'>sig</a>) (2019-03-20)
+<ul ><li>
+     new feature: command line zoom sequence rendering with `-z NFRAMES` flag
+</li><li>
+     new feature: low bailout (SmoothMethod: 2) (suggested by Dinkydau)
+      <a href="https://fractalforums.org/f/28/t/2594/msg12801#msg12801">forum thread</a>
+</li><li>
+     new feature: General Abs Quadratic formulas (inspired by Alef and gerrit)
+      <a href="https://fractalforums.org/f/28/t/2653/msg13242#msg13242">forum thread</a>
+</li><li>
+     bugfix: thin black line in exterior between iteration bands (reported by CFJH)
+</li><li>
+     bugfix: malformed location no longer crashes (reported by Foxxie)
+</li><li>
+     upgrade to mpfr 4.0.2
+</li><li>
+     upgrade to glm 0.9.9.4
+</li></ul></li>
+<li id="kf-2.13"><a id="kf-2.13.12" href='kf-2.13.12.zip' title='kf-2.13.12.zip'>kf-2.13.12.zip (11M)</a> (<a href='kf-2.13.12.zip.sig' title='kf-2.13.12.zip.sig'>sig</a>) (2019-03-20)
+<ul ><li>
+     bugfix: thin black line in exterior between iteration bands (reported by CFJH)
+</li><li>
+     bugfix: malformed location no longer crashes (reported by Foxxie)
+</li><li>
+     upgrade to mpfr 4.0.2
+</li><li>
+     upgrade to glm 0.9.9.4
+</li><li>
+     upgrade to libpng 1.6.36
+</li><li>
+     upgrade to libtiff 4.0.10
+</li><li>
+     upgrade to boost 1.69.0
+</li></ul></li>
+<li id="kf-2.12"><a id="kf-2.12.16" href='kf-2.12.16.zip' title='kf-2.12.16.zip'>kf-2.12.16.zip (5.6M)</a> (<a href='kf-2.12.16.zip.sig' title='kf-2.12.16.zip.sig'>sig</a>) (2019-03-20)
+<ul ><li>
+     bugfix: malformed location no longer crashes (reported by Foxxie)
+</li><li>
+     upgrade to mpfr 4.0.2
+</li><li>
+     upgrade to glm 0.9.9.4
+</li><li>
+     upgrade to libpng 1.6.36
+</li><li>
+     upgrade to libtiff 4.0.10
+</li><li>
+     upgrade to boost 1.69.0
+</li></ul></li>
+<li><a id="kf-2.14.4" href='kf-2.14.4.zip' title='kf-2.14.4.zip'>kf-2.14.4.zip (15M)</a> (<a href='kf-2.14.4.zip.sig' title='kf-2.14.4.zip.sig'>sig</a>) (2019-01-18)
+<ul ><li>
+      new feature: nanomb1 algorithm for power 2 Mandelbrot (experimental)
+      (originally by knighty) (not quite as experimental as nanomb2, suggested
+      by gerrit, requires exact period to be set by Newton or location dialog)
+</li><li>
+      new feature: make interior checking for nanomb optional (new menu item)
+</li><li>
+      new feature: RadiusScale setting for nanomb2 (only settable in .kfs so
+      far, default value 0.1 may be safe but slow)
+</li><li>
+      new feature: Mothbrot family of formulas (suggested by simon.snake)
+      (not optimized yet, preliminary version for testing)
+</li><li>
+      bugfix: incremental drawing looks much better with slopes and/or nde
+      (there is a crosshair visible while rendering, which disappears when
+      the image is finished, not sure why this happens)
+</li><li>
+      upgrade to libpng 1.6.36
+</li><li>
+      upgrade to libtiff 4.0.10
+</li><li>
+      upgrade to libmpfr 4.0.1-p14
+</li><li>
+      upgrade to boost 1.69.0
+</li></ul></li>
+<li><a id="kf-2.14.3" href='kf-2.14.3.zip' title='kf-2.14.3.zip'>kf-2.14.3.zip (10M)</a> (<a href='kf-2.14.3.zip.sig' title='kf-2.14.3.zip.sig'>sig</a>) (2018-10-29)
+<ul ><li>
+     new feature: nanomb2 algorithm for power 2 Mandelbrot (experimental)
+      (originally by knighty)
+</li><li>
+     new feature: display Newton period (and set limit for nanomb2 algorithm)
+      in Location dialog
+</li><li>
+     new feature: Ctrl-Shift-W shortcut to set image size (suggested by gerrit)
+</li><li>
+     bugfix: distinguish dialog titles for set window size and set image size
+</li><li>
+     bugfix: fix corrupt images when zooming out from the default view
+</li><li>
+     new feature: dialogs to en/disable derivatives when opening file with/out
+      analytic DE; automatically enabling derivatives if needed in CLI mode
+      (reported by gerrit)
+</li><li>
+     default zoom size changed from 4 to 2 (press Ctrl-4 to reset to 4, or load
+      a settings file with your preference) (suggested by gerrit, to avoid the
+      dreaded "zoom size is not 2" warning when saving zoom out sequence).
+</li><li>
+     merged changes from 2.13.11
+</li></ul></li>
+<li><a id="kf-2.13.11" href='kf-2.13.11.zip' title='kf-2.13.11.zip'>kf-2.13.11.zip (9.7M)</a> (<a href='kf-2.13.11.zip.sig' title='kf-2.13.11.zip.sig'>sig</a>) (2018-10-29)
+<ul ><li>
+     bugfix: fix translation with reuse reference enabled
+      (reported by Dinkydau)
+</li><li>
+     bugfix: don't add additional references if autosolve is disabled
+</li><li>
+     bugfix: ghc-8.6 compatibility for preprocessor (MonadFail)
+</li><li>
+     upgrade to libpng 1.6.35
+</li></ul></li>
+<li><a id="kf-2.12.15" href='kf-2.12.15.zip' title='kf-2.12.15.zip'>kf-2.12.15.zip (4.9M)</a> (<a href='kf-2.12.15.zip.sig' title='kf-2.12.15.zip.sig'>sig</a>) (2018-10-29)
+<ul ><li>
+     bugfix: corrupt image at transition between number types (eg near e600)
+      (reported by CFJH)
+</li><li>
+     bugfix: changing "threads per CPU" during rendering crashes
+      (reported by CFJH) (the menu is now disabled during rendering)
+</li><li>
+     bugfix: reading PNG metadata works even if it is moved after the image
+      data chunks and has a miscapitalized "Comment" keyword
+</li><li>
+     bugfix: ghc-8.6 compatibility (MonadFail)
+</li><li>
+     bugfix: translation with reuse reference (reported by Dinkydau)
+</li><li>
+     bugfix: don't add secondary references when auto solve glitches is disabled
+</li><li>
+     upgrade to Boost 1.68.0
+</li><li>
+     upgrade to MPFR 4.0.1-p13
+</li><li>
+     upgrade to libpng 1.6.35
+</li></ul></li>
+<li><a id="kf-2.14.2" href='kf-2.14.2.zip' title='kf-2.14.2.zip'>kf-2.14.2.zip (9.8M)</a> (<a href='kf-2.14.2.zip.sig' title='kf-2.14.2.zip.sig'>sig</a>) (2018-10-23)
+<ul ><li>
+     bugfix: initial window size was off by a few pixels
+</li><li>
+     new feature: undo/redo (menu and Ctrl-Z, Ctrl-Y) (suggested by TwinDragon)
+</li><li>
+     new feature: added copy/paste to menu (Ctrl-X, Ctrl-V worked already)
+</li><li>
+     new feature: Ctrl-Shift-K shortcut to reset skew
+</li><li>
+     new feature: Ctrl-Shift-T shortcut to reset rotation
+</li><li>
+     bugfix: minor improvements to documentation
+</li><li>
+     bugfix: fix series approximation derivative initialization
+</li><li>
+     internal: refactor series approximation for Mandelbrot power > 2
+</li><li>
+     merged changes from 2.13.10
+</li></ul></li>
+<li><a id="kf-2.13.10" href='kf-2.13.10.zip' title='kf-2.13.10.zip'>kf-2.13.10.zip (9.7M)</a> (<a href='kf-2.13.10.zip.sig' title='kf-2.13.10.zip.sig'>sig</a>) (2018-10-23)
+<ul ><li>
+     bugfix: corrupt image at transition between number types (eg near e600)
+     (reported by CFJH)
+</li><li>
+     bugfix: changing "threads per CPU" during rendering crashes
+     (reported by CFJH) (the menu is now disabled during rendering)
+</li><li>
+     bugfix: set approx terms to 3 for other than power 2 Mandelbrot
+</li><li>
+     bugfix: fix floatexp toString for negative values and 0
+</li><li>
+     internal: update to et-kf API version 5
+</li></ul></li>
+<li><a id="kf-2.14.1" href='kf-2.14.1.zip' title='kf-2.14.1.zip'>kf-2.14.1.zip (9.8M)</a> (<a href='kf-2.14.1.zip.sig' title='kf-2.14.1.zip.sig'>sig</a>) (2018-09-27)
+<ul ><li>
+          new feature: series approximation for Burning Ship power 2, using
+          case analysis to know how it gets reflected at each iteration
+</li><li>
+          two new formulas: General Quadratic Minus, General Quadratic Plus;
+          "RedShiftRider factor A" sets coefficients (suggested by gerrit)
+</li><li>
+          new feature: "Fast" preset activated by default
+</li><li>
+          new feature: GUI menus reorganized to make more sense and updated
+          the manual to reflect this
+</li><li>
+          new feature: "check for updates" option in the file menu (requires
+          internet access)
+</li><li>
+          new feature: 1/4 and 1/2 threads per CPU settings (minimum 1 thread)
+</li><li>
+          new feature: optional use of d/dZ in autoskew escape (suggested by
+          gerrit)
+</li></ul></li>
+<li><a id="kf-2.13.9" href='kf-2.13.9.zip' title='kf-2.13.9.zip'>kf-2.13.9.zip (9.7M)</a> (<a href='kf-2.13.9.zip.sig' title='kf-2.13.9.zip.sig'>sig</a>) (2018-09-06)
+<ul ><li>
+     new feature: auto skew without miniset: new button in Newton-Raphson
+      zooming dialog, "Auto Skew (Escape)", that skews at the center pixels
+      (algorithm suggested by gerrit)
+</li><li>
+     bugfix: set window title on parameter drag and drop (reported by gerrit)
+</li><li>
+     bugfix: reading PNG metadata works even if it is moved after the image
+      data chunks and has a miscapitalized "Comment" keyword
+</li><li>
+     bugfix: fix Mandelbar derivative calculations for ADE (reported by gerrit)
+</li><li>
+     bugfix: fix 4th False Quasi formulas Newton-Raphson zooming
+</li></ul></li>
+<li><a id="kf-2.13.8" href='kf-2.13.8.zip' title='kf-2.13.8.zip'>kf-2.13.8.zip (9.0M)</a> (<a href='kf-2.13.8.zip.sig' title='kf-2.13.8.zip.sig'>sig</a>) (2018-08-28)
+<ul ><li>
+         new feature: auto skew (via Newton-Raphson zooming dialog)
+</li><li>
+         new feature: show/hide crosshair window (suggested by gerrit and others)
+</li><li>
+         new feature: quality presets ("fast" but inaccurate, "best" but slow)
+</li><li>
+         new feature: page up / page down keyboard shortcuts to zoom in / out
+</li><li>
+         new feature: drag-and-drop parameter files from the file manager to
+          the main window to open them
+</li><li>
+         new feature: drag-and-drop palette files from the file manager to
+          the color dialog window to open them
+</li><li>
+         new feature: CLI prints total remaining pixels (suggested by gerrit)
+</li><li>
+         bugfix: suppress error dialogs when loading metadata from TIFF
+</li><li>
+         bugfix: remove obsolete .ini stuff that was overriding default settings
+</li><li>
+         bugfix: enabled "no reuse center" by default
+          (without it zoom out sequence sometimes glitches)
+</li><li>
+         major documentation improvements
+</li><li>
+         new dependency: GLM 0.9.9.0
+</li></ul></li>
+<li><a id="kf-2.13.7" href='kf-2.13.7.zip' title='kf-2.13.7.zip'>kf-2.13.7.zip (8.9M)</a> (<a href='kf-2.13.7.zip.sig' title='kf-2.13.7.zip.sig'>sig</a>) (2018-08-14)
+<ul ><li>
+      export to uncompressed TIFF images (faster than PNG, but larger)
+      (suggested by gerrit)
+</li><li>
+      nicer default palette
+</li><li>
+      upgrade to Boost 1.68.0
+</li><li>
+      upgrade to MPFR 4.0.1-p13
+</li></ul></li>
+<li><a id="kf-2.12.14" href='kf-2.12.14.zip' title='kf-2.12.14.zip'>kf-2.12.14.zip (4.9M)</a> (<a href='kf-2.12.14.zip.sig' title='kf-2.12.14.zip.sig'>sig</a>) (2018-08-14)
+<ul ><li>
+      fix for "a single dot appears in the middle of a mini"
+      (reported by gerrit)
+</li><li>     possible fix for "iterations reset low when zooming fast"
+</li><li>     upgrade to GSL 2.5
+</li><li>     update documentation
+</li></ul></li>
+<li><a id="kf-2.13.6" href='kf-2.13.6.zip' title='kf-2.13.6.zip'>kf-2.13.6.zip (8.9M)</a> (<a href='kf-2.13.6.zip.sig' title='kf-2.13.6.zip.sig'>sig</a>) (2018-08-02)
+<ul ><li>
+      fix for "a single dot appears in the middle of a mini"
+      (reported by gerrit)
+</li><li>
+      fix for "zooming out saves Zoom 0 in KFR parameter file"
+      (reported by CFJH)
+</li><li>
+      "open map" function (file menu)<br/>
+      workflow: open KFR, ESC to abort, open KFB, adjust colours, save image
+      (ignoring the warning about a KFB map existing with the same name)
+</li></ul></li>
+<li><a id="kf-2.13.5" href='kf-2.13.5.zip' title='kf-2.13.5.zip'>kf-2.13.5.zip (8.9M)</a> (<a href='kf-2.13.5.zip.sig' title='kf-2.13.5.zip.sig'>sig</a>) (2018-06-26)
+<ul ><li>     colouring is parallelized for speedup when multiple cores are available
+</li><li>     only sort pixel indices in interactive mode (speeds up batch mode)
+</li><li>     palette loading fixed to load all colouring data
+</li><li>     interior colour can be set now, defaults to black
+</li><li>     upgrade to GSL 2.5
+</li></ul></li>
+<li><a id="kf-2.13.4" href='kf-2.13.4.zip' title='kf-2.13.4.zip'>kf-2.13.4.zip (8.7M)</a> (<a href='kf-2.13.4.zip.sig' title='kf-2.13.4.zip.sig'>sig</a>) (2018-06-21)
+<ul><li>
+allow derivative computations to be turned off for speed (breaks analytic DE)
+</li><li>
+merged changes from the 2.12 branch (bugfixes and library upgrades)
+</li></ul></li>
+<li><a id="kf-2.12.13.1" href='kf-2.12.13.1.zip' title='kf-2.12.13.1.zip'>kf-2.12.13.1.zip (4.9M)</a> (<a href='kf-2.12.13.1.zip.sig' title='kf-2.12.13.1.zip.sig'>sig</a>) (2018-06-04)
+<ul><li>
+fix severe performance regression in previous version
+</li><li>
+upgrade to Boost 1.67.0
+</li><li>
+upgrade to MPFR 4.0.1-p6
+</li></ul></li>
+<li><a href='kf-2.12.13.zip' title='kf-2.12.13.zip'>kf-2.12.13.zip (4.9M)</a> (<a href='kf-2.12.13.zip.sig' title='kf-2.12.13.zip.sig'>sig</a>) (2018-05-15)
+<ul><li>
+fix crasher bug relating to series approximation memory allocation (reported by gerrit)
+</li></ul></li>
+<li><a href='kf-2.13.3.zip' title='kf-2.13.3.zip'>kf-2.13.3.zip (8.5M)</a> (<a href='kf-2.13.3.zip.sig' title='kf-2.13.3.zip.sig'>sig</a>) (2018-05-08)
+<ul><li>
+Newton-Raphson zooming precision loss bug fix (reported by gerrit)
+</li><li>
+Newton-Raphson zooming for Mandelbrot powers 6 7 8 9 10 (reported by gerrit)
+</li><li>
+Newton-Raphson zooming size estimate fixed for more formulas (now correctly uses smallest power instead of largest, for renormalization behaviour near zero)
+</li><li>
+Mandelbrot power 6 7 8 9 10 analytic distance estimation bug fixes (reported by gerrit)
+</li></ul></li>
+<li><a href='kf-2.13.2.zip' title='kf-2.13.2.zip'>kf-2.13.2.zip (8.8M)</a> (<a href='kf-2.13.2.zip.sig' title='kf-2.13.2.zip.sig'>sig</a>) (2018-05-01)
+<ul><li>
+      Newton-Raphson zooming for all formulas (using code generated by 'et')
+      (no progress reporting yet, nor convergence detection for early exit)
+</li><li>
+      R^2 matrix derivatives for all formulas (fixes analytic DE with skew)
+</li><li>
+      fix image corruption when enabling guessing with analytic DE
+</li><li>
+      fix assertion failed popup (race condition between parameter changes and
+      colouring during rendering) (reported by gerrit)
+</li></ul></li>
+<li><a href='kf-2.13.1.zip' title='kf-2.13.1.zip'>kf-2.13.1.zip (5.7M)</a> (<a href='kf-2.13.1.zip.sig' title='kf-2.13.1.zip.sig'>sig</a>) (2018-03-30)
+<ul><li>
+     added derivative calculations
+</li><li>
+     known bug: calculated even if not needed for colouring
+</li><li>
+     known bug: some derivatives are C approximations instead of R^2 matrix
+</li><li>
+     analytic DE colouring mode
+</li><li>
+     known bug: DE data not saved to KFB map files
+</li><li>
+     interior is white instead of black
+</li><li>
+     known bug: interior colour should be customizable
+</li><li>
+     series approximation uses Horner's rule to evaluate polynomials
+      (minor optimisation)
+</li><li>
+     default settings are best-quality by default
+</li></ul></li>
+<li><a href='kf-2.12.12.zip' title='kf-2.12.12.zip'>kf-2.12.12.zip (5.6M)</a> (<a href='kf-2.12.12.zip.sig' title='kf-2.12.12.zip.sig'>sig</a>) (2018-03-30)
+<ul><li>
+ Free Software under GNU Affero General Public License, version 3 or greater
+</li><li>
+ least squares numerical differences (experimental; subject to change)
+</li><li>
+ Laplacian numerical differences (suggested by gerrit)
+</li><li>
+ (possibly stratified) tiled settings/parameters generator program
+</li><li>
+ stratified tiling reassembler GNU Octave script
+</li></ul></li>
+<li><a href='kf-2.12.11.zip' title='kf-2.12.11.zip'>kf-2.12.11.zip (4.4M)</a> (<a href='kf-2.12.11.zip.sig' title='kf-2.12.11.zip.sig'>sig</a>) (2018-03-12)
+<ul><li>
+      uniform jitter by default (suggested by gerrit)
+</li><li>
+      Gaussian jitter available as an option
+</li><li>
+      jitter scale factor setting (suggested by gerrit)
+</li><li>
+      log verbosity flag for command line rendering
+</li><li>
+      upgrade to <a title="libjpeg6b2" href="http://jpegclub.org/support/">libjpeg6b2</a>
+</li><li>
+      fix bug where Ctrl-S would overwrite the wrong file (reported by gerrit)
+</li><li>
+      fix bug where lines would appear aligned with references (reported by
+      gerrit and CFJH)
+</li><li>
+      fix "color method and infinite waves are immediately applied" even when
+      colouring is disabled (reported by gerrit)
+</li></ul></li>
+<li><a href='kf-2.12.10.zip' title='kf-2.12.10.zip'>kf-2.12.10.zip (4.4M)</a> (<a href='kf-2.12.10.zip.sig' title='kf-2.12.10.zip.sig'>sig</a>) (2018-02-22)
+<ul><li>
+      upgrade to MPFR 4.0.1
+</li><li>
+      removed some build instructions from README (see the prepare.sh script)
+      (it was too annoying to have to keep updating everything in two places)
+</li><li>
+      command line non-interactive mode works without opening a window
+      (suggested by gerrit)
+</li><li>
+      pixel jitter (dithering of position): set non-zero seed in iterations
+      dialog to enable it, different seeds give slightly different images which
+      can be stacked later for anti-aliasing as an alternative to rendering
+      large and downscaling later; helps reduce Moiré grid artifacts at the
+      cost of noise
+</li><li>
+      "Enable" toggle in colouring dialog: colouring takes long for large
+      images, disable the toggle if you want to make many changes at once, then
+      click "Apply" or re-enable to see the results (discussed with gerrit)
+</li></ul></li>
+<li><a href='kf-2.12.9.1.zip' title='kf-2.12.9.1.zip'>kf-2.12.9.1.zip (4.3M)</a> (<a href='kf-2.12.9.1.zip.sig' title='kf-2.12.9.1.zip.sig'>sig</a>) (2018-01-24)
+<ul><li>
+    fixed broken "approx low tolerance" checkbox (thanks to Dinkydau)
+</li><li>
+    fixed NR-zoom dialog to remember custom zoom factor between reopenings
+    (reported by gerrit)
+</li><li>
+    fixed initialization of some menu item state on load
+</li><li>
+    upgrade to Boost 1.66.0
+</li></ul></li>
+<li><a href='kf-2.12.9.zip' title='kf-2.12.9.zip'>kf-2.12.9.zip (4.3M)</a> (<a href='kf-2.12.9.zip.sig' title='kf-2.12.9.zip.sig'>sig</a>) (2018-01-24)
+<ul><li>
+improved Newton-Raphson zooming dialog, now zooms to a factor between
+current zoom and minibrot size (suggested by Dinkydau)
+</li><li>
+implemented "scaled long double" iterations for Mandelbrot power 2 and 3,
+which might speed up some zooms between e4900 and e9800
+</li><li>
+fixed "the maxiterations suddenly resets to some very low value"
+(reported by gerrit)
+</li><li>
+fixed "Newton iterates 100 times before failing", now fails fast if
+the C goes outside the target (reported by gerrit and Dinkydau, fix
+suggested by knighty)
+</li><li>
+fixed "Newton zooms to blank image", reported by gerrit, fix was to
+remove a check on the derivative being huge that was falsely reporting
+success
+</li><li>
+fixed "manual ApproxTerms gets reset to AutoApproxTerms value"
+(reported by gerrit)
+</li><li>
+barrier implementation yields if there are fewer CPUs than threads
+(fixes very slow Newton-Raphson zooming and reference calculations
+on dual-core laptop) (this is the behaviour of 2.12.5 and earlier, but
+conditional on number of cores)
+</li><li>
+upgrade to libpng 1.6.34
+</li><li>
+added shell script containing some of the build instructions from
+the documentation
+</li></ul></li>
+<li><a href='kf-2.12.8.zip' title='kf-2.12.8.zip'>kf-2.12.8.zip (4.0M)</a> (<a href='kf-2.12.8.zip.sig' title='kf-2.12.8.zip.sig'>sig</a>) (2017-12-22)
+<ul><li>
+    restore ignoring isolated glitches
+</li><li>
+    added logic to prevent too-huge image size being entered via the GUI
+    (settings files are still not checked...)
+</li><li>
+    clarified store zoom count user interface (reported by CFJH)
+</li><li>
+    fixed the fix for hang in normalisation (was generating bad images)
+    (reported by gerrit with bug7.png)
+</li><li>
+    fixed DE spots bug (somehow the reference was being reset to the center
+    of the screen sometimes without its pixel position being updated)
+    (reported by gerrit)
+</li><li>
+    fixed bugs with guessing and glitch status (only interpolate when the
+    glitch status of both neighbours is the same) (caused lines when dragging
+    the view, probably other badness too)
+</li><li>
+    fixed store zoom out for deep zooms (bug reported by gerrit) (the issue
+    was exceptions thrown by std::stod(), remember to catch them)
+</li><li>
+    refactor auto iterations (issue reported by gerrit remains unresolved)
+</li><li>
+    fixed hardcoded count in glitch correction
+</li><li>
+    use Taylor intervals in ball-period method (code copied from knighty)
+</li></ul></li>
+<li><a href='kf-2.12.7.zip' title='kf-2.12.7.zip'>kf-2.12.7.zip (4.0M)</a> (<a href='kf-2.12.7.zip.sig' title='kf-2.12.7.zip.sig'>sig</a>) (2017-12-07)
+<ul><li>
+renabled guessing conditional on menu option (was disabled in 2.12.4 as enabling it made some random speckles, possibly due to a race condition) (requested by Kalles Fraktaler and Fractal universe)
+</li><li>
+added "threads per cpu core" setting
+</li><li>
+compiles clean with -Wwrite-strings
+</li><li>
+even lower resolution preview for more intensive locations (suggested by Foxxie) (implemented with Adam7-style interlacing with circular sorting)
+</li><li>
+copy (Ctrl-X) and paste (Ctrl-V) parameters from the system clipboard
+</li><li>
+fixed hang crash bug when normalizing smooth iteration values
+</li><li>
+use interval arithmetic ball-period method instead of box-period (speeds up Newton-Raphson zooming a bit) (idea from knighty and gerrit)
+</li></ul></li>
+<li><a href='kf-2.12.6.zip' title='kf-2.12.6.zip'>kf-2.12.6.zip (4.0M)</a> (<a href='kf-2.12.6.zip.sig' title='kf-2.12.6.zip.sig'>sig</a>) (2017-11-24)
+<ul><li>
+      fix central differences (reported by gerrit)
+</li><li>
+      fix insufficient precision in Zoom: saved in .kfr (reported by CFJH)
+</li><li>
+      option to render zoom out sequence without saving KFB maps (suggested by
+      CFJH)
+</li><li>
+      option to stop rendering zoom out sequence after a certain number of
+      frames (suggested by CFJH)
+</li><li>
+      resume zoom sequence works without KFB maps saved every frame (still needs
+      a "last.kfb", this is saved automatically when needed)
+</li><li>
+      barrier no longer yields (fixes priority inversion on heavily loaded
+      systems) (reported by gerrit)
+</li><li>
+      switch from GMP mpf_t to MPFR (fixes some blank images on load, also some
+      Newton-Raphson zoom failures - possibly a library bug?) (reported
+      by Kalles Fraktaler and gerrit)
+</li></ul></li>
+<li><a href='kf-2.12.5.zip' title='kf-2.12.5.zip'>kf-2.12.5.zip (3.7M)</a> (<a href='kf-2.12.5.zip.sig' title='kf-2.12.5.zip.sig'>sig</a>) (2017-11-02)
+<ul><li>
+      preferences (rendering settings not related to location) save and load
+      (.kfs files and PNG/JPEG comments too)
+</li><li>
+      command line arguments to load settings and/or location
+</li><li>
+      command line arguments to render and save PNG/JPEG/KFB Map before quiting
+</li><li>
+      auto-added new references recalculate only all glitched pixels (in earlier
+      versions it would recalculate all pixels with same integer iteration
+      count, which may or may not have been glitched, and may have missed some
+      glitches)
+</li><li>
+      glitch correction now uses glitch flag instead of just iteration count
+      (this ensures the reference is added in a really glitched pixel, so at
+      least one pixel will be fixed by each reference, ensuring termination
+      with a finite number of references)
+</li><li>
+      fix bugs with references when calculating their own pixels
+</li><li>
+      fix off-by-one when references fix their own pixels (reported by gerrit)
+</li><li>
+      single pixel glitches are no longer fixed by copying neighbour
+</li><li>
+      fixed glitch at image boundary correction
+</li><li>
+      fixed memory leak in glitch correction
+</li><li>
+      fixed horizontal line corruption in examine zoom sequence glitch
+      correction (reported by Fractal universe)
+</li><li>
+      fixed "Mandelbar Celtic" formula (reported by Kalles Fraktaler)
+</li><li>
+      fixed "Mandelbar" formula (reported by Foxxie)
+</li><li>
+      fixed "Burning Ship Power 4" formula (reported by Foxxie)
+</li><li>
+      fixed complex formulas reference precision problems (reported by Foxxie)
+</li><li>
+      fix for auto-iterations (now respects GUI) (reported by Foxxie)
+</li><li>
+      fix for crash selecting invalid power (reported by Foxxie)
+</li><li>
+      fix for gigantic zoom value bug in Newton zooming (reported by Foxxie and
+      gerrit)
+</li><li>
+added "no reuse center" option to prevent rectangle pasting (suggested by
+quaz0r and gerrit)
+</li><li>
+fix for signed integer overflow reports negative percentage in status bar
+when the number of iterations is large (reported by Foxxie and another)
+</li><li>fix for confusing PNG save options dialog called "JPEG properties"
+</li><li>major code refactoring into multiple files for ease of maintenance
+</li><li>delete no-longer-used single-threaded Newton-Raphson zooming code
+</li></ul></li>
+<li><a id="kf-2.12.4" href='kf-2.12.4.zip' title='kf-2.12.4.zip'>kf-2.12.4.zip (3.2M)</a> (<a href='kf-2.12.4.zip.sig' title='kf-2.12.4.zip.sig'>sig</a>) (2017-10-06)
+<ul><li> "glitch low tolerance" checkbox that can be enabled to detect glitches
+  more aggressively (enabling it allows "Olbaid-ST-023.kfr" to render
+  correctly, but taking 16x longer than with it disabled) (incorrect
+  render reported by Kalles Fraktaler)
+</li><li> updated program icon with transparent background and large version,
+  and use it for child windows too
+</li><li> long double off-by-one bug fixed (incorrect render reported by CFJH)
+</li><li> floatexp implementation bug fixes (0.0 was implemented incorrectly)
+  (caused a series approximation underskipping failure that was reported
+  by Kalles Fraktaler)
+</li><li> fix distance colouring grid artifacts with small zoom size by disabling
+  "reuse center" when zoom size is not an integer (reported by gerrit)
+</li><li> fix some iteration band edge artifacts (with external postprocessing of
+  kfb map files) by increasing the smooth bailout radius from 100 to 10000
+  (reported by gerrit)
+</li><li> ensure added references fix their corresponding pixel (suggested by
+  Pauldelbrot) (prevents loop in auto solve glitches whereby a reference
+  was repeatedly being added at the same location without progress being
+  made)
+</li><li> disabled "guessing" (was causing occasional randomly bright single pixels
+  at low zoom levels, possibly a race condition?)
+</li><li> build against an installed libjpeg instead of each time after clean
+</li><li> fix broken complex formula reference calculations
+</li><li> fix compilation warnings (now almost clean with -Wall -Wextra)
+</li><li> compile as C++17 (should also still work as C++11 and C++14)
+</li><li> delete bitrotten code paths for SetEvent()-based multithreading
+</li><li> delete unused thread affinity setting code
+</li><li> parameter data is saved as comment in image files (both PNG and JPEG)
+</li><li> can load parameters from image file comments (both PNG and JPEG)
+</li><li> delete obsolete VS build system
+</li><li> fix "infinite waves" colouring (reported by gerrit)
+</li></ul></li>
+<li><a href='kf-2.12.3.zip' title='kf-2.12.3.zip'>kf-2.12.3.zip (2.9M)</a> (<a href='kf-2.12.3.zip.sig' title='kf-2.12.3.zip.sig'>sig</a>) (2017-09-25)<ul><li>multiple finite difference methods for distance colouring (suggested by gerrit)</li><li>fix bug in examine zoom sequence auto solve glitches (first frame only) (reported by Dinkydau and Fractal universe)</li><li>raise limit for maximum number of references from 199 to 10000 (default still 69, you can change it in iterations dialog)</li><li>settable number of references per pass for examine zoom sequence auto solve glitches (default still 10)</li></ul></li>
+<li><a href='kf-2.12.2.zip' title='kf-2.12.2.zip'>kf-2.12.2.zip (2.9M)</a> (<a href='kf-2.12.2.zip.sig' title='kf-2.12.2.zip.sig'>sig</a>) (2017-09-20)<ul><li>PNG image saving support using libpng and zlib;</li><li>JPEG default quality to 100 (was 99);</li><li>colouring uses floating point internally to reduce quantisation steps;</li><li>dithering at end of colouring to improve perceptual quality;</li><li>formula.cpp included in source zip so GHC is not needed unless changing formula code;</li><li>optimized diffabs() code: one test Burning Ship location is 7.5% faster;</li><li>preprocessor optimizes reference calculations by floating temporary variable (re)allocations out of the inner loops: one test Burning Ship location is 30% faster;</li></ul></li>
+<li><a href='kf-2.12.1.zip' title='kf-2.12.1.zip'>kf-2.12.1.zip (2.7M)</a> (<a href='kf-2.12.1.zip.sig' title='kf-2.12.1.zip.sig'>sig</a>) (2017-09-19)<ul><li>simplified version numbering;</li><li>built for 64bit (as before) and 32bit (new);</li><li>documentation improvements;</li><li>fix division by zero assertion failure in File -&gt; Examine zoom sequence;</li><li>fix crash in File -&gt; Examine zoom sequence with only 1 image file;</li><li>adjust distance colour modes for backwards compatibility;</li></ul></li>
+<li id="kf-2.11"><a href='kf-2.11.1+gmp.20170913.zip' title='kf-2.11.1+gmp.20170913.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170913&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170913.zip.sig' title='kf-2.11.1+gmp.20170822.zip.sig'>sig</a>)<ul><li>revert incompatible de log vs sqrt colouring change, instead add a new Distance (Logarithm) colouring method #7; documentation improvements; limit maximum series approximation terms to 60 to try to fix overskipping with large images</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170822.zip' title='kf-2.11.1+gmp.20170822.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170822&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170822.zip.sig' title='kf-2.11.1+gmp.20170822.zip.sig'>sig</a>)<ul><li>bugfix preprocessor for abs() formulas, de colouring with log instead of sqrt</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170820.zip' title='kf-2.11.1+gmp.20170820.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170820&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170820.zip.sig' title='kf-2.11.1+gmp.20170820.zip.sig'>sig</a>)<ul><li>bugfix preprocessor for diffabs() formulas</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170714.zip' title='kf-2.11.1+gmp.20170714.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170714&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170714.zip.sig' title='kf-2.11.1+gmp.20170714.zip.sig'>sig</a>)<ul><li>disabled OpenCL (be more compatible)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170713.zip' title='kf-2.11.1+gmp.20170713.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170713&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170713.zip.sig' title='kf-2.11.1+gmp.20170713.zip.sig'>sig</a>)<ul><li>optimized Newton-Raphson zooming (3x faster in one test)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170711.zip' title='kf-2.11.1+gmp.20170711.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170711&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170711.zip.sig' title='kf-2.11.1+gmp.20170711.zip.sig'>sig</a>)<ul><li>workaround for WINE issue artificially limiting image size (now bitmaps up to 2GiB can be created on all platforms)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170710.zip' title='kf-2.11.1+gmp.20170710.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170710&#8203;.zip (1.3M)</a> (<a href='kf-2.11.1+gmp.20170710.zip.sig' title='kf-2.11.1+gmp.20170710.zip.sig'>sig</a>)<ul><li>optimized formulas (reference calculation for quadratic Mandlebrot is much faster due to lower-level calls to gmp, very experimental opencl support (mostly broken)); bugfixes (fix hang loading deep zoom locations, fix newton size in new view radius calculation, more complete library credits in documentation); prune dead code (incomplete jpeg library deleted from source, complete version downloaded at build time as needed, delete rudimentary openmp support, delete non-performant barrier variant, delete slower-than-gmp mpfr support, delete custom floating point support)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170703.zip' title='kf-2.11.1+gmp.20170703.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170703&#8203;.zip (1.7M)</a> (<a href='kf-2.11.1+gmp.20170703.zip.sig' title='kf-2.11.1+gmp.20170703.zip.sig'>sig</a>)<ul><li>formulas now generated at compile time from formula definition XML using XSL stylesheet; used fixed format floats instead of scientific; try to hide command prompt window on Windows</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170508.zip' title='kf-2.11.1+gmp.20170508.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170508&#8203;.zip (1.7M)</a> (<a href='kf-2.11.1+gmp.20170508.zip.sig' title='kf-2.11.1+gmp.20170508.zip.sig'>sig</a>)<ul><li>restored threaded reference calculations (reimplemented with barrier() semantics to avoid single-threaded WINE SetEvent() rendezvous)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170504.zip' title='kf-2.11.1+gmp.20170504.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170504&#8203;.zip (1.6M)</a> (<a href='kf-2.11.1+gmp.20170504.zip.sig' title='kf-2.11.1+gmp.20170504.zip.sig'>sig</a>)<ul><li>removed threaded reference calculations (too much overhead), miscellaneous code cleanups (no need for -fpermissive, const fixes, delete[] fixes, 64bit compatibility paranoia)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170406.zip' title='kf-2.11.1+gmp.20170406.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170406&#8203;.zip (1.6M)</a> (<a href='kf-2.11.1+gmp.20170406.zip.sig' title='kf-2.11.1+gmp.20170406.zip.sig'>sig</a>)<ul><li>fixed precision bugs (easy deep zoom, interactive failure), fixed performance bug with inflections, fixed cross-hair resource bug, added WINDRES argument to build system, added more info to about dialog, include source code with release</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170330.1.zip' title='kf-2.11.1+gmp.20170330.1.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170330.1&#8203;.zip (1.1M)</a> (<a href='kf-2.11.1+gmp.20170330.1.zip.sig' title='kf-2.11.1+gmp.20170330.1.zip.sig'>sig</a>)<ul><li>fixes a crasher bug in the previous version</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170330.zip' title='kf-2.11.1+gmp.20170330.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170330&#8203;.zip (1.1M)</a> (<a href='kf-2.11.1+gmp.20170330.zip.sig' title='kf-2.11.1+gmp.20170330.zip.sig'>sig</a>)<ul><li>unlimited precision, separate compilation</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170313.zip' title='kf-2.11.1+gmp.20170313.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170313&#8203;.zip (1.1M)</a> (<a href='kf-2.11.1+gmp.20170313.zip.sig' title='kf-2.11.1+gmp.20170313.zip.sig'>sig</a>)<ul><li>long double compiled into exe (no dll)</li></ul></li>
+<li><a href='kf-2.11.1+gmp.20170307.zip' title='kf-2.11.1+gmp.20170307.zip'>kf-2.11.1&#8203;+gmp&#8203;.20170307&#8203;.zip (1.1M)</a> (<a href='kf-2.11.1+gmp.20170307.zip.sig' title='kf-2.11.1+gmp.20170307.zip.sig'>sig</a>)<ul><li>kf-2.11.1 + gmp</li></ul></li>
+<li><a href='kf-2.9.3+gmp.20170307.zip' title='kf-2.9.3+gmp.20170307.zip'>kf-2.9.3&#8203;+gmp&#8203;.20170307&#8203;.zip (824K)</a> (<a href='kf-2.9.3+gmp.20170307.zip.sig' title='kf-2.9.3+gmp.20170307.zip.sig'>sig</a>)<ul><li>kf-2.9.3 + gmp</li></ul></li>
+</ul>
+<h2 id='source'><a href='#source' title='Source'>Source code repository</a></h2>
+<p>The source code is available from my git repository:<p>
+<blockquote><pre>git clone <a href='https://code.mathr.co.uk/kalles-fraktaler-2' title='browse'>https://code.mathr.co.uk/kalles-fraktaler-2.git</a>
+cd kalles-fraktaler-2
+git checkout master       # <em>for Karl's original upstream</em>
+git checkout kf-2.12      # <em>for older stable branch</em>
+git checkout kf-2.13      # <em>for old stable branch</em>
+git checkout kf-2.14      # <em>for current branch</em>
+git tag -l                # <em>list available release tags</em></pre></blockquote>
+<p>Build instructions are in the README.md that accompanies the source code.</p>
+<h2 id='benchmarks'><a href='#benchmarks' title='Benchmarks'>Benchmarks</a></h2>
+<p>I benchmarked with 6 Mandelbrot power 2 locations at various depths,
+testing each of double, scaled double, long double.  Still looking for
+locations to benchmark scaled long double (deeper than 1e4900 or so) and
+floatexp (deeper than 1e9800 or so), and formulae other than power 2
+Mandelbrot.  Please send me locations that you are happy for me to put
+into the repository for benchmarking.</p>
+<p>These results are with a smaller version of the benchmark suite found
+in my git repository: I only tested 'fast' settings (with both settings
+for the Derivatives field for kf-2.13 branch, see D0 and D1 tags), and
+only with an image size of '512x512'.  I tested on two machines,
+one laptop 'latte' (Intel Core 2 Duo P7550) and
+one desktop 'eiskaffee' (AMD Ryzen 7 2700X).</p>
+<p>If you want to contribute results for your machine, let me know and I can
+guide you through the process.</p>
+<h3 id='benchwine'><a href='#benchwine' title='WINE Benchmarks'>WINE Benchmarks</a></h3>
+<p>I don't have Windows, so these benchmarks were run in WINE (the
+performance of kf-2.11.1 is abysmal in WINE because of a single threaded
+wineserver or something along those lines).
+These are all with the 64bit versions.  The timings are real/user/sys, which
+means the elapsed wall-clock time, the total CPU time for all threads, and
+then kernel time for the process.</p>
+<table><tr><th rowspan="2">version</th><th colspan="2">machine</th></tr>
+<tr><th>latte</th><th>eiskaffee</th></tr>
+<tr><th>2.11.1</th><td>36m46 / 24m47 / 11m03</td><td>(not tested yet)</td></tr>
+<tr><th>2.12.13.1</th><td>&nbsp;6m42 / &nbsp;9m52 / &nbsp;0m49</td><td>1m35 / &nbsp;5m44 / 0m04</td></tr>
+<tr><th>2.13.4 D0</th><td>&nbsp;6m55 / 10m17 / &nbsp;0m47</td><td>1m38 / &nbsp;6m30 / 0m05</td></tr>
+<tr><th>2.13.4 D1</th><td>10m25 / 19m22 / &nbsp;0m15</td><td>1m09 / 12m51 / 0m01</td></tr>
+</table>
+<h3 id='benchwin'><a href='#benchwin' title='Windows Benchmarks'>Windows Benchmarks</a></h3>
+<p>TODO.  As I don't have Windows, you sending me benchmark results would be
+especially appreciated.  Also if anyone is using WINE on Mac OS X, if that is
+a thing.</p>
+<h2 id='gallery'><a href='#gallery' title='Gallery'>Gallery</a></h2>
+<p>Here are images of some of the formulas available:</p>
+<div class='gallery'>
+<a href='formula/0-2.kfr' title='Mandelbrot (power 2)'><img src='formula/0-2.png' alt='Mandelbrot (power 2)' /></a>
+<a href='formula/0-3.kfr' title='Mandelbrot (power 3)'><img src='formula/0-3.png' alt='Mandelbrot (power 3)' /></a>
+<a href='formula/0-4.kfr' title='Mandelbrot (power 4)'><img src='formula/0-4.png' alt='Mandelbrot (power 4)' /></a>
+<a href='formula/0-5.kfr' title='Mandelbrot (power 5)'><img src='formula/0-5.png' alt='Mandelbrot (power 5)' /></a>
+<a href='formula/0-6.kfr' title='Mandelbrot (power 6)'><img src='formula/0-6.png' alt='Mandelbrot (power 6)' /></a>
+<a href='formula/0-7.kfr' title='Mandelbrot (power 7)'><img src='formula/0-7.png' alt='Mandelbrot (power 7)' /></a>
+<a href='formula/0-8.kfr' title='Mandelbrot (power 8)'><img src='formula/0-8.png' alt='Mandelbrot (power 8)' /></a>
+<a href='formula/0-9.kfr' title='Mandelbrot (power 9)'><img src='formula/0-9.png' alt='Mandelbrot (power 9)' /></a>
+<a href='formula/0-10.kfr' title='Mandelbrot (power 10)'><img src='formula/0-10.png' alt='Mandelbrot (power 10)' /></a>
+<a href='formula/1-2.kfr' title='Burning Ship (power 2)'><img src='formula/1-2.png' alt='Burning Ship (power 2)' /></a>
+<a href='formula/1-3.kfr' title='Burning Ship (power 3)'><img src='formula/1-3.png' alt='Burning Ship (power 3)' /></a>
+<a href='formula/1-4.kfr' title='Burning Ship (power 4)'><img src='formula/1-4.png' alt='Burning Ship (power 4)' /></a>
+<a href='formula/1-5.kfr' title='Burning Ship (power 5)'><img src='formula/1-5.png' alt='Burning Ship (power 5)' /></a>
+<a href='formula/2-2.kfr' title='Buffalo (power 2)'><img src='formula/2-2.png' alt='Buffalo (power 2)' /></a>
+<a href='formula/2-3.kfr' title='Buffalo (power 3)'><img src='formula/2-3.png' alt='Buffalo (power 3)' /></a>
+<a href='formula/2-4.kfr' title='Buffalo (power 4)'><img src='formula/2-4.png' alt='Buffalo (power 4)' /></a>
+<a href='formula/2-5.kfr' title='Buffalo (power 5)'><img src='formula/2-5.png' alt='Buffalo (power 5)' /></a>
+<a href='formula/3-2.kfr' title='Celtic (power 2)'><img src='formula/3-2.png' alt='Celtic (power 2)' /></a>
+<a href='formula/3-3.kfr' title='Celtic (power 3)'><img src='formula/3-3.png' alt='Celtic (power 3)' /></a>
+<a href='formula/3-4.kfr' title='Celtic (power 4)'><img src='formula/3-4.png' alt='Celtic (power 4)' /></a>
+<a href='formula/3-5.kfr' title='Celtic (power 5)'><img src='formula/3-5.png' alt='Celtic (power 5)' /></a>
+<a href='formula/4-2.kfr' title='Mandelbar (power 2)'><img src='formula/4-2.png' alt='Mandelbar (power 2)' /></a>
+<a href='formula/4-3.kfr' title='Mandelbar (power 3)'><img src='formula/4-3.png' alt='Mandelbar (power 3)' /></a>
+<a href='formula/4-4.kfr' title='Mandelbar (power 4)'><img src='formula/4-4.png' alt='Mandelbar (power 4)' /></a>
+<a href='formula/4-5.kfr' title='Mandelbar (power 5)'><img src='formula/4-5.png' alt='Mandelbar (power 5)' /></a>
+<a href='formula/5-2.kfr' title='Mandelbar Celtic (power 2)'><img src='formula/5-2.png' alt='Mandelbar Celtic (power 2)' /></a>
+<a href='formula/6-2.kfr' title='Perpendicular Mandelbrot (power 2)'><img src='formula/6-2.png' alt='Perpendicular Mandelbrot (power 2)' /></a>
+<a href='formula/7-2.kfr' title='Perpendicular Burning Ship (power 2)'><img src='formula/7-2.png' alt='Perpendicular Burning Ship (power 2)' /></a>
+<a href='formula/8-2.kfr' title='Perpendicular Celtic (power 2)'><img src='formula/8-2.png' alt='Perpendicular Celtic (power 2)' /></a>
+<a href='formula/9-2.kfr' title='Perpendicular Buffalo (power 2)'><img src='formula/9-2.png' alt='Perpendicular Buffalo (power 2)' /></a>
+<a href='formula/10-3.kfr' title='Cubic Quasi Burning Ship (power 3)'><img src='formula/10-3.png' alt='Cubic Quasi Burning Ship (power 3)' /></a>
+<a href='formula/11-3.kfr' title='Cubic Partial BS Real (power 3)'><img src='formula/11-3.png' alt='Cubic Partial BS Real (power 3)' /></a>
+<a href='formula/12-3.kfr' title='Cubic Partial BS Imag (power 3)'><img src='formula/12-3.png' alt='Cubic Partial BS Imag (power 3)' /></a>
+<a href='formula/13-3.kfr' title='Cubic Flying Squirrel (Buffalo Imag) (power 3)'><img src='formula/13-3.png' alt='Cubic Flying Squirrel (Buffalo Imag) (power 3)' /></a>
+<a href='formula/14-3.kfr' title='Cubic Quasi Perpendicular (power 3)'><img src='formula/14-3.png' alt='Cubic Quasi Perpendicular (power 3)' /></a>
+<a href='formula/15-4.kfr' title='4th Burning Ship Partial Imag (power 4)'><img src='formula/15-4.png' alt='4th Burning Ship Partial Imag (power 4)' /></a>
+<a href='formula/16-4.kfr' title='4th Burning Ship Partial Real (power 4)'><img src='formula/16-4.png' alt='4th Burning Ship Partial Real (power 4)' /></a>
+<a href='formula/17-4.kfr' title='4th Burning Ship Partial Real Mbar (power 4)'><img src='formula/17-4.png' alt='4th Burning Ship Partial Real Mbar (power 4)' /></a>
+<a href='formula/18-4.kfr' title='4th Celtic Burning Ship Partial Imag (power 4)'><img src='formula/18-4.png' alt='4th Celtic Burning Ship Partial Imag (power 4)' /></a>
+<a href='formula/19-4.kfr' title='4th Celtic Burning Ship Partial Real (power 4)'><img src='formula/19-4.png' alt='4th Celtic Burning Ship Partial Real (power 4)' /></a>
+<a href='formula/20-4.kfr' title='4th Celtic Burning Ship Partial Real Mbar (power 4)'><img src='formula/20-4.png' alt='4th Celtic Burning Ship Partial Real Mbar (power 4)' /></a>
+<a href='formula/21-4.kfr' title='4th Buffalo Partial Imag (power 4)'><img src='formula/21-4.png' alt='4th Buffalo Partial Imag (power 4)' /></a>
+<a href='formula/22-4.kfr' title='4th Celtic Mbar (power 4)'><img src='formula/22-4.png' alt='4th Celtic Mbar (power 4)' /></a>
+<a href='formula/23-4.kfr' title='4th False Quasi Perpendicular (power 4)'><img src='formula/23-4.png' alt='4th False Quasi Perpendicular (power 4)' /></a>
+<a href='formula/24-4.kfr' title='4th False Quasi Heart (power 4)'><img src='formula/24-4.png' alt='4th False Quasi Heart (power 4)' /></a>
+<a href='formula/25-4.kfr' title='4th Celtic False Quasi Perpendicular (power 4)'><img src='formula/25-4.png' alt='4th Celtic False Quasi Perpendicular (power 4)' /></a>
+<a href='formula/26-4.kfr' title='4th Celtic False Quasi Heart (power 4)'><img src='formula/26-4.png' alt='4th Celtic False Quasi Heart (power 4)' /></a>
+<a href='formula/27-5.kfr' title='5th Burning Ship Partial (power 5)'><img src='formula/27-5.png' alt='5th Burning Ship Partial (power 5)' /></a>
+<a href='formula/28-5.kfr' title='5th Burning Ship Partial Mbar (power 5)'><img src='formula/28-5.png' alt='5th Burning Ship Partial Mbar (power 5)' /></a>
+<a href='formula/29-5.kfr' title='5th Celtic Mbar (power 5)'><img src='formula/29-5.png' alt='5th Celtic Mbar (power 5)' /></a>
+<a href='formula/30-5.kfr' title='5th Quasi Burning Ship (BS/Buffalo Hybrid) (power 5)'><img src='formula/30-5.png' alt='5th Quasi Burning Ship (BS/Buffalo Hybrid) (power 5)' /></a>
+<a href='formula/31-5.kfr' title='5th Quasi Perpendicular (power 5)'><img src='formula/31-5.png' alt='5th Quasi Perpendicular (power 5)' /></a>
+<a href='formula/32-5.kfr' title='5th Quasi Heart (power 5)'><img src='formula/32-5.png' alt='5th Quasi Heart (power 5)' /></a>
+<a href='formula/33-4.kfr' title='SimonBrot 4th (power 4)'><img src='formula/33-4.png' alt='SimonBrot 4th (power 4)' /></a>
+<a href='formula/34-4.kfr' title='4th Imag Quasi Perpendicular / Heart (power 4)'><img src='formula/34-4.png' alt='4th Imag Quasi Perpendicular / Heart (power 4)' /></a>
+<a href='formula/35-4.kfr' title='4th Real Quasi Perpendicular (power 4)'><img src='formula/35-4.png' alt='4th Real Quasi Perpendicular (power 4)' /></a>
+<a href='formula/36-4.kfr' title='4th Real Quasi Heart (power 4)'><img src='formula/36-4.png' alt='4th Real Quasi Heart (power 4)' /></a>
+<a href='formula/37-4.kfr' title='4th Celtic Imag Quasi Perpendicular / Heart (power 4)'><img src='formula/37-4.png' alt='4th Celtic Imag Quasi Perpendicular / Heart (power 4)' /></a>
+<a href='formula/38-4.kfr' title='4th Celtic Real Quasi Perpendicular (power 4)'><img src='formula/38-4.png' alt='4th Celtic Real Quasi Perpendicular (power 4)' /></a>
+<a href='formula/39-4.kfr' title='4th Celtic Real Quasi Heart (power 4)'><img src='formula/39-4.png' alt='4th Celtic Real Quasi Heart (power 4)' /></a>
+<a href='formula/40-6.kfr' title='SimonBrot 6th (power 6)'><img src='formula/40-6.png' alt='SimonBrot 6th (power 6)' /></a>
+<a href='formula/41-2.kfr' title='HPDZ Buffalo (power 2)'><img src='formula/41-2.png' alt='HPDZ Buffalo (power 2)' /></a>
+<a href='formula/42-3.kfr' title='TheRedshiftRider 1: a*z^2+z^3+c (power 3)'><img src='formula/42-3.png' alt='TheRedshiftRider 1: a*z^2+z^3+c (power 3)' /></a>
+<a href='formula/43-3.kfr' title='TheRedshiftRider 2: a*z^2-z^3+c (power 3)'><img src='formula/43-3.png' alt='TheRedshiftRider 2: a*z^2-z^3+c (power 3)' /></a>
+<a href='formula/44-3.kfr' title='TheRedshiftRider 3: 2*z^2-z^3+c (power 3)'><img src='formula/44-3.png' alt='TheRedshiftRider 3: 2*z^2-z^3+c (power 3)' /></a>
+<a href='formula/45-4.kfr' title='TheRedshiftRider 4: a*z^2+z^4+c (power 4)'><img src='formula/45-4.png' alt='TheRedshiftRider 4: a*z^2+z^4+c (power 4)' /></a>
+<a href='formula/46-4.kfr' title='TheRedshiftRider 5: a*z^2-z^4+c (power 4)'><img src='formula/46-4.png' alt='TheRedshiftRider 5: a*z^2-z^4+c (power 4)' /></a>
+<a href='formula/47-5.kfr' title='TheRedshiftRider 6: a*z^2+z^5+c (power 5)'><img src='formula/47-5.png' alt='TheRedshiftRider 6: a*z^2+z^5+c (power 5)' /></a>
+<a href='formula/48-5.kfr' title='TheRedshiftRider 7: a*z^2-z^5+c (power 5)'><img src='formula/48-5.png' alt='TheRedshiftRider 7: a*z^2-z^5+c (power 5)' /></a>
+<a href='formula/49-6.kfr' title='TheRedshiftRider 8: a*z^2+z^6+c (power 6)'><img src='formula/49-6.png' alt='TheRedshiftRider 8: a*z^2+z^6+c (power 6)' /></a>
+<a href='formula/50-6.kfr' title='TheRedshiftRider 9: a*z^2-z^6+c (power 6)'><img src='formula/50-6.png' alt='TheRedshiftRider 9: a*z^2-z^6+c (power 6)' /></a>
+<a href='formula/51-4.kfr' title='SimonBrot2 4th (power 4)'><img src='formula/51-4.png' alt='SimonBrot2 4th (power 4)' /></a>
+</div>
+<hr style='clear:both'>
+<p>(<a href='#top'>back to top</a>)</p>
+</body>
+</html>
