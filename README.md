@@ -192,6 +192,8 @@ Feedback:
 - sometimes files are overwritten without confirmation, when the
   filename is entered without extension (eg "test" vs "test.jpg")
   (reported by CFJH).
+- Newton-Raphson zooming may not work properly for formula number 20
+  (4th Celtic Burning Ship Partial Real Mbar)
 
 
 ## Differences From Upstream 2.11.1
@@ -3623,19 +3625,21 @@ Formulas:
 
 ### Cubic Quasi Burning Ship
 
-    z := (|x| (x^2 - 3 y^2) - i |y (3 x^2 - y^2)|) + c
+    w := (|x| + i y)^3
+    z := (u - i |v|) + c
 
 ### Cubic Partial BS Real
 
-    z := (|x| (x^2 - 3 y^2) + i y (3 x^2 - y^2)) + c
+    z := (|x| + i y)^3
 
 ### Cubic Partial BS Imag
 
-    z := (x (x^2 - 3 y^2) + i |y| (3 x^2 - y^2)) + c
+    z := (x + i |y|)^3
 
 ### Cubic Flying Squirrel (Buffalo Imag)
 
-    z := (x (x^2 - 3 y^2) + i |y (3 x^2 - y^2)|) + c
+    w := (x + i y)^3
+    z := (u + i |v|) + c
 
 ### Cubic Quasi Perpendicular
 
