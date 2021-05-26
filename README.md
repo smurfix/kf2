@@ -345,7 +345,7 @@ earlier).
 
 ### kf-2.15.3
 
-????-??-??
+2021-05-26
 
   - new: updated progress reporting in status bar to include more
     information
@@ -412,6 +412,8 @@ earlier).
   - new: "glitch low tolerance" can be a fraction between 0 and 1
   - new: "approx low tolerance" can be a fraction between 0 and 1
   - new: crash recovery offers to restore settings as well as parameters
+  - fix: correct power calculation for multiplied hybrid operators
+    (symptom: seams between iteration bands with numeric DE)
   - fix: documentation uses subsections instead of lists for improved
     navigation and table of contents
   - known issue: some locations (especially Burning Ship "deep needle")
