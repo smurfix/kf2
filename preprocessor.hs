@@ -1,7 +1,7 @@
 {-
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2019 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -42,6 +42,8 @@ data Expr
   | EAbs Expr
   | ESqr Expr
   | EExp Expr
+  | ESin Expr
+  | ECos Expr
   | ESinh Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
@@ -61,6 +63,8 @@ data Instruction
   | IDiv String String String
   | ISqr String String
   | IExp String String
+  | ISin String String
+  | ICos String String
   | ISinh String String
   deriving Show
 
@@ -221,6 +225,8 @@ vars (ESgn a) = vars a
 vars (EAbs a) = vars a
 vars (ESqr a) = vars a
 vars (EExp a) = vars a
+vars (ESin a) = vars a
+vars (ECos a) = vars a
 vars (ESinh a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
 vars (EAssign a b) = vars a ++ vars b
@@ -255,6 +261,8 @@ interpret t@"" (ESgn a) = "sgn(" ++ interpret t a ++ ")"
 interpret t@"" (EAbs a) = "abs(" ++ interpret t a ++ ")"
 interpret t@"" (ESqr a) = "sqr(" ++ interpret t a ++ ")"
 interpret t@"" (EExp a) = "exp(" ++ interpret t a ++ ")"
+interpret t@"" (ESin a) = "sin(" ++ interpret t a ++ ")"
+interpret t@"" (ECos a) = "cos(" ++ interpret t a ++ ")"
 interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
 interpret t@"" (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t@"" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
@@ -285,6 +293,8 @@ interpret t (ESgn a) = t ++ "sgn(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
 interpret t (EExp a) = t ++ "exp(" ++ interpret t a ++ ")"
+interpret t (ESin a) = t ++ "sin(" ++ interpret t a ++ ")"
+interpret t (ECos a) = t ++ "cos(" ++ interpret t a ++ ")"
 interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
@@ -337,7 +347,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["exp", "sinh", "sqr", "sgn", "abs", "diffabs"]
+              , reservedNames = ["exp", "sin", "cos", "sinh", "sqr", "sgn", "abs", "diffabs"]
               }
   where ops = "=?:<>+-*^"
 
@@ -365,6 +375,8 @@ term = m_parens exprparser
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
        <|> (m_reserved "sinh" >> ESinh <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "sin" >> ESin <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "cos" >> ECos <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "exp" >> EExp <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
