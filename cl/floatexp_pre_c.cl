@@ -25,9 +25,9 @@ void perturbation_floatexp_loop
   floatexp Xxi = zero;
   for (; antal < g->nMaxIter; antal++)
   {
-    const floatexp Xr = fe_floatexp(m_refx[antal - g->nMinIter], 0);
-    const floatexp Xi = fe_floatexp(m_refy[antal - g->nMinIter], 0);
-    const floatexp Xz = fe_floatexp(m_refz[antal - g->nMinIter], 0);
+    const floatexp Xr = m_refx[antal - g->nMinIter];
+    const floatexp Xi = m_refy[antal - g->nMinIter];
+    const floatexp Xz = m_refz[antal - g->nMinIter];
     Xxr = fe_add(Xr, x.re);
     Xxi = fe_add(Xi, x.im);
     const floatexp Xxr2 = fe_sqr(Xxr);
