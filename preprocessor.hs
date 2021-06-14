@@ -57,6 +57,7 @@ data Instruction
   | INeg String String
   | ISgn String String
   | ISub String String String
+  | IISub String Int String
   | IAdd String String String
   | IMul String String String
   | IMulI String String Int
@@ -90,12 +91,15 @@ instruction (ISet a b) = tell (["mpfr_set(", a, ",", b, ",MPFR_RNDN);\n"], [a, b
 instruction (IAbs a b) = tell (["mpfr_abs(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (INeg a b) = tell (["mpfr_neg(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISub a b c) = tell (["mpfr_sub(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IISub a b c) = tell (["mpfr_si_sub(", a, ",", show b, ",", c, ",MPFR_RNDN);\n"], [a, c])
 instruction (IAdd a b c) = tell (["mpfr_add(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c), ",MPFR_RNDN);\n"] ++ if c < 0 then ["mpfr_neg(", a, ",", a, ",MPFR_RNDN);"] else [], [a, b])
 instruction (IMul a b c) | b == c = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b, c])
                          | otherwise = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IDiv a b c) = tell (["mpfr_div(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ISin a b) = tell (["mpfr_sin(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ICos a b) = tell (["mpfr_cos(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
   u <- compile a
@@ -126,6 +130,13 @@ compile (ESgn a) = do
   instruction (ISgn v u)
   deallocate u
   return v
+
+compile (ESub (EInt a) b) = do
+  v <- compile b
+  w <- allocate
+  instruction (IISub w a v)
+  deallocate v
+  return w
 
 compile (ESub a b) = do
   u <- compile a
@@ -195,6 +206,20 @@ compile (ESqr a) = do
   u <- compile a
   v <- allocate
   instruction (ISqr v u)
+  deallocate u
+  return v
+
+compile (ESin a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ISin v u)
+  deallocate u
+  return v
+
+compile (ECos a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ICos v u)
   deallocate u
   return v
 
