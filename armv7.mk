@@ -5,6 +5,7 @@ OPENCL ?= 1
 COMPILE ?= armv7-w64-mingw32-g++
 LINK ?= armv7-w64-mingw32-g++
 WINDRES ?= armv7-w64-mingw32-windres
+WINDRES2 ?= $(WINDRES)
 AR ?= armv7-w64-mingw32-ar
 AR2 ?= armv7-w64-mingw32-ranlib
 XSLTPROC ?= xsltproc

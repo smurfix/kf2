@@ -1803,6 +1803,9 @@ recent Debian you can skip the chroot step and install natively.
    posix leads to a world of pain and misery (as does mixing LLVM with
    GCC).
 
+   When compiling with LLVM, you need to set the WINDRES2 make variable
+   to the full path of GCC windres because LLVM windres is incomplete.
+
 3. Prepare non-root build user:
 
         adduser build
@@ -1876,14 +1879,14 @@ recent Debian you can skip the chroot step and install natively.
 
         cd ~/win/src/kalles-fraktaler-2
         make clean
-        make SYSTEM=armv7 -j $(nproc)
+        make WINDRES2=/usr/bin/x86_64-w64-mingw32-windres SYSTEM=armv7 -j $(nproc)
         ./kf.exe
 
 11. To build Kalles Fraktaler 2 + for generic 64bit ARM CPU:
 
         cd ~/win/src/kalles-fraktaler-2
         make clean
-        make SYSTEM=aarch64 -j $(nproc)
+        make WINDRES2=/usr/bin/x86_64-w64-mingw32-windres SYSTEM=aarch64 -j $(nproc)
         ./kf.exe
 
 12. To build Kalles Fraktaler 2 + release (all architectures +
