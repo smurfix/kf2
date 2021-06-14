@@ -510,6 +510,12 @@ inline tfloatexp<mantissa, exponent> operator-(mantissa a, tfloatexp<mantissa, e
 }
 
 template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator-(int a, tfloatexp<mantissa, exponent> b) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) - b;
+}
+
+template <typename mantissa, typename exponent>
 inline tfloatexp<mantissa, exponent> abs(tfloatexp<mantissa, exponent> a) noexcept
 {
 	return a.val < 0 ? -a : a;
