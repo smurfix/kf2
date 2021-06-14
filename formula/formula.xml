@@ -1729,11 +1729,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     <formula power="2" glitch="0.000001">
       <reference t="R">
         Xrn = Xr2 - Xi2 + Cr;
-        Xin = 2 * Xr * Xi * (1 - sin(2 * Xr * Xi)) + Ci;
+        Xin = (2 * Xr * Xi) * (1 - sin(2 * Xr * Xi)) + Ci;
       </reference>
       <perturbation t="R">
         xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
-        xin = 2 * (Xr * xi + xr * Xi + xr * xi) * (1 - sin(2 * Xr * Xi)) - 4 * Xxr * Xxi * sin(Xr * xi + xr * Xi + xr * xi) * cos(2 * Xr * Xi + (Xr * xi + xr * Xi + xr * xi)) + ci;
+        xin = 2 * (Xr * xi + xr * Xxi) * (1 - sin(2 * Xr * Xi)) - 4 * Xxr * Xxi * sin(Xr * xi + xr * Xxi) * cos(2 * Xr * Xi + (Xr * xi + xr * Xxi)) + ci;
       </perturbation>
       <derivative t="M">
         dxan = (daa+((2*(dxa*Xxr))+(-2*(dya*Xxi))));
