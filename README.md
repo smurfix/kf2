@@ -348,6 +348,7 @@ earlier).
 ????-??-??
 
   - new: Hidden Mandelbrot formula (thanks to FractalAlex, Bruce Dawson)
+  - fix: Hybrid operator multiplication works with OpenCL
   - fix: Omnibrot works with OpenCL
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)

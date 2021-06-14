@@ -1380,7 +1380,7 @@ std::string hybrid_pf_opencl_double(const hybrid_line &h, const std::string &ret
       o << "  dcomplex ftwo;\n";
       o << hybrid_f_opencl_double(h.two, "ftwo", "Zz");
       o << "  dcomplex fone;\n";
-      o << hybrid_f_opencl_double(h.two, "fone", Z);
+      o << hybrid_f_opencl_double(h.one, "fone", Z);
       o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
       break;
     }
@@ -1876,7 +1876,7 @@ std::string hybrid_pf_opencl_floatexp(const hybrid_line &h, const std::string &r
       o << "  fecomplex ftwo;\n";
       o << hybrid_f_opencl_floatexp(h.two, "ftwo", "Zz");
       o << "  fecomplex fone;\n";
-      o << hybrid_f_opencl_floatexp(h.two, "fone", Z);
+      o << hybrid_f_opencl_floatexp(h.one, "fone", Z);
       o << "  " << ret << " = fec_add(fec_mul(pfone, ftwo), fec_mul(fone, pftwo));\n";
       break;
     }
@@ -2224,7 +2224,7 @@ std::string hybrid_pf_opencl_double_scaled(const hybrid_line &h, const std::stri
       o << "  dcomplex ftwo;\n";
       o << hybrid_f_opencl_double(h.two, "ftwo", "Zz");
       o << "  dcomplex fone;\n";
-      o << hybrid_f_opencl_double(h.two, "fone", Z);
+      o << hybrid_f_opencl_double(h.one, "fone", Z);
       o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
       break;
     }
