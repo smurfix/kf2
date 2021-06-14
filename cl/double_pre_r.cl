@@ -8,6 +8,7 @@ void perturbation_double_loop
 {
   const mantissa Ar = g->g_FactorAR;
   const mantissa Ai = g->g_FactorAI;
+  const dcomplex A = { Ar, Ai };
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   // type R formulas
   const mantissa cr = l->cr;

@@ -10,6 +10,7 @@ void perturbation_floatexp_loop
   const floatexp one = fe_floatexp(1.0, 0);
   const mantissa Ar = g->g_FactorAR;
   const mantissa Ai = g->g_FactorAI;
+  const fecomplex A = { fe_floatexp(Ar, 0), fe_floatexp(Ai, 0) };
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;

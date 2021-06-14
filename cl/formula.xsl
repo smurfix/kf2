@@ -304,6 +304,7 @@ void perturbation_scaled_loop
   const floatexp one = fe_floatexp(1.0, 0);
   const mantissa Ar = g->g_FactorAR;
   const mantissa Ai = g->g_FactorAI;
+  const dcomplex A = { Ar COMMA Ai };
   const bool no_g = g->g_real == 1.0 &amp;&amp; g->g_imag == 1.0 &amp;&amp; g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;
@@ -532,6 +533,7 @@ void perturbation_scaled_loop
   const floatexp one = fe_floatexp(1.0, 0);
   const mantissa Ar = g->g_FactorAR;
   const mantissa Ai = g->g_FactorAI;
+  const dcomplex A = { Ar COMMA Ai };
   const bool no_g = g->g_real == 1.0 &amp;&amp; g->g_imag == 1.0 &amp;&amp; g->norm_p == 2.0;
   const floatexp cr = l->cr;
   const floatexp ci = l->ci;
