@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-05-25
+date: 2021-06-14
 ...
 
 # Kalles Fraktaler 2 +
@@ -342,6 +342,15 @@ earlier).
 
 
 ## Change Log
+
+### kf-2.15.4
+
+????-??-??
+
+  - new: Hidden Mandelbrot formula (thanks to FractalAlex, Bruce Dawson)
+  - fix: Omnibrot works with OpenCL
+  - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
+    Omnibrot) (suggested by gerrit)
 
 ### kf-2.15.3
 
@@ -3871,21 +3880,25 @@ Formulas:
 
     z := z^5 (|x| + i |y|)^1 + c
 
-### General Abs Quadratic Minus
+### Abs General Quadratic Minus
 
     z := ((x^2 - y^2) + i (2 d |x y| + e x^2)) + c
 
-### General Abs Quadratic Plus
+### Abs General Quadratic Plus
 
     z := ((x^2 + y^2) + i (2 d |x y| + e x^2)) + c
 
-### `z^2 exp(2 a / z) + c`
+### Omnibrot
 
     z := z^2 exp(2 f / z) + c
 
+### Hidden Mandelbrot
+
+    z := ((x^2 - y^2) + i (2 x y (1 - sin(2 x y)))) + c
+
 A machine-readable version of this formula list is found in the 'et'
-repository: <https://code.mathr.co.uk/et/blob/kf:/kf/formulas.et>  This
-is used by 'et' when generating formula code (for Newton-Raphson
+repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>
+This is used by 'et' when generating formula code (for Newton-Raphson
 zooming, etc).
 
 
