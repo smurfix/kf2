@@ -12,6 +12,11 @@ mantissa d_sub(const mantissa a, const mantissa b)
   return a - b;
 }
 
+mantissa d_isub(const int a, const mantissa b)
+{
+  return a - b;
+}
+
 mantissa d_neg(const mantissa a)
 {
   return -a;
@@ -90,6 +95,16 @@ mantissa d_diffabs(const mantissa c, const mantissa d)
     }
   }
   return d_abs(d);
+}
+
+mantissa d_sin(const mantissa a)
+{
+  return sin(a);
+}
+
+mantissa d_cos(const mantissa a)
+{
+  return cos(a);
 }
 
 typedef struct __attribute__((packed))
@@ -222,6 +237,11 @@ floatexp fe_sub(const floatexp a, const floatexp b)
   return fe_add(a, fe_neg(b));
 }
 
+floatexp fe_isub(const int a, const floatexp b)
+{
+  return fe_add(fe_floatexp(a, 0), fe_neg(b));
+}
+
 int fe_cmp(const floatexp a, const floatexp b)
 {
   if (a.val > 0)
@@ -316,6 +336,33 @@ floatexp fe_sqrt(const floatexp a)
     ( sqrt((a.exp & 1) ? 2.0 * a.val : a.val)
     , (a.exp & 1) ? (a.exp - 1) / 2 : a.exp / 2
     );
+}
+
+floatexp fe_exp(const floatexp a)
+{
+  if (-53 <= a.exp && a.exp <= 8) return fe_floatexp(exp(fe_double(a)), 0);
+  if (61 <= a.exp) a.val > 0.0 ? fe_floatexp(a.val / 0.0, 0) : fe_floatexp(0.0, 0);
+  if (a.exp < -53) return fe_floatexp(1.0, 0);
+  return fe_pow(fe_floatexp(exp(a.val), 0), 1ULL << a.exp);
+}
+
+floatexp fe_expm1(const floatexp a)
+{
+  if (a.exp <= -120) return a; // FIXME threshold depends on number type
+  if (8 <= a.exp) return fe_sub(fe_exp(a), fe_floatexp(1.0, 0));
+  return fe_floatexp(expm1(fe_double(a)), 0);
+}
+
+floatexp fe_sin(const floatexp a)
+{
+  if (a.exp <= -120) return a; // FIXME threshold depends on number type
+	return fe_floatexp(sin(fe_double(a)), 0);
+}
+
+floatexp fe_cos(const floatexp a)
+{
+  if (a.exp <= -120) return fe_floatexp(1, 0); // FIXME threshold depends on number type
+	return fe_floatexp(cos(fe_double(a)), 0);
 }
 
 #if 0
@@ -1465,6 +1512,28 @@ dcomplex dc_powi(dcomplex x, int n)
   }
 }
 
+dcomplex dc_exp(const dcomplex x)
+{
+  const mantissa r = exp(x.re);
+  const dcomplex t = { cos(x.im), sin(x.im) };
+  return dc_dmul(r, t);
+}
+
+// ref: <https://github.com/JuliaLang/julia/pull/6539/files#diff-e41e6420fa56749ce528b57eb01ebec81a484488511a96466dd9319a4f19fb0eR364-R371>
+dcomplex dc_expm1(const dcomplex x) // FIXME finite only
+{
+  const mantissa r = expm1(x.re);
+  const mantissa r1 = r + 1;
+  const mantissa s = sin(x.im / 2);
+  const dcomplex dc = { r - 2 * r1 * s * s, r1 * sin(x.im) };
+  return dc;
+}
+
+dcomplex dc_sinh(const dcomplex x) // FIXME this is optimized for x near 0
+{
+  return dc_div(dc_expm1(dc_dmul(2, x)), dc_dmul(2, dc_exp(x)));
+}
+
 typedef struct __attribute__((packed))
 {
   floatexp re;
@@ -1507,10 +1576,21 @@ fecomplex fec_muli(const fecomplex a, const int b)
   return fec;
 }
 
+floatexp fec_norm(const fecomplex a)
+{
+  return fe_add(fe_mul(a.re, a.re), fe_mul(a.im, a.im));
+}
+
 fecomplex fec_mul(const fecomplex a, const fecomplex b)
 {
   fecomplex fec = { fe_sub(fe_mul(a.re, b.re), fe_mul(a.im, b.im)), fe_add(fe_mul(a.re, b.im), fe_mul(a.im, b.re)) };
   return fec;
+}
+
+fecomplex fec_dmul(const mantissa a, const fecomplex b)
+{
+  fecomplex dc = { fe_dmul(a, b.re), fe_dmul(a, b.im) };
+  return dc;
 }
 
 fecomplex fec_sqr(const fecomplex a)
@@ -1547,6 +1627,43 @@ fecomplex fec_powi(fecomplex x, int n)
     }
   }
 }
+
+fecomplex fec_conj(const fecomplex a)
+{
+  const fecomplex f = { a.re, fe_neg(a.im) };
+  return f;
+}
+
+fecomplex fec_div(const fecomplex a, const fecomplex b)
+{
+  const floatexp b2 = fec_norm(b);
+  const fecomplex ab = fec_mul(a, fec_conj(b));
+  const fecomplex f = { fe_div(ab.re, b2), fe_div(ab.im, b2) };
+  return f;
+}
+
+fecomplex fec_exp(const fecomplex x)
+{
+  const floatexp r = fe_exp(x.re);
+  const fecomplex f = { fe_mul(r, fe_cos(x.im)), fe_mul(r, fe_sin(x.im)) };
+  return f;
+}
+
+fecomplex fec_expm1(const fecomplex x)
+{
+  const floatexp r = fe_expm1(x.re);
+  const floatexp r1 = fe_add(r, fe_floatexp(1, 0));
+  const floatexp s = fe_sin(fe_div_2si(x.im, 1));
+  const fecomplex f = { fe_sub(r, fe_mul(fe_mul_2si(r1, 1), fe_sqr(s))), fe_mul(r1, fe_sin(x.im)) };
+  return f;
+}
+
+fecomplex fec_sinh(const fecomplex x) // FIXME this is optimized for x near 0
+{
+  return fec_div(fec_expm1(fec_dmul(2, x)), fec_dmul(2, fec_exp(x)));
+}
+
+
 
 #if 0
 
