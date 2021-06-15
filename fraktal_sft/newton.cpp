@@ -823,6 +823,11 @@ static int WINAPI ThNewton(HWND hWnd)
 
 				Precision prec3(expo + 6);
 				flyttyp msize = 0;
+				if (g_period <= 1)
+				{
+				  msize = 1;
+				}
+				else
 				if (g_SFT.GetUseHybridFormula())
 				{
 					if (g_nr_zoom_target <= 1)

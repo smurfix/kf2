@@ -360,6 +360,7 @@ earlier).
     more intuitive way
   - fix: Transformation dialog displays/edits total transformation
     instead of difference from last set transformation
+  - fix: Newton zoom dialog (atom domain) size of period <=1 is set to 1
 
 ### kf-2.15.3
 
