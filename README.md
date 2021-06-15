@@ -361,6 +361,7 @@ earlier).
   - fix: Transformation dialog displays/edits total transformation
     instead of difference from last set transformation
   - fix: Newton zoom dialog (atom domain) size of period <=1 is set to 1
+  - upgrade to gsl-2.7
 
 ### kf-2.15.3
 

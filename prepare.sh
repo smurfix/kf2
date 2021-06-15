@@ -69,7 +69,7 @@ then
   wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
   wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
   wget -c https://download.osgeo.org/libtiff/tiff-4.3.0.tar.gz
-  wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.6.tar.gz
+  wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.7.tar.gz
   #wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.6.tar.gz -O openexr-2.5.6.tar.gz
@@ -154,8 +154,8 @@ then
     # gsl 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/gsl-2.6.tar.gz
-    cd gsl-2.6/
+    tar xaf ~/win/src/gsl-2.7.tar.gz
+    cd gsl-2.7/
     ./configure --disable-shared --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64
     make -j $NCPUS
     make install
@@ -315,8 +315,8 @@ then
     # gsl 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xaf ~/win/src/gsl-2.6.tar.gz
-    cd gsl-2.6/
+    tar xaf ~/win/src/gsl-2.7.tar.gz
+    cd gsl-2.7/
     ./configure --disable-shared --host=i686-w64-mingw32 --prefix=$HOME/win/i686
     make -j $NCPUS
     make install
@@ -480,8 +480,8 @@ then
     # gsl 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/gsl-2.6.tar.gz
-    cd gsl-2.6/
+    tar xaf ~/win/src/gsl-2.7.tar.gz
+    cd gsl-2.7/
     ./configure --disable-shared --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64
     make -j $NCPUS
     make install
@@ -647,8 +647,8 @@ then
     # gsl 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xaf ~/win/src/gsl-2.6.tar.gz
-    cd gsl-2.6/
+    tar xaf ~/win/src/gsl-2.7.tar.gz
+    cd gsl-2.7/
     ./configure --disable-shared --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7
     make -j $NCPUS
     make install
