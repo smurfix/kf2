@@ -29,6 +29,7 @@ extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm);
 extern void TransformApply(const polar2 &P, double zoom_amount);
 extern void TransformRefresh(const polar2 &P, double zoom_amount);
 extern void TransformBlit(HDC hDC, int w, int h);
+extern polar2 TransformUpdateStretch(const polar2 &P0, const double x0, const double y0, const double x1, const double y1);
 
 extern HWND g_hwTransformationDialog;
 extern bool g_bTransformationDialogIsOpen;

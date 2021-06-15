@@ -118,8 +118,8 @@ enum StretchMode
 	StretchMode_Started = 2
 };
 static StretchMode g_bStretch = StretchMode_Idle;
-static double g_transformation_stretch_angle_start = 0;
-static double g_transformation_stretch_radius_start = 0;
+static double g_transformation_stretch_x0 = 0;
+static double g_transformation_stretch_y0 = 0;
 
 //#define PARAM_ANIMATION
 
@@ -2435,8 +2435,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		ScreenToClient(hWnd,&p);
 		double dx = p.x - pm.x;
 		double dy = p.y - pm.y;
-		g_transformation_stretch_angle_start = std::atan2(dy, dx);
-		g_transformation_stretch_radius_start = std::hypot(dx, dy);
+		g_transformation_stretch_x0 = dx;
+		g_transformation_stretch_y0 = dy;
 		g_transformation_delta = polar2(1, 0, 1, 0);
 		g_transformation_zoom_delta = 1;
 		g_bStretch = StretchMode_Started;
@@ -2640,10 +2640,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				ScreenToClient(hWnd,&p);
 				double dx = p.x - pm.x;
 				double dy = p.y - pm.y;
-				double angle = std::atan2(dy, dx);
-				double radius = std::hypot(dx, dy);
-				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
-				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
+				g_transformation_delta = TransformUpdateStretch(g_transformation_delta, g_transformation_stretch_x0, g_transformation_stretch_y0, dx, dy);
 				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
@@ -2780,10 +2777,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				ScreenToClient(hWnd,&p);
 				double dx = p.x - pm.x;
 				double dy = p.y - pm.y;
-				double angle = std::atan2(dy, dx);
-				double radius = std::hypot(dx, dy);
-				g_transformation_delta.stretch_angle = -(angle - g_transformation_stretch_angle_start);
-				g_transformation_delta.stretch_factor = radius / g_transformation_stretch_radius_start;
+				g_transformation_delta = TransformUpdateStretch(g_transformation_delta, g_transformation_stretch_x0, g_transformation_stretch_y0, dx, dy);
 				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);

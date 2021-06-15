@@ -352,7 +352,9 @@ earlier).
   - fix: Omnibrot works with OpenCL
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)
-  - fix: Zoom Amount spinner in transformation dialog works live
+  - fix: Zoom Amount spinner in Transformation dialog works live
+  - fix: right mouse button drag in Transformation dialog stretches in a
+    more intuitive way
 
 ### kf-2.15.3
 

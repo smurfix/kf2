@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_MAIN 1
 #include "../formula/generated/formula.h" // for struct formula
 #undef SIZE
+#undef abs
 
 #include <commctrl.h>
 
@@ -451,6 +452,79 @@ extern void TransformBlit(HDC hDC, int w, int h)
   SelectObject(dcBmp, bmOld);
   DeleteObject(dcBmp);
   DeleteObject(bmBmp);
+}
+
+extern polar2 TransformUpdateStretch(const polar2 &P0, const double x0, const double y0, const double x1, const double y1)
+{
+  // uses Newton's method to solve for stretch matrix given input/output point pair xy01 and guess transformation P0
+  double s = 1 / (P0.stretch_factor * P0.stretch_factor) + 0.01;
+  double t = P0.stretch_angle + 0.01;
+  bool converged = false;
+  const int newton_steps = 100;
+  for (int i = 0; i < newton_steps && ! converged; ++i)
+  {
+    const double ss = sqrt(s);
+    const double ct = cos(t);
+    const double st = sin(t);
+    const double ct2 = ct * ct;
+    const double st2 = st * st;
+    const double sss = ss - 1 / ss;
+    const double cs = ct * st * sss;
+    // evaluate F
+    const double F1 = (ct2 * ss + st2 / ss) * x0 + cs * y0 - x1;
+    const double F2 = cs * x0 + (ct2 / ss + st2 * ss) * y0 - y1;
+    const double F = F1 * F1 + F2 * F2;
+    // check convergence
+    if (F < 1e-12)
+    {
+      converged = true;
+      break;
+    }
+    // evaluate J
+    const double ct2st2 = ct2 - st2;
+    const double ctst2 = 2 * ct * st;
+    const double ss3 = ss * ss * ss;
+    const double ssctst = 0.5 * (1 / ss + 1 / ss3) * ct * st;
+    const double F1s = ssctst * y0 + 0.5 * (ct2 / ss - st2 / ss3) * x0;
+    const double F2s = 0.5 * (st2 / ss - ct2 / ss3) * y0 + ssctst * x0;
+    const double F1t = sss * (ct2st2 * y0 - ctst2 * x0);
+    const double F2t = sss * (ctst2 * y0 + ct2st2 * x0);
+    // evaluate det J
+    const double detJ = F1s * F2t - F1t * F2s;
+    // check singular
+    if (std::abs(detJ) < 1e-12 || std::isnan(detJ) || std::isinf(detJ))
+    {
+      break;
+    }
+    // evaluate J^-1
+    const double J1s =  F2t / detJ;
+    const double J1t = -F2s / detJ;
+    const double J2s = -F1t / detJ;
+    const double J2t =  F1s / detJ;
+    // evaluate Newton step
+    const double ds = J1s * F1 + J2s * F2;
+    const double dt = J1t * F1 + J2t * F2;
+    s -= ds;
+    t -= dt;
+    // check convergence
+    const double d = ds * ds + dt * dt;
+    if (d < 1e-18)
+    {
+      converged = true;
+      break;
+    }
+  }
+  if (converged && s > 0 && ! std::isinf(s) && ! std::isinf(t) && ! std::isnan(t))
+  {
+    polar2 P = P0;
+    P.stretch_factor = 1 / sqrt(s);
+    P.stretch_angle = t;
+    return P;
+  }
+  else
+  {
+    return P0;
+  }
 }
 
 #if 0
