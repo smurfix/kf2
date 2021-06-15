@@ -194,6 +194,8 @@ Feedback:
   (reported by CFJH).
 - Newton-Raphson zooming may not work properly for formula number 20
   (4th Celtic Burning Ship Partial Real Mbar)
+- flash of untransformed image when opening Transformation dialog
+- spinner of newly opened Transformation dialog widget resets to 0
 
 
 ## Differences From Upstream 2.11.1
@@ -353,8 +355,11 @@ earlier).
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)
   - fix: Zoom Amount spinner in Transformation dialog works live
+  - fix: Transformation dialog Zoom Amount sign inversion
   - fix: right mouse button drag in Transformation dialog stretches in a
     more intuitive way
+  - fix: Transformation dialog displays/edits total transformation
+    instead of difference from last set transformation
 
 ### kf-2.15.3
 

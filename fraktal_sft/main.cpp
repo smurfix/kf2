@@ -3360,6 +3360,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			MoveWindow(g_hwTransformationDialog, wr.left - r.right - 3, wr.top, r.right, r.bottom, TRUE);
 			ShowWindow(g_hwTransformationDialog, SW_SHOW);
 		}
+		InvalidateRect(hWnd, NULL, FALSE);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_RESET_TRANSFORMATION){
 		g_SFT.Stop();

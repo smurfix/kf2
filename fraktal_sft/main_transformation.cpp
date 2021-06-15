@@ -144,10 +144,11 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
     original_transformation = g_SFT.GetTransformPolar();
     current_transformation = polar2(1, 0, 1, 0);
     current_transformation_zoom = 1.0;
-    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE, current_transformation.rotate * deg);
-    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT, std::log2(current_transformation_zoom) * 100);
-    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE, current_transformation.stretch_angle * deg);
-    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT, std::log2(current_transformation.stretch_factor) * 100);
+    const polar2 total_transformation = polar_decomposition(polar_composition(current_transformation) * polar_composition(original_transformation));
+    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE, total_transformation.rotate * deg);
+    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT, 0);
+    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE, total_transformation.stretch_angle * deg);
+    SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT, std::log2(total_transformation.stretch_factor) * 100);
     SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_USEDDZ, BM_SETCHECK, g_transformation_useddz, 0);
     return 1;
   }
@@ -164,11 +165,12 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
         LOWORD(wParam) == IDC_TRANSFORMATION_STRETCHAMOUNT_SPIN)) ||
         wParam == IDOK)
     {
-      double rotate = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
-      double stretch_angle = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
-      double stretch_factor = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
-      double zoom_amount = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT) / 100);
-      current_transformation = polar2(1, rotate, stretch_factor, stretch_angle);
+      const double rotate = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
+      const double stretch_angle = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
+      const double stretch_factor = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
+      const double zoom_amount = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT) / -100);
+      const polar2 total_transformation = polar2(1, rotate, stretch_factor, stretch_angle);
+      current_transformation = polar_decomposition(polar_composition(total_transformation) * glm::inverse(polar_composition(original_transformation)));
       current_transformation_zoom = zoom_amount;
       TransformRefresh(polar2(1, 0, 1, 0), 1);
       HWND parent = GetParent(hWnd);
@@ -257,7 +259,8 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
     {
       // autoskew success
       SetDlgItemText(hWnd, IDC_TRANSFORMATION_STATUS, (s_skew + "\nDone").c_str());
-      current_transformation = polar_decomposition(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]) * glm::inverse(polar_composition(original_transformation)));
+      const mat2 total_transformation = mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]);
+      current_transformation = polar_decomposition(total_transformation * glm::inverse(polar_composition(original_transformation)));
       TransformRefresh(polar2(1, 0, 1, 0), 1);
       HWND parent = GetParent(hWnd);
       HDC hDC = GetDC(parent);
@@ -288,10 +291,10 @@ extern void TransformApply(const polar2 &P, double zoom_amount)
 extern void TransformRefresh(const polar2 &P, double zoom_amount)
 {
   refreshing = true;
-  polar2 new_transformation = polar_decomposition(polar_composition(P) * polar_composition(current_transformation));
-  double new_transformation_zoom = zoom_amount * current_transformation_zoom;
+  const polar2 new_transformation = polar_decomposition(polar_composition(P) * polar_composition(current_transformation) * polar_composition(original_transformation));
+  const double new_transformation_zoom = zoom_amount * current_transformation_zoom;
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE, new_transformation.rotate * deg);
-  SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT, std::log2(new_transformation_zoom) * 100);
+  SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT, std::log2(new_transformation_zoom) * -100);
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHANGLE, new_transformation.stretch_angle * deg);
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHAMOUNT, std::log2(new_transformation.stretch_factor) * 100);
   refreshing = false;
@@ -299,11 +302,12 @@ extern void TransformRefresh(const polar2 &P, double zoom_amount)
 
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm)
 {
-  double rotate = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
-  double zoom_amount = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT) / 100);
-  double stretch_angle = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
-  double stretch_factor = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
-  mat2 m = polar_composition(polar2(1, rotate, stretch_factor, stretch_angle)) * zoom_amount;
+  const double rotate = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
+  const double zoom_amount = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT) / -100);
+  const double stretch_angle = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
+  const double stretch_factor = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
+  const polar2 total_transformation = polar2(1, rotate, stretch_factor, stretch_angle);
+  const mat2 m = polar_composition(total_transformation) * glm::inverse(polar_composition(original_transformation)) * zoom_amount;
 
   HDC hDC = GetDC(NULL);
   BYTE *lpBits=NULL;
