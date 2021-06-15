@@ -1931,18 +1931,11 @@ else if (uMsg == WM_COMMAND)
 return 0;
 }
 
-static HWND g_hwOpenCLError = 0;
-
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 {
 	if (hWnd)
 	{
-		if(g_hwOpenCLError){
-			DestroyWindow(g_hwOpenCLError);
-			g_hwOpenCLError = NULL;
-		}
-		g_hwOpenCLError = CreateDialog(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
-		ShowWindow(g_hwOpenCLError, SW_SHOW);
+		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
 	}
 	else
 	{
