@@ -345,6 +345,7 @@ earlier).
 
 ????-??-??
 
+  - new: rewritten GUI for window size / image size (by popular request)
   - new: Hidden Mandelbrot formula (thanks to FractalAlex, Bruce Dawson)
     <https://fractalforums.org/f/22/t/3576/msg22122#msg22122>
   - new: Hidden Mandelbrot a la cos formula (thanks to 3Dickulus)
@@ -1625,7 +1626,6 @@ earlier).
 - save image now function (without waiting for calculations)
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
-- window and image size presets (suggested by saka and lycium)
 - presets menu could be populated from a folder of KFS settings files
 - "zoom size is not 2" warning should have an "ok, fix it for me" option
 

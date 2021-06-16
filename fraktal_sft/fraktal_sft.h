@@ -721,6 +721,8 @@ public:
   inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
   BOOL(UseRescaledSeries)
   BOOL(OpenResetsParameters)
+  inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
+  inline void SetTargetDimensions(int64_t w, int64_t h, int64_t s) { m_Settings.SetTargetDimensions(w, h, s); SetImageSize(w * s, h * s); }
 #undef DOUBLE
 #undef INT
 #undef BOOL

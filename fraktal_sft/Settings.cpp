@@ -112,6 +112,9 @@ bool Settings::FromText(const std::string &text)
   INT(NumberTypes)
   BOOL(UseRescaledSeries)
   BOOL(OpenResetsParameters)
+  INT(TargetWidth)
+  INT(TargetHeight)
+  INT(TargetSupersample)
 #undef DOUBLE
 #undef INT
 #undef BOOL
@@ -123,8 +126,8 @@ std::string Settings::ToText() const
 {
   CStringTable s;
 #define DOUBLE(KEY) { char d[100]; snprintf(d, 100, "%.18g", Get ## KEY ()); s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddString(s.GetCount() - 1, d); }
-#define INT(KEY)    { s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddInt(s.GetCount() - 1, Get ## KEY ()); }
-#define BOOL(KEY)   { s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddInt(s.GetCount() - 1, Get ## KEY ()); }
+#define INT(KEY)    { s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddInt(s.GetCount() - 1, m_ ## KEY); }
+#define BOOL(KEY)   { s.AddRow(); s.AddString(s.GetCount() - 1, #KEY); s.AddInt(s.GetCount() - 1, m_ ## KEY); }
   DOUBLE(ZoomSize)
   INT(MaxReferences)
   DOUBLE(GlitchLowTolerance)
@@ -172,7 +175,7 @@ std::string Settings::ToText() const
   BOOL(ThreadedReference)
   INT(SIMDVectorSize)
   INT(SIMDChunkSize)
-  BOOL(UseArgMinAbsZAsGlitchCenter)
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "UseArgMinAbsZAsGlitchCenter"); s.AddInt(s.GetCount() - 1, GetUseArgMinAbsZAsGlitchCenter()); }
   INT(GlitchCenterMethod)
   BOOL(UseOpenCL)
   BOOL(OpenCLThreaded)
@@ -186,6 +189,9 @@ std::string Settings::ToText() const
   { s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberTypes())); }
   BOOL(UseRescaledSeries)
   BOOL(OpenResetsParameters)
+  INT(TargetWidth)
+  INT(TargetHeight)
+  INT(TargetSupersample)
 #undef DOUBLE
 #undef INT
 #undef BOOL

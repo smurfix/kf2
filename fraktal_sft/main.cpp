@@ -70,6 +70,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_numbertype.h"
 #include "main_position.h"
 #include "main_ptsatuning.h"
+#include "main_size.h"
 #include "main_transformation.h"
 #include "cmdline.h"
 #include "opengl.h"
@@ -3467,45 +3468,49 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_JpegParams.nHeight = g_SFT.GetHeight();
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1))
 			return 0;
+	}
+	else if ((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL))))
+	{
+		RECT cr;
+		GetClientRect(hWnd, &cr);
+		RECT sr;
+		GetWindowRect(g_hwStatus, &sr);
+		sr.bottom -= sr.top;
+		int64_t window_width = cr.right;
+		int64_t window_height = cr.bottom - sr.bottom;
+		g_SFT.SetWindowWidth(window_width);
+		g_SFT.SetWindowHeight(window_height);
+		if(! DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_SIZE), hWnd, (DLGPROC) WindowSizeProc))
+		{
+			return 0;
+		}
 		g_SFT.Stop();
 		g_bAnim=false;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		g_SFT.ResetTimers();
-		g_nPrevGlitchX=g_nPrevGlitchY=-1;
-		SetTimer(hWnd,0,500,NULL);
-		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
-	}
-	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)) && !HIWORD(GetKeyState(VK_SHIFT)))){
-		RECT wr, cr;
-		GetClientRect(hWnd,&cr);
-		g_scSize.cx = cr.right;
-		g_scSize.cy = cr.bottom;
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		g_JpegParams.nWidth = cr.right;
-		g_JpegParams.nHeight = cr.bottom-sr.bottom;
-		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,3))
-			return 0;
-		GetWindowRect(hWnd,&wr);
-		wr.right-=wr.left;
-		wr.bottom-=wr.top;
-		int nXOffs = g_JpegParams.nWidth-cr.right;
-		wr.right+=nXOffs;
-		wr.left-=nXOffs/2;
-		int nYOffs = g_JpegParams.nHeight-cr.bottom;
-		wr.bottom+=nYOffs+sr.bottom;
-		wr.top-=nYOffs/2+sr.bottom/2;
-		g_SFT.SetWindowWidth(g_JpegParams.nWidth);
-		g_SFT.SetWindowHeight(g_JpegParams.nHeight);
+		window_width = g_SFT.GetWindowWidth();
+		window_height = g_SFT.GetWindowHeight();
+		RECT wr;
+		GetWindowRect(hWnd, &wr);
+		wr.right -= wr.left;
+		wr.bottom -= wr.top;
+		int nXOffs = window_width - cr.right;
+		wr.right += nXOffs;
+		wr.left -= nXOffs / 2;
+		int nYOffs = window_height - cr.bottom;
+		wr.bottom += nYOffs + sr.bottom;
+		wr.top -= nYOffs / 2 + sr.bottom / 2;
 		g_SFT.SetWindowLeft(wr.left);
 		g_SFT.SetWindowTop(wr.top);
 		g_SFT.SetWindowRight(wr.right);
 		g_SFT.SetWindowBottom(wr.bottom);
 		UpdateWindowSize(hWnd);
+		g_SFT.ResetTimers();
+		g_nPrevGlitchX = g_nPrevGlitchY = -1;
+		SetTimer(hWnd, 0, 500, NULL);
+		DisableUnsafeMenus(hWnd);
+		g_SFT.RenderFractal(g_SFT.GetImageWidth() ,g_SFT.GetImageHeight(), g_SFT.GetIterations(), hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
 		POINT p;

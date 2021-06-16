@@ -54,6 +54,7 @@ fraktal_sft/main_information.cpp \
 fraktal_sft/main_numbertype.cpp \
 fraktal_sft/main_position.cpp \
 fraktal_sft/main_ptsatuning.cpp \
+fraktal_sft/main_size.cpp \
 fraktal_sft/main_transformation.cpp \
 fraktal_sft/nanomb1_perturbation.cpp \
 fraktal_sft/nanomb1_reference.cpp \
@@ -96,6 +97,7 @@ fraktal_sft/main_information.h \
 fraktal_sft/main_numbertype.h \
 fraktal_sft/main_position.h \
 fraktal_sft/main_ptsatuning.h \
+fraktal_sft/main_size.h \
 fraktal_sft/main_transformation.h \
 fraktal_sft/nanomb1.h \
 fraktal_sft/nanomb1.inc \

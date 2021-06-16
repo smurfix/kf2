@@ -98,6 +98,9 @@ private:
   int64_t m_NumberTypes;
   bool m_UseRescaledSeries;
   bool m_OpenResetsParameters;
+  int64_t m_TargetWidth;
+  int64_t m_TargetHeight;
+  int64_t m_TargetSupersample;
 
 public:
 
@@ -162,6 +165,9 @@ public:
   , m_NumberTypes(pack_number_type(NumberType{ false, true, true, false, false, true, false, true}))
   , m_UseRescaledSeries(true)
   , m_OpenResetsParameters(true)
+  , m_TargetWidth(640)
+  , m_TargetHeight(360)
+  , m_TargetSupersample(1)
   { };
 
   bool FromText(const std::string &text);
@@ -376,6 +382,18 @@ public:
   inline bool   GetOpenResetsParameters() const { return m_OpenResetsParameters; };
   inline void   SetOpenResetsParameters(bool b) { m_OpenResetsParameters = b; };
 
+  inline void   GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const
+  {
+    if (w) *w = m_TargetWidth;
+    if (h) *h = m_TargetHeight;
+    if (s) *s = m_TargetSupersample;
+  };
+  inline void   SetTargetDimensions(int64_t w, int64_t h, int64_t s)
+  {
+    m_TargetWidth = w;
+    m_TargetHeight = h;
+    m_TargetSupersample = s;
+  };
 };
 
 #endif
