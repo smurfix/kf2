@@ -3764,7 +3764,7 @@ int64_t CFraktalSFT::GetMaxExceptCenter()
 }
 void CFraktalSFT::SetFractalType(int nFractalType)
 {
-	if (nFractalType < 0 || nFractalType > 72)
+	if (nFractalType < 0 || nFractalType > 73)
 		nFractalType = 0;
 	m_nFractalType = nFractalType;
 	if ((1 <= m_nFractalType && m_nFractalType <= 4) && !(2 <= m_nPower && m_nPower <= 5))
