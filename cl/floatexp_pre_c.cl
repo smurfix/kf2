@@ -8,9 +8,9 @@ void perturbation_floatexp_loop
 {
   const floatexp zero = fe_floatexp(0.0, 0);
   const floatexp one = fe_floatexp(1.0, 0);
-  const double Ar = g->g_FactorAR;
-  const double Ai = g->g_FactorAI;
-  const fecomplex A = { fe_floatexp(Ar, 0), fe_floatexp(Ai, 0) };
+  const floatexp Ar = fe_floatexp(g->g_FactorAR, 0);
+  const floatexp Ai = fe_floatexp(g->g_FactorAI, 0);
+  const fecomplex A = { Ar, Ai };
   bool no_g = g->g_real == 1.0 && g->g_imag == 1.0 && g->norm_p == 2.0;
   const fecomplex c = {l->cr, l->ci};
   fecomplex x = {l->xr, l->xi};
