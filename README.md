@@ -182,8 +182,6 @@ Feedback:
   'et')
 - seams/bands with mixed power hybrids and numerical DE/slope
   (workaround: use analytic DE/slope with derivatives)
-- formula `z^2 exp(2 a / z) + c` does not work with OpenCL (causes
-  error dump re missing complex exp and sinh)
 - guessing with OpenCL on GPU does not give full speedup (e.g. 1.5x
   faster instead of 4x faster with lots of very high iteration interior)
 - guessing with OpenCL requires both image dimensions to be a multiple
@@ -192,8 +190,6 @@ Feedback:
 - sometimes files are overwritten without confirmation, when the
   filename is entered without extension (eg "test" vs "test.jpg")
   (reported by CFJH).
-- Newton-Raphson zooming may not work properly for formula number 20
-  (4th Celtic Burning Ship Partial Real Mbar)
 - flash of untransformed image when opening Transformation dialog
 - spinner of newly opened Transformation dialog widget resets to 0
 
@@ -1627,11 +1623,11 @@ earlier).
 - undo history for calculation data (suggested by TwinDragon)
 - online help within program (suggested by TwinDragon)
 - save image now function (without waiting for calculations)
-- command line: print total runtime (suggested by gerrit)
 - log window for diagnostics/debugging
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
 - window and image size presets (suggested by saka and lycium)
 - presets menu could be populated from a folder of KFS settings files
+- "zoom size is not 2" warning should have an "ok, fix it for me" option
 
 ### Calculations
 
@@ -1644,12 +1640,11 @@ earlier).
 - refine minibrot using boundary shrinking (calculate edges only)
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
 - "find center of glitch" cycle between multiple selected methods
-- "Hidden Mandelbrot" formula (suggested by FractalAlex and gerrit)
+- `z := z^n |z|^b` where `b` is fractional and `n + b > 1` (gerrit)
+  <https://fractalforums.org/f/15/t/1916/msg23377#msg23377>
 
 ### Newton-Raphson Zooming
 
-- add zoom depth offset in addition to zoom depth factor to (eg) zoom
-  closer to minibrot or embedded Julia
 - zoom to Misiurewicz points (custom zoom factor, manual preperiod
   selection) (suggested by gerrit)
 - properly debug huge zoom values from size estimate
@@ -1675,7 +1670,6 @@ earlier).
 ### Colouring
 
 - load/save palette to/from image
-- rework entirely (now: 1024 colours with mandatory interpolation)
 - implement Pauldelbrot's multiwave colouring
 - colour cycling (suggested by blob)
 - more flexible colouring with lighting/layers/etc (suggested by
@@ -1683,10 +1677,8 @@ earlier).
 - import gradients from various formats (.ugr/.gradient, .map, .xml
   (flam3)) inspired by Mandel Meute + padleywood's gradient convert
   tool: <https://fractalforums.org/f/11/t/2934>
-- exterior tile texturing using smooth iteration count and phase
 - bailout mode that combines the best of linear and log (for exterior
   tiling)
-- color phase offset control
 - orbit traps (eg atom domain, cellular colouring, dancing points, ...)
 - stripe average (and triangle inequality average)
 - refactor transfer functions so iterdiv is scaled sensibly (suggested
@@ -1694,9 +1686,7 @@ earlier).
 - exponential smoothing colouring algorithm (suggested by FractalAlex)
   implementation described by Ron Barnett at
   <https://user.xmission.com/pub/lists/fractdev/archive/fractdev.200003>
-- entropy colouring (post-processing effect) (suggested by FractalAlex,
-  matlab/octave implementation by gerrit at
-  <https://fractalforums.org/f/28/t/368/msg1884#msg1884>)
+- palette preset dropdown populated by folder (suggested by Fraktalist)
 
 
 ## Getting The Code
