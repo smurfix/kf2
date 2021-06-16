@@ -52,6 +52,11 @@ mantissa d_div(const mantissa a, const mantissa b)
   return a / b;
 }
 
+mantissa d_divi(const mantissa a, const int b)
+{
+  return a / b;
+}
+
 mantissa d_pow(const mantissa a, const int b)
 {
   mantissa r = 1.0;
@@ -210,6 +215,11 @@ floatexp fe_mul_2si(const floatexp a, const exponent b)
 floatexp fe_div(const floatexp a, const floatexp b)
 {
   return fe_floatexp(a.val / b.val, a.exp - b.exp);
+}
+
+floatexp fe_divi(const floatexp a, const int b)
+{
+  return fe_div(a, fe_floatexp(b, 0));
 }
 
 floatexp fe_div_2si(const floatexp a, const exponent b)

@@ -58,10 +58,12 @@ data Instruction
   | ISgn String String
   | ISub String String String
   | IISub String Int String
+  | IIAdd String Int String
   | IAdd String String String
   | IMul String String String
   | IMulI String String Int
   | IDiv String String String
+  | IDivI String String Int
   | ISqr String String
   | IExp String String
   | ISin String String
@@ -91,11 +93,13 @@ instruction (ISet a b) = tell (["mpfr_set(", a, ",", b, ",MPFR_RNDN);\n"], [a, b
 instruction (IAbs a b) = tell (["mpfr_abs(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (INeg a b) = tell (["mpfr_neg(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISub a b c) = tell (["mpfr_sub(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IIAdd a b c) = tell (["mpfr_add_si(", a, ",", c, ",", show b, ",MPFR_RNDN);\n"], [a, c])
 instruction (IISub a b c) = tell (["mpfr_si_sub(", a, ",", show b, ",", c, ",MPFR_RNDN);\n"], [a, c])
 instruction (IAdd a b c) = tell (["mpfr_add(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c), ",MPFR_RNDN);\n"] ++ if c < 0 then ["mpfr_neg(", a, ",", a, ",MPFR_RNDN);"] else [], [a, b])
 instruction (IMul a b c) | b == c = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b, c])
                          | otherwise = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
+instruction (IDivI a b c) = tell (["mpfr_div_si(", a, ",", b, ",", show c, ",MPFR_RNDN);\n"], [a, b])
 instruction (IDiv a b c) = tell (["mpfr_div(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISin a b) = tell (["mpfr_sin(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
@@ -147,6 +151,13 @@ compile (ESub a b) = do
   deallocate v
   return w
 
+compile (EAdd (EInt a) b) = do
+  v <- compile b
+  w <- allocate
+  instruction (IIAdd w a v)
+  deallocate v
+  return w
+
 compile (EAdd a b) = do
   u <- compile a
   v <- compile b
@@ -191,6 +202,13 @@ compile (EMul a b) = do
   instruction (IMul w u v)
   deallocate u
   deallocate v
+  return w
+
+compile (EDiv a (EInt b)) = do
+  u <- compile a
+  w <- allocate
+  instruction (IDivI w u b)
+  deallocate u
   return w
 
 compile (EDiv a b) = do
@@ -299,6 +317,7 @@ interpret t (EMul a b@(ENeg (EInt _))) = t ++ "muli(" ++ interpret t a ++ "," ++
 interpret t (EMul a@(EInt _) b) = t ++ "imul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b@(EInt _)) = t ++ "muli(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EMul a b) = t ++ "mul(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EDiv a b@(EInt _)) = t ++ "divi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EDiv a b) = t ++ "div(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a b@(ENeg (EInt _))) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAdd a b@(EInt _)) = t ++ "addi(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
