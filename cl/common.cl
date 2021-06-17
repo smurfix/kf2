@@ -112,6 +112,26 @@ mantissa d_cos(const mantissa a)
   return cos(a);
 }
 
+mantissa d_exp(const mantissa a)
+{
+  return exp(a);
+}
+
+mantissa d_log(const mantissa a)
+{
+  return log(a);
+}
+
+mantissa d_log1p(const mantissa a)
+{
+  return log1p(a);
+}
+
+mantissa d_sinh(const mantissa a)
+{
+  return sinh(a);
+}
+
 typedef struct __attribute__((packed))
 {
   mantissa val;
@@ -366,14 +386,41 @@ floatexp fe_expm1(const floatexp a)
 floatexp fe_sin(const floatexp a)
 {
   if (a.exp <= -120) return a; // FIXME threshold depends on number type
-	return fe_floatexp(sin(fe_double(a)), 0);
+  return fe_floatexp(sin(fe_double(a)), 0);
 }
 
 floatexp fe_cos(const floatexp a)
 {
   if (a.exp <= -120) return fe_floatexp(1, 0); // FIXME threshold depends on number type
-	return fe_floatexp(cos(fe_double(a)), 0);
+  return fe_floatexp(cos(fe_double(a)), 0);
 }
+
+floatexp fe_log(const floatexp a)
+{
+  return fe_floatexp(log(a.val) + log(2.0) * a.exp, 0);
+}
+
+floatexp fe_log1p(const floatexp a)
+{
+  if (a.exp < -(sizeof(mantissa) == sizeof(double) ? 53 : 24))
+  {
+    return a;
+  }
+  else if (a.exp > (sizeof(mantissa) == sizeof(double) ? 53 : 24))
+  {
+    return fe_log(fe_add(fe_floatexp(1.0, 0),  a));
+  }
+  else
+  {
+    return fe_floatexp(log1p(fe_double(a)), 0);
+  }
+}
+
+floatexp fe_sinh(const floatexp a)
+{
+  return fe_div(fe_expm1(fe_mul_2si(a, 1)), fe_mul_2si(fe_exp(a), 1)); // FIXME optimized for a near 0
+}
+
 
 #if 0
 
