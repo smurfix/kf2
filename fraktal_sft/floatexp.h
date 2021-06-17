@@ -492,6 +492,30 @@ inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponen
 }
 
 template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator/(mantissa a, const tfloatexp<mantissa, exponent> &b) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) / b;
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator/(const tfloatexp<mantissa, exponent> &b, mantissa a) noexcept
+{
+	return b / tfloatexp<mantissa, exponent>(a);
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator/(int a, const tfloatexp<mantissa, exponent> &b) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) / b;
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator/(const tfloatexp<mantissa, exponent> &b, int a) noexcept
+{
+	return b / tfloatexp<mantissa, exponent>(a);
+}
+
+template <typename mantissa, typename exponent>
 inline tfloatexp<mantissa, exponent> operator+(double a, const tfloatexp<mantissa, exponent> &b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) + b;
