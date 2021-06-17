@@ -46,4 +46,7 @@ F2(sin)
 F2(cos)
 F2(exp)
 F2(expm1)
+F2(log)
+F2(log1p)
+F2(sinh)
 #undef F2

@@ -46,4 +46,7 @@ F4(sin)
 F4(cos)
 F4(exp)
 F4(expm1)
+F4(log)
+F4(log1p)
+F4(sinh)
 #undef F4

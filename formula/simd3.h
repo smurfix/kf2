@@ -46,4 +46,7 @@ F8(sin)
 F8(cos)
 F8(exp)
 F8(expm1)
+F8(log)
+F8(log1p)
+F8(sinh)
 #undef F8

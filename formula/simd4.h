@@ -46,4 +46,7 @@ F16(sin)
 F16(cos)
 F16(exp)
 F16(expm1)
+F16(log)
+F16(log1p)
+F16(sinh)
 #undef F16
