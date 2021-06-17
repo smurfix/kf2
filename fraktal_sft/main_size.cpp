@@ -302,6 +302,16 @@ extern INT_PTR WINAPI WindowSizeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
     SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_WINDOW_HEIGHT, window_height, 0);
     SetDlgItemFloat(hWnd, IDC_SIZE_DISPLAY_WINDOW_MPIXELS, (double) window_width * window_height / (1024 * 1024));
 
+    bool bad_size =
+      image_width <= 0 || image_width >= 65536 ||
+      image_height <= 0 || image_height >= 65536 ||
+      image_width * image_height * 3 >= (1LL << 31);
+    HWND okButton = GetDlgItem(hWnd, IDOK);
+    if (okButton)
+    {
+      EnableWindow(okButton, ! bad_size);
+    }
+
     refreshing = false;
     if (wParam == IDOK || wParam == IDCANCEL)
     {
