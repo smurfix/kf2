@@ -72,7 +72,7 @@ then
   wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.7.tar.gz
   #wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
-  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.6.tar.gz -O openexr-2.5.6.tar.gz
+  wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.7.tar.gz -O openexr-2.5.7.tar.gz
   wget -c https://github.com/glfw/glfw/releases/download/3.3.4/glfw-3.3.4.zip
   ( git clone https://gitlab.freedesktop.org/claudeha/pixman.git && cd pixman && git checkout kf ) || ( cd pixman && git pull )
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
@@ -210,8 +210,8 @@ then
     # openexr 64
     mkdir -p ~/win/x86_64/src
     cd ~/win/x86_64/src
-    tar xaf ~/win/src/openexr-2.5.6.tar.gz
-    cd openexr-2.5.6/
+    tar xaf ~/win/src/openexr-2.5.7.tar.gz
+    cd openexr-2.5.7/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -372,8 +372,8 @@ then
     # openexr 32
     mkdir -p ~/win/i686/src
     cd ~/win/i686/src
-    tar xf ~/win/src/openexr-2.5.6.tar.gz
-    cd openexr-2.5.6/
+    tar xf ~/win/src/openexr-2.5.7.tar.gz
+    cd openexr-2.5.7/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -538,8 +538,8 @@ then
     # openexr 64
     mkdir -p ~/win/aarch64/src
     cd ~/win/aarch64/src
-    tar xaf ~/win/src/openexr-2.5.6.tar.gz
-    cd openexr-2.5.6/
+    tar xaf ~/win/src/openexr-2.5.7.tar.gz
+    cd openexr-2.5.7/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch
@@ -703,8 +703,8 @@ then
     # openexr 32
     mkdir -p ~/win/armv7/src
     cd ~/win/armv7/src
-    tar xf ~/win/src/openexr-2.5.6.tar.gz
-    cd openexr-2.5.6/
+    tar xf ~/win/src/openexr-2.5.7.tar.gz
+    cd openexr-2.5.7/
     if [[ "x${COMPILER}" = "xgcc" ]]
     then
       patch -p1 < ~/win/src/openexr-2.4.0.patch

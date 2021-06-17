@@ -363,6 +363,7 @@ earlier).
   - fix: Newton zoom dialog (atom domain) size of period <=1 is set to 1
   - fix: OpenCL error dialog appears and disappears again instantly
   - upgrade to gsl-2.7
+  - upgrade to openexr-2.5.7
 
 ### kf-2.15.3
 

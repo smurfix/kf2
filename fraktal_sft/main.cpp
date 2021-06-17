@@ -3463,12 +3463,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
 	}
 
-	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETIMAGESIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL)) && HIWORD(GetKeyState(VK_SHIFT)))){
-		g_JpegParams.nWidth = g_SFT.GetWidth();
-		g_JpegParams.nHeight = g_SFT.GetHeight();
-		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1))
-			return 0;
-	}
 	else if ((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL))))
 	{
 		RECT cr;
