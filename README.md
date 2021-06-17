@@ -348,8 +348,10 @@ earlier).
   - new: rewritten GUI for window size / image size (by popular request)
   - new: Hidden Mandelbrot formula (thanks to FractalAlex, Bruce Dawson)
     <https://fractalforums.org/f/22/t/3576/msg22122#msg22122>
-  - new: Hidden Mandelbrot a la cos formula (thanks to 3Dickulus)
+  - new: Hidden Mandelbrot a la Cos formula (thanks to 3Dickulus)
     <https://fractalforums.org/f/74/t/3591/msg22215#msg22215>
+  - new: `z^p |z|^a + c` formula (thanks to gerrit)
+    <https://fractalforums.org/f/15/t/1916/msg23377#msg23377>
   - fix: Hybrid operator multiplication works with OpenCL
   - fix: Omnibrot works with OpenCL
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
@@ -3908,6 +3910,10 @@ Formulas:
 ### Hidden Mandelbrot a la Cos
 
     z := ((x^2 - y^2) + i (d x y (e + cos(d x y)))) + c
+
+### `z^p |z|^a + c`
+
+    z := z^p (exp (d/2 log(x^2 + y^2))) + c
 
 A machine-readable version of this formula list is found in the 'et'
 repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>

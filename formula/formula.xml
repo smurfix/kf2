@@ -1763,6 +1763,25 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     </formula>
   </group>
 
+  <group type="74" name="z^p |z|^a + c">
+    <formula power="2" glitch="0.0000001">
+      <reference t='R'>
+        Xrn = (Xr2  -  Xi2) * exp((Ar/2) * log(Xr2 + Xi2)) + Cr;
+        Xin = (2 * Xr * Xi) * exp((Ar/2) * log(Xr2 + Xi2)) + Ci;
+      </reference>
+      <perturbation t='R'>
+        xrn = ((2 * Xr + xr) * xr - (2 * Xi + xi) * xi) * exp((Ar/2) * log(Xr2 + Xi2)) + (Xxr2  -  Xxi2) * 2 * sinh((Ar/4) * log1p(((2 * Xr + xr) * xr + (2 * Xi + xi) * xi) / (Xr2 + Xi2))) * exp((Ar/4) * log((Xxr2 + Xxi2) * (Xr2 + Xi2))) + cr;
+        xin = (2 * (Xxr * xi + Xi * xr))                * exp((Ar/2) * log(Xr2 + Xi2)) + (2 * Xxr * Xxi) * 2 * sinh((Ar/4) * log1p(((2 * Xr + xr) * xr + (2 * Xi + xi) * xi) / (Xr2 + Xi2))) * exp((Ar/4) * log((Xxr2 + Xxi2) * (Xr2 + Xi2))) + ci;
+      </perturbation>
+      <derivative t='M'>
+        dxan = (2 * (Xxr * dxa - Xxi * dya) + (Xxr2  -  Xxi2) * Ar * (Xxr * dxa + Xxi * dya) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + daa;
+        dxbn = (2 * (Xxr * dxb - Xxi * dyb) + (Xxr2  -  Xxi2) * Ar * (Xxr * dxb + Xxi * dyb) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dab;
+        dyan = (2 * (Xxr * dya + Xxi * dxa) + (2 * Xxr * Xxi) * Ar * (Xxr * dxa + Xxi * dya) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dba;
+        dybn = (2 * (Xxr * dyb + Xxi * dxb) + (2 * Xxr * Xxi) * Ar * (Xxr * dxb + Xxi * dyb) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dbb;
+      </derivative>
+    </formula>
+  </group>
+
 <!--
   <group type="" name="Nova: z-a(z^p-1)/(pz^(p-1))+c">
     <formula power="3" glitch="0.0001">
