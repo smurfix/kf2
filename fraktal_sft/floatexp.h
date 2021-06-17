@@ -566,6 +566,29 @@ inline tfloatexp<mantissa, exponent> log2(tfloatexp<mantissa, exponent> a) noexc
 	return tfloatexp<mantissa, exponent>(std::log2(a.val) + a.exp);
 }
 
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> log1p(tfloatexp<mantissa, exponent> a) noexcept
+{
+	if (a.exp < -(sizeof(mantissa) == sizeof(double) ? 53 : 24))
+	{
+		return a;
+	}
+	else if (a.exp > (sizeof(mantissa) == sizeof(double) ? 53 : 24))
+	{
+		return log(1 + a);
+	}
+	else
+	{
+    return tfloatexp<mantissa, exponent>(std::log1p(mantissa(a)));
+	}
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> sinh(tfloatexp<mantissa, exponent> a) noexcept
+{
+	return expm1(2 * a) / (2 * exp(a)); // FIXME optimized for a near 0
+}
+
 inline double sqr(double a) noexcept
 {
 	return a * a;
