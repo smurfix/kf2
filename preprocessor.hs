@@ -42,6 +42,8 @@ data Expr
   | EAbs Expr
   | ESqr Expr
   | EExp Expr
+  | ELog Expr
+  | ELog1p Expr
   | ESin Expr
   | ECos Expr
   | ESinh Expr
@@ -66,6 +68,8 @@ data Instruction
   | IDivI String String Int
   | ISqr String String
   | IExp String String
+  | ILog String String
+  | ILog1p String String
   | ISin String String
   | ICos String String
   | ISinh String String
@@ -104,6 +108,10 @@ instruction (IDiv a b c) = tell (["mpfr_div(", a, ",", b, ",", c, ",MPFR_RNDN);\
 instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISin a b) = tell (["mpfr_sin(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ICos a b) = tell (["mpfr_cos(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (IExp a b) = tell (["mpfr_exp(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ILog a b) = tell (["mpfr_log(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ISinh a b) = tell (["mpfr_sinh(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ILog1p a b) = tell (["mpfr_log1p(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
   u <- compile a
@@ -241,7 +249,28 @@ compile (ECos a) = do
   deallocate u
   return v
 
-compile x = error (show x)
+compile (EExp a) = do
+  u <- compile a
+  v <- allocate
+  instruction (IExp v u)
+  deallocate u
+  return v
+
+compile (ELog a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ILog v u)
+  deallocate u
+  return v
+
+compile (ELog1p a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ILog1p v u)
+  deallocate u
+  return v
+
+compile x = error $ "compile (" ++ show x ++ ")"
 
 init2 = concatMap (\t -> "mpfr_t " ++ t ++ "; mpfr_init2(" ++ t ++ ", bits);\n")
 clear = concatMap (\t -> "mpfr_clear(" ++ t ++ ");\n")
@@ -271,6 +300,8 @@ vars (EExp a) = vars a
 vars (ESin a) = vars a
 vars (ECos a) = vars a
 vars (ESinh a) = vars a
+vars (ELog a) = vars a
+vars (ELog1p a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
 vars (EAssign a b) = vars a ++ vars b
 vars (EIf a b) = vars a ++ vars b
@@ -304,6 +335,8 @@ interpret t@"" (ESgn a) = "sgn(" ++ interpret t a ++ ")"
 interpret t@"" (EAbs a) = "abs(" ++ interpret t a ++ ")"
 interpret t@"" (ESqr a) = "sqr(" ++ interpret t a ++ ")"
 interpret t@"" (EExp a) = "exp(" ++ interpret t a ++ ")"
+interpret t@"" (ELog a) = "log(" ++ interpret t a ++ ")"
+interpret t@"" (ELog1p a) = "log1p(" ++ interpret t a ++ ")"
 interpret t@"" (ESin a) = "sin(" ++ interpret t a ++ ")"
 interpret t@"" (ECos a) = "cos(" ++ interpret t a ++ ")"
 interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
@@ -337,6 +370,8 @@ interpret t (ESgn a) = t ++ "sgn(" ++ interpret t a ++ ")"
 interpret t (EAbs a) = t ++ "abs(" ++ interpret t a ++ ")"
 interpret t (ESqr a) = t ++ "sqr(" ++ interpret t a ++ ")"
 interpret t (EExp a) = t ++ "exp(" ++ interpret t a ++ ")"
+interpret t (ELog a) = t ++ "log(" ++ interpret t a ++ ")"
+interpret t (ELog1p a) = t ++ "log1p(" ++ interpret t a ++ ")"
 interpret t (ESin a) = t ++ "sin(" ++ interpret t a ++ ")"
 interpret t (ECos a) = t ++ "cos(" ++ interpret t a ++ ")"
 interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
@@ -391,7 +426,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["exp", "sin", "cos", "sinh", "sqr", "sgn", "abs", "diffabs"]
+              , reservedNames = ["exp", "log", "log1p", "sin", "cos", "sinh", "sqr", "sgn", "abs", "diffabs"]
               }
   where ops = "=?:<>+-*^"
 
@@ -422,6 +457,8 @@ term = m_parens exprparser
        <|> (m_reserved "sin" >> ESin <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "cos" >> ECos <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "exp" >> EExp <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "log1p" >> ELog1p <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "log" >> ELog <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
