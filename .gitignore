@@ -6,6 +6,15 @@ cl/*_cl.c
 cl/formula.cpp
 gl/*.h
 formula/formula.cpp
+formula/formula_*_*.*.cpp
+formula/miscellaneous.cpp
+formula/perturbation_scaled.cpp
+formula/perturbation_scaled_derivatives.cpp
+formula/perturbation_simd.cpp
+formula/perturbation_simd_derivatives.cpp
+formula/perturbation_simple.cpp
+formula/perturbation_simple_derivatives.cpp
+formula/reference.cpp
 preprocessor
 preprocessor.hi
 *.d
