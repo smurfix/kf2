@@ -157,7 +157,7 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
         tfloatexp&lt;mantissa, exponent&gt; xrn, xin;
         {
 @d      {
-          <xsl:value-of select="z" />
+          <xsl:value-of select="perturbation" />
         }
         }
         // rescale

@@ -91,7 +91,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
       T xrn, xin;
 
 <xsl:choose>
-<xsl:when test="z/@t='C'">
+<xsl:when test="perturbation/@t='C'">
       const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
       complex&lt;T&gt; xn;
       (void) X; (void) x; (void) Xx;
@@ -99,16 +99,16 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
       V dummy;
       (void) dummy;
 @dc   {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
-<xsl:when test="z/@t='R'">
+<xsl:when test="perturbation/@t='R'">
       using V = T;
       V dummy;
       (void) dummy;
 @d    {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
 </xsl:when>
 </xsl:choose>

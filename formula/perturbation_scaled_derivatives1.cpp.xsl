@@ -69,14 +69,14 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     tfloatexp&lt;mantissa, exponent&gt; XxrF = 0;
     tfloatexp&lt;mantissa, exponent&gt; XxiF = 0;
 <xsl:choose>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
     assert(! "perturbation scaled derivative C implemented");
 </xsl:when>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
     tfloatexp&lt;mantissa, exponent&gt; drF = Jxa0F, diF = Jya0F;
     const tfloatexp&lt;mantissa, exponent&gt; dr0F = daaF, di0F = dbaF;
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
     tfloatexp&lt;mantissa, exponent&gt; dxaF = Jxa0F, dxbF = Jxb0F, dyaF = Jya0F, dybF = Jyb0F;
 </xsl:when>
 </xsl:choose>
@@ -122,7 +122,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     mantissa ui = mantissa(ci / S);
     mantissa u = mantissa(sqrt(cr * cr + ci * ci) / S);
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
     tfloatexp&lt;mantissa, exponent&gt; J0 = sqrt(drF * drF + diF * diF);
     if (J0 &lt; 1)
     {
@@ -134,7 +134,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     mantissa dr0D = mantissa(dr0F / J);
     mantissa di0D = mantissa(di0F / J);
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
     tfloatexp&lt;mantissa, exponent&gt; J0 = sqrt(dxaF * dxaF + dxbF * dxbF + dyaF * dyaF + dybF * dybF);
     if (J0 &lt; 1)
     {
@@ -214,7 +214,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         const tfloatexp&lt;mantissa, exponent&gt; Xxi = XxiF;
         tfloatexp&lt;mantissa, exponent&gt; xrn, xin, drn, din, dxan, dyan, dxbn, dybn;
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
         {
           (void) dxan;
           (void) dyan;
@@ -225,11 +225,11 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           const tfloatexp&lt;mantissa, exponent&gt; dr0 = dr0F;
           const tfloatexp&lt;mantissa, exponent&gt; di0 = di0F;
 @d        {
-            <xsl:value-of select="dc" />
+            <xsl:value-of select="derivative" />
           }
         }
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
         {
           (void) drn;
           (void) din;
@@ -242,11 +242,11 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           const tfloatexp&lt;mantissa, exponent&gt; dba = dbaF;
           const tfloatexp&lt;mantissa, exponent&gt; dbb = dbbF;
 @d        {
-            <xsl:value-of select="dc" />
+            <xsl:value-of select="derivative" />
           }
         }
 </xsl:when>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
         {
           assert(! "derivative type C implemented")
         }
@@ -254,7 +254,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
 </xsl:choose>
         {
 @d      {
-          <xsl:value-of select="z" />
+          <xsl:value-of select="perturbation" />
         }
         }
         // rescale
@@ -266,14 +266,14 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         ui = mantissa(ci / S);
         u = mantissa(sqrt(cr * cr + ci * ci) / S);
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
         J = sqrt(drn * drn + din * din);
         drD = mantissa(drn / J);
         diD = mantissa(din / J);
         dr0D = mantissa(dr0F / J);
         di0D = mantissa(di0F / J);
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
         J = sqrt(dxan * dxan + dyan * dyan + dxbn * dxbn + dybn * dybn);
         dxaD = mantissa(dxan / J);
         dyaD = mantissa(dyan / J);
@@ -333,7 +333,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         const mantissa Xxi = Xxid;
         mantissa drn, din, dxan, dyan, dxbn, dybn;
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
         {
           (void) dxan;
           (void) dyan;
@@ -344,11 +344,11 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           const mantissa dr0 = dr0D;
           const mantissa di0 = di0D;
 @d        {
-            <xsl:value-of select="dc" />
+            <xsl:value-of select="derivative" />
           }
         }
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
         {
           (void) drn;
           (void) din;
@@ -361,7 +361,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           const mantissa dba = dbaD;
           const mantissa dbb = dbbD;
 @d        {
-            <xsl:value-of select="dc" />
+            <xsl:value-of select="derivative" />
           }
         }
 </xsl:when>
@@ -402,7 +402,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           u = mantissa(sqrt(cr * cr + ci * ci) / S);
         }
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
         const mantissa d2 = drn * drn + din * din;
         if (d2 &lt; d2threshold) // FIXME threshold depends on power
         {
@@ -420,7 +420,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           di0D = mantissa(di0F / J);
         }
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
         const mantissa d2 = dxan * dxan + dxbn * dxbn + dyan * dyan + dybn * dybn;
         if (d2 &lt; d2threshold) // FIXME threshold depends on power
         {
@@ -459,13 +459,13 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     xr0 = XxrF;
     xi0 = XxiF;
 <xsl:choose>
-<xsl:when test="dc/@t='R'">
+<xsl:when test="derivative/@t='R'">
     Jxa0F =  drD * J;
     Jxb0F = -diD * J;
     Jya0F =  diD * J;
     Jyb0F =  drD * J;
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
     Jxa0F = dxaD * J;
     Jxb0F = dxbD * J;
     Jya0F = dyaD * J;

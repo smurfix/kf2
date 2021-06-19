@@ -91,10 +91,10 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
     intN bGlitch = bGlitch0;
     intN bBailed = test1 &gt; m_nBailout2;
 <xsl:choose>
-<xsl:when test="dc/@t='C' or dc/@t='R'">
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
     doubleN dr_0 = Jxa0, di_0 = Jya0;
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
     doubleN dxa0 = Jxa0, dxb0 = Jxb0, dya0 = Jya0, dyb0 = Jyb0;
 </xsl:when>
 </xsl:choose>
@@ -113,10 +113,10 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
         const doubleN xr_saved = xr0;
         const doubleN xi_saved = xi0;
 <xsl:choose>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
         const doubleN dxa_saved = dxa0, dxb_saved = dxb0, dya_saved = dya0, dyb_saved = dyb0;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='C'">
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
         const doubleN dr_saved = dr_0, di_saved = di_0;
 </xsl:when>
 </xsl:choose>
@@ -142,11 +142,11 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
       const doubleN xr = xr0, xi = xi0, cr = cr0, ci = ci0;
       doubleN xrn, xin;
 <xsl:choose>
-<xsl:when test="dc/@t='C' or dc/@t='R'">
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
       const doubleN dr = dr_0, di = di_0;
       doubleN drn, din;
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
       const doubleN daa = daa0, dab = dab0, dba = dba0, dbb = dbb0;
       const doubleN dxa = dxa0, dxb = dxb0, dya = dya0, dyb = dyb0;
       doubleN dxan, dxbn, dyan, dybn;
@@ -160,51 +160,51 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
       V dummyV;
       (void) dummyV;
 <xsl:choose>
-<xsl:when test="z/@t='C'">
+<xsl:when test="perturbation/@t='C'">
       const complex&lt;double&gt; X = {Xr, Xi};
       const complex&lt;doubleN&gt; x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci};
       complex&lt;doubleN&gt; xn;
       (void) X; (void) x; (void) Xx;
 <xsl:choose>
-<xsl:when test="dc/@t='R' or dc/@t='M'">
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @d    {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
 </xsl:when>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
       const complex&lt;doubleN&gt; d = {dr, di}, d0 = {daa0, dba0}; <!-- FIXME matrix derivatives -->
       complex&lt;doubleN&gt; dn;
 @dc   {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
       drn = dn.m_r; din = dn.m_i;
 </xsl:when>
 </xsl:choose>
 @dc   {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
-<xsl:when test="z/@t='R'">
+<xsl:when test="perturbation/@t='R'">
 <xsl:choose>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
       const complex&lt;double&gt; X = {Xr, Xi};
       const complex&lt;doubleN&gt; x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci}, d = {dr, di}, d0 = {daa, dba}; <!-- FIXME matrix derivatives -->
       complex&lt;doubleN&gt; dn;
       (void) X; (void) x; (void) Xx; (void) d;
 @dc   {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
       drn = dn.m_r; din = dn.m_i;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='M'">
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @d    {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
 </xsl:when>
 </xsl:choose>
 @d    {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
 </xsl:when>
 </xsl:choose>
@@ -212,10 +212,10 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
           xr0 = xrn;
           xi0 = xin;
 <xsl:choose>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
           dxa0 = dxan; dxb0 = dxbn; dya0 = dyan; dyb0 = dybn;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='C'">
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
           dr_0 = drn; di_0 = din;
 </xsl:when>
 </xsl:choose>
@@ -227,10 +227,10 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
           xr0 = xr_saved;
           xi0 = xi_saved;
 <xsl:choose>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
           dxa0 = dxa_saved; dxb0 = dxb_saved; dya0 = dya_saved; dyb0 = dyb_saved;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='C'">
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
           dr_0 = dr_saved; di_0 = di_saved;
 </xsl:when>
 </xsl:choose>
@@ -304,69 +304,69 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
       V dummyV;
       (void) dummyV;
 <xsl:choose>
-<xsl:when test="dc/@t='C' or dc/@t='R'">
+<xsl:when test="derivative/@t='C' or derivative/@t='R'">
       const double1 dr = dr_0[k], di = di_0[k];
       double1 drn = 0, din = 0;
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
       const double1 daa = daa0[k], dab = dab0[k], dba = dba0[k], dbb = dbb0[k];
       const double1 dxa = dxa0[k], dxb = dxb0[k], dya = dya0[k], dyb = dyb0[k];
       double1 dxan = 0, dxbn = 0, dyan = 0, dybn = 0;
 </xsl:when>
 </xsl:choose>
 <xsl:choose>
-<xsl:when test="z/@t='C'">
+<xsl:when test="perturbation/@t='C'">
       const complex&lt;double1&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci};
       complex&lt;double1&gt; xn;
       (void) X; (void) x; (void) Xx;
 <xsl:choose>
-<xsl:when test="dc/@t='R' or dc/@t='M'">
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @d    {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
 </xsl:when>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
       const complex&lt;double1&gt; d = {dr, di}, d0 = {daa0[k], dba0[k]}; <!-- FIXME matrix derivatives -->
       complex&lt;double1&gt; dn;
 @dc   {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
       drn = dn.m_r; din = dn.m_i;
 </xsl:when>
 </xsl:choose>
 @dc   {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
       xrn = xn.m_r; xin = xn.m_i;
 </xsl:when>
-<xsl:when test="z/@t='R'">
+<xsl:when test="perturbation/@t='R'">
 <xsl:choose>
-<xsl:when test="dc/@t='C'">
+<xsl:when test="derivative/@t='C'">
       const complex&lt;double1&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi}, c = {cr, ci}, d = {dr, di}, d0 = {daa[k], dba[k]}; <!-- FIXME matrix derivatives -->
       complex&lt;double1&gt; dn;
       (void) X; (void) x; (void) Xx; (void) d;
 @dc   {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
       drn = dn.m_r; din = dn.m_i;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='M'">
+<xsl:when test="derivative/@t='R' or derivative/@t='M'">
 @d    {
-        <xsl:value-of select="dc" />
+        <xsl:value-of select="derivative" />
       }
 </xsl:when>
 </xsl:choose>
 @d    {
-        <xsl:value-of select="z" />
+        <xsl:value-of select="perturbation" />
       }
 </xsl:when>
 </xsl:choose>
 
 <xsl:choose>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
       dxa0[k] = dxan; dxb0[k] = dxbn; dya0[k] = dyan; dyb0[k] = dybn;
 </xsl:when>
-<xsl:when test="dc/@t='R' or dc/@t='C'">
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
       dr_0[k] = drn; di_0[k] = din;
 </xsl:when>
 </xsl:choose>
@@ -378,13 +378,13 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
       xr00[k] = Xxr;
       xi00[k] = Xxi;
 <xsl:choose>
-<xsl:when test="dc/@t='R' or dc/@t='C'">
+<xsl:when test="derivative/@t='R' or derivative/@t='C'">
     Jxa0[k] = dr_0[k];
     Jxb0[k] = -di_0[k];
     Jya0[k] = di_0[k];
     Jyb0[k] = dr_0[k];
 </xsl:when>
-<xsl:when test="dc/@t='M'">
+<xsl:when test="derivative/@t='M'">
     Jxa0[k] = dxa0[k];
     Jxb0[k] = dxb0[k];
     Jya0[k] = dya0[k];

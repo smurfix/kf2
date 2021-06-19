@@ -59,7 +59,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
 <xsl:choose>
-<xsl:when test="Z/@t='C'">
+<xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn;
     mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
     mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
@@ -89,22 +89,22 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
       }
 
 <xsl:choose>
-<xsl:when test="Z/@t='C'">
+<xsl:when test="reference/@t='C'">
 for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
       {
         mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN);
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
         {
-          <xsl:value-of select="Z" />
+          <xsl:value-of select="reference" />
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
 LOOP  }
 </xsl:when>
-<xsl:when test="Z/@t='R'">
+<xsl:when test="reference/@t='R'">
 #define DLOOP
 @rr   {
-        <xsl:value-of select="Z" />
+        <xsl:value-of select="reference" />
       }
 #undef DLOOP
 </xsl:when>
