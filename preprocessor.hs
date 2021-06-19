@@ -341,6 +341,7 @@ interpret t@"" (ESin a) = "sin(" ++ interpret t a ++ ")"
 interpret t@"" (ECos a) = "cos(" ++ interpret t a ++ ")"
 interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
 interpret t@"" (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"" (EAssign (EVar v@('t':'_':_)) a) = "const auto " ++ v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
 
@@ -376,18 +377,25 @@ interpret t (ESin a) = t ++ "sin(" ++ interpret t a ++ ")"
 interpret t (ECos a) = t ++ "cos(" ++ interpret t a ++ ")"
 interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (EAssign (EVar v@('t':'_':_)) a) = (case t of
+  "d"   -> "const double "
+  "dc"  -> "const dcomplex "
+  "fe"  -> "const floatexp "
+  "fec" -> "const fecomplex "
+  "sf"  -> "const softfloat "
+  "sfc" -> "const sfcomplex ") ++ v ++ "=" ++ interpret t a ++ ";"
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
 
 prepare "d" vs = unlines . concat $
-  [ [ "const T Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
-  , [ "const T Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
-  , [ "const V xr2 = xr * xr;" | "xr2" `elem` vs ]
-  , [ "const V xi2 = xi * xi;" | "xi2" `elem` vs ]
+  [ [ "const auto Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
+  , [ "const auto Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
+  , [ "const auto xr2 = xr * xr;" | "xr2" `elem` vs ]
+  , [ "const auto xi2 = xi * xi;" | "xi2" `elem` vs ]
   ]
 prepare "dc" vs = unlines . concat $
-  [ [ "const complex<T> X2 = X * X;" | "X2" `elem` vs ]
-  , [ "const complex<V> x2 = x * x;" | "x2" `elem` vs ]
+  [ [ "const auto X2 = X * X;" | "X2" `elem` vs ]
+  , [ "const auto x2 = x * x;" | "x2" `elem` vs ]
   ]
 prepare "cld" vs = unlines . concat $
   [ [ "const double Xr2 = d_mul(Xr, Xr);" | "Xr2" `elem` vs ]
