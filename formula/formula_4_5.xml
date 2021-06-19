@@ -1,0 +1,16 @@
+<formula type="4" name="Mandelbar" power="5" glitch="0.0001">
+  <reference t="R">
+    Xrn = Xr * (Xr2 * Xr2 - 10 * Xr2 * Xi2 + 5 * Xi2 * Xi2)  + Cr;
+    Xin = Ci - Xi * (5 * Xr2 * Xr2 - 10 * Xr2 * Xi2 + Xi2 * Xi2);
+  </reference>
+  <perturbation t="R">
+    xrn = 5 * Xr2 * Xr2 * xr + 10 * Xr2 * Xr * xr2 + 10 * Xr2 * xr2 * xr + 5 * Xr * xr2 * xr2 - 20 * Xr2 * Xr * Xi * xi - 10 * Xr2 * Xr * xi2 - 30 * Xr2 * xr * Xi2 - 60 * Xr2 * xr * Xi * xi - 30 * Xr2 * xr * xi2 - 30 * Xr * xr2 * Xi2 - 60 * Xr * xr2 * Xi * xi - 30 * Xr * xr2 * xi2 + 20 * Xr * Xi2 * Xi * xi + 30 * Xr * Xi2 * xi2 + 20 * Xr * Xi * xi2 * xi + 5 * Xr * xi2 * xi2 + xr2 * xr2 * xr - 10 * xr2 * xr * Xi2 - 20 * xr2 * xr * Xi * xi - 10 * xr2 * xr * xi2 + 5 * xr * Xi2 * Xi2 + 20 * xr * Xi2 * Xi * xi + 30 * xr * Xi2 * xi2 + 20 * xr * Xi * xi2 * xi + 5 * xr * xi2 * xi2 + cr;
+    xin = ( - 20) * Xi * Xr2 * Xr * xr - 30 * Xi * Xr2 * xr2 - 20 * Xi * Xr * xr2 * xr - 5 * Xi * xr2 * xr2 + 30 * Xi2 * Xr2 * xi + 30 * Xi * Xr2 * xi2 + 20 * Xi2 * Xi * Xr * xr + 60 * Xi2 * Xr * xr * xi + 60 * Xi * Xr * xr * xi2 + 10 * Xi2 * Xi * xr2 + 30 * Xi2 * xr2 * xi + 30 * Xi * xr2 * xi2 - 5 * Xi2 * Xi2 * xi - 10 * Xi2 * Xi * xi2 - 10 * Xi2 * xi2 * xi - 5 * Xi * xi2 * xi2 - 5 * xi * Xr2 * Xr2 - 20 * xi * Xr2 * Xr * xr - 30 * xi * Xr2 * xr2 - 20 * xi * Xr * xr2 * xr - 5 * xi * xr2 * xr2 + 10 * xi2 * xi * Xr2 + 20 * xi2 * xi * Xr * xr + 10 * xi2 * xi * xr2 - xi2 * xi2 * xi + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxa))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxa))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dya))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dya))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxa))))) + daa)))));
+    dxbn = ((5 * (Xxi * (Xxi * (Xxi * (Xxi * dxb))))) + ((5 * (Xxr * (Xxr * (Xxr * (Xxr * dxb))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dyb))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dyb))))) + (( - 30 * (Xxi * (Xxi * (Xxr * (Xxr * dxb))))) + dab)))));
+    dyan = (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dya))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dya))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dxa))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dxa))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dya))))) + dba)))));
+    dybn = (( - 5 * (Xxi * (Xxi * (Xxi * (Xxi * dyb))))) + (( - 5 * (Xxr * (Xxr * (Xxr * (Xxr * dyb))))) + ((20 * (Xxi * (Xxi * (Xxi * (Xxr * dxb))))) + (( - 20 * (Xxi * (Xxr * (Xxr * (Xxr * dxb))))) + ((30 * (Xxi * (Xxi * (Xxr * (Xxr * dyb))))) + dbb)))));
+  </derivative>
+</formula>

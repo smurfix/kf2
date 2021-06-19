@@ -1,0 +1,16 @@
+<formula type="12" name="Cubic Partial BS Imag" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = (Xr2 - Xi2 * 3) * Xr + Cr;
+    Xin = ((Xr2 * 3) - Xi2) * abs(Xi) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = 3 * Xr2 * xr + 3 * Xr * xr2 - 6 * Xr * Xi * xi - 3 * Xr * xi2 + xr * xr2 - 3 * Xi2 * xr - 6 * Xi * xr * xi - 3 * xr * xi2 + cr;
+    xin = (3 * Xr2 - Xi2) * diffabs(Xi, xi) + (6 * xr * Xr + 3 * xr2 - 2 * Xi * xi - xi2) * abs(Xi + xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (Xxr * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * dxa))) + (( - 6 * (Xxi * (Xxr * dya))) + daa)));
+    dxbn = ((3 * (Xxr * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * dxb))) + (( - 6 * (Xxi * (Xxr * dyb))) + dab)));
+    dyan = (( - 1 * (Xxi * (Xxi * (dya * sgn(Xxi))))) + (( - 2 * (abs(Xxi) * (Xxi * dya))) + ((3 * (Xxr * (Xxr * (dya * sgn(Xxi))))) + ((6 * (abs(Xxi) * (Xxr * dxa))) + dba))));
+    dybn = (( - 1 * (Xxi * (Xxi * (dyb * sgn(Xxi))))) + (( - 2 * (abs(Xxi) * (Xxi * dyb))) + ((3 * (Xxr * (Xxr * (dyb * sgn(Xxi))))) + ((6 * (abs(Xxi) * (Xxr * dxb))) + dbb))));
+  </derivative>
+</formula>

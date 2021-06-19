@@ -1,0 +1,32 @@
+<formula type="0" name="Mandelbrot" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = sqr(Xr + Xi) - Xr2 - Xi2 + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
+    xin = 2 * (Xxr * xi + Xi * xr) + ci;
+  </perturbation>
+  <derivative t="R">
+    drn = 2 * (Xxr * dr - Xxi * di) + dr0;
+    din = 2 * (Xxi * dr + Xxr * di) + di0;
+  </derivative>
+  <scaled t="R">
+    <threshold s="0" u="0">
+      wrn = 2 * (Xr * wr - Xi * wi);
+      win = 2 * (Xr * wi + Xi * wr);
+    </threshold>
+    <threshold s="0" u="LARGE_MANTISSA">
+      wrn = 2 * (Xr * wr - Xi * wi) + ur;
+      win = 2 * (Xr * wi + Xi * wr) + ui;
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="0">
+      wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi;
+      win = 2 * ((Xr + wr * s) * wi + Xi * wr);
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
+      wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi + ur;
+      win = 2 * ((Xr + wr * s) * wi + Xi * wr) + ui;
+    </threshold>
+  </scaled>
+</formula>

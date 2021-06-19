@@ -1,0 +1,11 @@
+<formula type="0" name="Mandelbrot" power="5" glitch="0.0001">
+  <reference t="C">
+    Xn = (X ^ 5) + C;
+  </reference>
+  <perturbation t="C">
+    xn = 5 * (X ^ 4) * x + 10 * (X ^ 3) * (x ^ 2) + 10 * (X ^ 2) * (x ^ 3) + 5 * X * (x ^ 4) + (x ^ 5) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = 5 * d * (Xx ^ 4) + d0;
+  </derivative>
+</formula>

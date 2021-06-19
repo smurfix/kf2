@@ -1,0 +1,16 @@
+<formula type="53" name="General Quadratic Plus" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 + Xi2 + Cr;
+    Xin = 2 * Ar * Xr * Xi + Ai * Xr2 + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = 2 * xr * Xr + xr * xr + 2 * Xi * xi + xi * xi + cr;
+    xin = 2 * Ar * (Xr * xi + xr * Xi + xr * xi) + Ai * (2 * xr * Xr + xr * xr) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxi * dya)) + (2 * (Xxr * dxa))) + daa;
+    dxbn = ((2 * (Xxi * dyb)) + (2 * (Xxr * dxb))) + dab;
+    dyan = ((2 * (Xxi * (dxa * g_FactorAR))) + ((2 * (Xxr * (dxa * g_FactorAI))) + (2 * (Xxr * (dya * g_FactorAR))))) + dba;
+    dybn = ((2 * (Xxi * (dxb * g_FactorAR))) + ((2 * (Xxr * (dxb * g_FactorAI))) + (2 * (Xxr * (dyb * g_FactorAR))))) + dbb;
+  </derivative>
+</formula>

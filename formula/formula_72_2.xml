@@ -1,0 +1,16 @@
+<formula type="72" name="Hidden Mandelbrot" power="2" glitch="0.000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = (2 * Xr * Xi) * (1 - sin(2 * Xr * Xi)) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
+    xin = 2 * (Xr * xi + xr * Xxi) * (1 - sin(2 * Xr * Xi)) - 4 * Xxr * Xxi * sin(Xr * xi + xr * Xxi) * cos(2 * Xr * Xi + (Xr * xi + xr * Xxi)) + ci;
+  </perturbation>
+  <derivative t="M">
+    dxan = (daa+((2*(dxa*Xxr))+(-2*(dya*Xxi))));
+    dxbn = (dab+((2*(dxb*Xxr))+(-2*(dyb*Xxi))));
+    dyan = (dba+((-2*(dxa*(Xxi*sin((2*(Xxr*Xxi))))))+((2*(dxa*Xxi))+((2*(dya*Xxr))+((-4*(dxa*(Xxr*(Xxi*(Xxi*cos((2*(Xxr*Xxi))))))))+((-4*(dya*(Xxr*(Xxr*(Xxi*cos((2*(Xxr*Xxi))))))))+(-2*(dya*(Xxr*sin((2*(Xxr*Xxi))))))))))));
+    dybn = (dbb+((-2*(dxb*(Xxi*sin((2*(Xxr*Xxi))))))+((2*(dxb*Xxi))+((2*(dyb*Xxr))+((-4*(dxb*(Xxr*(Xxi*(Xxi*cos((2*(Xxr*Xxi))))))))+((-4*(dyb*(Xxr*(Xxr*(Xxi*cos((2*(Xxr*Xxi))))))))+(-2*(dyb*(Xxr*sin((2*(Xxr*Xxi))))))))))));
+  </derivative>
+</formula>

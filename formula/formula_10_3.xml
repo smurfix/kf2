@@ -1,0 +1,16 @@
+<formula type="10" name="Cubic Quasi Burning Ship" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = (Xr2 - (Xi2 * 3)) * abs(Xr) + Cr;
+    Xin = Ci - abs(((Xr2 * 3) - Xi2) * Xi);
+  </reference>
+  <perturbation t="R">
+    xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2) * abs(Xr + xr) + cr;
+    xin = ci - diffabs(Xi * (3 * Xr2 - Xi2), 3 * Xi * (2 * Xr * xr + xr2 - xi2) + 3 * xi * (Xr2 + 2 * Xr * xr + xr2) - xi * (3 * Xi2 + xi2));
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((Xxr * (Xxr * (dxa * sgn(Xxr)))) + ((2 * (abs(Xxr) * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * (dxa * sgn(Xxr))))) + (( - 6 * (abs(Xxr) * (Xxi * dya))) + daa))));
+    dxbn = ((Xxr * (Xxr * (dxb * sgn(Xxr)))) + ((2 * (abs(Xxr) * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * (dxb * sgn(Xxr))))) + (( - 6 * (abs(Xxr) * (Xxi * dyb))) + dab))));
+    dyan = (( - 3 * (Xxr * (Xxr * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + ((3 * (Xxi * (Xxi * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + (( - 6 * (Xxi * (Xxr * (dxa * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + dba)));
+    dybn = (( - 3 * (Xxr * (Xxr * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + ((3 * (Xxi * (Xxi * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + (( - 6 * (Xxi * (Xxr * (dxb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + dbb)));
+  </derivative>
+</formula>

@@ -1,0 +1,16 @@
+<formula type="54" name="Mothbrot 2nd 1x1" power="2" glitch="1.0000000000000004e-7">
+  <reference t='R'>
+    Xrn = (Cr + (( - 1 * (Xi * abs(Xi))) + (Xr * abs(Xr))));
+    Xin = (Ci + ((Xi * abs(Xr)) + (Xr * abs(Xi))));
+  </reference>
+  <perturbation t='R'>
+    xrn = (cr + ((Xr * diffabs(Xr,xr)) + (( - 1 * ((Xi * diffabs(Xi,xi)) + (xi * abs((Xi + xi))))) + (xr * abs((Xr + xr))))));
+    xin = (ci + ((Xi * diffabs(Xr,xr)) + ((Xr * diffabs(Xi,xi)) + ((xi * abs((Xr + xr))) + (xr * abs((Xi + xi)))))));
+  </perturbation>
+  <derivative t='M'>
+    dxan = (daa + ((Xxr * (dxa * sgn(Xxr))) + ((dxa * abs(Xxr)) + ( - 1 * ((Xxi * (dya * sgn(Xxi))) + (dya * abs(Xxi)))))));
+    dxbn = (dab + ((Xxr * (dxb * sgn(Xxr))) + ((dxb * abs(Xxr)) + ( - 1 * ((Xxi * (dyb * sgn(Xxi))) + (dyb * abs(Xxi)))))));
+    dyan = (dba + ((Xxi * (dxa * sgn(Xxr))) + ((Xxr * (dya * sgn(Xxi))) + ((dxa * abs(Xxi)) + (dya * abs(Xxr))))));
+    dybn = (dbb + ((Xxi * (dxb * sgn(Xxr))) + ((Xxr * (dyb * sgn(Xxi))) + ((dxb * abs(Xxi)) + (dyb * abs(Xxr))))));
+  </derivative>
+</formula>

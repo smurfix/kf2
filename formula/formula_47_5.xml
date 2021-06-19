@@ -1,0 +1,11 @@
+<formula type="47" name="TheRedshiftRider 6: a * z^2 + z^5 + c" power="5" glitch="0.0001">
+  <reference t="C">
+    Xn = A * (X^2) + (X^5) + C;
+  </reference>
+  <perturbation t="C">
+    xn = A * (2 * X * x + x2) + 5 * (X^4) * x + 10 * (X^3) * x2 + 10 * (X^2) * x2 * x + 5 * X * (x2^2) + (x2 * x2 * x) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = (A * 2 + 5 * X2 * X) * X * d + d0;
+  </derivative>
+</formula>

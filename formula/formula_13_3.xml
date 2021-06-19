@@ -1,0 +1,16 @@
+<formula type="13" name="Cubic Flying Squirrel (Buffalo Imag)" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = (Xr2 - Xi2 * 3) * Xr + Cr;
+    Xin = abs(((Xr2 * 3) - Xi2) * Xi) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = 3 * Xr2 * xr + 3 * Xr * xr2 - 6 * Xr * Xi * xi - 3 * Xr * xi2 + xr * xr2 - 3 * Xi2 * xr - 6 * Xi * xr * xi - 3 * xr * xi2 + cr;
+    xin = diffabs(Xi * (3 * Xr2 - Xi2), 3 * Xi * (2 * Xr * xr + xr2 - xi2) + 3 * xi * (Xr2 + 2 * Xr * xr + xr2) - xi * (3 * Xi2 + xi2)) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (Xxr * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * dxa))) + (( - 6 * (Xxi * (Xxr * dya))) + daa)));
+    dxbn = ((3 * (Xxr * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * dxb))) + (( - 6 * (Xxi * (Xxr * dyb))) + dab)));
+    dyan = ((3 * (Xxr * (Xxr * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + (( - 3 * (Xxi * (Xxi * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + ((6 * (Xxi * (Xxr * (dxa * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + dba)));
+    dybn = ((3 * (Xxr * (Xxr * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + (( - 3 * (Xxi * (Xxi * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + ((6 * (Xxi * (Xxr * (dxb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (3 * (Xxi * (Xxr * Xxr))))))))) + dbb)));
+  </derivative>
+</formula>

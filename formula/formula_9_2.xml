@@ -1,0 +1,16 @@
+<formula type="9" name="Perpendicular Buffalo" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = abs(Xr2 - Xi2) + Cr;
+    Xin = Ci - Xr * abs(Xi) * 2;
+  </reference>
+  <perturbation t="R">
+    xrn = diffabs(Xr * Xr - Xi * Xi, 2 * Xr * xr + xr2 - 2 * Xi * xi - xi2) + cr;
+    xin = diffabs(Xi, xi) * Xr * ( - 2) + xr * abs((Xi + xi)) * ( - 2) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dya * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + daa));
+    dxbn = ((2 * (Xxr * (dxb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dyb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + dab));
+    dyan = (dba + (( - 2 * (Xxr * (dya * sgn(Xxi)))) + ( - 2 * (abs(Xxi) * dxa))));
+    dybn = (dbb + (( - 2 * (Xxr * (dyb * sgn(Xxi)))) + ( - 2 * (abs(Xxi) * dxb))));
+  </derivative>
+</formula>

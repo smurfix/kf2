@@ -1,0 +1,16 @@
+<formula type="38" name="4th Celtic Real Quasi Perpendicular" power="4" glitch="0.000001">
+  <reference t="R">
+    Xrn = abs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2)  + Cr;
+    Xin = Ci - 4 * Xi * abs(Xr * Xr2 - Xr * Xi2);
+  </reference>
+  <perturbation t="R">
+    xrn = diffabs(Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2,4 * Xi2 * Xi * xi - 12 * Xi2 * xr * Xr + 6 * Xi2 * xi2 - 6 * Xi2 * xr2 - 12 * Xr2 * Xi * xi - 24 * Xr * Xi * xr * xi + 4 * xi2 * xi * Xi - 12 * xi * Xi * xr2 + 4 * Xr2 * Xr * xr - 6 * Xr2 * xi2 + 6 * Xr2 * xr2 - 12 * xi2 * Xr * xr + 4 * xr2 * xr * Xr + xi2 * xi2 - 6 * xi2 * xr2 + xr2 * xr2)  + cr;
+    xin = ( - 4) * Xi * diffabs(Xr2 * Xr - Xr * Xi2, - xr * Xi2 - 2 * xi * Xr * Xi - 2 * xr * xi * Xi + 3 * xr * Xr2 - xi2 * Xr + 3 * xr2 * Xr - xr * xi2 + xr2 * xr) - 4 * xi * abs( -  Xr * Xi2 - xr * Xi2 - 2 * xi * Xr * Xi - 2 * xr * xi * Xi + Xr2 * Xr + 3 * xr * Xr2 - xi2 * Xr + 3 * xr2 * Xr - xr * xi2 + xr2 * xr) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((4 * (Xxi * (Xxi * (Xxi * (dya * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + ((4 * (Xxr * (Xxr * (Xxr * (dxa * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + (( - 12 * (Xxi * (Xxi * (Xxr * (dxa * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + (( - 12 * (Xxi * (Xxr * (Xxr * (dya * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + daa))));
+    dxbn = ((4 * (Xxi * (Xxi * (Xxi * (dyb * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + ((4 * (Xxr * (Xxr * (Xxr * (dxb * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + (( - 12 * (Xxi * (Xxi * (Xxr * (dxb * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + (( - 12 * (Xxi * (Xxr * (Xxr * (dyb * sgn(((Xxi * (Xxi * (Xxi * Xxi))) + (( - 6 * (Xxi * (Xxi * (Xxr * Xxr)))) + (Xxr * (Xxr * (Xxr * Xxr))))))))))) + dab))));
+    dyan = (dba + ((4 * (Xxi * (Xxi * (Xxi * (dxa * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + ((8 * (Xxi * (Xxi * (Xxr * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + (( - 12 * (Xxi * (Xxr * (Xxr * (dxa * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + ( - 4 * (abs((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))) * dya))))));
+    dybn = (dbb + ((4 * (Xxi * (Xxi * (Xxi * (dxb * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + ((8 * (Xxi * (Xxi * (Xxr * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + (( - 12 * (Xxi * (Xxr * (Xxr * (dxb * sgn((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr))))))))) + ( - 4 * (abs((( - 1 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))) * dyb))))));
+  </derivative>
+</formula>

@@ -1,0 +1,16 @@
+<formula type="3" name="Celtic" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = abs(Xr2 - Xi2) + Cr;
+    Xin = Xr * Xi * 2 + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = diffabs(Xr * Xr - Xi * Xi, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi) + cr;
+    xin = 2 * Xr * xi + 2 * xr * (Xi + xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dya * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + daa));
+    dxbn = ((2 * (Xxr * (dxb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dyb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + dab));
+    dyan = ((2 * (Xxi * dxa)) + ((2 * (Xxr * dya)) + dba));
+    dybn = ((2 * (Xxi * dxb)) + ((2 * (Xxr * dyb)) + dbb));
+  </derivative>
+</formula>

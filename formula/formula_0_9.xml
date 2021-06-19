@@ -1,0 +1,11 @@
+<formula type="0" name="Mandelbrot" power="9" glitch="0.01">
+  <reference t="C">
+    Xn = (X ^ 9) + C;
+  </reference>
+  <perturbation t="C">
+    xn = 9 * (X ^ 8) * x + 36 * (X ^ 7) * (x ^ 2) + 84 * (X ^ 6) * (x ^ 3) + 126 * (X ^ 5) * (x ^ 4) + 126 * (X ^ 4) * (x ^ 5) + 84 * (X ^ 3) * (x ^ 6) + 36 * (X ^ 2) * (x ^ 7) + 9 * X * (x ^ 8) + (x ^ 9) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = 9 * d * (Xx ^ 8) + d0;
+  </derivative>
+</formula>

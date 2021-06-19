@@ -1,0 +1,16 @@
+<formula type="74" name="z^p |z|^a + c" power="3" glitch="0.000001">
+  <reference t='R'>
+    Xrn = (Xr * (Xr2 - 3 * Xi2)) * exp((Ar/2) * log(Xr2 + Xi2)) + Cr;
+    Xin = (Xi * (3 * Xr2 - Xi2)) * exp((Ar/2) * log(Xr2 + Xi2)) + Ci;
+  </reference>
+  <perturbation t='R'>
+    xrn = (3 * ((Xr2 - Xi2) * xr - 2 * Xxr * Xi * xi + Xr * (xr2 - xi2)) + xr * (xr2 - 3 * xi2)) * exp((Ar/2) * log(Xr2 + Xi2)) + (Xxr * (Xxr2 - 3 * Xxi2)) * 2 * sinh((Ar/4) * log1p(((2 * Xr + xr) * xr + (2 * Xi + xi) * xi) / (Xr2 + Xi2))) * exp((Ar/4) * log((Xxr2 + Xxi2) * (Xr2 + Xi2))) + cr;
+    xin = (3 * ((Xr2 - Xi2) * xi + 2 * Xr * xr * Xxi + Xi * (xr2 - xi2)) + xi * (3 * xr2 - xi2)) * exp((Ar/2) * log(Xr2 + Xi2)) + (Xxi * (3 * Xxr2 - Xxi2)) * 2 * sinh((Ar/4) * log1p(((2 * Xr + xr) * xr + (2 * Xi + xi) * xi) / (Xr2 + Xi2))) * exp((Ar/4) * log((Xxr2 + Xxi2) * (Xr2 + Xi2))) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (Xxr2 - Xxi2) * dxa - 6 * (Xxr * Xxi) * dya) + (Xxr * (Xxr2 - 3 * Xxi2)) * Ar * (Xxr * dxa + Xxi * dya) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + daa;
+    dxbn = ((3 * (Xxr2 - Xxi2) * dxb - 6 * (Xxr * Xxi) * dyb) + (Xxr * (Xxr2 - 3 * Xxi2)) * Ar * (Xxr * dxb + Xxi * dyb) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dab;
+    dyan = ((3 * (Xxr2 - Xxi2) * dya + 6 * (Xxr * Xxi) * dxa) + (Xxi * (3 * Xxr2 - Xxi2)) * Ar * (Xxr * dxa + Xxi * dya) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dba;
+    dybn = ((3 * (Xxr2 - Xxi2) * dyb + 6 * (Xxr * Xxi) * dxb) + (Xxi * (3 * Xxr2 - Xxi2)) * Ar * (Xxr * dxb + Xxi * dyb) / (Xxr2 + Xxi2)) * exp((Ar/2) * log(Xxr2 + Xxi2)) + dbb;
+  </derivative>
+</formula>

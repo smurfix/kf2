@@ -1,0 +1,16 @@
+<formula type="73" name="Hidden Mandelbrot a la Cos" power="2" glitch="1.0000000000000004e-7">
+  <reference t='R'>
+    Xrn = (Cr+((-1*(Xi*Xi))+(Xr*Xr)));
+    Xin = ((Ai*(Ar*(Xi*Xr)))+((Ar*(Xi*(Xr*cos((Ar*(Xi*Xr))))))+Ci));
+  </reference>
+  <perturbation t='R'>
+    xrn = (cr+((-1*(xi*xi))+((2*(Xr*xr))+((-2*(Xi*xi))+(xr*xr)))));
+    xin = ((Ai*(Ar*((Xi*xr)+(xi*(Xr+xr)))))+((Ar*((Xi*(xr*cos((Ar*((Xr+xr)*(Xi+xi))))))+((Xr*(xi*cos((Ar*((Xr+xr)*(Xi+xi))))))+(xi*(xr*cos((Ar*((Xr+xr)*(Xi+xi)))))))))+((-2*(Ar*(Xi*(Xr*(sin(((Ar*((Xi*xr)+(xi*(Xr+xr))))/2))*sin(((Ar*(Xi*Xr))+((Ar*((Xi*xr)+(xi*(Xr+xr))))/2))))))))+ci)));
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((-2*(Xxi*dya))+((2*(Xxr*dxa))+daa));
+    dxbn = ((-2*(Xxi*dyb))+((2*(Xxr*dxb))+dab));
+    dyan = ((Ai*(Ar*((Xxi*dxa)+(Xxr*dya))))+((Ar*((Xxi*(dxa*cos((Ar*(Xxi*Xxr)))))+(Xxr*(dya*cos((Ar*(Xxi*Xxr)))))))+((-1*((Ar*Ar)*(((Xxi*Xxi)*(Xxr*(dxa*sin((Ar*(Xxi*Xxr))))))+(Xxi*((Xxr*Xxr)*(dya*sin((Ar*(Xxi*Xxr)))))))))+dba)));
+    dybn = ((Ai*(Ar*((Xxi*dxb)+(Xxr*dyb))))+((Ar*((Xxi*(dxb*cos((Ar*(Xxi*Xxr)))))+(Xxr*(dyb*cos((Ar*(Xxi*Xxr)))))))+((-1*((Ar*Ar)*(((Xxi*Xxi)*(Xxr*(dxb*sin((Ar*(Xxi*Xxr))))))+(Xxi*((Xxr*Xxr)*(dyb*sin((Ar*(Xxi*Xxr)))))))))+dbb)));
+  </derivative>
+</formula>

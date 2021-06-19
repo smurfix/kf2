@@ -1,0 +1,11 @@
+<formula type="71" name="Omnibrot" power="2" glitch="0.0001">
+  <reference t="C">
+    Xn = (X ^ 2) * exp(2 * A / X) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (x + 2 * X) * x * exp(2 * A / Xx) + 2 * (X ^ 2) * sinh(-A * x / (Xx * X)) * exp(A * (x + 2 * X) / (Xx * X)) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = 2 * (Xx - A) * exp(2 * A / Xx) * d + d0;
+  </derivative>
+</formula>

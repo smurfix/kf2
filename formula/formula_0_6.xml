@@ -1,0 +1,12 @@
+<formula type="0" name="Mandelbrot" power="6" glitch="0.0001">
+  <reference t="C">
+    Xn = (X ^ 6) + C;
+  </reference>
+  <perturbation t="C">
+    xn = 6 * (X ^ 5) * x + 15 * (X ^ 4) * (x ^ 2) + 20 * (X ^ 3) * (x ^ 3) + 15 * (X ^ 2) * (x ^ 4) + 6 * X * (x ^ 5) + (x ^ 6) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = 6 * d * (Xx ^ 5) + d0;
+  </derivative>
+</formula>
+

@@ -1,0 +1,16 @@
+<formula type="69" name="Abs General Quadratic Minus" power="2" glitch="1.0000000000000004e-7">
+  <reference t='R'>
+    Xrn = (Cr + (( - 1 * (Xi * Xi)) + (Xr * Xr)));
+    Xin = ((Ai * (Xr * Xr)) + ((2 * (Ar * abs((Xi * Xr)))) + Ci));
+  </reference>
+  <perturbation t='R'>
+    xrn = (cr + (( - 1 * (xi * xi)) + ((2 * (Xr * xr)) + (( - 2 * (Xi * xi)) + (xr * xr)))));
+    xin = ((Ai * (xr * xr)) + ((2 * ((Ai * (Xr * xr)) + (Ar * diffabs((Xi * Xr),((Xi * xr) + (xi * (Xr + xr))))))) + ci));
+  </perturbation>
+  <derivative t='M'>
+    dxan = (( - 2 * (Xxi * dya)) + ((2 * (Xxr * dxa)) + daa));
+    dxbn = (( - 2 * (Xxi * dyb)) + ((2 * (Xxr * dxb)) + dab));
+    dyan = ((2 * ((g_FactorAI * (Xxr * dxa)) + (sgn(Xxi) * (g_FactorAR * ((Xxi * (dxa * sgn(Xxr))) + (Xxr * (dya * sgn(Xxr)))))))) + dba);
+    dybn = ((2 * ((g_FactorAI * (Xxr * dxb)) + (sgn(Xxi) * (g_FactorAR * ((Xxi * (dxb * sgn(Xxr))) + (Xxr * (dyb * sgn(Xxr)))))))) + dbb);
+  </derivative>
+</formula>

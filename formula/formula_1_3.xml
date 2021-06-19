@@ -1,0 +1,16 @@
+<formula type="1" name="Burning Ship" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = (Xr2 - 3 * Xi2) * abs(Xr) + Cr;
+    Xin = (3 * Xr2 - Xi2) * abs(Xi) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * Xr * xr + xr2 - 6 * Xi * xi - 3 * xi2) * abs(Xr + xr) + cr;
+    xin = (3 * Xr2 - Xi2) * diffabs(Xi, xi) + (6 * Xr * xr + 3 * xr2 - 2 * Xi * xi - xi2) * abs(Xi + xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (dxa * sgn(Xxr))))))) + (( - 3 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (dxa * sgn(Xxr))))))) + (( - 6 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxr * (dya * sgn(Xxr))))))) + daa)));
+    dxbn = ((3 * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (dxb * sgn(Xxr))))))) + (( - 3 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (dxb * sgn(Xxr))))))) + (( - 6 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxr * (dyb * sgn(Xxr))))))) + dab)));
+    dyan = ((3 * (sgn(Xxi) * (sgn(Xxr) * (Xxr * (Xxr * (dya * sgn(Xxr))))))) + (( - 3 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (dya * sgn(Xxi))))))) + ((6 * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxr * (dxa * sgn(Xxr))))))) + dba)));
+    dybn = ((3 * (sgn(Xxi) * (sgn(Xxr) * (Xxr * (Xxr * (dyb * sgn(Xxr))))))) + (( - 3 * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (dyb * sgn(Xxi))))))) + ((6 * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxr * (dxb * sgn(Xxr))))))) + dbb)));
+  </derivative>
+</formula>

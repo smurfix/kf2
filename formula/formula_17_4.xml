@@ -1,0 +1,16 @@
+<formula type="17" name="4th Burning Ship Partial Real Mbar" power="4" glitch="0.00001">
+  <reference t="R">
+    Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2  + Cr;
+    Xin = Ci - 4 * abs(Xr) * Xi * (Xr2 - Xi2);
+  </reference>
+  <perturbation t="R">
+    xrn = 4 * Xr2 * Xr * xr + 6 * Xr2 * xr2 + 4 * Xr * xr2 * xr + xr2 * xr2 + 4 * Xi2 * Xi * xi + 6 * Xi2 * xi2 + 4 * Xi * xi2 * xi + xi2 * xi2 - 12 * Xr2 * Xi * xi - 6 * Xr2 * xi2 - 12 * Xr * xr * Xi2 - 24 * Xr * xr * Xi * xi - 12 * Xr * xr * xi2 - 6 * xr2 * Xi2 - 12 * xr2 * Xi * xi - 6 * xr2 * xi2 + cr;
+    xin = abs(Xr + xr) * (12 * Xi2 * xi + 12 * Xi * xi2 + 4 * xi2 * xi - 8 * xr * Xr * Xi - 4 * xr2 * Xi - 4 * xi * Xr2 - 8 * xr * xi * Xr - 4 * xr2 * xi) + diffabs(Xr, xr) * (4 * Xi2 * Xi - 4 * Xr2 * Xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((4 * (Xxi * (Xxi * (Xxi * dya)))) + ((4 * (sgn(Xxr) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dxa * sgn(Xxr))))))))) + (( - 12 * (abs((Xxr * Xxr)) * (Xxi * dya))) + (( - 12 * (sgn(Xxr) * (Xxi * (Xxi * (Xxr * (dxa * sgn(Xxr))))))) + daa))));
+    dxbn = ((4 * (Xxi * (Xxi * (Xxi * dyb)))) + ((4 * (sgn(Xxr) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dxb * sgn(Xxr))))))))) + (( - 12 * (abs((Xxr * Xxr)) * (Xxi * dyb))) + (( - 12 * (sgn(Xxr) * (Xxi * (Xxi * (Xxr * (dxb * sgn(Xxr))))))) + dab))));
+    dyan = (dba + ((4 * (Xxi * (Xxi * (Xxi * (dxa * sgn(Xxr)))))) + ((12 * (abs(Xxr) * (Xxi * (Xxi * dya)))) + (( - 12 * (sgn(Xxr) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dxa * sgn(Xxr)))))))) + ( - 4 * (abs((Xxr * (Xxr * Xxr))) * dya))))));
+    dybn = (dbb + ((4 * (Xxi * (Xxi * (Xxi * (dxb * sgn(Xxr)))))) + ((12 * (abs(Xxr) * (Xxi * (Xxi * dyb)))) + (( - 12 * (sgn(Xxr) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dxb * sgn(Xxr)))))))) + ( - 4 * (abs((Xxr * (Xxr * Xxr))) * dyb))))));
+  </derivative>
+</formula>

@@ -1,0 +1,16 @@
+<formula type="55" name="Mothbrot 3rd 1x2" power="3" glitch="1.0000000000000004e-6">
+  <reference t='R'>
+    Xrn = (Cr + (( - 1 * (abs(Xi) * (Xr * abs(Xi)))) + (( - 2 * (abs(Xi) * (Xi * abs(Xr)))) + (abs(Xr) * (Xr * abs(Xr))))));
+    Xin = (Ci + ((abs(Xr) * (Xi * abs(Xr))) + (( - 1 * (abs(Xi) * (Xi * abs(Xi)))) + (2 * (abs(Xi) * (Xr * abs(Xr)))))));
+  </reference>
+  <perturbation t='R'>
+    xrn = (cr + ((abs(Xr) * ((Xr * diffabs(Xr,xr)) + (xr * abs((Xr + xr))))) + ((abs((Xr + xr)) * (Xr * diffabs(Xr,xr))) + (( - 1 * ((abs(Xi) * ((Xr * diffabs(Xi,xi)) + (xr * abs((Xi + xi))))) + (abs((Xi + xi)) * (diffabs(Xi,xi) * (Xr + xr))))) + (( - 2 * ((abs(Xi) * ((Xi * diffabs(Xr,xr)) + (xi * abs((Xr + xr))))) + (abs((Xr + xr)) * (diffabs(Xi,xi) * (Xi + xi))))) + (abs((Xr + xr)) * (xr * diffabs(Xr,xr))))))));
+    xin = (ci + ((abs(Xr) * ((Xi * diffabs(Xr,xr)) + (xi * abs((Xr + xr))))) + ((abs((Xr + xr)) * (diffabs(Xr,xr) * (Xi + xi))) + (( - 1 * ((abs(Xi) * ((Xi * diffabs(Xi,xi)) + (xi * abs((Xi + xi))))) + (abs((Xi + xi)) * (diffabs(Xi,xi) * (Xi + xi))))) + (2 * ((abs(Xi) * ((Xr * diffabs(Xr,xr)) + (xr * abs((Xr + xr))))) + (abs((Xr + xr)) * (diffabs(Xi,xi) * (Xr + xr)))))))));
+  </perturbation>
+  <derivative t='M'>
+    dxan = (daa + ((abs(Xxr) * (dxa * abs(Xxr))) + (( - 1 * (abs(Xxi) * (dxa * abs(Xxi)))) + (( - 2 * (sgn(Xxi) * ((Xxi * (dya * abs(Xxr))) + (Xxr * (dya * abs(Xxi)))))) + ((2 * (sgn(Xxr) * (Xxr * (dxa * abs(Xxr))))) + ( - 2 * ((sgn(Xxr) * (Xxi * (dxa * abs(Xxi)))) + (abs(Xxi) * (dya * abs(Xxr))))))))));
+    dxbn = (dab + ((abs(Xxr) * (dxb * abs(Xxr))) + (( - 1 * (abs(Xxi) * (dxb * abs(Xxi)))) + (( - 2 * (sgn(Xxi) * ((Xxi * (dyb * abs(Xxr))) + (Xxr * (dyb * abs(Xxi)))))) + ((2 * (sgn(Xxr) * (Xxr * (dxb * abs(Xxr))))) + ( - 2 * ((sgn(Xxr) * (Xxi * (dxb * abs(Xxi)))) + (abs(Xxi) * (dyb * abs(Xxr))))))))));
+    dyan = (dba + (( - 1 * (abs(Xxi) * (dya * abs(Xxi)))) + ((2 * ((abs(Xxi) * (dxa * abs(Xxr))) + ((sgn(Xxi) * (Xxr * (dya * abs(Xxr)))) + (sgn(Xxr) * ((Xxi * (dxa * abs(Xxr))) + (Xxr * (dxa * abs(Xxi)))))))) + (( - 2 * (sgn(Xxi) * (Xxi * (dya * abs(Xxi))))) + (abs(Xxr) * (dya * abs(Xxr)))))));
+    dybn = (dbb + (( - 1 * (abs(Xxi) * (dyb * abs(Xxi)))) + ((2 * ((abs(Xxi) * (dxb * abs(Xxr))) + ((sgn(Xxi) * (Xxr * (dyb * abs(Xxr)))) + (sgn(Xxr) * ((Xxi * (dxb * abs(Xxr))) + (Xxr * (dxb * abs(Xxi)))))))) + (( - 2 * (sgn(Xxi) * (Xxi * (dyb * abs(Xxi))))) + (abs(Xxr) * (dyb * abs(Xxr)))))));
+  </derivative>
+</formula>

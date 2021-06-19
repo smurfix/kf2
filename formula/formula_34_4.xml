@@ -1,0 +1,16 @@
+<formula type="34" name="4th Imag Quasi Perpendicular / Heart" power="4" glitch="0.000001">
+  <reference t="R">
+    Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2  + Cr;
+    Xin = 4 * Xr * abs(Xi * Xr2 - Xi * Xi2) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = 4 * Xr2 * Xr * xr + 6 * Xr2 * xr2 + 4 * Xr * xr2 * xr + xr2 * xr2 + 4 * Xi2 * Xi * xi + 6 * Xi2 * xi2 + 4 * Xi * xi2 * xi + xi2 * xi2 - 12 * Xr2 * Xi * xi - 6 * Xr2 * xi2 - 12 * Xr * xr * Xi2 - 24 * Xr * xr * Xi * xi - 12 * Xr * xr * xi2 - 6 * xr2 * Xi2 - 12 * xr2 * Xi * xi - 6 * xr2 * xi2  + cr;
+    xin = 4 * (xr) * abs( -  Xi2 * Xi - 3 * xi * Xi2 + Xr2 * Xi + 2 * xr * Xr * Xi - 3 * xi2 * Xi + xr2 * Xi + xi * Xr2 + 2 * xr * xi * Xr - xi2 * xi + xr2 * xi) + 4 * Xr * diffabs( -  Xi2 * Xi + Xr2 * Xi, - 3 * xi * Xi2 + 2 * xr * Xr * Xi - 3 * xi2 * Xi + xr2 * Xi + xi * Xr2 + 2 * xr * xi * Xr - xi2 * xi + xr2 * xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((4 * (Xxi * (Xxi * (Xxi * dya)))) + ((4 * (Xxr * (Xxr * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxa)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dya)))) + daa))));
+    dxbn = ((4 * (Xxi * (Xxi * (Xxi * dyb)))) + ((4 * (Xxr * (Xxr * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxi * (Xxr * dxb)))) + (( - 12 * (Xxi * (Xxr * (Xxr * dyb)))) + dab))));
+    dyan = (dba + ((4 * (Xxr * (Xxr * (Xxr * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + ((8 * (Xxi * (Xxr * (Xxr * (dxa * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + (( - 12 * (Xxi * (Xxi * (Xxr * (dya * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + (4 * (abs((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr)))) * dxa))))));
+    dybn = (dbb + ((4 * (Xxr * (Xxr * (Xxr * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + ((8 * (Xxi * (Xxr * (Xxr * (dxb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + (( - 12 * (Xxi * (Xxi * (Xxr * (dyb * sgn((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr))))))))) + (4 * (abs((( - 1 * (Xxi * (Xxi * Xxi))) + (Xxi * (Xxr * Xxr)))) * dxb))))));
+  </derivative>
+</formula>

@@ -1,0 +1,16 @@
+<formula type="7" name="Perpendicular Burning Ship" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = Ci - Xr * abs(Xi) * 2;
+  </reference>
+  <perturbation t="R">
+    xrn = 2 * Xr * xr + xr2 - xi2 - 2 * xi * Xi + cr;
+    xin = diffabs(Xi, xi) * Xr * ( - 2) + xr * abs((Xi + xi)) * ( - 2) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + daa));
+    dxbn = ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + dab));
+    dyan = (dba + (( - 2 * (Xxr * (dya * sgn(Xxi)))) + ( - 2 * (abs(Xxi) * dxa))));
+    dybn = (dbb + (( - 2 * (Xxr * (dyb * sgn(Xxi)))) + ( - 2 * (abs(Xxi) * dxb))));
+  </derivative>
+</formula>

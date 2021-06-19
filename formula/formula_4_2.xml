@@ -1,0 +1,16 @@
+<formula type="4" name="Mandelbar" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = Ci - Xr * Xi * 2;
+  </reference>
+  <perturbation t="R">
+    xrn = 2 * Xr * xr + xr2 - xi2 - 2 * xi * Xi + cr;
+    xin = ci - 2 * (Xr * xi + xr * Xi + xr * xi);
+  </perturbation>
+  <derivative t='M'>
+    dxan = (( - 2 * (Xxi * dya)) + ((2 * (Xxr * dxa)) + daa));
+    dxbn = (( - 2 * (Xxi * dyb)) + ((2 * (Xxr * dxb)) + dab));
+    dyan = (( - 2 * (Xxi * dxa)) + (( - 2 * (Xxr * dya)) + dba));
+    dybn = (( - 2 * (Xxi * dxb)) + (( - 2 * (Xxr * dyb)) + dbb));
+  </derivative>
+</formula>

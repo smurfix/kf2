@@ -1,0 +1,16 @@
+<formula type="41" name="HPDZ Buffalo" power="2" glitch="0.0001">
+  <reference t="R">
+    Xrn = (Xr2 - Xi2) - abs(Xr) + Cr;
+    Xin = abs(Xr * Xi) * 2 - abs(Xi) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = xr * (2 * Xr + xr) - xi * (xi + 2 * Xi) - diffabs(Xr,xr) + cr;
+    xin = diffabs(Xr * Xi,Xr * xi + xr * Xi + xr * xi) * 2 - diffabs(Xi,xi) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = (daa + ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + ( - 1 * (dxa * sgn(Xxr))))));
+    dxbn = (dab + ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + ( - 1 * (dxb * sgn(Xxr))))));
+    dyan = (dba + ((2 * (sgn(Xxi) * (Xxi * (dxa * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dya * sgn(Xxr))))) + ( - 1 * (dya * sgn(Xxi))))));
+    dybn = (dbb + ((2 * (sgn(Xxi) * (Xxi * (dxb * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dyb * sgn(Xxr))))) + ( - 1 * (dyb * sgn(Xxi))))));
+  </derivative>
+</formula>

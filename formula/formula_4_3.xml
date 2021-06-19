@@ -1,0 +1,16 @@
+<formula type="4" name="Mandelbar" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Cr - (Xr2 - Xi2 * 3) * Xr;
+    Xin = (Xr2 * 3 - Xi2) * Xi + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = cr - xr * (3 * Xr2 + xr2) + 3 * Xr * (xi2 + 2 * Xi * xi - xr2) + 3 * xr * (Xi2 + 2 * Xi * xi + xi2);
+    xin = 6 * Xr * Xi * xr + 3 * Xi * xr2 - 3 * Xi2 * xi - 3 * Xi * xi2 + 3 * Xr2 * xi + 6 * Xr * xr * xi + 3 * xr2 * xi - xi2 * xi + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (Xxr * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * dxa))) + (( - 6 * (Xxi * (Xxr * dya))) + daa)));
+    dxbn = ((3 * (Xxr * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * dxb))) + (( - 6 * (Xxi * (Xxr * dyb))) + dab)));
+    dyan = (( - 3 * (Xxr * (Xxr * dya))) + ((3 * (Xxi * (Xxi * dya))) + (( - 6 * (Xxi * (Xxr * dxa))) + dba)));
+    dybn = (( - 3 * (Xxr * (Xxr * dyb))) + ((3 * (Xxi * (Xxi * dyb))) + (( - 6 * (Xxi * (Xxr * dxb))) + dbb)));
+  </derivative>
+</formula>

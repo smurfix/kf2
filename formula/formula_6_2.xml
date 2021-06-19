@@ -1,0 +1,16 @@
+<formula type="6" name="Perpendicular Mandelbrot" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = Ci - abs(Xr) * Xi * 2;
+  </reference>
+  <perturbation t="R">
+    xrn = 2 * Xr * xr + xr2 - xi2 - 2 * xi * Xi + cr;
+    xin = abs(Xr + xr) * xi * ( - 2) + diffabs(Xr, xr) * Xi * ( - 2) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + daa));
+    dxbn = ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + dab));
+    dyan = (dba + (( - 2 * (Xxi * (dxa * sgn(Xxr)))) + ( - 2 * (abs(Xxr) * dya))));
+    dybn = (dbb + (( - 2 * (Xxi * (dxb * sgn(Xxr)))) + ( - 2 * (abs(Xxr) * dyb))));
+  </derivative>
+</formula>

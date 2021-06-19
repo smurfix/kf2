@@ -1,0 +1,40 @@
+<formula type="0" name="Mandelbrot" power="3" glitch="0.000001">
+  <reference t="R">
+    Xrn = Xr * (Xr2 - 3 * Xi2) + Cr;
+    Xin = (3 * Xr2 - Xi2) * Xi + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = 3 * ((Xr2 - Xi2) * xr - 2 * Xxr * Xi * xi + Xr * (xr2 - xi2)) + xr * (xr2 - 3 * xi2) + cr;
+    xin = 3 * ((Xr2 - Xi2) * xi + 2 * Xr * xr * Xxi + Xi * (xr2 - xi2)) + xi * (3 * xr2 - xi2) + ci;
+  </perturbation>
+  <derivative t="R">
+    drn = (3 * (Xxr2 - Xxi2)) * dr - (6 * (Xxi * Xxr)) * di + dr0;
+    din = (3 * (Xxr2 - Xxi2)) * di + (6 * (Xxi * Xxr)) * dr + di0;
+  </derivative>
+  <scaled t="R">
+    <threshold s="0" u="0">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr;
+    </threshold>
+    <threshold s="0" u="LARGE_MANTISSA">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + ur;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + ui;
+    </threshold>
+    <threshold s="SMALL_MANTISSA" u="0">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s;
+    </threshold>
+    <threshold s="SMALL_MANTISSA" u="LARGE_MANTISSA">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + ur;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + ui;
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="0">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s;
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
+      wrn = 3 * (Xr2 - Xi2) * wr - 6 * Xr * Xi * wi + 3 * (Xr * (wr2 - wi2) - 2 * Xi * wr * wi) * s + (wr2 - 3 * wi2) * wr * s * s + ur;
+      win = 3 * (Xr2 - Xi2) * wi + 6 * Xr * Xi * wr + 3 * (2 * Xr * wr * wi + Xi * (wr2 - wi2)) * s + (3 * wr2 - wi2) * wi * s * s + ui;
+    </threshold>
+  </scaled>
+</formula>

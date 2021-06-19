@@ -1,0 +1,16 @@
+<formula type="14" name="Cubic Quasi Perpendicular" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = (Xr2 - Xi2 * 3) * abs(Xr) + Cr;
+    Xin = Ci - abs(Xr2 * 3 - Xi2) * Xi;
+  </reference>
+  <perturbation t="R">
+    xrn = (Xr2 - 3 * Xi2) * diffabs(Xr, xr) + (2 * xr * Xr + xr2 - 6 * Xi * xi - 3 * xi2) * abs(Xr + xr) + cr;
+    xin = ci - diffabs(3 * Xr2 - Xi2, 6 * Xr * xr + 3 * xr2 - 2 * Xi * xi - xi2) * Xi - abs(3 * Xr2 + 6 * Xr * xr + 3 * xr2 - Xi2 - 2 * Xi * xi - xi2) * xi;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((Xxr * (Xxr * (dxa * sgn(Xxr)))) + ((2 * (abs(Xxr) * (Xxr * dxa))) + (( - 3 * (Xxi * (Xxi * (dxa * sgn(Xxr))))) + (( - 6 * (abs(Xxr) * (Xxi * dya))) + daa))));
+    dxbn = ((Xxr * (Xxr * (dxb * sgn(Xxr)))) + ((2 * (abs(Xxr) * (Xxr * dxb))) + (( - 3 * (Xxi * (Xxi * (dxb * sgn(Xxr))))) + (( - 6 * (abs(Xxr) * (Xxi * dyb))) + dab))));
+    dyan = (dba + ((2 * (Xxi * (Xxi * (dya * sgn((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))))))) + (( - 6 * (Xxi * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))))))) + ( - 1 * (abs((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))) * dya)))));
+    dybn = (dbb + ((2 * (Xxi * (Xxi * (dyb * sgn((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))))))) + (( - 6 * (Xxi * (Xxr * (dxb * sgn((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))))))) + ( - 1 * (abs((( - 1 * (Xxi * Xxi)) + (3 * (Xxr * Xxr)))) * dyb)))));
+  </derivative>
+</formula>

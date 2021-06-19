@@ -1,0 +1,16 @@
+<formula type="3" name="Celtic" power="3" glitch="0.0000001">
+  <reference t="R">
+    Xrn = abs((Xr2 - (Xi2 * 3)) * Xr) + Cr;
+    Xin = ((Xr2 * 3) - Xi2) * Xi + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = diffabs(Xr * (Xr2 - 3 * Xi2), xr * (3 * Xr2 + xr2) + 3 * Xr * (xr2 - 2 * Xi * xi - xi2) - 3 * xr * (Xi2 + 2 * Xi * xi + xi2)) + cr;
+    xin = 3 * Xi * (2 * Xr * xr + xr2 - xi2) + 3 * xi * (Xr2 + 2 * Xr * xr + xr2) - xi * (xi2 + 3 * Xi2) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((3 * (Xxr * (Xxr * (dxa * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + (( - 3 * (Xxi * (Xxi * (dxa * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + (( - 6 * (Xxi * (Xxr * (dya * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + daa)));
+    dxbn = ((3 * (Xxr * (Xxr * (dxb * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + (( - 3 * (Xxi * (Xxi * (dxb * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + (( - 6 * (Xxi * (Xxr * (dyb * sgn((( - 3 * (Xxi * (Xxi * Xxr))) + (Xxr * (Xxr * Xxr)))))))) + dab)));
+    dyan = ((3 * (Xxr * (Xxr * dya))) + (( - 3 * (Xxi * (Xxi * dya))) + ((6 * (Xxi * (Xxr * dxa))) + dba)));
+    dybn = ((3 * (Xxr * (Xxr * dyb))) + (( - 3 * (Xxi * (Xxi * dyb))) + ((6 * (Xxi * (Xxr * dxb))) + dbb)));
+  </derivative>
+</formula>

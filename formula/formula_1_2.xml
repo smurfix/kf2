@@ -1,0 +1,34 @@
+<formula type="1" name="Burning Ship" power="2" glitch="0.0000001">
+  <reference t="R">
+    Xrn = Xr2 - Xi2 + Cr;
+    Xin = abs(2 * Xr * Xi) + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
+    xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * (Xi + xi)) + ci;
+  </perturbation>
+  <derivative t='M'>
+    dxan = ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + daa));
+    dxbn = ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + dab));
+    dyan = ((2 * (sgn(Xxi) * (Xxi * (dxa * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dya * sgn(Xxr))))) + dba));
+    dybn = ((2 * (sgn(Xxi) * (Xxi * (dxb * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dyb * sgn(Xxr))))) + dbb));
+  </derivative>
+  <scaled t="R">
+    <threshold s="0" u="0">
+      wrn = 2 * (Xr * wr - Xi * wi);
+      win = 2 * sgn(Xr) * sgn(Xi) * (Xr * wi + wr * Xi);
+    </threshold>
+    <threshold s="0" u="LARGE_MANTISSA">
+      wrn = 2 * (Xr * wr - Xi * wi) + ur;
+      win = 2 * sgn(Xr) * sgn(Xi) * (Xr * wi + wr * Xi) + ui;
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="0">
+      wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi;
+      win = 2 * diffabs(Xr * Xi / s, Xr * wi + wr * (Xi + wi * s));
+    </threshold>
+    <threshold s="LARGE_MANTISSA" u="LARGE_MANTISSA">
+      wrn = (2 * Xr + wr * s) * wr - (2 * Xi + wi * s) * wi + ur;
+      win = 2 * diffabs(Xr * Xi / s, Xr * wi + wr * (Xi + wi * s)) + ui;
+    </threshold>
+  </scaled>
+</formula>
