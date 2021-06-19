@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/reference.h"
 
 <xsl:for-each select="formulas/group/formula">
-bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
+bool reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
   ( const int m_nFractalType, const int m_nPower
   , Reference *m_Reference
   , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
@@ -57,7 +57,7 @@ bool reference
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />)
+          return reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
             ( m_nFractalType, m_nPower
             , m_Reference
             , m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter

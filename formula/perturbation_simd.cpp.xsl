@@ -63,7 +63,7 @@ bool perturbation_SIMD
       {
       <xsl:for-each select="formula">
         case <xsl:value-of select="@power" />:
-          return FORMULA(perturbation_SIMD,<xsl:value-of select="../@type" />,<xsl:value-of select="@power" />)
+          return perturbation_SIMD_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
             ( m_nFractalType, m_nPower
             , m_Reference
             , antal0, test10, test20, phase0, bGlitch0

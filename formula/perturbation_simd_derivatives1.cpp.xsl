@@ -73,7 +73,7 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
   (void) dab0; // -Wunused-parameter
   (void) dba0; // -Wunused-parameter
   (void) dbb0; // -Wunused-parameter
-  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+  if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const double1 Ar = g_FactorAR;
