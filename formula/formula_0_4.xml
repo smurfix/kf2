@@ -1,4 +1,4 @@
-<formula type="0" name="Mandelbrot" type="0" name="Mandelbrot" power="4" glitch="0.00001">
+<formula type="0" name="Mandelbrot" power="4" glitch="0.00001">
   <reference t="C">
     Xn = (X ^ 4) + C;
   </reference>

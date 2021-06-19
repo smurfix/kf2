@@ -242,8 +242,8 @@
   <formula power="2" />
 </group>
 <group type="74" name="z^p |z|^a + c">
+  <formula power="2" />
   <formula power="3" />
   <formula power="4" />
-  <formula power="5" />
 </group>
 </formulas>
