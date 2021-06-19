@@ -350,8 +350,22 @@ earlier).
     <https://fractalforums.org/f/22/t/3576/msg22122#msg22122>
   - new: Hidden Mandelbrot a la Cos formula (thanks to 3Dickulus)
     <https://fractalforums.org/f/74/t/3591/msg22215#msg22215>
-  - new: `z^p |z|^a + c` formula (thanks to gerrit)
+    - set Factor A real and imaginary parts to control shape (e.g. 1+1i)
+  - new: `z^p |z|^a + c` formula, for p = 2, 3, 4 (thanks to gerrit)
     <https://fractalforums.org/f/15/t/1916/msg23377#msg23377>
+    - set Factor A real part to control power a
+    - fractional and/or negative power a is possible
+    - known issue: need to set Bailout escape radius very high
+      (but not so high that derivatives overflow: try 1e10 or so)
+    - known issue: for positive a, reference at 0 fails (blank image)
+      (workaround: offset the center very slightly in the Location
+      dialog)
+    - known issue: for negative a, blank image
+      (workaround: set Formula seeds non-zero (1e-300); this will reduce
+      accuracy for deeper zooms)
+    - known issue: seams with numeric differences DE (analytic DE is ok)
+    - known issue: Newton zooming is not functional yet
+    - known issue: auto-skew is not functional yet
   - fix: Hybrid operator multiplication works with OpenCL
   - fix: Omnibrot works with OpenCL
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
@@ -363,7 +377,9 @@ earlier).
   - fix: Transformation dialog displays/edits total transformation
     instead of difference from last set transformation
   - fix: Newton zoom dialog (atom domain) size of period <=1 is set to 1
-  - fix: OpenCL error dialog appears and disappears again instantly
+  - fix: OpenCL error dialog no longer appears and disappears again
+    instantly
+  - internal: formula build system refactored for parallel building
   - upgrade to gsl-2.7
   - upgrade to openexr-2.5.7
 
