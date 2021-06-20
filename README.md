@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-06-14
+date: 2021-06-20
 ...
 
 # Kalles Fraktaler 2 +
