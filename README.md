@@ -380,6 +380,8 @@ earlier).
   - fix: OpenCL error dialog no longer appears and disappears again
     instantly
   - internal: formula build system refactored for parallel building
+  - internal: include structure rationalized for faster builds
+  - internal: use intermediate ar archives for linking many object files
   - upgrade to gsl-2.7
   - upgrade to openexr-2.5.7
 
