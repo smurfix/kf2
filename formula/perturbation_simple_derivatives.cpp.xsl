@@ -21,7 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <xsl:output method="text" />
 <xsl:template match="/">
 
+#include "formula.h"
 #include "../fraktal_sft/floatexp.h"
+#include "../fraktal_sft/reference.h"
 
 <xsl:for-each select="formulas/group/formula">
 template &lt;typename T&gt;

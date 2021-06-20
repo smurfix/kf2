@@ -20,10 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_COMPLEX_H
 #define KF_COMPLEX_H
 
-#include "../formula/formula.h"
-#include "floatexp.h"
-#include "dual.h"
-
 #include <algorithm>
 
 template <class tt> class complex
@@ -217,30 +213,6 @@ template <class tt>
 inline complex<tt> sinh(const complex<tt> &a) noexcept
 {
 	return (expm1(a) - expm1(-a)) / 2;
-}
-
-template <int D, typename R>
-inline complex<dual<D, R>> operator+(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
-{
-	return complex<dual<D, R>>(a.m_r + b.m_r, a.m_i + b.m_i);
-}
-
-template <int D, typename R>
-inline complex<dual<D, R>> operator-(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
-{
-	return complex<dual<D, R>>(a.m_r - b.m_r, a.m_i - b.m_i);
-}
-
-template <int D, typename R>
-inline complex<dual<D, R>> operator*(const complex<dual<D, R>> &a, const complex<R> &b) noexcept
-{
-	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
-}
-
-template <int D, typename R>
-inline complex<dual<D, R>> operator*(const complex<R> &a, const complex<dual<D, R>> &b) noexcept
-{
-	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
 }
 
 template <typename R>

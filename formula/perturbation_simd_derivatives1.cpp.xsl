@@ -21,10 +21,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <xsl:output method="text" />
 <xsl:template match="/">
 
-#include "../fraktal_sft/CFixedFloat.h"
+#include "formula.h"
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/complex.h"
 #include "../fraktal_sft/reference.h"
+#include "simd1.h"
+#include "simd2.h"
+#include "simd3.h"
+#include "simd4.h"
 
 // hack for broadcasting in complex vector `op` complex scalar
 #define C(double,doubleN) \

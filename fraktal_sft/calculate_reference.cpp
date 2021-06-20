@@ -68,8 +68,8 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
 			xr = Xn.m_r;
 			xi = Xn.m_i;
-			floatexp X0 = xr;
-			floatexp Y0 = xi;
+			floatexp X0 = floatexp(xr);
+			floatexp Y0 = floatexp(xi);
 			floatexp abs_val = X0 * X0 + Y0 * Y0;
 			floatexp Z0 = abs_val*threashold;
 			reference_append(m_Reference, X0, Y0, Z0);

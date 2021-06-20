@@ -83,6 +83,36 @@ public:
 		m_f = a;
 	};
 
+	template <typename mantissa, typename exponent>
+	inline CFixedFloat(const tfloatexp<mantissa, exponent> &a) noexcept
+	{
+		m_f.precision(std::max(FixedFloat::default_precision(), LOW_PRECISION));
+		if (a.exp > exponent(INT_MAX))
+		{
+			m_f = 1.0 / 0.0;
+		}
+		else if (a.exp < exponent(INT_MIN))
+		{
+			m_f = 0.0;
+		}
+		else
+		{
+			m_f = a.val;
+			if (a.exp >= 0)
+				mpfr_mul_2ui(m_f.backend().data(), m_f.backend().data(), a.exp, MPFR_RNDN);
+			else
+				mpfr_div_2ui(m_f.backend().data(), m_f.backend().data(), -a.exp, MPFR_RNDN);
+		}
+	}
+
+	template <typename mantissa, typename exponent>
+	explicit inline operator tfloatexp<mantissa, exponent>() noexcept
+	{
+		signed long int e = 0;
+		double v = mpfr_get_d_2exp(&e, m_f.backend().data(), MPFR_RNDN);
+		return tfloatexp<mantissa, exponent>(v, e);
+	}
+
 	inline ~CFixedFloat()
 	{
 	};

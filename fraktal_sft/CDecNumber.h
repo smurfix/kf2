@@ -28,6 +28,8 @@ typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<
 #include <cassert>
 #include <string>
 
+#include "floatexp.h"
+
 class Precision
 {
 	unsigned digits10;
@@ -83,6 +85,37 @@ public:
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
 	};
+
+	template <typename mantissa, typename exponent>
+	inline CDecNumber(const tfloatexp<mantissa, exponent> &a) noexcept
+	{
+		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
+		if (a.exp > exponent(INT_MAX))
+		{
+			m_dec = 1.0 / 0.0;
+		}
+		else if (a.exp < exponent(INT_MIN))
+		{
+			m_dec = 0.0;
+		}
+		else
+		{
+			m_dec = a.val;
+			if (a.exp >= 0)
+				mpfr_mul_2ui(m_dec.backend().data(), m_dec.backend().data(), a.exp, MPFR_RNDN);
+			else
+				mpfr_div_2ui(m_dec.backend().data(), m_dec.backend().data(), -a.exp, MPFR_RNDN);
+		}
+	}
+
+	template <typename mantissa, typename exponent>
+	explicit inline operator tfloatexp<mantissa, exponent>() noexcept
+	{
+		signed long int e = 0;
+		double v = mpfr_get_d_2exp(&e, m_dec.backend().data(), MPFR_RNDN);
+		return tfloatexp<mantissa, exponent>(v, e);
+	}
+
   inline ~CDecNumber()
   {
 	};

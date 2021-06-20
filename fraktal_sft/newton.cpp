@@ -24,9 +24,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <time.h>
 #include <float.h>
 #include "resource.h"
+#include "CDecNumber.h"
 #include "complex.h"
 #include "fraktal_sft.h"
-#include "CDecNumber.h"
 #include "main.h"
 #include "../common/barrier.h"
 #include "../common/StringVector.h"
@@ -259,7 +259,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
       rdz = abs(dz);
       rz = abs(z);
       rr = r * (rdz + r * Ei);
-      if (rz - rr > 2) // outside everything
+      if (double(rz - rr) > 2) // outside everything
       {
 	*haveperiod = true;
 	*period = 0;
@@ -449,13 +449,13 @@ extern floatexp m_d_domain_size(const complex<flyttyp> &c, int period, progress_
 {
   complex<flyttyp> z = c;
   complex<floatexp> dc = complex<floatexp>(1);
-  floatexp zq2 = cabs2(complex<floatexp>(z));
+  floatexp zq2 = cabs2(complex<floatexp>(floatexp(z.m_r), floatexp(z.m_i)));
   for (int q = 2; q <= period; ++q)
   {
     progress->counters[1] = q;
-    dc = 2 * complex<floatexp>(z) * dc + 1;
+    dc = 2 * complex<floatexp>(floatexp(z.m_r), floatexp(z.m_i)) * dc + 1;
     z = sqr(z) + c;
-    floatexp zp2 = cabs2(complex<floatexp>(z));
+    floatexp zp2 = cabs2(complex<floatexp>(floatexp(z.m_r), floatexp(z.m_i)));
     if (q < period && zp2 < zq2)
       zq2 = zp2;
   }
@@ -558,7 +558,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   snprintf(g_szProgress, sizeof(g_szProgress) - 1, "%s %s %s", elast.c_str(), ad < epsilon2 ? ">" : "<", etarget.c_str());
   g_fNewtonDelta2[0] = g_fNewtonDelta2[1];
   g_fNewtonDelta2[1] = delta;
-  if (g_fNewtonDelta2[0] > 0)
+  if (g_fNewtonDelta2[0].val > 0)
     g_nNewtonETA = newtonETA(g_fNewtonDelta2[0], g_fNewtonDelta2[1], epsilon);
 
 
@@ -610,7 +610,7 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_old, int64_t period, int step)
 {
   complex<flyttyp> delta = c_new - c_old;
-  complex<floatexp> delta_lo = complex<floatexp>(delta);
+  complex<floatexp> delta_lo = complex<floatexp>(floatexp(delta.m_r), floatexp(delta.m_i));
   std::string re = c_new.m_r.ToText();
   std::string im = c_new.m_i.ToText();
   std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();
@@ -889,7 +889,7 @@ static int WINAPI ThNewton(HWND hWnd)
 					{
 						double size_powers[] = { 0.75, 0.875, 1, 1.125, 1.25, g_nr_size_power_custom };
 						double power = size_powers[std::min(std::max(g_nr_size_power, 0), 5)];
-						floatexp s = msize;
+						floatexp s = floatexp(msize);
 						floatexp r = factor * exp(log(s) * power);
 						g_szZoom = (floatexp(2) / r).toString();
 						g_iterations = (g_nr_zoom_target >= 2 ? 10 : 100) * g_period; // FIXME
@@ -900,7 +900,7 @@ static int WINAPI ThNewton(HWND hWnd)
 						double foldings[] = { 0.5, 0.75, 0.875, 0.9375, 1, g_nr_folding_custom };
 						double power = foldings[std::min(std::max(g_nr_folding, 0), 5)];
 						floatexp start = floatexp(flyttyp(g_szZoom));
-						floatexp target = floatexp(2 / factor) / msize;
+						floatexp target = floatexp(2 / factor) / floatexp(msize);
 						g_szZoom = (exp(log(start) * (1 - power) + power * log(target))).toString();
 						double start_iterations = g_SFT.GetIterations();
 						double target_iterations = 100 * g_period;

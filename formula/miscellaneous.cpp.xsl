@@ -21,10 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <xsl:output method="text" />
 <xsl:template match="/">
 
-#include "../fraktal_sft/CFixedFloat.h"
-#include "../fraktal_sft/floatexp.h"
-#include "../fraktal_sft/complex.h"
-#include "../fraktal_sft/reference.h"
+#include &lt;windows.h&gt;
+#include "formula.h"
 
 bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives)
 {

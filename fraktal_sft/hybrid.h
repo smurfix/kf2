@@ -22,10 +22,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
+#include "../formula/formula.h"
+#include "floatexp.h"
 #include "complex.h"
 #include "dual.h"
-
-#include "../formula/formula.h"
+#include "reference.h"
 
 // FIXME TODO check that input from KFR files does not exceed this
 #define MAX_HYBRID_STANZAS 4

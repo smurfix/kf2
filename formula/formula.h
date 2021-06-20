@@ -24,12 +24,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cstdint>
 #include <cmath>
 
-#ifndef M_PI
-#define M_PI 3.141592653589793
-#endif
-
 #include "../fraktal_sft/floatexp.h"
-#include "../fraktal_sft/reference.h"
+
+class CFixedFloat;
+class Reference;
 
 // https://fractalforums.org/fractal-mathematics-and-new-theories/28/perturbation-theory/487/msg3170#msg3170
 // |2w'(w+z)+1|/|delta0|+|w|(|w+2z|+|w|+2|z|)<epsilon/h
@@ -126,6 +124,10 @@ I(double)
 I(long double)
 #undef I
 
+static inline int sgn(const int &a)
+{
+  return (a > 0) - (a < 0);
+}
 static inline float sgn(const float &a)
 {
   return (a > 0) - (a < 0);
@@ -146,11 +148,6 @@ static inline tfloatexp<double,int64_t> sgn(const tfloatexp<double,int64_t> &a)
 {
   return (a.val > 0) - (a.val < 0);
 }
-
-#include "simd1.h"
-#include "simd2.h"
-#include "simd3.h"
-#include "simd4.h"
 
 // reference
 

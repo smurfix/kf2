@@ -134,7 +134,7 @@ public:
 			{
 				m_test1 = pnorm(g_real, g_imag, pval, zme.m_r, zme.m_i);
 			}
-			if (m_test1 > nBailout2){
+			if (double(m_test1) > nBailout2){
 				m_escaped = true;
 				m_iters = i;
 				m_phase = atan2(double(zme.m_i), double(zme.m_r)) / M_PI / 2;

@@ -1315,7 +1315,7 @@ void CFraktalSFT::ApplyColors()
 				req.u.configure.use_srgb = GetUseSRGB();
 				{
 					CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
-					floatexp zoomFE; zoomFE = zoom;
+					floatexp zoomFE = floatexp(zoom);
 					req.u.configure.zoom_log2 = double(log2(zoomFE));
 				}
 				fifo_write(to_opengl, req);
@@ -2332,7 +2332,7 @@ std::string CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
 std::string CFraktalSFT::GetZoom()
 {
 	CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
-	floatexp zoomFE; zoomFE = zoom;//CFixedFloat(zoomDec.m_dec);
+	floatexp zoomFE = floatexp(zoom);
 	return zoomFE.toString();
 }
 BOOL CFraktalSFT::HighestIteration(int &rx, int &ry)

@@ -19,6 +19,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_DUAL_H
 #define KF_DUAL_H 1
 
+#include "complex.h"
+
 template <int D, typename T>
 struct dual
 {
@@ -343,6 +345,30 @@ inline dual<D, T> diffabs(const dual<D, T> &c, const dual<D, T> &d) noexcept
   const T cd = c + d.x;
   const dual<D, T> c2d = 2 * c + d;
   return c >= 0.0 ? cd >= 0.0 ? d : -c2d : cd > 0.0 ? c2d : -d;
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator+(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r + b.m_r, a.m_i + b.m_i);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator-(const complex<R> &a, const complex<dual<D,R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r - b.m_r, a.m_i - b.m_i);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator*(const complex<dual<D, R>> &a, const complex<R> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
+}
+
+template <int D, typename R>
+inline complex<dual<D, R>> operator*(const complex<R> &a, const complex<dual<D, R>> &b) noexcept
+{
+	return complex<dual<D, R>>(a.m_r * b.m_r - a.m_i * b.m_i, a.m_r * b.m_i + a.m_i * b.m_r);
 }
 
 #endif

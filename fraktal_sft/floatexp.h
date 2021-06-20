@@ -23,11 +23,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cmath>
 #include <cstdint>
 #include <iostream>
+#include <sstream>
 #include <iomanip>
 #include <cmath>
 #include <limits>
 #include <algorithm>
-#include "CFixedFloat.h"
+
+#include <mpfr.h>
+
+#ifndef M_PI
+#define M_PI 3.141592653589793
+#endif
 
 // #define KF_FLOATEXP_ACCURATE 1
 
@@ -318,6 +324,14 @@ public:
 			return val>a.val;
 		}
 	}
+	inline bool operator >(const double a) const noexcept
+	{
+		return *this > tfloatexp(a);
+	}
+	inline bool operator >(const int a) const noexcept
+	{
+		return *this > tfloatexp(a);
+	}
 	inline bool operator <(const tfloatexp &a) const noexcept
 	{
 		if(val>0){
@@ -339,17 +353,37 @@ public:
 			return val<a.val;
 		}
 	}
+	inline bool operator <(const double a) const noexcept
+	{
+		return *this < tfloatexp(a);
+	}
+	inline bool operator <(const int a) const noexcept
+	{
+		return *this < tfloatexp(a);
+	}
 	inline bool operator <=(const tfloatexp &a) const noexcept
 	{
 		return (*this<a || *this==a);
+	}
+	inline bool operator <=(const double a) const noexcept
+	{
+		return *this <= tfloatexp(a);
+	}
+	inline bool operator <=(const int a) const noexcept
+	{
+		return *this <= tfloatexp(a);
 	}
 	inline bool operator >=(const tfloatexp &a) const noexcept
 	{
 		return (*this>a || *this==a);
 	}
-	inline bool operator <=(const int a) const noexcept
+	inline bool operator >=(const double a) const noexcept
 	{
-		return (*this<a || *this==a);
+		return *this >= tfloatexp(a);
+	}
+	inline bool operator >=(const int a) const noexcept
+	{
+		return *this >= tfloatexp(a);
 	}
 	inline bool operator ==(const tfloatexp &a) const noexcept
 	{
@@ -394,50 +428,6 @@ public:
 		return std::ldexp((long double)(val), int(exp));
 	}
 
-	inline tfloatexp &operator =(const CFixedFloat &a) noexcept
-	{
-		signed long int e = 0;
-		double v = mpfr_get_d_2exp(&e, a.m_f.backend().data(), MPFR_RNDN);
-		*this = tfloatexp(v, e);
-		return *this;
-	}
-	inline tfloatexp(const CFixedFloat &a) noexcept
-	{
-		*this = a;
-	}
-	inline tfloatexp(const CDecNumber &a) noexcept
-	{
-		signed long int e = 0;
-		double v = mpfr_get_d_2exp(&e, a.m_dec.backend().data(), MPFR_RNDN);
-		*this = tfloatexp(v, e);
-	}
-	inline void ToFixedFloat(CFixedFloat &a) const noexcept
-	{
-		a = val;
-		if (exp > exponent(INT_MAX))
-		{
-			a = 1.0 / 0.0;
-		}
-		else if (exp < exponent(INT_MIN))
-		{
-			a = 0.0;
-		}
-		else
-		{
-			a = val;
-			if (exp >= 0)
-				mpfr_mul_2ui(a.m_f.backend().data(), a.m_f.backend().data(), exp, MPFR_RNDN);
-			else
-				mpfr_div_2ui(a.m_f.backend().data(), a.m_f.backend().data(), -exp, MPFR_RNDN);
-		}
-	}
-	inline explicit operator CFixedFloat() const noexcept
-	{
-		CFixedFloat a;
-		ToFixedFloat(a);
-		return a;
-	}
-
   inline std::string toString(int digits = 0) const noexcept
   {
 		/*
@@ -468,13 +458,25 @@ inline std::ostream& operator<<(std::ostream& a, const tfloatexp<mantissa, expon
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(mantissa a, const tfloatexp<mantissa, exponent> &b) noexcept
+inline tfloatexp<mantissa, exponent> operator*(float a, const tfloatexp<mantissa, exponent> &b) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) * b;
 }
 
 template <typename mantissa, typename exponent>
-inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponent> &b, mantissa a) noexcept
+inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponent> &b, float a) noexcept
+{
+	return b * tfloatexp<mantissa, exponent>(a);
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(double a, const tfloatexp<mantissa, exponent> &b) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) * b;
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator*(const tfloatexp<mantissa, exponent> &b, double a) noexcept
 {
 	return b * tfloatexp<mantissa, exponent>(a);
 }
@@ -523,6 +525,18 @@ inline tfloatexp<mantissa, exponent> operator+(double a, const tfloatexp<mantiss
 
 template <typename mantissa, typename exponent>
 inline tfloatexp<mantissa, exponent> operator+(const tfloatexp<mantissa, exponent> &b, double a) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) + b;
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator+(int a, const tfloatexp<mantissa, exponent> &b) noexcept
+{
+	return tfloatexp<mantissa, exponent>(a) + b;
+}
+
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> operator+(const tfloatexp<mantissa, exponent> &b, int a) noexcept
 {
 	return tfloatexp<mantissa, exponent>(a) + b;
 }
@@ -648,6 +662,9 @@ inline bool isinf(const tfloatexp<mantissa, exponent> &a) noexcept
 template <typename mantissa, typename exponent>
 inline tfloatexp<mantissa, exponent> infnan_to_zero(const tfloatexp<mantissa, exponent> &a) noexcept
 {
+	using std::isinf;
+	using std::copysign;
+	using std::isnan;
 	return isinf(a.val) ? tfloatexp<mantissa, exponent>(copysign(1e30, a.val)) : isnan(a.val) ? tfloatexp<mantissa, exponent>(0) : a;
 }
 

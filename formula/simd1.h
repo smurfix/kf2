@@ -50,3 +50,11 @@ F2(log)
 F2(log1p)
 F2(sinh)
 #undef F2
+
+static inline bool all(const int2 &i) {
+  return (((i[0] && i[1])));
+}
+
+static inline bool any(const int2 &i) {
+  return (((i[0] || i[1])));
+}

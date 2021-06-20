@@ -50,3 +50,13 @@ F8(log)
 F8(log1p)
 F8(sinh)
 #undef F8
+
+static inline bool all(const int8 &i) {
+  return (((i[0] && i[1]) && (i[2] && i[3])) &&
+         ((i[4] && i[5]) && (i[6] && i[7])));
+}
+
+static inline bool any(const int8 &i) {
+  return (((i[0] || i[1]) || (i[2] || i[3])) ||
+         ((i[4] || i[5]) || (i[6] || i[7])));
+}

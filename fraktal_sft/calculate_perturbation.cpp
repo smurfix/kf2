@@ -20,8 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "complex.h"
 #include "reference.h"
-#include "../formula/formula.h"
 #include "hybrid.h"
+#include "../formula/formula.h"
+#include "../formula/simd1.h"
+#include "../formula/simd2.h"
+#include "../formula/simd3.h"
+#include "../formula/simd4.h"
 
 template <typename mantissa>
 void CFraktalSFT::MandelCalc1()

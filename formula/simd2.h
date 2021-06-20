@@ -50,3 +50,11 @@ F4(log)
 F4(log1p)
 F4(sinh)
 #undef F4
+
+static inline bool all(const int4 &i) {
+  return (((i[0] && i[1]) && (i[2] && i[3])));
+}
+
+static inline bool any(const int4 &i) {
+  return (((i[0] || i[1]) || (i[2] || i[3])));
+}

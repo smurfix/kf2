@@ -182,7 +182,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	ReleaseMutex(m_hMutex);
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
-	m_fPixelSpacing = pixel_spacing;
+	m_fPixelSpacing = floatexp(pixel_spacing);
 	m_dPixelSpacing = double(m_fPixelSpacing);
 	m_lPixelSpacing = (long double)(m_fPixelSpacing);
 
@@ -279,9 +279,9 @@ void CFraktalSFT::RenderFractal()
 		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 
-	m_pixel_center_x = m_CenterRe - m_rref;
-	m_pixel_center_y = m_CenterIm - m_iref;
-	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
+	m_pixel_center_x = floatexp(m_CenterRe - m_rref);
+	m_pixel_center_y = floatexp(m_CenterIm - m_iref);
+	m_pixel_scale = floatexp((m_ZoomRadius * 2) / m_nY);
 
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
@@ -419,9 +419,9 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
 	int i;
-	m_pixel_center_x = m_CenterRe - m_rref;
-	m_pixel_center_y = m_CenterIm - m_iref;
-	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
+	m_pixel_center_x = floatexp(m_CenterRe - m_rref);
+	m_pixel_center_y = floatexp(m_CenterIm - m_iref);
+	m_pixel_scale = floatexp((m_ZoomRadius * 2) / m_nY);
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
@@ -500,9 +500,9 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
 	int i;
-	m_pixel_center_x = m_CenterRe - m_rref;
-	m_pixel_center_y = m_CenterIm - m_iref;
-	m_pixel_scale = (m_ZoomRadius * 2) / m_nY;
+	m_pixel_center_x = floatexp(m_CenterRe - m_rref);
+	m_pixel_center_y = floatexp(m_CenterIm - m_iref);
+	m_pixel_scale = floatexp((m_ZoomRadius * 2) / m_nY);
 	m_rApprox.left = 0;
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;

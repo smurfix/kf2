@@ -258,7 +258,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 							for (int k = 0; k < m_nTerms; ++k)
 							{
 								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
-								if (Ak2 > 0)
+								if (Ak2.val > 0)
 								{
 									T = std::max(T, exp(log(Ak2) / (2 * (k + 1))));
 								}
@@ -306,7 +306,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 							for (int k = 0; k < m_nTerms; ++k)
 							{
 								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
-								if (Ak2 > 0)
+								if (Ak2.val > 0)
 								{
 									T = std::max(T, exp(log(Ak2) / (2 * (k + 1))));
 								}
