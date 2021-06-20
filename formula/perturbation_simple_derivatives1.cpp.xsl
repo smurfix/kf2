@@ -43,6 +43,16 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   , const bool noDerivativeGlitch
   )
 {
+  using std::abs;
+  using std::sqrt;
+  using std::exp;
+  using std::sin;
+  using std::cos;
+  using std::sinh;
+  using std::log;
+  using std::log1p;
+  using std::atan2;
+  using std::floor;
   (void) Jxa0; // -Wunused-parameter
   (void) Jxb0; // -Wunused-parameter
   (void) Jya0; // -Wunused-parameter

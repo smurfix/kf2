@@ -63,6 +63,16 @@ bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@po
   , const int64_t chunksize
   )
 {
+  using std::abs;
+  using std::sqrt;
+  using std::exp;
+  using std::sin;
+  using std::cos;
+  using std::sinh;
+  using std::log;
+  using std::log1p;
+  using std::atan2;
+  using std::floor;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
     const double1 Ar = g_FactorAR;

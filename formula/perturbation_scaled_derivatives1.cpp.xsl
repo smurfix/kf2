@@ -42,6 +42,16 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;daaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dabF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbbF
   )
 {
+  using std::abs;
+  using std::sqrt;
+  using std::exp;
+  using std::sin;
+  using std::cos;
+  using std::sinh;
+  using std::log;
+  using std::log1p;
+  using std::atan2;
+  using std::floor;
   (void) Jxa0F; // -Wunused-parameter
   (void) Jxb0F; // -Wunused-parameter
   (void) Jya0F; // -Wunused-parameter
