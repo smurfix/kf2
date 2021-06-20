@@ -210,7 +210,7 @@ SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
-OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
+OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C)
 
 UTILS_OBJECTS := $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
 
@@ -228,7 +228,7 @@ FORMULA_PERTURBATIONSIMDDERIVATIVES_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERT
 all: kf.exe kf-tile.exe
 
 clean:
-	rm -f $(OBJECTS) fraktal_sft/main.o
+	rm -f $(OBJECTS) fraktal_sft/main.o res.o
 	rm -f $(DEPENDS) fraktal_sft/main.d
 	rm -f $(UTILS_OBJECTS)
 	rm -f $(UTILS_DEPENDS)
@@ -264,8 +264,8 @@ clean:
 kf.a: $(OBJECTS)
 	$(AR) rs $@ $(OBJECTS)
 
-kf.exe: kf.a fraktal_sft/main.o $(FORMULA_LIBS)
-	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) kf.a $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
+kf.exe: kf.a res.o fraktal_sft/main.o $(FORMULA_LIBS)
+	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) kf.a res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
 
 kf-tile.exe: utils/kf-tile.o common/matrix.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o common/matrix.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
