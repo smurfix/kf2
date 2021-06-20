@@ -212,12 +212,50 @@ OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C) res.o
 
+UTILS_OBJECTS := $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
+
 DEPENDS := $(patsubst %.o,%.d,$(OBJECTS))
+UTILS_DEPENDS := $(patsubst %.o,%.d,$(UTILS_OBJECTS))
+FORMULA_GENERATED_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_GENERATED_OBJECTS))
+FORMULA_MISCELLANEOUS_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_MISCELLANEOUS_OBJECTS))
+FORMULA_REFERENCE_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_REFERENCE_OBJECTS))
+FORMULA_PERTURBATIONSCALED_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONSCALED_OBJECTS))
+FORMULA_PERTURBATIONSIMPLE_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONSIMPLE_OBJECTS))
+FORMULA_PERTURBATIONSIMPLEDERIVATIVES_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONSIMPLEDERIVATIVES_OBJECTS))
+FORMULA_PERTURBATIONSIMD_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONSIMD_OBJECTS))
+FORMULA_PERTURBATIONSIMDDERIVATIVES_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONSIMDDERIVATIVES_OBJECTS))
 
 all: kf.exe kf-tile.exe
 
 clean:
-	rm -f $(OBJECTS) $(DEPENDS) $(FORMULA_SOURCES_CPP) $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP)) $(patsubst %.cpp,%.d,$(UTILS_SOURCES_CPP))
+	rm -f $(OBJECTS) fraktal_sft/main.o
+	rm -f $(DEPENDS) fraktal_sft/main.d
+	rm -f $(UTILS_OBJECTS)
+	rm -f $(UTILS_DEPENDS)
+	rm -f $(FORMULA_GENERATED_OBJECTS)
+	rm -f $(FORMULA_GENERATED_DEPENDS)
+	rm -f $(FORMULA_MISCELLANEOUS_SOURCES_CPP)
+	rm -f $(FORMULA_MISCELLANEOUS_OBJECTS)
+	rm -f $(FORMULA_MISCELLANEOUS_DEPENDS)
+	rm -f $(FORMULA_REFERENCE_SOURCES_CPP)
+	rm -f $(FORMULA_REFERENCE_OBJECTS)
+	rm -f $(FORMULA_REFERENCE_DEPENDS)
+	rm -f $(FORMULA_PERTURBATIONSCALED_SOURCES_CPP)
+	rm -f $(FORMULA_PERTURBATIONSCALED_OBJECTS)
+	rm -f $(FORMULA_PERTURBATIONSCALED_DEPENDS)
+	rm -f $(FORMULA_PERTURBATIONSIMPLE_SOURCES_CPP)
+	rm -f $(FORMULA_PERTURBATIONSIMPLE_OBJECTS)
+	rm -f $(FORMULA_PERTURBATIONSIMPLE_DEPENDS)
+	rm -f $(FORMULA_PERTURBATIONSIMPLEDERIVATIVES_SOURCES_CPP)
+	rm -f $(FORMULA_PERTURBATIONSIMPLEDERIVATIVES_OBJECTS)
+	rm -f $(FORMULA_PERTURBATIONSIMPLEDERIVATIVES_DEPENDS)
+	rm -f $(FORMULA_PERTURBATIONSIMD_SOURCES_CPP)
+	rm -f $(FORMULA_PERTURBATIONSIMD_OBJECTS)
+	rm -f $(FORMULA_PERTURBATIONSIMD_DEPENDS)
+	rm -f $(FORMULA_PERTURBATIONSIMDDERIVATIVES_SOURCES_CPP)
+	rm -f $(FORMULA_PERTURBATIONSIMDDERIVATIVES_OBJECTS)
+	rm -f $(FORMULA_PERTURBATIONSIMDDERIVATIVES_DEPENDS)
+	rm -f $(FORMULA_LIBS) kf.a
 	rm -f cl/formula.cpp cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o
@@ -352,4 +390,15 @@ fraktal_sft/opengl.o: fraktal_sft/opengl.cpp fraktal_sft/opengl.h gl/kf_vert_gls
 manual.html: README.md
 	pandoc README.md -F pandoc-self-links.pl -s --toc --css kf.css -o manual.html
 
--include $(DEPENDS)
+-include \
+	$(DEPENDS) \
+	$(FORMULA_GENERATED_DEPENDS) \
+	$(FORMULA_MISCELLANEOUS_DEPENDS) \
+	$(FORMULA_REFERENCE_DEPENDS) \
+	$(FORMULA_PERTURBATIONSCALED_DEPENDS) \
+	$(FORMULA_PERTURBATIONSIMPLE_DEPENDS) \
+	$(FORMULA_PERTURBATIONSIMPLEDERIVATIVES_DEPENDS) \
+	$(FORMULA_PERTURBATIONSIMD_DEPENDS) \
+	$(FORMULA_PERTURBATIONSIMDDERIVATIVES_DEPENDS) \
+
+# blank line above
