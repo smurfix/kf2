@@ -19,6 +19,7 @@ preprocessor
 preprocessor.hi
 *.d
 *.o
+*.a
 *.res
 manual.html
 _
