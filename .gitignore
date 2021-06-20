@@ -3,11 +3,10 @@ kf-tile.exe
 README.pdf
 LICENSE.pdf
 cl/*_cl.c
-cl/formula.cpp
 gl/*.h
-formula/formula.cpp
 formula/formula_*_*.*.cpp
 formula/miscellaneous.cpp
+formula/perturbation_opencl.cpp
 formula/perturbation_scaled.cpp
 formula/perturbation_scaled_derivatives.cpp
 formula/perturbation_simd.cpp
