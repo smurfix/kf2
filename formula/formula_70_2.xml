@@ -10,7 +10,7 @@
   <derivative t='M'>
     dxan = ((2 * ((Xxi * dya) + (Xxr * dxa))) + daa);
     dxbn = ((2 * ((Xxi * dyb) + (Xxr * dxb))) + dab);
-    dyan = ((2 * ((g_FactorAI * (Xxr * dxa)) + (sgn(Xxi) * (g_FactorAR * ((Xxi * (dxa * sgn(Xxr))) + (Xxr * (dya * sgn(Xxr)))))))) + dba);
-    dybn = ((2 * ((g_FactorAI * (Xxr * dxb)) + (sgn(Xxi) * (g_FactorAR * ((Xxi * (dxb * sgn(Xxr))) + (Xxr * (dyb * sgn(Xxr)))))))) + dbb);
+    dyan = ((2 * ((Ai * (Xxr * dxa)) + (sgn(Xxi) * (Ar * ((Xxi * (dxa * sgn(Xxr))) + (Xxr * (dya * sgn(Xxr)))))))) + dba);
+    dybn = ((2 * ((Ai * (Xxr * dxb)) + (sgn(Xxi) * (Ar * ((Xxi * (dxb * sgn(Xxr))) + (Xxr * (dyb * sgn(Xxr)))))))) + dbb);
   </derivative>
 </formula>
