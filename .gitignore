@@ -14,6 +14,7 @@ formula/perturbation_simd_derivatives.cpp
 formula/perturbation_simple.cpp
 formula/perturbation_simple_derivatives.cpp
 formula/reference.cpp
+benchmarks/benchmark.sh
 preprocessor
 preprocessor.hi
 *.d
