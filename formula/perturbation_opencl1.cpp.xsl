@@ -7,6 +7,8 @@
 
 <xsl:for-each select="formula">
 
+extern const int perturbation_opencl_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />_derivative = '<xsl:value-of select="derivative/@t" />';
+
 const char *perturbation_opencl_double_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />_0 = STR(
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">

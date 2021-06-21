@@ -70,6 +70,7 @@ void perturbation_scaled_loop
 
 
 <xsl:for-each select="formulas/group/formula">
+extern const int perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative;
 extern const char *perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
 extern const char *perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
 extern const char *perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
@@ -101,7 +102,7 @@ std::string perturbation_opencl(int m_nFractalType, int m_nPower, int derivative
 
           if (scaled)
           {
-<xsl:for-each select="scaled">
+          <xsl:for-each select="scaled">
             if (derivatives)
             {
               o &lt;&lt; perturbation_opencl_scaled_derivatives_loop_<xsl:value-of select="../../@type" />_<xsl:value-of select="../@power" />;
@@ -110,113 +111,58 @@ std::string perturbation_opencl(int m_nFractalType, int m_nPower, int derivative
             {
               o &lt;&lt; perturbation_opencl_scaled_loop_<xsl:value-of select="../../@type" />_<xsl:value-of select="../@power" />;
             }
-</xsl:for-each>
+          </xsl:for-each>
           }
           else
           {
 
-          if (derivatives)
-          {
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_double_pre_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_double_pre_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_double_pre_m;
-</xsl:when>
-</xsl:choose>
-            o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_double_post_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_double_post_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_double_post_m;
-</xsl:when>
-</xsl:choose>
-          }
-          else
-          {
-            o &lt;&lt; perturbation_opencl_double_pre;
-            o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
-            o &lt;&lt; perturbation_opencl_double_post;
-          }
+            if (derivatives)
+            {
+              switch (perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative)
+              {
+                case 'C': o &lt;&lt; perturbation_opencl_double_pre_c; break;
+                case 'R': o &lt;&lt; perturbation_opencl_double_pre_r; break;
+                case 'M': o &lt;&lt; perturbation_opencl_double_pre_m; break;
+              }
+              o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
+              switch (perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative)
+              {
+                case 'C': o &lt;&lt; perturbation_opencl_double_post_c; break;
+                case 'R': o &lt;&lt; perturbation_opencl_double_post_r; break;
+                case 'M': o &lt;&lt; perturbation_opencl_double_post_m; break;
+              }
+            }
+            else
+            {
+              o &lt;&lt; perturbation_opencl_double_pre;
+              o &lt;&lt; perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
+              o &lt;&lt; perturbation_opencl_double_post;
+            }
 
-          if (derivatives)
-          {
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_floatexp_pre_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_floatexp_pre_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_floatexp_pre_m;
-</xsl:when>
-</xsl:choose>
-            o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_floatexp_post_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_floatexp_post_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_floatexp_post_m;
-</xsl:when>
-</xsl:choose>
-          }
-          else
-          {
-            o &lt;&lt; perturbation_opencl_floatexp_pre;
-            o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
-            o &lt;&lt; perturbation_opencl_floatexp_post;
-          }
+            if (derivatives)
+            {
+              switch (perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative)
+              {
+                case 'C': o &lt;&lt; perturbation_opencl_floatexp_pre_c; break;
+                case 'R': o &lt;&lt; perturbation_opencl_floatexp_pre_r; break;
+                case 'M': o &lt;&lt; perturbation_opencl_floatexp_pre_m; break;
+              }
+              o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
+              switch (perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative)
+              {
+                case 'C': o &lt;&lt; perturbation_opencl_floatexp_post_c; break;
+                case 'R': o &lt;&lt; perturbation_opencl_floatexp_post_r; break;
+                case 'M': o &lt;&lt; perturbation_opencl_floatexp_post_m; break;
+              }
+            }
+            else
+            {
+              o &lt;&lt; perturbation_opencl_floatexp_pre;
+              o &lt;&lt; perturbation_opencl_floatexp_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
+              o &lt;&lt; perturbation_opencl_floatexp_post;
+            }
 
-#if 0
-          if (derivatives)
-          {
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_softfloat_pre_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_softfloat_pre_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_softfloat_pre_m;
-</xsl:when>
-</xsl:choose>
-            o &lt;&lt; perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
-<xsl:choose>
-<xsl:when test="derivative/@t='R'">
-            o &lt;&lt; perturbation_opencl_softfloat_post_r;
-</xsl:when>
-<xsl:when test="derivative/@t='C'">
-            o &lt;&lt; perturbation_opencl_softfloat_post_c;
-</xsl:when>
-<xsl:when test="derivative/@t='M'">
-            o &lt;&lt; perturbation_opencl_softfloat_post_m;
-</xsl:when>
-</xsl:choose>
-          }
-          else
-          {
-            o &lt;&lt; perturbation_opencl_softfloat_pre;
-            o &lt;&lt; perturbation_opencl_softfloat_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
-            o &lt;&lt; perturbation_opencl_softfloat_post;
-          }
-#endif
-
-          o &lt;&lt; perturbation_scaled_loop_empty;
+            o &lt;&lt; perturbation_scaled_loop_empty;
           }
 
           return o.str();
