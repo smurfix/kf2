@@ -73,35 +73,37 @@ tee -a "$out/hybrid.dat"
 echo "================================================================="
 echo "== benchmarking deep Mandelbrot set power 2                    =="
 echo "================================================================="
-echo "# location dimension derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
-for loc in 1e14 1e50 5e113 5e227 4e533 1e1086
-do
-  for dim in 256 1024 4096
+(
+  echo "# location dimension derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
+  for loc in 1e14 1e50 5e113 5e227 4e533 1e1086
   do
-    for derivatives in 0 1
+    for dim in 256 1024 4096
     do
-      n="mandelbrot-$loc-$dim-$derivatives"
-      cat $loc.kfr |
-      sed "s/Differences: .\r/Differences: $((3 + 4 * derivatives))\r/" &gt; "${out}/$n.kfr"
-      cat "fast.kfs" |
-      sed "s/^UseOpenCL: .*\r$/UseOpenCL: $opencl\r/" |
-      sed "s/^OpenCLPlatform: .*\r$/OpenCLPlatform: $platform\r/" |
-      sed "s/^Guessing: .*\r$/Guessing: $((1 - opencl))\r/" |
-      sed "s/^ImageWidth: .*\r$/ImageWidth: $dim\r/" |
-      sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" &gt; "${out}/$n.kfs"
-      "$kf" --log info -s "${out}/$n.kfs" -l "$out/$n.kfr" -t "${out}/$n.tif" 2&gt;&amp;1 |
-      tail -n 4 |
-      tr -d '\r' |
-      (
-        read junk1 junk2 totalwall totalcpu
-        read junk1 junk2 refwall refcpu
-        read junk1 junk2 apxwall apxcpu
-        read junk1 junk2 ptbwall ptbcpu
-        echo "$loc $dim $derivatives $totalwall $totalcpu $refwall $refcpu $apxwall $apxcpu $ptbwall $ptbcpu"
-      )
+      for derivatives in 0 1
+      do
+        n="mandelbrot-$loc-$dim-$derivatives"
+        cat $loc.kfr |
+        sed "s/Differences: .\r/Differences: $((3 + 4 * derivatives))\r/" &gt; "${out}/$n.kfr"
+        cat "fast.kfs" |
+        sed "s/^UseOpenCL: .*\r$/UseOpenCL: $opencl\r/" |
+        sed "s/^OpenCLPlatform: .*\r$/OpenCLPlatform: $platform\r/" |
+        sed "s/^Guessing: .*\r$/Guessing: $((1 - opencl))\r/" |
+        sed "s/^ImageWidth: .*\r$/ImageWidth: $dim\r/" |
+        sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" &gt; "${out}/$n.kfs"
+        "$kf" --log info -s "${out}/$n.kfs" -l "$out/$n.kfr" -t "${out}/$n.tif" 2&gt;&amp;1 |
+        tail -n 4 |
+        tr -d '\r' |
+        (
+          read junk1 junk2 totalwall totalcpu
+          read junk1 junk2 refwall refcpu
+          read junk1 junk2 apxwall apxcpu
+          read junk1 junk2 ptbwall ptbcpu
+          echo "$loc $dim $derivatives $totalwall $totalcpu $refwall $refcpu $apxwall $apxcpu $ptbwall $ptbcpu"
+        )
+      done
     done
   done
-done |
+) |
 tee -a "${out}/mandelbrot.dat"
 </xsl:template>
 </xsl:stylesheet>
