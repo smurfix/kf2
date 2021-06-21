@@ -1,34 +1,73 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
-<xsl:output method="text" />
-<xsl:template match="/">#!/bin/bash
+#!/bin/bash
 set -euo pipefail
 kf="${1:-../kf.exe}"
 platform="${2:--1}"
-opencl=$((platform &gt;= 0))
+opencl=$((platform >= 0))
 platformname=cpu
 if (( opencl ))
 then
   platformname="cl$platform"
 fi
-out="$("$kf" --version | tr -d '\r')/${HOSTNAME:-unknown}/$platformname"
+out="${HOSTNAME:-unknown}/$("$kf" --version | tr -d '\r')/$platformname"
 mkdir -p "$out"
 echo "================================================================="
 echo "== benchmarking built-in formulas                              =="
 echo "================================================================="
 (
   echo "# fractaltype power derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
-  cat &lt;&lt; EOF |
-<xsl:for-each select="formulas/group/formula"><xsl:value-of select="../@type" /><xsl:text> </xsl:text><xsl:value-of select="@power" /><xsl:text>
-</xsl:text></xsl:for-each>EOF
+  cat << EOF |
+0 3
+0 4
+0 5
+0 6
+0 7
+0 8
+0 9
+0 10
+1 3
+1 4
+1 5
+2 3
+2 4
+2 5
+3 3
+3 4
+3 5
+4 3
+4 4
+4 5
+14 3
+23 4
+24 4
+25 4
+26 4
+31 5
+32 5
+34 4
+35 4
+36 4
+37 4
+38 4
+39 4
+52 2
+53 2
+69 2
+70 2
+71 2
+72 2
+73 2
+74 2
+74 3
+74 4
+EOF
   while read type power
   do
     for derivatives in 0 1
     do
       n="builtin-$type-$power-$derivatives"
-      echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" &gt; "$out/$n.kfs"
-      echo -e "Re: 0.000001\r\nIm: 0.000000001\r\nIterations: 10100\r\nFractalType: $type\r\nPower: $power\r\nDifferences: $((3 + 4 * $derivatives))\r" &gt; "$out/$n.kfr"
-      "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2&gt;&amp;1 |
+      echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
+      echo -e "Iterations: 10100\r\nFractalType: $type\r\nPower: $power\r\nDifferences: $((3 + 4 * $derivatives))\r" > "$out/$n.kfr"
+      "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
       tail -n 4 |
       tr -d '\r' |
       (
@@ -46,26 +85,29 @@ echo "================================================================="
 echo "== benchmarking Hybrid formulas                                =="
 echo "================================================================="
 (
-  echo "# fractaltype power derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
+  echo "# fractaltype power usehybrid derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
   for hybrid in ../formulas/*.kfr
   do
-    type="$(basename "$hybrid" | sed "s/-.*$//" | sed "s/^0//")"
-    power="$(basename "$hybrid" | sed "s/^..-//" | sed "s/-.*$//" | sed "s/^0//")"
-    for derivatives in 0 1
+    for usehybrid in 0 1
     do
-      n="hybrid-$type-$power-$derivatives"
-      echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" &gt; "$out/$n.kfs"
-      ( cat "$hybrid" &amp;&amp; echo -e "Re: 0.000001\r\nIm: 0.000000001\r\nIterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r" ) &gt; "$out/$n.kfr"
-      "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2&gt;&amp;1 |
-      tail -n 4 |
-      tr -d '\r' |
-      (
-        read junk1 junk2 totalwall totalcpu
-        read junk1 junk2 refwall refcpu
-        read junk1 junk2 apxwall apxcpu
-        read junk1 junk2 ptbwall ptbcpu
-        echo "$type $power $derivatives $totalwall $totalcpu $refwall $refcpu $apxwall $apxcpu $ptbwall $ptbcpu"
-      )
+      type="$(basename "$hybrid" | sed "s/-.*$//" | sed "s/^0//")"
+      power="$(basename "$hybrid" | sed "s/^..-//" | sed "s/-.*$//" | sed "s/^0//")"
+      for derivatives in 0 1
+      do
+        n="hybrid-$type-$power-$derivatives"
+        echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
+        ( cat "$hybrid" | sed "s/UseHybrid: .*\r/UseHybrid: $usehybrid\r/" && echo -e "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r" ) > "$out/$n.kfr"
+        "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
+        tail -n 4 |
+        tr -d '\r' |
+        (
+          read junk1 junk2 totalwall totalcpu
+          read junk1 junk2 refwall refcpu
+          read junk1 junk2 apxwall apxcpu
+          read junk1 junk2 ptbwall ptbcpu
+          echo "$type $power $usehybrid $derivatives $totalwall $totalcpu $refwall $refcpu $apxwall $apxcpu $ptbwall $ptbcpu"
+        )
+      done
     done
   done
 ) |
@@ -83,14 +125,14 @@ echo "================================================================="
       do
         n="mandelbrot-$loc-$dim-$derivatives"
         cat $loc.kfr |
-        sed "s/Differences: .\r/Differences: $((3 + 4 * derivatives))\r/" &gt; "${out}/$n.kfr"
+        sed "s/Differences: .\r/Differences: $((3 + 4 * derivatives))\r/" > "${out}/$n.kfr"
         cat "fast.kfs" |
         sed "s/^UseOpenCL: .*\r$/UseOpenCL: $opencl\r/" |
         sed "s/^OpenCLPlatform: .*\r$/OpenCLPlatform: $platform\r/" |
         sed "s/^Guessing: .*\r$/Guessing: $((1 - opencl))\r/" |
         sed "s/^ImageWidth: .*\r$/ImageWidth: $dim\r/" |
-        sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" &gt; "${out}/$n.kfs"
-        "$kf" --log info -s "${out}/$n.kfs" -l "$out/$n.kfr" -t "${out}/$n.tif" 2&gt;&amp;1 |
+        sed "s/^ImageHeight: .*\r$/ImageHeight: $dim\r/" > "${out}/$n.kfs"
+        "$kf" --log info -s "${out}/$n.kfs" -l "$out/$n.kfr" -t "${out}/$n.tif" 2>&1 |
         tail -n 4 |
         tr -d '\r' |
         (
@@ -105,5 +147,3 @@ echo "================================================================="
   done
 ) |
 tee -a "${out}/mandelbrot.dat"
-</xsl:template>
-</xsl:stylesheet>
