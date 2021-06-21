@@ -13,7 +13,7 @@ mkdir -p "$out"
 echo "================================================================="
 echo "== benchmarking built-in formulas                              =="
 echo "================================================================="
-(
+time (
   echo "# fractaltype power derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
   cat << EOF |
 0 3
@@ -84,7 +84,7 @@ tee -a "$out/builtin.dat"
 echo "================================================================="
 echo "== benchmarking Hybrid formulas                                =="
 echo "================================================================="
-(
+time (
   echo "# fractaltype power usehybrid derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
   for hybrid in ../formulas/*.kfr
   do
@@ -94,9 +94,9 @@ echo "================================================================="
       power="$(basename "$hybrid" | sed "s/^..-//" | sed "s/-.*$//" | sed "s/^0//")"
       for derivatives in 0 1
       do
-        n="hybrid-$type-$power-$derivatives"
+        n="hybrid-$usehybrid-$type-$power-$derivatives"
         echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
-        ( cat "$hybrid" | sed "s/UseHybrid: .*\r/UseHybrid: $usehybrid\r/" && echo -e "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r" ) > "$out/$n.kfr"
+        ( cat "$hybrid" | sed "s/UseHybridFormula: .*\r/UseHybridFormula: $usehybrid\r/" && echo -e "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r" ) > "$out/$n.kfr"
         "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
         tail -n 4 |
         tr -d '\r' |
@@ -115,7 +115,7 @@ tee -a "$out/hybrid.dat"
 echo "================================================================="
 echo "== benchmarking deep Mandelbrot set power 2                    =="
 echo "================================================================="
-(
+time (
   echo "# location dimension derivatives totalwall totalcpu refwall refcpu apxwall apxcpu ptbwall ptbcpu"
   for loc in 1e14 1e50 5e113 5e227 4e533 1e1086
   do
