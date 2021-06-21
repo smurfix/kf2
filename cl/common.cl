@@ -1650,6 +1650,12 @@ fecomplex fec_dmul(const mantissa a, const fecomplex b)
   return dc;
 }
 
+fecomplex fec_dcmul(const dcomplex a, const fecomplex b)
+{
+  fecomplex fec = { fe_sub(fe_dmul(a.re, b.re), fe_dmul(a.im, b.im)), fe_add(fe_dmul(a.re, b.im), fe_dmul(a.im, b.re)) };
+  return fec;
+}
+
 fecomplex fec_sqr(const fecomplex a)
 {
   fecomplex fec = { fe_sub(fe_sqr(a.re), fe_sqr(a.im)), fe_mul_2si(fe_mul(a.re, a.im), 1) };
