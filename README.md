@@ -2082,6 +2082,49 @@ build the 32bit version:
     from `msys64/mingw64/bin` next to the generated executable.
 
 
+## Benchmark
+
+The benchmark suite is maintained in the code repository:
+
+    git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
+    cd kalles-fraktaler-2
+    git checkout kf-2.15
+    cd benchmarks
+
+To benchmark regular CPU:
+
+    ./benchmark.sh /path/to/kf.exe -1
+
+For OpenCL platform N, starting from 0:
+
+    ./benchmark.sh /path/to/kf.exe $N
+
+It will create a directory `$HOSTNAME/$VERSION/$PLATFORM` with ~1.5GB of
+images, and benchmark logs `builtin.dat` `hybrid.dat` `mandelbrot.dat`.
+
+To generate graphs `builtin.png` `hybrid.png` `mandelbrot.png`:
+
+    cd $HOSTNAME/$VERSION
+    gnuplot < ../../plot.gnuplot
+
+Note: the benchmark suite is currently designed for the latest KF.
+Earlier versions of KF may miss some formulas or have bugs that
+prevent successful completion of the benchmark suite, or give
+misleading output (e.g. unknown formula silently resets to power 2
+Mandelbrot).  Work in progress.
+
+Rough guideline of how long it takes on different machines:
+
+eiskaffee
+
+- AMD Ryzen 7 2700X Eight-Core Processor: ~45mins
+- AMD Radeon RX 580 GPU: ~2h15mins
+
+latte
+
+- Intel(R) Core(TM)2 Duo CPU P7550 @ 2.26GHz: ~??h??mins
+
+
 ## Legal
 
 Kalles Fraktaler 2 +
