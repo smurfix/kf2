@@ -2447,15 +2447,23 @@ out.  Scroll wheel zooms by a factor of 2.
 
 Turns animation on or off when zooming.
 
-### Set window size
+### Set window and image size
 
-Set the size of the display window.
+Open the output size dialog.
 
-### Set image size
+Top left is the aspect ratio control.  Common aspect ratios are options,
+with a custom entry for arbitrary ratios.  Next from left is the target
+vertical size.  Third is supersampling amount, this is multiplied by the
+target size to give a bigger bitmap size.  Finally on the right is a
+window scaling control, relative to the target size.
 
-Set the size of the internal image size. If this is larger than the
-window size, an anti-alias effect is achieved (some systems may need to
-increase the Shrink Quality for this to work properly).
+Bottom left are computed dimensions.  Bottom right are OK and Cancel
+buttons.  The OK button is disabled if the bitmap is too large (see the
+Limits section at the start of this document).
+
+If the computed bitmaps size is larger than the window size, an
+anti-alias effect is achieved (some systems may need to increase the
+Shrink Quality for this to work properly).
 
 ### Arbitrary size
 
