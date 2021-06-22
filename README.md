@@ -12,7 +12,7 @@ date: 2021-06-20
 
 # Kalles Fraktaler 2 +
 
-As the orginal upstream author Karl Runmo says:
+As the orginal author Karl Runmo says:
 
 > Want to create DEEP Mandelbrot fractals 100 times faster than the
 > commercial programs, for FREE? One hour or one minute? Three months or
@@ -27,7 +27,7 @@ arbitrary precision floating point code for highly optimized libraries,
 making it even faster.  Cross-compiled to Windows from Linux MINGW64.
 Now with many other enhancements.
 
-Original upstream version:
+Original version:
 
 - <http://www.chillheimer.de/kallesfraktaler/>
 
@@ -194,9 +194,12 @@ Feedback:
 - spinner of newly opened Transformation dialog widget resets to 0
 
 
-## Differences From Upstream 2.11.1
+## Differences From Original 2.11.1
 
 ### Incompatible Changes
+
+- **In versions `2.15.4` and above**, there are three new formulas which
+  are not available in earlier versions.
 
 - **In versions `2.15.2` and above**,
   OpenGL-based colouring is new.
@@ -262,18 +265,18 @@ Feedback:
   white.  In `2.13.5` and above it is user-settable, defaulting to
   black, Parameter files made with earlier `2.13` versions should be
   modified to explicitly set a white interior colour.  In earlier
-  versions (including upstream `2.11.1`) the interior is black with no
+  versions (including original `2.11.1`) the interior is black with no
   way of changing it.
 
 - **In version `kf-2.12.10` only** the jitter is "Gaussian" with no way
   of changing the shape.  In `2.12.11` and above, the shape can be
   changed, and the default is now "uniform".  Earlier versions
-  (including upstream `2.11.1`) do not support jitter at all.  To get
+  (including original `2.11.1`) do not support jitter at all.  To get
   the same results as `2.12.10` you must enable the Gaussian jitter
   checkbox and set the jitter scale box to 1.
 
 - **In version `kf-2.12.1` and above**, DE colouring method #5 is once
-  again backwards compatible with upstream `2.11.1`.  Parameter files
+  again backwards compatible with original `2.11.1`.  Parameter files
   made with `2.11.1+gmp.DATE` versions should be modified to use
   Distance (Square Root) colouring method #8.
 
@@ -368,6 +371,8 @@ earlier).
     - known issue: auto-skew is not functional yet
   - fix: Hybrid operator multiplication works with OpenCL
   - fix: Omnibrot works with OpenCL
+  - fix: Mandelbrot power 4 and above with derivatives works with OpenCL
+  - fix: formulas 52, 53, 69, 70, 71 now work with OpenCL
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)
   - fix: Zoom Amount spinner in Transformation dialog works live
@@ -1718,7 +1723,7 @@ The latest source code is available from my git repository:
 
     git clone https://code.mathr.co.uk/kalles-fraktaler-2.git
     cd kalles-fraktaler-2
-    git checkout master       # for Karl's original upstream
+    git checkout master       # for Karl's original
     git checkout claude       # for MINGW build system and bug fixes
     git checkout kf-2.14      # old stable (bugfixes only)
     git checkout kf-2.15      # for current development
