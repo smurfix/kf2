@@ -5,13 +5,14 @@
   </reference>
   <perturbation t="R">
     xrn = (2 * Xr + xr) * xr - (2 * Xi + xi) * xi + cr;
-    xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * (Xi + xi)) + ci;
+    xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xxi) + ci;
   </perturbation>
-  <derivative t='M'>
-    dxan = ((2 * (Xxr * dxa)) + (( - 2 * (Xxi * dya)) + daa));
-    dxbn = ((2 * (Xxr * dxb)) + (( - 2 * (Xxi * dyb)) + dab));
-    dyan = ((2 * (sgn(Xxi) * (Xxi * (dxa * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dya * sgn(Xxr))))) + dba));
-    dybn = ((2 * (sgn(Xxi) * (Xxi * (dxb * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dyb * sgn(Xxr))))) + dbb));
+  <derivative t="M">
+    t_0 = 2 * sgn(Xxi) * sgn(Xxr);
+    dxan = 2 * (Xxr * dxa - Xxi * dya) + daa;
+    dxbn = 2 * (Xxr * dxb - Xxi * dyb) + dab;
+    dyan = t_0 * (Xxi * dxa + Xxr * dya) + dba;
+    dybn = t_0 * (Xxi * dxb + Xxr * dyb) + dbb;
   </derivative>
   <scaled t="R">
     <threshold s="0" u="0">
