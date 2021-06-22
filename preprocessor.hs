@@ -388,6 +388,8 @@ interpret t (EAssign (EVar v@('t':'_':_)) a) = (case t of
 interpret t (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
 
+interpret t e = error $ "interpret " ++ show t ++ " (" ++ show e ++ ")"
+
 prepare "d" vs = unlines . concat $
   [ [ "const auto Xr2 = Xr * Xr;" | "Xr2" `elem` vs ]
   , [ "const auto Xi2 = Xi * Xi;" | "Xi2" `elem` vs ]
