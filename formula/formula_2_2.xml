@@ -4,13 +4,15 @@
     Xin = 2 * abs(Xr * Xi) + Ci;
   </reference>
   <perturbation t="R">
-    xrn = diffabs(Xr * Xr - Xi * Xi, 2 * Xr * xr + xr * xr - 2 * Xi * xi - xi * xi) + cr;
-    xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + ci;
+    xrn = diffabs(Xr2 - Xi2, (2 * Xr + xr) * xr - (2 * Xi + xi) * xi) + cr;
+    xin = 2 * diffabs(Xr * Xi, Xr * xi + xr * Xxi) + ci;
   </perturbation>
-  <derivative t='M'>
-    dxan = ((2 * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dya * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + daa));
-    dxbn = ((2 * (Xxr * (dxb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + (( - 2 * (Xxi * (dyb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))) + dab));
-    dyan = ((2 * (sgn(Xxi) * (Xxi * (dxa * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dya * sgn(Xxr))))) + dba));
-    dybn = ((2 * (sgn(Xxi) * (Xxi * (dxb * sgn(Xxr))))) + ((2 * (sgn(Xxi) * (Xxr * (dyb * sgn(Xxr))))) + dbb));
+  <derivative t="M">
+    t_0 = 2 * sgn(Xxr2 - Xxi2);
+    t_1 = 2 * sgn(Xxi) * sgn(Xxr);
+    dxan = t_0 * (Xxr * dxa - Xxi * dya) + daa;
+    dxbn = t_0 * (Xxr * dxb - Xxi * dyb) + dab;
+    dyan = t_1 * (Xxi * dxa + Xxr * dya) + dba;
+    dybn = t_1 * (Xxi * dxb + Xxr * dyb) + dbb;
   </derivative>
 </formula>
