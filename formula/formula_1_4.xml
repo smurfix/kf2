@@ -4,13 +4,23 @@
     Xin = 4 * abs(Xr * Xi) * (Xr2 - Xi2) + Ci;
   </reference>
   <perturbation t="R">
-    xrn = 4 * Xr * Xr * Xr * xr + 6 * Xr * Xr * xr * xr + 4 * Xr * xr * xr * xr + xr * xr * xr * xr + 4 * Xi * Xi * Xi * xi + 6 * Xi * Xi * xi * xi + 4 * Xi * xi * xi * xi + xi * xi * xi * xi - 12 * Xr * Xr * Xi * xi - 6 * Xr * Xr * xi * xi - 12 * Xr * xr * Xi * Xi - 24 * Xr * xr * Xi * xi - 12 * Xr * xr * xi * xi - 6 * xr * xr * Xi * Xi - 12 * xr * xr * Xi * xi - 6 * xr * xr * xi * xi + cr;
-    xin = 4 * (Xr * Xr - Xi * Xi) * diffabs(Xr * Xi, Xr * xi + xr * Xi + xr * xi) + 4 * abs(Xr * Xi + Xr * xi + xr * Xi + xr * xi) * (2 * xr * Xr + xr * xr - 2 * xi * Xi - xi * xi) + ci;
+    t_0 = Xr * xr;
+    t_1 = Xi * xi;
+    t_2 = xr2 - xi2;
+    xrn = Xr2 * (4 * t_0 + 6 * t_2 - 12 * t_1) + Xi2 * (4 * t_1 - 6 * t_2 - 12 * t_0) + xr2 * (4 * t_0 + xr2 - 12 * t_1) + xi2 * (4 * t_1 + xi2 - 12 * t_0 - 6 * xr2) - 24 * t_0 * t_1 + cr;
+    xin = 4 * (Xr2 - Xi2) * diffabs(Xr * Xi, Xr * xi + xr * Xxi) + 4 * abs(Xxr * Xxi) * ((2 * t_0 + xr2) - (2 * t_1 + xi2)) + ci;
   </perturbation>
   <derivative t='M'>
-    dxan = ((4 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxi * (dya * sgn(Xxi))))))))) + ((4 * (sgn(Xxr) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dxa * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxi * (Xxr * (dxa * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dya * sgn(Xxr))))))))) + daa))));
-    dxbn = ((4 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxi * (dyb * sgn(Xxi))))))))) + ((4 * (sgn(Xxr) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dxb * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxi * (Xxr * (dxb * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dyb * sgn(Xxr))))))))) + dab))));
-    dyan = ((4 * (sgn(Xxi) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dya * sgn(Xxr))))))))) + (( - 4 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxi * (dxa * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxr * (dya * sgn(Xxr))))))))) + ((12 * (sgn(Xxi) * (sgn(Xxr) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dxa * sgn(Xxr))))))))) + dba))));
-    dybn = ((4 * (sgn(Xxi) * (sgn(Xxr) * (sgn(Xxr) * (Xxr * (Xxr * (Xxr * (dyb * sgn(Xxr))))))))) + (( - 4 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxi * (dxb * sgn(Xxr))))))))) + (( - 12 * (sgn(Xxi) * (sgn(Xxi) * (sgn(Xxi) * (Xxi * (Xxi * (Xxr * (dyb * sgn(Xxr))))))))) + ((12 * (sgn(Xxi) * (sgn(Xxr) * (sgn(Xxr) * (Xxi * (Xxr * (Xxr * (dxb * sgn(Xxr))))))))) + dbb))));
+    t_0 = Xxr * Xxr2;
+    t_1 = Xxi * Xxr2;
+    t_2 = Xxr * Xxi2;
+    t_3 = Xxi * Xxi2;
+    t_4 = (t_0 - 3 * t_2);
+    t_5 = (t_3 - 3 * t_1);
+    t_6 = 4 * sgn(Xxi) * sgn(Xxr);
+    dxan = 4 * (t_4 * dxa + t_5 * dya) + daa;
+    dxbn = 4 * (t_4 * dxb + t_5 * dyb) + dab;
+    dyan = t_6 * (t_4 * dya - t_5 * dxa) + dba;
+    dybn = t_6 * (t_4 * dyb - t_5 * dxb) + dbb;
   </derivative>
 </formula>
