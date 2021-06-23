@@ -1,10 +1,10 @@
 <formula type="1" name="Burning Ship" power="5" glitch="0.0001">
   <reference t="R">
     t_0 = Xr2 * Xr2;
-    t_1 = Xr2 * Xi2;
+    t_1 = 10 * Xr2 * Xi2;
     t_2 = Xi2 * Xi2;
-    Xrn = abs(Xr) * (t_0 - 10 * t_1 + 5 * t_2) + Cr;
-    Xin = abs(Xi) * (5 * t_0 - 10 * t_1 + t_2) + Ci;
+    Xrn = abs(Xr) * (t_0 - t_1 + 5 * t_2) + Cr;
+    Xin = abs(Xi) * (5 * t_0 - t_1 + t_2) + Ci;
   </reference>
   <perturbation t="R">
     t_0 = Xr2 * Xr2;
