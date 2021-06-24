@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-06-20
+date: 2021-06-24
 ...
 
 # Kalles Fraktaler 2 +
@@ -369,10 +369,19 @@ earlier).
     - known issue: seams with numeric differences DE (analytic DE is ok)
     - known issue: Newton zooming is not functional yet
     - known issue: auto-skew is not functional yet
+  - new: convert between built-in formulas and hybrid formulas (when
+    possible) with new buttons in the Formula dialog
+  - new: optimized some built-in formulas using common subexpression
+    elimination (6%-58% faster perturbation calculations)
+    - Burning Ship power 2, 3, 4, 5
+    - Buffalo power 2, 3, 4
+  - new: optimized some hybrid OpenCL perturbation calculations
   - fix: Hybrid operator multiplication works with OpenCL
   - fix: Omnibrot works with OpenCL
   - fix: Mandelbrot power 4 and above with derivatives works with OpenCL
   - fix: formulas 52, 53, 69, 70, 71 now work with OpenCL
+  - fix: formulas 23, 24, 25, 26 now have correct derivatives for
+    analytic DE
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)
   - fix: Zoom Amount spinner in Transformation dialog works live
@@ -384,9 +393,12 @@ earlier).
   - fix: Newton zoom dialog (atom domain) size of period <=1 is set to 1
   - fix: OpenCL error dialog no longer appears and disappears again
     instantly
-  - internal: formula build system refactored for parallel building
+  - internal: formula build system refactored for parallel building and
+    much faster incremental builds
   - internal: include structure rationalized for faster builds
   - internal: use intermediate ar archives for linking many object files
+  - internal: formula preprocessor supports temporary variables (can be
+    used for common subexpression elimination)
   - upgrade to gsl-2.7
   - upgrade to openexr-2.5.7
 
@@ -2994,6 +3006,14 @@ In units of a pixel (1 pixel is sensible in most cases).
 ### Gaussian jitter
 
 Probably best left disabled (uniform jitter looks better).
+
+### From Hybrid
+
+Convert hybrid formula to built-in formula (when possible).
+
+### To Hybrid
+
+Convert built-in formula to hybrid formula (when possible).
 
 
 ## Hybrid Formula dialog
