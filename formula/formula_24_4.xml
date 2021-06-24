@@ -1,6 +1,6 @@
 <formula type="24" name="4th False Quasi Heart" power="4" glitch="0.00001">
   <reference t="R">
-    Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2  + Cr;
+    Xrn = Xr2 * Xr2 + Xi2 * (Xi2 - 6 * Xr2) + Cr;
     Xin = 4 * Xr * Xi * abs(Xr2 - Xi2) + Ci;
   </reference>
   <perturbation t="R">
@@ -8,9 +8,16 @@
     xin = (4 * Xr * Xi) * diffabs(Xr2 - Xi2,  - 2 * xi * Xi + 2 * xr * Xr - xi2 + xr2) + (4 * Xr * xi + 4 * xr * Xi + 4 * xr * xi) * abs( - Xi2 - 2 * xi * Xi + Xr2 + 2 * xr * Xr - xi2 + xr2) + ci;
   </perturbation>
   <derivative t='M'>
-    dxan = ((4 * (Xxi * (Xxi * (Xxi * dya)))) + ((4 * (Xxr * (Xxr * (Xxr * dxa)))) + (( - 12 * (Xxr * (Xxr * dya))) + (( - 24 * (Xxi * (Xxr * dxa))) + daa))));
-    dxbn = ((4 * (Xxi * (Xxi * (Xxi * dyb)))) + ((4 * (Xxr * (Xxr * (Xxr * dxb)))) + (( - 12 * (Xxr * (Xxr * dyb))) + (( - 24 * (Xxi * (Xxr * dxb))) + dab))));
-    dyan = ((4 * (abs((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr))) * (Xxi * dxa))) + ((4 * (abs((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr))) * (Xxr * dya))) + ((8 * (Xxi * (Xxr * (Xxr * (dxa * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))))) + (( - 8 * (Xxi * (Xxi * (Xxr * (dya * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))))) + dba))));
-    dybn = ((4 * (abs((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr))) * (Xxi * dxb))) + ((4 * (abs((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr))) * (Xxr * dyb))) + ((8 * (Xxi * (Xxr * (Xxr * (dxb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))))) + (( - 8 * (Xxi * (Xxi * (Xxr * (dyb * sgn((( - 1 * (Xxi * Xxi)) + (Xxr * Xxr)))))))) + dbb))));
+    t_0 = Xxr * (Xxr2 - 3 * Xxi2);
+    t_1 = Xxi * (Xxi2 - 3 * Xxr2);
+    t_2 = Xxr2 - Xxi2;
+    t_3 = abs(t_2);
+    t_4 = 2 * sgn(t_2);
+    t_5 = Xxi * (t_3 + t_4 * Xxr2);
+    t_6 = Xxr * (t_3 - t_4 * Xxi2);
+    dxan = 4 * (t_0 * dxa + t_1 * dya) + daa;
+    dxbn = 4 * (t_0 * dxb + t_1 * dyb) + dab;
+    dyan = 4 * (t_5 * dxa + t_6 * dya) + dba;
+    dybn = 4 * (t_5 * dxb + t_6 * dyb) + dbb;
   </derivative>
 </formula>
