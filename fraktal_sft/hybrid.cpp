@@ -1196,37 +1196,72 @@ extern std::string hybrid_pf_opencl_double(const hybrid_operator &h, const std::
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  dcomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  dcomplex S = { 0.0, 0.0 };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = dc_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dc_mul(za, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
-    o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, i) * pow(B, j);
+      if (i == 0)
+      {
+        o << "  dcomplex S = Bp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = dc_add(S, Wp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = dc_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
@@ -1276,37 +1311,72 @@ extern std::string hybrid_pf_opencl_double_dual(const hybrid_operator &h, const 
   o << "  {";
   o << "    dualdcomplex M = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dualdc_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dualdc_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  dcomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  dualdcomplex S = { { 0.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = dualdc_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualdc_dcmul(a, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
-    o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, j) * pow(B, i);
+      if (i == 0)
+      {
+        o << "  dualdcomplex S = Wp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = dualdc_adddc(S, Bp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << j << "], " << "Bp[" << i << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = dualdc_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
@@ -1686,40 +1756,72 @@ extern std::string hybrid_pf_opencl_floatexp(const hybrid_operator &h, const std
   o << "  {";
   o << "    fecomplex M = { one, zero };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = fec_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = fec_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  fecomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    fecomplex M = { one, zero };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = fec_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = fec_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  fecomplex S = { zero, zero };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = fec_add(S, fec_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = fec_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = fec_dcmul(za, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex za =\n";
-    o << "{ " << std::scientific << std::setprecision(18) << h.mul_re << "\n";
-    o << ", " << std::scientific << std::setprecision(18) << h.mul_im << "\n";
-    o << "};\n";
-    o << "  " << ret << " = fec_dcmul(za, fec_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, i) * pow(B, j);
+      if (i == 0)
+      {
+        o << "  fecomplex S = Bp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = fec_add(S, Wp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = fec_add(S, fec_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = fec_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = fec_dcmul(za, fec_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
@@ -1772,37 +1874,72 @@ extern std::string hybrid_pf_opencl_floatexp_dual(const hybrid_operator &h, cons
   o << "  {";
   o << "    dualfecomplex M = { { one, { zero, zero } }, { zero, { zero, zero } } };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dualfec_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dualfec_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  fecomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    fecomplex M = { one, zero };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = fec_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = fec_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  dualfecomplex S = { { zero, { zero, zero } }, { zero, { zero, zero } } };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = dualfec_add(S, dualfec_mulfec(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = dualfec_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualfec_dcmul(za, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
-    o << "  " << ret << " = dualfec_dcmul(a, dualfec_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, j) * pow(B, i);
+      if (i == 0)
+      {
+        o << "  dualfecomplex S = Wp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = dualfec_addfec(S, Bp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = dualfec_add(S, dualfec_mulfec(Wp[" << j << "], " << "Bp[" << i << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = dualfec_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualfec_dcmul(za, dualfec_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
@@ -2076,37 +2213,72 @@ extern std::string hybrid_pf_opencl_double_scaled(const hybrid_operator &h, cons
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  dcomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  dcomplex S = { 0.0, 0.0 };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = dc_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dc_mul(za, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
-    o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, i) * pow(B, j);
+      if (i == 0)
+      {
+        o << "  dcomplex S = Bp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = dc_add(S, Wp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = dc_add(S, dc_mul(Wp[" << i << "], " << "Bp[" << j << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = dc_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex za = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dc_mul(za, dc_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
@@ -2156,37 +2328,72 @@ extern std::string hybrid_pf_opencl_double_dual_scaled(const hybrid_operator &h,
   o << "  {";
   o << "    dualdcomplex M = { { 1.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
   o << "    Wp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dualdc_mul(M, W);\n";
-    o << "    Wp[" << i << "] = M;\n";
+    o << "    Wp[1] = W;\n";
+    o << "    M = W;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dualdc_mul(M, W);\n";
+      o << "    Wp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
   o << "  dcomplex Bp[" << h.pow << "];\n";
   o << "  {";
   o << "    dcomplex M = { 1.0, 0.0 };\n";
   o << "    Bp[0] = M;\n";
-  for (int i = 1; i < h.pow; ++i)
+  if (1 < h.pow)
   {
-    o << "    M = dc_mul(M, B);\n";
-    o << "    Bp[" << i << "] = M;\n";
+    o << "    Bp[1] = B;\n";
+    o << "    M = B;\n";
+    for (int i = 2; i < h.pow; ++i)
+    {
+      o << "    M = dc_mul(M, B);\n";
+      o << "    Bp[" << i << "] = M;\n";
+    }
   }
   o << "  }";
-  o << "  dualdcomplex S = { { 0.0, { 0.0, 0.0 } }, { 0.0, { 0.0, 0.0 } } };\n";
-  for (int i = 0; i <= h.pow - 1; ++i)
+  if (h.pow == 1)
   {
-    int j = h.pow - 1 - i;
-//  S += pow(W, i) * pow(B, j);
-    o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << i << "], " << "Bp[" << j << "]));\n";
-  }
-  if (h.mul_re == 1.0 && h.mul_im == 0.0)
-  {
-    o << "  " << ret << " = dualdc_mul(P, S);\n";
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = P;\n";
+    }
+    else
+    {
+      o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualdc_dcmul(a, P);\n";
+    }
   }
   else
   {
-    o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
-    o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+    for (int i = 0; i <= h.pow - 1; ++i)
+    {
+      int j = h.pow - 1 - i;
+      // S += pow(W, j) * pow(B, i);
+      if (i == 0)
+      {
+        o << "  dualdcomplex S = Wp[" << j << "];\n";
+      }
+      else if (j == 0)
+      {
+        o << "  S = dualdc_adddc(S, Bp[" << i << "]);\n";
+      }
+      else
+      {
+        o << "  S = dualdc_add(S, dualdc_muldc(Wp[" << j << "], " << "Bp[" << i << "]));\n";
+      }
+    }
+    if (h.mul_re == 1.0 && h.mul_im == 0.0)
+    {
+      o << "  " << ret << " = dualdc_mul(P, S);\n";
+    }
+    else
+    {
+      o << "  dcomplex a = {" << std::scientific << std::setprecision(18) << h.mul_re << ", " << std::scientific << std::setprecision(18) << h.mul_im << "};\n";
+      o << "  " << ret << " = dualdc_dcmul(a, dualdc_mul(P, S));\n";
+    }
   }
   o << "}\n";
   return o.str();
