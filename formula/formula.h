@@ -284,5 +284,7 @@ bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool 
 void combo5_addstrings(HWND hWnd, const int combo);
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower);
 void update_power_dropdown_for_fractal_type(HWND hWnd, const int combo, const int m_nFractalType, const int m_nPower);
+bool builtin_get_hybrid(const int type, const int power, std::string &hybrid);
+bool hybrid_get_builtin(const std::string &hybrid, int &type, int &power);
 
 #endif

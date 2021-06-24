@@ -5,6 +5,7 @@ LICENSE.pdf
 cl/*_cl.c
 gl/*.h
 formula/formula_*_*.*.cpp
+formula/hybrids.cpp
 formula/miscellaneous.cpp
 formula/perturbation_opencl.cpp
 formula/perturbation_scaled.cpp

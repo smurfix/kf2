@@ -177,6 +177,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_FORMULA_JITTER_SEED         1208
 #define IDC_FORMULA_JITTER_SCALE        1209
 #define IDC_FORMULA_JITTER_GAUSSIAN     1210
+#define IDC_FORMULA_FROM_HYBRID         1219
+#define IDC_FORMULA_TO_HYBRID           1220
 
 // "Bailout" dialog
 #define IDD_BAILOUT                     121

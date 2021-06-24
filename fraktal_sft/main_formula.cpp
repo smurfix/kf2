@@ -60,11 +60,15 @@ static void UpdateFractalType(HWND hWnd, int i = -2, int p = -1)
     g_SFT.SetUseHybridFormula(false);
     g_SFT.SetFractalType(i);
     g_SFT.SetPower(p);
+    std::string hybrid;
+    EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), builtin_get_hybrid(i, p, hybrid));
   }
   else
   {
+    EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), false);
     g_SFT.SetUseHybridFormula(true);
   }
+  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(to_string(g_SFT.GetHybridFormula()), i, p));
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
@@ -212,7 +216,9 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     T(IDC_FORMULA_DERIVATIVES, "Select checkbox to compute derivatives\nRequired for analytic DE")
     T(IDC_FORMULA_JITTER_SEED, "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter")
     T(IDC_FORMULA_JITTER_SCALE, "Pixel jitter amount\nDefault 1.0")
-    T(IDC_FORMULA_JITTER_GAUSSIAN, "Select checkbox to use Gaussian jitter\nUncheck for uniform")
+    T(IDC_FORMULA_JITTER_GAUSSIAN, "Select checkbox to use Gaussian jitter\nUncheck for uniform (recommended)")
+    T(IDC_FORMULA_FROM_HYBRID, "Transfer from hybrid formula designer (if possible)")
+    T(IDC_FORMULA_TO_HYBRID, "Transfer to hybrid formula designer (if possible)")
     T(IDOK, "Apply and close")
     T(IDCANCEL, "Close and undo")
 #undef T
@@ -271,11 +277,42 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       tooltips.clear();
       EndDialog(hWnd, retval);
     }
+    else if (wParam == IDC_FORMULA_TO_HYBRID)
+    {
+      const int nType = RefreshFractalType(hWnd, false);
+      const int nPow = RefreshPower(hWnd, false);
+      std::string hybrid;
+      const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
+      if (to_hybrid)
+      {
+        g_SFT.SetHybridFormula(hybrid_formula_from_string(hybrid));
+        g_SFT.SetUseHybridFormula(true);
+        UpdateFractalType(hWnd);
+        EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), true);
+      }
+    }
+    else if (wParam == IDC_FORMULA_FROM_HYBRID)
+    {
+      std::string hybrid = to_string(g_SFT.GetHybridFormula());
+      int nType = -2;
+      int nPow = -1;
+      const bool from_hybrid = hybrid_get_builtin(hybrid, nType, nPow);
+      if (from_hybrid)
+      {
+        g_SFT.SetUseHybridFormula(false);
+        g_SFT.SetFractalType(nType);
+        g_SFT.SetPower(nPow);
+        UpdateFractalType(hWnd);
+        EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), true);
+      }
+    }
     else if(HIWORD(wParam)==CBN_SELCHANGE && LOWORD(wParam)==IDC_FORMULA_TYPE){
       int nType = RefreshFractalType(hWnd, false);
       int nPow = RefreshPower(hWnd, false);
       UpdateFractalType(hWnd, nType, nPow);
-      EnableWindow(GetDlgItem(hWnd,IDC_FORMULA_POWER),nType<=4);
+      std::string hybrid;
+      const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
+      EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), to_hybrid);
     }
   }
   return 0;
