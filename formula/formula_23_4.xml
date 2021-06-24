@@ -1,6 +1,6 @@
 <formula type="23" name="4th False Quasi Perpendicular" power="4" glitch="0.00001">
   <reference t="R">
-    Xrn = Xr2 * Xr2 + Xi2 * Xi2 - 6 * Xr2 * Xi2  + Cr;
+    Xrn = Xr2 * Xr2 + Xi2 * (Xi2 - 6 * Xr2) + Cr;
     Xin = Ci - 4 * Xr * Xi * abs(Xr2 - Xi2);
   </reference>
   <perturbation t="R">
