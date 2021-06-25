@@ -354,7 +354,7 @@ earlier).
   - new: Hidden Mandelbrot a la Cos formula (thanks to 3Dickulus)
     <https://fractalforums.org/f/74/t/3591/msg22215#msg22215>
     - set Factor A real and imaginary parts to control shape (e.g. 1+1i)
-  - new: `z^p |z|^a + c` formula, for p = 2, 3, 4 (thanks to gerrit)
+  - new: Polarbrot formula, for p = 2, 3, 4 (thanks to gerrit)
     <https://fractalforums.org/f/15/t/1916/msg23377#msg23377>
     - set Factor A real part to control power a
     - fractional and/or negative power a is possible
@@ -1680,8 +1680,6 @@ earlier).
 - refine minibrot using boundary shrinking (calculate edges only)
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
 - "find center of glitch" cycle between multiple selected methods
-- `z := z^n |z|^b` where `b` is fractional and `n + b > 1` (gerrit)
-  <https://fractalforums.org/f/15/t/1916/msg23377#msg23377>
 
 ### Newton-Raphson Zooming
 
@@ -4013,9 +4011,9 @@ Formulas:
 
     z := ((x^2 - y^2) + i (d x y (e + cos(d x y)))) + c
 
-### `z^p |z|^a + c`
+### Polarbrot
 
-    z := z^p (exp (d/2 log(x^2 + y^2))) + c
+    z := z^p (exp((d/2) log(x^2 + y^2))) + c
 
 A machine-readable version of this formula list is found in the 'et'
 repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>
