@@ -22,6 +22,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 <xsl:template match="/">
 
 #include &lt;windows.h&gt;
+#include &lt;string&gt;
+
 #include "formula.h"
 
 bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives)
@@ -84,6 +86,31 @@ void update_power_dropdown_for_fractal_type(HWND hWnd, const int IDC_COMBO3, con
   }
   SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,selected,0);
   EnableWindow(GetDlgItem(hWnd,IDC_COMBO3), ix > 1);
+}
+
+bool builtin_get_hybrid(const int type, const int power, std::string &amp;hybrid)
+{
+  <xsl:for-each select="formulas/group/formula[@hybrid]">
+  if (type == <xsl:value-of select="../@type" /> &amp;&amp; power == <xsl:value-of select="@power" />)
+  {
+    hybrid = "<xsl:value-of select="@hybrid" />";
+    return true;
+  }
+  </xsl:for-each>
+  return "";
+}
+
+bool hybrid_get_builtin(const std::string &amp;hybrid, int &amp;type, int &amp;power)
+{
+  <xsl:for-each select="formulas/group/formula[@hybrid]">
+  if (hybrid == "<xsl:value-of select="@hybrid" />")
+  {
+    type = <xsl:value-of select="../@type" />;
+    power = <xsl:value-of select="@power" />;
+    return true;
+  }
+  </xsl:for-each>
+  return false;
 }
 
 </xsl:template>

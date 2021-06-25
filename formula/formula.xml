@@ -1,92 +1,92 @@
 <formulas>
 <group type="0" name="Mandelbrot">
-  <formula power="2"><scaled /></formula>
-  <formula power="3"><scaled /></formula>
-  <formula power="4" />
-  <formula power="5" />
-  <formula power="6" />
-  <formula power="7" />
-  <formula power="8" />
-  <formula power="9" />
-  <formula power="10" />
+  <formula power="2" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,0,0,0;0"><scaled /></formula>
+  <formula power="3" hybrid="0/1|0,0,0,0,3,1,0;0,0,0,0,0,0,0;0"><scaled /></formula>
+  <formula power="4" hybrid="0/1|0,0,0,0,4,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="5" hybrid="0/1|0,0,0,0,5,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="6" hybrid="0/1|0,0,0,0,6,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="7" hybrid="0/1|0,0,0,0,7,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="8" hybrid="0/1|0,0,0,0,8,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="9" hybrid="0/1|0,0,0,0,9,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="10" hybrid="0/1|0,0,0,0,10,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="1" name="Burning Ship">
-  <formula power="2"><scaled /></formula>
-  <formula power="3" />
-  <formula power="4" />
-  <formula power="5" />
+  <formula power="2" hybrid="0/1|1,1,0,0,2,1,0;0,0,0,0,0,0,0;0"><scaled /></formula>
+  <formula power="3" hybrid="0/1|1,1,0,0,3,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="4" hybrid="0/1|1,1,0,0,4,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="5" hybrid="0/1|1,1,0,0,5,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="2" name="Buffalo">
-  <formula power="2" />
-  <formula power="3" />
-  <formula power="4" />
-  <formula power="5" />
+  <formula power="2" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,0,0,0;0|1,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="3" hybrid="0/1|0,0,0,0,3,1,0;0,0,0,0,0,0,0;0|1,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="4" hybrid="0/1|0,0,0,0,4,1,0;0,0,0,0,0,0,0;0|1,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="5" hybrid="0/1|0,0,0,0,5,1,0;0,0,0,0,0,0,0;0|1,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="3" name="Celtic">
-  <formula power="2" />
-  <formula power="3" />
-  <formula power="4" />
-  <formula power="5" />
+  <formula power="2" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="3" hybrid="0/1|0,0,0,0,3,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="4" hybrid="0/1|0,0,0,0,4,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="5" hybrid="0/1|0,0,0,0,5,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="4" name="Mandelbar">
-  <formula power="2" />
-  <formula power="3" />
-  <formula power="4" />
-  <formula power="5" />
+  <formula power="2" hybrid="0/1|0,0,0,1,2,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="3" hybrid="0/1|0,0,0,1,3,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="4" hybrid="0/1|0,0,0,1,4,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="5" hybrid="0/1|0,0,0,1,5,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="5" name="Mandelbar Celtic">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|0,0,0,1,2,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="6" name="Perpendicular Mandelbrot">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|1,0,0,1,2,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="7" name="Perpendicular Burning Ship">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|0,1,0,1,2,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="8" name="Perpendicular Celtic">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|1,0,0,1,2,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="9" name="Perpendicular Buffalo">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|0,1,0,1,2,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="10" name="Cubic Quasi Burning Ship">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|1,0,0,0,3,1,0;0,0,0,0,0,0,0;0|0,1,0,1,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="11" name="Cubic Partial BS Real">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|1,0,0,0,3,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="12" name="Cubic Partial BS Imag">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,1,0,0,3,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="13" name="Cubic Flying Squirrel (Buffalo Imag)">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,3,1,0;0,0,0,0,0,0,0;0|0,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="14" name="Cubic Quasi Perpendicular">
   <formula power="3" />
 </group>
 <group type="15" name="4th Burning Ship Partial Imag">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,1,0,0,4,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="16" name="4th Burning Ship Partial Real">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|1,0,0,0,4,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="17" name="4th Burning Ship Partial Real Mbar">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|1,0,0,1,4,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="18" name="4th Celtic Burning Ship Partial Imag">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,1,0,0,4,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="19" name="4th Celtic Burning Ship Partial Real">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|1,0,0,0,4,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="20" name="4th Celtic Burning Ship Partial Real Mbar">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|1,0,0,1,4,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="21" name="4th Buffalo Partial Imag">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,4,1,0;0,0,0,0,0,0,0;0|0,1,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="22" name="4th Celtic Mbar">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,1,4,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="23" name="4th False Quasi Perpendicular">
   <formula power="4" />
@@ -101,16 +101,16 @@
   <formula power="4" />
 </group>
 <group type="27" name="5th Burning Ship Partial">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|1,0,0,0,5,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="28" name="5th Burning Ship Partial Mbar">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|1,0,0,1,5,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="29" name="5th Celtic Mbar">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,1,5,1,0;0,0,0,0,0,0,0;0|1,0,0,0,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="30" name="5th Quasi Burning Ship (BS/Buffalo Hybrid)">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|1,0,0,0,5,1,0;0,0,0,0,0,0,0;0|0,1,0,1,1,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="31" name="5th Quasi Perpendicular">
   <formula power="5" />
@@ -119,7 +119,7 @@
   <formula power="5" />
 </group>
 <group type="33" name="SimonBrot 4th">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,2,1,0;1,1,0,0,2,1,0;2" />
 </group>
 <group type="34" name="4th Imag Quasi Perpendicular / Heart">
   <formula power="4" />
@@ -140,40 +140,40 @@
   <formula power="4" />
 </group>
 <group type="40" name="SimonBrot 6th">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,3,1,0;1,1,0,0,3,1,0;2" />
 </group>
 <group type="41" name="HPDZ Buffalo">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|1,1,0,0,2,1,0;1,1,0,0,1,1,0;1" />
 </group>
 <group type="42" name="TheRedshiftRider 1: a*z^2+z^3+c">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,3,1,0;0" />
 </group>
 <group type="43" name="TheRedshiftRider 2: a*z^2-z^3+c">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,3,1,0;1" />
 </group>
 <group type="44" name="TheRedshiftRider 3: 2*z^2-z^3+c">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,2,2,0;0,0,0,0,3,1,0;1" />
 </group>
 <group type="45" name="TheRedshiftRider 4: a*z^2+z^4+c">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,4,1,0;0" />
 </group>
 <group type="46" name="TheRedshiftRider 5: a*z^2-z^4+c">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,4,1,0;1" />
 </group>
 <group type="47" name="TheRedshiftRider 6: a*z^2+z^5+c">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,5,1,0;0" />
 </group>
 <group type="48" name="TheRedshiftRider 7: a*z^2-z^5+c">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,5,1,0;1" />
 </group>
 <group type="49" name="TheRedshiftRider 8: a*z^2+z^6+c">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,6,1,0;0" />
 </group>
 <group type="50" name="TheRedshiftRider 9: a*z^2-z^6+c">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,6,1,0;1" />
 </group>
 <group type="51" name="SimonBrot2 4th">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,2,1,0;0,0,0,0,0,0,0;0|0,0,0,0,1,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="52" name="General Quadratic Minus">
   <formula power="2" />
@@ -182,49 +182,49 @@
   <formula power="2" />
 </group>
 <group type="54" name="Mothbrot 2nd 1x1">
-  <formula power="2" />
+  <formula power="2" hybrid="0/1|0,0,0,0,1,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="55" name="Mothbrot 3rd 1x2">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,1,1,0;1,1,0,0,2,1,0;2" />
 </group>
 <group type="56" name="Mothbrot 3rd 2x1">
-  <formula power="3" />
+  <formula power="3" hybrid="0/1|0,0,0,0,2,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="57" name="Mothbrot 4th 1x3">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,1,1,0;1,1,0,0,3,1,0;2" />
 </group>
 <group type="58" name="Mothbrot 4th 2x2 (aka SimonBrot 4th)">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,2,1,0;1,1,0,0,2,1,0;2" />
 </group>
 <group type="59" name="Mothbrot 4th 3x1">
-  <formula power="4" />
+  <formula power="4" hybrid="0/1|0,0,0,0,3,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="60" name="Mothbrot 5th 1x4">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,1,1,0;1,1,0,0,4,1,0;2" />
 </group>
 <group type="61" name="Mothbrot 5th 2x3">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,2,1,0;1,1,0,0,3,1,0;2" />
 </group>
 <group type="62" name="Mothbrot 5th 3x2">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,3,1,0;1,1,0,0,2,1,0;2" />
 </group>
 <group type="63" name="Mothbrot 5th 4x1">
-  <formula power="5" />
+  <formula power="5" hybrid="0/1|0,0,0,0,4,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="64" name="Mothbrot 6th 1x5">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,1,1,0;1,1,0,0,5,1,0;2" />
 </group>
 <group type="65" name="Mothbrot 6th 2x4 (Simon's Mothbrot)">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,2,1,0;1,1,0,0,4,1,0;2" />
 </group>
 <group type="66" name="Mothbrot 6th 3x3 (aka SimonBrot 6th)">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,3,1,0;1,1,0,0,3,1,0;2" />
 </group>
 <group type="67" name="Mothbrot 6th 4x2">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,4,1,0;1,1,0,0,2,1,0;2" />
 </group>
 <group type="68" name="Mothbrot 6th 5x1">
-  <formula power="6" />
+  <formula power="6" hybrid="0/1|0,0,0,0,5,1,0;1,1,0,0,1,1,0;2" />
 </group>
 <group type="69" name="Abs General Quadratic Minus">
   <formula power="2" />
