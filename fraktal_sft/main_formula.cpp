@@ -24,6 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../formula/formula.h"
 #include "tooltip.h"
 
+static bool g_ignore_hybrids = false;
+
 static void UpdatePower(HWND hWnd)
 {
   int i = g_SFT.GetPower();
@@ -43,37 +45,57 @@ static int RefreshPower(HWND hWnd, bool refresh = true)
   return i;
 }
 
-static void UpdateFractalType(HWND hWnd, int i = -2, int p = -1)
+static void UpdateFractalTypeWidth(HWND hWnd)
 {
-  if (i < -1)
+  SIZE sc;
+  HDC hDC = GetDC(NULL);
+  SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
+  int i, nMaxWidth=0;
+  for(i=0;i<SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCOUNT,0,0);i++){
+    int n = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETLBTEXTLEN,i,0);
+    char *szT = new char[n+1];
+    SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETLBTEXT,i,(LPARAM)szT);
+    GetTextExtentPoint32A(hDC,szT,strlen(szT),&sc);
+    if(sc.cx>nMaxWidth)
+      nMaxWidth = sc.cx;
+    delete[] szT;
+  }
+  SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETDROPPEDWIDTH,nMaxWidth+8+GetSystemMetrics(SM_CXHTHUMB),0);
+}
+
+static void UpdateFractalType(HWND hWnd, int type = -2, int p = -1)
+{
+  if (type < -1)
   {
-    i = g_SFT.GetFractalType();
-    if (g_SFT.GetUseHybridFormula()) i = -1;
+    type = g_SFT.GetFractalType();
+    if (g_SFT.GetUseHybridFormula()) type = -1;
   }
   if (p < 0) p = g_SFT.GetPower();
-  SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETCURSEL,i + 1,0);
-  i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0) - 1;
-  if (0 <= i)
+  int index = combo5_lookup_dropdown_index(hWnd, type, g_ignore_hybrids);
+  SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETCURSEL, index, 0);
+  type = combo5_lookup_fractal_type(hWnd, SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0), g_ignore_hybrids);
+  if (0 <= type)
   {
-    p = validate_power_for_fractal_type(i, p);
-    update_power_dropdown_for_fractal_type(hWnd, IDC_FORMULA_POWER, i, p);
+    p = validate_power_for_fractal_type(type, p);
+    update_power_dropdown_for_fractal_type(hWnd, IDC_FORMULA_POWER, type, p);
     g_SFT.SetUseHybridFormula(false);
-    g_SFT.SetFractalType(i);
+    g_SFT.SetFractalType(type);
     g_SFT.SetPower(p);
     std::string hybrid;
-    EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), builtin_get_hybrid(i, p, hybrid));
+    EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), builtin_get_hybrid(type, p, hybrid));
   }
   else
   {
     EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), false);
     g_SFT.SetUseHybridFormula(true);
   }
-  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(to_string(g_SFT.GetHybridFormula()), i, p));
+  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(to_string(g_SFT.GetHybridFormula()), type, p));
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
 {
-  int i = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0) - 1;
+  int index = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0);
+  int i = combo5_lookup_fractal_type(hWnd, index, g_ignore_hybrids);
   if (refresh)
   {
     if (0 <= i)
@@ -197,6 +219,25 @@ static void RefreshDerivatives(HWND hWnd)
 	g_SFT.SetDerivatives(SendDlgItemMessage(hWnd,IDC_FORMULA_DERIVATIVES,BM_GETCHECK,0,0) ? 1 : 0);
 }
 
+static void UpdateIgnoreHybrids(HWND hWnd)
+{
+  const int nType = RefreshFractalType(hWnd, false);
+  const int nPow = RefreshPower(hWnd, false);
+  std::string hybrid;
+  const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
+  g_ignore_hybrids = SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_GETCHECK, 0, 0);
+  if (g_ignore_hybrids && to_hybrid)
+  {
+    g_SFT.SetHybridFormula(hybrid_formula_from_string(hybrid));
+    g_SFT.SetUseHybridFormula(true);
+    EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), true);
+  }
+  SendDlgItemMessage(hWnd, IDC_FORMULA_TYPE, CB_RESETCONTENT, 0, 0);
+  combo5_addstrings(hWnd, IDC_FORMULA_TYPE, g_ignore_hybrids);
+  UpdateFractalTypeWidth(hWnd);
+  UpdateFractalType(hWnd);
+}
+
 static std::vector<HWND> tooltips;
 
 extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
@@ -207,6 +248,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
+    T(IDC_FORMULA_IGNORE_HYBRIDS, "Don't list formulas that can be created with the Hybrid formula designer")
     T(IDC_FORMULA_TYPE, "List of type of Mandelbrot based Fractals\nSome of them have additional Power options")
     T(IDC_FORMULA_POWER, "Power of Mandelbrot function")
     T(IDC_FORMULA_SEED_RE, "Real seed value (0 is standard)")
@@ -223,21 +265,10 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     T(IDCANCEL, "Close and undo")
 #undef T
 
-    combo5_addstrings(hWnd, IDC_FORMULA_TYPE);
-    SIZE sc;
-    HDC hDC = GetDC(NULL);
-    SelectObject(hDC,(HFONT)GetStockObject(ANSI_VAR_FONT));
-    int i, nMaxWidth=0;
-    for(i=0;i<SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCOUNT,0,0);i++){
-      int n = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETLBTEXTLEN,i,0);
-      char *szT = new char[n+1];
-      SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETLBTEXT,i,(LPARAM)szT);
-      GetTextExtentPoint32A(hDC,szT,strlen(szT),&sc);
-      if(sc.cx>nMaxWidth)
-        nMaxWidth = sc.cx;
-      delete[] szT;
-    }
-    SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETDROPPEDWIDTH,nMaxWidth+8+GetSystemMetrics(SM_CXHTHUMB),0);
+    SendDlgItemMessage(hWnd, IDC_FORMULA_TYPE, CB_RESETCONTENT, 0, 0);
+    g_ignore_hybrids = SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_GETCHECK, 0, 0);
+    combo5_addstrings(hWnd, IDC_FORMULA_TYPE, g_ignore_hybrids);
+    UpdateFractalTypeWidth(hWnd);
     UpdateFractalType(hWnd);
     RefreshFractalType(hWnd, false);
     UpdatePower(hWnd);
@@ -293,6 +324,8 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     }
     else if (wParam == IDC_FORMULA_FROM_HYBRID)
     {
+      SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_SETCHECK, 0, 0);
+      UpdateIgnoreHybrids(hWnd);
       std::string hybrid = to_string(g_SFT.GetHybridFormula());
       int nType = -2;
       int nPow = -1;
@@ -306,13 +339,14 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
         EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), true);
       }
     }
+    else if (HIWORD(wParam) == BN_CLICKED && LOWORD(wParam) == IDC_FORMULA_IGNORE_HYBRIDS)
+    {
+      UpdateIgnoreHybrids(hWnd);
+    }
     else if(HIWORD(wParam)==CBN_SELCHANGE && LOWORD(wParam)==IDC_FORMULA_TYPE){
       int nType = RefreshFractalType(hWnd, false);
       int nPow = RefreshPower(hWnd, false);
       UpdateFractalType(hWnd, nType, nPow);
-      std::string hybrid;
-      const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
-      EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), to_hybrid);
     }
   }
   return 0;

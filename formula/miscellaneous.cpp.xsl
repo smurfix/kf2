@@ -35,12 +35,88 @@ bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool 
   return false;
 }
 
-void combo5_addstrings(HWND hWnd, const int IDC_COMBO5)
+void combo5_addstrings_including_hybrids(HWND hWnd, const int IDC_COMBO5)
 {
   SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"(Hybrid)");
   <xsl:for-each select="formulas/group">
     SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"<xsl:value-of select="@name" />"); // <xsl:value-of select="@type" />
   </xsl:for-each>
+}
+
+void combo5_addstrings_ignoring_hybrids(HWND hWnd, const int IDC_COMBO5)
+{
+  SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"(Hybrid)");
+  <xsl:for-each select="formulas/group/formula[not(@hybrid)][1]">
+  SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"<xsl:value-of select="../@name" />"); // <xsl:value-of select="../@type" />
+  </xsl:for-each>
+}
+
+void combo5_addstrings(HWND hWnd, const int IDC_COMBO5, bool ignore_hybrids)
+{
+  if (ignore_hybrids)
+  {
+    combo5_addstrings_ignoring_hybrids(hWnd, IDC_COMBO5);
+  }
+  else
+  {
+    combo5_addstrings_including_hybrids(hWnd, IDC_COMBO5);
+  }
+}
+
+int combo5_lookup_fractal_type_ignoring_hybrids(HWND hWnd, int index)
+{
+  if (index == 0)
+  {
+    return -1; // (Hybrid)
+  }
+  <xsl:for-each select="formulas/group/formula[not(@hybrid)][1]">
+  if (--index == 0)
+  {
+    return <xsl:value-of select="../@type" />; // <xsl:value-of select="../@name" />
+  }
+  </xsl:for-each>
+  return -2;
+}
+
+int combo5_lookup_fractal_type(HWND hWnd, int index, bool ignore_hybrids)
+{
+  if (ignore_hybrids)
+  {
+    return combo5_lookup_fractal_type_ignoring_hybrids(hWnd, index);
+  }
+  else
+  {
+    return index - 1;
+  }
+}
+
+int combo5_lookup_dropdown_index_ignoring_hybrids(HWND hWnd, int type)
+{
+  int index = 0;
+  if (type == -1)
+  {
+    return index; // (Hybrid)
+  }
+  <xsl:for-each select="formulas/group/formula[not(@hybrid)][1]">
+  ++index;
+  if (type == <xsl:value-of select="../@type" />) // <xsl:value-of select="../@name" />
+  {
+    return index;
+  }
+  </xsl:for-each>
+  return -1;
+}
+
+int combo5_lookup_dropdown_index(HWND hWnd, int type, bool ignore_hybrids)
+{
+  if (ignore_hybrids)
+  {
+    return combo5_lookup_dropdown_index_ignoring_hybrids(hWnd, type);
+  }
+  else
+  {
+    return type + 1;
+  }
 }
 
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower)
