@@ -2966,7 +2966,21 @@ while a long render is taking place.
 - Pixel coordinates of mouse cursor.
 - Smooth iteration part at mouse cursor.
 
+
 ## Formula dialog
+
+### From Hybrid
+
+Convert hybrid formula to built-in formula (when possible).
+
+### To Hybrid
+
+Convert built-in formula to hybrid formula (when possible).
+
+### Ignore Hybrids
+
+Don't display built-in formulas that have hybrid equivalents in the
+fractal type drop-down below.
 
 ### Fractal type
 
@@ -3006,14 +3020,6 @@ In units of a pixel (1 pixel is sensible in most cases).
 ### Gaussian jitter
 
 Probably best left disabled (uniform jitter looks better).
-
-### From Hybrid
-
-Convert hybrid formula to built-in formula (when possible).
-
-### To Hybrid
-
-Convert built-in formula to hybrid formula (when possible).
 
 
 ## Hybrid Formula dialog
