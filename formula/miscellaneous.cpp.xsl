@@ -97,7 +97,7 @@ bool builtin_get_hybrid(const int type, const int power, std::string &amp;hybrid
     return true;
   }
   </xsl:for-each>
-  return "";
+  return false;
 }
 
 bool hybrid_get_builtin(const std::string &amp;hybrid, int &amp;type, int &amp;power)
