@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-06-24
+date: 2021-06-25
 ...
 
 # Kalles Fraktaler 2 +
@@ -371,6 +371,8 @@ earlier).
     - known issue: auto-skew is not functional yet
   - new: convert between built-in formulas and hybrid formulas (when
     possible) with new buttons in the Formula dialog
+  - new: option Ignore Hybrids in the Formula dialog to list only the
+    built-in formulas that don't have hybrid equivalents
   - new: optimized some built-in formulas using common subexpression
     elimination (6%-58% faster perturbation calculations)
     - Burning Ship power 2, 3, 4, 5
