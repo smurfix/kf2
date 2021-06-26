@@ -6,6 +6,6 @@
     xn = A * (2 * X * x + x2) + 4 * (X^3) * x + 6 * (X^2) * x2 + 4 * X * x2 * x + (x2^2) + c;
   </perturbation>
   <derivative t="C">
-    dn = (A * 2 + 4 * X2) * X * d + d0;
+    dn = (A * 2 + 4 * Xx2) * Xx * d + d0;
   </derivative>
 </formula>
