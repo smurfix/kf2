@@ -399,6 +399,7 @@ prepare "d" vs = unlines . concat $
 prepare "dc" vs = unlines . concat $
   [ [ "const auto X2 = X * X;" | "X2" `elem` vs ]
   , [ "const auto x2 = x * x;" | "x2" `elem` vs ]
+  , [ "const auto Xx2 = Xx * Xx;" | "Xx2" `elem` vs ]
   ]
 prepare "cld" vs = unlines . concat $
   [ [ "const double Xr2 = d_mul(Xr, Xr);" | "Xr2" `elem` vs ]
@@ -409,6 +410,7 @@ prepare "cld" vs = unlines . concat $
 prepare "cldc" vs = unlines . concat $
   [ [ "const dcomplex X2 = dc_sqr(X);" | "X2" `elem` vs ]
   , [ "const dcomplex x2 = dc_sqr(x);" | "x2" `elem` vs ]
+  , [ "const dcomplex Xx2 = dc_sqr(Xx);" | "Xx2" `elem` vs ]
   ]
 prepare "clfe" vs = unlines . concat $
   [ [ "const floatexp Xr2 = fe_mul(Xr, Xr);" | "Xr2" `elem` vs ]
@@ -419,6 +421,7 @@ prepare "clfe" vs = unlines . concat $
 prepare "clfec" vs = unlines . concat $
   [ [ "const fecomplex X2 = fec_sqr(X);" | "X2" `elem` vs ]
   , [ "const fecomplex x2 = fec_sqr(x);" | "x2" `elem` vs ]
+  , [ "const fecomplex Xx2 = fec_sqr(Xx);" | "Xx2" `elem` vs ]
   ]
 prepare "clsf" vs = unlines . concat $
   [ [ "const softfloat Xr2 = sf_sqr(Xr);" | "Xr2" `elem` vs ]
@@ -429,6 +432,7 @@ prepare "clsf" vs = unlines . concat $
 prepare "clsfc" vs = unlines . concat $
   [ [ "const sfcomplex X2 = sfc_sqr(X);" | "X2" `elem` vs ]
   , [ "const sfcomplex x2 = sfc_sqr(x);" | "x2" `elem` vs ]
+  , [ "const sfcomplex Xx2 = sfc_sqr(Xx);" | "Xx2" `elem` vs ]
   ]
 
 def :: GenLanguageDef String () Identity
