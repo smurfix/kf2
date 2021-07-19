@@ -1684,6 +1684,7 @@ earlier).
 - refine minibrot using boundary shrinking (calculate edges only)
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
 - "find center of glitch" cycle between multiple selected methods
+- formula `(|x|+i|y|)exp(2a/z)+c` (suggested by Microfractal)
 
 ### Newton-Raphson Zooming
 
@@ -1777,10 +1778,10 @@ of disk space and good internet download speed (or patience).  About
 750MB of downloads including the chroot debootstrap step.  If you have
 recent Debian you can skip the chroot step and install natively.
 
-0. Setup Debian Buster chroot:
+0. Setup Debian Bullseye chroot:
 
         sudo mkdir ./vm
-        sudo debootstrap buster ./vm/
+        sudo debootstrap bullseye ./vm/
         sudo mount proc ./vm/proc -t proc
         sudo mount sysfs ./vm/sys -t sysfs
         sudo cp /etc/hosts ./vm/etc/hosts
@@ -1790,8 +1791,7 @@ recent Debian you can skip the chroot step and install natively.
 1. Install dependencies (inside the chroot if you made one):
 
         dpkg --add-architecture i386
-        echo >> /etc/apt/apt.conf.d/30buster 'APT::Default-Release "buster";'
-        echo >> /etc/apt/sources.list 'deb http://deb.debian.org/debian bullseye main'
+        echo >> /etc/apt/apt.conf.d/30bullseye 'APT::Default-Release "bullseye";'
         apt update
         apt install \
           build-essential \
@@ -1803,6 +1803,7 @@ recent Debian you can skip the chroot step and install natively.
           libtool \
           lzip \
           m4 \
+          mingw-w64 \
           p7zip \
           pkg-config \
           wget \
@@ -1811,8 +1812,6 @@ recent Debian you can skip the chroot step and install natively.
           wine-binfmt \
           xsltproc \
           zip
-        apt install -t bullseye \
-          mingw-w64
         apt install \
           pandoc \
           libpandoc-elements-perl \
@@ -1832,7 +1831,7 @@ recent Debian you can skip the chroot step and install natively.
    mysterious weird behaviour (like zooming out resetting zoom to
    infinity or 0).
 
-   Choose the manual win32 alternative for all of these, you can ignore
+   Choose the win32 alternative for all of these, you can ignore
    failures for gfortran and gnat if they are not installed:
 
         update-alternatives --set x86_64-w64-mingw32-g++ /usr/bin/x86_64-w64-mingw32-g++-win32
@@ -1844,7 +1843,7 @@ recent Debian you can skip the chroot step and install natively.
         update-alternatives --set i686-w64-mingw32-gfortran /usr/bin/i686-w64-mingw32-gfortran-win32
         update-alternatives --set i686-w64-mingw32-gnat /usr/bin/i686-w64-mingw32-gnat-win32
 
-   If you have existing builds build with posix threading model, you
+   If you have existing builds built with posix threading model, you
    should delete them or move them out of the way, as mixing win32 with
    posix leads to a world of pain and misery (as does mixing LLVM with
    GCC).
@@ -2143,7 +2142,8 @@ eiskaffee
 
 latte
 
-- Intel(R) Core(TM)2 Duo CPU P7550 @ 2.26GHz: ~??h??mins
+- Intel(R) Core(TM)2 Duo CPU P7550 @ 2.26GHz:
+  about 27 times slower than eiskaffee; benchmark suite not attempted
 
 
 ## Legal
@@ -2503,7 +2503,7 @@ Newton-Raphson zooming dialog.
 
 ### Reset Transformation
 
-Clear any rotation and skew.
+Clear any transformation.
 
 ### Exponential Map
 
