@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -196,7 +196,8 @@ extern int main(int argc, char **argv)
   double rotate_angle = std::atof(lookup(kfr, "RotateAngle").c_str()) / deg;
   double stretch_angle = std::atof(lookup(kfr, "StretchAngle").c_str()) / deg;
   double stretch_factor = std::exp2(std::atof(lookup(kfr, "StretchAmount").c_str()));
-  mat2 transform = glm::transpose(polar_composition(polar2(1, rotate_angle, stretch_factor, stretch_angle)));
+  double sign = std::atoi(lookup(kfr, "ImagPointsUp").c_str()) ? -1 : 1;
+  mat2 transform = glm::transpose(polar_composition(polar2(sign, 1, rotate_angle, stretch_factor, stretch_angle)));
 
   double aspect = double(width) / (double) height;
   // tile
