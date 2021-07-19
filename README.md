@@ -199,7 +199,8 @@ Feedback:
 ### Incompatible Changes
 
 - **In versions `2.15.4` and above**, there are three new formulas which
-  are not available in earlier versions.
+  are not available in earlier versions;
+  imaginary axis reflection option is new
 
 - **In versions `2.15.2` and above**,
   OpenGL-based colouring is new.
@@ -349,6 +350,9 @@ earlier).
 ????-??-??
 
   - new: rewritten GUI for window size / image size (by popular request)
+  - new: "imaginary axis points up" option in the transformation dialog
+    (requested by saka and others, makes complex plane comply with maths
+    conventions)
   - new: Hidden Mandelbrot formula (thanks to FractalAlex, Bruce Dawson)
     <https://fractalforums.org/f/22/t/3576/msg22122#msg22122>
   - new: Hidden Mandelbrot a la Cos formula (thanks to 3Dickulus)
@@ -382,8 +386,8 @@ earlier).
   - fix: Omnibrot works with OpenCL
   - fix: Mandelbrot power 4 and above with derivatives works with OpenCL
   - fix: formulas 52, 53, 69, 70, 71 now work with OpenCL
-  - fix: formulas 23, 24, 25, 26 now have correct derivatives for
-    analytic DE
+  - fix: formulas 4 (power 3), 20, 23-26, 42-50 now have correct
+    derivatives for analytic DE
   - fix: renamed some formulas (Abs General Quadratic Plus/Minus,
     Omnibrot) (suggested by gerrit)
   - fix: Zoom Amount spinner in Transformation dialog works live

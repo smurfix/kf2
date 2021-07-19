@@ -36,9 +36,8 @@ static bool g_transformation_useddz = false;
 static volatile int g_transformation_running = 0;
 static volatile bool g_transformation_still_running = false;
 
-static polar2 original_transformation = polar2(1, 0, 1, 0);
-static polar2 current_transformation = polar2(1, 0, 1, 0);
-static double current_transformation_zoom = 1.0;
+static polar2 original_transformation = polar2(1, 1, 0, 1, 0);
+static polar2 current_transformation = polar2(1, 1, 0, 1, 0);
 
 static std::vector<HWND> tooltips;
 
@@ -126,6 +125,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
 
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
 #define T2(idc1,idc2,str) T(idc1, str) T(idc2, str)
+    T(IDC_TRANSFORMATION_IMAGUP, "When enabled, imaginary axis points up (as in mathematics).\nWhen disabled (default, for historical reasons), imaginary axis points down.")
     T2(IDC_TRANSFORMATION_ROTATEANGLE, IDC_TRANSFORMATION_ROTATEANGLE_SPIN, "Rotation angle in degrees.\nUse left mouse button to rotate and zoom image.")
     T2(IDC_TRANSFORMATION_ZOOMAMOUNT, IDC_TRANSFORMATION_ZOOMAMOUNT_SPIN, "Zoom amount in cents of powers of two.\nUse left mouse button to rotate and zoom image.")
     T2(IDC_TRANSFORMATION_STRETCHANGLE, IDC_TRANSFORMATION_STRETCHANGLE_SPIN, "Stretch angle in degrees.\nUse right mouse button to stretch image.")
@@ -142,9 +142,9 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
 		SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT_SPIN, UDM_SETRANGE, 0, MAKELONG(360,-360));
 
     original_transformation = g_SFT.GetTransformPolar();
-    current_transformation = polar2(1, 0, 1, 0);
-    current_transformation_zoom = 1.0;
+    current_transformation = polar2(1, 1, 0, 1, 0);
     const polar2 total_transformation = polar_decomposition(polar_composition(current_transformation) * polar_composition(original_transformation));
+    SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_IMAGUP, BM_SETCHECK, total_transformation.sign < 0, 0);
     SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE, total_transformation.rotate * deg);
     SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT, 0);
     SetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE, total_transformation.stretch_angle * deg);
@@ -155,6 +155,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
   else if (uMsg == WM_COMMAND)
   {
     if ((! refreshing && (
+        LOWORD(wParam) == IDC_TRANSFORMATION_IMAGUP ||
         LOWORD(wParam) == IDC_TRANSFORMATION_ROTATEANGLE ||
         LOWORD(wParam) == IDC_TRANSFORMATION_ROTATEANGLE_SPIN ||
         LOWORD(wParam) == IDC_TRANSFORMATION_ZOOMAMOUNT ||
@@ -165,14 +166,14 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
         LOWORD(wParam) == IDC_TRANSFORMATION_STRETCHAMOUNT_SPIN)) ||
         wParam == IDOK)
     {
+      const bool imag_up = SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_IMAGUP, BM_GETCHECK, 0, 0);
       const double rotate = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
       const double stretch_angle = GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
       const double stretch_factor = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
       const double zoom_amount = std::exp2(GetDlgItemFloat(hWnd, IDC_TRANSFORMATION_ZOOMAMOUNT) / -100);
-      const polar2 total_transformation = polar2(1, rotate, stretch_factor, stretch_angle);
+      const polar2 total_transformation = polar2(imag_up ? -1 : 1, zoom_amount, rotate, stretch_factor, stretch_angle);
       current_transformation = polar_decomposition(polar_composition(total_transformation) * glm::inverse(polar_composition(original_transformation)));
-      current_transformation_zoom = zoom_amount;
-      TransformRefresh(polar2(1, 0, 1, 0), 1);
+      TransformRefresh(polar2(1, 1, 0, 1, 0));
       HWND parent = GetParent(hWnd);
       HDC hDC = GetDC(parent);
       RECT r;
@@ -191,17 +192,19 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       {
         g_SFT.UndoStore();
         g_bExamineDirty=TRUE;
-        g_SFT.SetTransformMatrix(polar_composition(current_transformation) * polar_composition(original_transformation));
+        polar2 total_transformation = polar_decomposition(polar_composition(current_transformation) * polar_composition(original_transformation));
+        const double total_transformation_zoom = total_transformation.scale;
+        total_transformation.scale = 1;
+        g_SFT.SetTransformPolar(total_transformation);
         floatexp current_zoom(CDecNumber(g_SFT.GetZoom()));
-        g_SFT.SetPosition(g_SFT.GetRe(), g_SFT.GetIm(), (current_zoom / current_transformation_zoom).toString());
+        g_SFT.SetPosition(g_SFT.GetRe(), g_SFT.GetIm(), (current_zoom / total_transformation_zoom).toString());
         PostMessage(GetParent(hWnd), WM_KEYDOWN, VK_F5, 0);
         retval = 1;
       }
       else
       {
-        current_transformation = polar2(1, 0, 1, 0);
-        current_transformation_zoom = 1;
-        TransformRefresh(polar2(1, 0, 1, 0), 1);
+        current_transformation = polar2(1, 1, 0, 1, 0);
+        TransformRefresh(polar2(1, 1, 0, 1, 0));
         HWND parent = GetParent(hWnd);
         HDC hDC = GetDC(parent);
         RECT r;
@@ -261,7 +264,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       SetDlgItemText(hWnd, IDC_TRANSFORMATION_STATUS, (s_skew + "\nDone").c_str());
       const mat2 total_transformation = mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]);
       current_transformation = polar_decomposition(total_transformation * glm::inverse(polar_composition(original_transformation)));
-      TransformRefresh(polar2(1, 0, 1, 0), 1);
+      TransformRefresh(polar2(1, 1, 0, 1, 0));
       HWND parent = GetParent(hWnd);
       HDC hDC = GetDC(parent);
       RECT r;
@@ -282,19 +285,18 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
   return 0;
 }
 
-extern void TransformApply(const polar2 &P, double zoom_amount)
+extern void TransformApply(const polar2 &P)
 {
   current_transformation = polar_decomposition(polar_composition(P) * polar_composition(current_transformation));
-  current_transformation_zoom *= zoom_amount;
 }
 
-extern void TransformRefresh(const polar2 &P, double zoom_amount)
+extern void TransformRefresh(const polar2 &P)
 {
   refreshing = true;
   const polar2 new_transformation = polar_decomposition(polar_composition(P) * polar_composition(current_transformation) * polar_composition(original_transformation));
-  const double new_transformation_zoom = zoom_amount * current_transformation_zoom;
+  SendDlgItemMessage(g_hwTransformationDialog, IDC_TRANSFORMATION_IMAGUP, BM_SETCHECK, new_transformation.sign < 0, 0);
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE, new_transformation.rotate * deg);
-  SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT, std::log2(new_transformation_zoom) * -100);
+  SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT, std::log2(new_transformation.scale) * -100);
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHANGLE, new_transformation.stretch_angle * deg);
   SetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHAMOUNT, std::log2(new_transformation.stretch_factor) * 100);
   refreshing = false;
@@ -302,12 +304,14 @@ extern void TransformRefresh(const polar2 &P, double zoom_amount)
 
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm)
 {
+  const bool imag_up = SendDlgItemMessage(g_hwTransformationDialog, IDC_TRANSFORMATION_IMAGUP, BM_GETCHECK, 0, 0);
   const double rotate = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
   const double zoom_amount = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT) / -100);
   const double stretch_angle = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHANGLE) / deg;
   const double stretch_factor = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_STRETCHAMOUNT) / 100);
-  const polar2 total_transformation = polar2(1, rotate, stretch_factor, stretch_angle);
-  const mat2 m = polar_composition(total_transformation) * glm::inverse(polar_composition(original_transformation)) * zoom_amount;
+  const double sign = imag_up ? -1 : 1;
+  const polar2 total_transformation = polar2(sign, zoom_amount, rotate, stretch_factor, stretch_angle);
+  const mat2 m = polar_composition(total_transformation) * glm::inverse(polar_composition(original_transformation));
 
   HDC hDC = GetDC(NULL);
   BYTE *lpBits=NULL;
@@ -456,6 +460,16 @@ extern void TransformBlit(HDC hDC, int w, int h)
   SelectObject(dcBmp, bmOld);
   DeleteObject(dcBmp);
   DeleteObject(bmBmp);
+}
+
+extern polar2 TransformUpdateRotation(const polar2 &P0, const double x0, const double y0, const double x1, const double y1)
+{
+  const double scale = std::min(std::max(std::hypot(x0, y0) / std::hypot(x1, y1), 0.01), 100.0);
+  const double rotate = std::atan2(y0, x0) - std::atan2(y1, x1);
+  polar2 P = P0;
+  P.scale = scale;
+  P.rotate = rotate;
+  return P;
 }
 
 extern polar2 TransformUpdateStretch(const polar2 &P0, const double x0, const double y0, const double x1, const double y1)

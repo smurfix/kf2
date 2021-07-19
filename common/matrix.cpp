@@ -31,7 +31,8 @@ mat2 polar_composition(const polar2 &P)
   const mat2 R( cos(r), -sin(r), sin(r), cos(r) );
   const mat2 S( P.stretch_factor, 0, 0, 1/P.stretch_factor );
   const mat2 T( cos(a), -sin(a), sin(a), cos(a) );
-  return R * T * S * transpose(T) * P.scale;
+  const mat2 G( 1, 0, 0, P.sign );
+  return R * T * S * transpose(T) * P.scale * G;
 }
 
 polar2 polar_decomposition(const mat2 &M)
@@ -42,14 +43,16 @@ polar2 polar_decomposition(const mat2 &M)
   using glm::inverse;
   using glm::transpose;
   using glm::determinant;
-  const double scale = sqrt(abs(determinant(M)));
+  const double mdet = determinant(M);
+  const double sign = mdet > 0 ? 1 : -1;
+  const double scale = sqrt(abs(mdet));
   if (scale != 0)
   {
     const mat2 A = M / scale;
     const mat2 B = A + inverse(transpose(A));
     const double b = sqrt(abs(determinant(B)));
     const mat2 V = B / b;
-    const double rotate = atan2(V[1][0], V[0][0]);
+    const double rotate = sign * atan2(V[1][0], V[0][0]);
     const mat2 P = (transpose(A) * A + mat2(1,0,0,1)) / b;
     // [U,D] = eig(P);
     const double pa = P[0][0];
@@ -86,7 +89,7 @@ polar2 polar_decomposition(const mat2 &M)
         ud = 1;
       }
       double stretch_factor = d1;
-      double stretch_angle = atan2(uc, ua);
+      double stretch_angle = sign * atan2(uc, ua);
       (void) ub;
       (void) ud;
       if (stretch_factor < 1)
@@ -94,9 +97,9 @@ polar2 polar_decomposition(const mat2 &M)
         stretch_factor = 1 / stretch_factor;
         stretch_angle += 1.5707963267948966;
       }
-      return polar2(scale, rotate, stretch_factor, stretch_angle);
+      return polar2(sign, scale, rotate, stretch_factor, stretch_angle);
     }
-    return polar2(scale, rotate, 1, 0);
+    return polar2(sign, scale, rotate, 1, 0);
   }
   return polar2();
 }

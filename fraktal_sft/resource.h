@@ -370,6 +370,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_TRANSFORMATION_STRETCHAMOUNT_SPIN 1458
 #define IDC_TRANSFORMATION_ZOOMAMOUNT         1459
 #define IDC_TRANSFORMATION_ZOOMAMOUNT_SPIN    1449
+#define IDC_TRANSFORMATION_IMAGUP             1448
 
 // "OpenGL" dialog
 #define IDD_OPENGL 127

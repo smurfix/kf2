@@ -425,6 +425,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	double RotateAngle = 0;
 	double StretchAngle = 0;
 	double StretchAmount = 0;
+	bool ImagPointsUp = false;
 	i = stParams.FindString(0, "RotateAngle");
 	if (i != -1)
 	{
@@ -440,7 +441,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	{
 		StretchAmount = atof(stParams[i][1]);
 	}
-	SetTransformPolar(polar2(1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
+	i = stParams.FindString(0, "ImagPointsUp");
+	if (i != -1)
+	{
+		ImagPointsUp = atoi(stParams[i][1]);
+	}
+	SetTransformPolar(polar2(ImagPointsUp ? -1 : 1, 1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
 	}
 
 	if (! bNoLocation)
@@ -586,6 +592,8 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("RotateAngle", P.rotate * deg)
 	DOUBLE("StretchAngle", P.stretch_angle * deg)
 	DOUBLE("StretchAmount", std::log2(P.stretch_factor))
+	// KFR version >= 2150400
+	INT("ImagPointsUp", P.sign < 0);
 
   // KFR version >= 2150200
   if (GetUseOpenGL())

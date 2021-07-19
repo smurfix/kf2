@@ -99,8 +99,7 @@ extern double g_FactorAI;
 
 HWND g_hwTransformationDialog = nullptr;
 bool g_bTransformationDialogIsOpen = false;
-static polar2 g_transformation_delta = polar2(1, 0, 1, 0);
-static double g_transformation_zoom_delta = 1;
+static polar2 g_transformation_delta = polar2(1, 1, 0, 1, 0);
 
 enum RotateMode
 {
@@ -109,8 +108,8 @@ enum RotateMode
 	RotateMode_Started = 2
 };
 static RotateMode g_bRotate = RotateMode_Idle;
-static double g_transformation_rotate_start = 0;
-static double g_transformation_zoom_start = 0;
+static double g_transformation_rotate_x0 = 0;
+static double g_transformation_rotate_y0 = 0;
 
 enum StretchMode
 {
@@ -2431,8 +2430,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		double dy = p.y - pm.y;
 		g_transformation_stretch_x0 = dx;
 		g_transformation_stretch_y0 = dy;
-		g_transformation_delta = polar2(1, 0, 1, 0);
-		g_transformation_zoom_delta = 1;
+		g_transformation_delta = polar2(1, 1, 0, 1, 0);
 		g_bStretch = StretchMode_Started;
 		SetCapture(hWnd);
 		return 0;
@@ -2464,10 +2462,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			POINT p;
 			GetCursorPos(&p);
 			ScreenToClient(hWnd,&p);
-			g_transformation_rotate_start = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
-			g_transformation_zoom_start = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
-			g_transformation_delta = polar2(1, 0, 1, 0);
-			g_transformation_zoom_delta = 1;
+			double dx = p.x - pm.x;
+			double dy = p.y - pm.y;
+			g_transformation_rotate_x0 = dx;
+			g_transformation_rotate_y0 = dy;
+			g_transformation_delta = polar2(1, 1, 0, 1, 0);
 			g_bRotate = RotateMode_Started;
 			SetCapture(hWnd);
 			return 0;
@@ -2608,11 +2607,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
-				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
-				double length = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
-				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
-				g_transformation_zoom_delta = std::min(std::max(g_transformation_zoom_start / length, 0.01), 100.0);
-				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
+				double dx = p.x - pm.x;
+				double dy = p.y - pm.y;
+				g_transformation_delta = TransformUpdateRotation(g_transformation_delta, g_transformation_rotate_x0, g_transformation_rotate_y0, dx, dy);
+				TransformRefresh(g_transformation_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 			}
@@ -2635,7 +2633,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				double dx = p.x - pm.x;
 				double dy = p.y - pm.y;
 				g_transformation_delta = TransformUpdateStretch(g_transformation_delta, g_transformation_stretch_x0, g_transformation_stretch_y0, dx, dy);
-				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
+				TransformRefresh(g_transformation_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 			}
@@ -2742,17 +2740,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				POINT p;
 				GetCursorPos(&p);
 				ScreenToClient(hWnd,&p);
-				double angle = std::atan2(double(p.y - pm.y), double(p.x - pm.x));
-				double length = std::hypot(double(p.y - pm.y), double(p.x - pm.x));
-				g_transformation_delta.rotate = -(angle - g_transformation_rotate_start);
-				g_transformation_zoom_delta = std::min(std::max(g_transformation_zoom_start / length, 0.01), 100.0);
-				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
+				double dx = p.x - pm.x;
+				double dy = p.y - pm.y;
+				g_transformation_delta = TransformUpdateRotation(g_transformation_delta, g_transformation_rotate_x0, g_transformation_rotate_y0, dx, dy);
+				TransformRefresh(g_transformation_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 
-		TransformApply(g_transformation_delta, g_transformation_zoom_delta);
-		g_transformation_delta = polar2(1, 0, 1, 0);
-		g_transformation_zoom_delta = 1;
+		TransformApply(g_transformation_delta);
+		g_transformation_delta = polar2(1, 1, 0, 1, 0);
 	}
 	else if (uMsg == WM_RBUTTONUP && g_bStretch != StretchMode_Idle){
 		ReleaseCapture();
@@ -2772,13 +2768,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				double dx = p.x - pm.x;
 				double dy = p.y - pm.y;
 				g_transformation_delta = TransformUpdateStretch(g_transformation_delta, g_transformation_stretch_x0, g_transformation_stretch_y0, dx, dy);
-				TransformRefresh(g_transformation_delta, g_transformation_zoom_delta);
+				TransformRefresh(g_transformation_delta);
 				TransformBlit(hDC, r.right, r.bottom);
 				ReleaseDC(hWnd, hDC);
 
-		TransformApply(g_transformation_delta, g_transformation_zoom_delta);
-		g_transformation_delta = polar2(1, 0, 1, 0);
-		g_transformation_zoom_delta = 1;
+		TransformApply(g_transformation_delta);
+		g_transformation_delta = polar2(1, 1, 0, 1, 0);
 	}
 	else if(g_bTrackSelect==1 && (uMsg==WM_CAPTURECHANGED || uMsg==WM_RBUTTONUP || (uMsg==WM_KEYDOWN && wParam==VK_ESCAPE))){
 		g_bTrackSelect=FALSE;
@@ -3359,7 +3354,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_RESET_TRANSFORMATION){
 		g_SFT.Stop();
 		g_SFT.UndoStore();
-		g_SFT.SetTransformPolar(polar2(1, 0, 1, 0));
+		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){

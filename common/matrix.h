@@ -27,14 +27,15 @@ typedef glm::dmat2 mat2;
 
 struct polar2
 {
-  double scale, rotate, stretch_factor, stretch_angle;
-  polar2(double s, double r, double sf, double sa)
-  : scale(s)
+  double sign, scale, rotate, stretch_factor, stretch_angle;
+  polar2(double g, double s, double r, double sf, double sa)
+  : sign(g)
+  , scale(s)
   , rotate(r)
   , stretch_factor(sf)
   , stretch_angle(sa)
   { };
-  polar2() : polar2(1, 0, 1, 0) { };
+  polar2() : polar2(1, 1, 0, 1, 0) { };
 };
 
 mat2 polar_composition(const polar2 &P);
