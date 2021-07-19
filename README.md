@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-06-25
+date: 2021-07-19
 ...
 
 # Kalles Fraktaler 2 +
@@ -1685,6 +1685,7 @@ earlier).
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
 - "find center of glitch" cycle between multiple selected methods
 - formula `(|x|+i|y|)exp(2a/z)+c` (suggested by Microfractal)
+- detect complex-analytic hybrids and optimize derivatives accordingly
 
 ### Newton-Raphson Zooming
 
