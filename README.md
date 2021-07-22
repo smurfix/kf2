@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-07-19
+date: 2021-07-22
 ...
 
 # Kalles Fraktaler 2 +
@@ -347,7 +347,7 @@ earlier).
 
 ### kf-2.15.4
 
-????-??-??
+2021-07-22
 
   - new: rewritten GUI for window size / image size (by popular request)
   - new: "imaginary axis points up" option in the transformation dialog
