@@ -1,4 +1,4 @@
-<formula type="74" name="z^p |z|^a + c" power="2" glitch="0.0000001">
+<formula type="74" name="Polarbrot" power="2" glitch="0.0000001">
   <reference t='R'>
     Xrn = (Xr2  -  Xi2) * exp((Ar/2) * log(Xr2 + Xi2)) + Cr;
     Xin = (2 * Xr * Xi) * exp((Ar/2) * log(Xr2 + Xi2)) + Ci;
