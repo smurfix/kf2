@@ -277,9 +277,24 @@ bool perturbation_scaled_derivatives
   , const tfloatexp<mantissa, exponent> &daaF, const tfloatexp<mantissa, exponent> &dabF, const tfloatexp<mantissa, exponent> &dbaF, const tfloatexp<mantissa, exponent> &dbbF
   );
 
+// convergent perturbation
+
+template <typename T>
+bool perturbation_convergent_simple
+  ( const int m_nFractalType, const int m_nPower
+  , const Reference *Reference
+  , int64_t &antal, double &test1, double &smooth, double &phase, bool &bGlitch
+  , const T &m_nBailoutSmallP, const int64_t nMaxIter
+  , const bool m_bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p
+  , const double &g_FactorAR, const double &g_FactorAI
+  , T &xr, T &xi
+  , const T &cr, const T &ci
+  );
+
 // miscellaneous
 
 typedef struct HWND__* HWND;
+bool is_convergent(const int m_nFractalType, const int m_nPower);
 bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
 void combo5_addstrings(HWND hWnd, const int combo, bool ignore_hybrids);
 int combo5_lookup_fractal_type(HWND hWnd, int index, bool ignore_hybrids);

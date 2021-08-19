@@ -35,9 +35,11 @@ void CFraktalSFT::MandelCalc1()
   mantissa epsilon(m_epsilon);
   int x, y, w, h;
   int64_t antal;
-  const double nBailout = GetBailoutRadius();
   const double p = GetBailoutNorm();
+  const double nBailout = GetBailoutRadius();
+  const mantissa nBailoutSmall = mantissa(GetBailoutSmall());
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
+  const mantissa nBailoutSmallP = p < 1.0/0.0 ? pow(nBailoutSmall, p) : nBailoutSmall;
   const mantissa s = mantissa(m_fPixelSpacing);
   const mat2 TK = GetTransformMatrix();
   const bool noDerivativeGlitch = ! GetDerivativeGlitch();
@@ -78,7 +80,7 @@ void CFraktalSFT::MandelCalc1()
     floatexp dxa1, dxb1, dya1, dyb1;
     DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
 
-    double test1 = 0, test2 = 0, phase = 0;
+    double test1 = 0, test2 = 0, phase = 0, smooth = 0;
     bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
     bool bGlitch = false;
 
@@ -222,19 +224,37 @@ void CFraktalSFT::MandelCalc1()
 
     else
     {
-        mantissa daa = mantissa(daa0);
-        mantissa dab = mantissa(dab0);
-        mantissa dba = mantissa(dba0);
-        mantissa dbb = mantissa(dbb0);
+      mantissa daa = mantissa(daa0);
+      mantissa dab = mantissa(dab0);
+      mantissa dba = mantissa(dba0);
+      mantissa dbb = mantissa(dbb0);
+      if (is_convergent(m_nFractalType, m_nPower))
+      {
+        bool ok = derivatives
+          ? false
+          : perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
+          ;
+        assert(ok && "perturbation_convergent");
+      }
+      else
+      {
         bool ok = derivatives
           ? perturbation_simple_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, s, daa, dab, dba, dbb, noDerivativeGlitch)
           : perturbation_simple            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i)
           ;
         assert(ok && "perturbation");
-        de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
+      }
+      de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);
     }
 
-    OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
+    if (is_convergent(m_nFractalType, m_nPower))
+    {
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, nBailout, de);
+    }
+    else
+    {
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, power);
+    }
     if (bGlitch) m_count_bad++; else m_count_good++;
     OutputPixelData(x, y, w, h, bGlitch);
   }
@@ -329,7 +349,7 @@ void CFraktalSFT::MandelCalcScaled()
     }
     else
     {
-      bool ok = derivatives
+      bool ok = is_convergent(m_nFractalType, m_nPower) ? false : derivatives
         ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF)
         : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci);
       assert(ok && "perturbation_scaled");
@@ -586,7 +606,12 @@ void CFraktalSFT::MandelCalc(const Reference_Type reftype)
     case Reference_Double:
     {
       const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
-      const bool vectorized = (m_nFractalType == 0 ? ! (m_nPower > 10) : true) && (! GetUseHybridFormula()) && vectorsize > 1 && KF_SIMD > 0;
+      const bool vectorized =
+        (m_nFractalType == 0 ? ! (m_nPower > 10) : true) &&
+        (! GetUseHybridFormula()) &&
+        vectorsize > 1 &&
+        KF_SIMD > 0 &&
+        !is_convergent(m_nFractalType, m_nPower) ;
       if (vectorized)
       {
         MandelCalcSIMD();

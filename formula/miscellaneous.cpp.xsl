@@ -26,6 +26,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "formula.h"
 
+bool is_convergent(const int m_nFractalType, const int m_nPower)
+{
+  <xsl:for-each select="formulas/group[@convergent='1']/formula">
+  if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
+    return true;
+  </xsl:for-each>
+  return false;
+}
+
 bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives)
 {
   <xsl:for-each select="//scaled/..">

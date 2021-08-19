@@ -15,6 +15,7 @@ formula/perturbation_simd_derivatives.cpp
 formula/perturbation_simple.cpp
 formula/perturbation_simple_derivatives.cpp
 formula/reference.cpp
+formula/perturbation_convergent_simple.cpp
 preprocessor
 preprocessor.hi
 *.d
