@@ -1,0 +1,11 @@
+<formula type="75" name="Nova" power="3" glitch="0.000001" convergent="1">
+  <reference t="C">
+    Xn = X - (A / 3) * ((X^3) - 1) / (X^2) + C;
+  </reference>
+  <perturbation t="C">
+    xn = ((1 - A / 3) - (A / 3) * (2 * X + x) / ((X * Xx)^2)) * x + c;
+  </perturbation>
+  <derivative t="C">
+    dn = d * ((1 - A/3) - (2 * A / 3) / (Xx^3)) + d0;
+  </derivative>
+</formula>

@@ -246,4 +246,7 @@
   <formula power="3" />
   <formula power="4" />
 </group>
+<group type="75" name="Nova" convergent="1">
+  <formula power="3" />
+</group>
 </formulas>
