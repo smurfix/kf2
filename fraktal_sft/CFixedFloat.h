@@ -493,25 +493,25 @@ inline CFixedFloat operator+(int nB,const CFixedFloat &A)
 inline CFixedFloat operator+(const CFixedFloat &A,double nB)
 {
 	Precision p(std::max(A.m_f.precision(), LOW_PRECISION));
-	return CFixedFloat(FixedFloat(A.m_f * nB));
+	return CFixedFloat(FixedFloat(A.m_f + nB));
 }
 
 inline CFixedFloat operator+(double nB,const CFixedFloat &A)
 {
 	Precision p(std::max(LOW_PRECISION, A.m_f.precision()));
-	return CFixedFloat(FixedFloat(nB * A.m_f));
+	return CFixedFloat(FixedFloat(nB + A.m_f));
 }
 
 inline CFixedFloat operator-(const CFixedFloat &A,int nB)
 {
 	Precision p(std::max(A.m_f.precision(), LOW_PRECISION));
-	return CFixedFloat(FixedFloat(A.m_f * nB));
+	return CFixedFloat(FixedFloat(A.m_f - nB));
 }
 
 inline CFixedFloat operator-(int nB,const CFixedFloat &A)
 {
 	Precision p(std::max(LOW_PRECISION, A.m_f.precision()));
-	return CFixedFloat(FixedFloat(nB * A.m_f));
+	return CFixedFloat(FixedFloat(nB - A.m_f));
 }
 
 inline CFixedFloat operator-(const CFixedFloat &A,double nB)
