@@ -221,6 +221,7 @@ CFraktalSFT::CFraktalSFT()
 	m_nBailoutRadiusCustom = 2;
 	m_nBailoutNormPreset = BailoutNorm_2;
 	m_nBailoutNormCustom = 2;
+	m_nBailoutSmall = floatexp(1e-5);
 	m_nColorMethod = ColorMethod_DistanceLog;
 	m_nDifferences = Differences_Analytic;
 	m_nPhaseColorStrength = 0;
@@ -3622,6 +3623,11 @@ double CFraktalSFT::GetBailoutNorm()
 		case BailoutNorm_Infinity: return 1.0/0.0;
 		case BailoutNorm_Custom: return GetBailoutNormCustom();
 	}
+}
+
+floatexp CFraktalSFT::GetBailoutSmall()
+{
+	return m_nBailoutSmall;
 }
 
 int CFraktalSFT::GetPower() const
