@@ -3990,72 +3990,71 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 	return FALSE;
 }
 
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, double nBailout, const complex<double> &de)
+{
+	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+	if (antal == m_nGlitchIter)
+		bGlitch = TRUE;
+	double i = antal + smooth;
+	antal = std::floor(i);
+	double t = i - antal;
+	if (antal >= m_nMaxIter){
+		m_nPixels[x][y] = antal;
+		m_nTrans[x][y] = 0;
+		if (m_nPhase)
+			m_nPhase[x][y] = 0;
+		if (m_nDEx)
+			m_nDEx[x][y] = 0;
+		if (m_nDEy)
+			m_nDEy[x][y] = 0;
+	}
+	else{
+		if (x == g_nAddRefX && y == g_nAddRefY)
+		{
+			// never consider the pixel of the reference to be glitched
+			bGlitch = false;
+		}
+		double de_multiplier = 1;
+		if (GetExponentialMap())
+		{
+			double dx, dy;
+			GetPixelOffset(x, y, dx, dy);
+			double v = (y + dy) / m_nY;
+			de_multiplier = std::exp2(v);
+		}
+		m_nPixels[x][y] = antal;
+		m_nTrans[x][y] = 1 - t;
+		if (m_nPhase)
+			m_nPhase[x][y] = phase;
+		if (m_nDEx)
+			m_nDEx[x][y] = de.m_r * de_multiplier;
+		if (m_nDEy)
+			m_nDEy[x][y] = de.m_i * de_multiplier;
+		if (bGlitch && !m_bNoGlitchDetection){
+			m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
+		}
+	}
+	SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+	if (m_bMirrored)
+		Mirror(x, y);
+}
+
 void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de, int power)
 {
-		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		if (antal == m_nGlitchIter)
-			bGlitch = TRUE;
-		if (antal >= m_nMaxIter){
-			m_nPixels[x][y] = antal;
-			m_nTrans[x][y] = 0;
-			if (m_nPhase)
-				m_nPhase[x][y] = 0;
-			if (m_nDEx)
-				m_nDEx[x][y] = 0;
-			if (m_nDEy)
-				m_nDEy[x][y] = 0;
-		}
-		else{
-			if (x == g_nAddRefX && y == g_nAddRefY)
-			{
-				// never consider the pixel of the reference to be glitched
-				bGlitch = false;
-			}
-			double de_multiplier = 1;
-			if (GetExponentialMap())
-			{
-				double dx, dy;
-				GetPixelOffset(x, y, dx, dy);
-				double v = (y + dy) / m_nY;
-				de_multiplier = std::exp2(v);
-			}
-
-			m_nPixels[x][y] = antal;
-			if (m_nPhase)
-				m_nPhase[x][y] = phase;
-			if (m_nDEx)
-				m_nDEx[x][y] = de.m_r * de_multiplier;
-			if (m_nDEy)
-				m_nDEy[x][y] = de.m_i * de_multiplier;
-
-			if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt)){
-				double p = GetBailoutNorm();
-				if (! (p < 1.0 / 0.0)) p = 1;
-				double div = pow(test1, 1 / p) - pow(test2, 1 / p);
-				if (div != 0)
-					m_nTrans[x][y] = (pow(test1, 1 / p) - nBailout) / div;
-				else
-					m_nTrans[x][y] = 0;
-			}
-
-			else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Log){
-				double t = log(log(sqrt(test1)) / log(GetBailoutRadius())) / log((double) power);
-				if (!ISFLOATOK(t))
-					t = 0;
-				int64_t i = floor(t);
-				auto r = m_nPixels[x][y];
-				r = r - i;
-				m_nTrans[x][y] = t - i;
-			}
-
-			if (bGlitch && !m_bNoGlitchDetection){
-				m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
-			}
-
-		}
-		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
-		if (m_bMirrored)
-			Mirror(x, y);
+	double smooth = 0;
+	if (!bGlitch && (m_nSmoothMethod == SmoothMethod_Sqrt)){
+		double p = GetBailoutNorm();
+		if (! (p < 1.0 / 0.0)) p = 1;
+		double div = pow(test1, 1 / p) - pow(test2, 1 / p);
+		if (div != 0)
+			smooth = 1 - (pow(test1, 1 / p) - nBailout) / div;
+	}
+	else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Log){
+		smooth = 1 - log(log(sqrt(test1)) / log(GetBailoutRadius())) / log((double) power);
+		if (!ISFLOATOK(smooth))
+			smooth = 0;
+	}
+	OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, nBailout, de);
 }
 
 void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
