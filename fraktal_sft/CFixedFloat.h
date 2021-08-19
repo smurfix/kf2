@@ -576,6 +576,11 @@ inline bool isinf(const CFixedFloat &A)
 	return isinf(A.m_f);
 }
 
+inline std::ostream& operator<<(std::ostream& a, const CFixedFloat& b) noexcept
+{
+	return a << b.m_f;
+}
+
 #define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
 I(CFixedFloat)
 #undef I

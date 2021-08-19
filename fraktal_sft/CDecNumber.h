@@ -277,4 +277,9 @@ inline CDecNumber sqr(const CDecNumber &a)
 	return r;
 }
 
+inline std::ostream& operator<<(std::ostream& a, const CDecNumber& b) noexcept
+{
+	return a << b.m_dec;
+}
+
 #endif

@@ -221,4 +221,11 @@ inline complex<R> sqr(const complex<R> &a) noexcept
 	return complex<R>(sqr(a.m_r) - sqr(a.m_i), 2 * a.m_r * a.m_i);
 }
 
+template <typename R>
+inline std::ostream& operator<<(std::ostream& a, const complex<R>& b) noexcept
+{
+	return a << "(" << b.m_r << " " << b.m_i << ")";
+}
+
+
 #endif
