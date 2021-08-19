@@ -65,6 +65,10 @@ public:
 	{
 		return complex<tt>(m_r + a, m_i);
 	}
+	inline complex operator -(const int &a) const noexcept
+	{
+		return complex<tt>(m_r - a, m_i);
+	}
 	inline complex operator +(const complex &a) const noexcept
 	{
 		return complex<tt>(m_r + a.m_r, m_i + a.m_i);
@@ -148,12 +152,6 @@ template <class tt>
 inline complex<tt> operator+(int a, const complex<tt> &b) noexcept
 {
 	return complex<tt>(a + b.m_r, b.m_i);
-}
-
-template <class tt>
-inline complex<tt> operator-(const complex<tt> &b, int a) noexcept
-{
-	return complex<tt>(b.m_r - a, b.m_i);
 }
 
 
