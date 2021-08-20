@@ -65,65 +65,55 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     T xi = xi0;
     T Xxr = 1.0/0.0;
     T Xxi = 1.0/0.0;
-    T Xxr_1 = 1.0/0.0;
-    T Xxi_1 = 1.0/0.0;
-    T Xxr_2 = 1.0/0.0;
-    T Xxi_2 = 1.0/0.0;
+    T xr_1 = 1.0/0.0;
+    T xi_1 = 1.0/0.0;
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
+    const T *uptr = reference_ptr_wx&lt;T&gt;(m_Reference);
+    const T *vptr = reference_ptr_wy&lt;T&gt;(m_Reference);
+    T delta = 1.0/0.0;
+    T delta_1 = 1.0/0.0;
     for (; antal &lt; nMaxIter; antal++)
     {
       const T Xr = xptr[antal];
       const T Xi = yptr[antal];
       const T Xz = zptr[antal];
-      Xxr_2 = Xxr_1;
-      Xxi_2 = Xxi_1;
-      Xxr_1 = Xxr;
-      Xxi_1 = Xxi;
+      const T Xu = uptr[antal];
+      const T Xv = vptr[antal];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
 
-#if 0
-      // divergent glitch bailout
-      T ttest1 = Xxr * Xxr + Xxi * Xxi;
-      if (ttest1 &lt; Xz)
+      // glitch bailout: Pauldelbrot
       {
-        bGlitch = true;
-        test1 = double(ttest1);
-        if (! m_bNoGlitchDetection)
+        T ttest1 = Xxr * Xxr + Xxi * Xxi;
+        if (ttest1 &lt; Xz)
         {
-          break;
+          bGlitch = true;
+          test1 = double(ttest1);
+          if (! m_bNoGlitchDetection)
+          {
+            break;
+          }
         }
       }
-
-      // convergent glitch bailout
-      ttest1 = xr * xr + xi * xi;
-      if (ttest1 &gt; T(10.0))
-      {
-        bGlitch = true;
-        test1 = double(1 / ttest1);
-        if (! m_bNoGlitchDetection)
-        {
-          break;
-        }
-      }
-#endif
 
       // convergent bailout
-      const T deltar = Xxr - Xxr_1;
-      const T deltai = Xxi - Xxi_1;
-      const T delta = pnorm(g_real, g_imag, p, deltar, deltai);
-      if (delta &lt; m_nBailoutSmallP)
       {
-        const T delta1 = sqr(Xxr - Xxr_1) + sqr(Xxi - Xxi_1);
-        const T delta2 = sqr(Xxr_1 - Xxr_2) + sqr(Xxi_1 - Xxi_2);
-        const T q = log(delta1) / log(delta2);
-        const T f = (log(-log(m_nBailoutSmallP)/p) - log(-log(delta)/p)) / log(q);
-        smooth = double(f);
-        phase = atan2(double(deltar/sqrt(delta1)), double(deltai/sqrt(delta1))) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+        const T delta_x = (xr - xr_1) + Xu;
+        const T delta_y = (xi - xi_1) + Xv;
+        delta_1 = delta;
+        delta = pnorm(g_real, g_imag, p, delta_x, delta_y);
+        if (delta_1 &lt; m_nBailoutSmallP &amp;&amp; delta &lt; delta_1)
+        {
+          const T q = log(delta) / log(delta_1);
+          const T f = (log(-log(m_nBailoutSmallP)/p) - log(-log(delta)/p)) / log(q);
+          smooth = double(f);
+          const T delta_z = sqrt(sqr(delta_x) + sqr(delta_y));
+          phase = atan2(double(delta_x/delta_z), double(delta_y/delta_z)) / M_PI / 2;
+          phase -= floor(phase);
+          break;
+        }
       }
 
       T xrn, xin;
@@ -151,6 +141,8 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
 </xsl:when>
 </xsl:choose>
 
+      xr_1 = xr;
+      xi_1 = xi;
       xr = xrn;
       xi = xin;
     }
