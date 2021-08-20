@@ -67,6 +67,7 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     T Xxi = 1.0/0.0;
     T xr_1 = 1.0/0.0;
     T xi_1 = 1.0/0.0;
+    const int64_t N = reference_size_x(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
@@ -76,11 +77,12 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     T delta_1 = 1.0/0.0;
     for (; antal &lt; nMaxIter; antal++)
     {
-      const T Xr = xptr[antal];
-      const T Xi = yptr[antal];
-      const T Xz = zptr[antal];
-      const T Xu = uptr[antal];
-      const T Xv = vptr[antal];
+      const int64_t ix = std::min(antal, N - 1);
+      const T Xr = xptr[ix];
+      const T Xi = yptr[ix];
+      const T Xz = zptr[ix];
+      const T Xu = uptr[ix];
+      const T Xv = vptr[ix];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
 

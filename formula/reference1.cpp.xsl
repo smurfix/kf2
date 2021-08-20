@@ -111,6 +111,15 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
         const floatexp Xz = abs_val * glitch; \
         reference_append(m_Reference, Xrd, Xid, Xz, dXrd, dXid); \
+        if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \
+        { \
+          if (nMaxIter == m_nMaxIter){ \
+            nMaxIter = i + 10; \
+            if (nMaxIter &gt; m_nMaxIter) \
+              nMaxIter = m_nMaxIter; \
+            m_nGlitchIter = nMaxIter; \
+          } \
+        } \
       } \
       else \
       { \
