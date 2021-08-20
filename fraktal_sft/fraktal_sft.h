@@ -329,7 +329,6 @@ class CFraktalSFT
 	double m_nBailoutRadiusCustom;
 	BailoutNormPreset m_nBailoutNormPreset;
 	double m_nBailoutNormCustom;
-	floatexp m_nBailoutSmall;
 	ColorMethod m_nColorMethod;
 	Differences m_nDifferences;
 	int m_nColorOffset;

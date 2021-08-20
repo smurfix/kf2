@@ -221,7 +221,6 @@ CFraktalSFT::CFraktalSFT()
 	m_nBailoutRadiusCustom = 2;
 	m_nBailoutNormPreset = BailoutNorm_2;
 	m_nBailoutNormCustom = 2;
-	m_nBailoutSmall = floatexp(1e-5);
 	m_nColorMethod = ColorMethod_DistanceLog;
 	m_nDifferences = Differences_Analytic;
 	m_nPhaseColorStrength = 0;
@@ -3627,7 +3626,7 @@ double CFraktalSFT::GetBailoutNorm()
 
 floatexp CFraktalSFT::GetBailoutSmall()
 {
-	return m_nBailoutSmall;
+	return m_fPixelSpacing;
 }
 
 int CFraktalSFT::GetPower() const
