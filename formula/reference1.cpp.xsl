@@ -51,6 +51,14 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   using std::floor;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+<xsl:choose>
+<xsl:when test="@convergent='1'">
+    const bool convergent = true;
+</xsl:when>
+<xsl:otherwise>
+    const bool convergent = false;
+</xsl:otherwise>
+</xsl:choose>
     m_nGlitchIter = m_nMaxIter + 1;
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
@@ -59,6 +67,8 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
     mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);
+    mpfr_t Xr_1; mpfr_init2(Xr_1, bits); mpfr_set_d(Xr_1, 1.0/0.0, MPFR_RNDN);
+    mpfr_t Xi_1; mpfr_init2(Xi_1, bits); mpfr_set_d(Xi_1, 1.0/0.0, MPFR_RNDN);
     mpfr_t Xr; mpfr_init2(Xr, bits); mpfr_set_d(Xr, g_SeedR, MPFR_RNDN);
     mpfr_t Xi; mpfr_init2(Xi, bits); mpfr_set_d(Xi, g_SeedI, MPFR_RNDN);
     floatexp Xrd = mpfr_get_fe(Xr);
@@ -80,22 +90,42 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
 </xsl:choose>
 
 #define LOOP \
+      if (convergent) \
+      { \
+        mpfr_set(Xr_1, Xr, MPFR_RNDN); \
+        mpfr_set(Xi_1, Xi, MPFR_RNDN); \
+      } \
       mpfr_set(Xr, Xrn, MPFR_RNDN); \
       mpfr_set(Xi, Xin, MPFR_RNDN); \
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
-      Xrd = mpfr_get_fe(Xr); \
-      Xid = mpfr_get_fe(Xi); \
-      const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
-      const floatexp Xz = abs_val * glitch; \
-      reference_append(m_Reference, Xrd, Xid, Xz); \
-      if (abs_val &gt;= terminate){ \
-        if (nMaxIter == m_nMaxIter){ \
-          nMaxIter = i + 10; \
-          if (nMaxIter &gt; m_nMaxIter) \
-            nMaxIter = m_nMaxIter; \
-          m_nGlitchIter = nMaxIter; \
+      if (convergent) \
+      { \
+        mpfr_sub(Xrn, Xr, Xr_1, MPFR_RNDN); \
+        mpfr_sub(Xin, Xi, Xi_1, MPFR_RNDN); \
+        const floatexp dXrd = mpfr_get_fe(Xrn); \
+        const floatexp dXid = mpfr_get_fe(Xin); \
+        Xrd = mpfr_get_fe(Xr); \
+        Xid = mpfr_get_fe(Xi); \
+        const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
+        const floatexp Xz = abs_val * glitch; \
+        reference_append(m_Reference, Xrd, Xid, Xz, dXrd, dXid); \
+      } \
+      else \
+      { \
+        Xrd = mpfr_get_fe(Xr); \
+        Xid = mpfr_get_fe(Xi); \
+        const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
+        const floatexp Xz = abs_val * glitch; \
+        reference_append(m_Reference, Xrd, Xid, Xz); \
+        if (abs_val &gt;= terminate){ \
+          if (nMaxIter == m_nMaxIter){ \
+            nMaxIter = i + 10; \
+            if (nMaxIter &gt; m_nMaxIter) \
+              nMaxIter = m_nMaxIter; \
+            m_nGlitchIter = nMaxIter; \
+          } \
         } \
       }
 
@@ -126,6 +156,8 @@ LOOP  }
     mpfr_clear(Ci);
     mpfr_clear(Xr);
     mpfr_clear(Xi);
+    mpfr_clear(Xr_1);
+    mpfr_clear(Xi_1);
     mpfr_clear(Xr2);
     mpfr_clear(Xi2);
     mpfr_clear(Xrn);

@@ -37,7 +37,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 		reference_delete(m_Reference);
 		m_Reference = nullptr;
 	}
-	m_Reference = reference_new(m_nMaxIter, GetReferenceStrictZero(), reftype);
+	m_Reference = reference_new(m_nMaxIter, GetReferenceStrictZero(), reftype, GetUseHybridFormula() ? false : is_convergent(m_nFractalType, m_nPower));
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	m_nGlitchIter = m_nMaxIter + 1;
