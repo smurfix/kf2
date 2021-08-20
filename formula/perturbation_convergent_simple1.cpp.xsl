@@ -19,14 +19,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 -->
 <xsl:stylesheet version="1.0" xmlns:xsl="http://www.w3.org/1999/XSL/Transform">
 <xsl:output method="text" />
-<xsl:template match="/">
-
+<xsl:template match="/"><xsl:for-each select="formula[@convergent='1']">
 #include "formula.h"
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/complex.h"
 #include "../fraktal_sft/reference.h"
 
-<xsl:for-each select="formula[@convergent='1']">
 template &lt;typename T&gt;
 bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   ( int m_nFractalType, int m_nPower
@@ -217,7 +215,5 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , tfloatexp&lt;double,int64_t&gt; &amp;xr, tfloatexp&lt;double,int64_t&gt; &amp;xi
   , const tfloatexp&lt;double,int64_t&gt; &amp;cr, const tfloatexp&lt;double,int64_t&gt; &amp;ci
   );
-</xsl:for-each>
-
-</xsl:template>
+</xsl:for-each></xsl:template>
 </xsl:stylesheet>
