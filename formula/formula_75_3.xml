@@ -1,4 +1,4 @@
-<formula type="75" name="Nova" power="3" glitch="0.000001" convergent="1">
+<formula type="75" name="Nova" power="3" convergent="1" glitch="1">
   <reference t="C">
     Xn = X - (A / 3) * ((X^3) - 1) / (X^2) + C;
   </reference>
@@ -8,4 +8,12 @@
   <derivative t="C">
     dn = d * ((1 - A/3) - (2 * A / 3) / (Xx^3)) + d0;
   </derivative>
+  <glitch t="C" op="&lt;" factorhi="1e-6" factorlo="1e-3">
+    <pixel>norm(Xx * Xx * Xx)</pixel>
+    <reference>factor * norm(X * X * X - (2 * A) / (3 - A))</reference>
+  </glitch>
+  <glitch t="C" op="&gt;" factorhi="100" factorlo="1">
+    <pixel>norm(x * x * x)</pixel>
+    <reference>factor * norm(X * X * X - (2 * A) / (3 - A))</reference>
+  </glitch>
 </formula>

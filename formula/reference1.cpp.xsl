@@ -108,9 +108,18 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         const floatexp dXid = mpfr_get_fe(Xin); \
         Xrd = mpfr_get_fe(Xr); \
         Xid = mpfr_get_fe(Xi); \
-        const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
-        const floatexp Xz = abs_val * glitch; \
-        reference_append(m_Reference, Xrd, Xid, Xz, dXrd, dXid); \
+        reference_append(m_Reference, Xrd, Xid, dXrd, dXid); \
+<xsl:for-each select="glitch"><xsl:choose><xsl:when test="@t='C'"> \
+        { \
+          const double lfactorlo = log(<xsl:value-of select="@factorlo" />); \
+          const double lfactorhi = log(<xsl:value-of select="@factorhi" />); \
+          const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi)); \
+          mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN); \
+          mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN); \
+          const floatexp Xz = mpfr_get_fe((<xsl:value-of select="reference" />).m_f.backend().data()); \
+          reference_append_glitch(m_Reference, <xsl:value-of select="position()" /> - 1, Xz); \
+        } \
+</xsl:when><xsl:otherwise>#error "non-'C' glitch"</xsl:otherwise></xsl:choose></xsl:for-each> \
         if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \
         { \
           if (nMaxIter == m_nMaxIter){ \

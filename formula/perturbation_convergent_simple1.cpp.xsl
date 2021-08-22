@@ -70,7 +70,8 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     const int64_t N = reference_size_x(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
-    const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
+    const T *zptr0 = reference_ptr_z&lt;T&gt;(m_Reference, 0);
+    const T *zptr1 = reference_ptr_z&lt;T&gt;(m_Reference, 1);
     const T *uptr = reference_ptr_wx&lt;T&gt;(m_Reference);
     const T *vptr = reference_ptr_wy&lt;T&gt;(m_Reference);
     T delta = 1.0/0.0;
@@ -80,25 +81,44 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
       const int64_t ix = std::min(antal, N - 1);
       const T Xr = xptr[ix];
       const T Xi = yptr[ix];
-      const T Xz = zptr[ix];
       const T Xu = uptr[ix];
       const T Xv = vptr[ix];
       Xxr = Xr + xr;
       Xxi = Xi + xi;
 
-      // glitch bailout: Pauldelbrot
+<xsl:for-each select="glitch">
+<xsl:choose>
+<xsl:when test="@t='C'">
       {
-        T ttest1 = Xxr * Xxr + Xxi * Xxi;
-        if (ttest1 &lt; Xz)
+        const T Xz = zptr<xsl:value-of select="position() - 1" />[ix];
+        const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi };
+        const T ttest1 = <xsl:value-of select="pixel" />;
+        if (ttest1 <xsl:value-of select="@op" /> Xz)
         {
           bGlitch = true;
-          test1 = double(ttest1);
+<xsl:choose>
+<xsl:when test="@op='&lt;'">
+          test1 = double(ttest1 / Xz);
+</xsl:when>
+<xsl:when test="@op='&gt;'">
+          test1 = double(Xz / ttest1);
+</xsl:when>
+<xsl:otherwise>
+#error "unsupported op='<xsl:value-of select="@op" />'"
+</xsl:otherwise>
+</xsl:choose>
           if (! m_bNoGlitchDetection)
           {
             break;
           }
         }
       }
+</xsl:when>
+<xsl:otherwise>
+#error "unsupported t='<xsl:value-of select="@t" />'"
+</xsl:otherwise>
+</xsl:choose>
+</xsl:for-each>
 
       // convergent bailout
       {
@@ -147,6 +167,15 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
       xi_1 = xi;
       xr = xrn;
       xi = xin;
+    }
+
+    if (antal == nMaxIter &amp;&amp; N &lt; nMaxIter)
+    {
+      bGlitch = true;
+    }
+    if (std::isnan(smooth) || std::isinf(smooth))
+    {
+      bGlitch = true;
     }
     antal0 = antal;
     test10 = test1;
