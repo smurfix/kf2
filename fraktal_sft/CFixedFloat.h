@@ -552,6 +552,13 @@ inline CFixedFloat expm1(const CFixedFloat &A)
 	return CFixedFloat(FixedFloat(expm1(A.m_f)));
 }
 
+inline CFixedFloat log(const CFixedFloat &A)
+{
+	using std::log;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(log(A.m_f)));
+}
+
 inline CFixedFloat sin(const CFixedFloat &A)
 {
 	using std::sin;
