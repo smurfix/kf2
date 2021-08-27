@@ -276,7 +276,7 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 
 const std::string usage =
 "kf.exe [options]\n"
-"    -o, --load-map      [FILE.kfb]  load map file\n"
+"    -o, --load-map      [FILE.exr]  load map file (EXR or KFB)\n"
 "    -c, --load-palette  [FILE.kfp]  load palette file\n"
 "    -l, --load-location [FILE.kfr]  load location file\n"
 "    -s, --load-settings [FILE.kfs]  load settings file\n"
