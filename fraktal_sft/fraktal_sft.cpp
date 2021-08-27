@@ -3626,7 +3626,7 @@ double CFraktalSFT::GetBailoutNorm()
 
 floatexp CFraktalSFT::GetBailoutSmall()
 {
-	return m_fPixelSpacing;
+	return 1e-12;
 }
 
 int CFraktalSFT::GetPower() const
