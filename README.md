@@ -192,6 +192,8 @@ Feedback:
   (reported by CFJH).
 - flash of untransformed image when opening Transformation dialog
 - spinner of newly opened Transformation dialog widget resets to 0
+- Burning Ship power 5 (non-Hybrid) perturbation formula is buggy
+  (reported by FractalAlex)
 
 
 ## Differences From Original 2.11.1
