@@ -81,7 +81,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
-    complex&lt;CFixedFloat&gt; C, A, X, Xn;
+    complex&lt;CFixedFloat&gt; C, A, X, Xn, Xz;
     mpfr_set(C.m_r.m_f.backend().data(), Cr, MPFR_RNDN);
     mpfr_set(C.m_i.m_f.backend().data(), Ci, MPFR_RNDN);
     mpfr_set(A.m_r.m_f.backend().data(), Ar, MPFR_RNDN);
@@ -116,8 +116,11 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
           const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi)); \
           mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN); \
           mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN); \
-          const floatexp Xz = mpfr_get_fe((<xsl:value-of select="reference" />).m_f.backend().data()); \
-          reference_append_glitch(m_Reference, <xsl:value-of select="position()" /> - 1, Xz); \
+          Xz = <xsl:value-of select="reference" />; \
+          const floatexp Xzr = mpfr_get_fe(Xz.m_r.m_f.backend().data()); \
+          const floatexp Xzi = mpfr_get_fe(Xz.m_i.m_f.backend().data()); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 0, Xzr); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 1, Xzi); \
         } \
 </xsl:when><xsl:otherwise>#error "non-'C' glitch"</xsl:otherwise></xsl:choose></xsl:for-each> \
         if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \

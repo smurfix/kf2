@@ -90,28 +90,28 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
 <xsl:choose>
 <xsl:when test="@t='C'">
       {
-        const T Xz = zptr<xsl:value-of select="position() - 1" />[ix];
-        const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi };
-        const T ttest1 = <xsl:value-of select="pixel" />;
-        if (ttest1 <xsl:value-of select="@op" /> Xz)
+        const double m_bGlitchLowTolerance = 0.0; // FIXME
+        const double lfactorlo = log(<xsl:value-of select="@factorlo" />);
+        const double lfactorhi = log(<xsl:value-of select="@factorhi" />);
+        const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+        const T Xzr = zptr<xsl:value-of select="2 * (position() - 1) + 0" />[ix];
+        const T Xzi = zptr<xsl:value-of select="2 * (position() - 1) + 1" />[ix];
+        const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi }, reference = { Xzr, Xzi };
+<xsl:for-each select="test">
         {
-          bGlitch = true;
-<xsl:choose>
-<xsl:when test="@op='&lt;'">
-          test1 = double(ttest1 / Xz);
-</xsl:when>
-<xsl:when test="@op='&gt;'">
-          test1 = double(Xz / ttest1);
-</xsl:when>
-<xsl:otherwise>
-#error "unsupported op='<xsl:value-of select="@op" />'"
-</xsl:otherwise>
-</xsl:choose>
-          if (! m_bNoGlitchDetection)
+          const T lhs = <xsl:value-of select="lhs" />;
+          const T rhs = <xsl:value-of select="rhs" />;
+          if (<xsl:value-of select="cond" />)
           {
-            break;
+            bGlitch = true;
+            test1 = double(<xsl:value-of select="size" />);
+            if (! m_bNoGlitchDetection)
+            {
+              break;
+            }
           }
         }
+</xsl:for-each>
       }
 </xsl:when>
 <xsl:otherwise>
