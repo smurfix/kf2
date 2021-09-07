@@ -162,6 +162,8 @@ bool reference
   , const double m_bGlitchLowTolerance
   );
 
+int reference_glitches(const int m_nFractalType, const int m_nPower);
+
 // perturbation
 
 template <typename T>
