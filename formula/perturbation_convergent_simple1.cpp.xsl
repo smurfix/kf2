@@ -49,6 +49,12 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
   using std::floor;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+<xsl:for-each select="glitch">
+    const T m_bGlitchLowTolerance = 0.0; // FIXME
+    const T lfactorlo = log(<xsl:value-of select="@factorlo" />);
+    const T lfactorhi = log(<xsl:value-of select="@factorhi" />);
+    const T factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+</xsl:for-each>
     const T Ar = g_FactorAR;
     const T Ai = g_FactorAI;
     const complex&lt;T&gt; A = { Ar, Ai };
@@ -70,8 +76,13 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     const int64_t N = reference_size_x(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
-    const T *zptr0 = reference_ptr_z&lt;T&gt;(m_Reference, 0);
-    const T *zptr1 = reference_ptr_z&lt;T&gt;(m_Reference, 1);
+<xsl:for-each select="references[@t='R']">
+    const T *zptr<xsl:value-of select="position() - 1" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="position() - 1" />);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 0" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 0" />);
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 1" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 1" />);
+</xsl:for-each>
     const T *uptr = reference_ptr_wx&lt;T&gt;(m_Reference);
     const T *vptr = reference_ptr_wy&lt;T&gt;(m_Reference);
     T delta = 1.0/0.0;
@@ -83,21 +94,19 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
       const T Xi = yptr[ix];
       const T Xu = uptr[ix];
       const T Xv = vptr[ix];
+<xsl:for-each select="references[@t='R']">
+      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position() - 1" />[antal];
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 0" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal]);
+</xsl:for-each>
       Xxr = Xr + xr;
       Xxi = Xi + xi;
+      const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi };
+      (void) X; (void) x; (void) Xx;
 
-<xsl:for-each select="glitch">
-<xsl:choose>
-<xsl:when test="@t='C'">
       {
-        const double m_bGlitchLowTolerance = 0.0; // FIXME
-        const double lfactorlo = log(<xsl:value-of select="@factorlo" />);
-        const double lfactorhi = log(<xsl:value-of select="@factorhi" />);
-        const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
-        const T Xzr = zptr<xsl:value-of select="2 * (position() - 1) + 0" />[ix];
-        const T Xzi = zptr<xsl:value-of select="2 * (position() - 1) + 1" />[ix];
-        const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi }, reference = { Xzr, Xzi };
-<xsl:for-each select="test">
+<xsl:for-each select="glitch/test">
         {
           const T lhs = <xsl:value-of select="lhs" />;
           const T rhs = <xsl:value-of select="rhs" />;
@@ -113,12 +122,6 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
         }
 </xsl:for-each>
       }
-</xsl:when>
-<xsl:otherwise>
-#error "unsupported t='<xsl:value-of select="@t" />'"
-</xsl:otherwise>
-</xsl:choose>
-</xsl:for-each>
 
       // convergent bailout
       {
@@ -142,9 +145,7 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
       complex&lt;T&gt; xn;
-      //(void) X; (void) x; (void) Xx;
       using V = T;
       V dummy;
       (void) dummy;
