@@ -211,6 +211,8 @@ int main(int argc, char **argv)
   int height = atoi(argv[2]);
   int maxiters = atoi(argv[3]);
   double zoom = atof(argv[6]);
+  floatexp diverge = 256;
+  diverge *= diverge;
   floatexp converge = 1e-14;
   converge *= converge;
   int prec = 10 + log2(height * zoom);
@@ -260,7 +262,7 @@ int main(int argc, char **argv)
         Xi = X.m_i;
         Xr2 = Xr * Xr;
         Xi2 = Xi * Xi;
-<xsl:value-of select="reference" />
+        <xsl:value-of select="reference" />
         Xn = CC(Xrn, Xin);
 </xsl:when>
 
@@ -304,9 +306,11 @@ int main(int argc, char **argv)
           floatexp q = log(d) / log(d1);
           double f = double((log(log(diverge)/2) - log(log(d)/2)) / log(q));
           double m = n + f;
-          ppm[k+0] = ((int)(m)      ) &amp; 0xFF;
-          ppm[k+1] = ((int)(m) >>  8) &amp; 0xFF;
-          ppm[k+2] = ((int)(m) >> 16) &amp; 0xFF;
+          ppm[3*k+0] = ((int)(m)      ) &amp; 0xFF;
+          ppm[3*k+1] = ((int)(m) >>  8) &amp; 0xFF;
+          ppm[3*k+2] = ((int)(m) >> 16) &amp; 0xFF;
+          count[k] = n;
+          trans[k] = 1 - f;
           break;
         }
 </xsl:otherwise>
