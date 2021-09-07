@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/complex.h"
 #include "../fraktal_sft/reference.h"
 
-<xsl:for-each select="formula">
+<xsl:for-each select="formula[not(@convergent='1')]">
 template &lt;typename T&gt;
 bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   ( int m_nFractalType, int m_nPower
@@ -65,6 +65,12 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   (void) dbb; // -Wunused-parameter
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+<xsl:for-each select="glitch">
+    const double m_bGlitchLowTolerance = 0.0; // FIXME
+    const double lfactorlo = log(<xsl:value-of select="@factorlo" />);
+    const double lfactorhi = log(<xsl:value-of select="@factorhi" />);
+    const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+</xsl:for-each>
     bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const T Ar = g_FactorAR;
     const T Ai = g_FactorAI;
@@ -96,11 +102,24 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
+<xsl:for-each select="references[@t='R']">
+    const T *zptr<xsl:value-of select="position()" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="position()" />);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 1" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 1" />);
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 2" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 2" />);
+</xsl:for-each>
     for (; antal &lt; nMaxIter; antal++)
     {
       const T Xr = xptr[antal];
       const T Xi = yptr[antal];
       const T Xz = zptr[antal];
+<xsl:for-each select="references[@t='R']">
+      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal];
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]);
+</xsl:for-each>
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;

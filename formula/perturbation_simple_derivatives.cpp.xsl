@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/reference.h"
 
-<xsl:for-each select="formulas/group/formula">
+<xsl:for-each select="formulas/group[not(@convergent='1')]/formula">
 template &lt;typename T&gt;
 bool perturbation_simple_derivatives_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
   ( int m_nFractalType, int m_nPower
@@ -61,7 +61,7 @@ bool perturbation_simple_derivatives
 {
   switch (m_nFractalType)
   {
-  <xsl:for-each select="formulas/group">
+  <xsl:for-each select="formulas/group[not(@convergent='1')]">
     // <xsl:value-of select="@name" />
     case <xsl:value-of select="@type" />:
       switch (m_nPower)

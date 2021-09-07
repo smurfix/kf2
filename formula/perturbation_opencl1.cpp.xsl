@@ -5,7 +5,7 @@
 
 #define STR(s) #s
 
-<xsl:for-each select="formula">
+<xsl:for-each select="formula[not(@convergent='1')]">
 
 extern const int perturbation_opencl_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />_derivative = '<xsl:value-of select="derivative/@t" />';
 

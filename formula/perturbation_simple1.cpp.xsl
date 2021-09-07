@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../fraktal_sft/complex.h"
 #include "../fraktal_sft/reference.h"
 
-<xsl:for-each select="formula">
+<xsl:for-each select="formula[not(@convergent='1')]">
 template &lt;typename T&gt;
 bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   ( int m_nFractalType, int m_nPower
@@ -51,6 +51,12 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
   using std::floor;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+<xsl:for-each select="glitch">
+    const double m_bGlitchLowTolerance = 0.0; // FIXME
+    const double lfactorlo = log(<xsl:value-of select="@factorlo" />);
+    const double lfactorhi = log(<xsl:value-of select="@factorhi" />);
+    const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+</xsl:for-each>
     const T Ar = g_FactorAR;
     const T Ai = g_FactorAI;
     const complex&lt;T&gt; A = { Ar, Ai };
@@ -71,13 +77,32 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
+<xsl:for-each select="references[@t='R']">
+    const T *zptr<xsl:value-of select="position()" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="position()" />);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 1" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 1" />);
+    const T *zptr<xsl:value-of select="2 * (position() - 1) + 2" /> = reference_ptr_z&lt;T&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 2" />);
+</xsl:for-each>
     for (; antal &lt; nMaxIter; antal++)
     {
       const T Xr = xptr[antal];
       const T Xi = yptr[antal];
       const T Xz = zptr[antal];
+<xsl:for-each select="references[@t='R']">
+      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal];
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]);
+</xsl:for-each>
       Xxr = Xr + xr;
       Xxi = Xi + xi;
+<xsl:choose>
+<xsl:when test="perturbation/@t='C'">
+      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
+      (void) X; (void) x; (void) Xx;
+</xsl:when>
+</xsl:choose>
       const T Xxr2 = Xxr * Xxr;
       const T Xxi2 = Xxi * Xxi;
       test2 = test1;
@@ -88,6 +113,23 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
         bGlitch = true;
         if (! m_bNoGlitchDetection)
           break;
+      }
+      {
+<xsl:for-each select="glitch/test">
+        {
+          const T lhs = <xsl:value-of select="lhs" />;
+          const T rhs = <xsl:value-of select="rhs" />;
+          if (<xsl:value-of select="cond" />)
+          {
+            bGlitch = true;
+            test1 = double(<xsl:value-of select="size" />);
+            if (! m_bNoGlitchDetection)
+            {
+              break;
+            }
+          }
+        }
+</xsl:for-each>
       }
       if (! no_g)
       {
@@ -103,9 +145,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
 
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
       complex&lt;T&gt; xn;
-      (void) X; (void) x; (void) Xx;
       using V = T;
       V dummy;
       (void) dummy;

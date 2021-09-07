@@ -69,7 +69,7 @@ void perturbation_scaled_loop
 );
 
 
-<xsl:for-each select="formulas/group/formula">
+<xsl:for-each select="formulas/group[not(@convergent='1')]/formula">
 extern const int perturbation_opencl_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_derivative;
 extern const char *perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_0;
 extern const char *perturbation_opencl_double_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_1;
@@ -88,7 +88,7 @@ std::string perturbation_opencl(int m_nFractalType, int m_nPower, int derivative
 {
   switch (m_nFractalType)
   {
-  <xsl:for-each select="formulas/group">
+  <xsl:for-each select="formulas/group[not(@convergent='1')]">
     // <xsl:value-of select="@name" />
     case <xsl:value-of select="@type" />:
       switch (m_nPower)

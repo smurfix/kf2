@@ -30,7 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "simd3.h"
 #include "simd4.h"
 
-<xsl:for-each select="formulas/group/formula">
+<xsl:for-each select="formulas/group[not(@convergent='1')]/formula">
 template &lt;typename double1, typename intN, typename doubleN&gt;
 bool perturbation_SIMD_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />
   ( int m_nFractalType, int m_nPower
@@ -60,7 +60,7 @@ bool perturbation_SIMD
 {
   switch (m_nFractalType)
   {
-  <xsl:for-each select="formulas/group">
+  <xsl:for-each select="formulas/group[not(@convergent='1')]">
     // <xsl:value-of select="@name" />
     case <xsl:value-of select="@type" />:
       switch (m_nPower)

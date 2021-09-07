@@ -48,7 +48,7 @@ C(double,long double)
 C(long double,floatexp)
 #undef C
 
-<xsl:for-each select="formula">
+<xsl:for-each select="formula[not(@convergent='1')]">
 
 template &lt;typename double1, typename intN, typename doubleN&gt;
 bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
@@ -75,6 +75,12 @@ bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@po
   using std::floor;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
+<xsl:for-each select="glitch">
+    const double1 m_bGlitchLowTolerance = 0.0; // FIXME
+    const double1 lfactorlo = log(<xsl:value-of select="@factorlo" />);
+    const double1 lfactorhi = log(<xsl:value-of select="@factorhi" />);
+    const double1 factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+</xsl:for-each>
     const double1 Ar = g_FactorAR;
     const double1 Ai = g_FactorAI;
     const complex&lt;double1&gt; A = { Ar, Ai };
@@ -97,6 +103,13 @@ bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@po
     const double1 *xptr = reference_ptr_x&lt;double1&gt;(m_Reference);
     const double1 *yptr = reference_ptr_y&lt;double1&gt;(m_Reference);
     const double1 *zptr = reference_ptr_z&lt;double1&gt;(m_Reference);
+<xsl:for-each select="references[@t='R']">
+    const double1 *zptr<xsl:value-of select="position()" /> = reference_ptr_z&lt;double1&gt;(m_Reference, <xsl:value-of select="position()" />);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+    const double1 *zptr<xsl:value-of select="2 * (position() - 1) + 1" /> = reference_ptr_z&lt;double1&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 1" />);
+    const double1 *zptr<xsl:value-of select="2 * (position() - 1) + 2" /> = reference_ptr_z&lt;double1&gt;(m_Reference, <xsl:value-of select="2 * (position() - 1) + 2" />);
+</xsl:for-each>
     if (all(antal == antal[0]))
     {
       for (; antal[0] + chunksize - 1 &lt; nMaxIter; antal = antal + chunksize)
@@ -110,6 +123,12 @@ bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@po
           const double1 Xr = xptr[antal_q];
           const double1 Xi = yptr[antal_q];
           const double1 Xz = zptr[antal_q];
+<xsl:for-each select="references[@t='R']">
+          const double1 <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal_q];
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+          const complex&lt;double1&gt; <xsl:value-of select="@name" /> = complex&lt;double1&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal_q], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal_q]);
+</xsl:for-each>
 
           const doubleN Xxr = Xr + xr0;
           const doubleN Xxi = Xi + xi0;
@@ -176,6 +195,12 @@ bool perturbation_SIMD_<xsl:value-of select="@type" />_<xsl:value-of select="@po
         const double1 Xr = xptr[antal_k];
         const double1 Xi = yptr[antal_k];
         const double1 Xz = zptr[antal_k];
+<xsl:for-each select="references[@t='R']">
+        const double1 <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal_k];
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+        const complex&lt;double1&gt; <xsl:value-of select="@name" /> = complex&lt;double1&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal_k], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal_k]);
+</xsl:for-each>
         Xxr = Xr + xr0[k];
         Xxi = Xi + xi0[k];
         const double1 Xxr2 = Xxr * Xxr;
