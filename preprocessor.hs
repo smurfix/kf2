@@ -66,6 +66,7 @@ data Instruction
   | IMulI String String Int
   | IDiv String String String
   | IDivI String String Int
+  | IDivII String Int Int
   | ISqr String String
   | IExp String String
   | ILog String String
@@ -104,6 +105,7 @@ instruction (IMulI a b c) = tell (["mpfr_mul_ui(", a, ",", b, ",", show (abs c),
 instruction (IMul a b c) | b == c = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b, c])
                          | otherwise = tell (["mpfr_mul(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (IDivI a b c) = tell (["mpfr_div_si(", a, ",", b, ",", show c, ",MPFR_RNDN);\n"], [a, b])
+instruction (IDivII a b c) = tell (["mpfr_set_si(", a, ",", show b, ",MPFR_RNDN);\nmpfr_div_si(", a, ",", a, ",", show c, ",MPFR_RNDN);\n"], [a])
 instruction (IDiv a b c) = tell (["mpfr_div(", a, ",", b, ",", c, ",MPFR_RNDN);\n"], [a, b, c])
 instruction (ISqr a b) = tell (["mpfr_sqr(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISin a b) = tell (["mpfr_sin(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
@@ -212,6 +214,11 @@ compile (EMul a b) = do
   deallocate v
   return w
 
+compile (EDiv (EInt a) (EInt b)) = do
+  w <- allocate
+  instruction (IDivII w a b)
+  return w
+
 compile (EDiv a (EInt b)) = do
   u <- compile a
   w <- allocate
@@ -316,6 +323,7 @@ interpret t@"" (EMul a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "*" ++ inter
 interpret t@"" (EMul a@(EInt _) b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
 interpret t@"" (EMul a b@(EInt _)) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
 interpret t@"" (EMul a b) = "(" ++ interpret t a ++ "*" ++ interpret t b ++ ")"
+interpret t@"" (EDiv a@(EInt _) b@(EInt _)) = "T(" ++ interpret t a ++ ".0" ++ "/" ++ interpret t b ++ ".0" ++ ")" -- hack
 interpret t@"" (EDiv a b) = "(" ++ interpret t a ++ "/" ++ interpret t b ++ ")"
 interpret t@"" (EAdd a b@(ENeg (EInt _))) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
 interpret t@"" (EAdd a b@(EInt _)) = "(" ++ interpret t a ++ "+" ++ interpret t b ++ ")"
