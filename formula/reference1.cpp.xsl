@@ -79,6 +79,15 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     mpfr_t Xin; mpfr_init2(Xin, bits);
     mpfr_t Ar; mpfr_init2(Ar, bits); mpfr_set_d(Ar, g_FactorAR, MPFR_RNDN);
     mpfr_t Ai; mpfr_init2(Ai, bits); mpfr_set_d(Ai, g_FactorAI, MPFR_RNDN);
+<xsl:for-each select="references[@t='R']">
+    mpfr_t <xsl:value-of select="@name" />, <xsl:value-of select="@update" />;
+    mpfr_init2(<xsl:value-of select="@name" />, bits);
+    mpfr_set_d(<xsl:value-of select="@name" />, <xsl:value-of select="@value" />, MPFR_RNDN);
+    mpfr_init2(<xsl:value-of select="@update" />, bits);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+    complex&lt;CFixedFloat&gt; <xsl:value-of select="@name" /> = <xsl:value-of select="@value" />, <xsl:value-of select="@update" />;
+</xsl:for-each>
 <xsl:choose>
 <xsl:when test="reference/@t='C'">
     complex&lt;CFixedFloat&gt; C, A, X, Xn, Xz;
@@ -97,6 +106,12 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
       } \
       mpfr_set(Xr, Xrn, MPFR_RNDN); \
       mpfr_set(Xi, Xin, MPFR_RNDN); \
+<xsl:for-each select="references[@t='R']"> \
+      mpfr_set(<xsl:value-of select="@name" />, <xsl:value-of select="@update" />, MPFR_RNDN); \
+</xsl:for-each> \
+<xsl:for-each select="references[@t='C']"> \
+      <xsl:value-of select="@name" /> = <xsl:value-of select="@update" />; \
+</xsl:for-each> \
       mpfr_sqr(Xr2, Xr, MPFR_RNDN); \
       mpfr_sqr(Xi2, Xi, MPFR_RNDN); \
       m_nRDone++; \
@@ -109,20 +124,20 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         Xrd = mpfr_get_fe(Xr); \
         Xid = mpfr_get_fe(Xi); \
         reference_append(m_Reference, Xrd, Xid, dXrd, dXid); \
-<xsl:for-each select="glitch"><xsl:choose><xsl:when test="@t='C'"> \
+<xsl:for-each select="references[@t='R']"> \
         { \
-          const double lfactorlo = log(<xsl:value-of select="@factorlo" />); \
-          const double lfactorhi = log(<xsl:value-of select="@factorhi" />); \
-          const double factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi)); \
-          mpfr_set(X.m_r.m_f.backend().data(), Xr, MPFR_RNDN); \
-          mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN); \
-          Xz = <xsl:value-of select="reference" />; \
-          const floatexp Xzr = mpfr_get_fe(Xz.m_r.m_f.backend().data()); \
-          const floatexp Xzi = mpfr_get_fe(Xz.m_i.m_f.backend().data()); \
+          const floatexp Xzr = mpfr_get_fe(<xsl:value-of select="@name" />); \
+          reference_append_glitch(m_Reference, <xsl:value-of select="position()" /> - 1, Xzr); \
+        } \
+</xsl:for-each> \
+<xsl:for-each select="references[@t='C']"> \
+        { \
+          const floatexp Xzr = mpfr_get_fe(<xsl:value-of select="@name" />.m_r.m_f.backend().data()); \
+          const floatexp Xzi = mpfr_get_fe(<xsl:value-of select="@name" />.m_i.m_f.backend().data()); \
           reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 0, Xzr); \
           reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 1, Xzi); \
         } \
-</xsl:when><xsl:otherwise>#error "non-'C' glitch"</xsl:otherwise></xsl:choose></xsl:for-each> \
+</xsl:for-each> \
         if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \
         { \
           if (nMaxIter == m_nMaxIter){ \
@@ -140,6 +155,17 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         const floatexp abs_val = Xrd * Xrd + Xid * Xid; \
         const floatexp Xz = abs_val * glitch; \
         reference_append(m_Reference, Xrd, Xid, Xz); \
+<xsl:for-each select="references[@t='R']"> \
+        reference_append_glitch(m_Reference, <xsl:value-of select="position()" />, mpfr_get_fe(<xsl:value-of select="@name" />)); \
+</xsl:for-each> \
+<xsl:for-each select="references[@t='C']"> \
+        { \
+          const floatexp Xzr = mpfr_get_fe(<xsl:value-of select="@name" />.m_r.m_f.backend().data()); \
+          const floatexp Xzi = mpfr_get_fe(<xsl:value-of select="@name" />.m_i.m_f.backend().data()); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 0, Xzr); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 1, Xzi); \
+        } \
+</xsl:for-each> \
         if (abs_val &gt;= terminate){ \
           if (nMaxIter == m_nMaxIter){ \
             nMaxIter = i + 10; \
@@ -158,6 +184,9 @@ for (i = 0; i &lt; nMaxIter &amp;&amp; !m_bStop; i++)
         mpfr_set(X.m_i.m_f.backend().data(), Xi, MPFR_RNDN);
         {
           <xsl:value-of select="reference" />
+<xsl:for-each select="references[@t='C']">
+          <xsl:value-of select="." />
+</xsl:for-each>
         }
         mpfr_set(Xrn, Xn.m_r.m_f.backend().data(), MPFR_RNDN);
         mpfr_set(Xin, Xn.m_i.m_f.backend().data(), MPFR_RNDN);
@@ -167,6 +196,9 @@ LOOP  }
 #define DLOOP
 @rr   {
         <xsl:value-of select="reference" />
+<xsl:for-each select="references[@t='R']">
+        <xsl:value-of select="." />
+</xsl:for-each>
       }
 #undef DLOOP
 </xsl:when>
@@ -185,9 +217,21 @@ LOOP  }
     mpfr_clear(Xin);
     mpfr_clear(Ar);
     mpfr_clear(Ai);
+<xsl:for-each select="references[@t='R']">
+    mpfr_clear(<xsl:value-of select="@name" />);
+    mpfr_clear(<xsl:value-of select="@update" />);
+</xsl:for-each>
     return true;
   }
   return false;
+}
+
+int reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />_glitches()
+{
+  int count = 1; // Pauldelbrot
+  <xsl:for-each select="references[@t='R']">count += 1;</xsl:for-each>
+  <xsl:for-each select="references[@t='C']">count += 2;</xsl:for-each>
+  return count;
 }
 </xsl:for-each>
 

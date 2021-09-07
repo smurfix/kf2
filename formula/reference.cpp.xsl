@@ -36,6 +36,7 @@ bool reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" 
   , const double terminate
   , const double m_bGlitchLowTolerance
   );
+int reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_glitches();
 </xsl:for-each>
 
 bool reference
@@ -68,6 +69,26 @@ bool reference
             , terminate
             , m_bGlitchLowTolerance
             );
+      </xsl:for-each>
+      }
+      break;
+  </xsl:for-each>
+  }
+  return false;
+}
+
+int reference_glitches(int m_nFractalType, int m_nPower)
+{
+  switch (m_nFractalType)
+  {
+  <xsl:for-each select="formulas/group">
+    // <xsl:value-of select="@name" />
+    case <xsl:value-of select="@type" />:
+      switch (m_nPower)
+      {
+      <xsl:for-each select="formula">
+        case <xsl:value-of select="@power" />:
+          return reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_glitches();
       </xsl:for-each>
       }
       break;
