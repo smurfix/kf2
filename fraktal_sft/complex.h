@@ -42,6 +42,7 @@ public:
 	, m_i(a.m_i)
 	{
 	}
+	inline complex(const int &r) noexcept : m_r(r), m_i(0) { }
 	template <typename ss>
 	explicit inline operator complex<ss>() const
 	{
