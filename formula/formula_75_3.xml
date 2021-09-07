@@ -2,6 +2,9 @@
   <reference t="C">
     Xn = X - (A / 3) * ((X*X*X) - 1) / (X*X) + C;
   </reference>
+  <references t="C" name="X1" update="X1n" value="0">
+    X1n = Xn * Xn * Xn - (2 * A) / (3 - A);
+  </references>
   <perturbation t="C">
     xn = ((1 - A / 3) - (A / 3) * (2 * X + x) / ((X*X * Xx*Xx))) * x + c;
   </perturbation>
@@ -9,16 +12,15 @@
     dn = d * ((1 - A/3) - (2 * A / 3) / (Xx^3)) + d0;
   </derivative>
   <glitch t="C" factorhi="1000000" factorlo="1">
-    <reference>X * X * X - (2 * A) / (3 - A)</reference>
     <test>
       <lhs>norm(x * x * x)</lhs>
-      <rhs>factor * norm(reference)</rhs>
+      <rhs>factor * norm(X1)</rhs>
       <cond>lhs &gt; rhs</cond>
       <size>rhs / lhs</size>
     </test>
     <test>
-      <lhs>factor * norm(reference + x * (3 * X * Xx + x * x))</lhs>
-      <rhs>norm(reference)</rhs>
+      <lhs>factor * norm(X1 + x * (3 * X * Xx + x * x))</lhs>
+      <rhs>norm(X1)</rhs>
       <cond>lhs &lt; rhs</cond>
       <size>lhs / rhs</size>
     </test>
