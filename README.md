@@ -152,6 +152,7 @@ Feedback:
   SimonBrot)
 - navigation with scroll wheel and -/+ keys is hardcoded to factor of 2
   instead of using the zoom size set in the View menu
+  (may depend on "Animate Zoom" setting, reported by shapeweaver)
 - NR zoom doesn't work well in skewed locations
 - nanomb1/2 OrderM, OrderN can only be changed by hand-editing .kfs
   Settings files
@@ -192,8 +193,13 @@ Feedback:
   (reported by CFJH).
 - flash of untransformed image when opening Transformation dialog
 - spinner of newly opened Transformation dialog widget resets to 0
+  ("pressing Rotate several times resets to 0" reported by Microfractal)
 - Burning Ship power 5 (non-Hybrid) perturbation formula is buggy
   (reported by FractalAlex)
+- Rescaled Double is slow in some locations (reported by gerrit)
+  (workaround: disable it in the Number Type dialog)
+- Rescaled Series is slow in some locations (reported by gerrit)
+  (workaround: disable it in the Perturbation Tuning dialog)
 
 
 ## Differences From Original 2.11.1
