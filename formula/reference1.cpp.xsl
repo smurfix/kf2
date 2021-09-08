@@ -162,8 +162,8 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         { \
           const floatexp Xzr = mpfr_get_fe(<xsl:value-of select="@name" />.m_r.m_f.backend().data()); \
           const floatexp Xzi = mpfr_get_fe(<xsl:value-of select="@name" />.m_i.m_f.backend().data()); \
-          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 0, Xzr); \
-          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 1, Xzi); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 1, Xzr); \
+          reference_append_glitch(m_Reference, 2 * (<xsl:value-of select="position()" /> - 1) + 2, Xzi); \
         } \
 </xsl:for-each> \
         if (abs_val &gt;= terminate){ \
