@@ -434,7 +434,7 @@ fraktal_sft/opengl.o: fraktal_sft/opengl.cpp fraktal_sft/opengl.h gl/kf_vert_gls
 manual.html: README.md
 	pandoc README.md -F pandoc-self-links.pl -s --toc --css kf.css -o manual.html
 
-FORMULA_BRUTE_SOURCES_CPP = formula/formula_75_3.brute.cpp
+FORMULA_BRUTE_SOURCES_CPP = formula/formula_75_3.brute.cpp formula/formula_76_2.brute.cpp
 
 .PRECIOUS: \
 	$(FORMULA_BRUTE_SOURCES_CPP) \
