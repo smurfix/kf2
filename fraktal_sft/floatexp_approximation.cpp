@@ -366,7 +366,7 @@ void CFraktalSFT::CalculateApproximation(int nType)
 				complex<floatexp> X(xr, xi), A(APr[0], APi[0]), B(APr[1], APi[1]), C(APr[2], APi[2]);
 				complex<floatexp> An = P * A * (X^(P-1)) + 1;
 				complex<floatexp> Bn = P * B * (X^(P-1)) + ((P*(P-1))/2) * (A^2) * (X^(P-2));
-				complex<floatexp> Cn = P * C * (X^(P-1)) + (P*(P-1)) * A * B * (X^(P-2)) + ((P*(P-2)*(P-2))/6) * (A^3) * (X^(P-3));
+				complex<floatexp> Cn = P * C * (X^(P-1)) + (P*(P-1)) * A * B * (X^(P-2)) + ((P*(P-1)*(P-2))/6) * (A^3) * (X^(P-3));
 				m_APr[0] = An.m_r;
 				m_APi[0] = An.m_i;
 				m_APr[1] = Bn.m_r;
