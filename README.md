@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-07-22
+date: 2021-09-08
 ...
 
 # Kalles Fraktaler 2 +
@@ -352,6 +352,27 @@ earlier).
 
 
 ## Change Log
+
+### kf-2.15.5
+
+????-??-??
+
+  - new: start of support for convergent formulas
+  - new: Nova formula
+  - fix: typo bug in general power Mandelbrot series approximation
+    (thanks superheal)
+  - fix: some typo bugs in CFixedFloat operators (maybe did not affect
+    anything in the old code, if only by chance)
+  - fix: some typo bugs in the build system
+  - fix: name Polarbrot correctly everywhere
+  - internal: output stream operators for more types
+  - internal: refactor smooth iterations handling
+  - internal: more functions for CFixedFloat(): log()
+  - internal: hack for fractions in preprocessor
+  - internal: complex constructor taking int to allow complex<T> x = 0
+  - internal: custom reference orbit storage in formula XML
+  - internal: custom glitch tests in formula XML
+  - internal: brute force (high precision) renderers for tests
 
 ### kf-2.15.4
 
