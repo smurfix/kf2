@@ -249,4 +249,7 @@
 <group type="75" name="Nova" convergent="1">
   <formula power="3" />
 </group>
+<group type="76" name="Separated Perpendicular">
+  <formula power="2" />
+</group>
 </formulas>
