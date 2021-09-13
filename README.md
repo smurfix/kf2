@@ -200,6 +200,7 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
+- the text of NR zoom log goes out of the window (reported by Uma410)
 
 
 ## Differences From Original 2.11.1
