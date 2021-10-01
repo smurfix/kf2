@@ -1,26 +1,26 @@
-<formula type="75" name="Nova" power="3" convergent="1" glitch="1">
+<formula type="75" name="Nova" power="3" convergent="1" glitch="1e-6">
   <reference t="C">
-    Xn = X - (A / 3) * ((X*X*X) - 1) / (X*X) + C;
+    Xn = (2 * (X^3) / 3 - 2 * X - 1) / ((X+1)^2) + C + 1;
   </reference>
-  <references t="C" name="X1" update="X1n" value="0">
-    X1n = Xn * Xn * Xn - (2 * A) / (3 - A);
+  <references t="C" name="XA" update="XAn" value="0">
+    XAn = (2*Xn+4)*Xn+2;
+  </references>
+  <references t="C" name="XB" update="XBn" value="0">
+    XBn = ((4*Xn+12)*Xn+12)*Xn+3;
+  </references>
+  <references t="C" name="XC" update="XCn" value="0">
+    XCn = (((2*Xn+8)*Xn+12)*Xn+6)*Xn;
   </references>
   <perturbation t="C">
-    xn = ((1 - A / 3) - (A / 3) * (2 * X + x) / ((X*X * Xx*Xx))) * x + c;
+    xn = c + (((XA*x + XB)*x + XC)*x) / (3*((X+1)^2)*(((X+1)+x)^2));
   </perturbation>
   <derivative t="C">
-    dn = d * ((1 - A/3) - (2 * A / 3) / (Xx^3)) + d0;
+    dn = d * (2*Xx*(Xx*(Xx+3)+3))/(3*((Xx+1)^3)) + d0;
   </derivative>
-  <glitch t="C" factorhi="1000000" factorlo="1">
+  <glitch t="C" factorhi="1e-6" factorlo="1">
     <test>
-      <lhs>norm(x * x * x)</lhs>
-      <rhs>factor * norm(X1)</rhs>
-      <cond>lhs &gt; rhs</cond>
-      <size>rhs / lhs</size>
-    </test>
-    <test>
-      <lhs>factor * norm(X1 + x * (3 * X * Xx + x * x))</lhs>
-      <rhs>norm(X1)</rhs>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
       <cond>lhs &lt; rhs</cond>
       <size>lhs / rhs</size>
     </test>
