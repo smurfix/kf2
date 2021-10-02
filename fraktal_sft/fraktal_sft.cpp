@@ -1667,6 +1667,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
+		  GetTriangleInequalityAverage(),
+
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
@@ -1794,6 +1796,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
+		  GetTriangleInequalityAverage(),
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -1890,6 +1893,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
+		  GetTriangleInequalityAverage(),
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
@@ -1983,6 +1987,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nFractalType,
 		  m_nPower,
 		  GetDerivatives(),
+		  GetTriangleInequalityAverage(),
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,

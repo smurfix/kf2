@@ -180,6 +180,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_FORMULA_FROM_HYBRID         1219
 #define IDC_FORMULA_TO_HYBRID           1220
 #define IDC_FORMULA_IGNORE_HYBRIDS      1226
+#define IDC_FORMULA_TRIANGLE_INEQUALITY_AVERAGE 1227
 
 // "Bailout" dialog
 #define IDD_BAILOUT                     121

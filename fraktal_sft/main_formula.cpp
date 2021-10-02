@@ -219,6 +219,17 @@ static void RefreshDerivatives(HWND hWnd)
 	g_SFT.SetDerivatives(SendDlgItemMessage(hWnd,IDC_FORMULA_DERIVATIVES,BM_GETCHECK,0,0) ? 1 : 0);
 }
 
+static void UpdateTriangleInequalityAverage(HWND hWnd)
+{
+	int i = g_SFT.GetTriangleInequalityAverage();
+	SendDlgItemMessage(hWnd,IDC_FORMULA_TRIANGLE_INEQUALITY_AVERAGE,BM_SETCHECK,i != 0,0);
+}
+
+static void RefreshTriangleInequalityAverage(HWND hWnd)
+{
+	g_SFT.SetTriangleInequalityAverage(SendDlgItemMessage(hWnd,IDC_FORMULA_TRIANGLE_INEQUALITY_AVERAGE,BM_GETCHECK,0,0) ? 1 : 0);
+}
+
 static void UpdateIgnoreHybrids(HWND hWnd)
 {
   const int nType = RefreshFractalType(hWnd, false);
@@ -256,6 +267,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     T(IDC_FORMULA_FACTOR_A_RE, "Real 'a' value (for TheRedshiftRider formulas)")
     T(IDC_FORMULA_FACTOR_A_IM, "Imaginary 'a' value (for TheRedshiftRider formulas)")
     T(IDC_FORMULA_DERIVATIVES, "Select checkbox to compute derivatives\nRequired for analytic DE")
+    T(IDC_FORMULA_TRIANGLE_INEQUALITY_AVERAGE, "Select checkbox to compute triangle inequality average\nRequires OpenCL to be enabled\nReplaces final angle in phase (T) channel\nFor predictable results keep series approximation disabled")
     T(IDC_FORMULA_JITTER_SEED, "Pseudo-random number generator seed for pixel jitter\nSet to 0 to disable jitter")
     T(IDC_FORMULA_JITTER_SCALE, "Pixel jitter amount\nDefault 1.0")
     T(IDC_FORMULA_JITTER_GAUSSIAN, "Select checkbox to use Gaussian jitter\nUncheck for uniform (recommended)")
@@ -277,6 +289,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     UpdateFactorAR(hWnd);
     UpdateFactorAI(hWnd);
     UpdateDerivatives(hWnd);
+    UpdateTriangleInequalityAverage(hWnd);
     UpdateJitterSeed(hWnd);
     UpdateJitterScale(hWnd);
     UpdateJitterShape(hWnd);
@@ -296,6 +309,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
         RefreshFractalType(hWnd);
         RefreshPower(hWnd);
         RefreshDerivatives(hWnd);
+        RefreshTriangleInequalityAverage(hWnd);
         RefreshJitterSeed(hWnd);
         RefreshJitterScale(hWnd);
         RefreshJitterShape(hWnd);

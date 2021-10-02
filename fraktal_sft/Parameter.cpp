@@ -193,6 +193,10 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	nID = stParams.FindString(0, "Power");
 	if (nID != -1)
 		SetPower(atoi(stParams[nID][1]));
+	// KFR version >= 2150500
+	nID = stParams.FindString(0, "TriangleInequalityAverage");
+	if (nID != -1)
+		SetTriangleInequalityAverage(atoi(stParams[nID][1]));
 	}
 
 	int nT = stParams.FindString(0, "Smooth");
@@ -602,6 +606,9 @@ std::string CFraktalSFT::ToText()
 		STRING("GLSL", glsl_escape(GetGLSL()).c_str())
 		INT("UseSRGB", GetUseSRGB())
   }
+
+  // KFR version >= 2150500
+  INT("TriangleInequalityAverage", GetTriangleInequalityAverage())
 
 	INT("Version", kfr_version_number)
 

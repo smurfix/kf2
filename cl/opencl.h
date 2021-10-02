@@ -122,6 +122,7 @@ struct clformula
   bool useHybrid;
   hybrid_formula hybrid;
   int derivatives;
+  bool tia;
   cl_kernel kernel;
   cl_kernel guessing_kernel;
   cl_kernel glitch_select_2d;
@@ -257,6 +258,7 @@ public:
     int m_nFractalType,
     int m_nPower,
     int16_t derivatives,
+    bool tia,
 
     bool UseHybrid,
     const hybrid_formula &hybrid,
@@ -517,11 +519,13 @@ public:
           && formulas[i].fractalType == m_nFractalType
           && formulas[i].power == m_nPower
           && formulas[i].derivatives == derivatives
+          && formulas[i].tia == tia
          ) || ( UseHybrid
           && formulas[i].useHybrid
           && formulas[i].reftype == reftype
           && formulas[i].hybrid == hybrid
           && formulas[i].derivatives == derivatives
+          && formulas[i].tia == tia
          ) )
       {
         formula = &formulas[i];
@@ -552,7 +556,8 @@ public:
       options << (single ? "-cl-single-precision-constant" : "")
               << " -cl-fast-relaxed-math"
               << " -D MAX_APPROX_TERMS=" << MAX_APPROX_TERMS
-              << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS;
+              << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS
+              << (tia ? " -D TRIANGLE_INEQUALITY_AVERAGE=1" : "");
       err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
       g_OpenCL_Error_Source = source;
       g_OpenCL_Error_Log = "";
@@ -574,7 +579,7 @@ public:
       if (! k_glitch_select_1d) { E(err); }
       cl_kernel k_ignore_isolated_glitches = clCreateKernel(program, "ignore_isolated_glitches", &err);
       if (! k_ignore_isolated_glitches) { E(err); }
-      clformula newformula = { reftype, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, kernel, guessing_kernel, k_glitch_select_2d, k_glitch_select_1d, k_ignore_isolated_glitches };
+      clformula newformula = { reftype, m_nFractalType, m_nPower, UseHybrid, hybrid, derivatives, tia, kernel, guessing_kernel, k_glitch_select_2d, k_glitch_select_1d, k_ignore_isolated_glitches };
       formulas.push_back(newformula);
       formula = &formulas[ssize_t(formulas.size()) - 1];
     }

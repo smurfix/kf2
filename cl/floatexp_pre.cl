@@ -25,7 +25,16 @@ void perturbation_floatexp_loop
   long antal = l->antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
-
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+  const mantissa Cr = fe_double(m_refx[0]); // FIXME
+  const mantissa Ci = fe_double(m_refy[0]); // FIXME
+  const mantissa Ccr = Cr + fe_double(cr);
+  const mantissa Cci = Ci + fe_double(ci);
+  const mantissa abs_c = sqrt(Ccr * Ccr + Cci * Cci);
+  mantissa tia_sum_old = 0;
+  mantissa tia_sum = 0;
+  long tia_count = 0;
+#endif
   for (; antal < g->nMaxIter; antal++)
   {
     const floatexp Xr = m_refx[antal - g->nMinIter];

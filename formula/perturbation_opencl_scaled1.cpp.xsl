@@ -52,16 +52,23 @@ void perturbation_scaled_loop
   const floatexp ci = l->ci;
   floatexp xr = l->xr;
   floatexp xi = l->xi;
-  // hybrids
   int count = 0;
   int stanza = 0;
-  // conditions
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
-
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+  const mantissa Cr = m_refx[0];
+  const mantissa Ci = m_refy[0];
+  const mantissa Ccr = Cr + fe_double(cr);
+  const mantissa Cci = Ci + fe_double(ci);
+  const mantissa abs_c = sqrt(Ccr * Ccr + Cci * Cci);
+  mantissa tia_sum_old = 0;
+  mantissa tia_sum = 0;
+  long tia_count = 0;
+) "\n#endif\n" STR(
   long k = 0; long n = 0;
   floatexp Xrf; floatexp Xif; floatexp Xzf;
   do
@@ -81,7 +88,6 @@ void perturbation_scaled_loop
   }
   while (n &lt; antal);
 
-  // rescale
   floatexp S = fe_sqrt(fe_add(fe_sqr(xr), fe_sqr(xi)));
   mantissa s = fe_double(S);
   mantissa wr = fe_double(fe_div(xr, S));
@@ -140,7 +146,6 @@ void perturbation_scaled_loop
 </xsl:for-each>
       else
       {
-        // assert(! "scaled/threshold");
         wrn = 0;
         win = 0;
       }
@@ -152,7 +157,6 @@ void perturbation_scaled_loop
       }
       else
       {
-        // rescale
         floatexp xrn = fe_muld(S, wrn);
         floatexp xin = fe_muld(S, win);
         S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
@@ -215,7 +219,6 @@ void perturbation_scaled_loop
         <xsl:value-of select="perturbation" />
       }
       }
-      // rescale
       S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
       s = fe_double(S);
       wr = fe_double(fe_div(xrn, S));
@@ -224,12 +227,49 @@ void perturbation_scaled_loop
       ui = fe_double(fe_div(ci, S));
       u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
     }
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+    {
+      const mantissa Xxrd = fe_double(Xxr);
+      const mantissa Xxid = fe_double(Xxi);
+      const mantissa abs_z = sqrt(Xxrd * Xxrd + Xxid * Xxid);
+      const mantissa zsubcr = Xxrd - Ccr;
+      const mantissa zsubci = Xxid - Cci;
+      const mantissa abs_z_sub_c = sqrt(zsubcr * zsubcr + zsubci * zsubci);
+      const mantissa abs_z_sub_c_sub_abs_c = fabs(abs_z_sub_c - abs_c);
+      const mantissa abs_z_sub_c_add_abs_c = abs_z_sub_c + abs_c;
+      const mantissa tia_inc = (abs_z - abs_z_sub_c_sub_abs_c) / (abs_z_sub_c_add_abs_c - abs_z_sub_c_sub_abs_c);
+      if (antal != 0 &amp;&amp; antal != g->nMaxIter - 1 &amp;&amp; ! isnan(tia_inc) &amp;&amp; ! isinf(tia_inc))
+      {
+        tia_sum_old = tia_sum;
+        tia_sum += tia_inc;
+        tia_count += 1;
+      }
+    }
+) "\n#endif\n" STR(
   }
   l->antal = antal;
   l->test1 = test1;
   l->test2 = test2;
   l->xr = Xxr;
   l->xi = Xxi;
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+  {
+    const mantissa Xxrd = fe_double(Xxr);
+    const mantissa Xxid = fe_double(Xxi);
+    const mantissa avg = tia_sum / tia_count;
+    const mantissa avg_old = tia_sum_old / (tia_count - 1);
+    const mantissa abs_z = sqrt(Xxrd * Xxrd + Xxid * Xxid);
+    const mantissa abs_R = sqrt(g->m_nBailout2);
+    const mantissa p = exp(l->log_m_nPower);
+    mantissa f = (log(log(abs_z)) - log(log(abs_R))) / log(p);
+    if (abs_z &lt; abs_R)
+    {
+      f = 0;
+    }
+    const mantissa tia = avg + (avg_old - avg) * f;
+    l->tia = tia;
+  }
+) "\n#endif\n" STR(
 }
 
 );
@@ -319,7 +359,6 @@ void perturbation_scaled_loop
   }
   while (N &lt; antal);
 
-  // rescale
   floatexp S = fe_sqrt(fe_add(fe_sqr(xr), fe_sqr(xi)));
   if (fe_cmp(S, zero) == 0)
   {
@@ -355,6 +394,16 @@ void perturbation_scaled_loop
   mantissa dbbD = fe_double(fe_div(l->dbb, J));
 </xsl:when>
 </xsl:choose>
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+  const mantissa Cr = m_refx[0];
+  const mantissa Ci = m_refy[0];
+  const mantissa Ccr = Cr + fe_double(cr);
+  const mantissa Cci = Ci + fe_double(ci);
+  const mantissa abs_c = sqrt(Ccr * Ccr + Cci * Cci);
+  mantissa tia_sum_old = 0;
+  mantissa tia_sum = 0;
+  long tia_count = 0;
+) "\n#endif\n" STR(
 
   for (; antal &lt; g->nMaxIter; antal++)
   {
@@ -450,7 +499,6 @@ void perturbation_scaled_loop
         <xsl:value-of select="perturbation" />
       }
       }
-      // rescale
       S = fe_sqrt(fe_add(fe_sqr(xrn), fe_sqr(xin)));
       s = fe_double(S);
       wr = fe_double(fe_div(xrn, S));
@@ -564,7 +612,6 @@ void perturbation_scaled_loop
 </xsl:for-each>
       else
       {
-        // assert(! "scaled/threshold");
         wrn = 0;
         win = 0;
       }
@@ -581,7 +628,6 @@ void perturbation_scaled_loop
       }
       else
       {
-        // rescale
         floatexp xrn = fe_muld(S, wrn);
         floatexp xin = fe_muld(S, win);
         floatexp drF = fe_muld(J, drn);
@@ -613,7 +659,6 @@ void perturbation_scaled_loop
       }
       else
       {
-        // rescale
         floatexp xrn = fe_muld(S, wrn);
         floatexp xin = fe_muld(S, win);
         floatexp dxaF = fe_muld(J, dxan);
@@ -640,6 +685,25 @@ void perturbation_scaled_loop
 </xsl:when>
 </xsl:choose>
     }
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+    {
+      const mantissa Xxrd = fe_double(XxrF);
+      const mantissa Xxid = fe_double(XxiF);
+      const mantissa abs_z = sqrt(Xxrd * Xxrd + Xxid * Xxid);
+      const mantissa zsubcr = Xxrd - Ccr;
+      const mantissa zsubci = Xxid - Cci;
+      const mantissa abs_z_sub_c = sqrt(zsubcr * zsubcr + zsubci * zsubci);
+      const mantissa abs_z_sub_c_sub_abs_c = fabs(abs_z_sub_c - abs_c);
+      const mantissa abs_z_sub_c_add_abs_c = abs_z_sub_c + abs_c;
+      const mantissa tia_inc = (abs_z - abs_z_sub_c_sub_abs_c) / (abs_z_sub_c_add_abs_c - abs_z_sub_c_sub_abs_c);
+      if (antal != 0 &amp;&amp; antal != g->nMaxIter - 1 &amp;&amp; ! isnan(tia_inc) &amp;&amp; ! isinf(tia_inc))
+      {
+        tia_sum_old = tia_sum;
+        tia_sum += tia_inc;
+        tia_count += 1;
+      }
+    }
+) "\n#endif\n" STR(
   }
 
   l->antal = antal;
@@ -662,6 +726,24 @@ void perturbation_scaled_loop
   l->dyb = fe_muld(J, dybD);
 </xsl:when>
 </xsl:choose>
+) "\n#ifdef TRIANGLE_INEQUALITY_AVERAGE\n" STR(
+  {
+    const mantissa Xxrd = fe_double(XxrF);
+    const mantissa Xxid = fe_double(XxiF);
+    const mantissa avg = tia_sum / tia_count;
+    const mantissa avg_old = tia_sum_old / (tia_count - 1);
+    const mantissa abs_z = sqrt(Xxrd * Xxrd + Xxid * Xxid);
+    const mantissa abs_R = sqrt(g->m_nBailout2);
+    const mantissa p = exp(l->log_m_nPower);
+    mantissa f = (log(log(abs_z)) - log(log(abs_R))) / log(p);
+    if (abs_z &lt; abs_R)
+    {
+      f = 0;
+    }
+    const mantissa tia = avg + (avg_old - avg) * f;
+    l->tia = tia;
+  }
+) "\n#endif\n" STR(
 }
 
 );

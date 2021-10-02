@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-09-08
+date: 2021-10-02
 ...
 
 # Kalles Fraktaler 2 +
@@ -358,14 +358,20 @@ earlier).
 
 ????-??-??
 
-  - new: start of support for convergent formulas
-  - new: Nova formula
+  - new: Nova formula; variant implemented with critical point at 0
+    instead of 1, to avoid precision loss when deep zooming
+  - new: Triangle Inequality Average colouring algorithm can be enabled
+    in Formula dialog; requires OpenCL; replaces final angle in phase
+    (T) channel data; disable Series Approximation for predictable
+    results
   - fix: typo bug in general power Mandelbrot series approximation
     (thanks superheal)
   - fix: some typo bugs in CFixedFloat operators (maybe did not affect
     anything in the old code, if only by chance)
   - fix: some typo bugs in the build system
   - fix: name Polarbrot correctly everywhere
+  - internal: support for convergent formulas
+  - internal: support for custom reference orbit values
   - internal: output stream operators for more types
   - internal: refactor smooth iterations handling
   - internal: more functions for CFixedFloat(): log()
@@ -1754,7 +1760,7 @@ earlier).
 - bailout mode that combines the best of linear and log (for exterior
   tiling)
 - orbit traps (eg atom domain, cellular colouring, dancing points, ...)
-- stripe average (and triangle inequality average)
+- stripe average
 - refactor transfer functions so iterdiv is scaled sensibly (suggested
   by FK68)
 - exponential smoothing colouring algorithm (suggested by FractalAlex)

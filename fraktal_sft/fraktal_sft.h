@@ -323,6 +323,7 @@ class CFraktalSFT
 	int m_nSlopeAngle;
 	double m_nSlopeX, m_nSlopeY;
 	double m_nZooms;
+	bool m_bTriangleInequalityAverage;
 
 	SmoothMethod m_nSmoothMethod;
 	BailoutRadiusPreset m_nBailoutRadiusPreset;
@@ -558,6 +559,9 @@ public:
 	void SetTransition(BOOL bTransition);
 	BOOL GetITransition();
 	void SetITransition(BOOL bITransition);
+
+	bool GetTriangleInequalityAverage() { return m_bTriangleInequalityAverage; };
+	void SetTriangleInequalityAverage(bool b) { m_bTriangleInequalityAverage = b; if (b) SetNoApprox(true); };
 
 	void SaveMap(const std::string &szFile);
 	void SaveMapB(const std::string &szFile);

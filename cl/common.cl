@@ -2120,6 +2120,7 @@ typedef struct __attribute__((packed))
   long bGlitch;
   long bNoGlitchDetection;
   mantissa log_m_nPower;
+  mantissa tia;
 } p_status_d;
 
 typedef struct __attribute__((packed))
@@ -2142,6 +2143,7 @@ typedef struct __attribute__((packed))
   long bGlitch;
   long bNoGlitchDetection;
   mantissa log_m_nPower;
+  mantissa tia;
 } p_status_fe;
 
 #if 0
@@ -2165,6 +2167,7 @@ typedef struct __attribute__((packed))
   long bGlitch;
   long bNoGlitchDetection;
   softfloat log_m_nPower;
+  softfloat tia;
 } p_status_sf;
 #endif
 
@@ -2796,10 +2799,14 @@ __kernel void guessing
     }
     if (phase)
     {
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      phase[ix] = (phase[ix0] + phase[ix1]) * 0.5f;
+#else
       float p0 = phase[ix0] * M_PI * 2;
       float p1 = phase[ix1] * M_PI * 2;
       float p = atan2(sin(p0) + sin(p1), cos(p0) + cos(p1)) / M_PI / 2;
       phase[ix] = p - floor(p);
+#endif
     }
 #ifdef KF_GUESS_DE_GEOMETRIC
 #error KF_GUESS_DE_GEOMETRIC not supported in OpenCL
@@ -2936,8 +2943,12 @@ __kernel void ignore_isolated_glitches
   sum = 0;
   ulong sum_n = 0;
   float sum_nf = 0;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+  float sum_phase = 0;
+#else
   float sum_phase_cos = 0;
   float sum_phase_sin = 0;
+#endif
   float sum_dex = 0;
   float sum_dey = 0;
   for (int dy = -1; dy <= 1; ++dy)
@@ -2956,19 +2967,27 @@ __kernel void ignore_isolated_glitches
       uint  my_n1 = 0; if (n1) my_n1 = n1[ix1];
       uint  my_n0 = 0; if (n0) my_n0 = n0[ix1];
       float my_nf = 0; if (nf) my_nf = nf[ix1];
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      float my_phase = 0; if (phase) my_phase = phase[ix1];
+#else
       float my_phase_cos = 0, my_phase_sin = 0; if (phase)
       {
         float my_phase = phase[ix1];
         my_phase_cos = cos(6.283185307179586 * my_phase);
         my_phase_sin = sin(6.283185307179586 * my_phase);
       }
+#endif
       float my_dex = 0; if (dex) my_dex = dex[ix1];
       float my_dey = 0; if (dey) my_dey = dey[ix1];
       sum += 1;
       sum_n += (my_n1 << 32) + my_n0;
       sum_nf += my_nf;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      sum_phase += my_phase;
+#else
       sum_phase_cos += my_phase_cos;
       sum_phase_sin += my_phase_sin;
+#endif
       sum_dex += my_dex;
       sum_dey += my_dey;
     }
@@ -2980,7 +2999,11 @@ __kernel void ignore_isolated_glitches
   avg_nf -= floor(avg_nf);
   uint avg_n1 = avg_n >> 32;
   uint avg_n0 = avg_n & 0xFFFFFFFFU;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+  float avg_phase = sum_phase * s;
+#else
   float avg_phase = atan2(sum_phase_sin, sum_phase_cos);
+#endif
   float avg_dex = sum_dex * s;
   float avg_dey = sum_dey * s;
   if (n1) n1[ix] = avg_n1;
@@ -3096,6 +3119,7 @@ __kernel void perturbation_double
       , false
       , g->m_bNoGlitchDetection || (x == g->g_nAddRefX && y == g->g_nAddRefY)
       , g->log_m_nPower
+      , 0
       };
     // core per pixel calculation
     perturbation_double_loop(g, m_refx, m_refy, m_refz, &l);
@@ -3120,7 +3144,11 @@ __kernel void perturbation_double
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      if (phase) phase[ix] = l.tia;
+#else
       if (phase) phase[ix] = 0;
+#endif
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -3143,9 +3171,13 @@ __kernel void perturbation_double
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+        phase[ix] = l.tia;
+#else
         mantissa p = atan2(Di, Dr) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
+#endif
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         mantissa p = g->norm_p;
@@ -3303,7 +3335,11 @@ __kernel void perturbation_floatexp
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      if (phase) phase[ix] = l.tia;
+#else
       if (phase) phase[ix] = 0;
+#endif
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -3326,9 +3362,13 @@ __kernel void perturbation_floatexp
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+        phase[ix] = l.tia;
+#else
         mantissa p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
+#endif
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         mantissa p = g->norm_p;
@@ -3486,7 +3526,11 @@ __kernel void perturbation_scaled
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      if (phase) phase[ix] = l.tia;
+#else
       if (phase) phase[ix] = 0;
+#endif
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -3509,9 +3553,13 @@ __kernel void perturbation_scaled
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+        phase[ix] = l.tia;
+#else
         mantissa p = atan2(fe_double(Di), fe_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
+#endif
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         mantissa p = g->norm_p;
@@ -3634,6 +3682,7 @@ __kernel void perturbation_softfloat
       , antal
       , false
       , sf_from_double(g->log_m_nPower)
+      , sf_from_double(0.0)
       };
     // core per pixel calculation
     perturbation_softfloat_loop(g, m_db_dxr, m_db_dxi, m_db_z, &l);
@@ -3658,7 +3707,11 @@ __kernel void perturbation_softfloat
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+      if (phase) phase[ix] = sf_to_float(l.tia);
+#else
       if (phase) phase[ix] = 0;
+#endif
       if (dex) dex[ix] = 0;
       if (dey) dey[ix] = 0;
     }
@@ -3676,9 +3729,13 @@ __kernel void perturbation_softfloat
       if (dey) dey[ix] = de.im * de_multiplier;
       if (phase)
       {
+#ifdef TRIANGLE_INEQUALITY_AVERAGE
+        phase[ix] = sf_to_float(l.tia);
+#else
         mantissa p = atan2(sf_double(Di), sf_double(Dr)) / (M_PI * 2);
         p -= floor(p);
         phase[ix] = p;
+#endif
       }
       if (!bGlitch && g->m_nSmoothMethod == 1){
         mantissa p = g->norm_p;
