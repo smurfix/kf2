@@ -3049,6 +3049,14 @@ and Analytic is recommended for slopes when jitter is enabled).  Also
 can enable a different glitch detection criterion (for power 2
 Mandelbrot only).
 
+### Tri.Ineq.Avg.
+
+Compute Triangle Inequality Average colouring.  Requires OpenCL to be
+enabled.  Replaces the final angle in the phase (T) output channel.
+Also calculated for non-escaping points, use OpenGL colouring to
+visualize it.  Enabling this disables series approximation because
+otherwise the results may be unpredictable.
+
 ### Jitter seed
 
 Non-zero enables jitter with a pseudo-random-number generator seed
@@ -4055,6 +4063,16 @@ Formulas:
 ### Polarbrot
 
     z := z^p (exp((d/2) log(x^2 + y^2))) + c
+
+### Nova
+
+    z := (2 z^3 / 3 - 2 z - 1) / (z + 1)^2 + c + 1
+
+This is affine-conjugated to move critical point from 1 to 0, from the
+usual form:
+
+    z := z - (z^3 - 1) / (3 z^2) + c
+
 
 A machine-readable version of this formula list is found in the 'et'
 repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>
