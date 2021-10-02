@@ -93,7 +93,6 @@ struct Reference
     switch (reftype)
     {
       case Reference_Float:
-      case Reference_ScaledFloat:
       {
         fx.reserve(capacity);
         fy.reserve(capacity);
@@ -101,10 +100,6 @@ struct Reference
         {
           fz.push_back(std::vector<float>());
           fz[i].reserve(capacity);
-          if (reftype == Reference_ScaledFloat)
-          {
-            fZ.push_back(std::vector<tfloatexp<float, int32_t>>());
-          }
         }
         if (convergent)
         {
@@ -114,6 +109,39 @@ struct Reference
         break;
       }
       case Reference_Double:
+      {
+        dx.reserve(capacity);
+        dy.reserve(capacity);
+        for (int i = 0; i < glitches; ++i)
+        {
+          dz.push_back(std::vector<double>());
+          dz[i].reserve(capacity);
+          dZ.push_back(std::vector<floatexp>());
+        }
+        if (convergent)
+        {
+          dwx.reserve(capacity);
+          dwy.reserve(capacity);
+        }
+        break;
+      }
+      case Reference_ScaledFloat:
+      {
+        fx.reserve(capacity);
+        fy.reserve(capacity);
+        for (int i = 0; i < glitches; ++i)
+        {
+          fz.push_back(std::vector<float>());
+          fz[i].reserve(capacity);
+          fZ.push_back(std::vector<tfloatexp<float, int32_t>>());
+        }
+        if (convergent)
+        {
+          fwx.reserve(capacity);
+          fwy.reserve(capacity);
+        }
+      }
+      // fall-through
       case Reference_ScaledDouble:
       {
         dx.reserve(capacity);
@@ -122,10 +150,7 @@ struct Reference
         {
           dz.push_back(std::vector<double>());
           dz[i].reserve(capacity);
-          if (reftype == Reference_ScaledDouble)
-          {
-            dZ.push_back(std::vector<floatexp>());
-          }
+          dZ.push_back(std::vector<floatexp>());
         }
         if (convergent)
         {
@@ -164,8 +189,8 @@ struct Reference
           fWx.reserve(capacity);
           fWy.reserve(capacity);
         }
-        break;
       }
+      // fall through
       case Reference_FloatExpDouble:
       {
         dX.reserve(capacity);
