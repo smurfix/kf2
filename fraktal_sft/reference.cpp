@@ -101,6 +101,10 @@ struct Reference
         {
           fz.push_back(std::vector<float>());
           fz[i].reserve(capacity);
+          if (reftype == Reference_ScaledFloat)
+          {
+            fZ.push_back(std::vector<tfloatexp<float, int32_t>>());
+          }
         }
         if (convergent)
         {
@@ -118,6 +122,10 @@ struct Reference
         {
           dz.push_back(std::vector<double>());
           dz[i].reserve(capacity);
+          if (reftype == Reference_ScaledDouble)
+          {
+            dZ.push_back(std::vector<floatexp>());
+          }
         }
         if (convergent)
         {
