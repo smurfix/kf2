@@ -3,7 +3,7 @@
     Xn = (2 * (X^3) / 3 - 2 * X - 1) / ((X+1)^2) + C + 1;
   </reference>
   <references t="C" name="XA" update="XAn" value="0">
-    XAn = (2*Xn+4)*Xn+2;
+    XAn = (Xn+1)^2;
   </references>
   <references t="C" name="XB" update="XBn" value="0">
     XBn = ((4*Xn+12)*Xn+12)*Xn+3;
@@ -12,7 +12,7 @@
     XCn = (((2*Xn+8)*Xn+12)*Xn+6)*Xn;
   </references>
   <perturbation t="C">
-    xn = c + (((XA*x + XB)*x + XC)*x) / (3*((X+1)^2)*(((X+1)+x)^2));
+    xn = c + (((2*XA*x + XB)*x + XC)*x) / (3*XA*(((X+1)+x)^2));
   </perturbation>
   <derivative t="C">
     dn = d * (2*Xx*(Xx*(Xx+3)+3))/(3*((Xx+1)^3)) + d0;
