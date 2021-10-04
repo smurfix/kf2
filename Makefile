@@ -190,7 +190,6 @@ FORMULA_LIBS := \
 	formula/perturbation_scaled.a \
 	formula/perturbation_opencl.a \
 	formula/miscellaneous.a \
-	formula/generated.a \
 	formula/perturbation_convergent_simple.a \
 
 # blank line above
@@ -276,7 +275,7 @@ clean:
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_SOURCES_CPP)
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_OBJECTS)
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS)
-	rm -f $(FORMULA_LIBS) kf.a
+	rm -f $(FORMULA_LIBS) formula/generated.a kf.a
 	rm -f cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o
@@ -285,8 +284,8 @@ clean:
 kf.a: $(OBJECTS)
 	$(AR) rs $@ $(OBJECTS)
 
-kf.exe: kf.a res.o fraktal_sft/main.o $(FORMULA_LIBS)
-	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) kf.a res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
+kf.exe: kf.a res.o fraktal_sft/main.o $(FORMULA_LIBS) formula/generated.a
+	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) -Wl,--whole-archive formula/generated.a -Wl,--no-whole-archive kf.a res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
 
 kf-tile.exe: utils/kf-tile.o common/matrix.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o common/matrix.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
