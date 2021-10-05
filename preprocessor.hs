@@ -47,6 +47,8 @@ data Expr
   | ESin Expr
   | ECos Expr
   | ESinh Expr
+  | ECosh Expr
+  | ESqrt Expr
   | EDiffAbs Expr Expr
   | EAssign Expr Expr
   | EIf Expr Expr
@@ -74,6 +76,8 @@ data Instruction
   | ISin String String
   | ICos String String
   | ISinh String String
+  | ICosh String String
+  | ISqrt String String
   deriving Show
 
 temporaries = [ "t" ++ show i | i <- [0..] ]
@@ -113,6 +117,8 @@ instruction (ICos a b) = tell (["mpfr_cos(", a, ",", b, ",MPFR_RNDN);\n"], [a, b
 instruction (IExp a b) = tell (["mpfr_exp(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ILog a b) = tell (["mpfr_log(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISinh a b) = tell (["mpfr_sinh(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ICosh a b) = tell (["mpfr_cosh(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+instruction (ISqrt a b) = tell (["mpfr_sqrt(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ILog1p a b) = tell (["mpfr_log1p(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 
 compile (EAssign (EVar v) a) = do
@@ -256,10 +262,31 @@ compile (ECos a) = do
   deallocate u
   return v
 
+compile (ESinh a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ISinh v u)
+  deallocate u
+  return v
+
+compile (ECosh a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ICosh v u)
+  deallocate u
+  return v
+
 compile (EExp a) = do
   u <- compile a
   v <- allocate
   instruction (IExp v u)
+  deallocate u
+  return v
+
+compile (ESqrt a) = do
+  u <- compile a
+  v <- allocate
+  instruction (ISqrt v u)
   deallocate u
   return v
 
@@ -307,6 +334,8 @@ vars (EExp a) = vars a
 vars (ESin a) = vars a
 vars (ECos a) = vars a
 vars (ESinh a) = vars a
+vars (ECosh a) = vars a
+vars (ESqrt a) = vars a
 vars (ELog a) = vars a
 vars (ELog1p a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
@@ -348,6 +377,8 @@ interpret t@"" (ELog1p a) = "log1p(" ++ interpret t a ++ ")"
 interpret t@"" (ESin a) = "sin(" ++ interpret t a ++ ")"
 interpret t@"" (ECos a) = "cos(" ++ interpret t a ++ ")"
 interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
+interpret t@"" (ECosh a) = "cosh(" ++ interpret t a ++ ")"
+interpret t@"" (ESqrt a) = "sqrt(" ++ interpret t a ++ ")"
 interpret t@"" (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t@"" (EAssign (EVar v@('t':'_':_)) a) = "const auto " ++ v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
@@ -384,6 +415,8 @@ interpret t (ELog1p a) = t ++ "log1p(" ++ interpret t a ++ ")"
 interpret t (ESin a) = t ++ "sin(" ++ interpret t a ++ ")"
 interpret t (ECos a) = t ++ "cos(" ++ interpret t a ++ ")"
 interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
+interpret t (ECosh a) = t ++ "cosh(" ++ interpret t a ++ ")"
+interpret t (ESqrt a) = t ++ "cosh(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
 interpret t (EAssign (EVar v@('t':'_':_)) a) = (case t of
   ""     -> "const auto "
@@ -449,7 +482,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["exp", "log", "log1p", "sin", "cos", "sinh", "sqr", "sgn", "abs", "diffabs"]
+              , reservedNames = ["exp", "log", "log1p", "sin", "cos", "sinh", "cosh", "sqrt", "sqr", "sgn", "abs", "diffabs"]
               }
   where ops = "=?:<>+-*^"
 
@@ -477,12 +510,14 @@ term = m_parens exprparser
        <|> (EInt . fromIntegral <$> m_integer)
        <|> (char '-' >> EInt . negate . fromIntegral <$> m_integer)
        <|> (m_reserved "sinh" >> ESinh <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "cosh" >> ECosh <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sin" >> ESin <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "cos" >> ECos <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "exp" >> EExp <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "log1p" >> ELog1p <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "log" >> ELog <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sqr" >> ESqr <$ string "(" <*> exprparser <* string ")")
+       <|> (m_reserved "sqrt" >> ESqrt <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
