@@ -57,7 +57,8 @@ enum hybrid_combine
 {
   hybrid_combine_add = 0,
   hybrid_combine_sub = 1,
-  hybrid_combine_mul = 2
+  hybrid_combine_mul = 2,
+  hybrid_combine_div = 3
 };
 
 struct hybrid_line
@@ -180,6 +181,7 @@ inline complex<R> hybrid_f(const hybrid_line &h, const complex<R> &Z)
     case hybrid_combine_add: return one + two;
     case hybrid_combine_sub: return one - two;
     case hybrid_combine_mul: return one * two;
+    case hybrid_combine_div: return one / two;
   }
   return complex<R>();
 }
@@ -319,6 +321,11 @@ inline complex<R> hybrid_pf(const hybrid_line &h, const complex<R> &Z, const com
     case hybrid_combine_add: return hybrid_pf(h.one, Z, z) + hybrid_pf(h.two, Z, z);
     case hybrid_combine_sub: return hybrid_pf(h.one, Z, z) - hybrid_pf(h.two, Z, z);
     case hybrid_combine_mul: return hybrid_pf(h.one, Z, z) * hybrid_f(h.two, Z + z) + hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z);
+    case hybrid_combine_div:
+    {
+      complex<R> B = hybrid_f(h.two, Z);
+      return (hybrid_pf(h.one, Z, z) * B - hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z)) / (B * hybrid_f(h.two, Z + z));
+    }
   }
   return complex<R>();
 }
@@ -331,6 +338,11 @@ inline complex<dual<2,R>> hybrid_pf(const hybrid_line &h, const complex<R> &Z, c
     case hybrid_combine_add: return hybrid_pf(h.one, Z, z) + hybrid_pf(h.two, Z, z);
     case hybrid_combine_sub: return hybrid_pf(h.one, Z, z) - hybrid_pf(h.two, Z, z);
     case hybrid_combine_mul: return hybrid_pf(h.one, Z, z) * hybrid_f(h.two, Z + z) + hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z);
+    case hybrid_combine_div:
+    {
+      complex<R> B = hybrid_f(h.two, Z);
+      return (hybrid_pf(h.one, Z, z) * B - hybrid_f(h.one, Z) * hybrid_pf(h.two, Z, z)) / (B * hybrid_f(h.two, Z + z));
+    }
   }
   return complex<dual<2,R>>();
 }
