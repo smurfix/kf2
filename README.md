@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-10-02
+date: 2021-10-05
 ...
 
 # Kalles Fraktaler 2 +
@@ -358,12 +358,16 @@ earlier).
 
 ????-??-??
 
+  - new: many new formulas (thanks to Alexandre Vachon aka FractalAlex)
+  - new: hybrid formulas support division operator (thanks FractalAlex)
   - new: Nova formula; variant implemented with critical point at 0
     instead of 1, to avoid precision loss when deep zooming
   - new: Triangle Inequality Average colouring algorithm can be enabled
     in Formula dialog; requires OpenCL; replaces final angle in phase
     (T) channel data; disable Series Approximation for predictable
     results
+  - fix: Newton zooming functions are correctly linked into the EXE
+    (only kf-2.15.4 was broken)
   - fix: typo bug in general power Mandelbrot series approximation
     (thanks superheal)
   - fix: some typo bugs in CFixedFloat operators (maybe did not affect
@@ -375,6 +379,11 @@ earlier).
   - internal: output stream operators for more types
   - internal: refactor smooth iterations handling
   - internal: more functions for CFixedFloat(): log()
+  - internal: more functions for floatexp: cosh() (thanks FractalAlex)
+  - internal: more functions for complex: sin() cos() cosh()
+    (thanks FractalAlex)
+  - internal: more functions for preprocessor: cosh() sqrt()
+    (thanks FractalAlex)
   - internal: hack for fractions in preprocessor
   - internal: complex constructor taking int to allow complex<T> x = 0
   - internal: custom reference orbit storage in formula XML
