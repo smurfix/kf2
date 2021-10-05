@@ -603,6 +603,12 @@ inline tfloatexp<mantissa, exponent> sinh(tfloatexp<mantissa, exponent> a) noexc
 	return expm1(2 * a) / (2 * exp(a)); // FIXME optimized for a near 0
 }
 
+template <typename mantissa, typename exponent>
+inline tfloatexp<mantissa, exponent> cosh(tfloatexp<mantissa, exponent> a) noexcept
+{
+	return (exp(2 * a) + 1) / (2 * exp(a));
+}
+
 inline double sqr(double a) noexcept
 {
 	return a * a;
