@@ -45,6 +45,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
   using std::sin;
   using std::cos;
   using std::sinh;
+  using std::cosh;
   using std::log;
   using std::log1p;
   using std::atan2;

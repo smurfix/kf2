@@ -209,9 +209,35 @@ inline complex<tt> expm1(const complex<tt> &a) noexcept
 }
 
 template <class tt>
+inline complex<tt> sin(const complex<tt> &a) noexcept
+{
+	using std::cos;
+	using std::sin;
+	using std::cosh;
+	using std::sinh;
+	return complex<tt>(sin(a.m_r) * cosh(a.m_i), cos(a.m_r) * sinh(a.m_i));
+}
+
+template <class tt>
+inline complex<tt> cos(const complex<tt> &a) noexcept
+{
+	using std::cos;
+	using std::sin;
+	using std::cosh;
+	using std::sinh;
+	return complex<tt>(cos(a.m_r) * cosh(a.m_i), sin(a.m_r) * sinh(a.m_i));
+}
+
+template <class tt>
 inline complex<tt> sinh(const complex<tt> &a) noexcept
 {
 	return (expm1(a) - expm1(-a)) / 2;
+}
+
+template <class tt>
+inline complex<tt> cosh(const complex<tt> &a) noexcept
+{
+	return (expm1(a) + expm1(-a)) / 2;
 }
 
 template <typename R>
