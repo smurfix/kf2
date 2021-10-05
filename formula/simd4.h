@@ -49,6 +49,7 @@ F16(expm1)
 F16(log)
 F16(log1p)
 F16(sinh)
+F16(cosh)
 #undef F16
 
 static inline bool all(const int16 &i) {

@@ -49,6 +49,7 @@ F8(expm1)
 F8(log)
 F8(log1p)
 F8(sinh)
+F8(cosh)
 #undef F8
 
 static inline bool all(const int8 &i) {

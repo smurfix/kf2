@@ -49,6 +49,7 @@ F4(expm1)
 F4(log)
 F4(log1p)
 F4(sinh)
+F4(cosh)
 #undef F4
 
 static inline bool all(const int4 &i) {
