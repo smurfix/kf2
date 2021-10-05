@@ -1,0 +1,16 @@
+<formula type="82" name="Cubic Celtic Quasi Perpendicular" power="3" glitch="0.0001">
+  <reference t="R">
+    Xrn = abs(Xr2 - (3 * Xi2)) * abs(Xr) + Cr;
+    Xin = Ci - abs((3 * Xr2) - Xi2) * Xi;
+  </reference>
+  <perturbation t="R">
+    xrn = (((diffabs(((Xr * Xr) - ((3 * (Xi * Xi)))), (((xr * (Xr + xr)) + (Xr * xr)) - (((0 * ((Xi + xi) * (Xi + xi))) + (3 * ((xi * (Xi + xi)) + (Xi * xi))))))) * abs((Xr + xr))) + (abs(((Xr * Xr) - ((3 * (Xi * Xi))))) * diffabs(Xr, xr))) + cr); 
+    xin = (ci - (((diffabs(((3 * (Xr * Xr)) - ((Xi * Xi))), (((0 * ((Xr + xr) * (Xr + xr))) + (3 * ((xr * (Xr + xr)) + (Xr * xr)))) - (((xi * (Xi + xi)) + (Xi * xi))))) * (Xi + xi)) + (abs(((3 * (Xr * Xr)) - ((Xi * Xi)))) * xi))));
+  </perturbation>
+  <derivative t="M">
+    dxan = (daa + ((abs(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (sgn(Xxr) * dxa)) + ((2 * (abs(Xxr) * (sgn(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (dxa * Xxr)))) + (1 + ((-6) * (abs(Xxr) * (sgn(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (dya * Xxi))))))));
+    dxbn = (dab + ((abs(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (sgn(Xxr) * dxb)) + ((2 * (abs(Xxr) * (sgn(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (dxb * Xxr)))) + ((-6) * (abs(Xxr) * (sgn(((Xxr * Xxr) + ((-3) * (Xxi * Xxi)))) * (dyb * Xxi)))))));
+    dyan = (dba + ((2 * (dya * (Xxi * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + (((-6) * (dxa * (Xxr * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + ((-1) * (abs(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))) * dya)))));
+    dybn = dbb + ((2 * (dyb * (Xxi * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + (((-6) * (dxb * (Xxr * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + (1 + ((-1) * (abs(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))) * dyb)))));
+  </derivative>
+</formula>

@@ -1,0 +1,16 @@
+<formula type="80" name="Cosbrot" power="4" glitch="0.0001">
+  <reference t="R">
+    Xrn = Cr + (cos(Xr2 - Xi2) * cosh(2 * Xr * Xi));
+    Xin = Ci - (sin(Xr2 - Xi2) * sinh(2 * Xr * Xi));
+  </reference>
+  <perturbation t="R">
+    xrn = (cr+(((-2)*(sin(((Xr*Xr)+((Xr*xr)+(((-1)*(Xi*Xi))+(((-1)*(Xi*xi))+(((xr*xr)/2)+((-1)*(xi*xi)/2)))))))*(sin(((Xr*xr)+(((-1)*(Xi*xi))+(((xr*xr)/2)+((-1)*(xi*xi)/2)))))*cosh(((2*(Xr*Xi))+((2*(Xr*xi))+((2*(Xi*xr))+(2*(xr*xi)))))))))+(2*(cos(((Xr*Xr)+((-1)*(Xi*Xi))))*(sinh(((Xr*xi)+((Xi*xr)+((2*(Xr*Xi))+(xr*xi)))))*sinh(((Xr*xi)+((Xi*xr)+(xr*xi))))))))); 
+    xin = (ci+(((-2)*(sin(((Xr*Xr)+((-1)*(Xi*Xi))))*(sinh(((Xr*xi)+((Xi*xr)+(xr*xi))))*cosh(((Xr*xi)+((Xi*xr)+((2*(Xr*Xi))+(xr*xi))))))))+((-2)*(sin(((Xr*xr)+(((-1)*(Xi*xi))+(((xr*xr)/2)+((-1)*(xi*xi)/2)))))*(cos(((Xr*Xr)+((Xr*xr)+(((-1)*(Xi*Xi))+(((-1)*(Xi*xi))+(((xr*xr)/2)+((-1)*(xi*xi)/2)))))))*sinh(((2*(Xr*Xi))+((2*(Xr*xi))+((2*(Xi*xr))+(2*(xr*xi)))))))))));
+  </perturbation>
+  <derivative t="M">
+    dxan = (daa+(((-2)*(dxa*(Xxr*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+((2*(dxa*(Xxi*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+((2*(dya*(Xxr*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+(2*(dya*(Xxi*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))))));
+    dxbn = (dab+(((-2)*(dxb*(Xxr*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+((2*(dxb*(Xxi*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+((2*(dyb*(Xxr*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+(2*(dyb*(Xxi*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))))));
+    dyan = (dba+(((-2)*(dxa*(Xxr*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+(((-2)*(dxa*(Xxi*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+(((-2)*(dya*(Xxr*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+(2*(dya*(Xxi*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))))));
+    dybn = (dbb+(((-2)*(dxb*(Xxr*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))+(((-2)*(dxb*(Xxi*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+(((-2)*(dyb*(Xxr*(sin(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*cosh((2*(Xxr*Xxi)))))))+(2*(dyb*(Xxi*(cos(((Xxr*Xxr)+((-1)*(Xxi*Xxi))))*sinh((2*(Xxr*Xxi)))))))))));
+  </derivative>
+</formula>

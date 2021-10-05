@@ -1,0 +1,16 @@
+<formula type="75" name="Mandelbrot Variation 1" power="2" glitch="0.0001">
+  <reference t="R">
+    Xrn = Xr2 - (Xi * abs(Xi)) + Cr;
+    Xin = 2 * Xr * Xi + Ci;
+  </reference>
+  <perturbation t="R">
+    xrn = (((xr * (Xr + xr)) + (Xr * xr)) - (((xi * abs((Xi + xi))) + (Xi * diffabs(Xi, xi))))) + cr;
+    xin = 2 * ((Xr * xi) + (xr * Xi) + (xr * xi)) + ci;
+  </perturbation>
+  <derivative t="M">
+    dxan = (((-1) * (dya * (Xxi * sgn(Xxi))))+((2 * (dxa * Xxr)) + (1 + ((-1) * (abs(Xxi) * dya))))) + daa;
+    dxbn = (dab + (((-1) * (dyb *(Xxi * sgn(Xxi)))) + ((2 * (dxb * Xxr))+((-1) * (abs(Xxi) * dyb)))));
+    dyan = (dba + ((2 * (dxa * Xxi)) + (2 * (dya * Xxr))));
+    dybn = ((2 * (dxb * Xxi)) + (1 + (2 * (dyb * Xxr)))) + dbb;
+  </derivative>
+</formula>

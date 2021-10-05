@@ -1,0 +1,12 @@
+<formula type="91" name="Halley Nova Mandelbrot" power="3" glitch="0.0001">
+  <reference t="C">
+    Xn = ((X^4) + 2*(X^3))/(2*(X^3) + 6*(X^2) + 6*X + 3) + C;
+  </reference>
+  <perturbation t="C">
+    xn = ((((((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))+((0*(((X+x)*(X+x))*(X+x)))+(2*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x)))))*1/(((((2*(((X+x)*(X+x))*(X+x)))+(6*((X+x)*(X+x))))+(6*(X+x)))+3)))+((((X*X)*(X*X))+(2*((X*X)*X)))*(-((((((0*(((X+x)*(X+x))*(X+x)))+(2*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x))))+((0*((X+x)*(X+x)))+(6*((x*(X+x))+(X*x)))))+((0*(X+x))+(6*x)))+0))*1/((((((2*((X*X)*X))+(6*(X*X)))+(6*X))+3)*((((2*(((X+x)*(X+x))*(X+x)))+(6*((X+x)*(X+x))))+(6*(X+x)))+3))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * (2*(Xx^6) + 12*(Xx^5) + 30*(Xx^4) + 36*(Xx^3) + 18*(Xx^2))/(((2*(Xx^3) + 6*(Xx^2) + 6*Xx + 3)^2)) + d0;
+  </derivative>
+</formula>
+

@@ -1,0 +1,11 @@
+<formula type="90" name="Mandelbrot Variation 5" power="2" glitch="0.0001">
+  <reference t="C">
+    Xn = ((X + A * (1 / X)) * (X + A * (1 / X))) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (4 * (X ^ 3) * (x ^ 3) + (X ^ 2) * (x ^ 4) + (X ^ 4) * c + (5 * (X ^ 4) + (X ^ 2) * c - (A * A)) * (x ^ 2) + 2 * ((X ^ 5) + (X ^ 3) * c - X * (A * A)) * x)/((X ^ 4) + 2 * (X ^ 3) * x + (X ^ 2) * (x ^ 2));
+  </perturbation>
+  <derivative t="C">
+    dn = (2 * Xx - ((2 * (A*A)) / (Xx ^ 3))) * d + d0;
+  </derivative>
+</formula>

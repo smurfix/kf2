@@ -1,0 +1,16 @@
+<formula type="80" name="Cosbrot" power="2" glitch="0.0001">
+  <reference t="R">
+    Xrn = Cr + (cos(Xr) * cosh(Xi));
+    Xin = Ci - (sin(Xr) * sinh(Xi));
+  </reference>
+  <perturbation t="R">
+    xrn = (cr + (((-2) * (sin((Xr + (xr / 2))) * (sin((xr / 2)) * cosh((Xi + xi))))) + (2 * (cos(Xr) * (sinh((Xi + (xi / 2))) * sinh((xi / 2))))))); 
+    xin = (ci + (((-2) * (sin((xr / 2)) * (cos((Xr + (xr / 2))) * sinh((Xi + xi))))) + ((-2) * (sin(Xr) * (sinh((xi / 2)) * cosh((Xi + (xi / 2))))))));
+  </perturbation>
+  <derivative t="M">
+    dxan = (daa + (((-1) * (dxa * (sin(Xxr) * cosh(Xxi)))) + (dya * (cos(Xxr) * sinh(Xxi)))));
+    dxbn = (dab + (((-1) * (dxb * (sin(Xxr) * cosh(Xxi)))) + (dyb * (cos(Xxr) * sinh(Xxi)))));
+    dyan = (dba + (((-1) * (dxa * (cos(Xxr) * sinh(Xxi)))) + ((-1) * (dya * (sin(Xxr) * cosh(Xxi))))));
+    dybn = (dbb + (((-1) * (dxb * (cos(Xxr) * sinh(Xxi)))) + ((-1) * (dyb * (sin(Xxr) * cosh(Xxi))))));
+  </derivative>
+</formula>

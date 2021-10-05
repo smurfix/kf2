@@ -1,0 +1,11 @@
+<formula type="83" name="Talis" power="2" glitch="0.0001">
+  <reference t="C">
+    Xn = ((X ^ 2) / (1 + X)) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (((((x*(X+x))+(X*x))*1/((1+(X+x))))+((X*X)*(-((0+x))*1/(((1+X)*(1+(X+x)))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * ((2 * Xx + (Xx ^ 2)) / ((1 + Xx) * (1 + Xx))) + d0;
+  </derivative>
+</formula>

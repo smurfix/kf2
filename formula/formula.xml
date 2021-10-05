@@ -246,7 +246,61 @@
   <formula power="3" />
   <formula power="4" />
 </group>
-<group type="75" name="Nova" convergent="1">
+<group type="75" name="Mandelbrot Variation 1">
+  <formula power="2" />
+</group>
+<group type="76" name="Mandelbrot Variation 2">
   <formula power="3" />
+</group>
+<group type="77" name="Mandelbrot Variation 3">
+  <formula power="2" />
+</group>
+<group type="78" name="Mandelbrot Variation 4">
+  <formula power="2" />
+</group>
+<group type="79" name="Exponential Mandelbrot">
+  <formula power="2" />
+</group>
+<group type="80" name="Cosbrot">
+  <formula power="2" />
+  <formula power="4" />
+</group>
+<group type="81" name="Sinbrot">
+  <formula power="2" />
+</group>
+<group type="82" name="Cubic Celtic Quasi Perpendicular">
+  <formula power="3" />
+</group>
+<group type="83" name="Talis">
+  <formula power="2" />
+  <formula power="3" />
+  <formula power="4" />
+</group>
+<group type="84" name="Newton Nova Mandelbrot">
+  <formula power="3" />
+</group>
+<group type="85" name="Newton Mandelbrot">
+  <formula power="2" />
+</group>
+<group type="86" name="Simon 0139-C (plain)">
+  <formula power="4" />
+</group>
+<group type="87" name="Simon 0139-C (Burning Ship)">
+  <formula power="4" />
+</group>
+<group type="88" name="Simon 0139-C (Celtic)">
+  <formula power="4" />
+</group>
+<group type="89" name="Simon 0139-C (Buffalo)">
+  <formula power="4" />
+</group>
+<group type="90" name="Mandelbrot Variation 5">
+  <formula power="2" />
+</group>
+<group type="91" name="Halley Nova Mandelbrot">
+  <formula power="3" />
+</group>
+<group type="92" name="Nova" convergent="1">
+  <formula power="2" />
 </group>
 </formulas>

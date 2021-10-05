@@ -1,0 +1,11 @@
+<formula type="79" name="Exponential Mandelbrot" power="2" glitch="0.0001">
+  <reference t="C">
+    Xn = exp(X) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (((2 * sinh((x / 2))) * exp((((X + x) + X) / 2))) + c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * exp(Xx) + d0;
+  </derivative>
+</formula>

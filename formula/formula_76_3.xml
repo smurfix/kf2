@@ -1,0 +1,16 @@
+<formula type="76" name="Mandelbrot Variation 2" power="3" glitch="0.0001">
+  <reference t="R">
+    Xrn = Cr - (Xr2 - 3 * Xi2) * Xr;
+    Xin = Ci - abs(3 * Xr2 - Xi2) * Xi;
+  </reference>
+  <perturbation t="R">
+    xrn = cr - ((((((xr * (Xr + xr)) + (Xr * xr)) - (((0 * ((Xi + xi) * (Xi + xi))) + (3 * ((xi * (Xi + xi)) + (Xi * xi)))))) * (Xr + xr)) + (((Xr * Xr) - ((3 * (Xi * Xi)))) * xr)));
+    xin = ci - (((diffabs(((3 * (Xr * Xr)) - ((Xi * Xi))),(((0 * ((Xr + xr) * (Xr + xr))) + (3 * ((xr * (Xr + xr)) + (Xr * xr)))) - (((xi * (Xi + xi)) + (Xi * xi))))) * (Xi + xi)) + (abs(((3 * (Xr * Xr)) - ((Xi * Xi)))) * xi)));
+  </perturbation>
+  <derivative t="M">
+    dxan = ((3 * (dxa * (Xxi * Xxi))) + (((-3) * (dxa * (Xxr * Xxr))) + (1 + (6 * (dya * (Xxr * Xxi)))))) + daa;
+    dxbn = dab + ((3 * (dxb * (Xxi * Xxi))) + (((-3) * (dxb * (Xxr * Xxr))) + (6 * (dyb * (Xxr * Xxi)))));
+    dyan = dba + ((2 * (dya * (Xxi * (Xxi * sgn(((3 * (Xxi * Xxi)) + ((-1) * (Xxi * Xxi)))))))) + (((-6) * (dxa * (Xxr * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + ((-1) * (abs(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))) * dya))));
+    dybn = ((2 * (dyb * (Xxi * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + (((-6) * (dxb * (Xxr * (Xxi * sgn(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))))))) + (1 + ((-1) * (abs(((3 * (Xxr * Xxr)) + ((-1) * (Xxi * Xxi)))) * dyb))))) + dbb;
+  </derivative>
+</formula>
