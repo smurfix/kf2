@@ -30,7 +30,8 @@ void perturbation_double_loop
   const mantissa Ci = m_refy[0]; // FIXME
   const mantissa Ccr = Cr + cr;
   const mantissa Cci = Ci + ci;
-  const mantissa abs_c = sqrt(Ccr * Ccr + Cci * Cci);
+  const mantissa abs_c2 = Ccr * Ccr + Cci * Cci;
+  const mantissa abs_c = sqrt(abs_c2);
   mantissa tia_sum_old = 0;
   mantissa tia_sum = 0;
   long tia_count = 0;

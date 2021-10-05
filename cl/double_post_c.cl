@@ -3,12 +3,16 @@
     d = dn;
 #ifdef TRIANGLE_INEQUALITY_AVERAGE
     {
-      const mantissa abs_z = sqrt(Xxr2 + Xxi2);
+      const mantissa abs_z2 = Xxr2 + Xxi2;
+      const mantissa abs_z = sqrt(abs_z2);
       const mantissa zsubcr = Xxr - Ccr;
       const mantissa zsubci = Xxi - Cci;
-      const mantissa abs_z_sub_c = sqrt(zsubcr * zsubcr + zsubci * zsubci);
-      const mantissa abs_z_sub_c_sub_abs_c = fabs(abs_z_sub_c - abs_c);
-      const mantissa abs_z_sub_c_add_abs_c = abs_z_sub_c + abs_c;
+      const mantissa abs_zsubc2 = zsubcr * zsubcr + zsubci * zsubci;
+      const mantissa abs_zsubc = sqrt(abs_zsubc2);
+      const mantissa abs_z_sub_c_sub_abs_c_num = abs_z2 - 2 * Ccr * Xxr - 2 * Cci * Xxi;
+      const mantissa abs_z_sub_c_sub_abs_c_den = sqrt(abs_zsubc2 + abs_c2) + abs_c;
+      const mantissa abs_z_sub_c_sub_abs_c = fabs(abs_z_sub_c_sub_abs_c_num / abs_z_sub_c_sub_abs_c_den);
+      const mantissa abs_z_sub_c_add_abs_c = abs_zsubc + abs_c;
       const mantissa tia_inc = (abs_z - abs_z_sub_c_sub_abs_c) / (abs_z_sub_c_add_abs_c - abs_z_sub_c_sub_abs_c);
       if (antal != 0 && antal != g->nMaxIter - 1 && ! isnan(tia_inc) && ! isinf(tia_inc))
       {

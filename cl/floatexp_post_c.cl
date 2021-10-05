@@ -3,19 +3,21 @@
     d = dn;
 #ifdef TRIANGLE_INEQUALITY_AVERAGE
     {
-      const mantissa Xxrd = fe_double(Xxr);
-      const mantissa Xxid = fe_double(Xxi);
-      const mantissa abs_z = sqrt(Xxrd * Xxrd + Xxid * Xxid);
-      const mantissa zsubcr = Xxrd - Ccr;
-      const mantissa zsubci = Xxid - Cci;
-      const mantissa abs_z_sub_c = sqrt(zsubcr * zsubcr + zsubci * zsubci);
-      const mantissa abs_z_sub_c_sub_abs_c = fabs(abs_z_sub_c - abs_c);
-      const mantissa abs_z_sub_c_add_abs_c = abs_z_sub_c + abs_c;
-      const mantissa tia_inc = (abs_z - abs_z_sub_c_sub_abs_c) / (abs_z_sub_c_add_abs_c - abs_z_sub_c_sub_abs_c);
-      if (antal != 0 && antal != g->nMaxIter - 1 && ! isnan(tia_inc) && ! isinf(tia_inc))
+      const floatexp abs_z2 = fe_add(fe_sqr(Xxr), fe_sqr(Xxi));
+      const floatexp abs_z = fe_sqrt(abs_z2);
+      const mantissa zsubcr = fe_double(Xxr) - Ccr;
+      const mantissa zsubci = fe_double(Xxi) - Cci;
+      const mantissa abs_zsubc2 = zsubcr * zsubcr + zsubci * zsubci;
+      const mantissa abs_zsubc = sqrt(abs_zsubc2);
+      const floatexp abs_z_sub_c_sub_abs_c_num = fe_sub(fe_sub(abs_z2, fe_muld(Xxr, 2 * Ccr)), fe_muld(Xxi, 2 * Cci));
+      const mantissa abs_z_sub_c_sub_abs_c_den = sqrt(abs_zsubc2 + abs_c2) + abs_c;
+      const floatexp abs_z_sub_c_sub_abs_c = fe_abs(fe_divd(abs_z_sub_c_sub_abs_c_num, abs_z_sub_c_sub_abs_c_den));
+      const mantissa abs_z_sub_c_add_abs_c = abs_zsubc + abs_c;
+      const floatexp tia_inc = fe_div(fe_sub(abs_z, abs_z_sub_c_sub_abs_c), fe_dsub(abs_z_sub_c_add_abs_c, abs_z_sub_c_sub_abs_c));
+      if (antal != 0 && antal != g->nMaxIter - 1 && ! isnan(tia_inc.val) && ! isinf(tia_inc.val))
       {
         tia_sum_old = tia_sum;
-        tia_sum += tia_inc;
+        tia_sum = fe_add(tia_sum, tia_inc);
         tia_count += 1;
       }
     }

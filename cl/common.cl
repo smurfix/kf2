@@ -248,6 +248,11 @@ floatexp fe_div_2si(const floatexp a, const exponent b)
   return fe;
 }
 
+floatexp fe_divd(const floatexp a, const mantissa b)
+{
+  return fe_floatexp(a.val / b, a.exp);
+}
+
 floatexp fe_add(const floatexp a, const floatexp b)
 {
   if (a.exp > b.exp)
@@ -268,6 +273,11 @@ floatexp fe_sub(const floatexp a, const floatexp b)
 }
 
 floatexp fe_isub(const int a, const floatexp b)
+{
+  return fe_add(fe_floatexp(a, 0), fe_neg(b));
+}
+
+floatexp fe_dsub(const mantissa a, const floatexp b)
 {
   return fe_add(fe_floatexp(a, 0), fe_neg(b));
 }

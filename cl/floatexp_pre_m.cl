@@ -39,9 +39,10 @@ void perturbation_floatexp_loop
   const mantissa Ci = fe_double(m_refy[0]); // FIXME
   const mantissa Ccr = Cr + fe_double(cr);
   const mantissa Cci = Ci + fe_double(ci);
-  const mantissa abs_c = sqrt(Ccr * Ccr + Cci * Cci);
-  mantissa tia_sum_old = 0;
-  mantissa tia_sum = 0;
+  const mantissa abs_c2 = Ccr * Ccr + Cci * Cci;
+  const mantissa abs_c = sqrt(abs_c2);
+  floatexp tia_sum_old = fe_floatexp(0, 0);
+  floatexp tia_sum = fe_floatexp(0, 0);
   long tia_count = 0;
 #endif
   for (; antal < g->nMaxIter; antal++)
