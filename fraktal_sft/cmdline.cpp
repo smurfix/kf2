@@ -293,6 +293,6 @@ const std::string usage =
 "    -h, -H, -?, --help              show this help\n"
 ;
 
-const std::string version = "2.15.4+git1";
-const int kfr_version_number = 2150401;
-const int kfs_version_number = 2150401;
+const std::string version = "2.15.4+git2";
+const int kfr_version_number = 2150402;
+const int kfs_version_number = 2150402;
