@@ -1,0 +1,11 @@
+<formula type="84" name="Nova" power="3" glitch="0.0001">
+  <reference t="C">
+    Xn = X - A * ((X ^ 3) - 1) / (3 * (X ^ 2)) + C;
+  </reference>
+  <perturbation t="C">
+    xn = x * (1 - A / 3 * (1 + (2 * X + x) / ((X ^ 2) * Xx))) + c;
+  </perturbation>
+  <derivative t="C">
+    dn = d * (1 - A / 3 * (1 + 2 / (Xx ^ 3))) + d0;
+  </derivative>
+</formula>
