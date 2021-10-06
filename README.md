@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-10-05
+date: 2021-10-06
 ...
 
 # Kalles Fraktaler 2 +
@@ -3253,9 +3253,68 @@ Makes the transitions of colors smooth
 
 Inverse the smooth color transition which makes edges more visible
 
-### Unnamed dropdown box
+### Transfer function dropdown
 
 Specifies handling of the iteration count values prior to coloring
+
+#### Standard
+
+Linear.
+
+#### Square root
+
+#### Cubic root
+
+#### Logarithm
+
+#### Stretched
+
+Stretches the palette linearly between minimum and maximum iterations
+achieved in the image.
+
+#### Distance (Linear)
+
+Distance estimation with linear transfer function.
+
+#### DE + Standard
+
+Combines DE with linear.
+
+#### Distance (Logarithm)
+
+#### Distance (Square Root)
+
+#### LogLog
+
+#### ATan
+
+#### Fourth root
+
+### Distance estimation dropdown
+
+Choose which algorithm to use when calculating distance estimates via
+numerical differencing of smooth iteration count.
+
+#### Traditional
+
+#### Forward 3x3
+
+#### Central 3x3
+
+#### Diagonal 2x2
+
+aka Roberts Cross
+
+#### Least Squares 2x2
+
+#### Least Squares 3x3
+
+#### Laplacian 3x3
+
+#### Analytic
+
+Use derivatives to calculate distance estimation; derivative calculation
+must be enabled in the Formula dialog.
 
 ### Palette waves
 
@@ -3756,6 +3815,11 @@ Notation:
     ^            -- raise an expression to a positive integer power
     |.|          -- surrounding a real-valued expression: absolute value
 
+A machine-readable version of this formula list is found in the 'et'
+repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>
+This is used by 'et' when generating formula code (for Newton-Raphson
+zooming, etc).
+
 Formulas:
 
 ### Mandelbrot
@@ -4073,20 +4137,86 @@ Formulas:
 
     z := z^p (exp((d/2) log(x^2 + y^2))) + c
 
+### Mandelbrot Variation 1
+
+    z := ((x^2 - y |y|) + i (2 x y)) + c
+
+### Mandelbrot Variation 2
+
+    z := ((-(x^2 - 3 y^2) x) + i (- |3 x^2 - y^2| y)) + c
+
+### Mandelbrot Variation 3
+
+    z := ((x^2 - y^2 (3 + 4 y)) + i (2 x y)) + c
+
+### Mandelbrot Variation 4
+
+    z :=  ((x^2 - y |y|) + i (2 x |y|)) + c
+
+### Exponential Mandelbrot
+
+    z := exp(z) + c
+
+### Cosbrot
+
+    z := cos(z) + c
+
+### Sinbrot
+
+    z := sin(z) + c
+
+### Cubic Celtic Quasi Perpendicular
+
+    z := (|x (x^2 - 3 y^2)| - i (y |3x^2 - y^2|)) + c
+
+### Talis
+
+    z := z^p / (1 + z^(p-1)) + c
+
+### Newton Nova Mandelbrot
+
+    z := (2 z^3 + 3 z^2) / (3 (x + 1)^2) + c
+
+### Newton Mandelbrot
+
+    z := z^4 / (4 (z + 1)^2) + z^2 / (z + 1) + c;
+
+### Simon 0139-C (plain)
+
+    w := (x |x| - y |y| - x) + i (y |x| + x |y| - y)
+    z := w^2 + c
+
+### Simon 0139-C (Burning Ship)
+
+    w := |(x |x| - y |y| - x)| + i |(y |x| + x |y| - y)|
+    z := w^2 + c
+
+### Simon 0139-C (Celtic)
+
+    w := (x |x| - y |y| - x) + i (y |x| + x |y| - y)
+    z := (|u^2 - v^2| + i (2 u v)) + c
+
+### Simon 0139-C (Buffalo)
+
+    w := (x |x| - y |y| - x) + i (y |x| + x |y| - y)
+    z := (|u^2 - v^2| + i |2 u v|) + c
+
+### Mandelbrot Variation 5
+
+    z := (z + f / x)^2 + c
+
+### Halley Nova Mandelbrot
+
+    z := (z^4 + 2 z^3) / (2 z^3 + 6 z^2 + 6 z + 3) + c
+
 ### Nova
 
     z := (2 z^3 / 3 - 2 z - 1) / (z + 1)^2 + c + 1
 
-This is affine-conjugated to move critical point from 1 to 0, from the
+Nova is affine-conjugated to move critical point from 1 to 0, from the
 usual form:
 
     z := z - (z^3 - 1) / (3 z^2) + c
-
-
-A machine-readable version of this formula list is found in the 'et'
-repository: <https://code.mathr.co.uk/et/blob/kf-2.15:/kf/formulas.et>
-This is used by 'et' when generating formula code (for Newton-Raphson
-zooming, etc).
 
 
 ## Command Line Usage
