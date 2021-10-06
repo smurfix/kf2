@@ -263,7 +263,6 @@
 </group>
 <group type="80" name="Cosbrot">
   <formula power="2" />
-  <formula power="4" />
 </group>
 <group type="81" name="Sinbrot">
   <formula power="2" />
