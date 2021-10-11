@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-10-06
+date: 2021-10-11
 ...
 
 # Kalles Fraktaler 2 +
@@ -200,7 +200,11 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
+- control-click to zoom does not result in framed rectangle being viewed
+  (reported by CFJH)
 - the text of NR zoom log goes out of the window (reported by Uma410)
+- changing number of approximation terms can crash sometimes
+  (reported by CFJH)
 
 
 ## Differences From Original 2.11.1
