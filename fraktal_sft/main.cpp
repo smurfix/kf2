@@ -2955,7 +2955,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else
 			{
 				g_SFT.UndoStore();
-				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetZoomSize()==1);
+				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetZoomSize()==1, true, true);
 			}
 			SetTimer(hWnd,0,500,NULL);
 		}

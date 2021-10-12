@@ -503,7 +503,7 @@ public:
 	void Stop(BOOL bNoPostWhenDone = FALSE);
 	int CountFrames(int nProcent);
 	void Zoom(double nZoomSize);
-	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true);
+	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 	double GetProgress(double *reference = nullptr, double *approximation = nullptr, double *good_guessed = nullptr, double *good = nullptr, double *queued = nullptr, double *bad = nullptr, double *bad_guessed = nullptr);
 	void ResetTimers();

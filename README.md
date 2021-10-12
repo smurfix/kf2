@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-10-11
+date: 2021-10-12
 ...
 
 # Kalles Fraktaler 2 +
@@ -200,8 +200,6 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
-- control-click to zoom does not result in framed rectangle being viewed
-  (reported by CFJH)
 - the text of NR zoom log goes out of the window (reported by Uma410)
 - changing number of approximation terms can crash sometimes
   (reported by CFJH)
@@ -372,6 +370,8 @@ earlier).
     results
   - fix: Newton zooming functions are correctly linked into the EXE
     (only kf-2.15.4 was broken)
+  - fix: control-click to zoom correctly views framed rectangle
+    (thanks CFJH)
   - fix: typo bug in general power Mandelbrot series approximation
     (thanks superheal)
   - fix: some typo bugs in CFixedFloat operators (maybe did not affect

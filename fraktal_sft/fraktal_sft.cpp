@@ -2090,7 +2090,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
 }
 
-void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender)
+void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender, bool center_view)
 {
 	Stop(TRUE);
 
@@ -2207,7 +2207,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		CFixedFloat radius = m_ZoomRadius / nZoomSize;
 		Precision p(digits10);
 		double g = nZoomSize;
-		if (g == 1)
+		if (g == 1 || center_view)
 		{
 		  g = 1.0 / 0.0;
 		}
