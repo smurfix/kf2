@@ -495,6 +495,11 @@ inline complex<R> hybrid_pf_scaled(const hybrid_line &h, const complex<R> &Z, co
     case hybrid_combine_add: return hybrid_pf_scaled(h.one, Z, z, s) + hybrid_pf_scaled(h.two, Z, z, s);
     case hybrid_combine_sub: return hybrid_pf_scaled(h.one, Z, z, s) - hybrid_pf_scaled(h.two, Z, z, s);
     case hybrid_combine_mul: return hybrid_pf_scaled(h.one, Z, z, s) * hybrid_f(h.two, Z + z * s) + hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_div:
+    {
+      complex<R> B = hybrid_f(h.two, Z);
+      return (hybrid_pf_scaled(h.one, Z, z, s) * B - hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s)) / (B * hybrid_f(h.two, Z + z * s));
+    }
   }
   return complex<R>();
 }
@@ -507,6 +512,11 @@ inline complex<dual<2,R>> hybrid_pf_scaled(const hybrid_line &h, const complex<R
     case hybrid_combine_add: return hybrid_pf_scaled(h.one, Z, z, s) + hybrid_pf_scaled(h.two, Z, z, s);
     case hybrid_combine_sub: return hybrid_pf_scaled(h.one, Z, z, s) - hybrid_pf_scaled(h.two, Z, z, s);
     case hybrid_combine_mul: return hybrid_pf_scaled(h.one, Z, z, s) * hybrid_f(h.two, Z + z * s) + hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s);
+    case hybrid_combine_div:
+    {
+      complex<R> B = hybrid_f(h.two, Z);
+      return (hybrid_pf_scaled(h.one, Z, z, s) * B - hybrid_f(h.one, Z) * hybrid_pf_scaled(h.two, Z, z, s)) / (B * hybrid_f(h.two, Z + z * s));
+    }
   }
   return complex<dual<2,R>>();
 }
@@ -553,6 +563,8 @@ static inline int hybrid_power_inf(const hybrid_line &h)
       return std::max(hybrid_power_inf(h.one), hybrid_power_inf(h.two));
     case hybrid_combine_mul:
       return hybrid_power_inf(h.one) + hybrid_power_inf(h.two);
+    case hybrid_combine_div:
+      return hybrid_power_inf(h.one) - hybrid_power_inf(h.two);
   }
   return 1;
 }
