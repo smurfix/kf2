@@ -203,6 +203,7 @@ Feedback:
 - the text of NR zoom log goes out of the window (reported by Uma410)
 - changing number of approximation terms can crash sometimes
   (reported by CFJH)
+- regression in Linear smoothing (Bailout dialog) since kf-2.15.4
 
 
 ## Differences From Original 2.11.1
