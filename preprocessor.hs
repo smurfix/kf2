@@ -78,6 +78,7 @@ data Instruction
   | ISinh String String
   | ICosh String String
   | ISqrt String String
+  | IIfTE String String String String
   deriving Show
 
 temporaries = [ "t" ++ show i | i <- [0..] ]
@@ -120,6 +121,8 @@ instruction (ISinh a b) = tell (["mpfr_sinh(", a, ",", b, ",MPFR_RNDN);\n"], [a,
 instruction (ICosh a b) = tell (["mpfr_cosh(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ISqrt a b) = tell (["mpfr_sqrt(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
 instruction (ILog1p a b) = tell (["mpfr_log1p(", a, ",", b, ",MPFR_RNDN);\n"], [a, b])
+
+instruction (IIfTE d c a b) = tell (["mpfr_set(", d, ",", c, "?", a, ":", b, ", MPFR_RNDN);\n"], [a, b, d])
 
 compile (EAssign (EVar v) a) = do
   u <- compile a
@@ -303,6 +306,31 @@ compile (ELog1p a) = do
   instruction (ILog1p v u)
   deallocate u
   return v
+
+compile (EIf c (ETE a b)) = do
+  u <- compile a
+  v <- compile b
+  w <- compile c
+  x <- allocate
+  instruction (IIfTE x w u v)
+  deallocate u
+  deallocate v
+  deallocate w
+  return x
+
+compile (EGt a (EInt 0)) = do
+  u <- compile a
+  tell ([], [u])
+  return $ "(mpfr_sgn(" ++ u ++ ") > 0)"
+
+compile (ELt a (EInt 0)) = do
+  u <- compile a
+  tell ([], [u])
+  return $ "(mpfr_sgn(" ++ u ++ ") < 0)"
+
+compile (EDiffAbs c d) = compile (EIf (ELt c (EInt 0)) (ETE
+    (EIf (EGt (EAdd c d) (EInt 0)) (ETE       (EAdd (EMul (EInt 2) c) d)  (ENeg d)))
+    (EIf (ELt (EAdd c d) (EInt 0)) (ETE (ENeg (EAdd (EMul (EInt 2) c) d))       d))))
 
 compile x = error $ "compile (" ++ show x ++ ")"
 
