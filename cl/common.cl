@@ -132,6 +132,18 @@ mantissa d_sinh(const mantissa a)
   return sinh(a);
 }
 
+mantissa d_special_93_2(const mantissa XC, const mantissa Xr, const mantissa Xxr, const mantissa xr)
+{
+  if (Xr > -7.0/4.0)
+  {
+    return Xxr > -7.0/4.0 ? 2.0 * Xr + xr : -7.0/2.0 - xr;
+  }
+  else
+  {
+    return Xxr > -7.0/4.0 ? xr - 7.0/2.0 : -XC - xr;
+  }
+}
+
 typedef struct __attribute__((packed))
 {
   mantissa val;
@@ -330,6 +342,12 @@ bool fe_lt(const floatexp a, const floatexp b)
   return fe_cmp(a, b) < 0;
 }
 
+bool fe_gt(const floatexp a, const floatexp b)
+{
+  if (isnan(a.val) || isnan(b.val)) return false;
+  return fe_cmp(a, b) > 0;
+}
+
 floatexp fe_diffabs(const floatexp c, const floatexp d)
 {
   int s = d_cmp(c.val, 0.0);
@@ -429,6 +447,20 @@ floatexp fe_log1p(const floatexp a)
 floatexp fe_sinh(const floatexp a)
 {
   return fe_div(fe_expm1(fe_mul_2si(a, 1)), fe_mul_2si(fe_exp(a), 1)); // FIXME optimized for a near 0
+}
+
+floatexp fe_special_93_2(const floatexp XC, const floatexp Xr, const floatexp Xxr, const floatexp xr)
+{
+  const floatexp n74 = fe_floatexp(-7.0/4.0, 0);
+  const floatexp n72 = fe_floatexp(-7.0/2.0, 0);
+  if (fe_gt(Xr, n74))
+  {
+    return fe_gt(Xxr, n74) ? fe_add(fe_mul_2si(Xr, 1), xr) : fe_sub(n72, xr);
+  }
+  else
+  {
+    return fe_gt(Xxr, n74) ? fe_add(n72, xr) : fe_neg(fe_add(XC, xr));
+  }
 }
 
 
