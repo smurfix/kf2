@@ -302,4 +302,7 @@
 <group type="92" name="Nova" convergent="1">
   <formula power="2" />
 </group>
+<group type="93" name="Separated Perpendicular">
+  <formula power="2" />
+</group>
 </formulas>

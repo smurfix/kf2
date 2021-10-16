@@ -1,0 +1,22 @@
+<formula type="93" name="Separated Perpendicular" power="2" glitch="0.0001">
+  <reference t="R">
+    Xrn = sqr(diffabs(7/4, Xr)) - Xi2 + Cr - 77/16;
+    Xin = 2 * XB * Xi + Ci;
+  </reference>
+  <references t="R" name="XA" update="XAn" value="1.75">
+    XAn = Xrn + 7/4;
+  </references>
+  <references t="R" name="XB" update="XBn" value="0">
+    XBn = 0-diffabs(7/4, Xrn);
+  </references>
+  <references t="R" name="XC" update="XCn" value="7">
+    XCn = 7 + 2 * Xrn;
+  </references>
+  <perturbation t="R">
+    xrn = cr + diffabs(XA, xr) * special_93_2(XC, Xr, Xxr, xr) - (2 * Xi + xi) * xi;
+    xin = ci + 2 * (XB * xi - Xxi * diffabs(XA, xr));
+  </perturbation>
+  <derivative t="M">
+  </derivative>
+</formula>
+

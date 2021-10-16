@@ -50,6 +50,7 @@ data Expr
   | ECosh Expr
   | ESqrt Expr
   | EDiffAbs Expr Expr
+  | ESpecial_93_2 Expr Expr Expr Expr
   | EAssign Expr Expr
   | EIf Expr Expr
   | ETE Expr Expr
@@ -367,6 +368,7 @@ vars (ESqrt a) = vars a
 vars (ELog a) = vars a
 vars (ELog1p a) = vars a
 vars (EDiffAbs a b) = vars a ++ vars b
+vars (ESpecial_93_2 a b c d) = vars a ++ vars b ++ vars c ++ vars d
 vars (EAssign a b) = vars a ++ vars b
 vars (EIf a b) = vars a ++ vars b
 vars (ETE a b) = vars a ++ vars b
@@ -408,6 +410,7 @@ interpret t@"" (ESinh a) = "sinh(" ++ interpret t a ++ ")"
 interpret t@"" (ECosh a) = "cosh(" ++ interpret t a ++ ")"
 interpret t@"" (ESqrt a) = "sqrt(" ++ interpret t a ++ ")"
 interpret t@"" (EDiffAbs a b) = "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t@"" (ESpecial_93_2 a b c d) = "special_93_2(" ++ interpret t a ++ "," ++ interpret t b ++ "," ++ interpret t c ++ "," ++ interpret t d ++ ")"
 interpret t@"" (EAssign (EVar v@('t':'_':_)) a) = "const auto " ++ v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EAssign (EVar v) a) = v ++ "=" ++ interpret t a ++ ";"
 interpret t@"" (EIf a (ETE b c)) = "(" ++ interpret t a ++ "?" ++ interpret t b ++ ":" ++ interpret t c ++ ")"
@@ -446,6 +449,7 @@ interpret t (ESinh a) = t ++ "sinh(" ++ interpret t a ++ ")"
 interpret t (ECosh a) = t ++ "cosh(" ++ interpret t a ++ ")"
 interpret t (ESqrt a) = t ++ "cosh(" ++ interpret t a ++ ")"
 interpret t (EDiffAbs a b) = t ++ "diffabs(" ++ interpret t a ++ "," ++ interpret t b ++ ")"
+interpret t (ESpecial_93_2 a b c d) = t ++ "special_93_2(" ++ interpret t a ++ "," ++ interpret t b ++ "," ++ interpret t c ++ "," ++ interpret t d ++ ")"
 interpret t (EAssign (EVar v@('t':'_':_)) a) = (case t of
   ""     -> "const auto "
   "d_"   -> "const double "
@@ -510,7 +514,7 @@ def = emptyDef{ identStart = letter
               , opStart = oneOf ops
               , opLetter = oneOf ops
               , reservedOpNames = map (:[]) ops
-              , reservedNames = ["exp", "log", "log1p", "sin", "cos", "sinh", "cosh", "sqrt", "sqr", "sgn", "abs", "diffabs"]
+              , reservedNames = ["exp", "log", "log1p", "sin", "cos", "sinh", "cosh", "sqrt", "sqr", "sgn", "abs", "diffabs", "special_93_2"]
               }
   where ops = "=?:<>+-*^"
 
@@ -549,6 +553,7 @@ term = m_parens exprparser
        <|> (m_reserved "sgn" >> ESgn <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "abs" >> EAbs <$ string "(" <*> exprparser <* string ")")
        <|> (m_reserved "diffabs" >> EDiffAbs <$ string "(" <*> exprparser <* string "," <*> exprparser <* string ")")
+       <|> (m_reserved "special_93_2" >> ESpecial_93_2 <$ string "(" <*> exprparser <* string "," <*> exprparser <* string "," <*> exprparser <* string "," <*> exprparser <* string ")")
 
 data CL
   = Context String

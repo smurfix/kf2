@@ -149,6 +149,32 @@ static inline tfloatexp<double,int64_t> sgn(const tfloatexp<double,int64_t> &a)
   return (a.val > 0) - (a.val < 0);
 }
 
+template<typename T>
+static inline T special_93_2(const T &XC, const T &Xr, const T &Xxr, const T &xr) noexcept
+{
+  if (Xr > T(-7.0/4.0))
+  {
+    return Xxr > T(-7.0/4.0) ? T(2.0) * Xr + xr : T(-7.0/2.0) - xr;
+  }
+  else
+  {
+    return Xxr > T(-7.0/4.0) ? xr - T(7.0/2.0) : -XC - xr;
+  }
+}
+
+template<typename T, typename V>
+static inline V special_93_2(const T &XC, const T &Xr, const V &Xxr, const V &xr) noexcept
+{
+  if (Xr > T(-7.0/4.0))
+  {
+    return Xxr.v > T(-7.0/4.0) ? (T(2.0 * Xr) + xr).v : (T(-7.0/2.0) - xr).v;
+  }
+  else
+  {
+    return Xxr.v > T(-7.0/4.0) ? (xr - T(7.0/2.0)).v : (-XC - xr).v;
+  }
+}
+
 // reference
 
 bool reference
