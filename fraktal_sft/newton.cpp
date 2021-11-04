@@ -114,7 +114,7 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 		int limit = progress->counters[0];
 		int iter = progress->counters[1];
 		char status[100];
-		snprintf(status, 100, "Period %d (%d%%) (%ds)\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
+		snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
 		s_period = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -133,7 +133,7 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 		int period = progress->counters[2];
 		int iter = progress->counters[3];
 		char status[100];
-		snprintf(status, 100, "Center %d/%d (%d%%) (%s) (%ds)\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
+		snprintf(status, 100, "Center %d/%d (%d%%) (%s) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
 		s_center = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -150,7 +150,7 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 		int period = progress->counters[0];
 		int iter = progress->counters[1];
 		char status[100];
-		snprintf(status, 100, "Size %d%% (%ds)\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
+		snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
 		s_size = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -746,7 +746,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	  uprec *= 2;
 	  progress.elapsed_time = get_wall_time() - progress.start_time;
 	  char status[100];
-	  snprintf(status, 100, "Period %d (%d%%) (%ds)\n", (int) g_period, (int) (g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
+	  snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", (int) g_period, (int) (g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
 	  s_period = status;
 	  SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -804,7 +804,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			int period = progress.counters[2];
 			int iter = progress.counters[3];
 			char status[100];
-			snprintf(status, 100, "Center %d/%d (%d%%) (%ds)\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), (int) progress.elapsed_time);
+			snprintf(status, 100, "Center %d/%d (%d%%) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 			s_center = status;
 			SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 		}
@@ -877,7 +877,7 @@ static int WINAPI ThNewton(HWND hWnd)
 					int period = progress.counters[0];
 					int iter = progress.counters[1];
 					char status[100];
-					snprintf(status, 100, "Size %d%% (%ds)\n", (int) (iter * 100.0 / period), (int) progress.elapsed_time);
+					snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 					s_size = status;
 					SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 				}
