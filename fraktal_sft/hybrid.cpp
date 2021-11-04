@@ -1418,6 +1418,11 @@ std::string hybrid_f_opencl_double(const hybrid_line &h, const std::string &ret,
       o << "  " << ret << " = dc_mul(fone, ftwo);\n";
       break;
     }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dc_div(fone, ftwo);\n";
+      break;
+    }
   }
   o << "}\n";
   return o.str();
