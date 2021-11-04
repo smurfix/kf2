@@ -17,6 +17,14 @@
     xin = ci + 2 * (XB * xi - Xxi * diffabs(XA, xr));
   </perturbation>
   <derivative t="M">
+    t_0 = sgn(7/4 + Xxr);
+    t_1 = 2 * (7/4 + Xxr) - 7/2 * t_0;
+    t_2 = (0-2) * t_0 * Xxi;
+    t_3 = 2 * diffabs(7/4, Xxr);
+    dxan = t_1 * dxa - 2 * Xxi * dya + daa;
+    dxbn = t_1 * dxb - 2 * Xxi * dyb + dab;
+    dyan = t_2 * dxa - t_3 * dya + dba;
+    dybn = t_2 * dxb - t_3 * dyb + dbb;
   </derivative>
 </formula>
 
