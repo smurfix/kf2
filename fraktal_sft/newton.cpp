@@ -753,7 +753,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	Precision prec2(uprec);
 
 	int bOK = 1;
-	if (g_period && ! g_bNewtonStop && g_nr_action >= 1)
+	if (g_period > 0 && ! g_bNewtonStop && g_nr_action >= 1)
 	{
 		// fork progress updater
 		progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL), get_wall_time(), 0 };
@@ -918,6 +918,10 @@ static int WINAPI ThNewton(HWND hWnd)
 		{
 			bOK = -1;
 		}
+	}
+	else
+	{
+		bOK = -1;
 	}
 	g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
@@ -1145,7 +1149,10 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if (g_nr_action >= 2)
 			{
 				g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
-				g_SFT.SetIterations(g_iterations);
+				if (g_iterations)
+				{
+					g_SFT.SetIterations(g_iterations);
+				}
 				char s[256];
 				GetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, s, sizeof(s));
 				if (std::string(s) != "")
