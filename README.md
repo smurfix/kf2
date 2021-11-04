@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-10-12
+date: 2021-11-04
 ...
 
 # Kalles Fraktaler 2 +
@@ -365,6 +365,9 @@ earlier).
   - new: hybrid formulas support division operator (thanks FractalAlex)
   - new: Nova formula; variant implemented with critical point at 0
     instead of 1, to avoid precision loss when deep zooming
+  - new: Separated Perpendicular formula; variant implemented with
+    critical point at 0, and custom function to avoid precision loss
+    when deep zooming (thanks Mr Rebooted)
   - new: Triangle Inequality Average colouring algorithm can be enabled
     in Formula dialog; requires OpenCL; replaces final angle in phase
     (T) channel data; disable Series Approximation for predictable
