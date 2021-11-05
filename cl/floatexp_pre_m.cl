@@ -32,6 +32,7 @@ void perturbation_floatexp_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  long rantal = antal;
   floatexp Xxr = zero;
   floatexp Xxi = zero;
 #ifdef TRIANGLE_INEQUALITY_AVERAGE
@@ -45,31 +46,65 @@ void perturbation_floatexp_loop
   floatexp tia_sum = fe_floatexp(0, 0);
   long tia_count = 0;
 #endif
-  for (; antal < g->nMaxIter; antal++)
+  for (; antal < g->nMaxIter && rantal < g->reference_size_x; antal++)
   {
-    const floatexp Xr = m_refx[antal - g->nMinIter];
-    const floatexp Xi = m_refy[antal - g->nMinIter];
-    const floatexp Xz = m_refz[antal - g->nMinIter];
+    floatexp Xr = m_refx[rantal];
+    floatexp Xi = m_refy[rantal];
+    floatexp Xz = m_refz[rantal];
+    rantal++;
     Xxr = fe_add(Xr, xr);
     Xxi = fe_add(Xi, xi);
-    const floatexp Xxr2 = fe_sqr(Xxr);
-    const floatexp Xxi2 = fe_sqr(Xxi);
+    floatexp Xxr2 = fe_sqr(Xxr);
+    floatexp Xxi2 = fe_sqr(Xxi);
     test2 = test1;
-    const floatexp ftest1 = fe_add(Xxr2, Xxi2);
-    test1 = fe_double(ftest1);
-    if (fe_lt(ftest1, Xz))
+    floatexp ttest1 = fe_add(Xxr2, Xxi2);
+    test1 = fe_double(ttest1);
+    if (g->singleref)
     {
-      l->bGlitch = true;
-      if (! l->bNoGlitchDetection)
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+      }
+      if (test1 > g->m_nBailout2)
+      {
         break;
+      }
+      if (fe_lt(ttest1, fe_add(fe_sqr(xr), fe_sqr(xi))) || rantal == g->reference_size_x)
+      {
+        xr = Xxr;
+        xi = Xxi;
+        rantal = 0;
+        Xr = zero;
+        Xi = zero;
+        Xz = zero;
+        Xxr = fe_add(Xr, xr);
+        Xxi = fe_add(Xi, xi);
+        Xxr2 = fe_sqr(Xxr);
+        Xxi2 = fe_sqr(Xxi);
+        ttest1 = fe_add(Xxr2, Xxi2);
+        test1 = fe_double(ttest1);
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+        }
+      }
     }
-    if (! no_g)
+    else
     {
-      test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
-    }
-    if (test1 > g->m_nBailout2)
-    {
-      break;
+      if (fe_lt(ttest1, Xz))
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+          break;
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        break;
+      }
     }
     floatexp xrn, xin, dxan, dxbn, dyan, dybn;
 // continued...

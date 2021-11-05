@@ -59,7 +59,7 @@ struct p_config
   cl_long m_nMaxIter;
   cl_long m_nRSize;
   cl_long nMaxIter;
-  cl_long nMinIter;
+  cl_long reference_size_x;
   cl_short m_bNoGlitchDetection;
   cl_short derivatives;
   cl_short m_bAddReference;
@@ -80,7 +80,8 @@ struct p_config
   cl_int g_nAddRefX;
   cl_int g_nAddRefY;
   // for glitch selection
-  cl_int glitch_select_argminz;
+  cl_short singleref;
+  cl_short glitch_select_argminz;
   // for ignore isolated glitches
   cl_int ignore_isolated_neighbourhood; // 4 or 8
   // for hybrid
@@ -222,7 +223,7 @@ public:
     mantissa log_m_nPower,
     int64_t m_nMaxIter,
     int64_t nMaxIter,
-    int64_t nMinIter,
+    int64_t reference_size_x,
     int16_t m_bNoGlitchDetection,
     int16_t m_bAddReference,
     int16_t m_nSmoothMethod,
@@ -610,7 +611,7 @@ public:
         m_nMaxIter,
         int64_t(rN_size),
         nMaxIter,
-        nMinIter,
+        reference_size_x,
         m_bNoGlitchDetection,
         derivatives,
         m_bAddReference,
@@ -628,6 +629,7 @@ public:
         0,
         g_nAddRefX,
         g_nAddRefY,
+        glitch_selection_method == 3,
         glitch_selection_method == 1,
         ignore_isolated_neighbourhood,
         (int16_t) hybrid.loop_start,
@@ -735,7 +737,7 @@ public:
       ignored = formula_executed;
     }
 
-    glitched = true;
+    glitched = glitch_selection_method != 3;
     if (glitch_selection_method != 0)
     {
       if (glitch_f_bytes != sizeof(cl_float) * m_nX)

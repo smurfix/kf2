@@ -2242,7 +2242,7 @@ typedef struct __attribute__((packed))
   long m_nMaxIter;
   long m_nRSize;
   long nMaxIter;
-  long nMinIter;
+  long reference_size_x;
   short m_bNoGlitchDetection;
   short derivatives;
   short m_bAddReference;
@@ -2263,7 +2263,8 @@ typedef struct __attribute__((packed))
   int g_nAddRefX;
   int g_nAddRefY;
   // for glitch selection
-  int glitch_select_argminz;
+  short singleref;
+  short glitch_select_argminz;
   // for ignore isolated glitches
   int ignore_isolated_neighbourhood; // 0 or 4 or 8
   // for hybrid

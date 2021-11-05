@@ -23,6 +23,7 @@ void perturbation_double_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  long rantal = antal;
   mantissa Xxr = 0;
   mantissa Xxi = 0;
 #ifdef TRIANGLE_INEQUALITY_AVERAGE
@@ -36,30 +37,64 @@ void perturbation_double_loop
   mantissa tia_sum = 0;
   long tia_count = 0;
 #endif
-  for (; antal < g->nMaxIter; antal++)
+  for (; antal < g->nMaxIter && rantal < g->reference_size_x; antal++)
   {
-    const mantissa Xr = m_refx[antal - g->nMinIter];
-    const mantissa Xi = m_refy[antal - g->nMinIter];
-    const mantissa Xz = m_refz[antal - g->nMinIter];
+    mantissa Xr = m_refx[rantal];
+    mantissa Xi = m_refy[rantal];
+    mantissa Xz = m_refz[rantal];
+    rantal++;
     Xxr = Xr + xr;
     Xxi = Xi + xi;
-    const mantissa Xxr2 = Xxr * Xxr;
-    const mantissa Xxi2 = Xxi * Xxi;
+    mantissa Xxr2 = Xxr * Xxr;
+    mantissa Xxi2 = Xxi * Xxi;
     test2 = test1;
     test1 = Xxr2 + Xxi2;
-    if (test1 < Xz)
+    if (g->singleref)
     {
-      l->bGlitch = true;
-      if (! l->bNoGlitchDetection)
+      mantissa test0 = test1;
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxr, Xxi);
+      }
+      if (test1 > g->m_nBailout2)
+      {
         break;
+      }
+      if (test0 < xr * xr + xi * xi || rantal == g->reference_size_x)
+      {
+        xr = Xxr;
+        xi = Xxi;
+        rantal = 0;
+        Xr = 0;
+        Xi = 0;
+        Xz = 0;
+        Xxr = Xr + xr;
+        Xxi = Xi + xi;
+        Xxr2 = Xxr * Xxr;
+        Xxi2 = Xxi * Xxi;
+        test1 = Xxr2 + Xxi2;
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxr, Xxi);
+        }
+      }
     }
-    if (! no_g)
+    else
     {
-      test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxr, Xxi);
-    }
-    if (test1 > g->m_nBailout2)
-    {
-      break;
+      if (test1 < Xz)
+      {
+        l->bGlitch = true;
+        if (! l->bNoGlitchDetection)
+          break;
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxr, Xxi);
+      }
+      if (test1 > g->m_nBailout2)
+      {
+        break;
+      }
     }
     mantissa xrn, xin, drn, din;
 // continued...
