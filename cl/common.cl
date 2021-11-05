@@ -430,11 +430,11 @@ floatexp fe_log(const floatexp a)
 
 floatexp fe_log1p(const floatexp a)
 {
-  if (a.exp < -(sizeof(mantissa) == sizeof(double) ? 53 : 24))
+  if (a.exp < -(sizeof(mantissa) == sizeof(float) ? 24 : 53))
   {
     return a;
   }
-  else if (a.exp > (sizeof(mantissa) == sizeof(double) ? 53 : 24))
+  else if (a.exp > (sizeof(mantissa) == sizeof(float) ? 24 : 53))
   {
     return fe_log(fe_add(fe_floatexp(1.0, 0),  a));
   }
