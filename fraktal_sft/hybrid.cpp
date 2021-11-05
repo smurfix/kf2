@@ -3105,7 +3105,7 @@ void perturbation_scaled_loop
         o << hybrid_f_opencl_double(op1, "Z1", "Z");
         o << hybrid_pf_opencl_double_scaled(op1, "w1", "Z", "w", "s");
         o << hybrid_pf_opencl_double_scaled(op2, "wn", "Z1", "w1", "s");
-        o << "wn = fec_add(wn, u);\n";
+        o << "wn = dc_add(wn, u);\n";
       }
       else
       {
