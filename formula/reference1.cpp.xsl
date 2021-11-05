@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   ( const int m_nFractalType, const int m_nPower
   , Reference *m_Reference
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nGlitchIter, int64_t &amp;m_nMaxIter
+  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nMaxIter
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
@@ -59,7 +59,6 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     const bool convergent = false;
 </xsl:otherwise>
 </xsl:choose>
-    m_nGlitchIter = m_nMaxIter + 1;
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
     double glitch = <xsl:value-of select="@glitch" />;
@@ -141,10 +140,9 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \
         { \
           if (nMaxIter == m_nMaxIter){ \
-            nMaxIter = i + 10; \
+            nMaxIter = i; \
             if (nMaxIter &gt; m_nMaxIter) \
               nMaxIter = m_nMaxIter; \
-            m_nGlitchIter = nMaxIter; \
           } \
         } \
       } \
@@ -168,10 +166,9 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
 </xsl:for-each> \
         if (abs_val &gt;= terminate){ \
           if (nMaxIter == m_nMaxIter){ \
-            nMaxIter = i + 10; \
+            nMaxIter = i; \
             if (nMaxIter &gt; m_nMaxIter) \
               nMaxIter = m_nMaxIter; \
-            m_nGlitchIter = nMaxIter; \
           } \
         } \
       }

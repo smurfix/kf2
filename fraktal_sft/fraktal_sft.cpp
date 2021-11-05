@@ -1630,7 +1630,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  nBailout2,
 		  log(nBailout),
 		  log(m_nPower),
-		  m_nGlitchIter,
 		  m_nMaxIter,
 		  m_nMaxIter,
 		  antal,
@@ -1759,7 +1758,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  nBailout2,
 		  log(nBailout),
 		  log(m_nPower),
-		  m_nGlitchIter,
 		  m_nMaxIter,
 		  m_nMaxIter,
 		  antal,
@@ -1856,7 +1854,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  nBailout2,
 		  log(nBailout),
 		  log(m_nPower),
-		  m_nGlitchIter,
 		  m_nMaxIter,
 		  m_nMaxIter,
 		  antal,
@@ -1950,7 +1947,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  nBailout2,
 		  log(nBailout),
 		  log(m_nPower),
-		  m_nGlitchIter,
 		  m_nMaxIter,
 		  m_nMaxIter,
 		  antal,
@@ -4003,13 +3999,11 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, double nBailout, const complex<double> &de)
 {
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-	if (antal == m_nGlitchIter)
-		bGlitch = TRUE;
 	double i = antal + smooth;
 	antal = std::floor(i);
 	double t = i - antal;
 	if (antal >= m_nMaxIter){
-		m_nPixels[x][y] = antal;
+		m_nPixels[x][y] = m_nMaxIter;
 		m_nTrans[x][y] = 0;
 		if (m_nPhase)
 			m_nPhase[x][y] = 0;

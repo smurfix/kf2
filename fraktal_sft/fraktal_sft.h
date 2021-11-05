@@ -293,7 +293,6 @@ class CFraktalSFT
 	int m_nSizeImage;
 	int m_nZoom;
 	int64_t m_nMaxIter;
-	int64_t m_nGlitchIter;
 	int m_nTotal;
 	HBITMAP m_bmBmp;
 	COLOR14 m_cPos[1025], m_cKeys[1025], m_cInterior;

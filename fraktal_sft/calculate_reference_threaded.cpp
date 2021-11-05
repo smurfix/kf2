@@ -31,7 +31,7 @@ struct mcthread_common
 	floatexp X, Y, Z;
 	Reference *m_Reference;
 	double *terminate, *glitch_threshold;
-	int64_t *m_nMaxIter, *m_nGlitchIter, *nMaxIter, *m_nRDone;
+	int64_t *m_nMaxIter, *nMaxIter, *m_nRDone;
 	volatile bool *stop;
 };
 
@@ -101,7 +101,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 						{
 							*p->nMaxIter = *p->m_nMaxIter;
 						}
-						*p->m_nGlitchIter = *p->nMaxIter;
 					}
 				}
 				(*p->m_nRDone)++;
@@ -135,7 +134,6 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		Precision prec(m_rref.m_f.precision());
 
 		double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-		m_nGlitchIter = m_nMaxIter + 1;
 		int64_t nMaxIter = m_nMaxIter;
 
 		double glitch_threshold = 0.0000001;
@@ -171,7 +169,6 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		co.terminate = &terminate;
 		co.glitch_threshold = &glitch_threshold;
 		co.m_nMaxIter = &m_nMaxIter;
-		co.m_nGlitchIter = &m_nGlitchIter;
 		co.nMaxIter = &nMaxIter;
 		co.m_nRDone = &m_nRDone;
 		co.stop = &m_bStop;

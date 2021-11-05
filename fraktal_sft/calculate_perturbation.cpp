@@ -45,7 +45,7 @@ void CFraktalSFT::MandelCalc1()
   const bool noDerivativeGlitch = ! GetDerivativeGlitch();
   const bool derivatives = GetDerivatives();
 
-  int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+  int64_t nMaxIter = m_nMaxIter;
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
     int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
@@ -273,7 +273,7 @@ void CFraktalSFT::MandelCalcScaled()
   const mat2 TK = GetTransformMatrix();
   const bool derivatives = GetDerivatives();
 
-  int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+  int64_t nMaxIter = m_nMaxIter;
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
     int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
@@ -383,7 +383,7 @@ void CFraktalSFT::MandelCalcSIMD()
   const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
   const bool derivatives = GetDerivatives();
 
-  int64_t nMaxIter = (m_nGlitchIter<m_nMaxIter ? m_nGlitchIter : m_nMaxIter);
+  int64_t nMaxIter = m_nMaxIter;
   while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored))
   {
     int64_t nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;

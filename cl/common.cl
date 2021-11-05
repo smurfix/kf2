@@ -2239,7 +2239,6 @@ typedef struct __attribute__((packed))
   mantissa m_nBailout2;
   mantissa log_m_nBailout;
   mantissa log_m_nPower;
-  long m_nGlitchIter;
   long m_nMaxIter;
   long m_nRSize;
   long nMaxIter;
@@ -3180,9 +3179,8 @@ __kernel void perturbation_double
       de = d_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
-    if (antal == g->m_nGlitchIter)
-      bGlitch = true;
     if (antal >= g->m_nMaxIter){
+      antal = g->m_nMaxIter;
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
@@ -3371,9 +3369,8 @@ __kernel void perturbation_floatexp
       de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
-    if (antal == g->m_nGlitchIter)
-      bGlitch = true;
     if (antal >= g->m_nMaxIter){
+      antal = g->m_nMaxIter;
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
@@ -3562,9 +3559,8 @@ __kernel void perturbation_scaled
       de = fe_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
-    if (antal == g->m_nGlitchIter)
-      bGlitch = true;
     if (antal >= g->m_nMaxIter){
+      antal = g->m_nMaxIter;
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;
@@ -3743,9 +3739,8 @@ __kernel void perturbation_softfloat
       de = sf_compute_de(Dr, Di, l.dxa, l.dxb, l.dya, l.dyb, s, TK);
     }
     // output iteration data
-    if (antal == g->m_nGlitchIter)
-      bGlitch = true;
     if (antal >= g->m_nMaxIter){
+      antal = g->m_nMaxIter;
       if (n1) n1[ix] = antal >> 32;
       if (n0) n0[ix] = antal;
       if (nf) nf[ix] = 0;

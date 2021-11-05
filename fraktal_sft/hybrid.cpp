@@ -3226,14 +3226,13 @@ static void pow(mpfr_t X, mpfr_t Y, int p, mpfr_t T1, mpfr_t T2, mpfr_t T3, mpfr
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate
   , const double m_bGlitchLowTolerance
   )
 {
-    m_nGlitchIter = m_nMaxIter + 1;
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
     int power = hybrid_power_inf(h);
@@ -3363,10 +3362,9 @@ extern bool reference_hybrid
       reference_append(m_Reference, Xrd, Xid, Xz);
       if (double(abs_val) >= terminate){
         if (nMaxIter == m_nMaxIter){
-          nMaxIter = i + 3;
+          nMaxIter = i;
           if (nMaxIter > m_nMaxIter)
             nMaxIter = m_nMaxIter;
-          m_nGlitchIter = nMaxIter;
         }
       }
     }

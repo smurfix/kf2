@@ -386,6 +386,7 @@ earlier).
   - internal: support for custom reference orbit values
   - internal: output stream operators for more types
   - internal: refactor smooth iterations handling
+  - internal: delete obsolete GlitchIter handling
   - internal: more functions for CFixedFloat(): log()
   - internal: more functions for floatexp: cosh() (thanks FractalAlex)
   - internal: more functions for complex: sin() cos() cosh()

@@ -56,7 +56,6 @@ struct p_config
   mantissa m_nBailout2;
   mantissa log_m_nBailout;
   mantissa log_m_nPower;
-  cl_long m_nGlitchIter;
   cl_long m_nMaxIter;
   cl_long m_nRSize;
   cl_long nMaxIter;
@@ -221,7 +220,6 @@ public:
     mantissa m_nBailout2,
     mantissa log_m_nBailout,
     mantissa log_m_nPower,
-    int64_t m_nGlitchIter,
     int64_t m_nMaxIter,
     int64_t nMaxIter,
     int64_t nMinIter,
@@ -609,7 +607,6 @@ public:
         m_nBailout2,
         log(m_nBailout),
         log_m_nPower,
-        m_nGlitchIter,
         m_nMaxIter,
         int64_t(rN_size),
         nMaxIter,

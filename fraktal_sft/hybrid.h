@@ -1296,7 +1296,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nGlitchIter, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate

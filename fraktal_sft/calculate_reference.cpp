@@ -40,12 +40,11 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 	m_Reference = reference_new(m_nMaxIter, GetReferenceStrictZero(), reftype, GetUseHybridFormula() ? false : is_convergent(m_nFractalType, m_nPower), GetUseHybridFormula() ? 1 : reference_glitches(m_nFractalType, m_nPower));
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
-	m_nGlitchIter = m_nMaxIter + 1;
 	int64_t nMaxIter = m_nMaxIter;
 
 	if (GetUseHybridFormula())
 	{
-		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
+		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference_hybrid");
 	}
 
@@ -75,10 +74,9 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 			reference_append(m_Reference, X0, Y0, Z0);
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i + 10;
+					nMaxIter = i;
 					if (nMaxIter>m_nMaxIter)
 						nMaxIter = m_nMaxIter;
-					m_nGlitchIter = nMaxIter;
 				}
 			}
 			m_nRDone++;
@@ -87,7 +85,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 
 	else
 	{
-		bool ok = reference(m_nFractalType, m_nPower, m_Reference, m_bStop, m_nRDone, m_nGlitchIter, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, GetGlitchLowTolerance());
+		bool ok = reference(m_nFractalType, m_nPower, m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference");
 	}
 }
