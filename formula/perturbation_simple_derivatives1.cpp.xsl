@@ -41,6 +41,7 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   )
 {
   using std::abs;
@@ -81,6 +82,7 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
     int64_t antal = antal0;
+    int64_t rantal = antal0;
     double test1 = test10;
     double test2 = test20;
     double phase = phase0;
@@ -99,6 +101,7 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
 </xsl:choose>
     T Xxr = 0;
     T Xxi = 0;
+    const int64_t N = reference_size_N(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
@@ -111,15 +114,18 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
 </xsl:for-each>
     for (; antal &lt; nMaxIter; antal++)
     {
-      const T Xr = xptr[antal];
-      const T Xi = yptr[antal];
-      const T Xz = zptr[antal];
+      bool skip = true;
+start:
+      const T Xr = rantal >= 0 ? xptr[rantal] : T(0);
+      const T Xi = rantal >= 0 ? yptr[rantal] : T(0);
+      const T Xz = rantal >= 0 ? zptr[rantal] : T(0);
 <xsl:for-each select="references[@t='R']">
-      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal];
+      const T <xsl:value-of select="@name" /> = rantal >= 0 ? zptr<xsl:value-of select="position()" />[rantal] : T(0);
 </xsl:for-each>
 <xsl:for-each select="references[@t='C']">
-      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]);
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = rantal >= 0 ? complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[rantal]) : complex&lt;T&gt;(T(0), T(0));
 </xsl:for-each>
+      rantal++;
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const T Xxr2 = Xxr * Xxr;
@@ -127,32 +133,62 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
       test2 = test1;
       const T ttest1 = Xxr2 + Xxi2;
       test1 = double(ttest1);
-      if (ttest1 &lt; Xz)
+      if (skip)
       {
-<xsl:choose>
-<xsl:when test="@type='0' and @power='2'">
-        if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr / h, di / h, e, h)) // FIXME matrix derivatives
+        if (singleref)
         {
-</xsl:when>
-</xsl:choose>
-        bGlitch = true;
-        if (! m_bNoGlitchDetection)
-          break;
+          if (ttest1 &lt; xr * xr + xi * xi || rantal == N)
+          {
+            xr = Xxr;
+            xi = Xxi;
+            rantal = -1;
+            skip = false;
+            goto start;
+          }
+          else
+          {
+            if (! no_g)
+            {
+              test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+            }
+            if (test1 &gt; m_nBailout2)
+            {
+              phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+              phase -= floor(phase);
+              break;
+            }
+          }
+        }
+        else
+        {
+          if (ttest1 &lt; Xz)
+          {
 <xsl:choose>
 <xsl:when test="@type='0' and @power='2'">
-        }
+            if (noDerivativeGlitch || type_0_power_2_pixel_has_glitched(cr, ci, xr, xi, Xr, Xi, dr / h, di / h, e, h)) // FIXME matrix derivatives
+            {
 </xsl:when>
 </xsl:choose>
-      }
-      if (! no_g)
-      {
-        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-      }
-      if (test1 &gt; m_nBailout2)
-      {
-        phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+              bGlitch = true;
+              if (! m_bNoGlitchDetection)
+                break;
+<xsl:choose>
+<xsl:when test="@type='0' and @power='2'">
+            }
+</xsl:when>
+</xsl:choose>
+          }
+          if (! no_g)
+          {
+            test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
+        }
       }
       T xrn, xin;
 
@@ -259,6 +295,7 @@ template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<x
   , const float &amp;e, const float &amp;h
   , const float &amp;daa, const float &amp;dab, const float &amp;dba, const float &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;double&gt;
   ( int m_nFractalType, int m_nPower
@@ -273,6 +310,7 @@ template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<x
   , const double &amp;e, const double &amp;h
   , const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;long double&gt;
   ( int m_nFractalType, int m_nPower
@@ -287,6 +325,7 @@ template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<x
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;float,int32_t&gt;&gt;
   ( int m_nFractalType, int m_nPower
@@ -301,6 +340,7 @@ template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<x
   , const tfloatexp&lt;float,int32_t&gt; &amp;e, const tfloatexp&lt;float,int32_t&gt; &amp;h
   , const tfloatexp&lt;float,int32_t&gt; &amp;daa, const tfloatexp&lt;float,int32_t&gt; &amp;dab, const tfloatexp&lt;float,int32_t&gt; &amp;dba, const tfloatexp&lt;float,int32_t&gt; &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;double,int64_t&gt;&gt;
   ( int m_nFractalType, int m_nPower
@@ -315,6 +355,7 @@ template bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<x
   , const tfloatexp&lt;double,int64_t&gt; &amp;e, const tfloatexp&lt;double,int64_t&gt; &amp;h
   , const tfloatexp&lt;double,int64_t&gt; &amp;daa, const tfloatexp&lt;double,int64_t&gt; &amp;dab, const tfloatexp&lt;double,int64_t&gt; &amp;dba, const tfloatexp&lt;double,int64_t&gt; &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 </xsl:for-each>
 

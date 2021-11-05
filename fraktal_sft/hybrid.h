@@ -592,7 +592,7 @@ static inline int hybrid_power_inf(const hybrid_formula &h)
 }
 
 template <typename R>
-inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power)
+inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power, const bool singleref)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -694,7 +694,7 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
 }
 
 template <typename R>
-inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power)
+inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power, const bool singleref)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -807,7 +807,7 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
 }
 
 template <typename R, typename I>
-inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, tfloatexp<R, I> &xr0, tfloatexp<R, I> &xi0, const tfloatexp<R, I> &cr0, const tfloatexp<R, I> &ci0, int &power)
+inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, tfloatexp<R, I> &xr0, tfloatexp<R, I> &xi0, const tfloatexp<R, I> &cr0, const tfloatexp<R, I> &ci0, int &power, const bool singleref)
 {
   using mantissa = R;
   using exponent = I;
@@ -1047,7 +1047,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
 }
 
 template <typename R, typename I>
-inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, tfloatexp<R, I>> &xr0, dual<2, tfloatexp<R, I>> &xi0, const dual<2, tfloatexp<R, I>> &cr0, const dual<2, tfloatexp<R, I>> &ci0, int &power)
+inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, tfloatexp<R, I>> &xr0, dual<2, tfloatexp<R, I>> &xi0, const dual<2, tfloatexp<R, I>> &cr0, const dual<2, tfloatexp<R, I>> &ci0, int &power, const bool singleref)
 {
   using mantissa = R;
   using exponent = I;

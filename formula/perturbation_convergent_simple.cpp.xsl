@@ -36,6 +36,7 @@ bool perturbation_convergent_simple_<xsl:value-of select="../@type" />_<xsl:valu
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
+  , const bool singleref
   );
 </xsl:for-each>
 
@@ -49,6 +50,7 @@ bool perturbation_convergent_simple
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , T &amp;xr, T &amp;xi
   , const T &amp;cr, const T &amp;ci
+  , const bool singleref
   )
 {
   switch (m_nFractalType)
@@ -69,6 +71,7 @@ bool perturbation_convergent_simple
             , g_FactorAR, g_FactorAI
             , xr, xi
             , cr, ci
+            , singleref
             );
       </xsl:for-each>
       }
@@ -87,6 +90,7 @@ template bool perturbation_convergent_simple&lt;float&gt;
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , float &amp;xr, float &amp;xi
   , const float &amp;cr, const float &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple&lt;double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -97,6 +101,7 @@ template bool perturbation_convergent_simple&lt;double&gt;
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , double &amp;xr, double &amp;xi
   , const double &amp;cr, const double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -107,6 +112,7 @@ template bool perturbation_convergent_simple&lt;long double&gt;
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , long double &amp;xr, long double &amp;xi
   , const long double &amp;cr, const long double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple&lt;tfloatexp&lt;float,int32_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -117,6 +123,7 @@ template bool perturbation_convergent_simple&lt;tfloatexp&lt;float,int32_t&gt;&g
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;float,int32_t&gt; &amp;xr, tfloatexp&lt;float,int32_t&gt; &amp;xi
   , const tfloatexp&lt;float,int32_t&gt; &amp;cr, const tfloatexp&lt;float,int32_t&gt; &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple&lt;tfloatexp&lt;double,int64_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -127,6 +134,7 @@ template bool perturbation_convergent_simple&lt;tfloatexp&lt;double,int64_t&gt;&
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;double,int64_t&gt; &amp;xr, tfloatexp&lt;double,int64_t&gt; &amp;xi
   , const tfloatexp&lt;double,int64_t&gt; &amp;cr, const tfloatexp&lt;double,int64_t&gt; &amp;ci
+  , const bool singleref
   );
 
 </xsl:template>

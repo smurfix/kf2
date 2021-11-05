@@ -574,6 +574,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_IMAGE_SHRINK_SRGB 40156
 #define ID_NUMBERTYPES 40157
 #define ID_OPEN_RESETS_PARAMETERS 40158
+#define ID_REUSE_REFERENCE_TO_CORRECT_GLITCHES 40159
 
 // OpenCL
 #ifdef KF_OPENCL

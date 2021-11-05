@@ -361,17 +361,20 @@ earlier).
 
 ????-??-??
 
+  - new: single-reference implementation for avoiding glitches (thanks
+    Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
+    enabled by default
   - new: many new formulas (thanks to Alexandre Vachon aka FractalAlex)
   - new: hybrid formulas support division operator (thanks FractalAlex)
   - new: Nova formula; variant implemented with critical point at 0
     instead of 1, to avoid precision loss when deep zooming
   - new: Separated Perpendicular formula; variant implemented with
     critical point at 0, and custom function to avoid precision loss
-    when deep zooming (thanks Mr Rebooted)
+    when deep zooming (thanks Mr Rebooted); not supported in OpenCL
   - new: Triangle Inequality Average colouring algorithm can be enabled
     in Formula dialog; requires OpenCL; replaces final angle in phase
     (T) channel data; disable Series Approximation for predictable
-    results
+    results; likely to change in future versions, use at own risk
   - fix: Newton zooming functions are correctly linked into the EXE
     (only kf-2.15.4 was broken)
   - fix: control-click to zoom correctly views framed rectangle

@@ -202,6 +202,7 @@ bool perturbation_simple
   , const double &g_FactorAR, const double &g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
+  , const bool singleref
   );
 
 // perturbation with derivatives
@@ -220,6 +221,7 @@ bool perturbation_simple_derivatives
   , const T &e, const T &h
   , const T &daa, const T &dab, const T &dba, const T &dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 
 // perturbation with SIMD
@@ -317,6 +319,7 @@ bool perturbation_convergent_simple
   , const double &g_FactorAR, const double &g_FactorAI
   , T &xr, T &xi
   , const T &cr, const T &ci
+  , const bool singleref
   );
 
 // miscellaneous

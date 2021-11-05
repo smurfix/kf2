@@ -152,7 +152,7 @@ public:
   , m_ThreadedReference(true)
   , m_SIMDVectorSize(2)
   , m_SIMDChunkSize(64)
-  , m_GlitchCenterMethod(0)
+  , m_GlitchCenterMethod(3)
   , m_UseOpenCL(false)
   , m_OpenCLThreaded(true)
   , m_OpenCLPlatform(0)

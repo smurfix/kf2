@@ -1033,6 +1033,7 @@ BEGIN
             MENUITEM "Use original method as glitch center", ID_USE_ORIGINAL_AS_GLITCH_CENTER,MFT_STRING,MFS_ENABLED
             MENUITEM "Use argmin|Z| as glitch center", ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MFT_STRING,MFS_ENABLED
             MENUITEM "Use random as glitch center", ID_USE_RANDOM_AS_GLITCH_CENTER,MFT_STRING,MFS_ENABLED
+            MENUITEM "Use single reference method", ID_REUSE_REFERENCE_TO_CORRECT_GLITCHES
         END
         POPUP "Ignore isolated small glitches", 65535,MFT_STRING,MFS_ENABLED
         BEGIN

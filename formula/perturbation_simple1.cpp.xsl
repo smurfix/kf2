@@ -37,6 +37,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
+  , const bool singleref
   )
 {
   using std::abs;
@@ -68,6 +69,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
     (void) c; // -Wunused-variable
     bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     int64_t antal = antal0;
+    int64_t rantal = antal0;
     double test1 = test10;
     double test2 = test20;
     double phase = phase0;
@@ -75,6 +77,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
     T xi = xi0;
     T Xxr = 0;
     T Xxi = 0;
+    const int64_t N = reference_size_N(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
@@ -87,15 +90,18 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
 </xsl:for-each>
     for (; antal &lt; nMaxIter; antal++)
     {
-      const T Xr = xptr[antal];
-      const T Xi = yptr[antal];
-      const T Xz = zptr[antal];
+      bool skip = true;
+start:
+      const T Xr = rantal >= 0 ? xptr[rantal] : T(0);
+      const T Xi = rantal >= 0 ? yptr[rantal] : T(0);
+      const T Xz = rantal >= 0 ? zptr[rantal] : T(0);
 <xsl:for-each select="references[@t='R']">
-      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[antal];
+      const T <xsl:value-of select="@name" /> = rantal >= 0 ? zptr<xsl:value-of select="position()" />[rantal] : T(0);
 </xsl:for-each>
 <xsl:for-each select="references[@t='C']">
-      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]);
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = rantal >= 0 ? complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[rantal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]) : complex&lt;T&gt;(T(0), T(0));
 </xsl:for-each>
+      rantal++;
       Xxr = Xr + xr;
       Xxi = Xi + xi;
 <xsl:choose>
@@ -109,38 +115,68 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
       test2 = test1;
       const T ttest1 = Xxr2 + Xxi2;
       test1 = double(ttest1);
-      if (ttest1 &lt; Xz)
+      if (skip)
       {
-        bGlitch = true;
-        if (! m_bNoGlitchDetection)
-          break;
-      }
-      {
-<xsl:for-each select="glitch/test">
+        if (singleref)
         {
-          const T lhs = <xsl:value-of select="lhs" />;
-          const T rhs = <xsl:value-of select="rhs" />;
-          if (<xsl:value-of select="cond" />)
+          if (ttest1 &lt; xr * xr + xi * xi || rantal == N)
           {
-            bGlitch = true;
-            test1 = double(<xsl:value-of select="size" />);
-            if (! m_bNoGlitchDetection)
+            xr = Xxr;
+            xi = Xxi;
+            rantal = -1;
+            skip = false;
+            goto start;
+          }
+          else
+          {
+            if (! no_g)
             {
+              test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+            }
+            if (test1 &gt; m_nBailout2)
+            {
+              phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+              phase -= floor(phase);
               break;
             }
           }
         }
+        else
+        {
+          if (ttest1 &lt; Xz)
+          {
+            bGlitch = true;
+            if (! m_bNoGlitchDetection)
+              break;
+          }
+          {
+<xsl:for-each select="glitch/test">
+            {
+              const T lhs = <xsl:value-of select="lhs" />;
+              const T rhs = <xsl:value-of select="rhs" />;
+              if (<xsl:value-of select="cond" />)
+              {
+                bGlitch = true;
+                test1 = double(<xsl:value-of select="size" />);
+                if (! m_bNoGlitchDetection)
+                {
+                  break;
+                }
+              }
+            }
 </xsl:for-each>
-      }
-      if (! no_g)
-      {
-        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-      }
-      if (test1 &gt; m_nBailout2)
-      {
-        phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+          }
+          if (! no_g)
+          {
+            test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
+        }
       }
       T xrn, xin;
 
@@ -188,6 +224,7 @@ template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , float &amp;xr, float &amp;xi
   , const float &amp;cr, const float &amp;ci
+  , const bool singleref
   );
 template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -198,6 +235,7 @@ template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , double &amp;xr, double &amp;xi
   , const double &amp;cr, const double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -208,6 +246,7 @@ template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , long double &amp;xr, long double &amp;xi
   , const long double &amp;cr, const long double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;float,int32_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -218,6 +257,7 @@ template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;float,int32_t&gt; &amp;xr, tfloatexp&lt;float,int32_t&gt; &amp;xi
   , const tfloatexp&lt;float,int32_t&gt; &amp;cr, const tfloatexp&lt;float,int32_t&gt; &amp;ci
+  , const bool singleref
   );
 template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;double,int64_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -228,6 +268,7 @@ template bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;double,int64_t&gt; &amp;xr, tfloatexp&lt;double,int64_t&gt; &amp;xi
   , const tfloatexp&lt;double,int64_t&gt; &amp;cr, const tfloatexp&lt;double,int64_t&gt; &amp;ci
+  , const bool singleref
   );
 </xsl:for-each>
 

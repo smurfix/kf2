@@ -35,6 +35,7 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , T &amp;xr0, T &amp;xi0
   , const T &amp;cr, const T &amp;ci
+  , const bool singleref
   )
 {
   using std::abs;
@@ -64,6 +65,7 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     (void) A; // -Wunused-variable
     (void) c; // -Wunused-variable
     int64_t antal = antal0;
+    int64_t rantal = antal0;
     double test1 = test10;
     double smooth = smooth0;
     double phase = phase0;
@@ -71,6 +73,8 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     T xi = xi0;
     T Xxr = 1.0/0.0;
     T Xxi = 1.0/0.0;
+    T Xxr_1 = 1.0/0.0;
+    T Xxi_1 = 1.0/0.0;
     T xr_1 = 1.0/0.0;
     T xi_1 = 1.0/0.0;
     const int64_t N = reference_size_x(m_Reference);
@@ -89,22 +93,56 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
     T delta_1 = 1.0/0.0;
     for (; antal &lt; nMaxIter; antal++)
     {
-      const int64_t ix = std::min(antal, N - 1);
-      const T Xr = xptr[ix];
-      const T Xi = yptr[ix];
-      const T Xu = uptr[ix];
-      const T Xv = vptr[ix];
+      bool skip = true;
+start:
+      const int64_t ix = std::min(rantal, N - 1);
+      const T Xr = ix >= 0 ? xptr[ix] : T(0);
+      const T Xi = ix >= 0 ? yptr[ix] : T(0);
+      const T Xu = ix >= 0 ? uptr[ix] : T(1.0/0.0); // FIXME check validity
+      const T Xv = ix >= 0 ? vptr[ix] : T(1.0/0.0); // FIXME check validity
 <xsl:for-each select="references[@t='R']">
-      const T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position() - 1" />[antal];
+      const T <xsl:value-of select="@name" /> = ix >= 0 ? zptr<xsl:value-of select="position() - 1" />[ix] : T(<xsl:value-of select="@value" />);
 </xsl:for-each>
 <xsl:for-each select="references[@t='C']">
-      const complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 0" />[antal], zptr<xsl:value-of select="2 * (position() - 1) + 1" />[antal]);
+      const complex&lt;T&gt; <xsl:value-of select="@name" /> = ix >= 0 ? complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 0" />[ix], zptr<xsl:value-of select="2 * (position() - 1) + 1" />[ix]) : complex&lt;T&gt;(T(<xsl:value-of select="@value" />), T(0));
 </xsl:for-each>
+      rantal++;
       Xxr = Xr + xr;
       Xxi = Xi + xi;
       const complex&lt;T&gt; X = { Xr, Xi }, x = { xr, xi }, Xx = { Xxr, Xxi };
       (void) X; (void) x; (void) Xx;
 
+      if (singleref)
+      {
+        if (skip)
+        {
+          // convergent bailout
+          const T delta_x = Xxr - Xxr_1;
+          const T delta_y = Xxi - Xxi_1;
+          delta_1 = delta;
+          delta = pnorm(g_real, g_imag, p, delta_x, delta_y);
+          if (delta_1 &lt; m_nBailoutSmallP &amp;&amp; delta &lt; delta_1)
+          {
+            const T q = log(delta) / log(delta_1);
+            const T f = (log(-log(m_nBailoutSmallP)/p) - log(-log(delta)/p)) / log(q);
+            smooth = double(f);
+            const T delta_z = sqrt(sqr(delta_x) + sqr(delta_y));
+            phase = atan2(double(delta_x/delta_z), double(delta_y/delta_z)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
+          // singleref glitch avoidance
+          if (Xxr * Xxr + Xxi * Xxi &lt; xr * xr + xi * xi)
+          {
+            xr = Xxr;
+            xi = Xxi;
+            rantal = -1;
+            skip = false;
+            goto start;
+          }
+        }
+      }
+      else
       {
 <xsl:for-each select="glitch/test">
         {
@@ -121,23 +159,22 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
           }
         }
 </xsl:for-each>
-      }
-
-      // convergent bailout
-      {
-        const T delta_x = (xr - xr_1) + Xu;
-        const T delta_y = (xi - xi_1) + Xv;
-        delta_1 = delta;
-        delta = pnorm(g_real, g_imag, p, delta_x, delta_y);
-        if (delta_1 &lt; m_nBailoutSmallP &amp;&amp; delta &lt; delta_1)
+        // convergent bailout
         {
-          const T q = log(delta) / log(delta_1);
-          const T f = (log(-log(m_nBailoutSmallP)/p) - log(-log(delta)/p)) / log(q);
-          smooth = double(f);
-          const T delta_z = sqrt(sqr(delta_x) + sqr(delta_y));
-          phase = atan2(double(delta_x/delta_z), double(delta_y/delta_z)) / M_PI / 2;
-          phase -= floor(phase);
-          break;
+          const T delta_x = (xr - xr_1) + Xu;
+          const T delta_y = (xi - xi_1) + Xv;
+          delta_1 = delta;
+          delta = pnorm(g_real, g_imag, p, delta_x, delta_y);
+          if (delta_1 &lt; m_nBailoutSmallP &amp;&amp; delta &lt; delta_1)
+          {
+            const T q = log(delta) / log(delta_1);
+            const T f = (log(-log(m_nBailoutSmallP)/p) - log(-log(delta)/p)) / log(q);
+            smooth = double(f);
+            const T delta_z = sqrt(sqr(delta_x) + sqr(delta_y));
+            phase = atan2(double(delta_x/delta_z), double(delta_y/delta_z)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
         }
       }
 
@@ -164,6 +201,8 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
 </xsl:when>
 </xsl:choose>
 
+      Xxr_1 = Xxr;
+      Xxi_1 = Xxi;
       xr_1 = xr;
       xi_1 = xi;
       xr = xrn;
@@ -198,6 +237,7 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , float &amp;xr, float &amp;xi
   , const float &amp;cr, const float &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -208,6 +248,7 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , double &amp;xr, double &amp;xi
   , const double &amp;cr, const double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;long double&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -218,6 +259,7 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , long double &amp;xr, long double &amp;xi
   , const long double &amp;cr, const long double &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;float,int32_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -228,6 +270,7 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;float,int32_t&gt; &amp;xr, tfloatexp&lt;float,int32_t&gt; &amp;xi
   , const tfloatexp&lt;float,int32_t&gt; &amp;cr, const tfloatexp&lt;float,int32_t&gt; &amp;ci
+  , const bool singleref
   );
 template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;tfloatexp&lt;double,int64_t&gt;&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -238,6 +281,7 @@ template bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xs
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;double,int64_t&gt; &amp;xr, tfloatexp&lt;double,int64_t&gt; &amp;xi
   , const tfloatexp&lt;double,int64_t&gt; &amp;cr, const tfloatexp&lt;double,int64_t&gt; &amp;ci
+  , const bool singleref
   );
 </xsl:for-each></xsl:template>
 </xsl:stylesheet>

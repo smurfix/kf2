@@ -40,6 +40,7 @@ bool perturbation_simple_derivatives_<xsl:value-of select="../@type" />_<xsl:val
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 </xsl:for-each>
 
@@ -57,6 +58,7 @@ bool perturbation_simple_derivatives
   , const T &amp;e, const T &amp;h
   , const T &amp;daa, const T &amp;dab, const T &amp;dba, const T &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   )
 {
   switch (m_nFractalType)
@@ -81,6 +83,7 @@ bool perturbation_simple_derivatives
             , e, h
             , daa, dab, dba, dbb
             , noDerivativeGlitch
+            , singleref
             );
       </xsl:for-each>
       }
@@ -103,6 +106,7 @@ template bool perturbation_simple_derivatives&lt;float&gt;
   , const float &amp;e, const float &amp;h
   , const float &amp;daa, const float &amp;dab, const float &amp;dba, const float &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives&lt;double&gt;
   ( int m_nFractalType, int m_nPower
@@ -117,6 +121,7 @@ template bool perturbation_simple_derivatives&lt;double&gt;
   , const double &amp;e, const double &amp;h
   , const double &amp;daa, const double &amp;dab, const double &amp;dba, const double &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives&lt;long double&gt;
   ( int m_nFractalType, int m_nPower
@@ -131,6 +136,7 @@ template bool perturbation_simple_derivatives&lt;long double&gt;
   , const long double &amp;e, const long double &amp;h
   , const long double &amp;daa, const long double &amp;dab, const long double &amp;dba, const long double &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives&lt;tfloatexp&lt;float,int32_t&gt;&gt;
   ( int m_nFractalType, int m_nPower
@@ -145,6 +151,7 @@ template bool perturbation_simple_derivatives&lt;tfloatexp&lt;float,int32_t&gt;&
   , const tfloatexp&lt;float,int32_t&gt; &amp;e, const tfloatexp&lt;float,int32_t&gt; &amp;h
   , const tfloatexp&lt;float,int32_t&gt; &amp;daa, const tfloatexp&lt;float,int32_t&gt; &amp;dab, const tfloatexp&lt;float,int32_t&gt; &amp;dba, const tfloatexp&lt;float,int32_t&gt; &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 template bool perturbation_simple_derivatives&lt;tfloatexp&lt;double,int64_t&gt;&gt;
   ( int m_nFractalType, int m_nPower
@@ -159,6 +166,7 @@ template bool perturbation_simple_derivatives&lt;tfloatexp&lt;double,int64_t&gt;
   , const tfloatexp&lt;double,int64_t&gt; &amp;e, const tfloatexp&lt;double,int64_t&gt; &amp;h
   , const tfloatexp&lt;double,int64_t&gt; &amp;daa, const tfloatexp&lt;double,int64_t&gt; &amp;dab, const tfloatexp&lt;double,int64_t&gt; &amp;dba, const tfloatexp&lt;double,int64_t&gt; &amp;dbb
   , const bool noDerivativeGlitch
+  , const bool singleref
   );
 
 </xsl:template>

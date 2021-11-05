@@ -483,6 +483,7 @@ static void UpdateGlitchCenterMethod(HWND hWnd)
 	CheckMenuItem(GetMenu(hWnd),ID_USE_ORIGINAL_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==0?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==1?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_USE_RANDOM_AS_GLITCH_CENTER,MF_BYCOMMAND|(b==2?MF_CHECKED:MF_UNCHECKED));
+	CheckMenuItem(GetMenu(hWnd),ID_REUSE_REFERENCE_TO_CORRECT_GLITCHES,MF_BYCOMMAND|(b==3?MF_CHECKED:MF_UNCHECKED));
 }
 
 static void UpdateSolveGlitchNear(HWND hWnd)
@@ -3579,6 +3580,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_USE_RANDOM_AS_GLITCH_CENTER){
 		g_SFT.SetGlitchCenterMethod(2);
+		UpdateGlitchCenterMethod(hWnd);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_REUSE_REFERENCE_TO_CORRECT_GLITCHES){
+		g_SFT.SetGlitchCenterMethod(3);
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
