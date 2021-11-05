@@ -2612,6 +2612,7 @@ void perturbation_scaled_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  long rantal = antal;
   l->log_m_nPower = g->hybrid_log_powers[0];
   dualfe Xxr = dfe(zero, zero, zero);
   dualfe Xxi = dfe(zero, zero, zero);
@@ -2639,14 +2640,14 @@ void perturbation_scaled_loop
   duald wi = dualfe_double(dualfe_divfe(xi, S));
   duald ur = dualfe_double(dualfe_divfe(cr, S));
   duald ui = dualfe_double(dualfe_divfe(ci, S));
-  for (; antal < g->nMaxIter; antal++)
+  for (; antal < g->nMaxIter && rantal < g->reference_size_x; antal++)
   {
-    const bool full_iteration = antal == n;
+    const bool full_iteration = rantal == n;
     if (full_iteration)
     {
-      const floatexp Xr = Xrf;
-      const floatexp Xi = Xif;
-      const floatexp Xz = Xzf;
+      floatexp Xr = Xrf;
+      floatexp Xi = Xif;
+      floatexp Xz = Xzf;
       if (k < g->m_nRSize)
       {
         n = m_refN[k];
@@ -2657,32 +2658,77 @@ void perturbation_scaled_loop
       }
       else
       {
-        n = g->nMaxIter;
+        if (g->singleref)
+        {
+          k = 0;
+          n = m_refN[k];
+          Xrf = m_refX[k];
+          Xif = m_refY[k];
+          Xzf = m_refZ[k];
+          k++;
+        }
+        else
+        {
+          n = g->nMaxIter;
+        }
       }
-      const dualfe xr = dualfe_femulduald(S, wr);
-      const dualfe xi = dualfe_femulduald(S, wi);
+      dualfe xr = dualfe_femulduald(S, wr);
+      dualfe xi = dualfe_femulduald(S, wi);
       Xxr = dualfe_feadd(Xr, xr);
       Xxi = dualfe_feadd(Xi, xi);
-      const floatexp Xxr2 = fe_sqr(Xxr.x);
-      const floatexp Xxi2 = fe_sqr(Xxi.x);
+      floatexp Xxr2 = fe_sqr(Xxr.x);
+      floatexp Xxi2 = fe_sqr(Xxi.x);
       test2 = test1;
-      const floatexp ftest1 = fe_add(Xxr2, Xxi2);
+      floatexp ftest1 = fe_add(Xxr2, Xxi2);
       test1 = fe_double(ftest1);
-      if (fe_lt(ftest1, Xz))
+      if (g->singleref)
       {
-        l->bGlitch = true;
-        if (! l->bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
+        }
+        if (test1 > g->m_nBailout2)
         {
           break;
         }
+        if (fe_lt(ftest1, fe_add(fe_sqr(xr.x), fe_sqr(xi.x))) || rantal == g->reference_size_x)
+        {
+          xr = Xxr;
+          xi = Xxi;
+          rantal = 0;
+          Xr = zero;
+          Xi = zero;
+          Xz = zero;
+          Xxr = dualfe_feadd(Xr, xr);
+          Xxi = dualfe_feadd(Xi, xi);
+          Xxr2 = fe_sqr(Xxr.x);
+          Xxi2 = fe_sqr(Xxi.x);
+          ftest1 = fe_add(Xxr2, Xxi2);
+          test1 = fe_double(ftest1);
+          if (! no_g)
+          {
+            test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
+          }
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
-      }
-      if (test1 > g->m_nBailout2)
-      {
-        break;
+        if (fe_lt(ftest1, Xz))
+        {
+          l->bGlitch = true;
+          if (! l->bNoGlitchDetection)
+          {
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
+        }
+        if (test1 > g->m_nBailout2)
+        {
+          break;
+        }
       }
       const fecomplex Z = fec(Xr, Xi);
       const dualfecomplex z = dfec(xr, xi);
@@ -2747,33 +2793,74 @@ void perturbation_scaled_loop
     }
     else
     {
-      long antal_min = antal - g->nMinIter;
-      const mantissa Xr = m_refx[antal_min];
-      const mantissa Xi = m_refy[antal_min];
-      const mantissa Xz = m_refz[antal_min];
-      const duald Xxrd = duald_dadd(Xr, duald_muld(wr, s));
-      const duald Xxid = duald_dadd(Xi, duald_muld(wi, s));
+      mantissa Xr = m_refx[rantal];
+      mantissa Xi = m_refy[rantal];
+      mantissa Xz = m_refz[rantal];
+      rantal++;
+      duald Xxrd = duald_dadd(Xr, duald_muld(wr, s));
+      duald Xxid = duald_dadd(Xi, duald_muld(wi, s));
       Xxr = dualfe_from_duald(Xxrd);
       Xxi = dualfe_from_duald(Xxid);
-      const mantissa Xxr2 = Xxrd.x * Xxrd.x;
-      const mantissa Xxi2 = Xxid.x * Xxid.x;
+      mantissa Xxr2 = Xxrd.x * Xxrd.x;
+      mantissa Xxi2 = Xxid.x * Xxid.x;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
-      if (test1 < Xz)
+      if (g->singleref)
       {
-        l->bGlitch = true;
-        if (! l->bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd.x, Xxid.x);
+        }
+        if (test1 > g->m_nBailout2)
         {
           break;
         }
+        if (test1 < s * s * (wr.x * wr.x + wi.x * wi.x) || rantal == g->reference_size_x)
+        {
+          dualfe xr = Xxr;
+          dualfe xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxrd = duald_dadd(Xr, fe_double(xr.x));
+          Xxid = duald_dadd(Xim, fe_double(xi.x));
+          Xxr = dualfe_from_duald(Xxrd);
+          Xxi = dualfe_from_duald(Xxid);
+          Xxr2 = Xxrd.x * Xxrd.x;
+          Xxi2 = Xxid.x * Xxid.x;
+          test1 = Xxr2 + Xxi2;
+          if (! no_g)
+          {
+            test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr.x), fe_double(Xxi.x));
+          }
+          // rescale
+          S = fe_sqrt(fe_add(fe_sqr(xr.x), fe_sqr(xi.x)));
+          s = fe_double(S);
+          wr = dualfe_double(dualfe_divfe(xr, S));
+          wi = dualfe_double(dualfe_divfe(xi, S));
+          ur = dualfe_double(dualfe_divfe(cr, S));
+          ui = dualfe_double(dualfe_divfe(ci, S));
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd.x, Xxid.x);
-      }
-      if (test1 > g->m_nBailout2)
-      {
-        break;
+        if (test1 < Xz)
+        {
+          l->bGlitch = true;
+          if (! l->bNoGlitchDetection)
+          {
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd.x, Xxid.x);
+        }
+        if (test1 > g->m_nBailout2)
+        {
+          break;
+        }
       }
       dcomplex Z = dc(Xr, Xi);
       dualdcomplex w = ddc(wr, wi);
@@ -2922,6 +3009,7 @@ void perturbation_scaled_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  long rantal = antal;
   l->log_m_nPower = g->hybrid_log_powers[0];
   floatexp Xxr = zero;
   floatexp Xxi = zero;
@@ -2952,12 +3040,12 @@ void perturbation_scaled_loop
   mantissa u = fe_double(fe_div(fe_sqrt(fe_add(fe_sqr(cr), fe_sqr(ci))), S));
   for (; antal < g->nMaxIter; antal++)
   {
-    const bool full_iteration = antal == n;
+    const bool full_iteration = rantal == n;
     if (full_iteration)
     {
-      const floatexp Xr = Xrf;
-      const floatexp Xi = Xif;
-      const floatexp Xz = Xzf;
+      floatexp Xr = Xrf;
+      floatexp Xi = Xif;
+      floatexp Xz = Xzf;
       if (k < g->m_nRSize)
       {
         n = m_refN[k];
@@ -2968,32 +3056,77 @@ void perturbation_scaled_loop
       }
       else
       {
-        n = g->nMaxIter;
+        if (g->singleref)
+        {
+          k = 0;
+          n = m_refN[k];
+          Xrf = m_refX[k];
+          Xif = m_refY[k];
+          Xzf = m_refZ[k];
+          k++;
+        }
+        else
+        {
+          n = g->nMaxIter;
+        }
       }
-      const floatexp xr = fe_muld(S, wr);
-      const floatexp xi = fe_muld(S, wi);
+      floatexp xr = fe_muld(S, wr);
+      floatexp xi = fe_muld(S, wi);
       Xxr = fe_add(Xr, xr);
       Xxi = fe_add(Xi, xi);
-      const floatexp Xxr2 = fe_sqr(Xxr);
-      const floatexp Xxi2 = fe_sqr(Xxi);
+      floatexp Xxr2 = fe_sqr(Xxr);
+      floatexp Xxi2 = fe_sqr(Xxi);
       test2 = test1;
-      const floatexp ftest1 = fe_add(Xxr2, Xxi2);
+      floatexp ftest1 = fe_add(Xxr2, Xxi2);
       test1 = fe_double(ftest1);
-      if (fe_lt(ftest1, Xz))
+      if (g->singleref)
       {
-        l->bGlitch = true;
-        if (! l->bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+        }
+        if (test1 > g->m_nBailout2)
         {
           break;
         }
+        if (fe_lt(ftest1, fe_add(fe_sqr(xr), fe_sqr(xi))) || rantal == g->reference_size_x)
+        {
+          xr = Xxr;
+          xi = Xxi;
+          rantal = 0;
+          Xr = zero;
+          Xi = zero;
+          Xz = zero;
+          Xxr = fe_add(Xr, xr);
+          Xxi = fe_add(Xi, xi);
+          Xxr2 = fe_sqr(Xxr);
+          Xxi2 = fe_sqr(Xxi);
+          ftest1 = fe_add(Xxr2, Xxi2);
+          test1 = fe_double(ftest1);
+          if (! no_g)
+          {
+            test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+          }
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
-      }
-      if (test1 > g->m_nBailout2)
-      {
-        break;
+        if (fe_lt(ftest1, Xz))
+        {
+          l->bGlitch = true;
+          if (! l->bNoGlitchDetection)
+          {
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, fe_double(Xxr), fe_double(Xxi));
+        }
+        if (test1 > g->m_nBailout2)
+        {
+          break;
+        }
       }
       const fecomplex Z = fec(Xr, Xi);
       const fecomplex z = fec(xr, xi);
@@ -3058,35 +3191,74 @@ void perturbation_scaled_loop
     }
     else
     {
-      size_t antal_min = antal - g->nMinIter;
-      const mantissa Xr = m_refx[antal_min];
-      const mantissa Xi = m_refy[antal_min];
-      const mantissa Xz = m_refz[antal_min];
-      const mantissa Xxrd = Xr + wr * s;
-      const mantissa Xxid = Xi + wi * s;
+      mantissa Xr = m_refx[rantal];
+      mantissa Xi = m_refy[rantal];
+      mantissa Xz = m_refz[rantal];
+      rantal++;
+      mantissa Xxrd = Xr + wr * s;
+      mantissa Xxid = Xi + wi * s;
       Xxr = fe_floatexp(Xxrd, 0);
       Xxi = fe_floatexp(Xxid, 0);
-      const mantissa Xxr2 = Xxrd * Xxrd;
-      const mantissa Xxi2 = Xxid * Xxid;
+      mantissa Xxr2 = Xxrd * Xxrd;
+      mantissa Xxi2 = Xxid * Xxid;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
-      if (test1 < Xz)
+      if (g->singleref)
       {
-        l->bGlitch = true;
-        if (! l->bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd, Xxid);
+        }
+        if (test1 > g->m_nBailout2)
         {
           break;
         }
+        if (test1 < s * s * (wr * wr + wi * wi) || rantal == g->reference_size_x)
+        {
+          floatexp xr = Xxr;
+          floatexp xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxr = xr;
+          Xxi = xi;
+          Xxrd = fe_double(Xxr);
+          Xxid = fe_double(Xxi);
+          Xxr2 = Xxrd * Xxrd;
+          Xxi2 = Xxid * Xxid;
+          test1 = Xxr2 + Xxi2;
+          if (! no_g)
+          {
+            test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd, Xxid);
+          }
+          // rescale
+          S = fe_sqrt(fe_add(fe_sqr(xr), fe_sqr(xi)));
+          s = fe_double(S);
+          wr = fe_double(fe_div(xr, S));
+          wi = fe_double(fe_div(xi, S));
+          ur = fe_double(fe_div(cr, S));
+          ui = fe_double(fe_div(ci, S));
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd, Xxid);
-      }
-      if (test1 > g->m_nBailout2)
-      {
-        Xxr = fe_floatexp(Xxrd, 0);
-        Xxi = fe_floatexp(Xxid, 0);
-        break;
+        if (test1 < Xz)
+        {
+          l->bGlitch = true;
+          if (! l->bNoGlitchDetection)
+          {
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g->g_real, g->g_imag, g->norm_p, Xxrd, Xxid);
+        }
+        if (test1 > g->m_nBailout2)
+        {
+          break;
+        }
       }
       dcomplex Z = dc(Xr, Xi);
       dcomplex w = dc(wr, wi);
