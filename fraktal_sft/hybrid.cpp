@@ -2612,6 +2612,7 @@ void perturbation_scaled_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  l->log_m_nPower = g->hybrid_log_powers[0];
   dualfe Xxr = dfe(zero, zero, zero);
   dualfe Xxi = dfe(zero, zero, zero);
   long k = 0; long n = 0;
@@ -2921,6 +2922,7 @@ void perturbation_scaled_loop
   mantissa test1 = l->test1;
   mantissa test2 = l->test2;
   long antal = l->antal;
+  l->log_m_nPower = g->hybrid_log_powers[0];
   floatexp Xxr = zero;
   floatexp Xxi = zero;
   long k = 0; long n = 0;
