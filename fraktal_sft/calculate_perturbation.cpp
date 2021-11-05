@@ -95,6 +95,7 @@ void CFraktalSFT::MandelCalc1()
     mantissa Jyb = mantissa(dyb1);
     complex<double> de = 0;
     int power = m_nPower;
+    int64_t rantal = antal;
 
     if (GetUseHybridFormula())
     {
@@ -105,13 +106,13 @@ void CFraktalSFT::MandelCalc1()
         dual<2, mantissa> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
         dual<2, mantissa> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
         dual<2, mantissa> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
-        bool ok = perturbation_dual_hybrid(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
+        bool ok = perturbation_dual_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
       }
       else
       {
-        bool ok = perturbation_hybrid(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
+        bool ok = perturbation_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }
@@ -329,6 +330,7 @@ void CFraktalSFT::MandelCalcScaled()
     tfloatexp<mantissa, exponent> dbaF = tfloatexp<mantissa, exponent>(dba0);
     tfloatexp<mantissa, exponent> dbbF = tfloatexp<mantissa, exponent>(dbb0);
     int power = m_nPower;
+    int64_t rantal = antal;
 
     if (GetUseHybridFormula())
     {
@@ -339,13 +341,13 @@ void CFraktalSFT::MandelCalcScaled()
         dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = s;
         dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = s; dXr.dx[1] = 0;
         dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = s;
-        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dXr, dXi, dCr, dCi, power, singleref);
+        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dXr, dXi, dCr, dCi, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], tfloatexp<mantissa, exponent>(1), TK);
       }
       else
       {
-        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Xr, Xi, Cr, Ci, power, singleref);
+        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Xr, Xi, Cr, Ci, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }

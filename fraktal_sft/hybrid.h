@@ -592,7 +592,7 @@ static inline int hybrid_power_inf(const hybrid_formula &h)
 }
 
 template <typename R>
-inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power, const bool singleref)
+inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, int64_t &rantal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, R &xr0, R &xi0, const R &cr0, const R &ci0, int &power, const bool singleref)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -619,6 +619,7 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
+  int64_t rantal = rantal0;
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
@@ -629,34 +630,73 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
   R Xxi = 0;
   int count = 0;
   int stanza = 0;
+  const int64_t N = reference_size_x(m_Reference);
   const R *Xrd = reference_ptr_x<R>(m_Reference);
   const R *Xid = reference_ptr_y<R>(m_Reference);
   const R *Xzd = reference_ptr_z<R>(m_Reference);
-  for (; antal < nMaxIter; ++antal)
+  for (; antal < nMaxIter && rantal < N; ++antal)
   {
-    const R Xr = Xrd[antal];
-    const R Xi = Xid[antal];
-    const R Xz = Xzd[antal];
+    R Xr = Xrd[rantal];
+    R Xi = Xid[rantal];
+    R Xz = Xzd[rantal];
+    rantal++;
     Xxr = Xr + xr;
     Xxi = Xi + xi;
+    R Xxr2 = Xxr * Xxr;
+    R Xxi2 = Xxi * Xxi;
     test2 = test1;
-    const R ttest1 = Xxr * Xxr + Xxi * Xxi;
+    R ttest1 = Xxr2 + Xxi2;
     test1 = double(ttest1);
-    if (ttest1 < Xz)
+    if (singleref)
     {
-      bGlitch = true;
-      if (! bNoGlitchDetection)
+      if (! no_g)
+      {
+        test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = std::atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+        phase -= std::floor(phase);
         break;
+      }
+      if (ttest1 < xr * xr + xi * xi || rantal == N)
+      {
+        xr = Xxr;
+        xi = Xxi;
+        rantal = 0;
+        Xr = 0;
+        Xi = 0;
+        Xz = 0;
+        Xxr = Xr + xr;
+        Xxi = Xi + xi;
+        Xxr2 = Xxr * Xxr;
+        Xxi2 = Xxi * Xxi;
+        ttest1 = Xxr2 + Xxi2;
+        test1 = double(ttest1);
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+        }
+      }
     }
-    if (! no_g)
+    else
     {
-      test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-    }
-    if (test1 > nBailout2)
-    {
-      phase = std::atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-      phase -= std::floor(phase);
-      break;
+      if (ttest1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+          break;
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = std::atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+        phase -= std::floor(phase);
+        break;
+      }
     }
     complex<R> Z(Xr, Xi);
     complex<R> z(xr, xi);
@@ -685,6 +725,7 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
   }
   power = hybrid_power_inf(h.stanzas[stanza]);
   antal0 = antal;
+  rantal0 = rantal;
   test10 = test1;
   test20 = test2;
   phase0 = phase;
@@ -694,7 +735,7 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
 }
 
 template <typename R>
-inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power, const bool singleref)
+inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, int64_t &rantal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, R> &xr0, dual<2, R> &xi0, const dual<2, R> &cr0, const dual<2, R> &ci0, int &power, const bool singleref)
 {
   const int k = h.stanzas.size();
   if (k == 0)
@@ -721,6 +762,7 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
+  int64_t rantal = rantal0;
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
@@ -731,40 +773,81 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
   dual<2, R> Xxi = 0;
   int count = 0;
   int stanza = 0;
+  const int64_t N = reference_size_x(m_Reference);
   const R *Xrd = reference_ptr_x<R>(m_Reference);
   const R *Xid = reference_ptr_y<R>(m_Reference);
   const R *Xzd = reference_ptr_z<R>(m_Reference);
-  for (; antal < nMaxIter; ++antal)
+  for (; antal < nMaxIter && rantal < N; ++antal)
   {
-    const R Xr = Xrd[antal];
-    const R Xi = Xid[antal];
-    const R Xz = Xzd[antal];
-    const R Xxr1 = Xr + xr.x;
-    const R Xxi1 = Xi + xi.x;
+    R Xr = Xrd[rantal];
+    R Xi = Xid[rantal];
+    R Xz = Xzd[rantal];
+    rantal++;
+    R Xxr1 = Xr + xr.x;
+    R Xxi1 = Xi + xi.x;
+    R Xxr12 = Xxr1 * Xxr1;
+    R Xxi12 = Xxi1 * Xxi1;
+    R ttest1 = Xxr12 + Xxi12;
     test2 = test1;
-    const R ttest1 = Xxr1 * Xxr1 + Xxi1 * Xxi1;
     test1 = double(ttest1);
-    if (ttest1 < Xz)
+    if (singleref)
     {
-      bGlitch = true;
-      if (! bNoGlitchDetection)
+      if (! no_g)
       {
+        test1 = pnorm(g_real, g_imag, p, double(Xxr1), double(Xxi1));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = std::atan2(double(Xxi1), double(Xxr1)) / M_PI / 2;
+        phase -= std::floor(phase);
         Xxr = Xr + xr;
         Xxi = Xi + xi;
         break;
       }
+      if (ttest1 < xr.x * xr.x + xi.x * xi.x || rantal == N)
+      {
+        xr.x = Xxr1;
+        xi.x = Xxi1;
+        rantal = 0;
+        Xr = 0;
+        Xi = 0;
+        Xz = 0;
+        Xxr1 = Xr + xr.x;
+        Xxi1 = Xi + xi.x;
+        Xxr12 = Xxr1 * Xxr1;
+        Xxi12 = Xxi1 * Xxi1;
+        ttest1 = Xxr12 + Xxi12;
+        test1 = double(ttest1);
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr1), double(Xxi1));
+        }
+      }
     }
-    if (! no_g)
+    else
     {
-      test1 = double(pnorm(g_real, g_imag, p, Xxr1, Xxi1));
-    }
-    if (test1 > nBailout2)
-    {
-      phase = std::atan2(double(Xxi1), double(Xxr1)) / M_PI / 2;
-      phase -= std::floor(phase);
-      Xxr = Xr + xr;
-      Xxi = Xi + xi;
-      break;
+      if (ttest1 < Xz)
+      {
+        bGlitch = true;
+        if (! bNoGlitchDetection)
+        {
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          break;
+        }
+      }
+      if (! no_g)
+      {
+        test1 = pnorm(g_real, g_imag, p, double(Xxr1), double(Xxi1));
+      }
+      if (test1 > nBailout2)
+      {
+        phase = std::atan2(double(Xxi1), double(Xxr1)) / M_PI / 2;
+        phase -= std::floor(phase);
+        Xxr = Xr + xr;
+        Xxi = Xi + xi;
+        break;
+      }
     }
     complex<R> Z(Xr, Xi);
     complex<dual<2, R>> z(xr, xi);
@@ -798,6 +881,7 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
   }
   power = hybrid_power_inf(h.stanzas[stanza]);
   antal0 = antal;
+  rantal0 = rantal;
   test10 = test1;
   test20 = test2;
   phase0 = phase;
@@ -807,7 +891,7 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
 }
 
 template <typename R, typename I>
-inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, tfloatexp<R, I> &xr0, tfloatexp<R, I> &xi0, const tfloatexp<R, I> &cr0, const tfloatexp<R, I> &ci0, int &power, const bool singleref)
+inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, int64_t &rantal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, tfloatexp<R, I> &xr0, tfloatexp<R, I> &xi0, const tfloatexp<R, I> &cr0, const tfloatexp<R, I> &ci0, int &power, const bool singleref)
 {
   using mantissa = R;
   using exponent = I;
@@ -836,6 +920,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
+  int64_t rantal = rantal0;
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
@@ -843,6 +928,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
   tfloatexp<R, I> Xxi = 0;
   int count = 0;
   int stanza = 0;
+  const int64_t size_x = reference_size_x(m_Reference);
   const R *xptr = reference_ptr_x<R>(m_Reference);
   const R *yptr = reference_ptr_y<R>(m_Reference);
   const R *zptr = reference_ptr_z<R>(m_Reference);
@@ -876,14 +962,14 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
   mantissa wi = mantissa(xi0 / S);
   mantissa ur = mantissa(cr0 / S);
   mantissa ui = mantissa(ci0 / S);
-  for (; antal < nMaxIter; ++antal)
+  for (; antal < nMaxIter && rantal < size_x; ++antal)
   {
-    bool full_iteration = antal == N;
+    bool full_iteration = rantal == N;
     if (full_iteration)
     {
-      const tfloatexp<mantissa, exponent> Xr = X;
-      const tfloatexp<mantissa, exponent> Xi = Y;
-      const tfloatexp<mantissa, exponent> Xz = Z0;
+      tfloatexp<mantissa, exponent> Xr = X;
+      tfloatexp<mantissa, exponent> Xi = Y;
+      tfloatexp<mantissa, exponent> Xz = Z0;
       if (K < size_N)
       {
         N = Nptr[K];
@@ -894,32 +980,86 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
       }
       else
       {
-        N = nMaxIter;
+        if (singleref)
+        {
+          K = 0;
+          N = Nptr[K];
+          X = Xptr[K];
+          Y = Yptr[K];
+          Z0 = Zptr[K];
+          ++K;
+        }
+        else
+        {
+          N = nMaxIter;
+        }
       }
-      const tfloatexp<mantissa, exponent> xr = S * tfloatexp<mantissa, exponent>(wr);
-      const tfloatexp<mantissa, exponent> xi = S * tfloatexp<mantissa, exponent>(wi);
+      tfloatexp<mantissa, exponent> xr = S * tfloatexp<mantissa, exponent>(wr);
+      tfloatexp<mantissa, exponent> xi = S * tfloatexp<mantissa, exponent>(wi);
       Xxr = Xr + xr;
       Xxi = Xi + xi;
-      const tfloatexp<mantissa, exponent> Xxr2 = Xxr * Xxr;
-      const tfloatexp<mantissa, exponent> Xxi2 = Xxi * Xxi;
+      tfloatexp<mantissa, exponent> Xxr2 = Xxr * Xxr;
+      tfloatexp<mantissa, exponent> Xxi2 = Xxi * Xxi;
       test2 = test1;
-      tfloatexp<mantissa, exponent> ftest1 = Xxr2 + Xxi2;
-      test1 = double(ftest1);
-      if (ftest1 < Xz)
+      tfloatexp<mantissa, exponent> ttest1 = Xxr2 + Xxi2;
+      test1 = double(ttest1);
+
+      if (singleref)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+          phase -= std::floor(phase);
           break;
+        }
+        if (ttest1 < xr * xr + xi * xi || rantal == size_x)
+        {
+          xr = Xxr;
+          xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          Xxr2 = Xxr * Xxr;
+          Xxi2 = Xxi * Xxi;
+          ttest1 = Xxr2 + Xxi2;
+          test1 = double(ttest1);
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+          }
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
-      }
-      if (test1 > nBailout2)
-      {
-        phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+        if (ttest1 < Xz)
+        {
+          bGlitch = true;
+          if (! bNoGlitchDetection)
+          {
+            Xxr = Xr + xr;
+            Xxi = Xi + xi;
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+          phase -= std::floor(phase);
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          break;
+        }
       }
       tfloatexp<mantissa, exponent> xrn, xin;
 
@@ -959,34 +1099,81 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
     }
     else
     {
-      const mantissa Xr = xptr[antal];
-      const mantissa Xi = yptr[antal];
-      const mantissa Xz = zptr[antal];
-      const mantissa Xxrd = Xr + wr * s;
-      const mantissa Xxid = Xi + wi * s;
+      mantissa Xr = xptr[rantal];
+      mantissa Xi = yptr[rantal];
+      mantissa Xz = zptr[rantal];
+      rantal++;
+      mantissa Xxrd = Xr + wr * s;
+      mantissa Xxid = Xi + wi * s;
       Xxr = Xxrd;
       Xxi = Xxid;
-      const mantissa Xxr2 = Xxrd * Xxrd;
-      const mantissa Xxi2 = Xxid * Xxid;
+      mantissa Xxr2 = Xxrd * Xxrd;
+      mantissa Xxi2 = Xxid * Xxid;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
-      if (test1 < Xz)
+
+      if (singleref)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
+        if (! no_g)
         {
+          test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+          phase -= std::floor(phase);
           break;
         }
+        if (test1 < s * s * (wr * wr + wr * wi) || rantal == size_x)
+        {
+          const tfloatexp<mantissa, exponent> xr = Xxr;
+          const tfloatexp<mantissa, exponent> xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxrd = mantissa(Xr + xr);
+          Xxid = mantissa(Xi + xi);
+          Xxr2 = Xxrd * Xxrd;
+          Xxi2 = Xxid * Xxid;
+          test1 = Xxr2 + Xxi2;
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+          }
+          // rescale
+          S = sqrt(xr * xr + xi * xi);
+          s = mantissa(S);
+          wr = mantissa(xr / S);
+          wi = mantissa(xi / S);
+          ur = mantissa(cr0 / S);
+          ui = mantissa(ci0 / S);
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
-      }
-      if (test1 > nBailout2)
-      {
-        phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+        if (test1 < Xz)
+        {
+          bGlitch = true;
+          if (! bNoGlitchDetection)
+          {
+            Xxr = Xr + wr * s;
+            Xxi = Xi + wr * s;
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+          phase -= std::floor(phase);
+          Xxr = Xr + wr * s;
+          Xxi = Xi + wi * s;
+          break;
+        }
       }
       mantissa wrn, win;
 
@@ -1047,7 +1234,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
 }
 
 template <typename R, typename I>
-inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, tfloatexp<R, I>> &xr0, dual<2, tfloatexp<R, I>> &xi0, const dual<2, tfloatexp<R, I>> &cr0, const dual<2, tfloatexp<R, I>> &ci0, int &power, const bool singleref)
+inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Reference *m_Reference, int64_t &antal0, int64_t &rantal0, double &test10, double &test20, double &phase0, bool &bGlitch, const double &nBailout2, const int64_t &nMaxIter, const bool &bNoGlitchDetection, const double &g_real, const double &g_imag, const double &p, dual<2, tfloatexp<R, I>> &xr0, dual<2, tfloatexp<R, I>> &xi0, const dual<2, tfloatexp<R, I>> &cr0, const dual<2, tfloatexp<R, I>> &ci0, int &power, const bool singleref)
 {
   using mantissa = R;
   using exponent = I;
@@ -1081,6 +1268,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
   int64_t antal = antal0;
+  int64_t rantal = rantal0;
   double test1 = test10;
   double test2 = test20;
   double phase = phase0;
@@ -1088,6 +1276,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
   DD Xxi = 0;
   int count = 0;
   int stanza = 0;
+  const int64_t size_x = reference_size_x(m_Reference);
   const R *xptr = reference_ptr_x<R>(m_Reference);
   const R *yptr = reference_ptr_y<R>(m_Reference);
   const R *zptr = reference_ptr_z<R>(m_Reference);
@@ -1126,9 +1315,9 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
     bool full_iteration = antal == N;
     if (full_iteration)
     {
-      const tfloatexp<mantissa, exponent> Xr = X;
-      const tfloatexp<mantissa, exponent> Xi = Y;
-      const tfloatexp<mantissa, exponent> Xz = Z0;
+      tfloatexp<mantissa, exponent> Xr = X;
+      tfloatexp<mantissa, exponent> Xi = Y;
+      tfloatexp<mantissa, exponent> Xz = Z0;
       if (K < size_N)
       {
         N = Nptr[K];
@@ -1139,32 +1328,85 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
       }
       else
       {
-        N = nMaxIter;
+        if (singleref)
+        {
+          K = 0;
+          N = Nptr[K];
+          X = Xptr[K];
+          Y = Yptr[K];
+          Z0 = Zptr[K];
+          ++K;
+        }
+        else
+        {
+          N = nMaxIter;
+        }
       }
-      const DD xr = S * DD(wr);
-      const DD xi = S * DD(wi);
+      DD xr = S * DD(wr);
+      DD xi = S * DD(wi);
       Xxr = Xr + xr;
       Xxi = Xi + xi;
-      const RR Xxr2 = Xxr.x * Xxr.x;
-      const RR Xxi2 = Xxi.x * Xxi.x;
+      RR Xxr2 = Xxr.x * Xxr.x;
+      RR Xxi2 = Xxi.x * Xxi.x;
       test2 = test1;
-      RR ftest1 = Xxr2 + Xxi2;
-      test1 = double(ftest1);
-      if (ftest1 < Xz)
+      RR ttest1 = Xxr2 + Xxi2;
+      test1 = double(ttest1);
+      if (singleref)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
+          phase -= std::floor(phase);
           break;
+        }
+        if (test1 < xr.x * xr.x + xi.x * xi.x || rantal == size_x)
+        {
+          xr = Xxr;
+          xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          Xxr2 = Xxr.x * Xxr.x;
+          Xxi2 = Xxi.x * Xxi.x;
+          ttest1 = Xxr2 + Xxi2;
+          test1 = double(ttest1);
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
+          }
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
-      }
-      if (test1 > nBailout2)
-      {
-        phase = atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+        if (ttest1 < Xz)
+        {
+          bGlitch = true;
+          if (! bNoGlitchDetection)
+          {
+            Xxr = Xr + xr;
+            Xxi = Xi + xi;
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxi.x), double(Xxr.x)) / M_PI / 2;
+          phase -= std::floor(phase);
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+          break;
+        }
       }
       DD xrn, xin;
 
@@ -1204,34 +1446,78 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
     }
     else
     {
-      const mantissa Xr = xptr[antal];
-      const mantissa Xi = yptr[antal];
-      const mantissa Xz = zptr[antal];
-      const D Xxrd = Xr + wr * s;
-      const D Xxid = Xi + wi * s;
+      mantissa Xr = xptr[rantal];
+      mantissa Xi = yptr[rantal];
+      mantissa Xz = zptr[rantal];
+      rantal++;
+      D Xxrd = Xr + wr * s;
+      D Xxid = Xi + wi * s;
       Xxr = DD(Xxrd);
       Xxi = DD(Xxid);
-      const R Xxr2 = Xxrd.x * Xxrd.x;
-      const R Xxi2 = Xxid.x * Xxid.x;
+      R Xxr2 = Xxrd.x * Xxrd.x;
+      R Xxi2 = Xxid.x * Xxid.x;
       test2 = test1;
       test1 = Xxr2 + Xxi2;
-      if (test1 < Xz)
+      if (singleref)
       {
-        bGlitch = true;
-        if (! bNoGlitchDetection)
+        if (! no_g)
         {
+          test1 = pnorm(g_real, g_imag, p, double(Xxrd.x), double(Xxid.x));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = std::atan2(double(Xxid.x), double(Xxrd.x)) / M_PI / 2;
+          phase -= std::floor(phase);
           break;
         }
+        if (test1 < s * s * (wr.x * wr.x + wi.x * wi.x) || rantal == size_x)
+        {
+          DD xr = Xxr;
+          DD xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+          Xxrd = Xr + xr.x;
+          Xxid = Xi + xi.x;
+          Xxr = DD(Xxrd);
+          Xxi = DD(Xxid);
+          Xxr2 = Xxrd.x * Xxrd.x;
+          Xxi2 = Xxid.x * Xxid.x;
+          test1 = Xxr2 + Xxi2;
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxr.x), double(Xxi.x));
+          }
+          // rescale
+          S = sqrt(xr.x * xr.x + xi.x * xi.x);
+          s = R(S);
+          wr = D(xr / S);
+          wi = D(xi / S);
+          ur = D(cr0 / S);
+          ui = D(ci0 / S);
+        }
       }
-      if (! no_g)
+      else
       {
-        test1 = double(pnorm(g_real, g_imag, p, Xxrd.x, Xxid.x));
-      }
-      if (test1 > nBailout2)
-      {
-        phase = atan2(double(Xxid.x), double(Xxrd.x)) / M_PI / 2;
-        phase -= floor(phase);
-        break;
+        if (test1 < Xz)
+        {
+          bGlitch = true;
+          if (! bNoGlitchDetection)
+          {
+            break;
+          }
+        }
+        if (! no_g)
+        {
+          test1 = double(pnorm(g_real, g_imag, p, Xxrd.x, Xxid.x));
+        }
+        if (test1 > nBailout2)
+        {
+          phase = atan2(double(Xxid.x), double(Xxrd.x)) / M_PI / 2;
+          phase -= floor(phase);
+          break;
+        }
       }
       D wrn, win;
 
