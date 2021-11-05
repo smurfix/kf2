@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-11-04
+date: 2021-11-05
 ...
 
 # Kalles Fraktaler 2 +
@@ -210,6 +210,9 @@ Feedback:
 
 ### Incompatible Changes
 
+- **In versions `2.15.5` and above**, there are new formulas which are
+  not available in earlier versions
+
 - **In versions `2.15.4` and above**, there are three new formulas which
   are not available in earlier versions;
   imaginary axis reflection option is new
@@ -367,7 +370,8 @@ earlier).
   - new: many new formulas (thanks to Alexandre Vachon aka FractalAlex)
   - new: hybrid formulas support division operator (thanks FractalAlex)
   - new: Nova formula; variant implemented with critical point at 0
-    instead of 1, to avoid precision loss when deep zooming
+    instead of 1, to avoid precision loss when deep zooming;
+    not supported in OpenCL
   - new: Separated Perpendicular formula; variant implemented with
     critical point at 0, and custom function to avoid precision loss
     when deep zooming (thanks Mr Rebooted); not supported in OpenCL
@@ -386,7 +390,7 @@ earlier).
   - fix: some typo bugs in the build system
   - fix: name Polarbrot correctly everywhere
   - internal: support for convergent formulas
-  - internal: support for custom reference orbit values
+  - internal: support for custom reference orbit values (not yet OpenCL)
   - internal: output stream operators for more types
   - internal: refactor smooth iterations handling
   - internal: delete obsolete GlitchIter handling
