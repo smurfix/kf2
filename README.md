@@ -367,7 +367,9 @@ earlier).
     enabled by default
     - known issue: linear smooth method (bailout dialog) is broken when
       single-reference mode is enabled
-    - known issue: does not work with every formula
+    - known issue: does not work with every built-in formula
+    - known issue: does not work with every hybrid formulas (only
+      simple cases work)
   - new: start of support for convergent formulas
     - known issue: convergent formulas are not supported in OpenCL
     - known issue: convergent formulas are not supported with
