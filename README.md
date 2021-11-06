@@ -200,18 +200,16 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
-- the text of NR zoom log goes out of the window (reported by Uma410)
 - changing number of approximation terms can crash sometimes
   (reported by CFJH)
-- regression in Linear smoothing (Bailout dialog) since kf-2.15.4
 
 
 ## Differences From Original 2.11.1
 
 ### Incompatible Changes
 
-- **In versions `2.15.5` and above**, there are new formulas which are
-  not available in earlier versions
+- **In versions `2.15.5` and above**, there are many new formulas which
+  are not available in earlier versions
 
 - **In versions `2.15.4` and above**, there are three new formulas which
   are not available in earlier versions;
@@ -367,30 +365,46 @@ earlier).
   - new: single-reference implementation for avoiding glitches (thanks
     Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
     enabled by default
+    - known issue: linear smooth method (bailout dialog) is broken when
+      single-reference mode is enabled
+    - known issue: does not work with every formula
+  - new: start of support for convergent formulas
+    - known issue: convergent formulas are not supported in OpenCL
+    - known issue: convergent formulas are not supported with
+      derivatives (this means neither analytic DE nor analytic slopes)
   - new: many new formulas (thanks to Alexandre Vachon aka FractalAlex)
-  - new: hybrid formulas support division operator (thanks FractalAlex)
   - new: Nova formula; variant implemented with critical point at 0
-    instead of 1, to avoid precision loss when deep zooming;
-    not supported in OpenCL
+    instead of 1, to avoid precision loss when deep zooming
+    - known issue: no OpenCL support yet
+    - known issue: no derivatives support yet
+    - known issue: Newton zooming does not work properly
   - new: Separated Perpendicular formula; variant implemented with
     critical point at 0, and custom function to avoid precision loss
-    when deep zooming (thanks Mr Rebooted); not supported in OpenCL
+    when deep zooming (thanks Mr Rebooted)
+    - known issue: no OpenCL support yet
+    - known issue: fails with single-reference glitch avoidance method
+  - new: hybrid formulas support division operator (thanks FractalAlex)
+    - known issue: implementation is incomplete
   - new: Triangle Inequality Average colouring algorithm can be enabled
     in Formula dialog; requires OpenCL; replaces final angle in phase
-    (T) channel data; disable Series Approximation for predictable
-    results; likely to change in future versions, use at own risk
+    (T) channel data
+    - known issue: likely to change in future versions, use at own risk
+    - known issue: disable Series Approximation for predictable results
   - fix: Newton zooming functions are correctly linked into the EXE
     (only kf-2.15.4 was broken)
   - fix: control-click to zoom correctly views framed rectangle
     (thanks CFJH)
+  - fix: NR zoom log should no longer go out of the window
+    (reported by Uma410)
   - fix: typo bug in general power Mandelbrot series approximation
     (thanks superheal)
   - fix: some typo bugs in CFixedFloat operators (maybe did not affect
     anything in the old code, if only by chance)
   - fix: some typo bugs in the build system
   - fix: name Polarbrot correctly everywhere
-  - internal: support for convergent formulas
-  - internal: support for custom reference orbit values (not yet OpenCL)
+  - internal: support for custom reference orbit values for caching
+    repeated computations (time/space trade-off)
+    - known issue: no OpenCL support yet
   - internal: output stream operators for more types
   - internal: refactor smooth iterations handling
   - internal: delete obsolete GlitchIter handling
@@ -402,7 +416,6 @@ earlier).
     (thanks FractalAlex)
   - internal: hack for fractions in preprocessor
   - internal: complex constructor taking int to allow complex<T> x = 0
-  - internal: custom reference orbit storage in formula XML
   - internal: custom glitch tests in formula XML
   - internal: brute force (high precision) renderers for tests
 
