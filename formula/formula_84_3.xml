@@ -1,4 +1,5 @@
 <formula type="84" name="Newton Nova Mandelbrot" power="3" glitch="0.0001">
+  <!-- FIXME not really divergent -->
   <reference t="C">
     Xn = (2 * (X ^ 3) + 3 * (X ^ 2)) / (3 * (X ^ 2) + 6 * X + 3) + C;
   </reference>

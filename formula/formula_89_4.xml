@@ -1,4 +1,5 @@
 <formula type="89" name="Simon 0139-C (Buffalo)" power="4" glitch="0.0001">
+  <!-- FIXME not optimized (multiplications by 0) -->
   <reference t="R">
     Xrn = abs((((Xr * abs(Xr) - Xi * abs(Xi)) - Xr) * ((Xr * abs(Xr) - Xi * abs(Xi)) - Xr)) - (((Xi * abs(Xr) + Xr * abs(Xi)) - Xi) * ((Xi * abs(Xr) + Xr * abs(Xi)) - Xi))) + Cr;
     Xin = 2 * abs(((Xr * abs(Xr) - Xi * abs(Xi)) - Xr) * ((Xi * abs(Xr) + Xr * abs(Xi)) - Xi)) + Ci;

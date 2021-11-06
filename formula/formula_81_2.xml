@@ -1,16 +1,12 @@
 <formula type="81" name="Sinbrot" power="2" glitch="0.0001">
-  <reference t="R">
-    Xrn = (Cr + (sin(Xr) * cosh(Xi)));
-    Xin = (Ci + (cos(Xr) * sinh(Xi)));
+  <!-- FIXME critical point not 0, not really divergent -->
+  <reference t="C">
+    Xn = sin(X) + C;
   </reference>
-  <perturbation t="R">
-    xrn = (cr + ((2 * (sin((xr / 2)) * (cos((Xr + (xr / 2))) * cosh((Xi + xi))))) + (2 * (sin(Xr) * (sinh((Xi + (xi / 2))) * sinh((xi / 2))))))); 
-    xin = (ci + (((-2) * (sin((Xr + (xr / 2))) * (sin((xr / 2)) * sinh((Xi + xi))))) + (2 * (cos(Xr) * (sinh((xi / 2)) * cosh((Xi + (xi / 2))))))));
+  <perturbation t="C">
+    xn = c + 2 * sin(x / 2) * cos(X + (x / 2));
   </perturbation>
-  <derivative t="M">
-    dxan = (daa + ((dxa * (cos(Xxr) * cosh(Xxi))) + (dya * (sin(Xxr) * sinh(Xxi)))));
-    dxbn = (dab + ((dxb * (cos(Xxr) * cosh(Xxi))) + (dyb * (sin(Xxr) * sinh(Xxi)))));
-    dyan = (dba + (((-1) * (dxa * (sin(Xxr) * sinh(Xxi)))) + (dya * (cos(Xxr) * cosh(Xxi)))));
-    dybn = (dbb + (((-1) * (dxb * (sin(Xxr) * sinh(Xxi)))) + (dyb * (cos(Xxr) * cosh(Xxi)))));
+  <derivative t="C">
+    dn = d0 + d * cos(Xx);
   </derivative>
 </formula>
