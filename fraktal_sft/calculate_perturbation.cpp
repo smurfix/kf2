@@ -233,7 +233,7 @@ void CFraktalSFT::MandelCalc1()
       if (is_convergent(m_nFractalType, m_nPower))
       {
         bool ok = derivatives
-          ? false
+          ? perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref) // FIXME
           : perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
           ;
         assert(ok && "perturbation_convergent");
