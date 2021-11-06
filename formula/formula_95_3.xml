@@ -1,4 +1,4 @@
-<formula type="83" name="Talis" power="3" glitch="0.0001">
+<formula type="95" name="Talis" power="3" glitch="0.0001">
   <!-- FIXME not really divergent -->
   <reference t="C">
     Xn = ((X ^ 3) / (1 + (X ^ 2))) + C;

@@ -1,4 +1,4 @@
-<formula type="81" name="Sinbrot" power="2" glitch="0.0001">
+<formula type="94" name="Sinbrot" power="2" glitch="0.0001">
   <!-- FIXME critical point not 0, not really divergent -->
   <reference t="C">
     Xn = sin(X) + C;

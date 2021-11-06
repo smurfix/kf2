@@ -1,4 +1,4 @@
-<formula type="82" name="Cubic Celtic Quasi Perpendicular" power="3" glitch="0.0001">
+<formula type="84" name="Cubic Celtic Quasi Perpendicular" power="3" glitch="0.0001">
   <!-- FIXME not optimized (multiplications by 0) -->
   <reference t="R">
     Xrn = abs(Xr2 - (3 * Xi2)) * abs(Xr) + Cr;

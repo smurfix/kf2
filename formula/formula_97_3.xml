@@ -1,4 +1,4 @@
-<formula type="92" name="Nova" power="3" convergent="1" glitch="1e-6">
+<formula type="97" name="Nova" power="3" convergent="1" glitch="1e-6">
   <reference t="C">
     Xn = (2 * (X^3) / 3 - 2 * X - 1) / ((X+1)^2) + C + 1;
   </reference>

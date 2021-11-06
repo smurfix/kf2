@@ -1,4 +1,4 @@
-<formula type="79" name="Exponential Mandelbrot" power="2" glitch="0.0001">
+<formula type="92" name="Exponential Mandelbrot" power="2" glitch="0.0001">
   <!-- FIXME critical point not 0, not really divergent -->
   <reference t="C">
     Xn = exp(X) + C;

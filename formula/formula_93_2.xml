@@ -1,4 +1,4 @@
-<formula type="80" name="Cosbrot" power="2" glitch="0.0001">
+<formula type="93" name="Cosbrot" power="2" glitch="0.0001">
   <!-- FIXME not really divergent -->
   <reference t="C">
     Xn = cos(X) + C;

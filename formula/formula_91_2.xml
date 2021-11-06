@@ -1,4 +1,4 @@
-<formula type="93" name="Separated Perpendicular" power="2" glitch="0.0001">
+<formula type="91" name="Separated Perpendicular" power="2" glitch="0.0001">
   <reference t="R">
     Xrn = sqr(diffabs(7/4, Xr)) - Xi2 + Cr - 77/16;
     Xin = 2 * XB * Xi + Ci;

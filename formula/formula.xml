@@ -246,6 +246,8 @@
   <formula power="3" />
   <formula power="4" />
 </group>
+<!-- 2.15.4 above -->
+<!-- 2.15.5 below -->
 <group type="75" name="Mandelbrot Variation 1">
   <formula power="2" />
 </group>
@@ -258,51 +260,88 @@
 <group type="78" name="Mandelbrot Variation 4">
   <formula power="2" />
 </group>
-<group type="79" name="Exponential Mandelbrot">
+<group type="79" name="Mandelbrot Variation 5">
   <formula power="2" />
 </group>
-<group type="80" name="Cosbrot">
-  <formula power="2" />
+<group type="80" name="Simon 0139-C (plain)">
+  <formula power="4" />
 </group>
-<group type="81" name="Sinbrot">
-  <formula power="2" />
+<group type="81" name="Simon 0139-C (Burning Ship)">
+  <formula power="4" />
 </group>
-<group type="82" name="Cubic Celtic Quasi Perpendicular">
+<group type="82" name="Simon 0139-C (Celtic)">
+  <formula power="4" />
+</group>
+<group type="83" name="Simon 0139-C (Buffalo)">
+  <formula power="4" />
+</group>
+<group type="84" name="Cubic Celtic Quasi Perpendicular">
   <formula power="3" />
 </group>
-<group type="83" name="Talis">
+<group type="85" name="Cubic Quasi Perpendicular Burning Ship">
+  <formula power="3" />
+</group>
+<group type="86" name="Cubic Quasi Perpendicular Buffalo">
+  <formula power="3" />
+</group>
+<group type="87" name="Quintic Quasi Perpendicular Burning Ship">
+  <formula power="5" />
+</group>
+<group type="88" name="Quintic Quasi Perpendicular Buffalo">
+  <formula power="5" />
+</group>
+<group type="89" name="Quintic Quasi Perpendicular Celtic">
+  <formula power="5" />
+</group>
+<group type="90" name="Quintic Quasi Celtic Heart">
+  <formula power="5" />
+</group>
+<group type="91" name="Separated Perpendicular">
+  <formula power="2" />
+</group>
+<group type="92" name="Exponential Mandelbrot">
+  <formula power="2" />
+</group>
+<group type="93" name="Cosbrot">
+  <formula power="2" />
+</group>
+<group type="94" name="Sinbrot">
+  <formula power="2" />
+</group>
+<group type="95" name="Talis">
   <formula power="2" />
   <formula power="3" />
   <formula power="4" />
 </group>
-<group type="84" name="Newton Nova Mandelbrot">
-  <formula power="3" />
-</group>
-<group type="85" name="Newton Mandelbrot">
+<group type="96" name="Newton Mandelbrot">
   <formula power="2" />
 </group>
-<group type="86" name="Simon 0139-C (plain)">
-  <formula power="4" />
-</group>
-<group type="87" name="Simon 0139-C (Burning Ship)">
-  <formula power="4" />
-</group>
-<group type="88" name="Simon 0139-C (Celtic)">
-  <formula power="4" />
-</group>
-<group type="89" name="Simon 0139-C (Buffalo)">
-  <formula power="4" />
-</group>
-<group type="90" name="Mandelbrot Variation 5">
-  <formula power="2" />
-</group>
-<group type="91" name="Halley Nova Mandelbrot">
+<group type="97" name="Nova" convergent="1">
   <formula power="3" />
 </group>
-<group type="92" name="Nova" convergent="1">
+<!--
+<group type="84" name="Newton Nova (z^p - 1)" convergent="1">
+  <formula power="2" />
+  <formula power="3" />
+  <formula power="4" />
+  <formula power="5" />
+</group>
+<group type="91" name="Halley Nova (z^p - 1)" convergent="1">
+  <formula power="2" />
+  <formula power="3" />
+  <formula power="4" />
+  <formula power="5" />
+</group>
+<group type="92" name="Schroder Nova (z^p - 1)" convergent="1">
+  <formula power="2" />
   <formula power="3" />
 </group>
-<group type="93" name="Separated Perpendicular">
+<group type="93" name="Householder 3 Nova (z^p - 1)" convergent="1">
   <formula power="2" />
+  <formula power="3" />
 </group>
+<group type="94" name="Householder Nova (z^p - 1)" convergent="1">
+  <formula power="3" />
+</group>
+-->
 </formulas>

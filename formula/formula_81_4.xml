@@ -1,4 +1,4 @@
-<formula type="87" name="Simon 0139-C (Burning Ship)" power="4" glitch="0.0001">
+<formula type="81" name="Simon 0139-C (Burning Ship)" power="4" glitch="0.0001">
   <!-- FIXME not optimized (multiplications by 0) -->
   <reference t="R">
     Xrn = (((Xr * abs(Xr) - Xi * abs(Xi)) - Xr) * ((Xr * abs(Xr) - Xi * abs(Xi)) - Xr)) - (((Xi * abs(Xr) + Xr * abs(Xi)) - Xi) * ((Xi * abs(Xr) + Xr * abs(Xi)) - Xi)) + Cr;

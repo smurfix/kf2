@@ -1,4 +1,4 @@
-<formula type="86" name="Simon 0139-C (plain)" power="4" glitch="0.0001">
+<formula type="80" name="Simon 0139-C (plain)" power="4" glitch="0.0001">
   <!-- FIXME not optimized (multiplications by 0) -->
   <reference t="R">
     Xrn = (((Xr * abs(Xr) - Xi * abs(Xi)) - Xr) * ((Xr * abs(Xr) - Xi * abs(Xi)) - Xr)) - (((Xi * abs(Xr) + Xr * abs(Xi)) - Xi) * ((Xi * abs(Xr) + Xr * abs(Xi)) - Xi)) + Cr;

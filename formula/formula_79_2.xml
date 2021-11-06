@@ -1,4 +1,4 @@
-<formula type="90" name="Mandelbrot Variation 5" power="2" glitch="0.0001">
+<formula type="79" name="Mandelbrot Variation 5" power="2" glitch="0.0001">
   <!-- FIXME critical point not 0 (+/- sqrt(+/- a)) -->
   <reference t="C">
     Xn = ((X + A * (1 / X)) * (X + A * (1 / X))) + C;
