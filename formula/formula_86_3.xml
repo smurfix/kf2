@@ -1,0 +1,16 @@
+<formula type="86" name="Cubic Quasi Perpendicular Buffalo" power="3" glitch="0.0001">
+  <reference t="R">
+    Xrn = (abs(3*(Xr*Xr) - (Xi*Xi)) * abs(Xi)) + Cr;
+    Xin = Ci - (abs((Xr*Xr) - 3*(Xi*Xi)) * Xr);
+  </reference>
+  <perturbation t="R">
+    xrn = (((diffabs(((3*(Xr*Xr))-((Xi*Xi))),(((0*((Xr+xr)*(Xr+xr)))+(3*((xr*(Xr+xr))+(Xr*xr))))-(((xi*(Xi+xi))+(Xi*xi)))))*abs((Xi+xi)))+(abs(((3*(Xr*Xr))-((Xi*Xi))))*diffabs(Xi,xi)))+cr);
+    xin = (ci-(((diffabs(((Xr*Xr)-((3*(Xi*Xi)))),(((xr*(Xr+xr))+(Xr*xr))-(((0*((Xi+xi)*(Xi+xi)))+(3*((xi*(Xi+xi))+(Xi*xi)))))))*(Xr+xr))+(abs(((Xr*Xr)-((3*(Xi*Xi)))))*xr))));
+  </perturbation>
+  <derivative t="M">
+    dxan = daa+(((-1)*(dya*(Xxi*(Xxi*sgn(Xxi)))))+((3*(dya*(Xxr*(Xxr*sgn(Xxi)))))+((6*(abs(Xxi)*(dxa*Xxr)))+(1+((-2)*(abs(Xxi)*(dya*Xxi)))))));
+    dxbn = (dab+(((-1)*(dyb*(Xxi*(Xxi*sgn(Xxi)))))+((3*(dyb*(Xxr*(Xxr*sgn(Xxi)))))+((6*(abs(Xxi)*(dxb*Xxr)))+((-2)*(abs(Xxi)*(dyb*Xxi)))))));
+    dyan = (dba+((-1*(abs(((Xxr*Xxr)+(-3*(Xxi*Xxi))))*dxa))+((-2*(dxa*(Xxr*(Xxr*sgn(((Xxr*Xxr)+(-3*(Xxi*Xxi))))))))+(6*(dya*(Xxr*(Xxi*sgn(((Xxr*Xxr)+(-3*(Xxi*Xxi)))))))))));
+    dybn = dbb+((-1*(abs(((Xxr*Xxr)+(-3*(Xxi*Xxi))))*dxb))+((-2*(dxb*(Xxr*(Xxr*sgn(((Xxr*Xxr)+(-3*(Xxi*Xxi))))))))+(1+(6*(dyb*(Xxr*(Xxi*sgn(((Xxr*Xxr)+(-3*(Xxi*Xxi)))))))))));
+  </derivative>
+</formula>
