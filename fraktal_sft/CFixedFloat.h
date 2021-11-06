@@ -573,6 +573,20 @@ inline CFixedFloat cos(const CFixedFloat &A)
 	return CFixedFloat(FixedFloat(cos(A.m_f)));
 }
 
+inline CFixedFloat sinh(const CFixedFloat &A)
+{
+	using std::sin;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(sinh(A.m_f)));
+}
+
+inline CFixedFloat cosh(const CFixedFloat &A)
+{
+	using std::cosh;
+	Precision p(A.m_f.precision());
+	return CFixedFloat(FixedFloat(cosh(A.m_f)));
+}
+
 inline bool isnan(const CFixedFloat &A)
 {
 	return isnan(A.m_f);
