@@ -1,4 +1,4 @@
-<formula type="94" name="Householder Nova Mandelbrot (z^p - 1)" power="3" convergent="1" glitch="1e-6">
+<formula type="102" name="Householder Nova Mandelbrot (z^p - 1)" power="3" convergent="1" glitch="1e-6">
   <reference t="C">
     Xn = (5*(X^6) + 21*(X^5) + 30*(X^4) + 15*(X^3))/(9*((X + 1)^5)) + C;
   </reference>
