@@ -1,0 +1,19 @@
+<formula type="94" name="Householder Nova Mandelbrot (z^p - 1)" power="3" convergent="1" glitch="1e-6">
+  <reference t="C">
+    Xn = (5*(X^6) + 21*(X^5) + 30*(X^4) + 15*(X^3))/(9*((X + 1)^5)) + C;
+  </reference>
+  <perturbation t="C">
+    xn = ((((((((0*((((X+x)*(X+x))*((X+x)*(X+x)))*((X+x)*(X+x))))+(5*((((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))*((X+x)*(X+x)))+(((X*X)*(X*X))*((x*(X+x))+(X*x))))))+((0*((((X+x)*(X+x))*((X+x)*(X+x)))*(X+x)))+(21*((((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))*(X+x))+(((X*X)*(X*X))*x)))))+((0*(((X+x)*(X+x))*((X+x)*(X+x))))+(30*((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x)))))))+((0*(((X+x)*(X+x))*(X+x)))+(15*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x)))))*1/((9*(((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1)))*((X+x)+1)))))+(((((5*(((X*X)*(X*X))*(X*X)))+(21*(((X*X)*(X*X))*X)))+(30*((X*X)*(X*X))))+(15*((X*X)*X)))*(-(((0*(((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1)))*((X+x)+1)))+(9*(((((((x+0)*((X+x)+1))+((X+1)*(x+0)))*(((X+x)+1)*((X+x)+1)))+(((X+1)*(X+1))*(((x+0)*((X+x)+1))+((X+1)*(x+0)))))*((X+x)+1))+((((X+1)*(X+1))*((X+1)*(X+1)))*(x+0))))))*1/(((9*((((X+1)*(X+1))*((X+1)*(X+1)))*(X+1)))*(9*(((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1)))*((X+x)+1))))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * (5*(Xx^2)*((Xx^4) + 6*(Xx^3) + 15*(Xx^2) + 18*Xx + 9)/(9*((X + 1)^6)) + d0;
+  </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
+</formula>
