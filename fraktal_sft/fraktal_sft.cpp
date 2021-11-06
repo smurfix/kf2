@@ -3998,11 +3998,13 @@ BOOL CPixels::GetPixel(int &rx, int &ry, int &rw, int &rh, BOOL bMirrored)
 
 void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, double nBailout, const complex<double> &de)
 {
+	int64_t antal0 = antal;
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+	if (std::isnan(smooth) || std::isinf(smooth)) smooth = 0;
 	double i = antal + smooth;
 	antal = std::floor(i);
 	double t = i - antal;
-	if (antal >= m_nMaxIter){
+	if (antal >= m_nMaxIter || antal0 >= m_nMaxIter){
 		m_nPixels[x][y] = m_nMaxIter;
 		m_nTrans[x][y] = 0;
 		if (m_nPhase)
@@ -4055,9 +4057,9 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 	}
 	else if (!bGlitch && m_nSmoothMethod == SmoothMethod_Log){
 		smooth = 1 - log(log(sqrt(test1)) / log(GetBailoutRadius())) / log((double) power);
-		if (!ISFLOATOK(smooth))
-			smooth = 0;
 	}
+	if (!ISFLOATOK(smooth))
+		smooth = 0;
 	OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, nBailout, de);
 }
 
