@@ -1,4 +1,5 @@
 <formula type="99" name="Halley Nova Mandelbrot" power="3" convergent="1" glitch="1e-6">
+  <!-- FIXME not optimized (multiplication by 0) -->
   <reference t="C">
     Xn = ((X^4) + 2*(X^3))/(2*(X^3) + 6*(X^2) + 6*X + 3) + C;
   </reference>
