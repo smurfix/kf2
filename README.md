@@ -3151,7 +3151,7 @@ is not ideal...
 Increase this if the interior is "blobby".
 
 ### Smooth method
-  
+
 (new in 2.14.10, was previously linked to escape radius)
 
   - Log: use the renormalized smooth iteration count for Mandelbrot
@@ -4153,6 +4153,8 @@ Formulas:
 
     z := z^p (exp((d/2) log(x^2 + y^2))) + c
 
+The following are new in version 2.15.5:
+
 ### Mandelbrot Variation 1
 
     z := ((x^2 - y |y|) + i (2 x y)) + c
@@ -4169,33 +4171,9 @@ Formulas:
 
     z :=  ((x^2 - y |y|) + i (2 x |y|)) + c
 
-### Exponential Mandelbrot
+### Mandelbrot Variation 5
 
-    z := exp(z) + c
-
-### Cosbrot
-
-    z := cos(z) + c
-
-### Sinbrot
-
-    z := sin(z) + c
-
-### Cubic Celtic Quasi Perpendicular
-
-    z := (|x (x^2 - 3 y^2)| - i (y |3x^2 - y^2|)) + c
-
-### Talis
-
-    z := z^p / (1 + z^(p-1)) + c
-
-### Newton Nova Mandelbrot
-
-    z := (2 z^3 + 3 z^2) / (3 (x + 1)^2) + c
-
-### Newton Mandelbrot
-
-    z := z^4 / (4 (z + 1)^2) + z^2 / (z + 1) + c;
+    z := (z + f / x)^2 + c
 
 ### Simon 0139-C (plain)
 
@@ -4217,22 +4195,83 @@ Formulas:
     w := (x |x| - y |y| - x) + i (y |x| + x |y| - y)
     z := (|u^2 - v^2| + i |2 u v|) + c
 
-### Mandelbrot Variation 5
+### Cubic Celtic Quasi Perpendicular
 
-    z := (z + f / x)^2 + c
+    z := (|x (x^2 - 3 y^2)| - i (y |3x^2 - y^2|)) + c
 
-### Halley Nova Mandelbrot
+### Cubic Quasi Perpendicular Burning Ship
 
-    z := (z^4 + 2 z^3) / (2 z^3 + 6 z^2 + 6 z + 3) + c
+    z := (3 x^2 - y^2) |y| - i |x^2 - 3 y^2| x + c
+
+### Cubic Quasi Perpendicular Buffalo
+
+    z := |3 x^2 - y^2| |y| - i |x^2 - 3 y^2| x + c
+
+### Quintic Quasi Perpendicular Burning Ship
+    z := |y| (5 x^4 + y^4 - 10 x^2 y^2) - i x |x^4 + 5 y^4 - 10 x^2 y^2| + c
+
+### Quintic Quasi Perpendicular Buffalo
+
+    z := |y| |5 x^4 + y^4 - 10 x^2 y^2| - i |x| |x^4 + 5 y^4 - 10 x^2 y^2| + c
+
+### Quintic Quasi Perpendicular Celtic
+
+    z := |x| |x^4 + 5 y^4 - 10 x^2 y^2| - i y |5 x^4 + y^4 - 10 x^2 y^2| + c
+
+### Quintic Quasi Celtic Heart
+
+    z := |x| |x^4 + 5 y^4 - 10 x^2 y^2| + i y |5 x^4 + y^4 - 10 x^2 y^2| + c
+
+### Separated Perpendicular
+
+    z := ((|x + 7/4| - 7/4)^2 - y^2 - 77/16) + i (2 (7/4 - |x + 7/4|) y) + c
+
+### Exponential Mandelbrot
+
+    z := exp(z) + c
+
+### Cosbrot
+
+    z := cos(z) + c
+
+### Sinbrot
+
+    z := sin(z) + c
+
+### Talis
+
+    z := z^p / (1 + z^(p-1)) + c
+
+### Newton Mandelbrot
+
+    z := z^4 / (4 (z + 1)^2) + z^2 / (z + 1) + c;
 
 ### Nova
 
     z := (2 z^3 / 3 - 2 z - 1) / (z + 1)^2 + c + 1
 
-Nova is affine-conjugated to move critical point from 1 to 0, from the
-usual form:
+Nova is affine-conjugated from the usual form to move critical point
+from 1 to 0.
 
-    z := z - (z^3 - 1) / (3 z^2) + c
+### Newton Nova Mandelbrot (z^p - 1)
+
+    z := z - (z^p - 1) / (p z^(p-1)) + c
+
+### Halley Nova Mandelbrot (z^p - 1)
+
+    z := z - (2 (z^p - 1) (p z^(p-1))) / (2 (p z^(p-1))^2 - (z^p - 1) ((p (p-1)) z^(p-2))) + c
+
+### Schroder Nova Mandelbrot (z^p - 1)
+
+    z := z - ((z^p - 1) (p z^(p-1))) / ((p z^(p-1))^2 - (z^p - 1) ((p (p-1)) z^(p-2))) + c
+
+### Householder 3 Nova Mandelbrot (z^p - 1)
+
+    z := z - (6 (z^p - 1) (p z^(p-1))^2 - 3 (z^p - 1)^2 ((p (p-1)) z^(p-2))) / (6 (p z^(p-1))^3 - (z^p - 1) (p z^(p-1)) ((p (p-1)) z^(p-2))) + (z^p - 1)^2 (p (p-1) (p-2) z^(p-3)) + c
+
+### Householder Nova Mandelbrot (z^p - 1)
+
+    z := z - ((z^p - 1) (2(p z^(p-1))^2 + (z^p - 1) (p (p-1) z^(p-2))))/(2 (p z^(p - 1))^3) + c
 
 
 ## Command Line Usage
