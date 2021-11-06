@@ -4,7 +4,7 @@
     Xn = cos(X) + C;
   </reference>
   <perturbation t="C">
-    xn = c − 2 * sin(x / 2) * sin(X + (x / 2));
+    xn = c - 2 * sin(x / 2) * sin(X + (x / 2));
   </perturbation>
   <derivative t="C">
     dn = d0 - d * sin(Xx);
