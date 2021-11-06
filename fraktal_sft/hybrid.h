@@ -967,6 +967,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
     bool full_iteration = rantal == N;
     if (full_iteration)
     {
+      rantal++;
       tfloatexp<mantissa, exponent> Xr = X;
       tfloatexp<mantissa, exponent> Xi = Y;
       tfloatexp<mantissa, exponent> Xz = Z0;
@@ -1312,9 +1313,10 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
   D ui = D(ci0 / S);
   for (; antal < nMaxIter; ++antal)
   {
-    bool full_iteration = antal == N;
+    bool full_iteration = rantal == N;
     if (full_iteration)
     {
+      rantal++;
       tfloatexp<mantissa, exponent> Xr = X;
       tfloatexp<mantissa, exponent> Xi = Y;
       tfloatexp<mantissa, exponent> Xz = Z0;

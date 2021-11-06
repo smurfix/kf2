@@ -2645,6 +2645,7 @@ void perturbation_scaled_loop
     const bool full_iteration = rantal == n;
     if (full_iteration)
     {
+      rantal++;
       floatexp Xr = Xrf;
       floatexp Xi = Xif;
       floatexp Xz = Xzf;
@@ -3043,6 +3044,7 @@ void perturbation_scaled_loop
     const bool full_iteration = rantal == n;
     if (full_iteration)
     {
+      rantal++;
       floatexp Xr = Xrf;
       floatexp Xi = Xif;
       floatexp Xz = Xzf;
