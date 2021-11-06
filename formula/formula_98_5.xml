@@ -1,0 +1,19 @@
+<formula type="98" name="Newton Nova Mandelbrot (z^p - 1)" power="5" convergent="1" glitch="1e-6">
+  <reference t="C">
+    Xn = ((4*(X^5) + 15*(X^4) + 20*(X^3) + 10*(X^2))/(5*((X+1)^4))) + C;
+  </reference>
+  <perturbation t="C">
+    xn = ((((((((0*((((X+x)*(X+x))*((X+x)*(X+x)))*(X+x)))+(4*((((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))*(X+x))+(((X*X)*(X*X))*x))))+((0*(((X+x)*(X+x))*((X+x)*(X+x))))+(15*((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x)))))))+((0*(((X+x)*(X+x))*(X+x)))+(20*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x)))))+((0*((X+x)*(X+x)))+(10*((x*(X+x))+(X*x)))))*1/((5*((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1))))))+(((((4*(((X*X)*(X*X))*X))+(15*((X*X)*(X*X))))+(20*((X*X)*X)))+(10*(X*X)))*(-(((0*((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1))))+(5*(((((x+0)*((X+x)+1))+((X+1)*(x+0)))*(((X+x)+1)*((X+x)+1)))+(((X+1)*(X+1))*(((x+0)*((X+x)+1))+((X+1)*(x+0))))))))*1/(((5*(((X+1)*(X+1))*((X+1)*(X+1))))*(5*((((X+x)+1)*((X+x)+1))*(((X+x)+1)*((X+x)+1)))))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * (4*Xx*((Xx^4) + 5*(Xx^3) + 10*(Xx^2) + 10*Xx + 5))/(5*((Xx+1)^5)) + d0;
+  </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
+</formula>

@@ -1,0 +1,19 @@
+<formula type="101" name="Householder 3 Nova Mandelbrot (z^p - 1)" power="2" convergent="1" glitch="1e-6">
+  <reference t="C">
+    Xn = ((X^4)/(4*(X + 1)*((X^2) + 2*X + 2))) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (-(((((((x*(X+x))+(X*x))*((X+x)+3))+((X*X)*(x+0)))*1/(((((((X+x)*(X+x))*(X+x))+(3*((X+x)*(X+x))))+(3*(X+x)))+3)))+(((X*X)*(X+3))*(-((((((((x*(X+x))+(X*x))*(X+x))+((X*X)*x))+((0*((X+x)*(X+x)))+(3*((x*(X+x))+(X*x)))))+((0*(X+x))+(3*x)))+0))*1/(((((((X*X)*X)+(3*(X*X)))+(3*X))+3)*((((((X+x)*(X+x))*(X+x))+(3*((X+x)*(X+x))))+(3*(X+x)))+3)))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * ((Xx^6) + 6*(Xx^5) + 12*(Xx^4) + 8*(X^3))/(4*((Xx + 1)^2)*(((Xx^2) + 2*Xx + 2)^2)) + d0;
+  </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
+</formula>

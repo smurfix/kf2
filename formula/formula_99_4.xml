@@ -1,0 +1,20 @@
+<formula type="99" name="Halley Nova Mandelbrot (z^p - 1)" power="4" convergent="1" glitch="1e-6">
+  <reference t="C">
+    Xn = (3*(X^5) + 10*(X^4) + 10*(X^3))/(5*(X^4) + 20*(X^3) + 30*(X^2) + 20*X + 8) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (((((((0*((((X+x)*(X+x))*((X+x)*(X+x)))*(X+x)))+(3*((((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))*(X+x))+(((X*X)*(X*X))*x))))+((0*(((X+x)*(X+x))*((X+x)*(X+x))))+(10*((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x)))))))+((0*(((X+x)*(X+x))*(X+x)))+(10*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x)))))*1/((((((5*(((X+x)*(X+x))*((X+x)*(X+x))))+(20*(((X+x)*(X+x))*(X+x))))+(30*((X+x)*(X+x))))+(20*(X+x)))+8)))+((((3*(((X*X)*(X*X))*X))+(10*((X*X)*(X*X))))+(10*((X*X)*X)))*(-(((((((0*(((X+x)*(X+x))*((X+x)*(X+x))))+(5*((((x*(X+x))+(X*x))*((X+x)*(X+x)))+((X*X)*((x*(X+x))+(X*x))))))+((0*(((X+x)*(X+x))*(X+x)))+(20*((((x*(X+x))+(X*x))*(X+x))+((X*X)*x)))))+((0*((X+x)*(X+x)))+(30*((x*(X+x))+(X*x)))))+((0*(X+x))+(20*x)))+0))*1/(((((((5*((X*X)*(X*X)))+(20*((X*X)*X)))+(30*(X*X)))+(20*X))+8)*(((((5*(((X+x)*(X+x))*((X+x)*(X+x))))+(20*(((X+x)*(X+x))*(X+x))))+(30*((X+x)*(X+x))))+(20*(X+x)))+8))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * (15*(Xx^8) + 120*(Xx^7) + 420*(Xx^6) + 840*(Xx^5) + 1020*(Xx^4) + 720*(Xx^3) + 240*(Xx^2))/((5*(Xx^4) + 20*(Xx^3) + 30*(Xx^2) + 20*Xx + 8)^2) + d0;
+  </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
+</formula>
+

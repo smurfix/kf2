@@ -1,5 +1,4 @@
-<formula type="99" name="Halley Nova Mandelbrot" power="3" glitch="0.0001">
-  <!-- FIXME not really divergent, not optimized (multiplications by 0) -->
+<formula type="99" name="Halley Nova Mandelbrot" power="3" convergent="1" glitch="1e-6">
   <reference t="C">
     Xn = ((X^4) + 2*(X^3))/(2*(X^3) + 6*(X^2) + 6*X + 3) + C;
   </reference>
@@ -9,5 +8,13 @@
   <derivative t="C">
     dn = d * (2*(Xx^6) + 12*(Xx^5) + 30*(Xx^4) + 36*(Xx^3) + 18*(Xx^2))/(((2*(Xx^3) + 6*(Xx^2) + 6*Xx + 3)^2)) + d0;
   </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
 </formula>
 

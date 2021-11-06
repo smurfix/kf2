@@ -1,0 +1,19 @@
+<formula type="100" name="Schroder Nova Mandelbrot (z^p - 1)" power="2" convergent="1" glitch="1e-6">
+  <reference t="C">
+    Xn = (-((X^2)/((X^2) + 2*X + 2))) + C;
+  </reference>
+  <perturbation t="C">
+    xn = (-(((((x*(X+x))+(X*x))*1/(((((X+x)*(X+x))+(2*(X+x)))+2)))+((X*X)*(-(((((x*(X+x))+(X*x))+((0*(X+x))+(2*x)))+0))*1/(((((X*X)+(2*X))+2)*((((X+x)*(X+x))+(2*(X+x)))+2)))))))+c);
+  </perturbation>
+  <derivative t="C">
+    dn = d * (-((2*(Xx^2) + 4*Xx)/(((Xx^2) + 2*Xx + 2)^2))) + d0;
+  </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
+</formula>

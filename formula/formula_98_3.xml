@@ -1,5 +1,4 @@
-<formula type="98" name="Newton Nova Mandelbrot" power="3" glitch="0.0001">
-  <!-- FIXME not really divergent -->
+<formula type="98" name="Newton Nova Mandelbrot (z^p - 1)" power="3" convergent="1" glitch="1e-6">
   <reference t="C">
     Xn = (2 * (X ^ 3) + 3 * (X ^ 2)) / (3 * (X ^ 2) + 6 * X + 3) + C;
   </reference>
@@ -9,4 +8,12 @@
   <derivative t="C">
     dn = d * (2*Xx*(Xx*Xx+3*Xx+3))/(3*((Xx+1)^3)) + d0;
   </derivative>
+  <glitch t="C" factorhi="1e-6" factorlo="1">
+    <test>
+      <lhs>norm(Xx)</lhs>
+      <rhs>factor * norm(X)</rhs>
+      <cond>lhs &lt; rhs</cond>
+      <size>lhs / rhs</size>
+    </test>
+  </glitch>
 </formula>

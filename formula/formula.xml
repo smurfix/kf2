@@ -319,29 +319,27 @@
 <group type="97" name="Nova" convergent="1">
   <formula power="3" />
 </group>
-<!--
-<group type="84" name="Newton Nova (z^p - 1)" convergent="1">
+<group type="98" name="Newton Nova Mandelbrot (z^p - 1)" convergent="1">
   <formula power="2" />
   <formula power="3" />
   <formula power="4" />
   <formula power="5" />
 </group>
-<group type="91" name="Halley Nova (z^p - 1)" convergent="1">
+<group type="99" name="Halley Nova Mandelbrot (z^p - 1)" convergent="1">
   <formula power="2" />
   <formula power="3" />
   <formula power="4" />
   <formula power="5" />
 </group>
-<group type="92" name="Schroder Nova (z^p - 1)" convergent="1">
+<group type="100" name="Schroder Nova Mandelbrot (z^p - 1)" convergent="1">
   <formula power="2" />
   <formula power="3" />
 </group>
-<group type="93" name="Householder 3 Nova (z^p - 1)" convergent="1">
+<group type="101" name="Householder 3 Nova Mandelbrot (z^p - 1)" convergent="1">
   <formula power="2" />
   <formula power="3" />
 </group>
-<group type="94" name="Householder Nova (z^p - 1)" convergent="1">
+<group type="102" name="Householder Nova Mandelbrot (z^p - 1)" convergent="1">
   <formula power="3" />
 </group>
--->
 </formulas>
