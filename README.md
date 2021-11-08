@@ -365,8 +365,7 @@ earlier).
   - new: single-reference implementation for avoiding glitches (thanks
     Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
     enabled by default
-    - known issue: does not work with every built-in formula
-    - known issue: does not work with every hybrid formulas (only
+    - known issue: does not work with every hybrid formula (only very
       simple cases work)
   - new: start of support for convergent formulas
     - known issue: convergent formulas are not supported in OpenCL
@@ -382,7 +381,6 @@ earlier).
     critical point at 0, and custom function to avoid precision loss
     when deep zooming (thanks Mr Rebooted)
     - known issue: no OpenCL support yet
-    - known issue: fails with single-reference glitch avoidance method
   - new: hybrid formulas support division operator (thanks FractalAlex)
     - known issue: implementation is incomplete
   - new: Triangle Inequality Average colouring algorithm can be enabled

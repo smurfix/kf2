@@ -151,10 +151,10 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
           Xi = 0;
           Xz = 0;
 <xsl:for-each select="references[@t='R']">
-          <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[rantal];
+          <xsl:value-of select="@name" /> = T(<xsl:value-of select="@value" />);
 </xsl:for-each>
 <xsl:for-each select="references[@t='C']">
-          <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[rantal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[rantal]);
+          <xsl:value-of select="@name" /> = complex&lt;T&gt;(T(<xsl:value-of select="@value" />), T(0));
 </xsl:for-each>
           rantal = 0;
           Xxr = Xr + xr;
