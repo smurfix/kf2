@@ -364,7 +364,7 @@ earlier).
 
   - new: single-reference implementation for avoiding glitches (thanks
     Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
-    enabled by default
+    enabled by default; also supported in nanomb1
     - known issue: does not work with every hybrid formula (only very
       simple cases work)
   - new: start of support for convergent formulas
