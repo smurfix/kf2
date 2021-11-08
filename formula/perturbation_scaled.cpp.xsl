@@ -36,6 +36,7 @@ bool perturbation_scaled_<xsl:value-of select="../@type" />_<xsl:value-of select
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;mantissa, exponent&gt; &amp;xr00, tfloatexp&lt;mantissa, exponent&gt; &amp;xi00
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci
+  , const bool singleref
   );
 </xsl:for-each>
 
@@ -49,6 +50,7 @@ bool perturbation_scaled
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;mantissa, exponent&gt; &amp;xr00, tfloatexp&lt;mantissa, exponent&gt; &amp;xi00
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr0, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci0
+  , const bool singleref
   )
 {
 <xsl:for-each select="//scaled/..">
@@ -62,6 +64,7 @@ bool perturbation_scaled
       , g_FactorAR, g_FactorAI
       , xr00, xi00
       , cr0, ci0
+      , singleref
       );
 </xsl:for-each>
   return false;
@@ -76,6 +79,7 @@ template bool perturbation_scaled&lt;float, int32_t&gt;
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;float, int32_t&gt; &amp;xr00, tfloatexp&lt;float, int32_t&gt; &amp;xi00
   , const tfloatexp&lt;float, int32_t&gt; &amp;cr0, const tfloatexp&lt;float, int32_t&gt; &amp;ci0
+  , const bool singleref
   );
 template bool perturbation_scaled&lt;double, int64_t&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -86,6 +90,7 @@ template bool perturbation_scaled&lt;double, int64_t&gt;
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;double, int64_t&gt; &amp;xr00, tfloatexp&lt;double, int64_t&gt; &amp;xi00
   , const tfloatexp&lt;double, int64_t&gt; &amp;cr0, const tfloatexp&lt;double, int64_t&gt; &amp;ci0
+  , const bool singleref
   );
 
 </xsl:template>

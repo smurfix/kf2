@@ -39,6 +39,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="../@type" />_<xsl:val
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci
   , tfloatexp&lt;mantissa, exponent&gt; &amp;Jxa0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jxb0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jya0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jyb0F
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;daaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dabF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbbF
+  , const bool singleref
   );
 </xsl:for-each>
 
@@ -54,6 +55,7 @@ bool perturbation_scaled_derivatives
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci
   , tfloatexp&lt;mantissa, exponent&gt; &amp;Jxa0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jxb0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jya0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jyb0F
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;daaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dabF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbbF
+  , const bool singleref
   )
 {
 <xsl:for-each select="//scaled/..">
@@ -69,6 +71,7 @@ bool perturbation_scaled_derivatives
       , cr, ci
       , Jxa0F, Jxb0F, Jya0F, Jyb0F
       , daaF, dabF, dbaF, dbbF
+      , singleref
       );
 </xsl:for-each>
   return false;
@@ -85,6 +88,7 @@ template bool perturbation_scaled_derivatives&lt;float, int32_t&gt;
   , const tfloatexp&lt;float, int32_t&gt; &amp;cr, const tfloatexp&lt;float, int32_t&gt; &amp;ci
   , tfloatexp&lt;float, int32_t&gt; &amp;Jxa0F, tfloatexp&lt;float, int32_t&gt; &amp;Jxb0F, tfloatexp&lt;float, int32_t&gt; &amp;Jya0F, tfloatexp&lt;float, int32_t&gt; &amp;Jyb0F
   , const tfloatexp&lt;float, int32_t&gt; &amp;daaF, const tfloatexp&lt;float, int32_t&gt; &amp;dabF, const tfloatexp&lt;float, int32_t&gt; &amp;dbaF, const tfloatexp&lt;float, int32_t&gt; &amp;dbbF
+  , const bool singleref
   );
 template bool perturbation_scaled_derivatives&lt;double, int64_t&gt;
   ( int m_nFractalType, int m_nPower
@@ -97,6 +101,7 @@ template bool perturbation_scaled_derivatives&lt;double, int64_t&gt;
   , const tfloatexp&lt;double, int64_t&gt; &amp;cr, const tfloatexp&lt;double, int64_t&gt; &amp;ci
   , tfloatexp&lt;double, int64_t&gt; &amp;Jxa0F, tfloatexp&lt;double, int64_t&gt; &amp;Jxb0F, tfloatexp&lt;double, int64_t&gt; &amp;Jya0F, tfloatexp&lt;double, int64_t&gt; &amp;Jyb0F
   , const tfloatexp&lt;double, int64_t&gt; &amp;daaF, const tfloatexp&lt;double, int64_t&gt; &amp;dabF, const tfloatexp&lt;double, int64_t&gt; &amp;dbaF, const tfloatexp&lt;double, int64_t&gt; &amp;dbbF
+  , const bool singleref
   );
 
 </xsl:template>

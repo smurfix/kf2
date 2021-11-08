@@ -270,6 +270,7 @@ bool perturbation_scaled
   , const double &g_FactorAR, const double &g_FactorAI
   , tfloatexp<mantissa, exponent> &xr00, tfloatexp<mantissa, exponent> &xi00
   , const tfloatexp<mantissa, exponent> &cr0, const tfloatexp<mantissa, exponent> &ci0
+  , const bool singleref
   );
 
 #if 0
@@ -305,6 +306,7 @@ bool perturbation_scaled_derivatives
   , const tfloatexp<mantissa, exponent> &cr, const tfloatexp<mantissa, exponent> &ci
   , tfloatexp<mantissa, exponent> &Jxa0F, tfloatexp<mantissa, exponent> &Jxb0F, tfloatexp<mantissa, exponent> &Jya0F, tfloatexp<mantissa, exponent> &Jyb0F
   , const tfloatexp<mantissa, exponent> &daaF, const tfloatexp<mantissa, exponent> &dabF, const tfloatexp<mantissa, exponent> &dbaF, const tfloatexp<mantissa, exponent> &dbbF
+  , const bool singleref
   );
 
 // convergent perturbation

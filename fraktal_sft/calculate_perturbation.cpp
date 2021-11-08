@@ -354,8 +354,8 @@ void CFraktalSFT::MandelCalcScaled()
     else
     {
       bool ok = is_convergent(m_nFractalType, m_nPower) ? false : derivatives
-        ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF)
-        : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci);
+        ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF, singleref)
+        : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, singleref);
       assert(ok && "perturbation_scaled");
       de = compute_de(Xr, Xi, JxaF, JxbF, JyaF, JybF, s, TK);
     }

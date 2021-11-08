@@ -40,6 +40,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci
   , tfloatexp&lt;mantissa, exponent&gt; &amp;Jxa0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jxb0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jya0F, tfloatexp&lt;mantissa, exponent&gt; &amp;Jyb0F
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;daaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dabF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbaF, const tfloatexp&lt;mantissa, exponent&gt; &amp;dbbF
+  , const bool singleref
   )
 {
   using std::abs;
@@ -76,6 +77,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     mantissa test2 = test20;
     mantissa phase = phase0;
     int64_t antal = antal0;
+    int64_t rantal = antal;
     bool bGlitch = bGlitch0;
     tfloatexp&lt;mantissa, exponent&gt; XxrF = 0;
     tfloatexp&lt;mantissa, exponent&gt; XxiF = 0;
@@ -92,6 +94,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
 </xsl:when>
 </xsl:choose>
 
+    const int64_t size_x = reference_size_x(m_Reference);
     int64_t K = 0, N = 0;
     const int64_t K_size = reference_size_N(m_Reference);
     const int64_t *Nptr = reference_ptr_N(m_Reference);
@@ -114,7 +117,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         N = nMaxIter;
       }
     }
-    while (N &lt; antal);
+    while (N &lt; rantal);
 
     // rescale
     tfloatexp&lt;mantissa, exponent&gt; S = sqrt(xr0 * xr0 + xi0 * xi0);
@@ -166,7 +169,7 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
     const mantissa *xptr = reference_ptr_x&lt;mantissa&gt;(m_Reference);
     const mantissa *yptr = reference_ptr_y&lt;mantissa&gt;(m_Reference);
     const mantissa *zptr = reference_ptr_z&lt;mantissa&gt;(m_Reference);
-    for (; antal &lt; nMaxIter; antal++)
+    for (; antal &lt; nMaxIter &amp;&amp; rantal &lt; size_x; antal++)
     {
       bool full_iteration = antal == N;
       if (full_iteration)
@@ -177,9 +180,10 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         using V = tfloatexp&lt;mantissa, exponent&gt;;
         V dummyV;
         (void) dummyV;
-        const tfloatexp&lt;mantissa, exponent&gt; Xr = X;
-        const tfloatexp&lt;mantissa, exponent&gt; Xi = Y;
-        const tfloatexp&lt;mantissa, exponent&gt; Xz = Z0;
+        tfloatexp&lt;mantissa, exponent&gt; Xr = X;
+        tfloatexp&lt;mantissa, exponent&gt; Xi = Y;
+        tfloatexp&lt;mantissa, exponent&gt; Xz = Z0;
+        rantal++;
         if (K &lt; K_size)
         {
           N = Nptr[K];
@@ -190,36 +194,89 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         }
         else
         {
-          N = nMaxIter;
+          if (singleref)
+          {
+            K = 0;
+            N = Nptr[K];
+            X = Xptr[K];
+            Y = Yptr[K];
+            Z0 = Zptr[K];
+            ++K;
+          }
+          else
+          {
+            N = nMaxIter;
+          }
         }
-        const tfloatexp&lt;mantissa, exponent&gt; xr = S * wr;
-        const tfloatexp&lt;mantissa, exponent&gt; xi = S * wi;
+        tfloatexp&lt;mantissa, exponent&gt; xr = S * wr;
+        tfloatexp&lt;mantissa, exponent&gt; xi = S * wi;
         XxrF = Xr + xr;
         XxiF = Xi + xi;
-        const tfloatexp&lt;mantissa, exponent&gt; Xxr2 = XxrF * XxrF;
-        const tfloatexp&lt;mantissa, exponent&gt; Xxi2 = XxiF * XxiF;
-        const tfloatexp&lt;mantissa, exponent&gt; xr2 = xr * xr;
-        const tfloatexp&lt;mantissa, exponent&gt; xi2 = xi * xi;
-        const tfloatexp&lt;mantissa, exponent&gt; Xr2 = Xr * Xr;
-        const tfloatexp&lt;mantissa, exponent&gt; Xi2 = Xi * Xi;
+        tfloatexp&lt;mantissa, exponent&gt; Xxr2 = XxrF * XxrF;
+        tfloatexp&lt;mantissa, exponent&gt; Xxi2 = XxiF * XxiF;
+        tfloatexp&lt;mantissa, exponent&gt; xr2 = xr * xr;
+        tfloatexp&lt;mantissa, exponent&gt; xi2 = xi * xi;
+        tfloatexp&lt;mantissa, exponent&gt; Xr2 = Xr * Xr;
+        tfloatexp&lt;mantissa, exponent&gt; Xi2 = Xi * Xi;
         test2 = test1;
         tfloatexp&lt;mantissa, exponent&gt; ftest1 = Xxr2 + Xxi2;
         test1 = mantissa(ftest1);
-        if (ftest1 &lt; Xz)
+        if (singleref)
         {
-          bGlitch = true;
-          if (! m_bNoGlitchDetection)
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(XxrF), double(XxiF));
+          }
+          if (test1 > m_nBailout2)
+          {
+            phase = atan2(double(XxiF), double(XxrF)) / M_PI / 2;
+            phase -= floor(phase);
             break;
+          }
+          if (ftest1 &lt; xr * xr + xi * xi || rantal == size_x)
+          {
+            xr = XxrF;
+            xi = XxiF;
+            rantal = 0;
+            Xr = 0;
+            Xi = 0;
+            Xz = 0;
+            XxrF = Xr + xr;
+            XxiF = Xi + xi;
+            Xxr2 = XxrF * XxrF;
+            Xxi2 = XxiF * XxiF;
+            xr2 = xr * xr;
+            xi2 = xi * xi;
+            Xr2 = Xr * Xr;
+            Xi2 = Xi * Xi;
+            Xxr2 = XxrF * XxrF;
+            Xxi2 = XxiF * XxiF;
+            ftest1 = Xxr2 + Xxi2;
+            test1 = double(ftest1);
+            if (! no_g)
+            {
+              test1 = pnorm(g_real, g_imag, p, double(XxrF), double(XxiF));
+            }
+          }
         }
-        if (! no_g)
+        else
         {
-          test1 = mantissa(pnorm(g_real, g_imag, p, XxrF, XxiF));
-        }
-        if (test1 &gt; m_nBailout2)
-        {
-          phase = atan2(mantissa(XxiF), mantissa(XxrF)) / M_PI / 2;
-          phase -= floor(phase);
-          break;
+          if (ftest1 &lt; Xz)
+          {
+            bGlitch = true;
+            if (! m_bNoGlitchDetection)
+              break;
+          }
+          if (! no_g)
+          {
+            test1 = mantissa(pnorm(g_real, g_imag, p, XxrF, XxiF));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            phase = atan2(mantissa(XxiF), mantissa(XxrF)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
         }
         const tfloatexp&lt;mantissa, exponent&gt; Xxr = XxrF;
         const tfloatexp&lt;mantissa, exponent&gt; Xxi = XxiF;
@@ -305,40 +362,113 @@ bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-
         using V = mantissa;
         V dummyV;
         (void) dummyV;
-        const mantissa Xr = xptr[antal];
-        const mantissa Xi = yptr[antal];
-        const mantissa Xz = zptr[antal];
-        const mantissa wr2 = wr * wr;
+        mantissa Xr = xptr[rantal];
+        mantissa Xi = yptr[rantal];
+        mantissa Xz = zptr[rantal];
+        rantal++;
+        mantissa wr2 = wr * wr;
         (void) wr2;
-        const mantissa wi2 = wi * wi;
+        mantissa wi2 = wi * wi;
         (void) wi2;
-        const mantissa Xxrd = Xr + wr * s;
-        const mantissa Xxid = Xi + wi * s;
-        const mantissa Xxr2 = Xxrd * Xxrd;
-        const mantissa Xxi2 = Xxid * Xxid;
+        mantissa Xxrd = Xr + wr * s;
+        mantissa Xxid = Xi + wi * s;
+        mantissa Xxr2 = Xxrd * Xxrd;
+        mantissa Xxi2 = Xxid * Xxid;
         test2 = test1;
         test1 = Xxr2 + Xxi2;
-        if (test1 &lt; Xz)
+        if (singleref)
         {
-          bGlitch = true;
-          if (! m_bNoGlitchDetection)
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+          }
+          if (test1 > m_nBailout2)
           {
             XxrF = Xxrd;
             XxiF = Xxid;
+            phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+            phase -= floor(phase);
             break;
           }
+          if (test1 &lt; s * s * (wr * wr + wi * wi) || rantal == size_x)
+          {
+            const tfloatexp&lt;mantissa, exponent> xr = Xxrd;
+            const tfloatexp&lt;mantissa, exponent> xi = Xxid;
+            rantal = 0;
+            Xr = 0;
+            Xi = 0;
+            Xz = 0;
+            XxrF = Xr + xr;
+            XxiF = Xi + xi;
+            Xxrd = mantissa(XxrF);
+            Xxid = mantissa(XxiF);
+            Xxr2 = Xxrd * Xxrd;
+            Xxi2 = Xxid * Xxid;
+            test1 = Xxr2 + Xxi2;
+            if (! no_g)
+            {
+              test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+            }
+            // rescale
+            S = sqrt(xr * xr + xi * xi);
+            s = mantissa(S);
+            wr = mantissa(xr / S);
+            wi = mantissa(xi / S);
+            ur = mantissa(cr / S);
+            ui = mantissa(ci / S);
+            u = mantissa(sqrt(cr * cr + ci * ci) / S);
+<xsl:choose>
+<xsl:when test="derivative/@t='R'">
+            drF = J * drD;
+            diF = J * diD;
+            J = sqrt(drF * drF + diF * diF);
+            drD = mantissa(drF / J);
+            diD = mantissa(diF / J);
+            dr0D = mantissa(dr0F / J);
+            di0D = mantissa(di0F / J);
+</xsl:when>
+<xsl:when test="derivative/@t='M'">
+            dxaF = J * dxaD;
+            dyaF = J * dyaD;
+            dxbF = J * dxbD;
+            dybF = J * dybD;
+            J = sqrt(dxaF * dxaF + dyaF * dyaF + dxbF * dxbF + dybF * dybF);
+            dxaD = mantissa(dxaF / J);
+            dyaD = mantissa(dyaF / J);
+            dxbD = mantissa(dxbF / J);
+            dybD = mantissa(dybF / J);
+            daaD = mantissa(daaF / J);
+            dbaD = mantissa(dbaF / J);
+            dabD = mantissa(dabF / J);
+            dbbD = mantissa(dbbF / J);
+</xsl:when>
+</xsl:choose>
+          }
         }
-        if (! no_g)
+        else
         {
-          test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
-        }
-        if (test1 &gt; m_nBailout2)
-        {
-          XxrF = Xxrd;
-          XxiF = Xxid;
-          phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
-          phase -= floor(phase);
-          break;
+          if (test1 &lt; Xz)
+          {
+            bGlitch = true;
+            if (! m_bNoGlitchDetection)
+            {
+              XxrF = Xxrd;
+              XxiF = Xxid;
+              break;
+            }
+          }
+          if (! no_g)
+          {
+            test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            XxrF = Xxrd;
+            XxiF = Xxid;
+            phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
         }
         const mantissa Xxr = Xxrd;
         const mantissa Xxi = Xxid;
@@ -499,6 +629,7 @@ template bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<x
   , const tfloatexp&lt;float, int32_t&gt; &amp;cr, const tfloatexp&lt;float, int32_t&gt; &amp;ci
   , tfloatexp&lt;float, int32_t&gt; &amp;Jxa0F, tfloatexp&lt;float, int32_t&gt; &amp;Jxb0F, tfloatexp&lt;float, int32_t&gt; &amp;Jya0F, tfloatexp&lt;float, int32_t&gt; &amp;Jyb0F
   , const tfloatexp&lt;float, int32_t&gt; &amp;daaF, const tfloatexp&lt;float, int32_t&gt; &amp;dabF, const tfloatexp&lt;float, int32_t&gt; &amp;dbaF, const tfloatexp&lt;float, int32_t&gt; &amp;dbbF
+  , const bool singleref
   );
 template bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;double, int64_t&gt;
   ( int m_nFractalType, int m_nPower
@@ -511,6 +642,7 @@ template bool perturbation_scaled_derivatives_<xsl:value-of select="@type" />_<x
   , const tfloatexp&lt;double, int64_t&gt; &amp;cr, const tfloatexp&lt;double, int64_t&gt; &amp;ci
   , tfloatexp&lt;double, int64_t&gt; &amp;Jxa0F, tfloatexp&lt;double, int64_t&gt; &amp;Jxb0F, tfloatexp&lt;double, int64_t&gt; &amp;Jya0F, tfloatexp&lt;double, int64_t&gt; &amp;Jyb0F
   , const tfloatexp&lt;double, int64_t&gt; &amp;daaF, const tfloatexp&lt;double, int64_t&gt; &amp;dabF, const tfloatexp&lt;double, int64_t&gt; &amp;dbaF, const tfloatexp&lt;double, int64_t&gt; &amp;dbbF
+  , const bool singleref
   );
 
 </xsl:for-each>

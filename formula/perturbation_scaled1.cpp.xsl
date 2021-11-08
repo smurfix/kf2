@@ -38,6 +38,7 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;mantissa, exponent&gt; &amp;xr00, tfloatexp&lt;mantissa, exponent&gt; &amp;xi00
   , const tfloatexp&lt;mantissa, exponent&gt; &amp;cr, const tfloatexp&lt;mantissa, exponent&gt; &amp;ci
+  , const bool singleref
   )
 {
   using std::abs;
@@ -69,10 +70,12 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
     double test2 = test20;
     double phase = phase0;
     int64_t antal = antal0;
+    int64_t rantal = antal;
     bool bGlitch = bGlitch0;
     tfloatexp&lt;mantissa, exponent&gt; Xxr = 0;
     tfloatexp&lt;mantissa, exponent&gt; Xxi = 0;
 
+    const int64_t size_x = reference_size_x(m_Reference);
     const int64_t size_N = reference_size_N(m_Reference);
     const int64_t *Nptr = reference_ptr_N(m_Reference);
     const tfloatexp&lt;mantissa, exponent&gt; *Xptr = reference_ptr_X&lt;mantissa, exponent&gt;(m_Reference);
@@ -96,7 +99,7 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
         n = nMaxIter;
       }
     }
-    while (n &lt; antal);
+    while (n &lt; rantal);
 
     // rescale
     tfloatexp&lt;mantissa, exponent&gt; S = sqrt(xr00 * xr00 + xi00 * xi00);
@@ -110,7 +113,7 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
     const mantissa *xptr = reference_ptr_x&lt;mantissa&gt;(m_Reference);
     const mantissa *yptr = reference_ptr_y&lt;mantissa&gt;(m_Reference);
     const mantissa *zptr = reference_ptr_z&lt;mantissa&gt;(m_Reference);
-    for (; antal &lt; nMaxIter; antal++)
+    for (; antal &lt; nMaxIter &amp;&amp; rantal &lt; size_x; antal++)
     {
       bool full_iteration = antal == n;
       if (full_iteration)
@@ -121,9 +124,10 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
         using V = tfloatexp&lt;mantissa, exponent&gt;;
         V dummyV;
         (void) dummyV;
-        const tfloatexp&lt;mantissa, exponent&gt; Xr = X;
-        const tfloatexp&lt;mantissa, exponent&gt; Xi = Y;
-        const tfloatexp&lt;mantissa, exponent&gt; Xz = Z;
+        tfloatexp&lt;mantissa, exponent&gt; Xr = X;
+        tfloatexp&lt;mantissa, exponent&gt; Xi = Y;
+        tfloatexp&lt;mantissa, exponent&gt; Xz = Z;
+        rantal++;
         if (k &lt; size_N)
         {
           n = Nptr[k];
@@ -134,36 +138,89 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
         }
         else
         {
-          n = nMaxIter;
+          if (singleref)
+          {
+            k = 0;
+            n = Nptr[k];
+            X = Xptr[k];
+            Y = Yptr[k];
+            Z = Zptr[k];
+            ++k;
+          }
+          else
+          {
+            n = nMaxIter;
+          }
         }
-        const tfloatexp&lt;mantissa, exponent&gt; xr = S * wr;
-        const tfloatexp&lt;mantissa, exponent&gt; xi = S * wi;
+        tfloatexp&lt;mantissa, exponent&gt; xr = S * wr;
+        tfloatexp&lt;mantissa, exponent&gt; xi = S * wi;
         Xxr = Xr + xr;
         Xxi = Xi + xi;
-        const tfloatexp&lt;mantissa, exponent&gt; Xxr2 = Xxr * Xxr;
-        const tfloatexp&lt;mantissa, exponent&gt; Xxi2 = Xxi * Xxi;
-        const tfloatexp&lt;mantissa, exponent&gt; xr2 = xr * xr;
-        const tfloatexp&lt;mantissa, exponent&gt; xi2 = xi * xi;
-        const tfloatexp&lt;mantissa, exponent&gt; Xr2 = Xr * Xr;
-        const tfloatexp&lt;mantissa, exponent&gt; Xi2 = Xi * Xi;
+        tfloatexp&lt;mantissa, exponent&gt; Xxr2 = Xxr * Xxr;
+        tfloatexp&lt;mantissa, exponent&gt; Xxi2 = Xxi * Xxi;
+        tfloatexp&lt;mantissa, exponent&gt; xr2 = xr * xr;
+        tfloatexp&lt;mantissa, exponent&gt; xi2 = xi * xi;
+        tfloatexp&lt;mantissa, exponent&gt; Xr2 = Xr * Xr;
+        tfloatexp&lt;mantissa, exponent&gt; Xi2 = Xi * Xi;
         test2 = test1;
         tfloatexp&lt;mantissa, exponent&gt; ftest1 = Xxr2 + Xxi2;
         test1 = double(ftest1);
-        if (ftest1 &lt; Xz)
+        if (singleref)
         {
-          bGlitch = true;
-          if (! m_bNoGlitchDetection)
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+          }
+          if (test1 > m_nBailout2)
+          {
+            phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+            phase -= floor(phase);
             break;
+          }
+          if (ftest1 &lt; xr * xr + xi * xi || rantal == size_x)
+          {
+            xr = Xxr;
+            xi = Xxi;
+            rantal = 0;
+            Xr = 0;
+            Xi = 0;
+            Xz = 0;
+            Xxr = Xr + xr;
+            Xxi = Xi + xi;
+            xr2 = xr * xr;
+            xi2 = xi * xi;
+            Xr2 = Xr * Xr;
+            Xi2 = Xi * Xi;
+            Xxr = Xr + xr;
+            Xxi = Xi + xi;
+            Xxr2 = Xxr * Xxr;
+            Xxi2 = Xxi * Xxi;
+            ftest1 = Xxr2 + Xxi2;
+            test1 = double(ftest1);
+            if (! no_g)
+            {
+              test1 = pnorm(g_real, g_imag, p, double(Xxr), double(Xxi));
+            }
+          }
         }
-        if (! no_g)
+        else
         {
-          test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-        }
-        if (test1 &gt; m_nBailout2)
-        {
-          phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-          phase -= floor(phase);
-          break;
+          if (ftest1 &lt; Xz)
+          {
+            bGlitch = true;
+            if (! m_bNoGlitchDetection)
+              break;
+          }
+          if (! no_g)
+          {
+            test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
         }
         tfloatexp&lt;mantissa, exponent&gt; xrn, xin;
         {
@@ -188,40 +245,89 @@ bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@
         using V = mantissa;
         V dummyV;
         (void) dummyV;
-        const mantissa Xr = xptr[antal];
-        const mantissa Xi = yptr[antal];
-        const mantissa Xz = zptr[antal];
-        const mantissa wr2 = wr * wr;
+        mantissa Xr = xptr[rantal];
+        mantissa Xi = yptr[rantal];
+        mantissa Xz = zptr[rantal];
+        rantal++;
+        mantissa wr2 = wr * wr;
         (void) wr2;
-        const mantissa wi2 = wi * wi;
+        mantissa wi2 = wi * wi;
         (void) wi2;
-        const mantissa Xxrd = Xr + wr * s;
-        const mantissa Xxid = Xi + wi * s;
-        const mantissa Xxr2 = Xxrd * Xxrd;
-        const mantissa Xxi2 = Xxid * Xxid;
+        mantissa Xxrd = Xr + wr * s;
+        mantissa Xxid = Xi + wi * s;
+        mantissa Xxr2 = Xxrd * Xxrd;
+        mantissa Xxi2 = Xxid * Xxid;
         test2 = test1;
         test1 = Xxr2 + Xxi2;
-        if (test1 &lt; Xz)
+        if (singleref)
         {
-          bGlitch = true;
-          if (! m_bNoGlitchDetection)
+          if (! no_g)
+          {
+            test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+          }
+          if (test1 > m_nBailout2)
           {
             Xxr = Xxrd;
             Xxi = Xxid;
+            phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+            phase -= floor(phase);
             break;
           }
+          if (test1 &lt;= s * s * (wr2 + wi2) || rantal == size_x)
+          {
+            const tfloatexp&lt;mantissa, exponent> xr = Xxrd;
+            const tfloatexp&lt;mantissa, exponent> xi = Xxid;
+            rantal = 0;
+            Xr = 0;
+            Xi = 0;
+            Xz = 0;
+            Xxr = Xr + xr;
+            Xxi = Xi + xi;
+            Xxrd = mantissa(Xxr);
+            Xxid = mantissa(Xxi);
+            Xxr2 = Xxrd * Xxrd;
+            Xxi2 = Xxid * Xxid;
+            test1 = Xxr2 + Xxi2;
+            if (! no_g)
+            {
+              test1 = pnorm(g_real, g_imag, p, double(Xxrd), double(Xxid));
+            }
+            // rescale
+            S = sqrt(xr * xr + xi * xi);
+            s = mantissa(S);
+            wr = mantissa(xr / S);
+            wi = mantissa(xi / S);
+            ur = mantissa(cr / S);
+            ui = mantissa(ci / S);
+            u = mantissa(sqrt(cr * cr + ci * ci) / S);
+            wr2 = wr * wr;
+            wi2 = wi * wi;
+          }
         }
-        if (! no_g)
+        else
         {
-          test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
-        }
-        if (test1 &gt; m_nBailout2)
-        {
-          Xxr = Xxrd;
-          Xxi = Xxid;
-          phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
-          phase -= floor(phase);
-          break;
+          if (test1 &lt; Xz)
+          {
+            bGlitch = true;
+            if (! m_bNoGlitchDetection)
+            {
+              Xxr = Xxrd;
+              Xxi = Xxid;
+              break;
+            }
+          }
+          if (! no_g)
+          {
+            test1 = double(pnorm(g_real, g_imag, p, Xxrd, Xxid));
+          }
+          if (test1 &gt; m_nBailout2)
+          {
+            Xxr = Xxrd;
+            Xxi = Xxid;
+            phase = atan2(double(Xxid), double(Xxrd)) / M_PI / 2;
+            phase -= floor(phase);
+            break;
+          }
         }
         mantissa wrn, win;
         if (false) { }
@@ -283,6 +389,7 @@ template bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;float, int32_t&gt; &amp;xr00, tfloatexp&lt;float, int32_t&gt; &amp;xi00
   , const tfloatexp&lt;float, int32_t&gt; &amp;cr0, const tfloatexp&lt;float, int32_t&gt; &amp;ci0
+  , const bool singleref
   );
 template bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />&lt;double, int64_t&gt;
   ( const int m_nFractalType, const int m_nPower
@@ -293,6 +400,7 @@ template bool perturbation_scaled_<xsl:value-of select="@type" />_<xsl:value-of 
   , const double &amp;g_FactorAR, const double &amp;g_FactorAI
   , tfloatexp&lt;double, int64_t&gt; &amp;xr00, tfloatexp&lt;double, int64_t&gt; &amp;xi00
   , const tfloatexp&lt;double, int64_t&gt; &amp;cr0, const tfloatexp&lt;double, int64_t&gt; &amp;ci0
+  , const bool singleref
   );
 
 </xsl:for-each>
