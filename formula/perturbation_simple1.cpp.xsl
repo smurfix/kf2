@@ -90,92 +90,100 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
 </xsl:for-each>
     for (; antal &lt; nMaxIter; antal++)
     {
-      bool skip = true;
-start:
-      const T Xr = rantal >= 0 ? xptr[rantal] : T(0);
-      const T Xi = rantal >= 0 ? yptr[rantal] : T(0);
-      const T Xz = rantal >= 0 ? zptr[rantal] : T(0);
+      T Xr = xptr[rantal];
+      T Xi = yptr[rantal];
+      T Xz = zptr[rantal];
 <xsl:for-each select="references[@t='R']">
-      const T <xsl:value-of select="@name" /> = rantal >= 0 ? zptr<xsl:value-of select="position()" />[rantal] : T(0);
+      T <xsl:value-of select="@name" /> = zptr<xsl:value-of select="position()" />[rantal];
 </xsl:for-each>
 <xsl:for-each select="references[@t='C']">
-      const complex&lt;T&gt; <xsl:value-of select="@name" /> = rantal >= 0 ? complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[rantal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[antal]) : complex&lt;T&gt;(T(0), T(0));
+      complex&lt;T&gt; <xsl:value-of select="@name" /> = complex&lt;T&gt;(zptr<xsl:value-of select="2 * (position() - 1) + 1" />[rantal], zptr<xsl:value-of select="2 * (position() - 1) + 2" />[rantal]);
 </xsl:for-each>
       rantal++;
       Xxr = Xr + xr;
       Xxi = Xi + xi;
 <xsl:choose>
 <xsl:when test="perturbation/@t='C'">
-      const complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
+      complex&lt;T&gt; X = {Xr, Xi}, x = {xr, xi}, Xx = {Xxr, Xxi};
       (void) X; (void) x; (void) Xx;
 </xsl:when>
 </xsl:choose>
-      const T Xxr2 = Xxr * Xxr;
-      const T Xxi2 = Xxi * Xxi;
+      T Xxr2 = Xxr * Xxr;
+      T Xxi2 = Xxi * Xxi;
       test2 = test1;
-      const T ttest1 = Xxr2 + Xxi2;
+      T ttest1 = Xxr2 + Xxi2;
       test1 = double(ttest1);
-      if (skip)
+      if (singleref)
       {
-        if (singleref)
+        if (! no_g)
         {
-          if (ttest1 &lt; xr * xr + xi * xi || rantal == N)
-          {
-            xr = Xxr;
-            xi = Xxi;
-            rantal = -1;
-            skip = false;
-            goto start;
-          }
-          else
-          {
-            if (! no_g)
-            {
-              test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-            }
-            if (test1 &gt; m_nBailout2)
-            {
-              phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-              phase -= floor(phase);
-              break;
-            }
-          }
+          test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
         }
-        else
+        if (test1 &gt; m_nBailout2)
         {
-          if (ttest1 &lt; Xz)
-          {
-            bGlitch = true;
-            if (! m_bNoGlitchDetection)
-              break;
-          }
-          {
+          phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+          phase -= floor(phase);
+          break;
+        }
+        if (ttest1 &lt; xr * xr + xi * xi || rantal == N)
+        {
+          xr = Xxr;
+          xi = Xxi;
+          rantal = 0;
+          Xr = 0;
+          Xi = 0;
+          Xz = 0;
+<xsl:for-each select="references[@t='R']">
+          <xsl:value-of select="@name" /> = T(<xsl:value-of select="@value" />);
+</xsl:for-each>
+<xsl:for-each select="references[@t='C']">
+          <xsl:value-of select="@name" /> = complex&lt;T&gt;(T(<xsl:value-of select="@value" />), T(0));
+</xsl:for-each>
+          Xxr = Xr + xr;
+          Xxi = Xi + xi;
+<xsl:choose>
+<xsl:when test="perturbation/@t='C'">
+          X = complex&lt;T&gt;(Xr, Xi);
+          x = complex&lt;T&gt;(xr, xi);
+          Xx = complex&lt;T&gt;(Xxr, Xxi);
+</xsl:when>
+</xsl:choose>
+        }
+      }
+      else
+      {
+        if (ttest1 &lt; Xz)
+        {
+          bGlitch = true;
+          if (! m_bNoGlitchDetection)
+            break;
+        }
+        {
 <xsl:for-each select="glitch/test">
+          {
+            const T lhs = <xsl:value-of select="lhs" />;
+            const T rhs = <xsl:value-of select="rhs" />;
+            if (<xsl:value-of select="cond" />)
             {
-              const T lhs = <xsl:value-of select="lhs" />;
-              const T rhs = <xsl:value-of select="rhs" />;
-              if (<xsl:value-of select="cond" />)
+              bGlitch = true;
+              test1 = double(<xsl:value-of select="size" />);
+              if (! m_bNoGlitchDetection)
               {
-                bGlitch = true;
-                test1 = double(<xsl:value-of select="size" />);
-                if (! m_bNoGlitchDetection)
-                {
-                  break;
-                }
+                break;
               }
             }
+          }
 </xsl:for-each>
-          }
-          if (! no_g)
-          {
-            test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
-          }
-          if (test1 &gt; m_nBailout2)
-          {
-            phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
-            phase -= floor(phase);
-            break;
-          }
+        }
+        if (! no_g)
+        {
+          test1 = double(pnorm(g_real, g_imag, p, Xxr, Xxi));
+        }
+        if (test1 &gt; m_nBailout2)
+        {
+          phase = atan2(double(Xxi), double(Xxr)) / M_PI / 2;
+          phase -= floor(phase);
+          break;
         }
       }
       T xrn, xin;

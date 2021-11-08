@@ -365,8 +365,6 @@ earlier).
   - new: single-reference implementation for avoiding glitches (thanks
     Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
     enabled by default
-    - known issue: linear smooth method (bailout dialog) is broken when
-      single-reference mode is enabled
     - known issue: does not work with every built-in formula
     - known issue: does not work with every hybrid formulas (only
       simple cases work)
