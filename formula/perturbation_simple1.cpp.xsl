@@ -77,7 +77,7 @@ bool perturbation_simple_<xsl:value-of select="@type" />_<xsl:value-of select="@
     T xi = xi0;
     T Xxr = 0;
     T Xxi = 0;
-    const int64_t N = reference_size_N(m_Reference);
+    const int64_t N = reference_size_x(m_Reference);
     const T *xptr = reference_ptr_x&lt;T&gt;(m_Reference);
     const T *yptr = reference_ptr_y&lt;T&gt;(m_Reference);
     const T *zptr = reference_ptr_z&lt;T&gt;(m_Reference);
