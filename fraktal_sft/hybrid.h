@@ -1125,7 +1125,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
           phase -= std::floor(phase);
           break;
         }
-        if (test1 < s * s * (wr * wr + wr * wi) || rantal == size_x)
+        if (test1 < s * s * (wr * wr + wi * wi) || rantal == size_x)
         {
           const tfloatexp<mantissa, exponent> xr = Xxr;
           const tfloatexp<mantissa, exponent> xi = Xxi;
