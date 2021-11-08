@@ -3538,7 +3538,7 @@ extern bool reference_hybrid
       reference_append(m_Reference, Xrd, Xid, Xz);
       if (double(abs_val) >= terminate){
         if (nMaxIter == m_nMaxIter){
-          nMaxIter = i;
+          nMaxIter = i + 10;
           if (nMaxIter > m_nMaxIter)
             nMaxIter = m_nMaxIter;
         }

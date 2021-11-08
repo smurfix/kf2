@@ -140,7 +140,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
         if (dXrd * dXrd + dXid * dXid == floatexp(0.0)) /* FIXME threshold? */ \
         { \
           if (nMaxIter == m_nMaxIter){ \
-            nMaxIter = i; \
+            nMaxIter = i + 10; \
             if (nMaxIter &gt; m_nMaxIter) \
               nMaxIter = m_nMaxIter; \
           } \
@@ -166,7 +166,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
 </xsl:for-each> \
         if (abs_val &gt;= terminate){ \
           if (nMaxIter == m_nMaxIter){ \
-            nMaxIter = i; \
+            nMaxIter = i + 10; \
             if (nMaxIter &gt; m_nMaxIter) \
               nMaxIter = m_nMaxIter; \
           } \

@@ -74,7 +74,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 			reference_append(m_Reference, X0, Y0, Z0);
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
-					nMaxIter = i;
+					nMaxIter = i + 10;
 					if (nMaxIter>m_nMaxIter)
 						nMaxIter = m_nMaxIter;
 				}
