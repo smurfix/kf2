@@ -1558,11 +1558,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	m_OpenCL_Glitched_Y = -1;
 	m_OpenCL_Glitched_Count = 0;
 	m_bIterChanged = TRUE;
-	int64_t antal = 0;
-	if (m_nMaxApproximation)
-	{
-		antal = m_nMaxApproximation - 1;
-	}
 	size_t stride_y = &m_nTrans[0][1] - &m_nTrans[0][0];
 	size_t stride_x = &m_nTrans[1][0] - &m_nTrans[0][0];
 	size_t stride_offset = 0;
