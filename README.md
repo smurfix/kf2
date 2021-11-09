@@ -202,6 +202,8 @@ Feedback:
   (workaround: disable it in the Perturbation Tuning dialog)
 - changing number of approximation terms can crash sometimes
   (reported by CFJH)
+- command line detailed status reporting only works for first frame of
+  zoom out sequence
 
 
 ## Differences From Original 2.11.1
@@ -377,10 +379,11 @@ earlier).
     - known issue: no OpenCL support yet
     - known issue: no derivatives support yet
     - known issue: Newton zooming does not work properly
-  - new: Separated Perpendicular formula; variant implemented with
-    critical point at 0, and custom function to avoid precision loss
-    when deep zooming (thanks Mr Rebooted)
+  - new: Separated Perpendicular formula (thanks Mr Rebooted); variant
+    implemented with critical point at 0, and custom function to avoid
+    precision loss when deep zooming
     - known issue: no OpenCL support yet
+    - known issue: single reference method does not cure all glitches
   - new: hybrid formulas support division operator (thanks FractalAlex)
     - known issue: implementation is incomplete
   - new: Triangle Inequality Average colouring algorithm can be enabled
