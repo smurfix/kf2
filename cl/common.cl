@@ -401,7 +401,7 @@ floatexp fe_exp(const floatexp a)
   if (-53 <= a.exp && a.exp <= 8) return fe_floatexp(exp(fe_double(a)), 0);
   if (61 <= a.exp) a.val > 0.0 ? fe_floatexp(a.val / 0.0, 0) : fe_floatexp(0.0, 0);
   if (a.exp < -53) return fe_floatexp(1.0, 0);
-  return fe_pow(fe_floatexp(exp(a.val), 0), 1ULL << a.exp);
+  return fe_pow(fe_floatexp(exp(a.val), 0), 1UL << a.exp);
 }
 
 floatexp fe_expm1(const floatexp a)

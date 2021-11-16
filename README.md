@@ -403,6 +403,7 @@ earlier).
     anything in the old code, if only by chance)
   - fix: some typo bugs in the build system
   - fix: name Polarbrot correctly everywhere
+  - fix: there is no long long in OpenCL (thunks shapeweaver)
   - internal: support for custom reference orbit values for caching
     repeated computations (time/space trade-off)
     - known issue: no OpenCL support yet
