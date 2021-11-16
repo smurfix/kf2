@@ -1142,6 +1142,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			// newton success
 			SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew + "Done").c_str());
 			g_SFT.UndoStore();
+			g_SFT.Stop();
 			if (g_nr_action >= 3)
 			{
 				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));

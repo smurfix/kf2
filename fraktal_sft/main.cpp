@@ -2722,6 +2722,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bAutoGlitch=1;
 
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),TRUE);
 		SetTimer(hWnd,0,500,NULL);
 		return 0;
@@ -2829,6 +2830,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,nZoom,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
@@ -2956,6 +2958,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else
 			{
 				g_SFT.UndoStore();
+				g_SFT.Stop();
 				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetZoomSize()==1, true, true);
 			}
 			SetTimer(hWnd,0,500,NULL);
@@ -3056,10 +3059,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				GlobalUnlock(hTemp);
 				CloseClipboard();
 				g_SFT.UndoStore();
+				g_SFT.Stop();
 				BOOL ok = g_SFT.OpenString(str, FALSE);
 				if (ok)
 				{
-					g_SFT.Stop();
 					g_bAnim=false;
 					g_bFindMinibrot=FALSE;
 					g_bStoreZoom=FALSE;
@@ -3087,12 +3090,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 						g_szFile = file;
 						bool err = false;
 						g_SFT.UndoStore();
+						g_SFT.Stop();
 						OpenFile(hWnd, err);
 						if (! err)
 						{
-							// don't know if this code is necessary
-							// probably it would be better to stop *before* opening?
-							g_SFT.Stop();
 							g_bAnim=false;
 							g_bFindMinibrot=FALSE;
 							g_bStoreZoom=FALSE;
@@ -3110,6 +3111,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	{
 		// page up = zoom in
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(1.0 * g_SFT.GetZoomSize());
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
@@ -3117,6 +3119,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	{
 		// page down = zoom out
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
@@ -3177,6 +3180,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?2:g_SFT.GetZoomSize()),g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
@@ -3238,6 +3242,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?.5:(double)1/(double)g_SFT.GetZoomSize()),g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
@@ -3353,9 +3358,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		InvalidateRect(hWnd, NULL, FALSE);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_RESET_TRANSFORMATION){
-		g_SFT.Stop();
 		g_SFT.UndoStore();
-		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
+		g_SFT.Stop();
+s		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
@@ -3687,6 +3692,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CloseHandle(hThread);
 		}
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
@@ -3712,6 +3718,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CloseHandle(hThread);
 		}
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
@@ -3737,6 +3744,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CloseHandle(hThread);
 		}
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
@@ -3762,6 +3770,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CloseHandle(hThread);
 		}
 		g_SFT.UndoStore();
+		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
@@ -3971,6 +3980,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(DialogBox(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG5),hWnd,(DLGPROC)PositionProc))
 			{
 				g_SFT.UndoStore();
+				g_SFT.Stop();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
@@ -3987,7 +3997,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
-				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.UndoStore();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -4007,7 +4016,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_BAILOUT),hWnd,BailoutProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
-				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.UndoStore();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -4017,7 +4025,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_PTSATUNING),hWnd,PTSATuningProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
-				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.UndoStore();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -4027,7 +4034,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_NUMBERTYPE),hWnd,NumberTypeProc,0);
 			if(n > 0){
 				SetTimer(hWnd,0,500,NULL);
-				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.UndoStore();
 				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
@@ -4159,6 +4165,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_szFile)){
 				bool ret;
 				g_SFT.UndoStore();
+				g_SFT.Stop();
 				long r = OpenFile(hWnd, ret);
 				if (ret) return r;
 			}
@@ -4167,6 +4174,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::string szfile;
 			if(BrowseFile(hWnd,TRUE,"Open Map","Kalle's fraktaler\0*.kfb\0EXR files\0*.exr\0\0",szfile)){
 				bool ret;
+				g_SFT.Stop();
 				long r = OpenMap(hWnd, ret, szfile);
 				if (ret) return r;
 			}
@@ -4302,6 +4310,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_szFile="";
 			SetWindowText(hWnd,"Kalle's Fraktaler 2");
 			g_SFT.UndoStore();
+			g_SFT.Stop();
 			g_SFT.SetPosition("0","0","1");
 			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
@@ -4328,8 +4337,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_nStopAtExponent=0;
 			if(g_nStopAtExponent && g_nStopAtExponent<=g_SFT.GetExponent())
 				return MessageBox(hWnd,"Done","Error",MB_OK|MB_ICONINFORMATION);
-			g_SFT.Stop();
 			g_SFT.UndoStore();
+			g_SFT.Stop();
 			g_bAnim=false;
 			g_bStoreZoom=FALSE;
 			int x, y;

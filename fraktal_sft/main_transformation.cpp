@@ -191,6 +191,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       if (wParam == IDOK)
       {
         g_SFT.UndoStore();
+				g_SFT.Stop();
         g_bExamineDirty=TRUE;
         polar2 total_transformation = polar_decomposition(polar_composition(current_transformation) * polar_composition(original_transformation));
         const double total_transformation_zoom = total_transformation.scale;

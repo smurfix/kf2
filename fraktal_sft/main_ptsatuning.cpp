@@ -63,6 +63,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
       if (wParam == IDOK)
       {
         g_SFT.UndoStore();
+        g_SFT.Stop();
         g_bExamineDirty=TRUE;
         g_SFT.SetGlitchLowTolerance(GetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE));
         g_SFT.SetMaxReferences(GetDlgItemInt(hWnd, IDC_PTSATUNING_MAXREFERENCES, NULL, FALSE));

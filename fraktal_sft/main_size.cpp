@@ -314,6 +314,7 @@ extern INT_PTR WINAPI WindowSizeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         if (! refreshing)
         {
           refreshing = true;
+          g_SFT.Stop();
           UpdateDisplays(hWnd, true);
           refreshing = false;
         }

@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -255,6 +255,7 @@ extern INT_PTR WINAPI BailoutProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       if (wParam == IDOK)
       {
         g_SFT.UndoStore();
+				g_SFT.Stop();
         g_bExamineDirty=TRUE;
         RefreshIterations(hWnd);
         RefreshSmoothMethod(hWnd);

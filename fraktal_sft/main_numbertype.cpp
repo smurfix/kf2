@@ -62,6 +62,7 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
       if (wParam == IDOK)
       {
         g_SFT.UndoStore();
+				g_SFT.Stop();
         NumberType n;
         n.Single         = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_SINGLE,         BM_GETCHECK, 0, 0);
         n.Double         = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_DOUBLE,         BM_GETCHECK, 0, 0);

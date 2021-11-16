@@ -670,6 +670,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
           retval = valid(h);
           if (retval)
           {
+            g_SFT.Stop();
             g_SFT.SetHybridFormula(h);
             g_SFT.SetUseHybridFormula(true);
           }

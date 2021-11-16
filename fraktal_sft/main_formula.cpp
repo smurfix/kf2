@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -301,6 +301,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       int retval = 0;
       if (wParam == IDOK){
         g_SFT.UndoStore();
+				g_SFT.Stop();
         g_bExamineDirty=TRUE;
         RefreshSeedR(hWnd);
         RefreshSeedI(hWnd);
@@ -330,6 +331,8 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
       if (to_hybrid)
       {
+        g_SFT.UndoStore();
+				g_SFT.Stop();
         g_SFT.SetHybridFormula(hybrid_formula_from_string(hybrid));
         g_SFT.SetUseHybridFormula(true);
         UpdateFractalType(hWnd);
@@ -346,6 +349,8 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       const bool from_hybrid = hybrid_get_builtin(hybrid, nType, nPow);
       if (from_hybrid)
       {
+        g_SFT.UndoStore();
+				g_SFT.Stop();
         g_SFT.SetUseHybridFormula(false);
         g_SFT.SetFractalType(nType);
         g_SFT.SetPower(nPow);

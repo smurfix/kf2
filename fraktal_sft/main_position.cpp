@@ -1,7 +1,7 @@
 /*
 Kalles Fraktaler 2
 Copyright (C) 2013-2017 Karl Runmo
-Copyright (C) 2017-2020 Claude Heiland-Allen
+Copyright (C) 2017-2021 Claude Heiland-Allen
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Affero General Public License as
@@ -88,6 +88,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int retval = 0;
 		if(wParam==IDOK){
 			g_SFT.UndoStore();
+			g_SFT.Stop();
 			int n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT1));
 			char *szR = new char[n+1];
 			GetDlgItemText(hWnd,IDC_EDIT1,szR,n+1);

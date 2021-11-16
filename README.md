@@ -200,8 +200,6 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
-- changing number of approximation terms can crash sometimes
-  (reported by CFJH)
 
 
 ## Differences From Original 2.11.1
@@ -404,6 +402,9 @@ earlier).
   - fix: there is no long long in OpenCL (thunks shapeweaver)
   - fix: command line detailed status reporting works for all frames of
     zoom out sequence
+  - fix: be more robust about stopping rendering before changing
+    internal state; should fix some crashes like changing approximation
+    terms (reported by CFJH)
   - internal: support for custom reference orbit values for caching
     repeated computations (time/space trade-off)
     - known issue: no OpenCL support yet
