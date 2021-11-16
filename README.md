@@ -365,6 +365,7 @@ earlier).
     enabled by default; also supported in nanomb1
     - known issue: does not work with every hybrid formula (only very
       simple cases work)
+    - known issue: may fail if there is more than one critical point
   - new: start of support for convergent formulas
     - known issue: convergent formulas are not supported in OpenCL
     - known issue: convergent formulas are not supported with
