@@ -202,8 +202,6 @@ Feedback:
   (workaround: disable it in the Perturbation Tuning dialog)
 - changing number of approximation terms can crash sometimes
   (reported by CFJH)
-- command line detailed status reporting only works for first frame of
-  zoom out sequence
 
 
 ## Differences From Original 2.11.1
@@ -404,6 +402,8 @@ earlier).
   - fix: some typo bugs in the build system
   - fix: name Polarbrot correctly everywhere
   - fix: there is no long long in OpenCL (thunks shapeweaver)
+  - fix: command line detailed status reporting works for all frames of
+    zoom out sequence
   - internal: support for custom reference orbit values for caching
     repeated computations (time/space trade-off)
     - known issue: no OpenCL support yet

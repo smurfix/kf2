@@ -4701,7 +4701,6 @@ static bool render_frame(int frame, bool onlyKFR)
 			g_SFT.AddReference(x, y);
 		}
 	}
-	ThReportProgress_running = false;
 	return save_frame(frame, onlyKFR);
 }
 
@@ -4877,6 +4876,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			{
 				ok = render_frame(0, onlyKFR);
 			}
+			ThReportProgress_running = false;
 		}
 		if (! ok)
 		{
