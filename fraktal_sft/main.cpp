@@ -3360,7 +3360,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_RESET_TRANSFORMATION){
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-s		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
+		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
