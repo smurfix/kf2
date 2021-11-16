@@ -3013,7 +3013,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bAddMainReference=false;
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 		}
-		g_SFT.Stop(TRUE); // TRUE -> don't apply colors; this is not graceful completion
+		g_SFT.Stop();
 		KillTimer(hWnd, 0); // stop the render clock
 		InvalidateRect(hWnd,NULL,FALSE); // update display including status bar...
 		UpdateWindow(hWnd); // ...so that fast zooming makes zoom number change

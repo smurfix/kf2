@@ -499,7 +499,7 @@ public:
 	void UpdateBitmap();
 	int GetWidth();
 	int GetHeight();
-	void Stop(BOOL bNoPostWhenDone = FALSE);
+	void Stop();
 	int CountFrames(int nProcent);
 	void Zoom(double nZoomSize);
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);

@@ -2044,9 +2044,9 @@ int CFraktalSFT::GetHeight()
 {
 	return m_nY;
 }
-void CFraktalSFT::Stop(BOOL bNoPostWhenDone)
+void CFraktalSFT::Stop()
 {
-	m_bNoPostWhenDone = bNoPostWhenDone;
+	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
 	m_bStop = TRUE;
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches - 1].x == -1)
@@ -2069,7 +2069,7 @@ void CFraktalSFT::Stop(BOOL bNoPostWhenDone)
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {
-	Stop(TRUE);
+	Stop();
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
@@ -2083,7 +2083,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 
 void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender, bool center_view)
 {
-	Stop(TRUE);
+	Stop();
 
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);
