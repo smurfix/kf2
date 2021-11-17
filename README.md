@@ -1758,7 +1758,8 @@ earlier).
 - increase maxiters limit without restarting from scratch
 - optimize series approximation and probe point stuff
 - calculate series approximation in parallel with reference
-- only store reference orbit after series approximation
+- reuse series approximation when reuse reference is enabled
+- only store one period of reference orbit (if periodic)
 - refine minibrot using interior distance estimates
 - refine minibrot using boundary shrinking (calculate edges only)
 - enhanced glitch detection methods for all formulas (knighty + gerrit)
