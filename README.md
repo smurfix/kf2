@@ -2329,6 +2329,7 @@ Thanks to:
 - stardust4ever for other fractal types
 - claude for the Newton-Raphson method
 - gerrit for the distance colouring differencing variations
+- Zhouran for the single reference method
 - Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
