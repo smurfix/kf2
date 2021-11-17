@@ -388,6 +388,7 @@ earlier).
     (T) channel data
     - known issue: likely to change in future versions, use at own risk
     - known issue: disable Series Approximation for predictable results
+  - fix: Newton dialog uses a compact layout (by popular request)
   - fix: Newton zooming functions are correctly linked into the EXE
     (only kf-2.15.4 was broken)
   - fix: control-click to zoom correctly views framed rectangle
@@ -2622,7 +2623,7 @@ yet.  Size calculates the size of the minibrot and zooms the view
 according to the remaining controls.  Skew automatically skews the view
 to make features near the minibrot look round.
 
-Progress is displayed on the top right, where there is a button to stop
+Progress is displayed at the bottom, where there is a button to stop
 the processes (for example if the ETA for Center gets very high, which
 indicates that it might not be converging).
 
@@ -2644,7 +2645,7 @@ the minibrot, which is typically around the size of an embedded Julia
 set.  Absolute Power 1 is at the atom domain, 1.125 is sometimes near
 a Julia morphing.
 
-The Size Factor in the bottom right corner is applied after zooming in
+The Size Factor is applied after zooming in
 all modes, for fine tuning of the zoomed view.
 
 Click on the fractal to specify the start point of the search of the

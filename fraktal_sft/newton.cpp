@@ -62,38 +62,13 @@ static bool g_bNewtonExit = false;
 bool g_bJustDidNewton = false;
 
 static int g_nr_zoom_target = 0;
-// 0: minibrot old (zooms between current and minibrot)
-// 1: minibrot (zooms relative to final size only)
-// 2: atom domain (zooms relative to final size)
-static int g_nr_folding = 0;
-// 0: 0.5
-// 1: 0.75
-// 2: 0.875
-// 3: 0.9375
-// 4: 1
-// 5: custom
+static int g_nr_folding = 1;
 static double g_nr_folding_custom = 1;
-static int g_nr_size_power = 2;
-// 0: 0.75
-// 1: 0.875
-// 2: 1
-// 3: 1.125
-// 4: 1.25
-// 5: custom
+static int g_nr_size_power = 3;
 static double g_nr_size_power_custom = 1;
-static int g_nr_size_factor = 0;
-// 0: 10
-// 1: 4
-// 2: 1
-// 3: 0.25
-// 4: 0.1
-// 5: custom
+static int g_nr_size_factor = 1;
 static double g_nr_size_factor_custom = 1;
 static int g_nr_action = 2;
-// 0: period
-// 1: center
-// 2: size
-// 3: skew
 static bool g_nr_ball_method = true;
 
 static floatexp g_fNewtonDelta2[2];
@@ -116,7 +91,7 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 		char status[100];
 		snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
 		s_period = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -135,7 +110,7 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 		char status[100];
 		snprintf(status, 100, "Center %d/%d (%d%%) (%s) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
 		s_center = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -152,7 +127,7 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 		char status[100];
 		snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
 		s_size = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -748,7 +723,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	  char status[100];
 	  snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", (int) g_period, (int) (g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
 	  s_period = status;
-	  SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+	  SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	Precision prec2(uprec);
 
@@ -806,7 +781,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			char status[100];
 			snprintf(status, 100, "Center %d/%d (%d%%) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 			s_center = status;
-			SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 		}
 
 		if (! g_bNewtonStop && ! test)
@@ -879,15 +854,15 @@ static int WINAPI ThNewton(HWND hWnd)
 					char status[100];
 					snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 					s_size = status;
-					SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+					SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 				}
 				if (0 < msize && msize < 2)
 				{
-					double size_factors[] = { 10, 4, 1, 0.25, 0.1, g_nr_size_factor_custom };
+					double size_factors[] = { g_nr_size_factor_custom, 10, 4, 1, 0.25, 0.1 };
 					double factor = size_factors[std::min(std::max(g_nr_size_factor, 0), 5)];
 					if (g_nr_zoom_target >= 1)
 					{
-						double size_powers[] = { 0.75, 0.875, 1, 1.125, 1.25, g_nr_size_power_custom };
+						double size_powers[] = { g_nr_size_power_custom, 0.75, 0.875, 1, 1.125, 1.25 };
 						double power = size_powers[std::min(std::max(g_nr_size_power, 0), 5)];
 						floatexp s = floatexp(msize);
 						floatexp r = factor * exp(log(s) * power);
@@ -897,7 +872,7 @@ static int WINAPI ThNewton(HWND hWnd)
 					}
 					else
 					{
-						double foldings[] = { 0.5, 0.75, 0.875, 0.9375, 1, g_nr_folding_custom };
+						double foldings[] = { g_nr_folding_custom, 0.5, 0.75, 0.875, 0.9375, 1 };
 						double power = foldings[std::min(std::max(g_nr_folding, 0), 5)];
 						floatexp start = floatexp(flyttyp(g_szZoom));
 						floatexp target = floatexp(2 / factor) / floatexp(msize);
@@ -929,7 +904,93 @@ static int WINAPI ThNewton(HWND hWnd)
 	return 0;
 }
 
+const struct { const char *name; } action_preset[] =
+{ { "Period" }
+, { "Center" }
+, { "Zoom" }
+, { "Skew" }
+};
+const int naction_presets = sizeof(action_preset) / sizeof(action_preset[0]);
+
+const struct { const char *name; double folding; } folding2_preset[] =
+{ { "Custom", 0 }
+, { "0.5 (2x)", 0.5 }
+, { "0.75 (4x)", 0.75 }
+, { "0.875 (8x)", 0.875 }
+, { "0.9375 (16x)", 0.9375 }
+, { "1.0 (Minibrot)", 1.0 }
+};
+const int nfolding2_presets = sizeof(folding2_preset) / sizeof(folding2_preset[0]);
+
+const struct { const char *name; double power; } power2_preset[] =
+{ { "Custom", 0 }
+, { "0.75 (zoomed out)", 0.75 }
+, { "0.875", 0.875 }
+, { "1.0 (actual size)", 0.875 }
+, { "1.125", 1.125 }
+, { "1.25 (zoomed in)", 1.25 }
+};
+const int npower2_presets = sizeof(power2_preset) / sizeof(power2_preset[0]);
+
+const struct { const char *name; double factor; } factor_preset[] =
+{ { "Custom", 0 }
+, { "10 (zoomed out)", 10 }
+, { "4", 4 }
+, { "1 (actual size)", 1 }
+, { "0.25", 0.25 }
+, { "0.1 (zoomed in)", 0.1 }
+};
+const int nfactor_presets = sizeof(factor_preset) / sizeof(factor_preset[0]);
+
+const struct { const char *name; } target_preset[] =
+{ { "Relative (minibrot)" }
+, { "Absolute (minibrot)" }
+, { "Absolute (atom domain)" }
+};
+const int ntarget_presets = sizeof(target_preset) / sizeof(target_preset[0]);
+
 static std::vector<HWND> tooltips;
+
+extern void NewtonReadWindows(HWND hWnd)
+{
+	g_nr_zoom_target = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_GETCURSEL, 0, 0);
+	g_nr_folding = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_GETCURSEL, 0, 0);
+	g_nr_size_power = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_GETCURSEL, 0, 0);
+	g_nr_size_factor = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_GETCURSEL, 0, 0);
+	{
+		char s[256];
+		GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT, s, sizeof(s));
+		g_nr_folding_custom = atof(s);
+		GetDlgItemText(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT, s, sizeof(s));
+		g_nr_size_power_custom = atof(s);
+		GetDlgItemText(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT, s, sizeof(s));
+		g_nr_size_factor_custom = atof(s);
+		GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, s, sizeof(s));
+		if (std::string(s) == "")
+		{
+			g_szZoom = g_SFT.GetZoom();
+		}
+		else
+		{
+			g_szZoom = s;
+		}
+	}
+	g_nr_action = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_GETCURSEL, 0, 0);
+	g_nr_ball_method = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_GETCHECK, 0, 0);
+	g_SFT.SetSaveNewtonProgress(SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SAVE_PROGRESS, BM_GETCHECK, 0, 0));
+}
+
+extern void NewtonEnableWindows(HWND hWnd)
+{
+	// dis/enable optional windows
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START), g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START_CAPTURE), g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET), g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT), g_nr_folding == 0 && g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET), g_nr_zoom_target != 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT), g_nr_size_power == 0 && g_nr_zoom_target != 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT), g_nr_size_factor == 0);
+}
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -939,96 +1000,78 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-		T(IDC_NR_TARGET_MINIBROT_RELATIVE, "Relative zooming between current zoom level and the minibrot.\nUse Relative Folding below left to control zoom power.\nThis is similar to the method used in kf-2.15.2 and earlier.\nTransform old custom factors by new=1-2*(1-old).")
-		T(IDC_NR_RELATIVE_START_ZOOM, "Override current zoom level for relative zooming.\nLeave empty use current zoom level at start time.")
-		T(IDC_NR_RELATIVE_START_ZOOM_CAPTURE, "Click to capture current zoom level for relative zooming.")
-		T(IDC_NR_TARGET_MINIBROT_ABSOLUTE, "Absolute zooming relative to the minibrot.\nUse Absolute Power below middle to control zoom power.")
-		T(IDC_NR_TARGET_DOMAIN_ABSOLUTE, "Absolute zooming relative to the atom domain.\nUse Absolute Power below middle to control zoom power.\nOnly for Mandelbrot power 2 and Hybrid formula editor.")
-		T(IDC_NR_FOLDING_2, "Current pattern doubled.")
-		T(IDC_NR_FOLDING_4, "Current pattern quadrupled.")
-		T(IDC_NR_FOLDING_8, "Current pattern 8-fold.")
-		T(IDC_NR_FOLDING_16, "Current pattern 16-fold.")
-		T(IDC_NR_FOLDING_MINIBROT, "All the way to the minibrot.")
-		T(IDC_NR_FOLDING_CUSTOM, "Use the value from the custom edit box to the right.")
-		T(IDC_NR_FOLDING_CUSTOM_EDIT, "Enter custom relative power here.\nEnter 0.5 for 2x folding.\nTry -1 to zoom out.")
-		T(IDC_NR_SIZE_POWER_075, "Near embedded Julia set for Minibrot (Absolute).")
-		T(IDC_NR_SIZE_POWER_0875, "Zoomed out from Minibrot or Atom Domain.")
-		T(IDC_NR_SIZE_POWER_1, "Zoom to target (Minibrot or Atom Domain).")
-		T(IDC_NR_SIZE_POWER_1125, "Near Julia morphing for Atom Domain (Absolute).\nNot useful for Minibrot (Absolute).")
-		T(IDC_NR_SIZE_POWER_125, "Zoomed in from Atom Domain.\nNot useful for Minibrot (Absolute).")
-		T(IDC_NR_SIZE_POWER_CUSTOM, "Use the value from the custom edit box to the right.")
-		T(IDC_NR_SIZE_POWER_CUSTOM_EDIT, "Enter custom absolute power here.\nEnter 1 to zoom to target.\nValues greater than 1 are not useful for Minibrot (Absolute).")
-		T(IDC_NR_SIZE_FACTOR_10, "Zoomed out 10x.")
-		T(IDC_NR_SIZE_FACTOR_4, "Zoomed out 4x.")
-		T(IDC_NR_SIZE_FACTOR_1, "Zoomed actual size.")
-		T(IDC_NR_SIZE_FACTOR_025, "Zoomed in 4x.")
-		T(IDC_NR_SIZE_FACTOR_01, "Zoomed in 10x.")
-		T(IDC_NR_SIZE_FACTOR_CUSTOM, "Use the value from the custom edit box to the right.")
-		T(IDC_NR_SIZE_FACTOR_CUSTOM_EDIT, "Enter custom size factor here.\nEnter 1 for actual size.")
-		T(IDC_NR_ACTION_PERIOD, "Find the period of the lowest period minibrot in the clicked region.")
-		T(IDC_NR_ACTION_CENTER, "As Period, and also center the view on the minibrot.")
-		T(IDC_NR_ACTION_SIZE, "As Center, and also zoom to the specified power and size factor relative to the minibrot or atom domain.")
-		T(IDC_NR_ACTION_AUTOSKEW, "As Size, and also automatically skew the view.")
-		T(IDC_NR_BALL_METHOD, "When checked, use ball method for finding periods.\nOtherwise use box method.\nA different method (Taylor ball) is always used for power 2 Mandelbrot.");
-		T(IDC_NR_SAVE_PROGRESS, "When checked, save progress snapshots when finding the center.\nResuming is not yet automatic\nNewton zooming from a snapshot will do more iterations than necessary.");
-		T(IDCANCEL2, "Click to cancel the Newton-Raphson zooming calculations.");
+T(IDC_NR_ZOOM_TARGET_PRESET                   , "Relative zooming is between current zoom level and the minibrot.\nAbsolute zooming is relative to the size of the minibrot or atom domain.")
+T(IDC_NR_ZOOM_RELATIVE_START                  , "Override current zoom level for relative zooming.\nLeave empty use current zoom level at start time.")
+T(IDC_NR_ZOOM_RELATIVE_START_CAPTURE          , "Click to capture current zoom level for relative zooming.")
+T(IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET         , "Power for relative doubling/quadrupling/etc the current pattern.")
+T(IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT    , "Enter custom relative power here.\nEnter 0.5 for 2x folding.\nTry -1 to zoom out.")
+T(IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET           , "Power for absolute double/quadrupling/etc of embedded Julia set features.")
+T(IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT      , "Enter custom absolute power here.\nEnter 1 to zoom to target.\nValues greater than 1 are not useful for Minibrot (Absolute).")
+T(IDC_NR_ZOOM_SIZE_FACTOR_PRESET              , "Factor for scaling the zoom after power is applied.\nBigger than 1 zooms out, smaller than 1 zooms in.")
+T(IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT         , "Enter custom size factor here.\nEnter 1 for actual size.")
+T(IDC_NR_ZOOM_BALL_METHOD                     , "When checked, use ball method for finding periods.\nOtherwise use box method.\nA different method (Taylor ball) is always used for power 2 Mandelbrot.")
+T(IDC_NR_ZOOM_ACTION_PRESET                   , "Stop after action in the sequence:\n- Find the period of the lowest period minibrot in the clicked region.\n- Center the view on the minibrot.\n- Zoom to the specified power and size factor.\n- Automatically skew the view.")
+T(IDC_NR_ZOOM_SAVE_PROGRESS                   , "When checked, save progress snapshots when finding the center.\nResuming is not yet automatic\nNewton zooming from a snapshot will do more iterations than necessary.")
+T(IDC_NR_ZOOM_STATUS                          , "Progress messages are displayed here.")
+T(IDCANCEL2                                   , "Click to cancel the Newton-Raphson zooming calculations.")
 #undef T
 
-		SendDlgItemMessage(hWnd, IDC_NR_TARGET_MINIBROT_RELATIVE, BM_SETCHECK, g_nr_zoom_target == 0, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_TARGET_MINIBROT_ABSOLUTE, BM_SETCHECK, g_nr_zoom_target == 1, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_TARGET_DOMAIN_ABSOLUTE, BM_SETCHECK, g_nr_zoom_target == 2, 0);
-
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_2, BM_SETCHECK, g_nr_folding == 0, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_4, BM_SETCHECK, g_nr_folding == 1, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_8, BM_SETCHECK, g_nr_folding == 2, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_16, BM_SETCHECK, g_nr_folding == 3, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_MINIBROT, BM_SETCHECK, g_nr_folding == 4, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_FOLDING_CUSTOM, BM_SETCHECK, g_nr_folding == 5, 0);
-
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_075, BM_SETCHECK, g_nr_size_power == 0, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_0875, BM_SETCHECK, g_nr_size_power == 1, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_1, BM_SETCHECK, g_nr_size_power == 2, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_1125, BM_SETCHECK, g_nr_size_power == 3, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_125, BM_SETCHECK, g_nr_size_power == 4, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_CUSTOM, BM_SETCHECK, g_nr_size_power == 5, 0);
-
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_10, BM_SETCHECK, g_nr_size_factor == 0, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_4, BM_SETCHECK, g_nr_size_factor == 1, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_1, BM_SETCHECK, g_nr_size_factor == 2, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_025, BM_SETCHECK, g_nr_size_factor == 3, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_01, BM_SETCHECK, g_nr_size_factor == 4, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_CUSTOM, BM_SETCHECK, g_nr_size_factor == 5, 0);
-
-		SendDlgItemMessage(hWnd, IDC_NR_ACTION_PERIOD, BM_SETCHECK, g_nr_action == 0, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ACTION_CENTER, BM_SETCHECK, g_nr_action == 1, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ACTION_SIZE, BM_SETCHECK, g_nr_action == 2, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ACTION_AUTOSKEW, BM_SETCHECK, g_nr_action == 3, 0);
-
-		SendDlgItemMessage(hWnd, IDC_NR_BALL_METHOD, BM_SETCHECK, g_nr_ball_method, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_SAVE_PROGRESS, BM_SETCHECK, g_SFT.GetSaveNewtonProgress(), 0);
-
-		SetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, "");
-		SetDlgItemText(hWnd, IDC_NR_STATUS, "Click the fractal to start.\nZoom size affects the\nregion to search.");
+		// populate combo boxes
+		for (int p = 0; p < naction_presets; ++p)
 		{
-			std::ostringstream s;
-			s << g_nr_folding_custom;
-			SetDlgItemText(hWnd, IDC_NR_FOLDING_CUSTOM_EDIT, s.str().c_str());
+			SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_ADDSTRING, 0, (LPARAM) action_preset[p].name);
 		}
+		for (int p = 0; p < nfolding2_presets; ++p)
 		{
-			std::ostringstream s;
-			s << g_nr_size_power_custom;
-			SetDlgItemText(hWnd, IDC_NR_SIZE_POWER_CUSTOM_EDIT, s.str().c_str());
+			SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_ADDSTRING, 0, (LPARAM) folding2_preset[p].name);
 		}
+		for (int p = 0; p < npower2_presets; ++p)
 		{
-			std::ostringstream s;
-			s << g_nr_size_factor_custom;
-			SetDlgItemText(hWnd, IDC_NR_SIZE_FACTOR_CUSTOM_EDIT, s.str().c_str());
+			SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_ADDSTRING, 0, (LPARAM) power2_preset[p].name);
 		}
+		for (int p = 0; p < nfactor_presets; ++p)
+		{
+			SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_ADDSTRING, 0, (LPARAM) factor_preset[p].name);
+		}
+		for (int p = 0; p < ntarget_presets; ++p)
+		{
+			SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_ADDSTRING, 0, (LPARAM) target_preset[p].name);
+		}
+
+		// select combo boxes
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_SETCURSEL, g_nr_zoom_target, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_SETCURSEL, g_nr_action, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_SETCURSEL, g_nr_folding, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_SETCURSEL, g_nr_size_power, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_SETCURSEL, g_nr_size_factor, 0);
+
+		// select widgets
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_SETCHECK, g_nr_ball_method, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SAVE_PROGRESS, BM_SETCHECK, g_SFT.GetSaveNewtonProgress(), 0);
+
+		// clear custom fields
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, "");
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT, "");
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT, "");
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT, "");
+
+		NewtonEnableWindows(hWnd);
+
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, "Click the fractal to start.\nZoom size affects the\nregion to search.");
 		return 1;
 	}
-	if (uMsg == WM_COMMAND && wParam == IDC_NR_RELATIVE_START_ZOOM_CAPTURE)
+	if (uMsg == WM_COMMAND && HIWORD(wParam) == LBN_SELCHANGE && (
+	  LOWORD(wParam) == IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET ||
+	  LOWORD(wParam) == IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET ||
+	  LOWORD(wParam) == IDC_NR_ZOOM_SIZE_FACTOR_PRESET ||
+	  LOWORD(wParam) == IDC_NR_ZOOM_TARGET_PRESET))
 	{
-		SetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, floatexp(CDecNumber(g_SFT.GetZoom())).toString(5).c_str());
+		NewtonReadWindows(hWnd);
+		NewtonEnableWindows(hWnd);
+	}
+	if (uMsg == WM_COMMAND && wParam == IDC_NR_ZOOM_RELATIVE_START_CAPTURE)
+	{
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, floatexp(CDecNumber(g_SFT.GetZoom())).toString(5).c_str());
 	}
 	if (uMsg == WM_COMMAND && (wParam == IDOK || wParam == IDCANCEL || wParam == IDCANCEL2))
 	{
@@ -1066,62 +1109,14 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT r = *(RECT*)lParam;
 			g_szRe = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
 			g_szIm = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
-			if (SendDlgItemMessage(hWnd, IDC_NR_TARGET_MINIBROT_RELATIVE, BM_GETCHECK, 0, 0)) g_nr_zoom_target = 0;
-			if (SendDlgItemMessage(hWnd, IDC_NR_TARGET_MINIBROT_ABSOLUTE, BM_GETCHECK, 0, 0)) g_nr_zoom_target = 1;
-			if (SendDlgItemMessage(hWnd, IDC_NR_TARGET_DOMAIN_ABSOLUTE, BM_GETCHECK, 0, 0)) g_nr_zoom_target = 2;
 
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_2, BM_GETCHECK, 0, 0)) g_nr_folding = 0;
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_4, BM_GETCHECK, 0, 0)) g_nr_folding = 1;
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_8, BM_GETCHECK, 0, 0)) g_nr_folding = 2;
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_16, BM_GETCHECK, 0, 0)) g_nr_folding = 3;
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_MINIBROT, BM_GETCHECK, 0, 0)) g_nr_folding = 4;
-			if (SendDlgItemMessage(hWnd, IDC_NR_FOLDING_CUSTOM, BM_GETCHECK, 0, 0)) g_nr_folding = 5;
-
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_075, BM_GETCHECK, 0, 0)) g_nr_size_power = 0;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_0875, BM_GETCHECK, 0, 0)) g_nr_size_power = 1;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_1, BM_GETCHECK, 0, 0)) g_nr_size_power = 2;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_1125, BM_GETCHECK, 0, 0)) g_nr_size_power = 3;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_125, BM_GETCHECK, 0, 0)) g_nr_size_power = 4;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_POWER_CUSTOM, BM_GETCHECK, 0, 0)) g_nr_size_power = 5;
-
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_10, BM_GETCHECK, 0, 0)) g_nr_size_factor = 0;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_4, BM_GETCHECK, 0, 0)) g_nr_size_factor = 1;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_1, BM_GETCHECK, 0, 0)) g_nr_size_factor = 2;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_025, BM_GETCHECK, 0, 0)) g_nr_size_factor = 3;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_01, BM_GETCHECK, 0, 0)) g_nr_size_factor = 4;
-			if (SendDlgItemMessage(hWnd, IDC_NR_SIZE_FACTOR_CUSTOM, BM_GETCHECK, 0, 0)) g_nr_size_factor = 5;
-
-			{
-				char s[256];
-				GetDlgItemText(hWnd, IDC_NR_FOLDING_CUSTOM_EDIT, s, sizeof(s));
-				g_nr_folding_custom = atof(s);
-				GetDlgItemText(hWnd, IDC_NR_SIZE_POWER_CUSTOM_EDIT, s, sizeof(s));
-				g_nr_size_power_custom = atof(s);
-				GetDlgItemText(hWnd, IDC_NR_SIZE_FACTOR_CUSTOM_EDIT, s, sizeof(s));
-				g_nr_size_factor_custom = atof(s);
-				GetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, s, sizeof(s));
-				if (std::string(s) == "")
-				{
-					g_szZoom = g_SFT.GetZoom();
-				}
-				else
-				{
-					g_szZoom = s;
-				}
-			}
-			if (SendDlgItemMessage(hWnd, IDC_NR_ACTION_PERIOD, BM_GETCHECK, 0, 0)) g_nr_action = 0;
-			if (SendDlgItemMessage(hWnd, IDC_NR_ACTION_CENTER, BM_GETCHECK, 0, 0)) g_nr_action = 1;
-			if (SendDlgItemMessage(hWnd, IDC_NR_ACTION_SIZE, BM_GETCHECK, 0, 0)) g_nr_action = 2;
-			if (SendDlgItemMessage(hWnd, IDC_NR_ACTION_AUTOSKEW, BM_GETCHECK, 0, 0)) g_nr_action = 3;
-
-			g_nr_ball_method = SendDlgItemMessage(hWnd, IDC_NR_BALL_METHOD, BM_GETCHECK, 0, 0);
-			g_SFT.SetSaveNewtonProgress(SendDlgItemMessage(hWnd, IDC_NR_SAVE_PROGRESS, BM_GETCHECK, 0, 0));
+			NewtonReadWindows(hWnd);
 
 			s_period = "";
 			s_center = "";
 			s_size = "";
 			s_skew = "";
-			SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 
 			DWORD dw;
 			g_bNewtonStop=FALSE;
@@ -1140,7 +1135,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bNewtonRunning=FALSE;
 		if(lParam == 1){
 			// newton success
-			SetDlgItemText(hWnd, IDC_NR_STATUS, (s_period + s_center + s_size + s_skew + "Done").c_str());
+			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew + "Done").c_str());
 			g_SFT.UndoStore();
 			g_SFT.Stop();
 			if (g_nr_action >= 3)
@@ -1155,10 +1150,10 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_SFT.SetIterations(g_iterations);
 				}
 				char s[256];
-				GetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, s, sizeof(s));
+				GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, s, sizeof(s));
 				if (std::string(s) != "")
 				{
-					SetDlgItemText(hWnd, IDC_NR_RELATIVE_START_ZOOM, floatexp(CDecNumber(g_szZoom)).toString(5).c_str());
+					SetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, floatexp(CDecNumber(g_szZoom)).toString(5).c_str());
 				}
 				g_bJustDidNewton = true;
 			}

@@ -396,39 +396,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // "Newton-Raphson Zooming" dialog
 #define IDD_NEWTON                       129
-#define IDC_NR_TARGET_MINIBROT_RELATIVE 1700
-#define IDC_NR_TARGET_MINIBROT_ABSOLUTE 1701
-#define IDC_NR_TARGET_DOMAIN_ABSOLUTE   1702
-#define IDC_NR_RELATIVE_START_ZOOM         1703
-#define IDC_NR_RELATIVE_START_ZOOM_CAPTURE 1704
-#define IDC_NR_FOLDING_2                1710
-#define IDC_NR_FOLDING_4                1711
-#define IDC_NR_FOLDING_8                1712
-#define IDC_NR_FOLDING_16               1713
-#define IDC_NR_FOLDING_MINIBROT         1714
-#define IDC_NR_FOLDING_CUSTOM           1715
-#define IDC_NR_FOLDING_CUSTOM_EDIT      1716
-#define IDC_NR_SIZE_POWER_075           1720
-#define IDC_NR_SIZE_POWER_0875          1721
-#define IDC_NR_SIZE_POWER_1             1723
-#define IDC_NR_SIZE_POWER_1125          1724
-#define IDC_NR_SIZE_POWER_125           1725
-#define IDC_NR_SIZE_POWER_CUSTOM        1726
-#define IDC_NR_SIZE_POWER_CUSTOM_EDIT   1727
-#define IDC_NR_SIZE_FACTOR_10           1730
-#define IDC_NR_SIZE_FACTOR_4            1731
-#define IDC_NR_SIZE_FACTOR_1            1732
-#define IDC_NR_SIZE_FACTOR_025          1733
-#define IDC_NR_SIZE_FACTOR_01           1734
-#define IDC_NR_SIZE_FACTOR_CUSTOM       1735
-#define IDC_NR_SIZE_FACTOR_CUSTOM_EDIT  1736
-#define IDC_NR_ACTION_PERIOD            1740
-#define IDC_NR_ACTION_CENTER            1741
-#define IDC_NR_ACTION_SIZE              1742
-#define IDC_NR_ACTION_AUTOSKEW          1743
-#define IDC_NR_BALL_METHOD              1750
-#define IDC_NR_SAVE_PROGRESS            1751
-#define IDC_NR_STATUS                   1752
+#define IDC_NR_ZOOM_TARGET_PRESET                   1700
+#define IDC_NR_ZOOM_RELATIVE_START                  1701
+#define IDC_NR_ZOOM_RELATIVE_START_CAPTURE          1702
+#define IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET         1703
+#define IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT    1704
+#define IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET           1705
+#define IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT      1706
+#define IDC_NR_ZOOM_SIZE_FACTOR_PRESET              1707
+#define IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT         1708
+#define IDC_NR_ZOOM_BALL_METHOD                     1709
+#define IDC_NR_ZOOM_ACTION_PRESET                   1710
+#define IDC_NR_ZOOM_SAVE_PROGRESS                   1711
+#define IDC_NR_ZOOM_STATUS                          1712
 
 // "Output Size" dialog
 #define IDD_SIZE                        130
