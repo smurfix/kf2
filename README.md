@@ -7,7 +7,7 @@ keywords: [escape time, fractal, deep zoom]
 abstract: |
   Fast deep zooming Free Software for fractal graphics (Mandelbrot,
   Burning Ship, etc).
-date: 2021-11-05
+date: 2021-12-05
 ...
 
 # Kalles Fraktaler 2 +
@@ -358,7 +358,7 @@ earlier).
 
 ### kf-2.15.5
 
-????-??-??
+2021-12-05
 
   - new: single-reference implementation for avoiding glitches (thanks
     Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
