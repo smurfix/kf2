@@ -74,6 +74,8 @@ then
   wget -c https://github.com/g-truc/glm/releases/download/0.9.9.8/glm-0.9.9.8.7z
   wget -c https://github.com/AcademySoftwareFoundation/openexr/archive/refs/tags/v2.5.7.tar.gz -O openexr-2.5.7.tar.gz
   wget -c https://github.com/glfw/glfw/releases/download/3.3.4/glfw-3.3.4.zip
+  #wget -c https://github.com/wxWidgets/wxWidgets/releases/download/v3.0.5/wxWidgets-3.0.5.7z
+  wget -c https://github.com/wxWidgets/wxWidgets/releases/download/v3.1.5/wxWidgets-3.1.5.7z
   ( git clone https://gitlab.freedesktop.org/claudeha/pixman.git && cd pixman && git checkout kf ) || ( cd pixman && git pull )
   git clone https://github.com/meganz/mingw-std-threads.git || ( cd mingw-std-threads && git pull )
   git clone https://github.com/martijnberger/clew.git || ( cd clew && git pull )
@@ -233,6 +235,18 @@ then
     mkdir -p build
     cd build
     cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/x86_64-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/x86_64/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
+    make -j $NCPUS
+    make install
+  fi
+  if [[ "${PREPARE}" =~ "wx" ]]
+  then
+    # WX widgets
+    mkdir -p ~/win/x86_64/src/wx
+    cd ~/win/x86_64/src/wx
+    7zr x ~/win/src/wxWidgets-3.1.5.7z
+    mkdir obj
+    cd obj
+    ../configure --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64 --disable-shared --without-expat
     make -j $NCPUS
     make install
   fi
@@ -396,6 +410,18 @@ then
     mkdir -p build
     cd build
     cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/i686-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/i686/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
+    make -j $NCPUS
+    make install
+  fi
+  if [[ "${PREPARE}" =~ "wx" ]]
+  then
+    # WX widgets
+    mkdir -p ~/win/i686/src/wx
+    cd ~/win/i686/src/wx
+    7zr x ~/win/src/wxWidgets-3.1.5.7z
+    mkdir obj
+    cd obj
+    ../configure --host=i686-w64-mingw32 --prefix=$HOME/win/i686 --disable-shared --without-expat
     make -j $NCPUS
     make install
   fi
@@ -566,6 +592,18 @@ then
     make -j $NCPUS
     make install
   fi
+  if [[ "${PREPARE}" =~ "wx" ]]
+  then
+    # WX widgets
+    mkdir -p ~/win/aarch64/src/wx
+    cd ~/win/aarch64/src/wx
+    7zr x ~/win/src/wxWidgets-3.1.5.7z
+    mkdir obj
+    cd obj
+    ../configure --host=aarch64-w64-mingw32 --prefix=$HOME/win/aarch64 --disable-shared --without-expat
+    make -j $NCPUS
+    make install
+  fi
   # clew 64
   # nop
 fi
@@ -729,6 +767,18 @@ then
     mkdir -p build
     cd build
     cmake -DCMAKE_TOOLCHAIN_FILE=../CMake/i686-w64-mingw32.cmake -DCMAKE_INSTALL_PREFIX=${HOME}/win/armv7/ -DBUILD_SHARED_LIBS=OFF -DGLFW_BUILD_EXAMPLES=OFF -DGLFW_BUILD_TESTS=OFF -DGLFW_BUILD_DOCS=OFF -DGLFW_USE_HYBRID_HPG=ON ..
+    make -j $NCPUS
+    make install
+  fi
+  if [[ "${PREPARE}" =~ "wx" ]]
+  then
+    # WX widgets
+    mkdir -p ~/win/armv7/src/wx
+    cd ~/win/armv7/src/wx
+    7zr x ~/win/src/wxWidgets-3.1.5.7z
+    mkdir obj
+    cd obj
+    ../configure --host=armv7-w64-mingw32 --prefix=$HOME/win/armv7 --disable-shared --without-expat
     make -j $NCPUS
     make install
   fi
