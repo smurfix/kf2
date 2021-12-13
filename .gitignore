@@ -1,0 +1,13 @@
+*.o
+*.d
+*.a
+*.exe
+/formula/*.cpp
+/cl/*_cl.c
+/gl/kf_frag_glsl.h
+/gl/kf_vert_glsl.h
+/kf.rec_kfr
+/kf.rec_kfs
+/preprocessor
+/preprocessor.hi
+/res.res
