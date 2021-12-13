@@ -67,7 +67,7 @@ then
   #wget -c https://www.mpfr.org/mpfr-current/allpatches
   wget -c https://zlib.net/zlib-1.2.11.tar.xz
   wget -c https://jpegclub.org/support/files/jpegsrc.v6b2.tar.gz
-  wget -c https://download.sourceforge.net/libpng/libpng-1.6.37.tar.xz
+  wget -c https://netcologne.dl.sourceforge.net/project/libpng/libpng16/1.6.37/libpng-1.6.37.tar.xz
   wget -c https://download.osgeo.org/libtiff/tiff-4.3.0.tar.gz
   wget -c https://ftp.gnu.org/gnu/gsl/gsl-2.7.tar.gz
   #wget -c https://www.cairographics.org/releases/pixman-0.38.4.tar.gz
@@ -172,7 +172,7 @@ then
     cp -avf ~/win/src/pixman pixman
     cd pixman/
     NOCONFIGURE=true ./autogen.sh
-    CC=x86_64-w64-mingw32-gcc LDFLAGS=-L$HOME/win/x86_64/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/x86_64
+    ./configure --host=x86_64-w64-mingw32 --prefix=$HOME/win/x86_64 --enable-static --disable-shared
     make SUBDIRS="pixman" -j $NCPUS
     make SUBDIRS="pixman" install
     #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
@@ -334,7 +334,7 @@ then
     cd pixman/
     patch -p1 < ~/win/src/pixman-0.38.4-i686.patch
     NOCONFIGURE=true ./autogen.sh
-    CC=i686-w64-mingw32-gcc LDFLAGS=-L$HOME/win/i686/lib ./configure --disable-shared --disable-openmp --prefix=$HOME/win/i686
+    ./configure --host=i686-w64-mingw32 --prefix=$HOME/win/i686 --enable-static --disable-shared
     make SUBDIRS="pixman" -j $NCPUS
     make SUBDIRS="pixman" install
     #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
@@ -498,7 +498,7 @@ then
     cp -avf ~/win/src/pixman pixman
     cd pixman/
     NOCONFIGURE=true ./autogen.sh
-    LDFLAGS=-L$HOME/win/aarch64/lib ./configure --host aarch64-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/aarch64
+    ./configure --host=aarch64-mingw32 --prefix=$HOME/win/aarch64 --enable-static --disable-shared
     make SUBDIRS="pixman" -j $NCPUS
     make SUBDIRS="pixman" install
     #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
@@ -666,6 +666,7 @@ then
     cd pixman/
     NOCONFIGURE=true ./autogen.sh
     LDFLAGS=-L${HOME}/win/armv7/lib ./configure --host armv7-w64-mingw32 --disable-shared --disable-openmp --prefix=$HOME/win/armv7
+    ./configure --host=armv7-mingw32 --prefix=$HOME/win/armv7 --enable-static --disable-shared
     make SUBDIRS="pixman" -j $NCPUS
     make SUBDIRS="pixman" install
     #make SUBDIRS="pixman test" check -k || echo "expected 1 FAIL (thread-test)"
