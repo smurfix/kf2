@@ -20,7 +20,7 @@ NCPUS="$(( $(nproc) * 2 ))"
 export CPPFLAGS="-D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501"
 export LDFLAGS="-static-libgcc -static-libstdc++ -static -Wl,-Bstatic -lstdc++ -Wl,-Bdynamic"
 ALL_ARCH="x86_64 i686 aarch64 armv7"
-ALL_LIBS="gmp mpfr zlib png jpeg tiff gsl pixman glm mingw-std-threads openexr clew boost"
+ALL_LIBS="gmp mpfr zlib png jpeg tiff gsl pixman glm mingw-std-threads openexr clew boost glfw wx"
 if [[ "x$1" = "x" ]]
 then
   ACTION="dl ${ALL_ARCH}"
