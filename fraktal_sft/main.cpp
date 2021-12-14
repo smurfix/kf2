@@ -4870,12 +4870,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
 		bool ok = true;
-    if (g_args->bLoadMap)
-    {
+		if (g_args->bLoadMap)
+		{
 			save_frame(0, onlyKFR);
 		}
 		else
-	  {
+		{
 			if (! onlyKFR)
 			{
 				output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
