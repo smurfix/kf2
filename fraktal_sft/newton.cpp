@@ -112,8 +112,8 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 		int step = progress->counters[1];
 		int period = progress->counters[2];
 		int iter = progress->counters[3];
-		char status[100];
-		snprintf(status, 100, "Center %d/%d (%d%%) (%s) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
+		char status[200];
+		snprintf(status, sizeof(status), "Center %d/%d (%d%%) (%s) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
 		s_center = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -130,7 +130,7 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 		int period = progress->counters[0];
 		int iter = progress->counters[1];
 		char status[100];
-		snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
+		snprintf(status, sizeof(status), "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
 		s_size = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
