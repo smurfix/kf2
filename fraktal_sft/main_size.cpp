@@ -124,11 +124,11 @@ void UpdateDisplays(HWND hWnd, bool set)
     window_num = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_WINDOW_CUSTOM_N, 0, 0)));
     window_den = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_WINDOW_CUSTOM_D, 0, 0)));
   }
-  int64_t target_width = std::max(int64_t(std::round(target_height * aspect_num / (double) aspect_den)), 1LL);
-  int64_t image_width = std::max(target_width * target_supersample, 1LL);
-  int64_t image_height = std::max(target_height * target_supersample, 1LL);
-  int64_t window_width = std::max(int64_t(std::round(target_width * window_num / (double) window_den)), 1LL);
-  int64_t window_height = std::max(int64_t(std::round(target_height * window_num / (double) window_den)), 1LL);
+  int64_t target_width = std::max(int64_t(std::round(target_height * aspect_num / (double) aspect_den)), (int64_t)1);
+  int64_t image_width = std::max(target_width * target_supersample, (int64_t)1);
+  int64_t image_height = std::max(target_height * target_supersample, (int64_t)1);
+  int64_t window_width = std::max(int64_t(std::round(target_width * window_num / (double) window_den)), (int64_t)1);
+  int64_t window_height = std::max(int64_t(std::round(target_height * window_num / (double) window_den)), (int64_t)1);
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_TARGET_WIDTH, target_width, 0);
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_TARGET_HEIGHT, target_height, 0);
   SetDlgItemFloat(hWnd, IDC_SIZE_DISPLAY_TARGET_MPIXELS, (double) target_width * target_height / (1024 * 1024));
@@ -141,7 +141,7 @@ void UpdateDisplays(HWND hWnd, bool set)
   bool bad_size =
     image_width <= 0 || image_width >= 65536 ||
     image_height <= 0 || image_height >= 65536 ||
-    image_width * image_height * 3 >= (1LL << 31);
+    image_width * image_height * 3 >= (((int64_t)1) << 31);
   EnableWindow(GetDlgItem(hWnd, IDOK), ! bad_size);
   if (set)
   {
