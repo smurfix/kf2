@@ -86,7 +86,7 @@ static const double deg = 360 / 6.283185307179586;
 BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 {
 	std::string data;
-  std::string extension = get_filename_extension(szFile);
+	std::string extension = get_filename_extension(szFile);
 	if (extension == "tif" || extension == "tiff")
 	{
 		data = ReadTIFFComment(szFile);
@@ -122,10 +122,10 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 		ReadFile(hFile, szData, nData, &dw, NULL);
 		CloseHandle(hFile);
 		szData[nData] = 0;
-    data = szData;
-    delete[] szData;
+		data = szData;
+		delete[] szData;
 	}
-  return OpenString(data, bNoLocation);
+	return OpenString(data, bNoLocation);
 }
 
 BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
@@ -330,8 +330,8 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 	}
 
 	int nC = stParams.FindString(0, "Colors");
-  if (nC != -1)
-  {
+	if (nC != -1)
+	{
 		CStringTable stColors(stParams[nC][1], "", ",");
 		m_nParts = stColors.GetCount() / 3;
 		int i;
@@ -340,7 +340,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 			m_cKeys[i].g = atoi(stColors[i * 3 + 1][0]);
 			m_cKeys[i].b = atoi(stColors[i * 3 + 2][0]);
 		}
-  }
+	}
 	int i = stParams.FindString(0, "MultiColor");
 	if (i != -1){
 		m_bMW = atoi(stParams[i][1]);
@@ -599,16 +599,16 @@ std::string CFraktalSFT::ToText()
 	// KFR version >= 2150400
 	INT("ImagPointsUp", P.sign < 0);
 
-  // KFR version >= 2150200
-  if (GetUseOpenGL())
-  {
+	// KFR version >= 2150200
+	if (GetUseOpenGL())
+	{
 		INT("UseOpenGL", 1)
 		STRING("GLSL", glsl_escape(GetGLSL()).c_str())
 		INT("UseSRGB", GetUseSRGB())
-  }
+	}
 
-  // KFR version >= 2150500
-  INT("TriangleInequalityAverage", GetTriangleInequalityAverage())
+	// KFR version >= 2150500
+	INT("TriangleInequalityAverage", GetTriangleInequalityAverage())
 
 	INT("Version", kfr_version_number)
 
