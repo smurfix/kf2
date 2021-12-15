@@ -80,7 +80,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 
-#ifdef __clang__
+#if defined(__clang__) || defined(KF_EMBED)
 #include <thread>
 #else
 #include <mingw-std-threads/mingw.thread.h>

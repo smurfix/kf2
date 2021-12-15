@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_FIFO_H 1
 
 #include <queue>
-#ifdef __clang__
+#if defined(__clang__) || defined(KF_EMBED)
 #include <mutex>
 #include <condition_variable>
 #else
