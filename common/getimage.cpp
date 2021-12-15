@@ -35,8 +35,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <stdio.h>
 #define sprintf_s snprintf
-#include <comdef.h>
 
+#include <olectl.h>
+#include <ocidl.h>
 #include "bitmap.h"
 
 HBITMAP GetImageFromData(char *szImgData,int nImgData)
@@ -153,7 +154,7 @@ HBITMAP GetImage(const std::string &szFile)
 	pPicture->get_Type(&nType);
 	if(nType==2){
 		short nType;
-		long nWidth, nHeight;
+		OLE_XSIZE_HIMETRIC nWidth, nHeight;
 		pPicture->get_Type(&nType);
 		pPicture->get_Width(&nWidth);
 		pPicture->get_Height(&nHeight);
