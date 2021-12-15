@@ -1188,8 +1188,10 @@ static int ThApplyColors(TH_PARAMS *pMan)
 	return 0;
 }
 
+#ifdef KF_OPENGL
 static bool opengl_initialized = false;
 static bool opengl_compiled = false;
+#endif
 
 void CFraktalSFT::ApplyColors()
 {
@@ -1208,6 +1210,7 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
+#ifdef KF_OPENGL
 		bool opengl_rendered = false;
 		if (GetUseOpenGL())
 		{
@@ -1340,6 +1343,7 @@ void CFraktalSFT::ApplyColors()
 		{
 		}
 		else
+#endif // KF_OPENGL
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
@@ -2779,11 +2783,13 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 		g_nAddRefX = nXPos;
 		g_nAddRefY = nYPos;
 	}
+#ifdef KF_OPENCL
 	if (cl && GetGlitchCenterMethod() != 0)
 	{
 		m_count_queued = m_OpenCL_Glitched_Count;
 	}
 	else
+#endif
 	{
 		int x, y;
 #ifdef KF_RERENDER_ONLY_ALL_GLITCHES
@@ -3110,6 +3116,7 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 #undef KF_CENTER_VIA_TRANS
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
+#ifdef KF_OPENCL
 	if (cl && GetUseOpenCL())
 	{
 		// OpenCL has already ignored isolated glitches
@@ -3136,6 +3143,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		}
 	}
 	else
+#endif
 	{
 		// regular CPU path
 		IgnoreIsolatedGlitches();
@@ -4281,8 +4289,13 @@ Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 {
 	NumberType n = GetNumberTypes();
 	bool scalable = GetUseHybridFormula() ? true : scaling_supported(GetFractalType(), GetPower(), GetDerivatives());
+#ifdef KF_OPENCL
 	bool supports_long_double = ! cl;
 	bool supports_double = cl ? cl->supports_double : true;
+#else
+	bool supports_long_double = true;
+	bool supports_double = true;
+#endif
 	if (! (e > DOUBLE_THRESHOLD_DEFAULT) && n.Single) { return Reference_Float; }
 	if (scalable && n.RescaledSingle) { return Reference_ScaledFloat; }
 	if (supports_double && ! (e > LONG_DOUBLE_THRESHOLD_DEFAULT) && n.Double) { return Reference_Double; }
