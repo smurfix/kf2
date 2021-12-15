@@ -174,6 +174,7 @@ extern hybrid_formula hybrid_formula_from_string(const std::string &s)
 
 static std::vector<HWND> tooltips;
 
+#ifndef KF_EMBED
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)
@@ -687,6 +688,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
   }
   return 0;
 }
+#endif
 
 extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile int *running, int *progress)
 {

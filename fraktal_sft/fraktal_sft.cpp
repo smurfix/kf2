@@ -497,6 +497,7 @@ extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 	cPos.b = (byte) c.b;
 }
 
+#ifndef KF_EMBED
 HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode)
 {
 	HDC hDC = GetDC(NULL);
@@ -530,6 +531,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 	ReleaseDC(NULL,hDC);
 	return bmDst;
 }
+#endif // KF_EMBED
 
 bool operator==(const TextureParams &a, const TextureParams &b)
 {
@@ -541,6 +543,8 @@ bool operator==(const TextureParams &a, const TextureParams &b)
     a.m_nY == b.m_nY &&
     a.m_bTextureResize == b.m_bTextureResize;
 }
+
+#ifndef KF_EMBED
 void CFraktalSFT::LoadTexture()
 {
 	TextureParams currentTextureParams =
@@ -591,6 +595,7 @@ void CFraktalSFT::LoadTexture()
 	if (bmBitmapIn) DeleteObject(bmBitmapIn);
 	ReleaseDC(NULL,hDC);
 }
+#endif // KF_EMBED
 void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 {
 	if (! m_lpTextureBits)
@@ -1188,7 +1193,9 @@ static bool opengl_compiled = false;
 
 void CFraktalSFT::ApplyColors()
 {
+#ifndef KF_EMBED
 	LoadTexture();
+#endif
 	int i, p = 0;
 	for (i = 0; i<1024; i++){
 		double temp = (double)i*(double)m_nParts / (double)1024;
@@ -1994,7 +2001,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	}
 }
 
-#endif
 
 HBITMAP CFraktalSFT::GetBitmap()
 {
@@ -2021,6 +2027,8 @@ void CFraktalSFT::UpdateBitmap()
 	}
 	ReleaseMutex(m_hMutex);
 }
+#endif
+
 int CFraktalSFT::GetWidth()
 {
 	return m_nX;
@@ -2635,11 +2643,14 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
+#ifndef KF_EMBED
 	ReinitializeBitmap();
+#endif
 	m_bIterChanged = true;
 	return ok;
 }
 
+#ifndef KF_EMBED
 void CFraktalSFT::ReinitializeBitmap()
 {
 	if (m_bmBmp)
@@ -2672,6 +2683,7 @@ void CFraktalSFT::ReinitializeBitmap()
 			{ /*Beep(1000,10)*/ }
 	}
 }
+#endif
 
 double CFraktalSFT::GetIterDiv()
 {
@@ -2683,6 +2695,7 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
+#ifndef KF_EMBED
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment1(ToText());
@@ -2701,6 +2714,8 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 		return nRet;
 	}
 }
+#endif
+
 int64_t CFraktalSFT::GetMaxApproximation()
 {
 	return m_nApprox;
@@ -3435,6 +3450,7 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 		return -1;
 	return ((((int64_t)floor(m_nPixels[x][y] / m_nIterDiv)) % 1024) + 1024) % 1024;
 }
+#ifndef KF_EMBED
 void CFraktalSFT::SaveMap(const std::string &szFile)
 {
 	if (!m_nPixels)
@@ -3502,6 +3518,7 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	}
 	CloseHandle(hFile);
 }
+#endif
 
 SmoothMethod CFraktalSFT::GetSmoothMethod()
 {

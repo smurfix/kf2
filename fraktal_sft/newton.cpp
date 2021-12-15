@@ -514,8 +514,9 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_clear(m.dcrzi);
 	mpfr_clear(m.dcizr);
 	mpfr_clear(m.dcizi);
-
+#ifndef KF_EMBED
   SetDlgItemText(hWnd,IDC_EDIT4,"");
+#endif
   flyttyp ad;
 #if 0
   = 1/cabs2(dc);
@@ -909,6 +910,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	return 0;
 }
 
+#ifndef KF_EMBED
 const struct { const char *name; } action_preset[] =
 { { "Period" }
 , { "Center" }
@@ -1176,3 +1178,4 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 	}
 	return 0;
 }
+#endif

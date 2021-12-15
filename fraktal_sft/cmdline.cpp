@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <vector>
 #include <cctype>
 
+#ifndef KF_EMBED
+
 LogLevel g_log_level = LogLevel_Status;
 
 static std::vector<std::string> SplitCommandLine(const std::string&commandline)
@@ -292,6 +294,8 @@ const std::string usage =
 "    -v, -V, --version               show version\n"
 "    -h, -H, -?, --help              show this help\n"
 ;
+
+#endif
 
 const std::string version = "2.15.5";
 const int kfr_version_number = 2150500;

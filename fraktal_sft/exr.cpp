@@ -323,7 +323,9 @@ extern bool ReadEXRMapFile(const std::string &filename, int threads)
         }
       }
     }
+#ifndef KF_EMBED
     g_SFT.ReinitializeBitmap();
+#endif
     retval = true;
   }
   catch(...)

@@ -44,6 +44,8 @@ bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool 
   return false;
 }
 
+#ifndef KF_EMBED
+
 void combo5_addstrings_including_hybrids(HWND hWnd, const int IDC_COMBO5)
 {
   SendDlgItemMessage(hWnd,IDC_COMBO5,CB_ADDSTRING,0,(LPARAM)"(Hybrid)");
@@ -127,6 +129,7 @@ int combo5_lookup_dropdown_index(HWND hWnd, int type, bool ignore_hybrids)
     return type + 1;
   }
 }
+#endif // KF_EMBED
 
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower)
 {
@@ -149,6 +152,7 @@ int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower
   }
 }
 
+#ifndef KF_EMBED
 void update_power_dropdown_for_fractal_type(HWND hWnd, const int IDC_COMBO3, const int m_nFractalType, const int m_nPower)
 {
   SendDlgItemMessage(hWnd,IDC_COMBO3,CB_RESETCONTENT,0,0);
@@ -172,6 +176,7 @@ void update_power_dropdown_for_fractal_type(HWND hWnd, const int IDC_COMBO3, con
   SendDlgItemMessage(hWnd,IDC_COMBO3,CB_SETCURSEL,selected,0);
   EnableWindow(GetDlgItem(hWnd,IDC_COMBO3), ix > 1);
 }
+#endif
 
 bool builtin_get_hybrid(const int type, const int power, std::string &amp;hybrid)
 {

@@ -33,14 +33,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 #include <math.h>
+
+#ifndef KF_EMBED
 #include <commctrl.h>
+#endif
 #include <math.h>
 #include "../common/parallell.h"
 #include "../common/getimage.h"
 #include "../common/StringVector.h"
+#ifndef KF_EMBED
 #include "../common/FolderBrowser.h"
 #include "listbox.h"
 #include "tooltip.h"
+#endif
 #include "resource.h"
 #include "fraktal_sft.h"
 #include "newton.h"
@@ -83,6 +88,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #else
 #include <mingw-std-threads/mingw.thread.h>
 #endif
+
+#ifndef KF_EMBED
+
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -1121,6 +1129,8 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	return 0;
 }
 
+#endif // KF_EMBED
+
 extern std::string replace_path_filename(const std::string &path, const std::string &file)
 {
 	size_t slash = path.rfind('\\');
@@ -1202,6 +1212,8 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 	os << std::setfill('0') << std::setw(5) << n << "_" << z << "." << ext;
 	return os.str();
 }
+
+#ifndef KF_EMBED
 
 static void AutoIterations()
 {
@@ -4915,3 +4927,4 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	return 0;
 }
 
+#endif // KF_EMBED
