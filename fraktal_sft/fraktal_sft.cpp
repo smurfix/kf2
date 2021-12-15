@@ -142,22 +142,6 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
 
-void ErrorText()
-{
-	TCHAR szMsgBuf[500];
-
-	DWORD dwError = GetLastError();
-	FormatMessage(
-		FORMAT_MESSAGE_FROM_SYSTEM,
-		NULL,
-		dwError,
-		MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),
-		szMsgBuf,
-		500,
-		NULL );
-	MessageBox(NULL,szMsgBuf,"Error",MB_ICONSTOP|MB_OK);
-}
-
 CFraktalSFT::CFraktalSFT()
 : m_nPixels(0, 0, nullptr, nullptr) // invalid array
 {
