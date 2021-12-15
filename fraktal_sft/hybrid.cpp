@@ -1465,6 +1465,11 @@ std::string hybrid_pf_opencl_double(const hybrid_line &h, const std::string &ret
       o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
       break;
     }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dc_div(pfone, pftwo);\n";
+      break;
+    }
   }
   o << "}\n";
   return o.str();
@@ -1504,6 +1509,11 @@ std::string hybrid_pf_opencl_double_dual(const hybrid_line &h, const std::string
       o << "  dcomplex fone;\n";
       o << hybrid_f_opencl_double(h.one, "fone", Z);
       o << "  " << ret << " = dualdc_add(dualdc_mul(pfone, ftwo), dualdc_dcmul(fone, pftwo));\n";
+      break;
+    }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dualdc_div(pfone, pftwo);\n";
       break;
     }
   }
@@ -1987,6 +1997,11 @@ std::string hybrid_f_opencl_floatexp(const hybrid_line &h, const std::string &re
       o << "  " << ret << " = fec_mul(fone, ftwo);\n";
       break;
     }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = fec_div(fone, ftwo);\n";
+      break;
+    }
   }
   o << "}\n";
   return o.str();
@@ -2028,6 +2043,11 @@ std::string hybrid_pf_opencl_floatexp(const hybrid_line &h, const std::string &r
       o << "  " << ret << " = fec_add(fec_mul(pfone, ftwo), fec_mul(fone, pftwo));\n";
       break;
     }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = fec_div(pfone, pftwo);\n";
+      break;
+    }
   }
   o << "}\n";
   return o.str();
@@ -2067,6 +2087,11 @@ std::string hybrid_pf_opencl_floatexp_dual(const hybrid_line &h, const std::stri
       o << "  fecomplex fone;\n";
       o << hybrid_f_opencl_floatexp(h.one, "fone", Z);
       o << "  " << ret << " = dualfec_add(dualfec_mul(pfone, ftwo), dualfec_fecmul(fone, pftwo));\n";
+      break;
+    }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dualfec_div(pfone, pftwo);\n";
       break;
     }
   }
@@ -2446,6 +2471,11 @@ std::string hybrid_pf_opencl_double_scaled(const hybrid_line &h, const std::stri
       o << "  " << ret << " = dc_add(dc_mul(pfone, ftwo), dc_mul(fone, pftwo));\n";
       break;
     }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dc_div(pfone, pftwo);\n";
+      break;
+    }
   }
   o << "}\n";
   return o.str();
@@ -2485,6 +2515,11 @@ std::string hybrid_pf_opencl_double_dual_scaled(const hybrid_line &h, const std:
       o << "  dcomplex fone;\n";
       o << hybrid_f_opencl_double(h.one, "fone", Z);
       o << "  " << ret << " = dualdc_add(dualdc_mul(pfone, ftwo), dualdc_dcmul(fone, pftwo));\n";
+      break;
+    }
+    case hybrid_combine_div:
+    {
+      o << "  " << ret << " = dualdc_div(pfone, pftwo);\n";
       break;
     }
   }
@@ -3517,6 +3552,22 @@ extern bool reference_hybrid
             mpfr_mul(T4, Y1, X2, MPFR_RNDN);
             mpfr_sub(X, T1, T2, MPFR_RNDN);
             mpfr_add(Y, T3, T4, MPFR_RNDN);
+            break;
+          case hybrid_combine_div:
+            // complex conjugate in T3
+            mpfr_mul(T1, X2, X2, MPFR_RNDN);
+            mpfr_mul(T2, Y2, Y2, MPFR_RNDN);
+            mpfr_add(T3, T1, T2, MPFR_RNDN);
+
+            mpfr_mul(T1, X1, X2, MPFR_RNDN);
+            mpfr_mul(T2, Y1, Y2, MPFR_RNDN);
+            mpfr_add(T4, T1, T2, MPFR_RNDN);
+            mpfr_div(X, T4, T3, MPFR_RNDN);
+
+            mpfr_mul(T1, Y1, X2, MPFR_RNDN);
+            mpfr_mul(T2, X1, Y2, MPFR_RNDN);
+            mpfr_sub(T4, T1, T2, MPFR_RNDN);
+            mpfr_div(Y, T4, T3, MPFR_RNDN);
             break;
         }
         // X,Y contains output from line
