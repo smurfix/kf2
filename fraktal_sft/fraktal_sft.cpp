@@ -2533,7 +2533,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	char szId[3];
 	//ReadFile(hFile,szId,3,&dw,NULL);
 	fread(szId, 1, 3, hFile);
-	BOOL bNewFormat = FALSE;
+	char bNewFormat = 0;  // yes that's misnamed
 	if (!strncmp(szId, "KFC", 3))
 		bNewFormat = 1;
 	if (!strncmp(szId, "KFD", 3))
@@ -2566,7 +2566,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	}
 	else{
 		for (x = 0; x<m_nX; x++){
-			if (bNewFormat){
+			if (bNewFormat > 0){
 				//ReadFile(hFile,pLine,sizeof(float)*m_nY,&dw,NULL);
 				fread(pLine, 1, sizeof(float)*m_nY, hFile);
 				for (y = 0; y<m_nY; y++){
@@ -2600,7 +2600,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		m_nMaxIter = nTest;
 
 	BOOL ok = TRUE;
-	if (!bNewFormat){
+	if (bNewFormat == 0){
 		for (x = 0; x<m_nX; x++){
 			ok &= (1 == fread(m_nTrans[x], sizeof(float)*m_nY, 1, hFile));
 		}
