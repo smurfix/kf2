@@ -207,7 +207,7 @@ OpenCL::~OpenCL()
 
 void OpenCL::lock()
 {
-  WaitForSingleObject(mutex, INFINITE);
+  WaitForMutex(mutex);
 }
 
 void OpenCL::unlock()

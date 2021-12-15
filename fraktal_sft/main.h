@@ -55,4 +55,9 @@ extern HWND g_hwColors;
 
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal);
 
+// compatibility
+#ifndef KF_EMBED
+#define WaitForMutex(_m) WaitForSingleObject(_m, INFINITE)
+#endif
+
 #endif

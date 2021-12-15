@@ -139,7 +139,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 		m_pnExpConsts = NULL;
 	}
 
-	WaitForSingleObject(m_hMutex, INFINITE);
+	WaitForMutex(m_hMutex);
 	bool resize = m_nXPrev != m_nX || m_nYPrev != m_nY;
 	if (resize){
 		SetImageSize(m_nX, m_nY);

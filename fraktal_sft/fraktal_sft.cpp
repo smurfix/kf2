@@ -1998,7 +1998,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 
 HBITMAP CFraktalSFT::GetBitmap()
 {
-	WaitForSingleObject(m_hMutex, INFINITE);
+	WaitForMutex(m_hMutex);
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!SetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2011,7 +2011,7 @@ HBITMAP CFraktalSFT::GetBitmap()
 }
 void CFraktalSFT::UpdateBitmap()
 {
-	WaitForSingleObject(m_hMutex, INFINITE);
+	WaitForMutex(m_hMutex);
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2707,7 +2707,7 @@ int64_t CFraktalSFT::GetMaxApproximation()
 }
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
-	WaitForSingleObject(m_hMutex, INFINITE);
+	WaitForMutex(m_hMutex);
 	if (!m_nPixels || m_nXPrev != m_nX || m_nYPrev != m_nY){
 		ReleaseMutex(m_hMutex);
 		return PIXEL_UNEVALUATED;
