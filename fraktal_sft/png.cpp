@@ -28,6 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #define stricmp strcasecmp
 
+static void kf_png_error_handler(png_structp png, png_const_charp msg) __attribute__((ms_abi));
 static void kf_png_error_handler(png_structp png, png_const_charp msg)
 {
 	// FIXME make this display in the GUI or something
@@ -35,6 +36,7 @@ static void kf_png_error_handler(png_structp png, png_const_charp msg)
 	longjmp(*static_cast<jmp_buf *>(png_get_error_ptr(png)), 1);
 }
 
+static void kf_png_warning_handler(png_structp png, png_const_charp msg) __attribute__((ms_abi));
 static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 {
 	(void) png;
