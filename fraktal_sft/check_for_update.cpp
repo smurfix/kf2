@@ -29,6 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 std::string CheckForUpdate()
 {
   std::string sret = "unknown";
+#if 0 // TODO: URLDownloadToFile
   const auto url = TEXT("https://mathr.co.uk/kf/VERSION.txt");
   const auto prefix = TEXT("KF-VERSION");
   TCHAR dir[MAX_PATH];
@@ -40,7 +41,7 @@ std::string CheckForUpdate()
     if (uret)
     {
       DeleteUrlCacheEntry(url);
-      HRESULT hr = URLDownloadToFile(nullptr, url, path, 0, nullptr);
+      HRESULT hr = URLDownloadToFile(nullptr, CStringW(url), path, 0, nullptr);
       if (SUCCEEDED(hr))
       {
         HANDLE f = CreateFile(path, GENERIC_READ, 0, nullptr, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
@@ -72,5 +73,6 @@ std::string CheckForUpdate()
       }
     }
   }
+#endif
   return sret;
 }
