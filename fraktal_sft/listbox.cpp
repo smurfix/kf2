@@ -27,6 +27,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define GWL_USERDATA -21
 #endif
 
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+
 int WINAPI SubclassListProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_COMMAND){

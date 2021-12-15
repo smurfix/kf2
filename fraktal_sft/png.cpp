@@ -26,6 +26,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "png.h"
 
+#define stricmp strcasecmp
+
 static void kf_png_error_handler(png_structp png, png_const_charp msg)
 {
 	// FIXME make this display in the GUI or something

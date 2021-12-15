@@ -34,6 +34,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "StringVector.h"
 
+#define stricmp strcasecmp
+#define strnicmp strncasecmp
+
 int g_Allocated_StringTable=0;
 int g_nAllocatedNum=0;
 int g_nTestCount=0;
