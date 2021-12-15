@@ -23,19 +23,21 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "resource.h"
 #include "tooltip.h"
 
+#include <inttypes.h>
+
 static int g_nPrevCalc = -1;
 
 static void UpdateMinIterations(HWND hWnd, int64_t i)
 {
   char s[100];
-  snprintf(s, 100, "%lld", i);
+  snprintf(s, 100, PRId64, i);
   SetDlgItemText(hWnd,IDC_INFORMATION_MIN_ITERS,s);
 }
 
 static void UpdateMaxIterations(HWND hWnd, int64_t i)
 {
   char s[100];
-  snprintf(s, 100, "%lld", i);
+  snprintf(s, 100, PRId64, i);
   SetDlgItemText(hWnd,IDC_INFORMATION_MAX_ITERS,s);
 }
 
@@ -44,7 +46,7 @@ static void UpdateApproxIterations(HWND hWnd)
 
   int64_t i = g_SFT.GetMaxApproximation();
   char s[100];
-  snprintf(s, 100, "%lld", i);
+  snprintf(s, 100, PRId64, i);
   SetDlgItemText(hWnd,IDC_INFORMATION_APPROX_ITERS,s);
 }
 

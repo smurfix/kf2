@@ -23,10 +23,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "resource.h"
 #include "tooltip.h"
 
+#include <inttypes.h>
+
 static void SetDlgItemInt64(HWND hWnd, int widget, int64_t value)
 {
   char s[100];
-  snprintf(s, sizeof(s), "%lld", value);
+  snprintf(s, sizeof(s), PRId64, value);
   SetDlgItemText(hWnd, widget, s);
 }
 
