@@ -34,6 +34,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "parallell.h"
 #include <mpfr.h>
 
+#ifndef THREAD_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
+#endif
+
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;

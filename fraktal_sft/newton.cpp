@@ -37,6 +37,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 
+#ifndef THREAD_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
+#endif
+
 #define KF_MAIN 1
 #include "../formula/generated/formula.h"
 #undef abs

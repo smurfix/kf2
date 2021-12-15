@@ -21,6 +21,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reference.h"
 #include "../common/barrier.h"
 
+#ifndef THREAD_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
+#endif
+
 extern double g_SeedR;
 extern double g_SeedI;
 

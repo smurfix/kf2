@@ -32,6 +32,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <commctrl.h>
 
+#ifndef THREAD_MODE_BACKGROUND_BEGIN
+#define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
+#endif
+
 static bool g_transformation_useddz = false;
 static volatile int g_transformation_running = 0;
 static volatile bool g_transformation_still_running = false;
