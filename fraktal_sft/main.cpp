@@ -87,7 +87,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 class kf2App : public wxApp {
-    virtual bool OnInit() wxOVERRIDE;
+	virtual bool OnInit() wxOVERRIDE;
 public:
 	wxWindow *mainWindow;
 };
@@ -4936,9 +4936,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 
 bool kf2App::OnInit()
 {
-    if ( !wxApp::OnInit() )
-        return false;
+	if ( !wxApp::OnInit() )
+		return false;
 
-    return true;
+	return true;
 }
 
