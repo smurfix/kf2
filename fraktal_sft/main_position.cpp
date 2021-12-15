@@ -76,11 +76,11 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int64_t nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
 		char s[100];
-		snprintf(s, 100, PRId64, nMin);
+		snprintf(s, 100, "%" PRId64, nMin);
 		SetDlgItemText(hWnd,IDC_EDIT2,s);
-		snprintf(s, 100, PRId64, nMax);
+		snprintf(s, 100, "%" PRId64, nMax);
 		SetDlgItemText(hWnd,IDC_EDIT5,s);
-		snprintf(s, 100, PRId64, g_period);
+		snprintf(s, 100, "%" PRId64, g_period);
 		SetDlgItemText(hWnd,IDC_LOCATION_PERIOD,s);
 		return 1;
 	}

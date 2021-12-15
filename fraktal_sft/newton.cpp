@@ -645,7 +645,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 		uint32_t now = GetTickCount();
 		if (now - last > 250)
 		{
-		  wsprintf(szStatus,"Determine size %d%%...",100*i/period);
+		  wsprintf(szStatus,"Determine size %" PRId64 "%%...",100*i/period);
 		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
 		  last = now;
 		}

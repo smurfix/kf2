@@ -3473,7 +3473,7 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 		for (x = 0; x<m_nX; x++){
 			if (x)
 				WriteFile(hFile, " ", 1, &dw, NULL);
-			sprintf(szNum, "%d", m_nPixels[x][y]);
+			sprintf(szNum, "%" PRId64, int64_t(m_nPixels[x][y]));
 			WriteFile(hFile, szNum, strlen(szNum), &dw, NULL);
 		}
 	}
