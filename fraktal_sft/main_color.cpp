@@ -375,9 +375,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				strcpy(szTmp,"S\t");
 			else if(nType==2)
 				strcpy(szTmp,"B\t");
-			itoa(nPeriod,szTmp+strlen(szTmp),10);
+			sprintf(szTmp+strlen(szTmp), "%d", nPeriod);
 			strcat(szTmp,"\t");
-			itoa(nStart,szTmp+strlen(szTmp),10);
+			sprintf(szTmp+strlen(szTmp), "%d", nStart);
 			SendDlgItemMessage(hWnd,IDC_LIST6,LB_ADDSTRING,0,(LPARAM)szTmp);
 		}
 

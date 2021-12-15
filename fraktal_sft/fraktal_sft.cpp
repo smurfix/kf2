@@ -40,6 +40,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/timer.h"
 #include <float.h>
 #include <malloc.h>
+#include <stdio.h>
 #include "complex.h"
 #include <cmath>
 #include <string>
@@ -3464,7 +3465,7 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 		for (x = 0; x<m_nX; x++){
 			if (x)
 				WriteFile(hFile, " ", 1, &dw, NULL);
-			itoa(m_nPixels[x][y], szNum, 10);
+			sprintf(szNum, "%d", m_nPixels[x][y]);
 			WriteFile(hFile, szNum, strlen(szNum), &dw, NULL);
 		}
 	}

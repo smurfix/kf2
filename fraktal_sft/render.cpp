@@ -114,9 +114,12 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 		int i, k;
 		char szTmp[20];
 		for (i = 5; i <= m_nPower; i++){
-			stVal[0].InsertString(0, itoa(i, szTmp, 10));
-			for (k = 1; k<stVal.GetCount(); k++)
-				stVal[k].InsertString(0, itoa(atoi(stVal[k - 1][1]) + atoi(stVal[k][0]), szTmp, 10));
+			sprintf(szTmp, "%d", i);
+			stVal[0].InsertString(0, szTmp);
+			for (k = 1; k<stVal.GetCount(); k++){
+				sprintf(szTmp, "%d", atoi(stVal[k - 1][1]) + atoi(stVal[k][0]));
+				stVal[k].InsertString(0, szTmp);
+			}
 			if (i % 2 == 0){
 				stVal.AddRow();
 				stVal.AddInt(stVal.GetCount() - 1, atoi(stVal[stVal.GetCount() - 2][1]) * 2);

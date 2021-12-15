@@ -294,7 +294,7 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
 				GetClassName((HWND)h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					itoa(SendMessage((HWND)h,BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
+					sprintf(szTmp+strlen(szTmp), "%ld", SendMessage((HWND)h,BM_GETCHECK,0,0));
 				else
 					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
 			}
@@ -325,7 +325,7 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
 				GetClassName((HWND)h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					itoa(SendMessage((HWND)h,BM_GETCHECK,0,0),szTmp+strlen(szTmp),10);
+					sprintf(szTmp+strlen(szTmp), "%ld", SendMessage((HWND)h,BM_GETCHECK,0,0));
 				else
 					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
 			}
