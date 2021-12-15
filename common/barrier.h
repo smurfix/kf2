@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // centralized barrier from
 // https://www.jlab.org/hpc/papers/hpcasia07.pdf
 
-class barrier
+class barrier_t
 {
 
 private:
@@ -39,7 +39,7 @@ private:
 
 public:
 
-  inline barrier(LONG n)
+  inline barrier_t(LONG n)
   : release(0), counter(n), num_thread(n)
   {
     SYSTEM_INFO sysinfo;

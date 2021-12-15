@@ -26,7 +26,7 @@ extern double g_SeedI;
 
 struct mcthread_common
 {
-	barrier *barrier;
+	barrier_t *barrier;
 	mpfr_t xr, xi, xrn, xin, xrn1, xin1, xrxid, xrxid1, sr, si, cr, ci;
 	floatexp X, Y, Z;
 	Reference *m_Reference;
@@ -141,7 +141,7 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 
 		// initialize
 		mcthread mc[3];
-		barrier barrier(3);
+		barrier_t barrier(3);
 		HANDLE hDone[3];
 		mcthread_common co;
 	  co.barrier = &barrier;

@@ -184,7 +184,7 @@ static inline bool cisfinite(const complex<flyttyp> &z) {
 struct BallPeriodCommon
 {
   HWND hWnd;
-  barrier *barrier;
+  barrier_t *barrier;
   volatile bool *stop;
   bool *haveperiod;
   int64_t *period;
@@ -206,7 +206,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
   int t = b->threadid;
-  barrier *barrier = b->c->barrier;
+  barrier_t *barrier = b->c->barrier;
   volatile bool *stop = b->c->stop;
   bool *haveperiod = b->c->haveperiod;
   int64_t *period = b->c->period;
@@ -290,7 +290,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
 {
   radius = flyttyp(4)/radius;
   mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
-  barrier bar(2);
+  barrier_t bar(2);
   bool haveperiod = false;
   int64_t period = 0;
   HANDLE hDone[2];
@@ -348,7 +348,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
 struct STEP_STRUCT_COMMON
 {
 	HWND hWnd;
-	barrier *barrier;
+	barrier_t *barrier;
 	volatile bool *stop;
 	int newtonStep;
 	int64_t period;
@@ -445,7 +445,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 
 	int threads = 4;
 	mp_bitcnt_t bits = mpfr_get_prec(c_guess.m_r.m_dec.backend().data());
-	barrier bar(4);
+	barrier_t bar(4);
 	STEP_STRUCT_COMMON m;
 	m.hWnd = hWnd;
 	m.barrier = &bar;
