@@ -21,6 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 
 double get_wall_time(){
+#ifdef KF_EMBED
+    return 0;
+#else
     LARGE_INTEGER time,freq;
     if (!QueryPerformanceFrequency(&freq)){
         //  Handle error
@@ -31,9 +34,13 @@ double get_wall_time(){
         return 0;
     }
     return (double)time.QuadPart / freq.QuadPart;
+#endif
 }
 
 double get_cpu_time(){
+#ifdef KF_EMBED
+    return 0;
+#else
     FILETIME a,b,c,d;
     if (GetProcessTimes(GetCurrentProcess(),&a,&b,&c,&d) != 0){
         //  Returns total user time.
@@ -45,4 +52,5 @@ double get_cpu_time(){
         //  Handle error
         return 0;
     }
+#endif
 }
