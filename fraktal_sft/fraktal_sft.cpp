@@ -2361,7 +2361,7 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 	if (nStep0 > 1 << 30)
 		nStep0 = 1 << 30;
 	int nStep = nStep0;
-	GetBitmap();
+	// GetBitmap(); // required here why?
 	int64_t nMin, nMax;
 	GetIterations(nMin, nMax, NULL, NULL, TRUE);
 	int64_t nMinIter = nMin + (nMax - nMin) / 4;
