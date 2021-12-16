@@ -32,16 +32,34 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 // THIS DISCLAIMER.
 //#include "stdafx.h"
 #include <windows.h>
+#include <fstream>
 #include "StringVector.h"
 
 #define stricmp strcasecmp
 #define strnicmp strncasecmp
 
+#define HASHOFFS2 1
+
+#ifdef KF_EMBED
+
+#include <malloc.h>
+
+#define kr_malloc malloc
+#define kr_free free
+
+#else
+
 int g_Allocated_StringTable=0;
 int g_nAllocatedNum=0;
-int g_nTestCount=0;
+BOOL g_StringTableMemCorrupted=FALSE;
+
+#ifndef _KR_MALLOC_
+
 IMalloc *pAlloc=NULL;
-#define HASHOFFS2 1
+
+#else
+
+int g_nTestCount=0;
 
 union Header{
 	struct{
@@ -57,7 +75,6 @@ static Header trailer;
 
 HANDLE g_hSTMutex=NULL;
 
-BOOL g_StringTableMemCorrupted=FALSE;
 class CSTMutex
 {
 public:
@@ -70,6 +87,7 @@ public:
 		CloseHandle(g_hSTMutex);
 	}
 }g_STMutex;
+
 void kr_free(void *ap,BOOL bNoCheck=0)
 {
 	Header *bp, *p;
@@ -200,10 +218,15 @@ void *kr_malloc(unsigned int nbytes)
 	}
 	ReleaseMutex(g_hSTMutex);
 }
+#endif // KR_MALLOC
+#endif // !KF_EMBED
+
 
 void *realloc_stringtable(void *p,size_t n)
 {
-#ifdef _KR_MALLOC_
+#if KF_EMBED
+	return realloc(p,n);
+#elif defined(_KR_MALLOC_)
 	if(p){
 		Header *ph = (Header *)p;
 		ph--;
@@ -220,7 +243,7 @@ void *realloc_stringtable(void *p,size_t n)
 		kr_free(p);
 	}
 	return pr;
-#endif
+#else
 	
 	if(!pAlloc)
 		CoGetMalloc(1,&pAlloc);
@@ -276,13 +299,13 @@ void *realloc_stringtable(void *p,size_t n)
 		pAlloc->HeapMinimize();
 
 	return (char*)pp+sizeof(int);
+#endif
 }
 void free_stringtable(void *p)
 {
-#ifdef _KR_MALLOC_
+#if defined(_KR_MALLOC_) || defined(KF_EMBED)
 	kr_free(p);
-	return;
-#endif
+#else
 
 	if(p){
 		size_t a = *((int*)((char*)p-sizeof(int)));
@@ -300,7 +323,9 @@ void free_stringtable(void *p)
 		g_Allocated_StringTable -= *((int*)((char*)p-sizeof(int)));
 		pAlloc->Free((char*)p-sizeof(int));
 	}
+#endif
 }
+
 CStringVektor::CStringVektor()
 	: m_pszStrings(NULL)
 	, m_pnStrings(NULL)
@@ -800,22 +825,26 @@ CStringTable::CStringTable(CStringTable &st)
 	*this = st;
 }
 
-int CStringTable::ReadCSV(char *szFileName)
+bool CStringTable::ReadCSV(char *szFileName)
 {
-	DWORD dw;
-	HANDLE hFile = CreateFileA(szFileName,GENERIC_READ,FILE_SHARE_READ|FILE_SHARE_WRITE,NULL,OPEN_EXISTING,0,NULL);
-	if(hFile==INVALID_HANDLE_VALUE)
+	std::ifstream hFile(szFileName);
+	if(!hFile)
 		return 0;
-	int nLen = GetFileSize(hFile,NULL);
+
+	hFile.seekg (0, hFile.end);
+	size_t nLen = hFile.tellg();
+	hFile.seekg (0, hFile.beg);
+
 	char *szData = new char[nLen+1];
-	ReadFile(hFile,szData,nLen,&dw,NULL);
-	CloseHandle(hFile);
-	szData[nLen]=0;
-	
-	AddRow();
-	SplitString(szData,";","\r\n");
+	hFile.read(szData, nLen);
+	bool good = hFile.good();
+	if (good) {
+		szData[nLen]=0;
+		AddRow();
+		SplitString(szData,";","\r\n");
+	}
 	delete[] szData;
-	return 1;
+	return good;
 }
 
 char *stristr(char *src, char *find)
@@ -962,52 +991,64 @@ int CStringTable::FindStringN(int nColumn, const char *szString, int nLength)
 			return i;
 	return -1;
 }
-int CStringTable::Save(char *szFile)
+bool CStringTable::Save(char *szFile)
 {
 	int i, j;
-	DWORD dw;
-	HANDLE hFile = CreateFileA(szFile,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,0,NULL);
-	if(hFile==INVALID_HANDLE_VALUE)
+	std::ofstream hFile(szFile, std::ios::out | std::ios::binary | std::ios::trunc);
+	if(!hFile)
 		return 0;
-	WriteFile(hFile,&m_nVektors,sizeof(m_nVektors),&dw,NULL);
+	int good = true;
+	hFile.write(reinterpret_cast<const char*>(&m_nVektors),sizeof(m_nVektors));
 	for(i=0;i<m_nVektors;i++){
 		int nLen = m_pVektors[i]->GetCount();
-		WriteFile(hFile,&nLen,sizeof(nLen),&dw,NULL);
+		hFile.write(reinterpret_cast<const char*>(&nLen),sizeof(nLen));
 		for(j=0;j<m_pVektors[i]->GetCount();j++){
 			char *sz = m_pVektors[i]->GetString(j,&nLen);
-			WriteFile(hFile,&nLen,sizeof(nLen),&dw,NULL);
-			WriteFile(hFile,sz,nLen,&dw,NULL);
+			hFile.write(reinterpret_cast<const char*>(&nLen),sizeof(nLen));
+			hFile.write(sz,nLen);
+		}
+		if (hFile.bad()) {
+			good = false;
+			break;
 		}
 	}
-	CloseHandle(hFile);
-	return 1;
+	if (good)
+		good = hFile.good();
+	hFile.close();
+	return good;
 }
-int CStringTable::Load(char *szFile)
+bool CStringTable::Load(char *szFile)
 {
 	int i, j, nLen;
-	DWORD dw;
-	HANDLE hFile = CreateFileA(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
-	if(hFile==INVALID_HANDLE_VALUE)
+	std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
+	if(!hFile)
 		return 0;
 	while(m_nVektors)
 		DeleteRow(0);
 	int nRows;
-	ReadFile(hFile,&nRows,sizeof(nRows),&dw,NULL);
-	for(i=0;i<nRows;i++){
-		ReadFile(hFile,&nLen,sizeof(nLen),&dw,NULL);
+	int good = true;
+	hFile.read(reinterpret_cast<char*>(&nRows),sizeof(nRows));
+	for(i=0;hFile.good() && i<nRows;i++){
+		hFile.read(reinterpret_cast<char*>(&nLen),sizeof(nLen));
 		AddRow();
-		for(j=0;j<nLen;j++){
+		for(j=0;hFile.good() && j<nLen;j++){
 			int nStringSize;
-			ReadFile(hFile,&nStringSize,sizeof(nStringSize),&dw,NULL);
-			char *sz = new char[nStringSize+1];
-			ReadFile(hFile,sz,nStringSize,&dw,NULL);
-			sz[nStringSize]=0;
-			AddString(i,sz,nStringSize);
-			delete[] sz;
+			hFile.read(reinterpret_cast<char*>(&nStringSize),sizeof(nStringSize));
+			if (hFile.good()) {
+				char *sz = new char[nStringSize+1];
+				hFile.read(sz,nStringSize);
+				if (hFile.good()) {
+					sz[nStringSize]=0;
+					AddString(i,sz,nStringSize);
+					delete[] sz;
+				}
+			}
 		}
 	}
-	CloseHandle(hFile);
-	return 1;
+	if (good)
+		good = hFile.good();
+	hFile.close();
+	return good;
 }
 
 int CStringTable::SplitString(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo)

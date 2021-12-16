@@ -90,7 +90,7 @@ public:
 
 	CStringVektor &operator [] (int nRow);
 	CStringTable &operator = (CStringTable &st);
-	int ReadCSV(char *szFileName);
+	bool ReadCSV(char *szFileName);
 
 	int Compare(int a, int b, int nColumn, int nType, int nOrder);
 	void Swap(int a,  int b);
@@ -98,8 +98,8 @@ public:
 
 	int FindString(int nColumn, const char *szString, int nLength=-1);
 	int FindStringN(int nColumn, const char *szString, int nLength=-1);
-	int Save(char *szFile);
-	int Load(char *szFile);
+	bool Save(char *szFile);
+	bool Load(char *szFile);
 
 	int BuildHash(int nColumn,int nItems=-1);
 	// Must be a hash build before this function is called!!
