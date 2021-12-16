@@ -28,6 +28,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/StringVector.h"
 
 #include <iostream>
+#include <fstream>
+#if __cplusplus >= 201703L
+#include <filesystem>
+#endif
+
+#ifndef KF_EMBED
+#include "shlwapi.h" // PathFileExists
+#endif
 
 std::string glsl_escape(const std::string &s)
 {
@@ -113,14 +121,16 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 	}
 	else // anything else, probably .kfr
 	{
-		DWORD dw;
-		HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-		if (hFile == INVALID_HANDLE_VALUE)
+		std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
+		if (!hFile)
 			return FALSE;
-		int nData = GetFileSize(hFile, NULL);
+		hFile.seekg (0, hFile.end);
+		size_t nData = hFile.tellg();
+		hFile.seekg (0, hFile.beg);
+
 		char *szData = new char[nData + 1];
-		ReadFile(hFile, szData, nData, &dw, NULL);
-		CloseHandle(hFile);
+		hFile.read(szData, nData);
+		hFile.close();
 		szData[nData] = 0;
 		data = szData;
 		delete[] szData;
@@ -465,7 +475,9 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		SetPosition(re, im, zm);
 	}
 	ApplyColors();
+#ifndef KF_EMBED
 	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
+#endif
 	return TRUE;
 }
 
@@ -622,13 +634,22 @@ BOOL CFraktalSFT::SaveFile(const std::string &szFile, bool overwrite)
 {
 	std::string szText(ToText());
 	const char *szData = szText.c_str();
-	DWORD dw;
-	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
+#if __cplusplus >= 201703L
+	if(!overwrite && std::filesystem::exists(szFile))
 		return FALSE;
-	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
-	CloseHandle(hFile);
-	return TRUE;
+#elif !defined(KF_EMBED)
+	if(!overwrite && PathFileExists(szFile.c_str()))
+		return FALSE;
+#endif
+	std::ofstream hFile(szFile, std::ios::trunc);
+	BOOL good = TRUE;
+	if (!hFile)
+		return FALSE;
+	hFile.write(szData, strlen(szData));
+	if (!hFile.good())
+		good = FALSE;
+	hFile.close();
+	return good;
 }
 
 void CFraktalSFT::ResetParameters()

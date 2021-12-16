@@ -34,7 +34,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "newton.h"
 #include "hybrid.h"
 #include "tooltip.h"
-#include <iostream>
 #include <string>
 #include <fstream>
 
@@ -632,15 +631,14 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 	stSave.AddString(stSave.GetCount() - 1, "Period");
 	stSave.AddInt   (stSave.GetCount() - 1, period);
 	char *szData = stSave.ToText(": ", "\r\n");
-	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
+	std::ofstream hFile(szFile);
+	if(!hFile )
 	{
 		stSave.DeleteToText(szData);
 		return false;
 	}
-	DWORD dw;
-	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
-	CloseHandle(hFile);
+	hFile.write(szData, strlen(szData));
+	hFile.close();
 	stSave.DeleteToText(szData);
 	return true;
 }
