@@ -2,6 +2,7 @@
 *.d
 *.a
 *.exe
+*.so
 /formula/*.cpp
 /cl/*_cl.c
 /gl/kf_frag_glsl.h

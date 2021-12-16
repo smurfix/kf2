@@ -28,7 +28,7 @@ CLEWPREFIX := $(HOME)/win/src/clew
 
 FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -MMD -gstabs -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/wx-3.1 -I$(WINPREFIX)/lib/wx/include/x86_64-w64-mingw32-msw-unicode-static-3.1 -I$(WINPREFIX)/include/OpenEXR -D_FILE_OFFSET_BITS=64 -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Iglad/include -fno-var-tracking-assignments
 LINK_FLAGS := -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
-LIBS := -lwx_mswu_core-3.1-x86_64-w64-mingw32 -lwx_baseu-3.1-x86_64-w64-mingw32 -lwxpng-3.1-x86_64-w64-mingw32 -lwxzlib-3.1-x86_64-w64-mingw32 -luxtheme -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleacc -lshlwapi -lversion -lwinspool -loleaut32 -lcomctl32 -lkernel32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
+LIBS ?= -lwx_mswu_core-3.1-x86_64-w64-mingw32 -lwx_baseu-3.1-x86_64-w64-mingw32 -lwxpng-3.1-x86_64-w64-mingw32 -lwxzlib-3.1-x86_64-w64-mingw32 -luxtheme -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleacc -lshlwapi -lversion -lwinspool -loleaut32 -lcomctl32 -lkernel32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/calculate_perturbation.cpp \
@@ -69,6 +69,18 @@ fraktal_sft/scale_bitmap.cpp \
 fraktal_sft/Settings.cpp \
 fraktal_sft/tiff.cpp \
 fraktal_sft/tooltip.cpp
+
+EMBED_SOURCES = \
+fraktal_sft/CDecNumber.cpp \
+fraktal_sft/fraktal_sft.cpp \
+fraktal_sft/gradient.cpp \
+fraktal_sft/hybrid.cpp \
+fraktal_sft/newton.cpp \
+fraktal_sft/render.cpp \
+fraktal_sft/scale_bitmap.cpp \
+common/StringVector.cpp \
+#
+
 
 FRAKTAL_SOURCES_H = \
 fraktal_sft/CDecNumber.h \
@@ -223,6 +235,7 @@ SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C)
+EMBED_OBJECTS := $(patsubst %.cpp,%.o,$(EMBED_SOURCES))
 
 UTILS_OBJECTS := $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
 
@@ -240,6 +253,13 @@ FORMULA_PERTURBATIONOPENCL_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONO
 FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS := $(patsubst %.o,%.d,$(FORMULA_PERTURBATIONCONVERGENTSIMPLE_OBJECTS))
 
 all: kf.exe kf-tile.exe
+
+embed:
+	$(MAKE) SYSTEM=embed _embed
+
+_embed: embed.so
+embed.so: embed.a $(FORMULA_LIBS) formula/generated.a
+	$(LINK) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive
 
 clean:
 	rm -f $(OBJECTS) fraktal_sft/main.o res.o
@@ -276,6 +296,7 @@ clean:
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_OBJECTS)
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS)
 	rm -f $(FORMULA_LIBS) formula/generated.a kf.a
+	rm -f embed.a embed.so
 	rm -f cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o
@@ -283,6 +304,9 @@ clean:
 
 kf.a: $(OBJECTS)
 	$(AR) rs $@ $(OBJECTS)
+
+embed.a: $(EMBED_OBJECTS)
+	$(AR) rs $@ $(EMBED_OBJECTS)
 
 kf.exe: kf.a res.o fraktal_sft/main.o $(FORMULA_LIBS) formula/generated.a
 	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) -Wl,--whole-archive formula/generated.a -Wl,--no-whole-archive kf.a res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
@@ -463,3 +487,7 @@ FORMULA_BRUTE_SOURCES_CPP = formula/formula_75_3.brute.cpp formula/formula_76_2.
 	#
 
 # blank line above
+#
+.PHONY: \
+	embed \	
+	#
