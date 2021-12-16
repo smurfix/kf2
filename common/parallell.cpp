@@ -39,11 +39,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
 #endif
 
+#ifdef KF_EMBED
+void Parallell_ThExecute(LPVOID pParameter)
+#else
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
+#endif
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
+#ifndef KF_EMBED
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
 #ifndef _DEBUG
 try{
 #endif
@@ -52,18 +58,20 @@ try{
 }catch(...){
 }
 #endif
+#ifndef KF_EMBED
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(pE->hDone);
+#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
+#ifndef KF_EMBED
 	return 0;
+#endif
 }
 
-CParallell::CParallell(int nParallell, int nTimeout,int nInitWait)
+CParallell::CParallell(int nParallell)
 {
 	m_dwStackSize = 0;
 	m_nParallell = nParallell;
-	m_nTimeout = nTimeout;
-	m_nInitWait = nInitWait;
 	m_ppExecute = NULL;
 	m_nExecute = 0;
 	m_lpfnTotalDone = NULL;
@@ -93,8 +101,10 @@ int CParallell::AddFunction(LPEXECUTE lpfnExecute,LPVOID pParameter,LPEXECUTE lp
 	int i = m_nExecute++;
 	m_ppExecute = (EXECUTE**)realloc(m_ppExecute,sizeof(EXECUTE*)*m_nExecute);
 	m_ppExecute[i] = new EXECUTE;
+#ifndef KF_EMBED
 	m_ppExecute[i]->hThread = NULL;
 	m_ppExecute[i]->hDone = CreateEvent(NULL,0,0,NULL);
+#endif
 	m_ppExecute[i]->lpfnExecute = lpfnExecute;
 	m_ppExecute[i]->lpfnDone = lpfnDone;
 	m_ppExecute[i]->pParameter = pParameter;
@@ -108,28 +118,43 @@ void CParallell::SetStackSize(DWORD dwStackSize)
 int CParallell::Execute()
 {
 	int i, j;
+#ifndef KF_EMBED
 	DWORD dw;
+#endif
 	for(i=0;i<m_nParallell && i<m_nExecute;i++){
+#ifdef KF_EMBED
+		m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
+#else
 		m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-		Sleep(m_nInitWait);
 		while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			Sleep(20);
 		}
+#endif
 	}
 	for(j=0;j<m_nExecute;j++){
-		if(WaitForSingleObject(m_ppExecute[j]->hDone,m_nTimeout)==WAIT_TIMEOUT)
+#ifdef KF_EMBED
+		m_ppExecute[j]->hThread.join();
+#else
+		if(WaitForSingleObject(m_ppExecute[j]->hDone,INFINITE)==WAIT_TIMEOUT)
 			TerminateThread(m_ppExecute[j]->hThread,0);
+#endif
 		if(m_ppExecute[j]->lpfnDone)
 			m_ppExecute[j]->lpfnDone(m_ppExecute[j]->pParameter);
+#ifndef KF_EMBED
 		CloseHandle(m_ppExecute[j]->hThread);
 		CloseHandle(m_ppExecute[j]->hDone);
+#endif
 		if(i<m_nExecute){
+#ifdef KF_EMBED
+			m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
+#else
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 			while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
 				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
 				Sleep(20);
 			}
+#endif
 			i++;
 		}
 	}
@@ -138,63 +163,3 @@ int CParallell::Execute()
 	return 1;
 }
 
-int CParallell::ExecuteNoOrder()
-{
-	int i, j;
-	DWORD dw;
-	HANDLE *hDone = new HANDLE[m_nParallell];
-	int *nIndex = new int[m_nParallell];
-	int nEnd=m_nParallell;
-	for(i=0;i<m_nParallell && i<m_nExecute;i++){
-		hDone[i]=m_ppExecute[i]->hDone;
-		nIndex[i]=i;
-		m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-		Sleep(m_nInitWait);
-		while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
-			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-			Sleep(20);
-		}
-		nEnd--;
-	}
-	j=0;
-	while(j<m_nExecute){
-		int nWRet;
-		if((nWRet=WaitForMultipleObjects(m_nParallell-nEnd,hDone,FALSE,m_nTimeout))==WAIT_TIMEOUT){
-			nWRet=0;
-			TerminateThread(m_ppExecute[nIndex[nWRet]]->hThread,0);
-		}
-		else{
-			nWRet-=WAIT_OBJECT_0;
-		}
-		int k = nIndex[nWRet];
-		if(m_ppExecute[k]->lpfnDone)
-			m_ppExecute[k]->lpfnDone(m_ppExecute[k]->pParameter);
-		CloseHandle(m_ppExecute[k]->hThread);
-		CloseHandle(m_ppExecute[k]->hDone);
-		if(i<m_nExecute){
-			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-			while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
-				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-				Sleep(20);
-			}
-			nIndex[nWRet] = i;
-			hDone[nWRet] = m_ppExecute[i]->hDone;
-			i++;
-		}
-		else{
-			for(;nWRet<m_nParallell-1;nWRet++){
-				hDone[nWRet]=hDone[nWRet+1];
-				nIndex[nWRet]=nIndex[nWRet+1];
-			}
-			nEnd++;
-		}
-
-		j++;
-	}
-	if(m_lpfnTotalDone)
-		m_lpfnTotalDone(m_pDone);
-
-	delete[] hDone;
-	delete[] nIndex;
-	return 1;
-}

@@ -36,10 +36,18 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tooltip.h"
 #include <iostream>
 #include <string>
+#include <fstream>
+
+#ifdef KF_EMBED
+
+#include <thread>
+
+#else
 
 #ifndef THREAD_MODE_BACKGROUND_BEGIN
 #define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
+#endif
 #endif
 
 #define KF_MAIN 1
@@ -85,6 +93,7 @@ static int64_t g_iterations = 0;
 static std::string s_period, s_center, s_size, s_skew;
 static char g_szProgress[128];
 
+#ifndef KF_EMBED
 static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 {
 	while (progress->running)
@@ -137,6 +146,7 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 	SetEvent(progress->hDone);
 	return 0;
 }
+#endif
 
 static int newtonETA(const floatexp &delta0, const floatexp &delta1, const floatexp &epsilon)
 {
@@ -202,14 +212,20 @@ struct BallPeriodCommon
 struct BallPeriod
 {
   int threadid;
+#ifdef KF_EMBED
+  std::thread hDone;
+#else
   HANDLE hDone;
+#endif
   BallPeriodCommon *c;
 };
 
 static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 {
+#ifndef KF_EMBED
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
   int t = b->threadid;
   barrier_t *barrier = b->c->barrier;
   volatile bool *stop = b->c->stop;
@@ -286,7 +302,9 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
       *haveperiod = false;
     }
   }
+#ifndef KF_EMBED
   SetEvent(b->hDone);
+#endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
@@ -298,13 +316,14 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   barrier_t bar(2);
   bool haveperiod = false;
   int64_t period = 0;
+#ifndef KF_EMBED
   HANDLE hDone[2];
+#endif
   // prepare threads
   BallPeriod ball[2];
   BallPeriodCommon c;
   c.progress = progress;
   c.maxperiod = maxperiod;
-  c.hWnd = hWnd;
   c.barrier = &bar;
   c.stop = &g_bNewtonStop;
   c.haveperiod = &haveperiod;
@@ -322,21 +341,33 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   for (int t = 0; t < 2; ++t)
   {
     ball[t].threadid = t;
+#ifndef KF_EMBED
     ball[t].hDone = hDone[t] = CreateEvent(NULL, 0, 0, NULL);
+#endif
     ball[t].c = &c;
   }
   // spawn threads
   for (int i = 0; i < 2; i++)
   {
+#ifdef KF_EMBED
+    ball[i].hDone = std::thread(ThBallPeriod,&ball[i]);
+#else
     DWORD dw;
     HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBallPeriod, (LPVOID)&ball[i], 0, &dw);
     CloseHandle(hThread);
+#endif
   }
   // wait for threads to complete
+#ifndef KF_EMBED
   WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
+#endif
   for (int i = 0; i < 2; i++)
   {
+#ifdef KF_EMBED
+    ball[i].hDone.join();
+#else
     CloseHandle(hDone[i]);
+#endif
   }
   mpfr_clear(c.cr);
   mpfr_clear(c.ci);
@@ -363,13 +394,19 @@ struct STEP_STRUCT_COMMON
 struct STEP_STRUCT
 {
 	int nType;
+#ifdef KF_EMBED
+    std::thread hDone;
+#else
 	HANDLE hDone;
+#endif
 	STEP_STRUCT_COMMON *common;
 };
 static DWORD WINAPI ThStep(STEP_STRUCT *t0)
 {
+#ifndef KF_EMBED
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
   struct STEP_STRUCT_COMMON *t = t0->common;
   switch (t0->nType)
   {
@@ -420,7 +457,9 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
   }
+#ifndef KF_EMBED
   SetEvent(t0->hDone);
+#endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
@@ -475,23 +514,39 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_init2(m.dcizr, bits);
 	mpfr_init2(m.dcizi, bits);
 	STEP_STRUCT mc[4];
+#ifndef KF_EMBED
 	HANDLE hDone[4];
+#endif
 	for (i = 0; i<4; i++){
 		mc[i].nType =i;
+#ifndef KF_EMBED
 		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+#endif
 		mc[i].common = &m;
 	}
 
+#ifndef KF_EMBED
 	HANDLE hThread;
 	DWORD dw;
+#endif
 	for (i = 0; i<threads; i++){
+#ifdef KF_EMBED
+		mc[i].hDone = std::thread(ThStep, &mc[i]);
+#else
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
 		CloseHandle(hThread);
+#endif
 	}
 
+#ifndef KF_EMBED
 	WaitForMultipleObjects(threads, hDone, TRUE, INFINITE);
+#endif
 	for (i = 0; i<threads; i++){
+#ifdef KF_EMBED
+		mc[i].hDone.join();
+#else
 		CloseHandle(hDone[i]);
+#endif
 	}
 
 	mpfr_set(z.m_r.m_dec.backend().data(), m.zr, MPFR_RNDN);
@@ -560,7 +615,9 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 {
 	if (! g_SFT.GetSaveNewtonProgress())
 		return true;
+#if 1
 	bool overwrite = true; // FIXME
+#endif
 	CStringTable stSave;
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Re");
@@ -661,10 +718,16 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 static double g_skew[4];
 int64_t g_period = 0;
 
+#ifdef KF_EMBED
+void ThNewton(PAR_SFT HWND hWnd)
+#else
 static int WINAPI ThNewton(HWND hWnd)
+#endif
 {
+#ifndef KF_EMBED
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
   const int type = g_SFT.GetFractalType();
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
@@ -686,9 +749,15 @@ static int WINAPI ThNewton(HWND hWnd)
 	int steps = 0;
 	{
 	  // fork progress updater
-	  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL), get_wall_time(), 0 };
+	  progress_t progress = { { 0, 0, 0, 0 }, true,
+#ifndef KF_EMBED
+		hWnd, CreateEvent(NULL, 0, 0, NULL),
+#endif
+		get_wall_time(), 0 };
+#ifndef KF_EMBED
 	  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThPeriodProgress, (LPVOID) &progress, 0, NULL);
 	  CloseHandle(hThread);
+#endif
 	  if (g_SFT.GetUseHybridFormula())
 	  {
 		  flyttyp r = flyttyp(4) / radius;
@@ -721,8 +790,10 @@ static int WINAPI ThNewton(HWND hWnd)
 	  }
 	  // join progress updater
 	  progress.running = false;
+#ifndef KF_EMBED
 	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 	  CloseHandle(progress.hDone);
+#endif
 	  if (g_period < 0) g_period = 0;
 	  uprec *= 2;
 	  progress.elapsed_time = get_wall_time() - progress.start_time;
@@ -737,9 +808,15 @@ static int WINAPI ThNewton(HWND hWnd)
 	if (g_period > 0 && ! g_bNewtonStop && g_nr_action >= 1)
 	{
 		// fork progress updater
-		progress_t progress = { { 0, 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL), get_wall_time(), 0 };
+	    progress_t progress = { { 0, 0, 0, 0 }, true,
+#ifndef KF_EMBED
+		  hWnd, CreateEvent(NULL, 0, 0, NULL),
+#endif
+		  get_wall_time(), 0 };
+#ifndef KF_EMBED
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThNewtonProgress, (LPVOID) &progress, 0, NULL);
 		CloseHandle(hThread);
+#endif
 		complex<flyttyp> c;
 		int test = 1;
 		if (g_SFT.GetUseHybridFormula())
@@ -776,8 +853,10 @@ static int WINAPI ThNewton(HWND hWnd)
 		}
 		// join progress updater
 		progress.running = false;
+#ifndef KF_EMBED
 		WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 		CloseHandle(progress.hDone);
+#endif
 		{
 			progress.elapsed_time = get_wall_time() - progress.start_time;
 			int eta = progress.counters[0];
@@ -798,10 +877,15 @@ static int WINAPI ThNewton(HWND hWnd)
 				g_szIm = c.m_i.ToText();
 
 				// fork progress updater
-				progress_t progress = { { int(g_period), 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL), get_wall_time(), 0 };
+				progress_t progress = { { int(g_period), 0, 0, 0 }, true,
+#ifndef KF_EMBED
+					hWnd, CreateEvent(NULL, 0, 0, NULL),
+#endif
+					get_wall_time(), 0 };
+#ifndef KF_EMBED
 				HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSizeProgress, (LPVOID) &progress, 0, NULL);
 				CloseHandle(hThread);
-
+#endif
 				Precision prec3(expo + 6);
 				flyttyp msize = 0;
 				if (g_period <= 1)
@@ -851,8 +935,10 @@ static int WINAPI ThNewton(HWND hWnd)
 				}
 				// join progress updater
 				progress.running = false;
+#ifndef KF_EMBED
 				WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 				CloseHandle(progress.hDone);
+#endif
 				{
 					progress.elapsed_time = get_wall_time() - progress.start_time;
 					int period = progress.counters[0];
@@ -905,9 +991,16 @@ static int WINAPI ThNewton(HWND hWnd)
 		bOK = -1;
 	}
 	g_bNewtonRunning=FALSE;
+#ifdef KF_EMBED
+	(void)bOK;
+#else
 	PostMessage(hWnd,WM_USER+2,0,bOK);
+#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
+
+#ifndef KF_EMBED
 	return 0;
+#endif
 }
 
 #ifndef KF_EMBED
@@ -1007,18 +1100,18 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
 #define T(idc,str) tooltips.push_back(CreateToolTip(idc, hWnd, str));
-T(IDC_NR_ZOOM_TARGET_PRESET                   , "Relative zooming is between current zoom level and the minibrot.\nAbsolute zooming is relative to the size of the minibrot or atom domain.")
-T(IDC_NR_ZOOM_RELATIVE_START                  , "Override current zoom level for relative zooming.\nLeave empty use current zoom level at start time.")
+T(IDC_NR_ZOOM_TARGET_PRESET                   , "Relative zooming is between current zoom level and the minibrot.\r\nAbsolute zooming is relative to the size of the minibrot or atom domain.")
+T(IDC_NR_ZOOM_RELATIVE_START                  , "Override current zoom level for relative zooming.\r\nLeave empty use current zoom level at start time.")
 T(IDC_NR_ZOOM_RELATIVE_START_CAPTURE          , "Click to capture current zoom level for relative zooming.")
 T(IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET         , "Power for relative doubling/quadrupling/etc the current pattern.")
-T(IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT    , "Enter custom relative power here.\nEnter 0.5 for 2x folding.\nTry -1 to zoom out.")
+T(IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT    , "Enter custom relative power here.\r\nEnter 0.5 for 2x folding.\nTry -1 to zoom out.")
 T(IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET           , "Power for absolute double/quadrupling/etc of embedded Julia set features.")
-T(IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT      , "Enter custom absolute power here.\nEnter 1 to zoom to target.\nValues greater than 1 are not useful for Minibrot (Absolute).")
-T(IDC_NR_ZOOM_SIZE_FACTOR_PRESET              , "Factor for scaling the zoom after power is applied.\nBigger than 1 zooms out, smaller than 1 zooms in.")
-T(IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT         , "Enter custom size factor here.\nEnter 1 for actual size.")
-T(IDC_NR_ZOOM_BALL_METHOD                     , "When checked, use ball method for finding periods.\nOtherwise use box method.\nA different method (Taylor ball) is always used for power 2 Mandelbrot.")
-T(IDC_NR_ZOOM_ACTION_PRESET                   , "Stop after action in the sequence:\n- Find the period of the lowest period minibrot in the clicked region.\n- Center the view on the minibrot.\n- Zoom to the specified power and size factor.\n- Automatically skew the view.")
-T(IDC_NR_ZOOM_SAVE_PROGRESS                   , "When checked, save progress snapshots when finding the center.\nResuming is not yet automatic\nNewton zooming from a snapshot will do more iterations than necessary.")
+T(IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT      , "Enter custom absolute power here.\r\nEnter 1 to zoom to target.\nValues greater than 1 are not useful for Minibrot (Absolute).")
+T(IDC_NR_ZOOM_SIZE_FACTOR_PRESET              , "Factor for scaling the zoom after power is applied.\r\nBigger than 1 zooms out, smaller than 1 zooms in.")
+T(IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT         , "Enter custom size factor here.\r\nEnter 1 for actual size.")
+T(IDC_NR_ZOOM_BALL_METHOD                     , "When checked, use ball method for finding periods.\r\nOtherwise use box method.\nA different method (Taylor ball) is always used for power 2 Mandelbrot.")
+T(IDC_NR_ZOOM_ACTION_PRESET                   , "Stop after action in the sequence:\r\n- Find the period of the lowest period minibrot in the clicked region.\n- Center the view on the minibrot.\n- Zoom to the specified power and size factor.\n- Automatically skew the view.")
+T(IDC_NR_ZOOM_SAVE_PROGRESS                   , "When checked, save progress snapshots when finding the center.\r\nResuming is not yet automatic\nNewton zooming from a snapshot will do more iterations than necessary.")
 T(IDC_NR_ZOOM_STATUS                          , "Progress messages are displayed here.")
 T(IDCANCEL2                                   , "Click to cancel the Newton-Raphson zooming calculations.")
 #undef T
@@ -1064,7 +1157,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 
 		NewtonEnableWindows(hWnd);
 
-		SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, "Click the fractal to start.\nZoom size affects the\nregion to search.");
+		SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, "Click the fractal to start.\r\nZoom size affects the\nregion to search.");
 		return 1;
 	}
 	if (uMsg == WM_COMMAND && HIWORD(wParam) == LBN_SELCHANGE && (
@@ -1172,9 +1265,9 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 		}
 		if(lParam == -1 && !g_bNewtonStop)
-			MessageBox(GetParent(hWnd),"Could not apply Newton-Raphson\nYou may zoom in a little and try again","Error",MB_OK|MB_ICONSTOP);
+			MessageBox(GetParent(hWnd),"Could not apply Newton-Raphson\r\nYou may zoom in a little and try again","Error",MB_OK|MB_ICONSTOP);
 		if((lParam == 0 || lParam < -1 || lParam > 1))
-			MessageBox(GetParent(hWnd),"Unexpected stop message parameter (internal error)\n","Error",MB_OK|MB_ICONSTOP);
+			MessageBox(GetParent(hWnd),"Unexpected stop message parameter (internal error)\r\n","Error",MB_OK|MB_ICONSTOP);
 	}
 	return 0;
 }

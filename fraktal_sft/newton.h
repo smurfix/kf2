@@ -31,8 +31,10 @@ struct progress_t
 {
 	int counters[4];
 	volatile bool running;
+#ifndef KF_EMBED
 	HWND hWnd;
 	HANDLE hDone;
+#endif
 	double start_time, elapsed_time;
 };
 

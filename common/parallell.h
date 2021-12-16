@@ -17,15 +17,30 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
+#ifndef COMMON_PARALLALL_H
+#define COMMON_PARALLALL_H
+
+#ifdef KF_EMBED
+#include <thread>
+#endif
+
 typedef int (*LPEXECUTE)(LPVOID pParameter);
 
+#ifdef KF_EMBED
+void Parallell_ThExecute(LPVOID pParameter);
+#else
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
+#endif
 
 class CParallell
 {
 	struct EXECUTE{
+#ifdef KF_EMBED
+		std::thread hThread;
+#else
 		HANDLE hThread;
 		HANDLE hDone;
+#endif
 		LPEXECUTE lpfnExecute;
 		LPEXECUTE lpfnDone;
 		LPVOID pParameter;
@@ -35,21 +50,23 @@ class CParallell
 	LPVOID m_pDone;
 
 	int m_nParallell;
-	int m_nTimeout;
-	int m_nInitWait;
 	DWORD m_dwStackSize;
 
 public:
-	CParallell(int nParallell, int nTimeout=INFINITE,int nInitWait=0);
+	CParallell(int nParallell);
 	~CParallell();
 
 	void SetTotalDone(LPEXECUTE lpfnTotalDone,LPVOID pDone);
 	int AddFunction(LPEXECUTE lpfnExecute, LPVOID pParameter, LPEXECUTE lpfnDone=NULL);
 	int Execute();
-	int ExecuteNoOrder();
 	void Reset();
 	void SetStackSize(DWORD dwStackSize);
 
+#ifdef KF_EMBED
+	friend void Parallell_ThExecute(LPVOID pParameter);
+#else
 	friend ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
+#endif
 };
 
+#endif // COMMON_PARALLALL_H

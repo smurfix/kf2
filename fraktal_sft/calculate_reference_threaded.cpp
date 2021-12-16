@@ -21,6 +21,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reference.h"
 #include "../common/barrier.h"
 
+#ifdef KF_EMBED
+#include <thread>
+#endif
+
 #ifndef THREAD_MODE_BACKGROUND_BEGIN
 #define THREAD_MODE_BACKGROUND_BEGIN PROCESS_MODE_BACKGROUND_BEGIN
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
@@ -43,14 +47,20 @@ struct mcthread_common
 struct mcthread
 {
 	int nType;
+#ifdef KF_EMBED
+	std::thread thread;
+#else
 	HANDLE hDone;
+#endif
 	mcthread_common *common;
 };
 
 static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
+#ifndef KF_EMBED
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#endif
 
 	mcthread_common *p = p0->common;
 	const double glitch_threshold = *p->glitch_threshold;
@@ -115,7 +125,9 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	}
 	if (p->barrier->wait(p->stop))
 	{
+#ifndef KF_EMBED
 		SetEvent(p0->hDone);
+#endif
 		mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 		return 0;
 	}
@@ -126,8 +138,10 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			reference_append(p->m_Reference, p->X, p->Y, p->Z);
 		}
 	}
+#ifndef KF_EMBED
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(p0->hDone);
+#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
@@ -147,7 +161,9 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		// initialize
 		mcthread mc[3];
 		barrier_t barrier(3);
+#ifndef KF_EMBED
 		HANDLE hDone[3];
+#endif
 		mcthread_common co;
 	  co.barrier = &barrier;
 		mp_bitcnt_t bits = mpfr_get_prec(m_rref.m_f.backend().data());
@@ -182,17 +198,29 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		for (int i = 0; i < 3; i++)
 		{
 			mc[i].nType = i;
+#ifndef KF_EMBED
 			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
+#endif
 			mc[i].common = &co;
+#ifdef KF_EMBED
+			mc[i].thread = std::thread(mcthreadfunc, &mc[i]);
+#else
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
 			CloseHandle(hThread);
+#endif
 		}
 
 		// wait for completion
+#ifndef KF_EMBED
 		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
+#endif
 		for (int i = 0; i < 3; i++)
 		{
+#ifdef KF_EMBED
+			mc[i].thread.join();
+#else
 			CloseHandle(hDone[i]);
+#endif
 		}
 
 		// cleanup
