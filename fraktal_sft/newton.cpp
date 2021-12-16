@@ -197,7 +197,6 @@ static inline bool cisfinite(const complex<flyttyp> &z) {
 
 struct BallPeriodCommon
 {
-  HWND hWnd;
   barrier_t *barrier;
   volatile bool *stop;
   bool *haveperiod;
@@ -308,7 +307,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   return 0;
 }
 
-static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps,HWND hWnd, progress_t *progress)
+static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps, progress_t *progress)
 {
   radius = flyttyp(4)/radius;
   mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
@@ -764,7 +763,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	  else if (type == 0 && power == 2)
 	  {
 		int64_t maxperiod = INT_MAX; // FIXME
-		g_period = ball_period_do(center,radius,maxperiod,steps,hWnd,&progress);
+		g_period = ball_period_do(center,radius,maxperiod,steps,&progress);
 	  }
 	  else
 	  {
