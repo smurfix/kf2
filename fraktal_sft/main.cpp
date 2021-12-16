@@ -56,8 +56,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <pixman.h>
 #include <IlmBaseConfig.h>
 #include <OpenEXRConfig.h>
-#include <wx/window.h>
-#include <wx/app.h>
 #include "check_for_update.h"
 #include "jpeg.h"
 #include "png.h"
@@ -85,15 +83,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #else
 #include <mingw-std-threads/mingw.thread.h>
 #endif
-
-class kf2App : public wxApp {
-	virtual bool OnInit() wxOVERRIDE;
-public:
-	wxWindow *mainWindow;
-};
-
-wxDECLARE_APP(kf2App);
-wxIMPLEMENT_APP_NO_MAIN(kf2App);
 
 #ifdef KF_OPENCL
 std::vector<cldevice> cldevices;
@@ -4748,8 +4737,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	}
 	g_args = &args;
 
-	wxCreateApp();
-
 #ifdef KF_OPENCL
 	cldevices = initialize_opencl(nullptr);
 #endif
@@ -4772,12 +4759,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		g_monospaced_font = CreateFont(0, 0, 0, 0, 0, 0, 0, 0, DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, FIXED_PITCH | FF_DONTCARE, nullptr);
 		RegisterClass(&wc);
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
-
-		wxWindow *win = new wxWindow();
-		win->SetHWND((WXHWND)hWnd);
-		win->AdoptAttributesFromHWND();
-		win->Reparent(wxGetApp().GetTopWindow());
-		wxGetApp().mainWindow = win;
 
 		g_SFT.SetWindow(hWnd);
 		ShowWindow(hWnd,SW_SHOW);
@@ -4932,13 +4913,5 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	}
 
 	return 0;
-}
-
-bool kf2App::OnInit()
-{
-	if ( !wxApp::OnInit() )
-		return false;
-
-	return true;
 }
 
