@@ -197,16 +197,16 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	if (! bNoLocation)
 	{
-	nID = stParams.FindString(0, "FractalType");
-	if (nID != -1)
-		SetFractalType(atoi(stParams[nID][1]));
-	nID = stParams.FindString(0, "Power");
-	if (nID != -1)
-		SetPower(atoi(stParams[nID][1]));
-	// KFR version >= 2150500
-	nID = stParams.FindString(0, "TriangleInequalityAverage");
-	if (nID != -1)
-		SetTriangleInequalityAverage(atoi(stParams[nID][1]));
+		nID = stParams.FindString(0, "FractalType");
+		if (nID != -1)
+			SetFractalType(atoi(stParams[nID][1]));
+		nID = stParams.FindString(0, "Power");
+		if (nID != -1)
+			SetPower(atoi(stParams[nID][1]));
+		// KFR version >= 2150500
+		nID = stParams.FindString(0, "TriangleInequalityAverage");
+		if (nID != -1)
+			SetTriangleInequalityAverage(atoi(stParams[nID][1]));
 	}
 
 	int nT = stParams.FindString(0, "Smooth");
@@ -291,52 +291,52 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	if (! bNoLocation)
 	{
-	nID = stParams.FindString(0, "real");
-	if (nID != -1)
-	{
-		g_real = atof(stParams[nID][1]);
-	}
-	nID = stParams.FindString(0, "imag");
-	if (nID != -1)
-	{
-		g_imag = atof(stParams[nID][1]);
-	}
-
-	nID = stParams.FindString(0, "BailoutNormPreset");
-	if (nID != -1)
-	{
-		int m = atoi(stParams[nID][1]);
-		if (m < 0 || m > 3)
+		nID = stParams.FindString(0, "real");
+		if (nID != -1)
 		{
-			m = 1;
+			g_real = atof(stParams[nID][1]);
 		}
-		SetBailoutNormPreset(BailoutNormPreset(m));
-	}
+		nID = stParams.FindString(0, "imag");
+		if (nID != -1)
+		{
+			g_imag = atof(stParams[nID][1]);
+		}
 
-	nID = stParams.FindString(0, "BailoutNormCustom");
-	if (nID != -1)
-	{
-		SetBailoutNormCustom(atof(stParams[nID][1]));
-	}
+		nID = stParams.FindString(0, "BailoutNormPreset");
+		if (nID != -1)
+		{
+			int m = atoi(stParams[nID][1]);
+			if (m < 0 || m > 3)
+			{
+				m = 1;
+			}
+			SetBailoutNormPreset(BailoutNormPreset(m));
+		}
 
-	nID = stParams.FindString(0, "SeedR");
-	if (nID != -1)
-		g_SeedR = atof(stParams[nID][1]);
-	nID = stParams.FindString(0, "SeedI");
-	if (nID != -1)
-		g_SeedI = atof(stParams[nID][1]);
-	nID = stParams.FindString(0, "FactorAR");
-	if (nID != -1)
-		g_FactorAR = atof(stParams[nID][1]);
-	nID = stParams.FindString(0, "FactorAI");
-	if (nID != -1)
-		g_FactorAI = atof(stParams[nID][1]);
+		nID = stParams.FindString(0, "BailoutNormCustom");
+		if (nID != -1)
+		{
+			SetBailoutNormCustom(atof(stParams[nID][1]));
+		}
 
-	nID = stParams.FindString(0, "Period");
-	if (nID != -1)
-		g_period = atoll(stParams[nID][1]);
-	else
-		g_period = 0;
+		nID = stParams.FindString(0, "SeedR");
+		if (nID != -1)
+			g_SeedR = atof(stParams[nID][1]);
+		nID = stParams.FindString(0, "SeedI");
+		if (nID != -1)
+			g_SeedI = atof(stParams[nID][1]);
+		nID = stParams.FindString(0, "FactorAR");
+		if (nID != -1)
+			g_FactorAR = atof(stParams[nID][1]);
+		nID = stParams.FindString(0, "FactorAI");
+		if (nID != -1)
+			g_FactorAI = atof(stParams[nID][1]);
+
+		nID = stParams.FindString(0, "Period");
+		if (nID != -1)
+			g_period = atoll(stParams[nID][1]);
+		else
+			g_period = 0;
 	}
 
 	int nC = stParams.FindString(0, "Colors");
@@ -406,17 +406,22 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 	if (! bNoLocation)
 	{
-	i = stParams.FindString(0, "UseHybridFormula");
-	if (i != -1 && atoi(stParams[i][1]))
-	{
-		i = stParams.FindString(0, "HybridFormula");
-		if (i != -1)
+		i = stParams.FindString(0, "UseHybridFormula");
+		if (i != -1 && atoi(stParams[i][1]))
 		{
-			hybrid_formula h = hybrid_formula_from_string(stParams[i][1]);
-			if (valid(h))
+			i = stParams.FindString(0, "HybridFormula");
+			if (i != -1)
 			{
-				SetHybridFormula(h);
-				SetUseHybridFormula(true);
+				hybrid_formula h = hybrid_formula_from_string(stParams[i][1]);
+				if (valid(h))
+				{
+					SetHybridFormula(h);
+					SetUseHybridFormula(true);
+				}
+				else
+				{
+					SetUseHybridFormula(false);
+				}
 			}
 			else
 			{
@@ -428,39 +433,34 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 			SetUseHybridFormula(false);
 		}
 	}
-	else
-	{
-		SetUseHybridFormula(false);
-	}
-	}
 
 	if (! bNoLocation)
 	{
-	double RotateAngle = 0;
-	double StretchAngle = 0;
-	double StretchAmount = 0;
-	bool ImagPointsUp = false;
-	i = stParams.FindString(0, "RotateAngle");
-	if (i != -1)
-	{
-		RotateAngle = atof(stParams[i][1]);
-	}
-	i = stParams.FindString(0, "StretchAngle");
-	if (i != -1)
-	{
-		StretchAngle = atof(stParams[i][1]);
-	}
-	i = stParams.FindString(0, "StretchAmount");
-	if (i != -1)
-	{
-		StretchAmount = atof(stParams[i][1]);
-	}
-	i = stParams.FindString(0, "ImagPointsUp");
-	if (i != -1)
-	{
-		ImagPointsUp = atoi(stParams[i][1]);
-	}
-	SetTransformPolar(polar2(ImagPointsUp ? -1 : 1, 1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
+		double RotateAngle = 0;
+		double StretchAngle = 0;
+		double StretchAmount = 0;
+		bool ImagPointsUp = false;
+		i = stParams.FindString(0, "RotateAngle");
+		if (i != -1)
+		{
+			RotateAngle = atof(stParams[i][1]);
+		}
+		i = stParams.FindString(0, "StretchAngle");
+		if (i != -1)
+		{
+			StretchAngle = atof(stParams[i][1]);
+		}
+		i = stParams.FindString(0, "StretchAmount");
+		if (i != -1)
+		{
+			StretchAmount = atof(stParams[i][1]);
+		}
+		i = stParams.FindString(0, "ImagPointsUp");
+		if (i != -1)
+		{
+			ImagPointsUp = atoi(stParams[i][1]);
+		}
+		SetTransformPolar(polar2(ImagPointsUp ? -1 : 1, 1, RotateAngle / deg, std::exp2(StretchAmount), StretchAngle / deg));
 	}
 
 	if (! bNoLocation)
