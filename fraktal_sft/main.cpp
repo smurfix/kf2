@@ -92,10 +92,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_EMBED
 
 
-#ifdef KF_OPENCL
-std::vector<cldevice> cldevices;
-#endif
-
 POINT g_pInflections[10];
 int g_nInflection=0;
 extern double g_SeedR;
@@ -1943,14 +1939,19 @@ else if (uMsg == WM_COMMAND)
 }
 return 0;
 }
+#endif // KF_OPENCL
+#endif // KF_EMBED
 
+#ifdef KF_OPENCL
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 {
+#ifndef KF_EMBED
 	if (hWnd)
 	{
 		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
 	}
 	else
+#endif
 	{
 		std::cerr << "OpenCL C source:" << std::endl << g_OpenCL_Error_Source << std::endl;
 		std::cerr << "OpenCL build log:" << std::endl << g_OpenCL_Error_Log << std::endl;
@@ -1961,7 +1962,10 @@ extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 		}
 	}
 }
+#endif // KF_OPENCL
 
+#ifndef KF_EMBED
+#ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
   switch(msg)
@@ -1972,9 +1976,9 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 			SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
 			SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) "(none)");
-			for (int i = 0; i < (int) cldevices.size(); ++i)
+			for (int i = 0; i < (int) g_SFT.m_cldevices.size(); ++i)
 			{
-				cldevice d = cldevices[i];
+				cldevice d = g_SFT.m_cldevices[i];
 				SendDlgItemMessage(hWnd, IDC_COMBO_OPENCL_DEVICE, CB_ADDSTRING, 0, (LPARAM) d.name.c_str());
 			}
 
@@ -2024,7 +2028,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 	return 0;
 }
 
-#endif
+#endif // KF_OPENCL
 
 static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 {
@@ -4693,9 +4697,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	}
 	g_args = &args;
 
-#ifdef KF_OPENCL
-	cldevices = initialize_opencl(nullptr);
-#endif
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{

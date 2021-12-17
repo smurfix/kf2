@@ -201,7 +201,6 @@ struct TH_FIND_CENTER;
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
-extern std::vector<cldevice> cldevices;
 #endif
 
 class CFraktalSFT
@@ -365,11 +364,11 @@ class CFraktalSFT
 
 #ifdef KF_OPENCL
 	int clid;
-  OpenCL *cl;
-  bool m_OpenCL_Glitched;
-  int m_OpenCL_Glitched_X;
-  int m_OpenCL_Glitched_Y;
-  int64_t m_OpenCL_Glitched_Count;
+	OpenCL *cl;
+	bool m_OpenCL_Glitched;
+	int m_OpenCL_Glitched_X;
+	int m_OpenCL_Glitched_Y;
+	int64_t m_OpenCL_Glitched_Count;
 #endif
 
 	std::vector<std::string> m_undo;
@@ -386,6 +385,9 @@ class CFraktalSFT
 	bool m_bUseSRGB;
 
 public:
+#ifdef KF_OPENCL
+	std::vector<cldevice> m_cldevices;
+#endif
 	int m_opengl_major;
 	int m_opengl_minor;
 	BOOL m_bRunning;

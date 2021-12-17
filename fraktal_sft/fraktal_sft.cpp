@@ -150,6 +150,9 @@ CFraktalSFT::CFraktalSFT()
 	cl = NULL;
 #endif
 
+#ifdef KF_OPENCL
+    m_cldevices = initialize_opencl(nullptr);
+#endif
 	m_bTexture=FALSE;
 	m_nImgMerge=1;
 	m_nImgPower=200;
@@ -2005,6 +2008,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	}
 }
 
+#ifndef KF_EMBED
 
 HBITMAP CFraktalSFT::GetBitmap()
 {
@@ -2031,6 +2035,7 @@ void CFraktalSFT::UpdateBitmap()
 	}
 	ReleaseMutex(m_hMutex);
 }
+#endif
 #endif
 
 int CFraktalSFT::GetWidth()
@@ -3896,10 +3901,10 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 			clid = -1;
 			SetUseOpenCL(false);
 		}
-		if (0 <= i && i < (int) cldevices.size())
+		if (0 <= i && i < (int) m_cldevices.size())
 		{
 			clid = i;
-			cl = new OpenCL(cldevices[i].pid, cldevices[i].did, cldevices[i].supports_double);
+			cl = new OpenCL(m_cldevices[i].pid, m_cldevices[i].did, m_cldevices[i].supports_double);
 			SetUseOpenCL(true);
 			SetOpenCLPlatform(i);
 		}
