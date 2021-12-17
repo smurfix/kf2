@@ -296,8 +296,10 @@ void CFraktalSFT::RenderFractal()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-/*
-	if(m_bAddReference){
+
+#if 0
+	if(m_bAddReference)
+	{
 		m_rApprox.left = m_nX/2;
 		m_rApprox.top = m_nY/2;
 		m_rApprox.right = m_nX/2;
@@ -317,15 +319,16 @@ void CFraktalSFT::RenderFractal()
 			}
 		}
 	}
-	else{
+	else
+	{
 		m_rApprox.left = 0;
 		m_rApprox.top = 0;
 		m_rApprox.right = m_nX;
 		m_rApprox.bottom = m_nY;
 	}
-*/
+#endif
 
-  {
+	{
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
 		CalculateApproximation(reftype);
@@ -335,10 +338,10 @@ void CFraktalSFT::RenderFractal()
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
 
-       if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-               m_bNoGlitchDetection = FALSE;
-       else
-               m_bNoGlitchDetection = TRUE;
+	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
+		m_bNoGlitchDetection = FALSE;
+	else
+		m_bNoGlitchDetection = TRUE;
 
 #ifdef KF_OPENCL
 	if (cl)
@@ -399,8 +402,10 @@ void CFraktalSFT::RenderFractal()
 	}
 	m_bAddReference = FALSE;
 	if (!m_bNoPostWhenDone)
+	{
 		if (m_hWnd)
 			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+	}
 	m_bNoPostWhenDone = FALSE;
 	m_bRunning = FALSE;
 
