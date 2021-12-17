@@ -4527,62 +4527,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	return DefWindowProc(hWnd,uMsg,wParam,lParam);
 }
 
-#if 0
-static int Test()
-{
-	CFileFloat <double>tmp(3000);
-	int i;
-	for(i=0;i<3000;i++)
-		tmp[i] = i;
-	for(i=0;i<3000;i++)
-		if(tmp[i]!=i)
-			break;
-	if(i<3000)
-		return MessageBox(NULL,"Error","Error",MB_OK|MB_ICONSTOP);
-	else
-		return MessageBox(NULL,"Success","Success",MB_OK);
-	return 0;
-}
-
-static int Test2()
-{
-	return 0;
-}
-
-static int Test1()
-{
-	CFixedFloat xr = 0, xi = 0, xin, xrn, sr = 0, si = 0, xrxid = 0;
-	CFixedFloat m_rref = 0.25, m_iref=0;
-	int antal;
-	SYSTEMTIME st;
-	__int64 t1, t2;
-	MessageBox(NULL,"Start","Debug",MB_OK);
-	GetLocalTime(&st);
-	SystemTimeToFileTime(&st,(LPFILETIME)&t1);
-	for(antal=0;antal<10000;antal++){
-		xrn = sr - si + m_rref;
-		xrxid = 2 * xr*xi;
-//		xrxid = CFixedFloat_Multiply((CFixedFloat)2,xr);
-//		xrxid = CFixedFloat_Multiply(xrxid,xi);
-		xin = xrxid.Abs() + m_iref;
-		xr = xrn;
-		xi = xin;
-		sr = xr.Square();
-		si = xi.Square();
-
-	}
-	GetLocalTime(&st);
-	SystemTimeToFileTime(&st,(LPFILETIME)&t2);
-	t2-=t1;
-	FileTimeToSystemTime((LPFILETIME)&t2,&st);
-	__int64 td = 10000000;
-	char szRes[1024];
-	wsprintf(szRes,"%02d:%02d:%02d.%07d",t2/(td*3600),(t2/(td*60))%60,(t2/td)%60,t2%td);
-//	wsprintf(szRes+strlen(szRes),"\n%02d:%02d:%02d.%03d",st.wHour,st.wMinute,st.wSecond,st.wMilliseconds);
-	return MessageBox(NULL,szRes,"Res",MB_OK);
-}
-#endif
-
 // detailed progress reporting thread for command line rendering
 static volatile bool ThReportProgress_running = true;
 DWORD ThReportProgress(LPVOID arg)
