@@ -56,12 +56,12 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
 		CFixedFloat xr = g_SeedR, xi = g_SeedI;
-		double threashold = 0.0001;
+		double threshold = 0.0001;
 		for (int i = 7; i <= m_nPower; i += 2)
-			threashold *= 10;
-		threashold = std::exp(std::log(threashold) * (1 - GetGlitchLowTolerance() / 2));
-		if (threashold>.5)
-			threashold = .5;
+			threshold *= 10;
+		threshold = std::exp(std::log(threshold) * (1 - GetGlitchLowTolerance() / 2));
+		if (threshold>.5)
+			threshold = .5;
 		for (int64_t i = 0; i<nMaxIter && !m_bStop; i++){
 			complex<CFixedFloat> X(xr, xi), r(m_rref, m_iref);
 			complex<CFixedFloat> Xn = (X^m_nPower) + r;
@@ -70,7 +70,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 			floatexp X0 = floatexp(xr);
 			floatexp Y0 = floatexp(xi);
 			floatexp abs_val = X0 * X0 + Y0 * Y0;
-			floatexp Z0 = abs_val*threashold;
+			floatexp Z0 = abs_val*threshold;
 			reference_append(m_Reference, X0, Y0, Z0);
 			if (abs_val >= terminate){
 				if (nMaxIter == m_nMaxIter){
