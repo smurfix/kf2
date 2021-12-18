@@ -4700,7 +4700,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
-		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
+		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFR,sizeof(g_szRecoveryKFR));
 		strcpy(strrchr(g_szRecoveryKFR,'.'),".rec_kfr");
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFS,sizeof(g_szRecoveryKFS));
@@ -4737,10 +4737,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		DeleteFile(g_szRecoveryKFS);
 		request req;
 		req.tag = request_quit;
-		fifo_write(to_opengl, req);
-		response resp;
-		fifo_read(from_opengl, resp);
-		opengl.join();
+		response resp = g_SFT.m_OpenGL->handler(req);
+		g_SFT.m_OpenGL.reset();
 	}
 	else
 	{
@@ -4805,7 +4803,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			}
 			g_SFT.m_bInhibitColouring = false;
 		}
-		std::thread opengl(opengl_thread, std::ref(to_opengl), std::ref(from_opengl));
+		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
 		bool ok = true;
 		if (g_args->bLoadMap)
@@ -4862,10 +4860,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		request req;
 		req.tag = request_quit;
-		fifo_write(to_opengl, req);
-		response resp;
-		fifo_read(from_opengl, resp);
-		opengl.join();
+		response resp = g_SFT.m_OpenGL->handler(req);
+		g_SFT.m_OpenGL.reset();
 		return ok ? 0 : 1;
 	}
 

@@ -7,8 +7,8 @@
 #include <string>
 #include <vector>
 
+#include "../fraktal_sft/defs.h"
 #include "../fraktal_sft/floatexp.h"
-#include "../fraktal_sft/fraktal_sft.h"
 #include "../fraktal_sft/hybrid.h"
 
 #define CL_USE_DEPRECATED_OPENCL_1_2_APIS

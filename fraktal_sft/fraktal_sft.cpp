@@ -1221,10 +1221,7 @@ void CFraktalSFT::ApplyColors()
 			{
 				request req;
 				req.tag = request_init;
-				fifo_write(to_opengl, req);
-				response resp;
-				fifo_read(from_opengl, resp);
-				assert(resp.tag == response_init);
+				response resp = m_OpenGL->handler(req);
 				opengl_initialized = resp.u.init.success;
 				m_opengl_major = resp.u.init.major;
 				m_opengl_minor = resp.u.init.minor;
@@ -1239,10 +1236,7 @@ void CFraktalSFT::ApplyColors()
 				request req;
 				req.tag = request_compile;
 				req.u.compile.fragment_src = GetGLSL();
-				fifo_write(to_opengl, req);
-				response resp;
-				fifo_read(from_opengl, resp);
-				assert(resp.tag == response_compile);
+				response resp = m_OpenGL->handler(req);
 				std::string nl = "\n";
 				SetGLSLLog
 					( (resp.u.compile.success ? "compiled" : "NOT COMPILED") + nl
@@ -1316,10 +1310,7 @@ void CFraktalSFT::ApplyColors()
 					floatexp zoomFE = floatexp(zoom);
 					req.u.configure.zoom_log2 = double(log2(zoomFE));
 				}
-				fifo_write(to_opengl, req);
-				response resp;
-				fifo_read(from_opengl, resp);
-				assert(resp.tag == response_configure);
+				response resp = m_OpenGL->handler(req);
 			}
 			if (opengl_initialized && opengl_compiled)
 			{
@@ -1335,10 +1326,7 @@ void CFraktalSFT::ApplyColors()
 				req.u.render.dey = m_nDEy ? &m_nDEy[0][0] : nullptr;
 				req.u.render.rgb16 = m_imageHalf;
 				req.u.render.rgb8 = m_lpBits; // FIXME row alignment?
-				fifo_write(to_opengl, req);
-				response resp;
-				fifo_read(from_opengl, resp);
-				assert(resp.tag == response_render);
+				response resp = m_OpenGL->handler(req);
 				opengl_rendered = true;
 			}
 		}

@@ -200,4 +200,6 @@ struct TH_PARAMS
 	Reference_Type reftype;
 };
 
+const double pi = 3.141592653589793;
+
 #endif

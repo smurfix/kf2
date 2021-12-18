@@ -20,6 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "opengl.h"
 #include <GLFW/glfw3.h>
 
+#include "colour.h"
+
 #include "../gl/kf_vert_glsl.h"
 #include "../gl/kf_frag_glsl.h"
 
@@ -133,43 +135,21 @@ const char *blit_frag =
       "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
   ;
 
-void opengl_thread(fifo<request> &requests, fifo<response> &responses)
-{
-  const int64_t max_tile_width = 1024;
-  const int64_t max_tile_height = 1024;
-  const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7, tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
-  GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
-  std::string version;
-  GLuint p_colour = 0, p_blit = 0, f_linear = 0, f_srgb = 0;
-  GLuint vao = 0;
-  GLFWwindow *window = nullptr;
-  // should we do gamma-correct linear-light blending?
-  // default is false (incorrect blending) for historical reasons
-  bool sRGB = false;
-  request req;
-  while (fifo_read(requests, req))
-  {
-    switch (req.tag)
-    {
 
-      case request_quit:
+  response OpenGL_processor::handle_quit()
       {
         response resp;
-        resp.tag = response_quit;
-        fifo_write(responses, resp);
-        return;
+        return resp;
       }
 
-      case request_init:
+  response OpenGL_processor::handle_init()
       {
         response resp;
-        resp.tag = response_init;
         if (! glfwInit())
         {
           resp.u.init.success = false;
-          fifo_write(responses, resp);
           std::cerr << "error: glfwInit()" << std::endl;
-          break;
+          return resp;
         }
         const int nversions = 11;
         const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3 };
@@ -211,8 +191,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           glfwTerminate();
           resp.u.init.success = false;
           resp.u.init.message = "error: could not create OpenGL context with version 3.0 or greater\n";
-          fifo_write(responses, resp);
-          break;
+          return resp;
         }
         glfwMakeContextCurrent(window);
         if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -222,8 +201,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           glfwTerminate();
           resp.u.init.success = false;
           resp.u.init.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
-          fifo_write(responses, resp);
-          break;
+          return resp;
         }
 
         std::string vertex_log, fragment_log, link_log;
@@ -240,8 +218,7 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             vertex_log + nl +
             fragment_log + nl +
             link_log + nl;
-          fifo_write(responses, resp);
-          break;
+          return resp;
         }
         glUseProgram(p_blit);
         glUniform1i(glGetUniformLocation(p_blit, "t"), tu_rgb16);
@@ -377,11 +354,10 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         D
 
         resp.u.init.success = true;
-        fifo_write(responses, resp);
-        break;
+        return resp;
       }
 
-      case request_deinit:
+  response OpenGL_processor::handle_deinit()
       {
         response resp;
         if (vao)
@@ -456,26 +432,22 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
           window = nullptr;
         }
         glfwTerminate();
-        resp.tag = response_deinit;
-        fifo_write(responses, resp);
-        break;
+        return resp;
       }
 
-      case request_compile:
+  response OpenGL_processor::handle_compile(request_compile_t req)
       {
         response resp;
-        resp.tag = response_compile;
         resp.u.compile.vertex_log = "";
         resp.u.compile.fragment_log = "";
         resp.u.compile.link_log = "";
-        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.u.compile.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
+        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
         D
         resp.u.compile.success = p_colour > 0;
-        fifo_write(responses, resp);
-        break;
+        return resp;
       }
 
-      case request_configure:
+  response OpenGL_processor::handle_configure(request_configure_t req)
       {
         response resp;
         glUseProgram(p_colour);
@@ -487,31 +459,31 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         glUniform1i(glGetUniformLocation(p_colour, "Internal_DEY"), tu_dey);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Palette"), tu_palette);
-        glUniform2ui(glGetUniformLocation(p_colour, "KFP_Iterations"), req.u.configure.iterations & 0xFFFFffffu, (req.u.configure.iterations >> 32) && 0xFFFFffffu);
-        glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMin"), req.u.configure.iterations_min & 0xFFFFffffu, (req.u.configure.iterations_min >> 32) && 0xFFFFffffu);
-        glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMax"), req.u.configure.iterations_max & 0xFFFFffffu, (req.u.configure.iterations_max >> 32) && 0xFFFFffffu);
-        glUniform1ui(glGetUniformLocation(p_colour, "KFP_JitterSeed"), req.u.configure.jitter_seed);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_JitterShape"), req.u.configure.jitter_shape);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_JitterScale"), req.u.configure.jitter_scale);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_IterDiv"), req.u.configure.iter_div);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_ColorOffset"), req.u.configure.color_offset);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_ColorMethod"), req.u.configure.color_method);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_Differences"), req.u.configure.differences);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_PhaseColorStrength"), req.u.configure.color_phase_strength);
-        glUniform1f(glGetUniformLocation(p_colour, "Internal_ZoomLog2"), req.u.configure.zoom_log2);
+        glUniform2ui(glGetUniformLocation(p_colour, "KFP_Iterations"), req.iterations & 0xFFFFffffu, (req.iterations >> 32) && 0xFFFFffffu);
+        glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMin"), req.iterations_min & 0xFFFFffffu, (req.iterations_min >> 32) && 0xFFFFffffu);
+        glUniform2ui(glGetUniformLocation(p_colour, "KFP_IterationsMax"), req.iterations_max & 0xFFFFffffu, (req.iterations_max >> 32) && 0xFFFFffffu);
+        glUniform1ui(glGetUniformLocation(p_colour, "KFP_JitterSeed"), req.jitter_seed);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_JitterShape"), req.jitter_shape);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_JitterScale"), req.jitter_scale);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_IterDiv"), req.iter_div);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_ColorOffset"), req.color_offset);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_ColorMethod"), req.color_method);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Differences"), req.differences);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_PhaseColorStrength"), req.color_phase_strength);
+        glUniform1f(glGetUniformLocation(p_colour, "Internal_ZoomLog2"), req.zoom_log2);
         D
-        sRGB = req.u.configure.use_srgb;
+        sRGB = req.use_srgb;
         glActiveTexture(GL_TEXTURE0 + tu_rgb8);
         glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, max_tile_width, max_tile_height, 0, GL_RGB, GL_UNSIGNED_BYTE, nullptr);
         glUniform1i(glGetUniformLocation(p_colour, "KFP_sRGB"), sRGB);
         // palette
         glActiveTexture(GL_TEXTURE0 + tu_palette);
-        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.colors.size() / 3, 0, GL_BGR, GL_UNSIGNED_BYTE, &req.u.configure.colors[0]);
+        glTexImage1D(GL_TEXTURE_1D, 0, sRGB ? GL_SRGB : GL_RGB, req.colors.size() / 3, 0, GL_BGR, GL_UNSIGNED_BYTE, &req.colors[0]);
         D
         srgb sinterior =
-          { req.u.configure.interior_color[2] / 255.0f
-          , req.u.configure.interior_color[1] / 255.0f
-          , req.u.configure.interior_color[0] / 255.0f
+          { req.interior_color[2] / 255.0f
+          , req.interior_color[1] / 255.0f
+          , req.interior_color[0] / 255.0f
           };
         if (sRGB)
         {
@@ -522,60 +494,58 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         {
           glUniform3f(glGetUniformLocation(p_colour, "KFP_InteriorColor"), sinterior.r, sinterior.g, sinterior.b);
         }
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_Smooth"), req.u.configure.smooth);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_Flat"), req.u.configure.flat);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Smooth"), req.smooth);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Flat"), req.flat);
         // multi waves
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesEnabled"), req.u.configure.multiwaves_enabled);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesBlend"), req.u.configure.multiwaves_blend);
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesCount"), req.u.configure.multiwaves.size() / 3);
-        if (req.u.configure.multiwaves.size() / 3 > 0)
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesEnabled"), req.multiwaves_enabled);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesBlend"), req.multiwaves_blend);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_MultiWavesCount"), req.multiwaves.size() / 3);
+        if (req.multiwaves.size() / 3 > 0)
         {
-          glUniform3iv(glGetUniformLocation(p_colour, "KFP_MultiWaves"), req.u.configure.multiwaves.size() / 3, &req.u.configure.multiwaves[0]);
+          glUniform3iv(glGetUniformLocation(p_colour, "KFP_MultiWaves"), req.multiwaves.size() / 3, &req.multiwaves[0]);
         }
         // slopes
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_Slopes"), req.u.configure.slopes);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_SlopePower"), req.u.configure.slope_power);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_SlopeRatio"), req.u.configure.slope_ratio);
-        glUniform2f(glGetUniformLocation(p_colour, "KFP_SlopeDir"), cos(2.0 * pi * req.u.configure.slope_angle / 360.0), sin(2.0 * pi * req.u.configure.slope_angle / 360.0));
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_Slopes"), req.slopes);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_SlopePower"), req.slope_power);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_SlopeRatio"), req.slope_ratio);
+        glUniform2f(glGetUniformLocation(p_colour, "KFP_SlopeDir"), cos(2.0 * pi * req.slope_angle / 360.0), sin(2.0 * pi * req.slope_angle / 360.0));
         // image texture
-        glUniform1i(glGetUniformLocation(p_colour, "KFP_TextureEnabled"), req.u.configure.texture_enabled);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_TextureMerge"), req.u.configure.texture_merge);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_TexturePower"), req.u.configure.texture_power);
-        glUniform1f(glGetUniformLocation(p_colour, "KFP_TextureRatio"), req.u.configure.texture_ratio);
+        glUniform1i(glGetUniformLocation(p_colour, "KFP_TextureEnabled"), req.texture_enabled);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_TextureMerge"), req.texture_merge);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_TexturePower"), req.texture_power);
+        glUniform1f(glGetUniformLocation(p_colour, "KFP_TextureRatio"), req.texture_ratio);
         D
-        if (req.u.configure.texture_enabled)
+        if (req.texture_enabled)
         {
           glActiveTexture(GL_TEXTURE0 + tu_texture);
-          glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, req.u.configure.texture_width, req.u.configure.texture_height, 0, GL_BGR, GL_UNSIGNED_BYTE, req.u.configure.texture);
+          glTexImage2D(GL_TEXTURE_2D, 0, sRGB ? GL_SRGB : GL_RGB, req.texture_width, req.texture_height, 0, GL_BGR, GL_UNSIGNED_BYTE, req.texture);
         }
         D
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
         D
-        resp.tag = response_configure;
-        fifo_write(responses, resp);
-        break;
+        return resp;
       }
 
-      case request_render:
+  response OpenGL_processor::handle_render(request_render_t req)
       {
         response resp;
 
         const int padding = 1;
-        uint32_t *n_msb = req.u.render.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
-        uint32_t *n_lsb = req.u.render.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
-        float    *n_f   = req.u.render.n_f   ? new float   [max_tile_width * max_tile_height] : nullptr;
-        float    *n_t   = req.u.render.t     ? new float   [max_tile_width * max_tile_height] : nullptr;
-        float    *n_dex = req.u.render.dex   ? new float   [max_tile_width * max_tile_height] : nullptr;
-        float    *n_dey = req.u.render.dey   ? new float   [max_tile_width * max_tile_height] : nullptr;
+        uint32_t *n_msb = req.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
+        uint32_t *n_lsb = req.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
+        float    *n_f   = req.n_f   ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_t   = req.t     ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_dex = req.dex   ? new float   [max_tile_width * max_tile_height] : nullptr;
+        float    *n_dey = req.dey   ? new float   [max_tile_width * max_tile_height] : nullptr;
 
-        for (int64_t tile_y = req.u.render.height + padding; tile_y > 0 - padding; tile_y -= (max_tile_height - 2 * padding))
+        for (int64_t tile_y = req.height + padding; tile_y > 0 - padding; tile_y -= (max_tile_height - 2 * padding))
         {
           const int tile_height = std::min(max_tile_height, tile_y + padding);
-          for (int64_t tile_x = 0 - padding; tile_x < req.u.render.width + padding; tile_x += (max_tile_width - 2 * padding))
+          for (int64_t tile_x = 0 - padding; tile_x < req.width + padding; tile_x += (max_tile_width - 2 * padding))
           {
-            const int tile_width = std::min(max_tile_width, req.u.render.width - tile_x + padding);
+            const int tile_width = std::min(max_tile_width, req.width - tile_x + padding);
             const int64_t skipX = tile_x + padding;
-            const int64_t skipY = req.u.render.height + padding - tile_y;
+            const int64_t skipY = req.height + padding - tile_y;
 
             // copy from arrays to tile; reflect data at image boundaries
             // FIXME assumes tile size >= 3x3
@@ -591,26 +561,26 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
                 float dey = 0;
 
 #define X(dx,dy) \
-  int64_t k1 = (x + (dx)) * req.u.render.height + (y + (dy)); \
-  int64_t k2 = (x + 2*(dx)) * req.u.render.height + (y + 2*(dy)); \
+  int64_t k1 = (x + (dx)) * req.height + (y + (dy)); \
+  int64_t k2 = (x + 2*(dx)) * req.height + (y + 2*(dy)); \
   int64_t neighbour_n = 0; \
   float neighbour_nf = 0; \
   int64_t next_n = 0; \
   float next_nf = 0; \
   if (n_msb) \
   { \
-    neighbour_n += int64_t(req.u.render.n_msb[k1]) << 32; \
-    next_n += int64_t(req.u.render.n_msb[k2]) << 32; \
+    neighbour_n += int64_t(req.n_msb[k1]) << 32; \
+    next_n += int64_t(req.n_msb[k2]) << 32; \
   } \
   if (n_lsb) \
   { \
-    neighbour_n += int64_t(req.u.render.n_lsb[k1]); \
-    next_n += int64_t(req.u.render.n_lsb[k2]); \
+    neighbour_n += int64_t(req.n_lsb[k1]); \
+    next_n += int64_t(req.n_lsb[k2]); \
   } \
   if (n_f) \
   { \
-    neighbour_nf = 1.0f - req.u.render.n_f[k1]; \
-    next_nf = 1.0f - req.u.render.n_f[k2]; \
+    neighbour_nf = 1.0f - req.n_f[k1]; \
+    next_nf = 1.0f - req.n_f[k2]; \
   } \
   f = 2.0f * neighbour_nf - next_nf; \
   int64_t n = neighbour_n + (neighbour_n - next_n); \
@@ -621,82 +591,82 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
   lsb = uint32_t(n      ) & 0xFFFFffffu; \
   if (n_t) \
   { \
-    float neighbour = 6.283185307179586f * req.u.render.t[k1]; \
-    float next = 6.283185307179586f * req.u.render.t[k2]; \
+    float neighbour = 6.283185307179586f * req.t[k1]; \
+    float next = 6.283185307179586f * req.t[k2]; \
     t = std::atan2(2.0 * std::sin(neighbour) - std::sin(next), 2.0 * std::cos(neighbour) - std::cos(next)) / 6.283185307179586f; \
     t -= std::floor(t); \
   } \
   if (n_dex) \
   { \
-    float neighbour = req.u.render.dex[k1]; \
-    float next = req.u.render.dex[k2]; \
+    float neighbour = req.dex[k1]; \
+    float next = req.dex[k2]; \
     dex = 2.0 * neighbour - next; \
   } \
   if (n_dey) \
   { \
-    float neighbour = req.u.render.dey[k1]; \
-    float next = req.u.render.dey[k2]; \
+    float neighbour = req.dey[k1]; \
+    float next = req.dey[k2]; \
     dey = 2.0 * neighbour - next; \
   }
 
-                if (0 <= x && x < req.u.render.width && 0 <= y && y < req.u.render.height)
+                if (0 <= x && x < req.width && 0 <= y && y < req.height)
                 {
                   // middle of tile
-                  int64_t k0 = (x) * req.u.render.height + (y);
+                  int64_t k0 = (x) * req.height + (y);
                   if (n_msb)
                   {
-                    msb = req.u.render.n_msb[k0];
+                    msb = req.n_msb[k0];
                   }
                   if (n_lsb)
                   {
-                    lsb = req.u.render.n_lsb[k0];
+                    lsb = req.n_lsb[k0];
                   }
                   if (n_f)
                   {
-                    f = req.u.render.n_f[k0];
+                    f = req.n_f[k0];
                   }
                   if (n_t)
                   {
-                    t = req.u.render.t[k0];
+                    t = req.t[k0];
                   }
                   if (n_dex)
                   {
-                    dex = req.u.render.dex[k0];
+                    dex = req.dex[k0];
                   }
                   if (n_dey)
                   {
-                    dey = req.u.render.dey[k0];
+                    dey = req.dey[k0];
                   }
                 }
                 else if (x < 0 && y < 0)
                 {
                   X(1, 1)
                 }
-                else if (x < 0 && y < req.u.render.height)
+                else if (x < 0 && y < req.height)
                 {
                   X(1, 0)
                 }
-                else if (x < 0 && req.u.render.height <= y)
+                else if (x < 0 && req.height <= y)
                 {
                   X(1, -1)
                 }
-                else if (x < req.u.render.width && y < 0)
+                else if (x < req.width && y < 0)
                 {
                   X(0, 1)
                 }
-                else if (x < req.u.render.width && req.u.render.height <= y)
+                else if (x < req.width && req.height <= y)
                 {
                   X(0, -1)
                 }
-                else if (req.u.render.width <= x && y < 0)
+                else if (req.width <= x && y < 0)
                 {
                   X(-1, 1)
                 }
-                else if (req.u.render.width <= x && y < req.u.render.height)
+                else if (req.width <= x && y < req.height)
                 {
                   X(-1, 0)
                 }
-                else if (req.u.render.width <= x && req.u.render.height <= y)
+                else if (req.width <= x && req.height <= y)
                 {
                   X(-1, -1)
                 }
@@ -775,18 +745,18 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             glBindFramebuffer(GL_FRAMEBUFFER, f_linear);
             glViewport(0, 0, tile_width - 2 * padding, tile_height - 2 * padding);
             glUseProgram(p_colour);
-            glUniform2i(glGetUniformLocation(p_colour, "ImageSize"), req.u.render.width, req.u.render.height);
-            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x + padding, req.u.render.height + padding - tile_y);
+            glUniform2i(glGetUniformLocation(p_colour, "ImageSize"), req.width, req.height);
+            glUniform2i(glGetUniformLocation(p_colour, "Internal_TileOrigin"), tile_x + padding, req.height + padding - tile_y);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TilePadding"), padding, padding);
             glUniform2i(glGetUniformLocation(p_colour, "Internal_TileSize"), tile_width, tile_height);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            if (req.u.render.rgb16)
+            if (req.rgb16)
             {
               glPixelStorei(GL_PACK_ALIGNMENT, 1);
-              glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
+              glPixelStorei(GL_PACK_ROW_LENGTH, req.width);
               glPixelStorei(GL_PACK_SKIP_PIXELS, skipX);
               glPixelStorei(GL_PACK_SKIP_ROWS, skipY);
-              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_RGB, GL_HALF_FLOAT, req.u.render.rgb16);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_RGB, GL_HALF_FLOAT, req.rgb16);
             }
             D
 
@@ -798,13 +768,13 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
             }
             glUseProgram(p_blit);
             glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-            if (req.u.render.rgb8)
+            if (req.rgb8)
             {
               glPixelStorei(GL_PACK_ALIGNMENT, 4);
-              glPixelStorei(GL_PACK_ROW_LENGTH, req.u.render.width);
+              glPixelStorei(GL_PACK_ROW_LENGTH, req.width);
               glPixelStorei(GL_PACK_SKIP_PIXELS, skipX);
               glPixelStorei(GL_PACK_SKIP_ROWS, skipY);
-              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_BGR, GL_UNSIGNED_BYTE, req.u.render.rgb8);
+              glReadPixels(0, 0, tile_width - 2 * padding, tile_height - 2 * padding, GL_BGR, GL_UNSIGNED_BYTE, req.rgb8);
             }
             if (sRGB)
             {
@@ -828,30 +798,61 @@ void opengl_thread(fifo<request> &requests, fifo<response> &responses)
         D
 
         // flip half image vertically (EXR origin top left, BMP bottom left)
-        if (req.u.render.rgb16)
+        if (req.rgb16)
         {
-          int64_t count = 3 * req.u.render.width;
+          int64_t count = 3 * req.width;
           int64_t bytes = count * sizeof(half);
           half *tmp = new half[count];
-          for (int64_t y1 = 0; y1 < req.u.render.height / 2; ++y1)
+          for (int64_t y1 = 0; y1 < req.height / 2; ++y1)
           {
-            int64_t y2 = req.u.render.height - 1 - y1;
+            int64_t y2 = req.height - 1 - y1;
             int64_t skip1 = y1 * count;
             int64_t skip2 = y2 * count;
-            std::memcpy(tmp, req.u.render.rgb16 + skip1, bytes);
-            std::memcpy(req.u.render.rgb16 + skip1, req.u.render.rgb16 + skip2, bytes);
-            std::memcpy(req.u.render.rgb16 + skip2, tmp, bytes);
+            std::memcpy(tmp, req.rgb16 + skip1, bytes);
+            std::memcpy(req.rgb16 + skip1, req.rgb16 + skip2, bytes);
+            std::memcpy(req.rgb16 + skip2, tmp, bytes);
           }
           delete[] tmp;
         }
 
-        resp.tag = response_render;
-        fifo_write(responses, resp);
-        break;
+        return resp;
       }
+
+  response OpenGL_processor::handler(request req) {
+    switch (req.tag) {
+      case request_quit:
+        return handle_quit();
+      case request_init:
+        return handle_init();
+      case request_deinit:
+        return handle_deinit();
+      case request_compile:
+        return handle_compile(req.u.compile);
+      case request_configure:
+        return handle_configure(req.u.configure);
+      case request_render:
+        return handle_render(req.u.render);
     }
+  }
+
+OpenGL_processor::~OpenGL_processor() {}
+
+#if 0 // ndef KF_EMBED
+void opengl_thread(fifo<request> &requests, fifo<response> &responses)
+  OpenGL_proc gl();
+
+  request req;
+  response resp;
+  while (fifo_read(requests, req))
+  {
+    resp = gl.handler(req);
+    resp.tag = req.tag;
+    fifo_write(responses, resp);
+    if(req.tag == request_quit)
+      break;
   }
 }
 
 fifo<request> to_opengl;
 fifo<response> from_opengl;
+#endif

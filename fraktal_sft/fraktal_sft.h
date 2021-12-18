@@ -37,6 +37,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "main_numbertype.h"
 
 #include "defs.h"
+#include "opengl.h"
 
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
@@ -227,6 +228,7 @@ public:
 #ifdef KF_OPENCL
 	std::vector<cldevice> m_cldevices;
 #endif
+	std::unique_ptr<OpenGL_processor> m_OpenGL;
 	int m_opengl_major;
 	int m_opengl_minor;
 	BOOL m_bRunning;
@@ -559,8 +561,6 @@ extern double g_SeedR;
 extern double g_SeedI;
 extern double g_FactorAR;
 extern double g_FactorAI;
-
-const double pi = 3.141592653589793;
 
 extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
 extern int MakePrime(int n);
