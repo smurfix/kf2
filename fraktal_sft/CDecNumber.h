@@ -50,38 +50,38 @@ class CDecNumber
 public:
 	decNumber m_dec;
 
-  inline CDecNumber()
-  {
+	inline CDecNumber()
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = 0;
 	};
-  inline CDecNumber(const CDecNumber &a)
-  {
+	inline CDecNumber(const CDecNumber &a)
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), a.m_dec.precision()));
 		m_dec = a.m_dec;
 	};
-  inline CDecNumber(const decNumber &a)
-  {
+	inline CDecNumber(const decNumber &a)
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), a.precision()));
 		m_dec = a;
 	};
-  inline CDecNumber(const char *a)
-  {
+	inline CDecNumber(const char *a)
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), unsigned(strlen(a))));
 		Precision p(m_dec.precision());
 		m_dec = decNumber(a);
 	};
-  inline CDecNumber(const std::string &a)
-  : CDecNumber(a.c_str())
-  {
+	inline CDecNumber(const std::string &a)
+	: CDecNumber(a.c_str())
+	{
 	};
-  inline CDecNumber(double a)
-  {
+	inline CDecNumber(double a)
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
 	};
-  inline CDecNumber(int a)
-  {
+	inline CDecNumber(int a)
+	{
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = a;
 	};
@@ -116,40 +116,40 @@ public:
 		return tfloatexp<mantissa, exponent>(v, e);
 	}
 
-  inline ~CDecNumber()
-  {
+	inline ~CDecNumber()
+	{
 	};
 
-  inline CDecNumber &operator*=(double b)
-  {
+	inline CDecNumber &operator*=(double b)
+	{
 		m_dec *= b;
 		return *this;
 	}
 
-  inline friend CDecNumber operator-(const CDecNumber &a);
-  inline friend CDecNumber operator+(const CDecNumber &a, const CDecNumber &b);
-  inline friend CDecNumber operator-(const CDecNumber &a, const CDecNumber &b);
-  inline friend CDecNumber operator*(const CDecNumber &a, const CDecNumber &b);
-  inline friend CDecNumber operator/(const CDecNumber &a, const CDecNumber &b);
-  inline friend CDecNumber operator^(const CDecNumber &a, int b);
+	inline friend CDecNumber operator-(const CDecNumber &a);
+	inline friend CDecNumber operator+(const CDecNumber &a, const CDecNumber &b);
+	inline friend CDecNumber operator-(const CDecNumber &a, const CDecNumber &b);
+	inline friend CDecNumber operator*(const CDecNumber &a, const CDecNumber &b);
+	inline friend CDecNumber operator/(const CDecNumber &a, const CDecNumber &b);
+	inline friend CDecNumber operator^(const CDecNumber &a, int b);
 
-  inline friend bool operator>(const CDecNumber &a, int b);
-  inline friend bool operator<(const CDecNumber &a, int b);
-  inline friend bool operator==(const CDecNumber &a, int b);
-  inline friend bool operator<(const CDecNumber &a, const CDecNumber &b);
+	inline friend bool operator>(const CDecNumber &a, int b);
+	inline friend bool operator<(const CDecNumber &a, int b);
+	inline friend bool operator==(const CDecNumber &a, int b);
+	inline friend bool operator<(const CDecNumber &a, const CDecNumber &b);
 
-  inline friend CDecNumber sqrt(const CDecNumber &a);
+	inline friend CDecNumber sqrt(const CDecNumber &a);
 
-  std::string ToText() const;
+	std::string ToText() const;
 
-  inline int ToInt() const
-  {
+	inline int ToInt() const
+	{
 		return int(m_dec);
 	};
-  explicit inline operator double() const
-  {
-	return mpfr_get_d(m_dec.backend().data(), MPFR_RNDN);
-  };
+	explicit inline operator double() const
+	{
+		return mpfr_get_d(m_dec.backend().data(), MPFR_RNDN);
+	};
 };
 
 inline CDecNumber operator-(const CDecNumber &a)
