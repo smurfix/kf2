@@ -421,7 +421,10 @@ public:
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
 	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
+
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &radius);
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
+	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
 	std::string ToZoom();
 	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
