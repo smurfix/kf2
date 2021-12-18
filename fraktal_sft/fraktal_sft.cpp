@@ -1514,11 +1514,11 @@ void CFraktalSFT::SetPosition(const CFixedFloat &re, const CFixedFloat &im, cons
 	m_nY = nY;
 }
 
-void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &radius)
+void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom)
 {
 
 	long e = 0;
-	mpfr_get_d_2exp(&e, radius.m_dec.backend().data(), MPFR_RNDN);
+	mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
 	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
 
 	Precision pHi(digits10);
@@ -1527,7 +1527,7 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	m_CenterRe.m_f.precision(digits10);
 	m_CenterIm.m_f.precision(digits10);
 	m_ZoomRadius.m_f.precision(20u);
-	SetPosition(re.m_dec, im.m_dec, radius.m_dec, m_nX, m_nY);
+	SetPosition(re.m_dec, im.m_dec, (2/zoom).m_dec, m_nX, m_nY);
 }
 
 #ifndef KF_EMBED
@@ -1540,7 +1540,6 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 
 		Precision pLo(20u);
 		CDecNumber z(szZ); // throws on bad string
-		z = 2/z;
 
 		SetPosition(re.m_dec, im.m_dec, z.m_dec);
 	}
