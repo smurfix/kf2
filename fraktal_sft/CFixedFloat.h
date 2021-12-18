@@ -45,6 +45,16 @@ public:
 		m_f = a.m_f;
 	};
 
+#if KF_EMBED
+	inline CFixedFloat(const gmpNumber &a)
+	{
+		unsigned p = a.precision();
+		Precision q(p);
+		m_f.precision(p);
+		m_f = a;
+	};
+#endif
+
 	inline CFixedFloat(const FixedFloat &a)
 	{
 		unsigned p = a.precision();
