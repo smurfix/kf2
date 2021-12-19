@@ -136,27 +136,19 @@ const char *blit_frag =
   ;
 
 
-  response OpenGL_processor::handle_quit()
+  bool OpenGL_processor::init(int &r_major, int &r_minor, std::string &r_message)
       {
-        response resp;
-        return resp;
-      }
-
-  response OpenGL_processor::handle_init()
-      {
-        response resp;
         if (! glfwInit())
         {
-          resp.u.init.success = false;
           std::cerr << "error: glfwInit()" << std::endl;
-          return resp;
+          return false;
         }
         const int nversions = 11;
         const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3 };
         const int minor[] = { 6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0 };
         const int glslv[] = { 460, 450, 440, 430, 420, 410, 400, 330, 150, 140, 130 };
-        resp.u.init.major = 0;
-        resp.u.init.minor = 0;
+        r_major = 0;
+        r_minor = 0;
         for (int k = 0; k < nversions; ++k)
         {
           glfwDefaultWindowHints();
@@ -181,17 +173,16 @@ const char *blit_frag =
           window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
           if (window)
           {
-            resp.u.init.major = major[k];
-            resp.u.init.minor = minor[k];
+            r_major = major[k];
+            r_minor = minor[k];
             break;
           }
         }
         if (! window)
         {
           glfwTerminate();
-          resp.u.init.success = false;
-          resp.u.init.message = "error: could not create OpenGL context with version 3.0 or greater\n";
-          return resp;
+          r_message = "error: could not create OpenGL context with version 3.0 or greater\n";
+          return false;
         }
         glfwMakeContextCurrent(window);
         if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -199,9 +190,8 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          resp.u.init.success = false;
-          resp.u.init.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
-          return resp;
+          r_message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
+          return false;
         }
 
         std::string vertex_log, fragment_log, link_log;
@@ -212,13 +202,12 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          resp.u.init.success = false;
-          resp.u.init.message =
+          r_message =
             "error: could not compile internal shader:\n" +
             vertex_log + nl +
             fragment_log + nl +
             link_log + nl;
-          return resp;
+          return false;
         }
         glUseProgram(p_blit);
         glUniform1i(glGetUniformLocation(p_blit, "t"), tu_rgb16);
@@ -353,13 +342,11 @@ const char *blit_frag =
         glBindVertexArray(vao);
         D
 
-        resp.u.init.success = true;
-        return resp;
+        return true;
       }
 
-  response OpenGL_processor::handle_deinit()
+  OpenGL_processor::~OpenGL_processor()
       {
-        response resp;
         if (vao)
         {
           glDeleteVertexArrays(1, &vao);
@@ -432,30 +419,26 @@ const char *blit_frag =
           window = nullptr;
         }
         glfwTerminate();
-        return resp;
       }
 
-  response OpenGL_processor::handle_compile(request_compile_t req)
+  bool OpenGL_processor::compile(const std::string &fragment_src, std::string &log)
       {
-        response resp;
-        resp.u.compile.vertex_log = "";
-        resp.u.compile.fragment_log = "";
-        resp.u.compile.link_log = "";
-        if (m_fragment_src == req.fragment_src) {
-          resp.u.compile.success = (m_fragment_src.length() > 0);
-          return resp;
+        std::string vertex_log;
+        std::string fragment_log;
+        std::string link_log;
+        if (m_fragment_src == fragment_src) {
+          return (m_fragment_src.length() > 0);
         }
-        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
+        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, fragment_src.c_str(), vertex_log, fragment_log, link_log);
         D
-        resp.u.compile.success = p_colour > 0;
-        if (resp.u.compile.success)
-          m_fragment_src = req.fragment_src;
-        return resp;
+        bool res = p_colour > 0;
+        if (res)
+          m_fragment_src = fragment_src;
+        return res;
       }
 
-  response OpenGL_processor::handle_configure(request_configure_t req)
+  bool OpenGL_processor::configure(const request_configure_t &req)
       {
-        response resp;
         glUseProgram(p_colour);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N1"), tu_n_msb);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N0"), tu_n_lsb);
@@ -529,13 +512,11 @@ const char *blit_frag =
         D
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
         D
-        return resp;
+        return true;
       }
 
-  response OpenGL_processor::handle_render(request_render_t req)
+  bool OpenGL_processor::render(const request_render_t &req)
       {
-        response resp;
-
         const int padding = 1;
         uint32_t *n_msb = req.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
         uint32_t *n_lsb = req.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
@@ -821,44 +802,6 @@ const char *blit_frag =
           delete[] tmp;
         }
 
-        return resp;
+        return true;
       }
 
-  response OpenGL_processor::handler(request req) {
-    switch (req.tag) {
-      case request_quit:
-        return handle_quit();
-      case request_init:
-        return handle_init();
-      case request_deinit:
-        return handle_deinit();
-      case request_compile:
-        return handle_compile(req.u.compile);
-      case request_configure:
-        return handle_configure(req.u.configure);
-      case request_render:
-        return handle_render(req.u.render);
-    }
-  }
-
-OpenGL_processor::~OpenGL_processor() {}
-
-#if 0 // ndef KF_EMBED
-void opengl_thread(fifo<request> &requests, fifo<response> &responses)
-  OpenGL_proc gl();
-
-  request req;
-  response resp;
-  while (fifo_read(requests, req))
-  {
-    resp = gl.handler(req);
-    resp.tag = req.tag;
-    fifo_write(responses, resp);
-    if(req.tag == request_quit)
-      break;
-  }
-}
-
-fifo<request> to_opengl;
-fifo<response> from_opengl;
-#endif

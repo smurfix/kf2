@@ -291,17 +291,14 @@ bool CFraktalSFT::UseOpenGL()
 
 	OpenGL_processor *opengl = new OpenGL_processor();
 
-	request req;
-	req.tag = request_init;
-	response resp = opengl->handler(req);
-	if(!resp.u.init.success) {
+	m_sGLSLLog.clear();
+	bool ok = opengl->init(m_opengl_major, m_opengl_minor, m_sGLSLLog);
+	if(!ok) {
 		delete opengl;
 		m_bBadOpenGL = true;
 		return false;
 	}
-	m_opengl_major = resp.u.init.major;
-	m_opengl_minor = resp.u.init.minor;
-	SetGLSLLog(resp.u.init.message);
+	m_bBadOpenGL = false;
 
 	m_OpenGL.reset(opengl);
 	return true;
@@ -313,12 +310,10 @@ void CFraktalSFT::SetUseOpenGL(bool gl)
 	if(gl)
 		return;
 
-	// Disable OpenGL: delete the backend safely
+	// Disable OpenGL: delete the backend
 	OpenGL_processor *openGL = m_OpenGL.release();
 	if(openGL) {
-		request req;
-		req.tag = request_deinit;
-		response resp = openGL->handler(req);
+		m_bBadOpenGL = false;  // allow for retrying
 		delete openGL;
 	}
 }
@@ -1257,98 +1252,90 @@ void CFraktalSFT::ApplyColors()
 		{
 			if (m_bGLSLChanged)
 			{
-				request req;
-				req.tag = request_compile;
-				req.u.compile.fragment_src = GetGLSL();
-				response resp = HandleOpenGL(req);
-				std::string nl = "\n";
-				SetGLSLLog
-					( (resp.u.compile.success ? "compiled" : "NOT COMPILED") + nl
-					+ resp.u.compile.vertex_log + nl
-					+ resp.u.compile.fragment_log + nl
-					+ resp.u.compile.link_log + nl
-					);
-				m_bGLSLCompiled = resp.u.compile.success;
+				m_bGLSLCompiled = OpenGL_Compile(m_sGLSL, m_sGLSLLog);
 				m_bGLSLChanged = false;
 			}
 			if (m_bGLSLCompiled)
 			{
-				request req;
-				req.tag = request_configure;
-				req.u.configure.iterations = GetIterations();
-				GetIterations(req.u.configure.iterations_min, req.u.configure.iterations_max, nullptr, nullptr, true);
-				req.u.configure.jitter_seed = GetJitterSeed();
-				req.u.configure.jitter_shape = GetJitterShape();
-				req.u.configure.jitter_scale = GetJitterScale();
-				req.u.configure.show_glitches = GetShowGlitches();
-				req.u.configure.iter_div = GetIterDiv();
-				req.u.configure.color_offset = GetColorOffset();
-				req.u.configure.color_method = GetColorMethod();
-				req.u.configure.differences = GetDifferences();
-				req.u.configure.color_phase_strength = GetPhaseColorStrength();
-				req.u.configure.colors.clear();
+				request_configure_t req;
+
+				req.iterations = GetIterations();
+				GetIterations(req.iterations_min, req.iterations_max, nullptr, nullptr, true);
+				req.jitter_seed = GetJitterSeed();
+				req.jitter_shape = GetJitterShape();
+				req.jitter_scale = GetJitterScale();
+				req.show_glitches = GetShowGlitches();
+				req.iter_div = GetIterDiv();
+				req.color_offset = GetColorOffset();
+				req.color_method = GetColorMethod();
+				req.differences = GetDifferences();
+				req.color_phase_strength = GetPhaseColorStrength();
+				req.colors.clear();
 				for (int i = 0; i < m_nParts; ++i)
 				{
-					req.u.configure.colors.push_back(m_cKeys[i].r);
-					req.u.configure.colors.push_back(m_cKeys[i].g);
-					req.u.configure.colors.push_back(m_cKeys[i].b);
+					req.colors.push_back(m_cKeys[i].r);
+					req.colors.push_back(m_cKeys[i].g);
+					req.colors.push_back(m_cKeys[i].b);
 				}
 				COLOR14 interior = GetInteriorColor();
-				req.u.configure.interior_color[0] = interior.r;
-				req.u.configure.interior_color[1] = interior.g;
-				req.u.configure.interior_color[2] = interior.b;
-				req.u.configure.smooth = m_bTrans;
-				req.u.configure.flat = GetFlat();
-				req.u.configure.multiwaves_enabled = m_bMW;
-				req.u.configure.multiwaves_blend = m_bBlend;
-				req.u.configure.multiwaves.clear();
+				req.interior_color[0] = interior.r;
+				req.interior_color[1] = interior.g;
+				req.interior_color[2] = interior.b;
+				req.smooth = m_bTrans;
+				req.flat = GetFlat();
+				req.multiwaves_enabled = m_bMW;
+				req.multiwaves_blend = m_bBlend;
+				req.multiwaves.clear();
 				for (int i = 0; i < m_nMW; ++i)
 				{
-					req.u.configure.multiwaves.push_back(m_MW[i].nPeriod);
-					req.u.configure.multiwaves.push_back(m_MW[i].nStart);
-					req.u.configure.multiwaves.push_back(m_MW[i].nType);
+					req.multiwaves.push_back(m_MW[i].nPeriod);
+					req.multiwaves.push_back(m_MW[i].nStart);
+					req.multiwaves.push_back(m_MW[i].nType);
 				}
-				req.u.configure.inverse_transition = GetITransition();
+				req.inverse_transition = GetITransition();
 				{
 					int p = 0, r = 0, a = 0;
-					req.u.configure.slopes = GetSlopes(p, r, a);
-					req.u.configure.slope_power = p;
-					req.u.configure.slope_ratio = r;
-					req.u.configure.slope_angle = a;
+					req.slopes = GetSlopes(p, r, a);
+					req.slope_power = p;
+					req.slope_ratio = r;
+					req.slope_angle = a;
 				}
 				{
 					double m = 0, p = 0;
 					int r = 0;
 					std::string f;
-					req.u.configure.texture_enabled = GetTexture(m, p, r, f);
-					req.u.configure.texture_merge = m;
-					req.u.configure.texture_power = p;
-					req.u.configure.texture_ratio = r;
-					req.u.configure.texture_width = m_bmiBkg.biWidth;
-					req.u.configure.texture_height = m_bmiBkg.biHeight;
-					req.u.configure.texture = m_lpTextureBits; // FIXME row alignment?
+					req.texture_enabled = GetTexture(m, p, r, f);
+					req.texture_merge = m;
+					req.texture_power = p;
+					req.texture_ratio = r;
+					req.texture_width = m_bmiBkg.biWidth;
+					req.texture_height = m_bmiBkg.biHeight;
+					req.texture = m_lpTextureBits; // FIXME row alignment?
 				}
-				req.u.configure.use_srgb = GetUseSRGB();
+				req.use_srgb = GetUseSRGB();
 				{
 					CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
 					floatexp zoomFE = floatexp(zoom);
-					req.u.configure.zoom_log2 = double(log2(zoomFE));
+					req.zoom_log2 = double(log2(zoomFE));
 				}
-				response resp = HandleOpenGL(req);
 
-				req.tag = request_render;
-				req.u.render.width = m_nX;
-				req.u.render.height = m_nY;
-				req.u.render.n_msb = m_nPixels_MSB;
-				req.u.render.n_lsb = m_nPixels_LSB;
-				req.u.render.n_f = m_nTrans ? &m_nTrans[0][0] : nullptr;
-				req.u.render.t = m_nPhase ? &m_nPhase[0][0] : nullptr;
-				req.u.render.dex = m_nDEx ? &m_nDEx[0][0] : nullptr;
-				req.u.render.dey = m_nDEy ? &m_nDEy[0][0] : nullptr;
-				req.u.render.rgb16 = m_imageHalf;
-				req.u.render.rgb8 = m_lpBits; // FIXME row alignment?
-				resp = HandleOpenGL(req);
-				opengl_rendered = true;
+				opengl_rendered = OpenGL_Configure(req);
+			}
+			if(opengl_rendered) {
+				request_render_t req;
+
+				req.width = m_nX;
+				req.height = m_nY;
+				req.n_msb = m_nPixels_MSB;
+				req.n_lsb = m_nPixels_LSB;
+				req.n_f = m_nTrans ? &m_nTrans[0][0] : nullptr;
+				req.t = m_nPhase ? &m_nPhase[0][0] : nullptr;
+				req.dex = m_nDEx ? &m_nDEx[0][0] : nullptr;
+				req.dey = m_nDEy ? &m_nDEy[0][0] : nullptr;
+				req.rgb16 = m_imageHalf;
+				req.rgb8 = m_lpBits; // FIXME row alignment?
+
+				opengl_rendered = OpenGL_Render(req);
 			}
 		}
 		if (opengl_rendered)

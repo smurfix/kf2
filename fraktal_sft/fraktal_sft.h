@@ -549,10 +549,14 @@ public:
 
 	// OpenGL accessors
 	bool UseOpenGL();  // initializes OpenGL if enabled+necessary, true if useable
-	inline response HandleOpenGL(request req) // OpenGL message exchange
-	{
-		return m_OpenGL->handler(req);
-	}
+
+	// Only call these if UseOpenGL() is true!
+	inline bool OpenGL_Configure(const request_configure_t &req)
+		{ return m_OpenGL->configure(req); }
+	inline bool OpenGL_Compile(const std::string &fragment_src, std::string &log)
+		{ return m_OpenGL->compile(fragment_src, log); }
+	inline bool OpenGL_Render(const request_render_t &req)
+		{ return m_OpenGL->render(req); }
 
 	inline bool GetUseOpenGL() { return m_bUseOpenGL; }
 	void SetUseOpenGL(bool gl);  // turns it off when !gl

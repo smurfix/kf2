@@ -28,41 +28,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "defs.h"
 
-#if 0
-#include "fifo.h"
-#endif
-
-enum request_t
-{
-  request_quit,
-  request_init,
-  request_deinit,
-  request_compile,
-  request_configure,
-  request_render
-};
-
-struct response_init_t
-{
-  bool success;
-  int major;
-  int minor;
-  std::string message;
-};
-
-struct request_compile_t
-{
-  std::string fragment_src;
-};
-
-struct response_compile_t
-{
-  bool success;
-  std::string vertex_log;
-  std::string fragment_log;
-  std::string link_log;
-};
-
 struct request_configure_t
 {
   int64_t jitter_seed;
@@ -117,40 +82,14 @@ struct request_render_t
   unsigned char *rgb8;
 };
 
-struct request
-{
-  request_t tag;
-  struct
-  {
-    request_compile_t compile;
-    request_configure_t configure;
-    request_render_t render;
-  } u;
-};
-
-struct response
-{
-  request_t tag;
-  struct
-  {
-    response_init_t init;
-    response_compile_t compile;
-  } u;
-};
-
-#if 0
-extern fifo<request> to_opengl;
-extern fifo<response> from_opengl;
-void opengl_thread(fifo<request> &requests, fifo<response> &responses);
-#endif
-
 class OpenGL_processor
 {
-private:
+public:
   const int64_t max_tile_width = 1024;
   const int64_t max_tile_height = 1024;
   const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7,tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
 
+private:
   std::string m_fragment_src;
   GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
   std::string version;
@@ -161,18 +100,14 @@ private:
   // default is false (incorrect blending) for historical reasons
   bool sRGB = false;
 
-  response handle_quit();
-  response handle_init();
-  response handle_deinit();
-  response handle_compile(request_compile_t req);
-  response handle_configure(request_configure_t req);
-  response handle_render(request_render_t req);
-
 public:
+  bool init(int &major, int &minor, std::string &message);
+  bool compile(const std::string &fragment_src, std::string &log);
+  bool configure(const request_configure_t &req);
+  bool render(const request_render_t &req);
   
   OpenGL_processor() {}
   ~OpenGL_processor();
-  response handler(request req);
 };
 
 #endif
