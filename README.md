@@ -1751,6 +1751,9 @@ earlier).
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
 - presets menu could be populated from a folder of KFS settings files
 - "zoom size is not 2" warning should have an "ok, fix it for me" option
+- option to disable progressive display sorting and just do left-right
+  top-bottom for each progressive interlacing level, saving time and
+  memory
 
 ### Calculations
 
