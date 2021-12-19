@@ -218,10 +218,13 @@ class CFraktalSFT
 	bool m_UseHybridFormula;
 	hybrid_formula m_HybridFormula;
 
-	bool m_bUseOpenGL;
-	std::string m_sGLSL;
-	std::string m_sGLSLLog;
-	bool m_bGLSLChanged;
+	// OpenGL vars
+	bool m_bUseOpenGL;       // use it at all?
+	bool m_bBadOpenGL;       // init failed: unuseable.
+	std::string m_sGLSL;     // shader code fragment
+	std::string m_sGLSLLog;  // compilation log
+	bool m_bGLSLChanged;     // changed since last compile
+	bool m_bGLSLCompiled;    // false == not compileable
 	bool m_bUseSRGB;
 
 public:
@@ -229,6 +232,7 @@ public:
 	std::vector<cldevice> m_cldevices;
 #endif
 	std::unique_ptr<OpenGL_processor> m_OpenGL;
+
 	int m_opengl_major;
 	int m_opengl_minor;
 	BOOL m_bRunning;
@@ -542,13 +546,21 @@ public:
 	{
 		m_HybridFormula = h;
 	};
+
+	// OpenGL accessors
+	bool UseOpenGL();  // initializes OpenGL if enabled+necessary, true if useable
+	inline response HandleOpenGL(request req) // OpenGL message exchange
+	{
+		return m_OpenGL->handler(req);
+	}
+
 	inline bool GetUseOpenGL() { return m_bUseOpenGL; }
-	inline void SetUseOpenGL(bool gl) { m_bUseOpenGL = gl; }
-	inline std::string GetGLSL() { return m_sGLSL; }
+	void SetUseOpenGL(bool gl);  // turns it off when !gl
+	inline std::string GetGLSL() { return m_sGLSL; } // current shader fragment
 	inline void SetGLSL(const std::string &gl) { m_bGLSLChanged |= (m_sGLSL != gl); m_sGLSL = gl; }
-	inline std::string GetGLSLLog() { return m_sGLSLLog; }
+	inline std::string GetGLSLLog() { return m_sGLSLLog; } // compile log
 	inline void SetGLSLLog(const std::string &gl) { m_sGLSLLog = gl; }
-	inline bool GetUseSRGB() { return m_bUseSRGB; }
+	inline bool GetUseSRGB() { return m_bUseSRGB; } // shader's SRGB flag
 	inline void SetUseSRGB(bool b) { m_bUseSRGB = b; }
 };
 

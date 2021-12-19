@@ -441,9 +441,15 @@ const char *blit_frag =
         resp.u.compile.vertex_log = "";
         resp.u.compile.fragment_log = "";
         resp.u.compile.link_log = "";
+        if (m_fragment_src == req.fragment_src) {
+          resp.u.compile.success = (m_fragment_src.length() > 0);
+          return resp;
+        }
         p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.fragment_src.c_str(), resp.u.compile.vertex_log, resp.u.compile.fragment_log, resp.u.compile.link_log);
         D
         resp.u.compile.success = p_colour > 0;
+        if (resp.u.compile.success)
+          m_fragment_src = req.fragment_src;
         return resp;
       }
 

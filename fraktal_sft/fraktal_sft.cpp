@@ -240,6 +240,8 @@ CFraktalSFT::CFraktalSFT()
 	}
 
 	m_bUseOpenGL = false;
+	m_bBadOpenGL = false;
+	m_bGLSLChanged = true;
 	m_sGLSL = KF_DEFAULT_GLSL;
 
 	m_bIsRendering = false;
@@ -279,6 +281,48 @@ CFraktalSFT::CFraktalSFT()
 , FALSE);
 	ApplyColors();
 }
+
+bool CFraktalSFT::UseOpenGL()
+{
+	if(!m_bUseOpenGL || m_bBadOpenGL)
+		return false;
+	if(m_OpenGL)
+		return true;
+
+	OpenGL_processor *opengl = new OpenGL_processor();
+
+	request req;
+	req.tag = request_init;
+	response resp = opengl->handler(req);
+	if(!resp.u.init.success) {
+		delete opengl;
+		m_bBadOpenGL = true;
+		return false;
+	}
+	m_opengl_major = resp.u.init.major;
+	m_opengl_minor = resp.u.init.minor;
+	SetGLSLLog(resp.u.init.message);
+
+	m_OpenGL.reset(opengl);
+	return true;
+}
+
+void CFraktalSFT::SetUseOpenGL(bool gl)
+{
+	m_bUseOpenGL = gl;
+	if(gl)
+		return;
+
+	// Disable OpenGL: delete the backend safely
+	OpenGL_processor *openGL = m_OpenGL.release();
+	if(openGL) {
+		request req;
+		req.tag = request_deinit;
+		response resp = openGL->handler(req);
+		delete openGL;
+	}
+}
+
 void CFraktalSFT::GenerateColors(int nParts, int nSeed)
 {
 	m_nParts = nParts;
@@ -705,7 +749,7 @@ static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x, int y, int w, int h)
 {
-	if (m_bInhibitColouring || GetUseOpenGL()) return;
+	if (m_bInhibitColouring || UseOpenGL()) return;
 	srgb s;
 	s.r = 0;
 	s.g = 0;
@@ -1191,11 +1235,6 @@ static int ThApplyColors(TH_PARAMS *pMan)
 	return 0;
 }
 
-#ifdef KF_OPENGL
-static bool opengl_initialized = false;
-static bool opengl_compiled = false;
-#endif
-
 void CFraktalSFT::ApplyColors()
 {
 #ifndef KF_EMBED
@@ -1213,30 +1252,15 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-#ifdef KF_OPENGL
 		bool opengl_rendered = false;
-		if (GetUseOpenGL())
+		if (UseOpenGL())
 		{
-			if (! opengl_initialized)
-			{
-				request req;
-				req.tag = request_init;
-				response resp = m_OpenGL->handler(req);
-				opengl_initialized = resp.u.init.success;
-				m_opengl_major = resp.u.init.major;
-				m_opengl_minor = resp.u.init.minor;
-				SetGLSLLog(resp.u.init.message);
-				if (! opengl_initialized)
-				{
-					SetUseOpenGL(false);
-				}
-			}
-			if (opengl_initialized && ((! opengl_compiled) || m_bGLSLChanged))
+			if (m_bGLSLChanged)
 			{
 				request req;
 				req.tag = request_compile;
 				req.u.compile.fragment_src = GetGLSL();
-				response resp = m_OpenGL->handler(req);
+				response resp = HandleOpenGL(req);
 				std::string nl = "\n";
 				SetGLSLLog
 					( (resp.u.compile.success ? "compiled" : "NOT COMPILED") + nl
@@ -1244,10 +1268,10 @@ void CFraktalSFT::ApplyColors()
 					+ resp.u.compile.fragment_log + nl
 					+ resp.u.compile.link_log + nl
 					);
-				opengl_compiled = resp.u.compile.success;
+				m_bGLSLCompiled = resp.u.compile.success;
 				m_bGLSLChanged = false;
 			}
-			if (opengl_initialized && opengl_compiled)
+			if (m_bGLSLCompiled)
 			{
 				request req;
 				req.tag = request_configure;
@@ -1310,11 +1334,8 @@ void CFraktalSFT::ApplyColors()
 					floatexp zoomFE = floatexp(zoom);
 					req.u.configure.zoom_log2 = double(log2(zoomFE));
 				}
-				response resp = m_OpenGL->handler(req);
-			}
-			if (opengl_initialized && opengl_compiled)
-			{
-				request req;
+				response resp = HandleOpenGL(req);
+
 				req.tag = request_render;
 				req.u.render.width = m_nX;
 				req.u.render.height = m_nY;
@@ -1326,7 +1347,7 @@ void CFraktalSFT::ApplyColors()
 				req.u.render.dey = m_nDEy ? &m_nDEy[0][0] : nullptr;
 				req.u.render.rgb16 = m_imageHalf;
 				req.u.render.rgb8 = m_lpBits; // FIXME row alignment?
-				response resp = m_OpenGL->handler(req);
+				resp = HandleOpenGL(req);
 				opengl_rendered = true;
 			}
 		}
@@ -1334,7 +1355,6 @@ void CFraktalSFT::ApplyColors()
 		{
 		}
 		else
-#endif // KF_OPENGL
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);

@@ -150,6 +150,8 @@ private:
   const int64_t max_tile_width = 1024;
   const int64_t max_tile_height = 1024;
   const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7,tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
+
+  std::string m_fragment_src;
   GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
   std::string version;
   GLuint p_colour = 0, p_blit = 0, f_linear = 0, f_srgb = 0;
