@@ -1539,7 +1539,6 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	SetPosition(re.m_dec, im.m_dec, (2/zoom).m_dec, m_nX, m_nY);
 }
 
-#ifndef KF_EMBED
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
 	CDecNumber re, im, z;
@@ -1566,7 +1565,6 @@ void CFraktalSFT::SetPosition(const char *const szR, const char *const szI, cons
 {
 	SetPosition(std::string(szR), std::string(szI), std::string(szZ));
 }
-#endif
 
 #ifdef KF_OPENCL
 
