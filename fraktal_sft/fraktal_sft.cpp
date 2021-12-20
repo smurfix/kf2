@@ -2453,7 +2453,7 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	m_nY = ny;
 	m_nXPrev = m_nX;
 	m_nYPrev = m_nY;
-	bool two = GetIterations() >= INT_MAX;
+	bool two = GetIterations() >= UINT32_MAX;
 	if (! m_nPixels_LSB)
 	{
 		m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
