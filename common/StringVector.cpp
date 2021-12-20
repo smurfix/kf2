@@ -33,6 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //#include "stdafx.h"
 #include <windows.h>
 #include <fstream>
+#include <sstream>
 #include "StringVector.h"
 
 #define stricmp strcasecmp
@@ -831,20 +832,15 @@ bool CStringTable::ReadCSV(char *szFileName)
 	if(!hFile)
 		return 0;
 
-	hFile.seekg (0, hFile.end);
-	size_t nLen = hFile.tellg();
-	hFile.seekg (0, hFile.beg);
+	std::stringstream buffer;
+	buffer << hFile.rdbuf();     
+	if(hFile.bad())
+		return false;
 
-	char *szData = new char[nLen+1];
-	hFile.read(szData, nLen);
-	bool good = hFile.good();
-	if (good) {
-		szData[nLen]=0;
-		AddRow();
-		SplitString(szData,";","\r\n");
-	}
-	delete[] szData;
-	return good;
+	std::string data = buffer.str();
+	AddRow();
+	SplitString(data.c_str(),";","\r\n");
+	return true;
 }
 
 char *stristr(char *src, char *find)
@@ -1020,7 +1016,7 @@ bool CStringTable::Save(char *szFile)
 bool CStringTable::Load(char *szFile)
 {
 	int i, j, nLen;
-	std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
+	std::ifstream hFile(szFile, std::ios::in);
 	if(!hFile)
 		return 0;
 	while(m_nVektors)

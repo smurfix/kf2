@@ -121,19 +121,13 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 	}
 	else // anything else, probably .kfr
 	{
-		std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
+		std::ifstream hFile(szFile, std::ios::in);
 		if (!hFile)
 			return FALSE;
-		hFile.seekg (0, hFile.end);
-		size_t nData = hFile.tellg();
-		hFile.seekg (0, hFile.beg);
 
-		char *szData = new char[nData + 1];
-		hFile.read(szData, nData);
-		hFile.close();
-		szData[nData] = 0;
-		data = szData;
-		delete[] szData;
+		std::stringstream buffer;
+		buffer << hFile.rdbuf();
+		data = buffer.str();
 	}
 	return OpenString(data, bNoLocation);
 }
