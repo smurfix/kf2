@@ -282,6 +282,20 @@ CFraktalSFT::CFraktalSFT()
 	ApplyColors();
 }
 
+int64_t CFraktalSFT::CalcImageWidth()
+{
+   int64_t w,s;
+   GetTargetDimensions(&w,nullptr,&s);
+   return w*s;
+}
+
+int64_t CFraktalSFT::CalcImageHeight()
+{
+   int64_t h,s;
+   GetTargetDimensions(nullptr,&h,&s);
+   return h*s;
+}
+
 bool CFraktalSFT::UseOpenGL()
 {
 	if(!m_bUseOpenGL || m_bBadOpenGL)
@@ -2485,8 +2499,6 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 	memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
-	SetImageWidth(nx);
-	SetImageHeight(ny);
 }
 
 bool CFraktalSFT::OpenMapEXR(const std::string &szfile)

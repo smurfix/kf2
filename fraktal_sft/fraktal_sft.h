@@ -179,6 +179,8 @@ class CFraktalSFT
 			return SeriesType_Real;
 		return SeriesType_None;
 	}
+	int64_t CalcImageHeight();
+	int64_t CalcImageWidth();
 	void CalculateApproximation(int nType);
 	void DoApproximation(int64_t &antal, const floatexp &D0r, const floatexp &D0i, floatexp &TDnr, floatexp &TDni, floatexp &TDDnr, floatexp &TDDni);
 	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
@@ -343,6 +345,9 @@ public:
 	bool GetTriangleInequalityAverage() { return m_bTriangleInequalityAverage; };
 	void SetTriangleInequalityAverage(bool b) { m_bTriangleInequalityAverage = b; if (b) SetNoApprox(true); };
 
+	inline int64_t GetImageWidth() { if (m_nX) return m_nX; return CalcImageWidth(); }
+	inline int64_t GetImageHeight() { if (m_nY) return m_nY; return CalcImageHeight(); }
+
 	void SaveMap(const std::string &szFile);
 	void SaveMapB(const std::string &szFile);
 
@@ -441,8 +446,6 @@ public:
   INT(WindowLeft)
   INT(WindowBottom)
   INT(WindowRight)
-  INT(ImageWidth)
-  INT(ImageHeight)
   DOUBLE(ThreadsPerCore)
   INT(ThreadsReserveCore)
   BOOL(AnimateZoom)

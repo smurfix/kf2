@@ -38,20 +38,18 @@ class Settings
 
 private:
 
-  double m_ZoomSize;
+  double m_ZoomSize;            // zoom stepping factor
   int64_t m_MaxReferences;
   double m_GlitchLowTolerance;
   double m_ApproxLowTolerance;
   bool m_AutoApproxTerms;
   int64_t m_ApproxTerms;
-  int64_t m_WindowWidth;
-  int64_t m_WindowHeight;
-  int64_t m_WindowTop;
+  int64_t m_WindowWidth;        // display size (bitmap gets scaled to this)
+  int64_t m_WindowHeight;       // may be non-uniform
+  int64_t m_WindowTop;          // window position, screen coords, not to be trusted
   int64_t m_WindowLeft;
   int64_t m_WindowBottom;
   int64_t m_WindowRight;
-  int64_t m_ImageWidth;
-  int64_t m_ImageHeight;
   double m_ThreadsPerCore;
   int64_t m_ThreadsReserveCore;
   bool m_AnimateZoom;
@@ -95,12 +93,12 @@ private:
   bool m_ExponentialMap;
   bool m_DerivativeGlitch;
   bool m_ReferenceStrictZero;
-  int64_t m_NumberTypes;
+  int64_t m_NumberTypes;             // bitmask for allowed types
   bool m_UseRescaledSeries;
   bool m_OpenResetsParameters;
-  int64_t m_TargetWidth;
+  int64_t m_TargetWidth;             // size of the output picture
   int64_t m_TargetHeight;
-  int64_t m_TargetSupersample;
+  int64_t m_TargetSupersample;       // supersampling factor: ImageX = supersample * TargetX
 
 public:
 
@@ -117,8 +115,8 @@ public:
   , m_WindowLeft(-1)
   , m_WindowBottom(-1)
   , m_WindowRight(-1)
-  , m_ImageWidth(640)
-  , m_ImageHeight(360)
+  // , m_ImageWidth(640)
+  // , m_ImageHeight(360)
   , m_ThreadsPerCore(1)
   , m_ThreadsReserveCore(0)
   , m_AnimateZoom(true)
@@ -219,12 +217,6 @@ public:
 
   inline int64_t    GetWindowRight() const { return m_WindowRight; };
   inline void   SetWindowRight(int64_t w) { m_WindowRight = w; };
-
-  inline int64_t    GetImageWidth() const { return m_ImageWidth; };
-  inline void   SetImageWidth(int64_t w) { m_ImageWidth = w; };
-
-  inline int64_t    GetImageHeight() const { return m_ImageHeight; };
-  inline void   SetImageHeight(int64_t h) { m_ImageHeight = h; };
 
   inline double GetThreadsPerCore() const { return m_ThreadsPerCore; };
   inline void   SetThreadsPerCore(double t) { m_ThreadsPerCore = t; };
