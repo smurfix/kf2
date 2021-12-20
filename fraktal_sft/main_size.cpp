@@ -23,6 +23,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "resource.h"
 #include "tooltip.h"
 
+/**
+ * This code controls the window+image size dialog.
+ */
 static int64_t gcd(int64_t a, int64_t b)
 {
   if (a < 0 || b < 0) return gcd(std::abs(a), std::abs(b));
@@ -96,7 +99,10 @@ const int nwindow_presets = sizeof(window_preset) / sizeof(window_preset[0]);
 
 void UpdateDisplays(HWND hWnd, bool set)
 {
-  int preset = SendDlgItemMessage(hWnd, IDC_SIZE_ASPECT_PRESET, CB_GETCURSEL, 0, 0);
+  int preset;
+
+  // aspect ratio
+  preset = SendDlgItemMessage(hWnd, IDC_SIZE_ASPECT_PRESET, CB_GETCURSEL, 0, 0);
   int64_t aspect_num = aspect_preset[preset].num;
   int64_t aspect_den = aspect_preset[preset].den;
   if (preset == 0)
@@ -104,18 +110,24 @@ void UpdateDisplays(HWND hWnd, bool set)
     aspect_num = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_ASPECT_CUSTOM_N, 0, 0)));
     aspect_den = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_ASPECT_CUSTOM_D, 0, 0)));
   }
+
+  // target (= output image) size
   preset = SendDlgItemMessage(hWnd, IDC_SIZE_TARGET_PRESET, CB_GETCURSEL, 0, 0);
   int64_t target_height = target_preset[preset].height;
   if (preset == 0)
   {
     target_height = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_TARGET_CUSTOM, 0, 0)));
   }
+
+  // bitmap size (= output image * sampling factor (integer))
   preset = SendDlgItemMessage(hWnd, IDC_SIZE_SUPERS_PRESET, CB_GETCURSEL, 0, 0);
   int64_t target_supersample = supers_preset[preset].supers;
   if (preset == 0)
   {
     target_supersample = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_SUPERS_PRESET, 0, 0)));
   }
+
+  // output size (= output image * window scaling (ratio))
   preset = SendDlgItemMessage(hWnd, IDC_SIZE_WINDOW_PRESET, CB_GETCURSEL, 0, 0);
   int64_t window_num = window_preset[preset].num;
   int64_t window_den = window_preset[preset].den;
@@ -124,11 +136,15 @@ void UpdateDisplays(HWND hWnd, bool set)
     window_num = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_WINDOW_CUSTOM_N, 0, 0)));
     window_den = std::max(1, int(GetDlgItemInt(hWnd, IDC_SIZE_WINDOW_CUSTOM_D, 0, 0)));
   }
+
+  // calculate dependent values
   int64_t target_width = std::max(int64_t(std::round(target_height * aspect_num / (double) aspect_den)), (int64_t)1);
   int64_t image_width = std::max(target_width * target_supersample, (int64_t)1);
   int64_t image_height = std::max(target_height * target_supersample, (int64_t)1);
   int64_t window_width = std::max(int64_t(std::round(target_width * window_num / (double) window_den)), (int64_t)1);
   int64_t window_height = std::max(int64_t(std::round(target_height * window_num / (double) window_den)), (int64_t)1);
+
+  // show resulting values
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_TARGET_WIDTH, target_width, 0);
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_TARGET_HEIGHT, target_height, 0);
   SetDlgItemFloat(hWnd, IDC_SIZE_DISPLAY_TARGET_MPIXELS, (double) target_width * target_height / (1024 * 1024));
@@ -138,6 +154,8 @@ void UpdateDisplays(HWND hWnd, bool set)
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_WINDOW_WIDTH, window_width, 0);
   SetDlgItemInt(hWnd, IDC_SIZE_DISPLAY_WINDOW_HEIGHT, window_height, 0);
   SetDlgItemFloat(hWnd, IDC_SIZE_DISPLAY_WINDOW_MPIXELS, (double) window_width * window_height / (1024 * 1024));
+
+  // disable OK button on stupid values
   bool bad_size =
     image_width <= 0 || image_width >= 65536 ||
     image_height <= 0 || image_height >= 65536 ||
