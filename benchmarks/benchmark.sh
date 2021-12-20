@@ -45,8 +45,8 @@ EOF
     for derivatives in 0 1
     do
       n="builtin-$type-$power-$derivatives"
-      echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
-      echo -e "Iterations: 10100\r\nFractalType: $type\r\nPower: $power\r\nDifferences: $((3 + 4 * $derivatives))\r" > "$out/$n.kfr"
+      echo -ne "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
+      echo -e "Iterations: 10100\r\nFractalType: $type\r\nPower: $power\r\nDifferences: $((3 + 4 * $derivatives))\r\n" > "$out/$n.kfr"
       "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
       tail -n 4 |
       tr -d '\r' |
@@ -75,8 +75,8 @@ time (
       for derivatives in 0 1
       do
         n="hybrid-$usehybrid-$type-$power-$derivatives"
-        echo -e "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r" > "$out/$n.kfs"
-        ( cat "$hybrid" | sed "s/UseHybridFormula: .*\r/UseHybridFormula: $usehybrid\r/" && echo -e "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r" ) > "$out/$n.kfr"
+        echo -ne "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r\n" > "$out/$n.kfs"
+        ( cat "$hybrid" | sed "s/UseHybridFormula: .*\r/UseHybridFormula: $usehybrid\r/" && echo -ne "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r\n" ) > "$out/$n.kfr"
         "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
         tail -n 4 |
         tr -d '\r' |

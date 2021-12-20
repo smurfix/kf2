@@ -110,7 +110,7 @@ public:
 	int FindStringBinary(int nColumn, char *szString, int nLength=-1);
 
 	int SplitString(const char *szData,const char *szFieldSep, const char *szRowSep,BOOL bApo=FALSE);
-	char *ToText(const char *szFieldSep="\t", const char *szRowSep="\r\n");
+	char *ToText(const char *szFieldSep="\t", const char *szRowSep="\n");
 	void DeleteToText(char *szToText);
 
 	int MoveCol(int nFrom, int nTo);

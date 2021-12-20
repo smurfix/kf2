@@ -134,7 +134,7 @@ BOOL CFraktalSFT::OpenFile(const std::string &szFile, BOOL bNoLocation)
 
 BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 {
-	CStringTable stParams(data.c_str(), ": ", "\r\n");
+	CStringTable stParams(data.c_str(), ": ", "\n");
 	{
 		int nv = stParams.FindString(0, "Version");
 		if (nv != -1)
@@ -618,7 +618,7 @@ std::string CFraktalSFT::ToText()
 
 	INT("Version", kfr_version_number)
 
-	char *szData = stSave.ToText(": ", "\r\n");
+	char *szData = stSave.ToText(": ", "\n");
 	std::string ret(szData);
 	stSave.DeleteToText(szData);
 	return ret;

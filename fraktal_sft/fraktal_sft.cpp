@@ -249,35 +249,35 @@ CFraktalSFT::CFraktalSFT()
 	m_bInteractive = true;
 	GenerateColors(128, 1);
 	OpenString(
-"Re: 0\r\n"
-"Im: 0\r\n"
-"Zoom: 1\r\n"
-"Iterations: 200\r\n"
-"IterDiv: 0.010000\r\n"
-"SmoothMethod: 0\r\n"
-"ColorMethod: 7\r\n"
-"Differences: 3\r\n"
-"ColorOffset: 0\r\n"
-"Rotate: 0.000000\r\n"
-"Ratio: 360.000000\r\n"
-"Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,\r\n"
-"InteriorColor: 0,0,0,\r\n"
-"Smooth: 1\r\n"
-"MultiColor: 0\r\n"
-"BlendMC: 0\r\n"
-"MultiColors: \r\n"
-"Power: 2\r\n"
-"FractalType: 0\r\n"
-"Slopes: 1\r\n"
-"SlopePower: 50\r\n"
-"SlopeRatio: 20\r\n"
-"SlopeAngle: 45\r\n"
-"imag: 1\r\n"
-"real: 1\r\n"
-"SeedR: 0\r\n"
-"SeedI: 0\r\n"
-"FactorAR: 1\r\n"
-"FactorAI: 0\r\n"
+"Re: 0\n"
+"Im: 0\n"
+"Zoom: 1\n"
+"Iterations: 200\n"
+"IterDiv: 0.010000\n"
+"SmoothMethod: 0\n"
+"ColorMethod: 7\n"
+"Differences: 3\n"
+"ColorOffset: 0\n"
+"Rotate: 0.000000\n"
+"Ratio: 360.000000\n"
+"Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,\n"
+"InteriorColor: 0,0,0,\n"
+"Smooth: 1\n"
+"MultiColor: 0\n"
+"BlendMC: 0\n"
+"MultiColors: \n"
+"Power: 2\n"
+"FractalType: 0\n"
+"Slopes: 1\n"
+"SlopePower: 50\n"
+"SlopeRatio: 20\n"
+"SlopeAngle: 45\n"
+"imag: 1\n"
+"real: 1\n"
+"SeedR: 0\n"
+"SeedI: 0\n"
+"FactorAR: 1\n"
+"FactorAI: 0\n"
 , FALSE);
 	ApplyColors();
 }
@@ -2558,29 +2558,23 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		a = (m_nX - nOX) / 2;
 		b = (m_nY - nOY) / 2;
 	}
-	//HANDLE hFile = CreateFile(szFile,GENERIC_READ,0,NULL,OPEN_EXISTING,0,NULL);
-	FILE *hFile = fopen(szFile.c_str(), "rb");
-	//if(hFile==INVALID_HANDLE_VALUE)
-	if (hFile == NULL) return FALSE; // FIXME leaks Org arrays
-	DWORD dw;
+	std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
+	if (!hFile)
+		return FALSE; // FIXME leaks Org arrays
 	char szId[3];
-	//ReadFile(hFile,szId,3,&dw,NULL);
-	fread(szId, 1, 3, hFile);
+	hFile.read(szId, 3);
 	char bNewFormat = 0;  // yes that's misnamed
 	if (!strncmp(szId, "KFC", 3))
 		bNewFormat = 1;
 	if (!strncmp(szId, "KFD", 3))
 		bNewFormat = 2;
 	else if (strncmp(szId, "KFB", 3)){
-		//CloseHandle(hFile);
-		fclose(hFile);
+		hFile.close();
 		return FALSE;
 	}
-	//ReadFile(hFile,&m_nX,sizeof(int),&dw,NULL);
-	//ReadFile(hFile,&m_nY,sizeof(int),&dw,NULL);
 	int nx = -1, ny = -1;
-	fread(&nx, 1, sizeof(int), hFile);
-	fread(&ny, 1, sizeof(int), hFile);
+	hFile.read(reinterpret_cast<char*>(&nx), sizeof(nx));
+	hFile.read(reinterpret_cast<char*>(&ny), sizeof(ny));
 	SetImageSize(nx, ny);
 	float *pLine = NULL;
 	if (bNewFormat == 1)
@@ -2589,8 +2583,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		pLine = new float[m_nX];
 	if (bNewFormat == 2){
 		for (y = 0; y<m_nY; y++){
-			//ReadFile(hFile,pLine,sizeof(float)*m_nX,&dw,NULL);
-			fread(pLine, 1, sizeof(float)*m_nX, hFile);
+			hFile.read(reinterpret_cast<char*>(pLine), sizeof(float)*m_nX);
 			for (x = 0; x<m_nX; x++){
 				m_nPixels[x][y] = (int)pLine[x];
 				m_nTrans[x][y] = pLine[x] - (int)m_nPixels[x][y];
@@ -2600,56 +2593,49 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	else{
 		for (x = 0; x<m_nX; x++){
 			if (bNewFormat > 0){
-				//ReadFile(hFile,pLine,sizeof(float)*m_nY,&dw,NULL);
-				fread(pLine, 1, sizeof(float)*m_nY, hFile);
+				hFile.read(reinterpret_cast<char*>(pLine), sizeof(float)*m_nY);
 				for (y = 0; y<m_nY; y++){
 					m_nPixels[x][y] = (int)pLine[y];
 					m_nTrans[x][y] = pLine[y] - (int)m_nPixels[x][y];
 				}
 			}
 			else
-				//ReadFile(hFile,m_nPixels[x],sizeof(int)*m_nY,&dw,NULL);
-				fread(m_nPixels_LSB + x * m_nY, 1, sizeof(*m_nPixels_LSB)*m_nY, hFile);
+				hFile.read(reinterpret_cast<char*>(m_nPixels_LSB + x * m_nY), sizeof(*m_nPixels_LSB)*m_nY);
 		}
 	}
 	if (pLine)
 		delete[] pLine;
-	//ReadFile(hFile,&m_nIterDiv,sizeof(int),&dw,NULL);
 	int div = 1;
-	fread(&div, 1, sizeof(int), hFile);
+	hFile.read(reinterpret_cast<char*>(&div), sizeof(div));
 #if 0 // don't read IterDiv, it is stored as int (not float) due to historical reasons
 	m_nIterDiv = div;
 	if (m_nIterDiv == 0)
 		m_nIterDiv = 1;
 #endif
-	//ReadFile(hFile,&m_nParts,sizeof(int),&dw,NULL);
-	fread(&m_nParts, 1, sizeof(int), hFile);
-	//ReadFile(hFile,m_cKeys,sizeof(COLOR14)*m_nParts,&dw,NULL);
-	fread(m_cKeys, 1, sizeof(COLOR14)*m_nParts, hFile);
+	hFile.read(reinterpret_cast<char*>(&m_nParts), sizeof(m_nParts));
+	hFile.read(reinterpret_cast<char*>(m_cKeys), sizeof(COLOR14)*m_nParts);
 	int nTest;
-	//ReadFile(hFile,&nTest,sizeof(int),&dw,NULL);
-	dw = fread(&nTest, 1, sizeof(int), hFile);
-	if (sizeof(int) == dw)
+	hFile.read(reinterpret_cast<char*>(&nTest), sizeof(nTest));
+	if (hFile.good())
 		m_nMaxIter = nTest;
 
-	BOOL ok = TRUE;
 	if (bNewFormat == 0){
-		for (x = 0; x<m_nX; x++){
-			ok &= (1 == fread(m_nTrans[x], sizeof(float)*m_nY, 1, hFile));
+		for (x = 0; hFile.good() && x<m_nX; x++){
+			hFile.read(reinterpret_cast<char*>(m_nTrans[x]), sizeof(float)*m_nY);
 		}
-		off_t pos1 = ftello(hFile);
-		fseek(hFile, 0, SEEK_END);
-		off_t pos2 = ftello(hFile);
+		off_t pos1 = hFile.tellg();
+		hFile.seekg(0, std::ios::end);
+		off_t pos2 = hFile.tellg();
 		if (pos1 != pos2)
 		{
-			fseeko(hFile, pos1, SEEK_SET);
-			for (x = 0; x<m_nX; x++){
-				ok &= (1 == fread(m_nDEx[x], sizeof(float)*m_nY, 1, hFile));
+			hFile.seekg(pos1);
+			for (x = 0; hFile.good() && x<m_nX; x++){
+				hFile.read(reinterpret_cast<char*>(m_nDEx[x]), sizeof(float)*m_nY);
 			}
 		}
 	}
-	//CloseHandle(hFile);
-	fclose(hFile);
+	bool ok = hFile.good();
+	hFile.close();
 
 	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<1){
 		for (x = 0; x<m_nX; x++){
@@ -3487,27 +3473,19 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 		return -1;
 	return ((((int64_t)floor(m_nPixels[x][y] / m_nIterDiv)) % 1024) + 1024) % 1024;
 }
-#ifndef KF_EMBED
+
 void CFraktalSFT::SaveMap(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
-	DWORD dw;
-	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	std::ofstream hFile(szFile);
 	int x, y;
-	char szNum[64];
 	for (y = 0; y<m_nY; y++){
-		if (y)
-			WriteFile(hFile, "\r\n", 2, &dw, NULL);
-		for (x = 0; x<m_nX; x++){
-			if (x)
-				WriteFile(hFile, " ", 1, &dw, NULL);
-			sprintf(szNum, "%" PRId64, int64_t(m_nPixels[x][y]));
-			WriteFile(hFile, szNum, strlen(szNum), &dw, NULL);
+		for (x = 0; x<m_nX; x++) {
+			hFile << m_nPixels[x][y] << std::endl;
 		}
 	}
-	const char *szC0 = "\r\nColors: ";
-	WriteFile(hFile, szC0, strlen(szC0), &dw, NULL);
+	hFile << "Colors: ";
 	CStringTable stColors;
 	int i;
 	for (i = 0; i<m_nParts; i++){
@@ -3519,29 +3497,30 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
 	}
 	char *szC = stColors.ToText("", ",");
-	WriteFile(hFile, szC, strlen(szC), &dw, NULL);
+	hFile << szC << std::endl;
 	stColors.DeleteToText(szC);
-	CloseHandle(hFile);
+	hFile.close();
 }
 void CFraktalSFT::SaveMapB(const std::string &szFile)
 {
 	// WONTFIX doesn't save m_nPixels_MSB
 	if (!m_nPixels_LSB)
 		return;
-	DWORD dw;
-	HANDLE hFile = CreateFile(szFile.c_str(), GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, 0, NULL);
+	std::ofstream hFile(szFile, std::ios::out | std::ios::binary | std::ios::trunc);
+	if(!hFile) return;
+
 	int x;
-	WriteFile(hFile, "KFB", 3, &dw, NULL);
-	WriteFile(hFile, &m_nX, sizeof(m_nX), &dw, NULL);
-	WriteFile(hFile, &m_nY, sizeof(m_nY), &dw, NULL);
-	WriteFile(hFile, m_nPixels_LSB, sizeof(*m_nPixels_LSB) * m_nX * m_nY, &dw, NULL);
+	hFile.write("KFB", 3);
+	hFile.write(reinterpret_cast<char*>(&m_nX), sizeof(m_nX));
+	hFile.write(reinterpret_cast<char*>(&m_nY), sizeof(m_nY));
+	hFile.write(reinterpret_cast<char*>(m_nPixels_LSB), sizeof(*m_nPixels_LSB) * m_nX * m_nY);
 	int div = m_nIterDiv;
-	WriteFile(hFile, &div, sizeof(m_nParts), &dw, NULL);
-	WriteFile(hFile, &m_nParts, sizeof(m_nParts), &dw, NULL);
-	WriteFile(hFile, m_cKeys, sizeof(COLOR14)*m_nParts, &dw, NULL);
-	WriteFile(hFile, &m_nMaxIter, sizeof(int), &dw, NULL);
+	hFile.write(reinterpret_cast<char*>(&div), sizeof(div));
+	hFile.write(reinterpret_cast<char*>(&m_nParts), sizeof(m_nParts));
+	hFile.write(reinterpret_cast<char*>(m_cKeys), sizeof(COLOR14)*m_nParts);
+	hFile.write(reinterpret_cast<char*>(&m_nMaxIter), sizeof(int));
 	for (x = 0; x<m_nX; x++)
-		WriteFile(hFile, m_nTrans[x], m_nY*sizeof(float), &dw, NULL);
+		hFile.write(reinterpret_cast<char*>(m_nTrans[x]), m_nY*sizeof(float));
 	if (GetDerivatives() && m_nDEx)
 	{
 		float *column = new float[m_nY];
@@ -3549,13 +3528,12 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 		{
 			for (int y = 0; y < m_nY; ++y)
 				column[y] = std::hypot(m_nDEx[x][y], m_nDEy[x][y]);
-			WriteFile(hFile, column, m_nY*sizeof(float), &dw, NULL);
+			hFile.write(reinterpret_cast<char*>(column), m_nY*sizeof(float));
 		}
 		delete[] column;
 	}
-	CloseHandle(hFile);
+	hFile.close();
 }
-#endif
 
 SmoothMethod CFraktalSFT::GetSmoothMethod()
 {

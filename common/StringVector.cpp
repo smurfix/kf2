@@ -101,13 +101,12 @@ void kr_free(void *ap,BOOL bNoCheck=0)
 		char szDmp[256];
 		GetModuleFileName(GetModuleHandle(NULL),szDmp,sizeof(szDmp));
 		strcat(szDmp,".dmp");
-		DWORD dw;
-		HANDLE hFile = CreateFile(szDmp,GENERIC_WRITE,0,NULL,CREATE_ALWAYS,0,NULL);
-		if(hFile!=INVALID_HANDLE_VALUE){
+		hFile = std::ofstream(szDmp, std::ios::binary);
+		if(hFile) {
 			wsprintf(szDmp,"Trailer overwritten. Size: %d, Data:\r\n\r\n",bp->s.size*sizeof(Header));
-			WriteFile(hFile,szDmp,strlen(szDmp),&dw,NULL);
-			WriteFile(hFile,bp,bp->s.size*sizeof(Header),&dw,NULL);
-			CloseHandle(hFile);
+			hFile.write(szDmp,strlen(szDmp));
+			hFile.write(bp,bp->s.size*sizeof(Header));
+			hFile.close()
 		}
 	}
 
@@ -839,7 +838,7 @@ bool CStringTable::ReadCSV(char *szFileName)
 
 	std::string data = buffer.str();
 	AddRow();
-	SplitString(data.c_str(),";","\r\n");
+	SplitString(data.c_str(),";","\n");
 	return true;
 }
 
@@ -1016,7 +1015,7 @@ bool CStringTable::Save(char *szFile)
 bool CStringTable::Load(char *szFile)
 {
 	int i, j, nLen;
-	std::ifstream hFile(szFile, std::ios::in);
+	std::ifstream hFile(szFile, std::ios::in | std::ios::binary);
 	if(!hFile)
 		return 0;
 	while(m_nVektors)

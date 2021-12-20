@@ -102,7 +102,7 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 		int limit = progress->counters[0];
 		int iter = progress->counters[1];
 		char status[100];
-		snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
+		snprintf(status, 100, "Period %d (%d%%) (%ds)\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
 		s_period = status;
 		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
@@ -629,7 +629,7 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Period");
 	stSave.AddInt   (stSave.GetCount() - 1, period);
-	char *szData = stSave.ToText(": ", "\r\n");
+	char *szData = stSave.ToText(": ", "\n");
 	std::ofstream hFile(szFile);
 	if(!hFile )
 	{

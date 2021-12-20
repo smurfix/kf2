@@ -852,7 +852,7 @@ int WINAPI ZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(hFile==INVALID_HANDLE_VALUE)
 					return MessageBox(hWnd,"Could not write in given folder","Error",MB_OK|MB_ICONSTOP);
 				SetFilePointer(hFile,0,NULL,FILE_END);
-				char *szParameters = stParameters.ToText(": ","\r\n");
+				char *szParameters = stParameters.ToText(": ","\n");
 				WriteFile(hFile,szParameters,strlen(szParameters),&dw,NULL);
 				CloseHandle(hFile);
 				stParameters.DeleteToText(szParameters);

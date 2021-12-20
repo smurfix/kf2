@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 #include <cstdlib>
+#include <fstream>
+#include <sstream>
 
 #include <windows.h>
 #include "../common/StringVector.h"
@@ -30,10 +32,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tiff.h"
 #include "exr.h"
 
+#include <iostream>
+#if __cplusplus >= 201703L
+#include <filesystem>
+#elif !defined(KF_EMBED)
+#include "shlwapi.h" // PathFileExists
+#endif
+
 bool Settings::FromText(const std::string &text)
 {
   char *data = strdup(text.c_str());
-  CStringTable s(data, ": ", "\r\n");
+  CStringTable s(data, ": ", "\n");
   {
     int nv = s.FindString(0, "SettingsVersion");
     if (nv != -1)
@@ -192,7 +201,7 @@ std::string Settings::ToText() const
 #undef INT
 #undef BOOL
   { s.AddRow(); s.AddString(s.GetCount() - 1, "SettingsVersion"); s.AddInt(s.GetCount() - 1, kfs_version_number); }
-  char *data = s.ToText(": ", "\r\n");
+  char *data = s.ToText(": ", "\n");
   std::string r(data);
   s.DeleteToText(data);
   return r;
@@ -200,80 +209,53 @@ std::string Settings::ToText() const
 
 bool Settings::OpenFile(const std::string &filename)
 {
-  const char *szFile = filename.c_str();
-	char *szData = 0;
-	const char *extension = strrchr(szFile, '.');
+        std::string data;
+	const char *extension = strrchr(filename.c_str(), '.');
 	if (extension && 0 == strcmp(".png", extension))
 	{
-		std::string filename = szFile;
-		std::string comment = ReadPNGComment(filename);
-		if (comment == "")
-		  return false;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
+		data = ReadPNGComment(filename);
 	}
 	else if (extension && (0 == strcmp(".tif", extension) || 0 == strcmp(".tiff", extension)))
 	{
-		std::string filename = szFile;
-		std::string comment = ReadTIFFComment(filename);
-		if (comment == "")
-		  return false;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
+		data = ReadTIFFComment(filename);
 	}
 	else if (extension && (0 == strcmp(".jpg", extension) || 0 == strcmp(".jpeg", extension)))
 	{
-		std::string filename = szFile;
-		std::string comment = ReadJPEGComment(filename);
-		if (comment == "")
-		  return false;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
+		data = ReadJPEGComment(filename);
 	}
 	else if (extension && (0 == strcmp(".exr", extension)))
 	{
-		std::string filename = szFile;
-		std::string comment = ReadEXRComment(filename);
-		if (comment == "")
-		  return false;
-		size_t n = comment.length() + 1;
-		szData = new char[n];
-		strncpy(szData, comment.c_str(), n);
-		szData[n-1] = 0;
+		data = ReadEXRComment(filename);
 	}
 	else // anything else, probably .kfr/.kfs
 	{
-		DWORD dw;
-		HANDLE hFile = CreateFile(szFile, GENERIC_READ, 0, NULL, OPEN_EXISTING, 0, NULL);
-		if (hFile == INVALID_HANDLE_VALUE)
-			return false;
-		int nData = GetFileSize(hFile, NULL);
-		szData = new char[nData + 1];
-		ReadFile(hFile, szData, nData, &dw, NULL);
-		CloseHandle(hFile);
-		szData[nData] = 0;
+                std::ifstream hFile(filename, std::ios::in);
+                if (!hFile)
+                        return FALSE;
+
+                std::stringstream buffer;
+                buffer << hFile.rdbuf();
+                data = buffer.str();
 	}
-  std::string szText(szData);
-  delete[] szData;
-  return FromText(szText);
+  return FromText(data);
 }
 
 bool Settings::SaveFile(const std::string &filename, bool overwrite) const
 {
-	std::string szText(ToText());
-	const char *szData = szText.c_str();
-  const char *szFile = filename.c_str();
-	DWORD dw;
-	HANDLE hFile = CreateFile(szFile, GENERIC_WRITE, 0, NULL, overwrite ? CREATE_ALWAYS : CREATE_NEW, 0, NULL);
-	if (hFile == INVALID_HANDLE_VALUE)
-		return false;
-	WriteFile(hFile, szData, strlen(szData), &dw, NULL);
-	CloseHandle(hFile);
-	return true;
+    std::string szText(ToText());
+#if __cplusplus >= 201703L
+    if(!overwrite && std::filesystem::exists(filename))
+        return false;
+#elif !defined(KF_EMBED)
+    if(!overwrite && PathFileExists(filename.c_str()))
+        return false;
+#endif
+    std::ofstream hFile(filename, std::ios::trunc);
+    if(!hFile)
+        return false;
+
+    hFile << szText;
+    bool good = hFile.good();
+    hFile.close();
+    return good;
 }
