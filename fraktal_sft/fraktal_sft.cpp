@@ -1528,20 +1528,24 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 #ifndef KF_EMBED
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
+	CDecNumber re, im, z;
 	try
 	{
-		CDecNumber re(szR); // throws on bad string
-		CDecNumber im(szI); // throws on bad string
+		re = CDecNumber(szR); // throws on bad string
+		im = CDecNumber(szI); // throws on bad string
 
 		Precision pLo(20u);
-		CDecNumber z(szZ); // throws on bad string
-
-		SetPosition(re.m_dec, im.m_dec, z.m_dec);
+		z = CDecNumber(szZ); // throws on bad string
 	}
 	catch (...)
 	{
-		std::cerr << "ERROR: SetPosition(): couldn't parse float (ignored)" << std::endl;
+		std::cerr << std::endl << "ERROR: SetPosition()" << std::endl << szR << std::endl << szI << std::endl << szZ << std::endl;
+
+		re = 0;
+		im = 0;
+		z = 1;
 	}
+	SetPosition(re.m_dec, im.m_dec, z.m_dec);
 }
 
 void CFraktalSFT::SetPosition(const char *const szR, const char *const szI, const char *const szZ)
