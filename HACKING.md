@@ -4,9 +4,10 @@ This file contains some notes about the data structures used by KF2.
 
 Help wanted!
 
+
 ## floating point formats
 
-KF2 has *way* too many wrappers for these.
+KF2 has somewhat too many wrappers for these.
 
 ## decNumber
 
@@ -38,15 +39,3 @@ Packages a standard "float" plus a separate int32_t exponent.
 
 That's the template "floatexp" and "floatexpf" are built from.
 
-
-# Improvements?
-
-## Numbers
-
-Drop all those precision-adjusting wrappers and just set the global
-precision to whatever maximum we need. There's only one place where this is
-adjusted, which is when a number is read and we set the precision based on
-how many digits it has. There shouldn't be any need for either more
-precision (it's not incremented anywhere) nor less.
-
-Set that as the global precision and we're done.

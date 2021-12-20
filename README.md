@@ -109,7 +109,8 @@ Feedback:
   Shift+RightMouse on program icon in the task bar and select Move; then
   use cursor keys to move the window; press RightMouse to finish.
   workaround for Linux/XFCE: hold Alt and drag the window with LeftMouse
-  button (from any point inside it). (reported by saka)
+  button (from any point inside it). workaround for Gnome: hold the Windows
+  key. (reported by saka)
 - resizing window during examine zoom sequence auto solve glitches leads
   to corruption of the zoom sequence data
 - "stop autosolve" during examine zoom sequence fails and corrupts zoom
@@ -200,7 +201,21 @@ Feedback:
   (workaround: disable it in the Number Type dialog)
 - Rescaled Series is slow in some locations (reported by gerrit)
   (workaround: disable it in the Perturbation Tuning dialog)
+- the dependencies recorded in the Makefile are incomplete.
+  You may have to use "make clean" after changing members of
+  a class/struct. You may have to run "make" twice.
 
+## Differences From Original 2.15.5
+
+### Embedding
+
+- There is a (rudimentary, requires improvements) way to build a
+  `libkf2-embed.so` library natively (Linux).
+
+- File operations have been changed to std::[io]fstream for Linux
+  compatibility.
+
+- Threads have been changed to std::thread for Linux compatibility.
 
 ## Differences From Original 2.11.1
 
