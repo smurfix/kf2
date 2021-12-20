@@ -368,6 +368,17 @@ HWND g_hwColors=NULL;
 std::string g_szFile;
 std::string g_szSettingsFile;
 
+static void GetDisplayRect(RECT &r)
+{
+	// the actual fractal, in window coordinates
+	// i.e. r.top and r.left are most likely zero
+    GetClientRect(g_SFT.m_hWnd,&r);
+
+    RECT sr;
+    GetWindowRect(g_hwStatus,&sr);
+    r.bottom -= sr.bottom-sr.top;
+}
+
 extern double GetDlgItemFloat(HWND hWnd,int nID)
 {
 	char szText[256];
@@ -1025,12 +1036,10 @@ static void UpdateBkpImage(ANIM *pAnim)
 		zoomDiff = 1/zoomDiff;
 	if(pAnim->bZoomOne)
 		zoomDiff = 1;
+
 	RECT r;
-	GetClientRect(pAnim->hWnd,&r);
-	RECT sr;
-	GetWindowRect(g_hwStatus,&sr);
-	sr.bottom-=sr.top;
-	r.bottom-=sr.bottom;
+	GetDisplayRect(r);
+
 	int nToXStart = pAnim->pOffs.x-r.right/(zoomDiff*2);
 	int nToYStart = pAnim->pOffs.y-r.bottom/(zoomDiff*2);
 	int nToXStop = r.right - (pAnim->pOffs.x+r.right/(zoomDiff*2));
@@ -1065,12 +1074,10 @@ static int WINAPI ThAnim_(ANIM *pAnim)
 		zoomDiff = 1/zoomDiff;
 	if(pAnim->bZoomOne)
 		zoomDiff = 1;
+
 	RECT r;
-	GetClientRect(pAnim->hWnd,&r);
-	RECT sr;
-	GetWindowRect(g_hwStatus,&sr);
-	sr.bottom-=sr.top;
-	r.bottom-=sr.bottom;
+	GetDisplayRect(r);
+
 	int nToXStart = pAnim->pOffs.x-r.right/(zoomDiff*2);
 	double nToXStartOffs = (double)nToXStart/nParts;//pow(10,log10((double)nToXStart)/(nParts));
 	int nToYStart = pAnim->pOffs.y-r.bottom/(zoomDiff*2);
@@ -2381,12 +2388,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		lpMMI->ptMinTrackSize.y = 128;
 	}
 	else if(uMsg==WM_PAINT){
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		int width = rc.right;
 		int height = rc.bottom;
 		PAINTSTRUCT ps;
@@ -2434,11 +2438,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_bAnim=false;
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		r.bottom-=sr.bottom;
+		GetDisplayRect(r);
+
 		POINT pm={r.right/2,r.bottom/2};
 		POINT p;
 		GetCursorPos(&p);
@@ -2455,11 +2456,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_LBUTTONDOWN){
 		if(g_bNewton){
 			static RECT r;
-			GetClientRect(hWnd,&r);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			r.bottom-=sr.bottom;
+			GetDisplayRect(r);
+
 			r.left = (short)LOWORD(lParam);
 			r.top = (short)HIWORD(lParam);
 			PostMessage(g_hwNewton,WM_USER+1,0,(LPARAM)&r);
@@ -2469,12 +2467,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		{
 			g_SFT.Stop();
 			g_bAnim=false;
+
 			RECT r;
-			GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
+			GetDisplayRect(r);
+
 			POINT pm={r.right/2,r.bottom/2};
 			POINT p;
 			GetCursorPos(&p);
@@ -2514,12 +2510,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		InvalidateRect(hWnd,NULL,FALSE);
 		UpdateWindow(hWnd);
+
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		HDC hDC = GetDC(hWnd);
 		SetROP2(hDC,R2_NOT);
 		g_pSelect.x = (short)LOWORD(lParam);
@@ -2572,12 +2566,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			InvalidateRect(hWnd,NULL,FALSE);
 		if(g_bMove){
 			SetCursor(LoadCursor(NULL,IDC_SIZEALL));
+
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			POINT p;
 			p.x = (short)LOWORD(lParam) - g_pSelect.x;
 			p.y = (short)HIWORD(lParam) - g_pSelect.y;
@@ -2614,12 +2606,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SetCursor(LoadCursor(GetModuleHandle(NULL),MAKEINTRESOURCE(IDC_CURSOR1)));
 			if(g_bRotate == RotateMode_Started){
 				HDC hDC = GetDC(hWnd);
+
 				RECT r;
-				GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
+				GetDisplayRect(r);
+
 				POINT pm={r.right/2,r.bottom/2};
 				POINT p;
 				GetCursorPos(&p);
@@ -2637,12 +2627,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SetCursor(LoadCursor(GetModuleHandle(NULL),MAKEINTRESOURCE(IDC_CURSOR1)));
 			if(g_bStretch == StretchMode_Started){
 				HDC hDC = GetDC(hWnd);
+
 				RECT r;
-				GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
+				GetDisplayRect(r);
+
 				POINT pm={r.right/2,r.bottom/2};
 				POINT p;
 				GetCursorPos(&p);
@@ -2658,11 +2646,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(g_bSelect){
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			HDC hDC = GetDC(hWnd);
 			SetROP2(hDC,R2_NOT);
 			MoveToEx(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2),NULL);
@@ -2684,11 +2669,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		strcpy(szI,"I:");
 
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		int x = (short)LOWORD(lParam)*g_SFT.GetWidth()/rc.right;
 		int y = (short)HIWORD(lParam)*g_SFT.GetHeight()/rc.bottom;
 		int i = g_SFT.GetIterationOnPoint(x,y);
@@ -2705,11 +2687,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (short)LOWORD(lParam) - g_pSelect.x;
 		p.y = (short)HIWORD(lParam) - g_pSelect.y;
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
 
 		if(1){
 			HDC hDC = GetDC(hWnd);
@@ -2749,11 +2727,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 				HDC hDC = GetDC(hWnd);
 				RECT r;
-				GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
+				GetDisplayRect(r);
+
 				POINT pm={r.right/2,r.bottom/2};
 				POINT p;
 				GetCursorPos(&p);
@@ -2774,11 +2749,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 				HDC hDC = GetDC(hWnd);
 				RECT r;
-				GetClientRect(hWnd,&r);
-				RECT sr;
-				GetWindowRect(g_hwStatus,&sr);
-				sr.bottom-=sr.top;
-				r.bottom-=sr.bottom;
+				GetDisplayRect(r);
+
 				POINT pm={r.right/2,r.bottom/2};
 				POINT p;
 				GetCursorPos(&p);
@@ -2812,11 +2784,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		double nZoom = (double)rc.bottom/(double)(g_pSelect.y-g_pTrackStart.y);
 		if(nZoom<0)
 			nZoom=-nZoom;
@@ -2858,11 +2827,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		}
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		HDC hDC = GetDC(hWnd);
 		SetROP2(hDC,R2_NOT);
 		MoveToEx(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2),NULL);
@@ -2990,11 +2956,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bStoreZoom=FALSE;
 		SetTimer(hWnd,0,500,NULL);
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		r.bottom-=sr.bottom;
+		GetDisplayRect(r);
+
 		g_SFT.ResetTimers();
 #if 0
 		if(g_SFT.GetWidth()<r.right || g_SFT.GetHeight()<r.bottom)
@@ -3153,11 +3116,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetCursorPos(&p);
 		ScreenToClient(hWnd,&p);
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		if(!g_SFT.GetAnimateZoom()){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_LBUTTONDOWN,0,MAKELONG(p.x,p.y));
@@ -3214,12 +3174,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		POINT p;
 		GetCursorPos(&p);
 		ScreenToClient(hWnd,&p);
+
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		if(!g_SFT.GetAnimateZoom()){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_RBUTTONDOWN,0,MAKELONG(p.x,p.y));
@@ -3426,11 +3384,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			p.x = p_x;
 			p.y = p_y;
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			p.x = p.x*rc.right/g_SFT.GetWidth();
 			p.y = p.y*rc.bottom/g_SFT.GetHeight();
 
@@ -3530,11 +3485,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			p.x = p_x;
 			p.y = p_y;
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			p.x = p.x*rc.right/g_SFT.GetWidth();
 			p.y = p.y*rc.bottom/g_SFT.GetHeight();
 			ClientToScreen(hWnd,&p);
@@ -3566,11 +3518,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		int p_x, p_y;
 		if(g_SFT.FindCenterOfGlitch(p_x, p_y)){
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			p.x = p.x*rc.right/g_SFT.GetWidth();
 			p.y = p.y*rc.bottom/g_SFT.GetHeight();
 			ClientToScreen(hWnd,&p);
@@ -3688,10 +3637,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1024){ g_SFT.SetSIMDChunkSize(1024); UpdateSIMDChunkSize(hWnd); }
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		r.bottom-=(sr.bottom-sr.top);
+		GetDisplayRect(r);
+
 		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = -g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()/2;
@@ -3714,10 +3661,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_RIGHT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		r.bottom-=(sr.bottom-sr.top);
+		GetDisplayRect(r);
+
 		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()+g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()/2;
@@ -3740,10 +3685,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_UP && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		r.bottom-=(sr.bottom-sr.top);
+		GetDisplayRect(r);
+
 		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()/2;
 			g_pSelect.y = -g_SFT.GetHeight()/2;
@@ -3766,10 +3709,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_DOWN && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
-		GetClientRect(hWnd,&r);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		r.bottom-=(sr.bottom-sr.top);
+		GetDisplayRect(r);
+
 		if(g_SFT.GetAnimateZoom()){
 			g_pSelect.x = g_SFT.GetWidth()/2;
 			g_pSelect.y = g_SFT.GetHeight()+g_SFT.GetHeight()/2;
@@ -3886,11 +3827,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_USER+299){
 		RECT rc;
-		GetClientRect(hWnd,&rc);
-		RECT sr;
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		rc.bottom-=sr.bottom;
+		GetDisplayRect(rc);
+
 		g_pSelect.x = (short)LOWORD(lParam)*g_SFT.GetWidth()/rc.right;
 		g_pSelect.y = (short)HIWORD(lParam)*g_SFT.GetHeight()/rc.bottom;
 		if(g_SFT.GetAnimateZoom()){
@@ -3938,14 +3876,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(!g_SFT.GetArbitrarySize() && uMsg==WM_SIZING){
-		RECT sr, cr;
+		RECT cr;
 		LPRECT pwr = (LPRECT)lParam;
 		pwr->right-=pwr->left;
 		pwr->bottom-=pwr->top;
-		GetClientRect(hWnd,&cr);
-		GetWindowRect(g_hwStatus,&sr);
-		sr.bottom-=sr.top;
-		cr.bottom-=sr.bottom;
+
+		GetDisplayRect(cr);
+
 		int nXOffs = 16*cr.bottom/9 - cr.right;
 		pwr->right+=nXOffs;
 
@@ -3963,11 +3900,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			GetWindowRect(hWnd,&wr);
 			wr.right-=wr.left;
 			wr.bottom-=wr.top;
-			GetClientRect(hWnd,&cr);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			cr.bottom-=sr.bottom;
+
+			GetDisplayRect(cr);
+
 			int nXOffs = 16*cr.bottom/9 - cr.right;
 			wr.right+=nXOffs;
 			MoveWindow(hWnd,wr.left,wr.top,wr.right,wr.bottom,TRUE);
@@ -4417,11 +4352,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				MessageBox(hWnd,"Done","Kalle's Fraktaler",MB_OK);
 			}
 			RECT rc;
-			GetClientRect(hWnd,&rc);
-			RECT sr;
-			GetWindowRect(g_hwStatus,&sr);
-			sr.bottom-=sr.top;
-			rc.bottom-=sr.bottom;
+			GetDisplayRect(rc);
+
 			x = x*rc.right/g_SFT.GetWidth();
 			y = y*rc.bottom/g_SFT.GetHeight();
 			while(g_bAnim){
