@@ -92,6 +92,7 @@ fraktal_sft/nanomb2_perturbation.cpp \
 fraktal_sft/nanomb1_reference.cpp \
 fraktal_sft/nanomb2_reference.cpp \
 fraktal_sft/newton.cpp \
+fraktal_sft/opengl.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/reference.cpp \
@@ -101,6 +102,9 @@ common/matrix.cpp \
 common/StringVector.cpp \
 common/parallell.cpp \
 common/timer.cpp \
+#
+EMBED_CSOURCES = \
+glad/src/glad.c \
 #
 
 FRAKTAL_SOURCES_H = \
@@ -256,7 +260,7 @@ SOURCES = $(SOURCES_CPP) $(SOURCES_C) $(SOURCES_H)
 OBJECTS_CPP := $(patsubst %.cpp,%.o,$(SOURCES_CPP))
 OBJECTS_C := $(patsubst %.c,%.o,$(SOURCES_C))
 OBJECTS := $(OBJECTS_CPP) $(OBJECTS_C)
-EMBED_OBJECTS := $(patsubst %.cpp,%.o,$(EMBED_SOURCES))
+EMBED_OBJECTS := $(patsubst %.cpp,%.o,$(EMBED_SOURCES)) $(patsubst %.c,%.o,$(EMBED_CSOURCES))
 
 UTILS_OBJECTS := $(patsubst %.cpp,%.o,$(UTILS_SOURCES_CPP))
 
