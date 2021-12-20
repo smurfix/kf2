@@ -3222,7 +3222,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
 	}
-	else if(uMsg==0x020A){//WM_MOUSEWHEEL
+	else if(uMsg==WM_MOUSEWHEEL) {
 		if((short)HIWORD(wParam)>0)
 			SendMessage(hWnd,WM_KEYDOWN,187,9);
 		else
