@@ -54,7 +54,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
 #endif
+#ifndef KF_EMBED
 #include "../common/bitmap.h"
+#endif
 #include <png.h>
 #include <zlib.h>
 #include <gsl/gsl_version.h>
@@ -238,6 +240,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
+#ifndef KF_EMBED
 extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
@@ -303,6 +306,7 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 	ReleaseDC(NULL,hDC);
 	return nRet;
 }
+
 // this version doesn't go via a bitmap structure, avoiding dreaded blank images...
 extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
 {
@@ -359,6 +363,8 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 	delete [] lpJeg;
 	return nRet;
 }
+#endif
+
 POINT g_pSelect, g_pStart;
 int g_bSelect=0;
 HWND g_hwStatus=NULL;
@@ -764,6 +770,7 @@ static int WINAPI CrossHairProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	return 0;
 }
+
 /*
 int g_nFrames=0;
 int WINAPI ZoomProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)

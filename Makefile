@@ -97,6 +97,7 @@ fraktal_sft/Parameter.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/reference.cpp \
 fraktal_sft/scale_bitmap.cpp \
+fraktal_sft/Settings.cpp \
 fraktal_sft/tiff.cpp \
 common/matrix.cpp \
 common/StringVector.cpp \

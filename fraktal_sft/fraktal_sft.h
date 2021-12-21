@@ -64,7 +64,9 @@ class CFraktalSFT
 	int m_nZoom;
 	int64_t m_nMaxIter;
 	int m_nTotal;
+#ifndef KF_EMBED
 	HBITMAP m_bmBmp;
+#endif
 	COLOR14 m_cPos[1025], m_cKeys[1025], m_cInterior;
 	int m_nParts;
 	int m_nSeed;
@@ -277,9 +279,11 @@ public:
 	void RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 	void RenderFractal();
 	void CalcStart(int x0, int x1, int y0, int y1);
+#ifndef KF_EMBED
 	HBITMAP GetBitmap();
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
 	void UpdateBitmap();
+#endif
 	int GetWidth();
 	int GetHeight();
 	void Stop();
@@ -533,7 +537,9 @@ public:
   float *GetArrayDEy() { return GetDerivatives() ? m_nDEy[0] : nullptr; };
   half *GetArrayHalfColour() { return m_imageHalf; };
   size_t GetArrayHalfColourStride() { return m_row; };
+#ifndef KF_EMBED
 	void ReinitializeBitmap();
+#endif
 	inline bool GetIsRendering() { return m_bIsRendering; };
 	inline bool GetUseHybridFormula() const { return m_UseHybridFormula; };
 	inline void SetUseHybridFormula(bool b)

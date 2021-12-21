@@ -47,7 +47,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <set>
+#ifndef KF_EMBED
 #include "../common/bitmap.h"
+#endif
 #include "../formula/formula.h"
 #include "colour.h"
 #include "jpeg.h"

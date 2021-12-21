@@ -99,6 +99,7 @@ typedef struct tagBITMAP {
   LPVOID bmBits;
 } BITMAP,*PBITMAP,*NPBITMAP,*LPBITMAP;
 
+#if 0
 struct HBITMAP__ { int unused; }; typedef struct HBITMAP__ *HBITMAP;
 struct HDC__ { int unused; }; typedef struct HDC__ *HDC;
 struct HFONT__ { int unused; }; typedef struct HFONT__ *HFONT;
@@ -113,11 +114,8 @@ typedef struct tagBITMAPINFOHEADER {
   WORD biBitCount;
   DWORD biCompression;
   DWORD biSizeImage;
-  LONG biXPelsPerMeter;
-  LONG biYPelsPerMeter;
-  DWORD biClrUsed;
-  DWORD biClrImportant;
-} BITMAPINFOHEADER,*LPBITMAPINFOHEADER,*PBITMAPINFOHEADER;
+} BITMAPINFOHEADER,*LPBITMAPINFOHEADER;
+#endif
 
 typedef struct tagRGBQUAD {
   BYTE rgbBlue;
