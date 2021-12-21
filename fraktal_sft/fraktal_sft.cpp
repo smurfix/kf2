@@ -654,6 +654,7 @@ void CFraktalSFT::LoadTexture()
 	ReleaseDC(NULL,hDC);
 }
 #endif // KF_EMBED
+
 void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 {
 	if (! m_lpTextureBits)
@@ -697,8 +698,7 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 	diffx = (p1+diffx)/p1;
 	diffy = (p1+diffy)/p1;
 
-	double dbScale=1;
-	double nImgPower = m_nImgPower*dbScale;
+	double nImgPower = m_nImgPower;
 	diff = pow(diff,nImgPower);
 	diffx = pow(diffx,nImgPower);
 	diffy = pow(diffy,nImgPower);
@@ -735,11 +735,6 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 		diffx=diffx*(double)m_nImgRatio/100;;
 		nX = x+nImgOffs - nImgPower*diffx;
 	}
-
-	int mr = (m_bmiBkg.biWidth)/2+nImgOffs/2;
-	int mi = (m_bmiBkg.biHeight)/2+nImgOffs/2;
-	nX = (nX - mr)/dbScale + mr;
-	nY = (nY - mi)/dbScale + mi;
 
 	if(nY<0)
 		nY=0;
