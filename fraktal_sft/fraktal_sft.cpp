@@ -2770,22 +2770,17 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 	return diff<nSpan;
 }
 
-#define KF_RERENDER_ONLY_ALL_GLITCHES
 BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
 {
 	if (!m_nPixels)
 		return FALSE;
-g_nAddRefX=nXPos;g_nAddRefY=nYPos;
+	g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 
 	m_bNoGlitchDetection = bNoGlitchDetection;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
-#else
-	int **Pixels = m_nPixels;
-#endif
 	{
 		floatexp dbD0r, dbD0i;
 		GetPixelCoordinates(nXPos, nYPos, dbD0r, dbD0i);
@@ -2803,16 +2798,8 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 #endif
 	{
 		int x, y;
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
-#else
-		int i = 0;
-#endif
 		if(nXPos>=0 && nXPos<m_nX && nYPos>=0 && nYPos<m_nY)
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
 			;
-#else
-			i = Pixels[nXPos][nYPos];
-#endif
 		else
 			bResuming=TRUE;
 
@@ -2823,36 +2810,15 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 				m_nPixels[x][y] = PIXEL_UNEVALUATED;
 			nCount = m_nX * m_nY;
 		}
-/*	else if (bNP){
-		int **Node = new int*[m_nX];
-		for (i = 0; i<m_nX; i++)
-			Node[i] = new int[m_nY];
-		for (x = 0; x<m_nX; x++)
-		for (y = 0; y<m_nY; y++)
-			Node[x][y] = m_nPixels[x][y];
-		GetArea(Node, nXPos, nYPos, 2, itercount_array_invalid, -1);
-		for (x = 0; x<m_nX; x++)
-		for (y = 0; y<m_nY; y++)
-		if (Node[x][y] == -1)
-			m_nPixels[x][y] = -1;
-	}
-*/		else if (!bResuming){
+  		else if (!bResuming){
 			for (x = 0; x<m_nX; x++){
 				for (y = 0; y<m_nY; y++){
-#ifdef KF_RERENDER_ONLY_ALL_GLITCHES
 					// re-render all and only glitched pixels
 					if (GET_TRANS_GLITCH(m_nTrans[x][y]))
 					{
 						m_nPixels[x][y] = PIXEL_UNEVALUATED;
 						nCount++;
 					}
-#else
-					// re-render all and only pixels with the same integer iteration count
-					if (IsEqual(i, Pixels[x][y], 1)){// && IsEqual(t, (int)(SMOOTH_TOLERANCE*m_nTrans[x][y]), 4)){
-						m_nPixels[x][y] = PIXEL_UNEVALUATED;
-						nCount++;
-					}
-#endif
 				}
 			}
 		}
@@ -2864,7 +2830,6 @@ g_nAddRefX=nXPos;g_nAddRefY=nYPos;
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, m_hWnd == nullptr, FALSE);
 	return TRUE;
 }
-#undef KF_RERENDER_ONLY_ALL_GLITCHES
 
 #define SMOOTH_TO 7
 int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize)
