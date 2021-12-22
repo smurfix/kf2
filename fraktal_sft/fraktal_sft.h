@@ -127,7 +127,9 @@ class CFraktalSFT
 	half *m_imageHalf; // for EXR export
 	BYTE *m_lpBits;
 	int m_row;
-	BITMAPINFOHEADER *m_bmi;
+#ifndef KF_EMBED
+	BITMAPINFOHEADER *m_bmi;  // bitmap header of image bitmap
+#endif
 	bool m_bResized;
 
 	int m_nX, m_nXPrev;  // X size of bitmap
@@ -159,10 +161,12 @@ class CFraktalSFT
 	int m_nImgRatio;                    // Texture height/width ratio. Corrently fixed at 100
 	bool m_bTextureResize;              // dies loading the texture resize it to 
 	BYTE *m_lpTextureBits;
+#ifndef KF_EMBED
 	std::string m_szTexture;            // file name
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
 	TextureParams m_ActiveTextureParams;  // loaded currently
+#endif
 
 	std::vector< complex<CFixedFloat> > m_Inflections;
 
