@@ -129,8 +129,9 @@ class CFraktalSFT
 	int m_row;
 	BITMAPINFOHEADER *m_bmi;
 	bool m_bResized;
-	int m_nX, m_nXPrev;
-	int m_nY, m_nYPrev;
+
+	int m_nX, m_nXPrev;  // X size of bitmap
+	int m_nY, m_nYPrev;  // Y size of bitmap
 	std::atomic<uint32_t> m_count_good_guessed, m_count_good, m_count_queued, m_count_bad, m_count_bad_guessed;
 	double
 	  m_timer_total_wall_start,
@@ -151,16 +152,17 @@ class CFraktalSFT
 	BOOL m_bAddReference;
 	BOOL m_bNoApproximation;
 
-	BOOL m_bTexture;
-	double m_nImgMerge;
-	double m_nImgPower;
-	int m_nImgRatio;
-	std::string m_szTexture;
-	bool m_bTextureResize;
+	// Texture data
+	BOOL m_bTexture;                    // apply at all?
+	double m_nImgMerge;                 // 0…1 how much texture to apply
+	double m_nImgPower;                 // warping power
+	int m_nImgRatio;                    // Texture height/width ratio. Corrently fixed at 100
+	bool m_bTextureResize;              // dies loading the texture resize it to 
 	BYTE *m_lpTextureBits;
+	std::string m_szTexture;            // file name
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
-	TextureParams m_ActiveTextureParams;
+	TextureParams m_ActiveTextureParams;  // loaded currently
 
 	std::vector< complex<CFixedFloat> > m_Inflections;
 
