@@ -784,16 +784,16 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		/*		if(1){//DE
 		double p1, p2;
 		if(x){
-		p1 = (double)m_nPixels[x-1][y] + (double)1-m_nTrans[x-1][y];
-		p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			p1 = (double)m_nPixels[x-1][y] + (double)1-m_nTrans[x-1][y];
+			p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
 		}
 		else if(x<m_nX-1){
-		p1 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
-		p2 = (double)m_nPixels[x+1][y] + (double)1-m_nTrans[x+1][y];
+			p1 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			p2 = (double)m_nPixels[x+1][y] + (double)1-m_nTrans[x+1][y];
 		}
 		else
-		p1=p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
-		iter = (p1>p2?p1-p2:p2-p1);
+			p1=p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			iter = (p1>p2?p1-p2:p2-p1);
 		}
 		*/
 		if (method == ColorMethod_SquareRoot){
@@ -1117,42 +1117,42 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		}
 		else
 		{
-		double p1, p2;
-		/*		if(x && y){
-		p1 = (double)m_nPixels[x-1][y-1] + (double)1-m_nTrans[x-1][y-1];
-		p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			double p1, p2;
+			/*		if(x && y){
+			p1 = (double)m_nPixels[x-1][y-1] + (double)1-m_nTrans[x-1][y-1];
+			p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			}
+			else if(x<m_nX-1 && y<m_nY-1){
+			p1 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			p2 = (double)m_nPixels[x+1][y+1] + (double)1-m_nTrans[x+1][y+1];
+			}
+			else
+			p1=p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
+			double diffCompare = p1/p2;
+			*/
+			if (w <= x && m_nPixels[x - w][y] != PIXEL_UNEVALUATED){
+				p1 = (double)m_nPixels[x - w][y] + (double)1 - m_nTrans[x - w][y];
+				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+			}
+			else if (x+w<m_nX && m_nPixels[x + w][y] != PIXEL_UNEVALUATED){
+				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+				p2 = (double)m_nPixels[x + w][y] + (double)1 - m_nTrans[x + w][y];
+			}
+			else
+				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+			diffx = (p1 - p2) / w;
+			if (h <= y && m_nPixels[x][y - h] != PIXEL_UNEVALUATED){
+				p1 = (double)m_nPixels[x][y - h] + (double)1 - m_nTrans[x][y - h];
+				p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+			}
+			else if (y+h<m_nY && m_nPixels[x][y + h] != PIXEL_UNEVALUATED){
+				p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+				p2 = (double)m_nPixels[x][y + h] + (double)1 - m_nTrans[x][y + h];
+			}
+			else
+				p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
+			diffy = (p1 - p2) / h;
 		}
-		else if(x<m_nX-1 && y<m_nY-1){
-		p1 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
-		p2 = (double)m_nPixels[x+1][y+1] + (double)1-m_nTrans[x+1][y+1];
-		}
-		else
-		p1=p2 = (double)m_nPixels[x][y] + (double)1-m_nTrans[x][y];
-		double diffCompare = p1/p2;
-		*/
-		if (w <= x && m_nPixels[x - w][y] != PIXEL_UNEVALUATED){
-			p1 = (double)m_nPixels[x - w][y] + (double)1 - m_nTrans[x - w][y];
-			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		}
-		else if (x+w<m_nX && m_nPixels[x + w][y] != PIXEL_UNEVALUATED){
-			p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			p2 = (double)m_nPixels[x + w][y] + (double)1 - m_nTrans[x + w][y];
-		}
-		else
-			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		diffx = (p1 - p2) / w;
-		if (h <= y && m_nPixels[x][y - h] != PIXEL_UNEVALUATED){
-			p1 = (double)m_nPixels[x][y - h] + (double)1 - m_nTrans[x][y - h];
-			p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		}
-		else if (y+h<m_nY && m_nPixels[x][y + h] != PIXEL_UNEVALUATED){
-			p1 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-			p2 = (double)m_nPixels[x][y + h] + (double)1 - m_nTrans[x][y + h];
-		}
-		else
-			p1 = p2 = (double)m_nPixels[x][y] + (double)1 - m_nTrans[x][y];
-		diffy = (p1 - p2) / h;
-	  }
 
 		double diff = diffx*m_nSlopeX + diffy*m_nSlopeY;
 		diff *= m_nSlopePower * double(m_nX) / 640;
