@@ -90,10 +90,10 @@ bool perturbation_SIMD_derivatives_<xsl:value-of select="@type" />_<xsl:value-of
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
 <xsl:for-each select="glitch">
-    const double1 m_bGlitchLowTolerance = 0.0; // FIXME
+    const double1 glitchLowTolerance = 0.0; // FIXME
     const double1 lfactorlo = log(<xsl:value-of select="@factorlo" />);
     const double1 lfactorhi = log(<xsl:value-of select="@factorhi" />);
-    const double1 factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+    const double1 factor = exp(lfactorhi + glitchLowTolerance * (lfactorlo - lfactorhi));
 </xsl:for-each>
     bool no_g = g_real == 1.0 &amp;&amp; g_imag == 1.0 &amp;&amp; p == 2.0;
     const double1 Ar = g_FactorAR;

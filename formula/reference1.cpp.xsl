@@ -36,7 +36,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   )
 {
   using std::abs;
@@ -62,7 +62,7 @@ bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
     int64_t nMaxIter = m_nMaxIter;
     int64_t i;
     double glitch = <xsl:value-of select="@glitch" />;
-    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
+    glitch = std::exp(std::log(glitch) * (1 - glitchLowTolerance / 2));
     mp_bitcnt_t bits = mpfr_get_prec(Cr0.m_f.backend().data());
     mpfr_t Cr; mpfr_init2(Cr, bits); mpfr_set(Cr, Cr0.m_f.backend().data(), MPFR_RNDN);
     mpfr_t Ci; mpfr_init2(Ci, bits); mpfr_set(Ci, Ci0.m_f.backend().data(), MPFR_RNDN);

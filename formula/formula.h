@@ -185,7 +185,7 @@ bool reference
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   );
 
 int reference_glitches(const int m_nFractalType, const int m_nPower);

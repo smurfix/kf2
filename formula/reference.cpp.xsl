@@ -34,7 +34,7 @@ bool reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" 
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   );
 int reference_<xsl:value-of select="../@type" />_<xsl:value-of select="@power" />_glitches();
 </xsl:for-each>
@@ -47,7 +47,7 @@ bool reference
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   )
 {
   switch (m_nFractalType)
@@ -67,7 +67,7 @@ bool reference
             , g_SeedR, g_SeedI
             , g_FactorAR, g_FactorAI
             , terminate
-            , m_bGlitchLowTolerance
+            , glitchLowTolerance
             );
       </xsl:for-each>
       }

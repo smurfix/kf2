@@ -51,10 +51,10 @@ bool perturbation_convergent_simple_<xsl:value-of select="@type" />_<xsl:value-o
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
 <xsl:for-each select="glitch">
-    const T m_bGlitchLowTolerance = 0.0; // FIXME
+    const T glitchLowTolerance = 0.0; // FIXME
     const T lfactorlo = log(<xsl:value-of select="@factorlo" />);
     const T lfactorhi = log(<xsl:value-of select="@factorhi" />);
-    const T factor = exp(lfactorhi + m_bGlitchLowTolerance * (lfactorlo - lfactorhi));
+    const T factor = exp(lfactorhi + glitchLowTolerance * (lfactorlo - lfactorhi));
 </xsl:for-each>
     const T Ar = g_FactorAR;
     const T Ai = g_FactorAI;
