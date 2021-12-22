@@ -201,9 +201,8 @@ struct TH_PARAMS
 };
 
 const double pi = 3.141592653589793;
-
-const std::string version = "2.15.5+dev";
-const int kfr_version_number = 2150500;
-const int kfs_version_number = 2150501;
+extern const std::string version;
+extern const int kfr_version_number;
+extern const int kfs_version_number;
 
 #endif

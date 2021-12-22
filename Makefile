@@ -39,6 +39,7 @@ fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
 fraktal_sft/check_for_update.cpp \
 fraktal_sft/cmdline.cpp \
+fraktal_sft/defs.cpp \
 fraktal_sft/exr.cpp \
 fraktal_sft/floatexp_approximation.cpp \
 fraktal_sft/fraktal_sft.cpp \
