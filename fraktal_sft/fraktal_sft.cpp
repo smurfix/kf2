@@ -77,8 +77,9 @@ double g_FactorAI=0;
 #define TERM5
 //#define TERM6
 //#define TERM7
-int g_nAddRefX = -1, g_nAddRefY = -1;
 
+// TODO move to g_SFT
+int g_nAddRefX = -1, g_nAddRefY = -1;
 double g_Degree = 0;
 #if 0
 void(SetParts)(double,double);
