@@ -96,6 +96,7 @@ Feedback:
 
 ## Known Bugs
 
+- The "Mirror" option doesn't do anything
 - Windows Defender sometimes reports that KF contains malware
   (false positive, I hope - I check with virustotal.com and all seems
   fine) (possibly due to screenshots for crosshair window, some code
