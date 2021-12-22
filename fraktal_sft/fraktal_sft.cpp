@@ -1705,6 +1705,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bInteractive,
 		  g_bAutoGlitch,
 		  GetMaxReferences(),
+
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -1833,6 +1834,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bInteractive,
 		  g_bAutoGlitch,
 		  GetMaxReferences(),
+
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -1929,6 +1931,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bInteractive,
 		  g_bAutoGlitch,
 		  GetMaxReferences(),
+
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
@@ -2022,6 +2025,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bInteractive,
 		  g_bAutoGlitch,
 		  GetMaxReferences(),
+
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
 		  m_OpenCL_Glitched_Y,
