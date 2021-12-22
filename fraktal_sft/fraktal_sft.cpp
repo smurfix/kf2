@@ -3769,10 +3769,16 @@ int64_t CFraktalSFT::GetMaxExceptCenter()
 	int x, y;
 	int nXO = m_nX / 2 - 2;
 	int nYO = m_nY / 2 - 2;
-	for (x = 0; x<m_nX; x++)
-	for (y = 0; y<m_nY; y++)
-	if ((x<nXO || x>m_nX - nXO) && (y<m_nY - nYO || y>3 * nYO) && nMax<m_nPixels[x][y])
-		nMax = m_nPixels[x][y];
+	for (x = 0; x<m_nX; x++) {
+		if (x >= nXO && x <= m_nX - nXO)
+			continue;
+		for (y = 0; y<m_nY; y++) {
+			if (y >= nYO && y <= m_nY - nYO)
+				continue;
+			if (nMax < m_nPixels[x][y])
+				nMax = m_nPixels[x][y];
+		}
+	}
 	return nMax;
 }
 void CFraktalSFT::SetFractalType(int nFractalType)

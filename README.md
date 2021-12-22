@@ -208,6 +208,11 @@ Feedback:
 
 ## Differences From Original 2.15.5
 
+### Bugs
+
+- Improve max-iter calculation (ignoring the center bits, useful when
+  zooming into e.g. a minibrot, didn't work right)
+
 ### Embedding
 
 - There is a (rudimentary, requires improvements) way to build a
