@@ -54,8 +54,6 @@ class CFraktalSFT
 	HANDLE m_hMutex;
 	CPixels m_P;
 	CFixedFloat m_CenterRe, m_CenterIm, m_ZoomRadius, m_rref, m_iref;
-	double m_dPixelSpacing;
-	long double m_lPixelSpacing;
 	floatexp m_fPixelSpacing;
 	double m_epsilon;
 	CFixedFloat m_storedr, m_storedi;

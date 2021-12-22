@@ -191,8 +191,6 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
-	m_dPixelSpacing = double(m_fPixelSpacing);
-	m_lPixelSpacing = (long double)(m_fPixelSpacing);
 
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
 		if (m_hWnd)
