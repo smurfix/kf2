@@ -1656,7 +1656,7 @@ nPos=14;
 					if (g_SFT.GetZoomSize() == 1)
 					{
 						// scrolling left
-						g_SFT.Zoom(-g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_SFT.GetZoomSize(),g_JpegParams.nWidth,g_JpegParams.nHeight,!g_bAnimateEachFrame && bReuseCenter);
+						g_SFT.Zoom(-g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,1/(double)g_SFT.GetZoomSize(),!g_bAnimateEachFrame && bReuseCenter);
 					}
 					else
 					{
@@ -2724,7 +2724,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(p.x,p.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),TRUE);
+		g_SFT.Zoom(p.x,p.y,1,TRUE);
 		SetTimer(hWnd,0,500,NULL);
 		return 0;
 	}
@@ -2823,7 +2823,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(p.x,p.y,nZoom,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(p.x,p.y,nZoom,FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(!g_bWaitRead && g_bSelect && ((uMsg==WM_KEYDOWN && wParam==VK_ESCAPE) || uMsg==WM_LBUTTONUP || uMsg==WM_CAPTURECHANGED)){
@@ -2948,7 +2948,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			{
 				g_SFT.UndoStore();
 				g_SFT.Stop();
-				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetZoomSize()==1, true, true);
+				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetZoomSize()==1, true, true);
 			}
 			SetTimer(hWnd,0,500,NULL);
 		}
@@ -3164,7 +3164,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(p.x,p.y,(lParam==9?2:g_SFT.GetZoomSize()),g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(p.x,p.y,(lParam==9?2:g_SFT.GetZoomSize()),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
@@ -3224,7 +3224,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(p.x,p.y,(lParam==9?.5:(double)1/(double)g_SFT.GetZoomSize()),g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(p.x,p.y,(lParam==9?.5:(double)1/(double)g_SFT.GetZoomSize()),FALSE);
 		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
@@ -3663,7 +3663,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_RIGHT && HIWORD(GetKeyState(VK_CONTROL))){
@@ -3687,7 +3687,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_UP && HIWORD(GetKeyState(VK_CONTROL))){
@@ -3711,7 +3711,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_DOWN && HIWORD(GetKeyState(VK_CONTROL))){
@@ -3735,7 +3735,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
-		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,g_SFT.GetWidth(),g_SFT.GetHeight(),FALSE);
+		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='O' && HIWORD(GetKeyState(VK_CONTROL)))
@@ -3877,9 +3877,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
 		if(!g_bAutoGlitch && g_SFT.GetReuseReference() && g_pSelect.x==g_SFT.GetWidth()/2 && g_pSelect.y==g_SFT.GetHeight()/2)
-			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight(),bReuseCenter);
+			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),bReuseCenter);
 		else
-			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight());
+			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize());
 		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(!g_SFT.GetArbitrarySize() && uMsg==WM_SIZING){
@@ -4305,7 +4305,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.GetIterations(nMin,nMax);
 				if(nMax<nMin+3){
 					g_SFT.ResetTimers();
-					g_SFT.Zoom(0,0,1.0/g_SFT.GetZoomSize(),g_SFT.GetWidth(),g_SFT.GetHeight());
+					g_SFT.Zoom(0,0,1.0/g_SFT.GetZoomSize());
 					SetTimer(hWnd,0,500,NULL);
 					return 0;
 				}

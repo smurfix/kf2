@@ -2105,7 +2105,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
 }
 
-void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter, bool autorender, bool center_view)
+void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool autorender, bool center_view)
 {
 	Stop();
 
@@ -2117,13 +2117,10 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-	if (m_nX != nWidth || m_nY != nHeight){
-		DeleteArrays();
-	}
-	else if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
+	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
 		m_bAddReference = 2;
-		int nOX = nWidth*nZoomSize;
-		int nOY = nHeight*nZoomSize;
+		int nOX = m_nX*nZoomSize;
+		int nOY = m_nY*nZoomSize;
 		int i;
 		int64_t **Org = new int64_t*[nOX];
 		for (i = 0; i<nOX; i++)
@@ -2175,8 +2172,8 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 				}
 			}
 		}
-		a = (nWidth - nOX) / 2;
-		b = (nHeight - nOY) / 2;
+		a = (m_nX - nOX) / 2;
+		b = (m_nY - nOY) / 2;
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
 				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
@@ -2210,8 +2207,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		delete[] OrgDEy;
 	}
 
-	m_nX = nWidth;
-	m_nY = nHeight;
 	unsigned digits10 = 20u;
 	{
 		Precision pLo(20u);
@@ -2236,7 +2231,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int n
 		CFixedFloat im1 = m_iref + CFixedFloat(b);
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
-		SetPosition(re, im, radius, nWidth, nHeight);
+		SetPosition(re, im, radius, m_nX, m_nY);
 	}
 	if (autorender)
 		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
