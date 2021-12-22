@@ -704,34 +704,35 @@ void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 	diffy = pow(diffy,nImgPower);
 	int nY=y;
 	int nX=x;
+	static double pi4 = pi/4;
 	if(diff>1){
-		diff = (atan(diff)-pi/4)/(pi/4);
+		diff = (atan(diff)-pi4)/pi4;
 		diff=diff*(double)m_nImgRatio/100;;
 	}
 	else{
 		diff=1/diff;
-		diff = (atan(diff)-pi/4)/(pi/4);
+		diff = (atan(diff)-pi4)/pi4;
 		diff=diff*(double)m_nImgRatio/100;;
 	}
 	if(diffy>1){
-		diffy = (atan(diffy)-pi/4)/(pi/4);
+		diffy = (atan(diffy)-pi4)/pi4;
 		diffy=diffy*(double)m_nImgRatio/100;;
 		nY = y+nImgOffs + nImgPower*diffy;
 	}
 	else{
 		diffy=1/diffy;
-		diffy = (atan(diffy)-pi/4)/(pi/4);
+		diffy = (atan(diffy)-pi4)/pi4;
 		diffy=diffy*(double)m_nImgRatio/100;;
 		nY = y+nImgOffs - nImgPower*diffy;
 	}
 	if(diffx>1){
-		diffx = (atan(diffx)-pi/4)/(pi/4);
+		diffx = (atan(diffx)-pi4)/pi4;
 		diffx=diffx*(double)m_nImgRatio/100;;
 		nX = x+nImgOffs + nImgPower*diffx;
 	}
 	else{
 		diffx=1/diffx;
-		diffx = (atan(diffx)-pi/4)/(pi/4);
+		diffx = (atan(diffx)-pi4)/pi4;
 		diffx=diffx*(double)m_nImgRatio/100;;
 		nX = x+nImgOffs - nImgPower*diffx;
 	}
