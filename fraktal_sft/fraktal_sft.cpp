@@ -1400,6 +1400,7 @@ std::string CFraktalSFT::ToZoom()
 }
 std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 {
+	// XXX &zoom always refers to m_nZoom. Remove.
 	static char szRet[40];
 	std::string sszZoom = z.ToText();
 	const char *szZoom = sszZoom.c_str();
