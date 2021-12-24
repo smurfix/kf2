@@ -382,13 +382,13 @@ void CFraktalSFT::AddWave(int nColor, int nP, int nS)
 {
 	srand(GetTickCount());
 	int nPeriod;
+	if (nP == 0)
+		return;
 	if (nP == -1){
 		nPeriod = rand() % (m_nParts<4 ? m_nParts / 2 : m_nParts);
 		nPeriod = MakePrime(nPeriod);
 	}
 	else {
-		if (nP == 0 && nColor == 3)
-			return;
 		nPeriod = nP;
 	}
 	int nStart;
@@ -410,13 +410,28 @@ void CFraktalSFT::AddWave(int nColor, int nP, int nS)
 			m_cKeys[i].b = val;
 			break;
 		case 3:
-			m_cKeys[i].r = (int)(m_cKeys[i].r + 1 * val) / 2;
-			m_cKeys[i].g = (int)(m_cKeys[i].g + 1 * val) / 2;
-			m_cKeys[i].b = (int)(m_cKeys[i].b + 1 * val) / 2;
+			m_cKeys[i].r = val;
+			m_cKeys[i].g = val;
+			m_cKeys[i].b = val;
+			break;
+		case 4:
+			m_cKeys[i].r += (int)(m_cKeys[i].r + val) / 2;
+			break;
+		case 5:
+			m_cKeys[i].g += (int)(m_cKeys[i].g + val) / 2;
+			break;
+		case 6:
+			m_cKeys[i].b += (int)(m_cKeys[i].b + val) / 2;
+			break;
+		case 7:
+			m_cKeys[i].r = (int)(m_cKeys[i].r + val) / 2;
+			m_cKeys[i].g = (int)(m_cKeys[i].g + val) / 2;
+			m_cKeys[i].b = (int)(m_cKeys[i].b + val) / 2;
 			break;
 		}
 	}
 }
+
 void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
 {
 	m_nParts = nParts;
@@ -438,52 +453,10 @@ void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
 				continue;
 			stPeriods.insert(nPeriod);
 		}
-		int nStart = rand() % nPeriod;
-		int nColor = nW % 4;
-		if (nW<4){
-			for (i = 0; i<1024; i++){
-				int val = 127 + 127 * sin((double)(i + nStart) * 2 * pi*((double)nPeriod / (double)m_nParts));
-				switch (nColor){
-				case 0:
-					m_cKeys[i].r += (int)(m_cKeys[i].r + val) % 256;
-					break;
-				case 1:
-					m_cKeys[i].g += (int)(m_cKeys[i].g + val) % 256;
-					break;
-				case 2:
-					m_cKeys[i].b += (int)(m_cKeys[i].b + val) % 256;
-					break;
-				case 3:
-					m_cKeys[i].r = (int)(m_cKeys[i].r + val) / 2;
-					m_cKeys[i].g = (int)(m_cKeys[i].g + val) / 2;
-					m_cKeys[i].b = (int)(m_cKeys[i].b + val) / 2;
-					break;
-				}
-			}
-		}
-		else{
-			for (i = 0; i<1024; i++){
-				int val = 127 + 127 * sin((double)(i + nStart) * 2 * pi*((double)nPeriod / (double)m_nParts));
-				switch (nColor){
-				case 0:
-					m_cKeys[i].r = (int)(m_cKeys[i].r + val) / 2;
-					break;
-				case 1:
-					m_cKeys[i].g = (int)(m_cKeys[i].g + val) / 2;
-					break;
-				case 2:
-					m_cKeys[i].b = (int)(m_cKeys[i].b + val) / 2;
-					break;
-				case 3:
-					m_cKeys[i].r = (int)(m_cKeys[i].r + val) / 2;
-					m_cKeys[i].g = (int)(m_cKeys[i].g + val) / 2;
-					m_cKeys[i].b = (int)(m_cKeys[i].b + val) / 2;
-					break;
-				}
-			}
-		}
+		AddWave(nW%4 | ((nW>=4)?4:0), nPeriod, -1);
 	}
 }
+
 void CFraktalSFT::ChangeNumOfColors(int nParts)
 {
 	m_nParts = nParts;

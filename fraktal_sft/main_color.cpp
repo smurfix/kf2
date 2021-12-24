@@ -928,7 +928,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.AddWave(0,nPeriod,nStart);
 			nPeriod = GetDlgItemInt(hWnd,IDC_EDIT18,NULL,FALSE);
 			nStart = GetDlgItemInt(hWnd,IDC_EDIT19,NULL,FALSE);
-			g_SFT.AddWave(3,nPeriod,nStart);
+			g_SFT.AddWave(7,nPeriod,nStart);
 
 			if (g_AutoColour) g_SFT.ApplyColors();
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
