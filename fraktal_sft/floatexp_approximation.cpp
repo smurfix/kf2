@@ -574,11 +574,11 @@ void CFraktalSFT::CalculateApproximation(int nType)
 							complex<floatexp> X(dxr, dxi);
 							complex<floatexp> D(dbTr[j], dbTi[j]);
 							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> c(m_pnExpConsts[0], 0);
+							complex<floatexp> c(m_pnExpConsts[1], 0);
 							int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
 							complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
 							while (nXExp){
-								c.m_r = m_pnExpConsts[ci++];
+								c.m_r = m_pnExpConsts[++ci];
 								Dn += c*(X^nXExp)*(D^nDExp);
 								nXExp--;
 								nDExp++;

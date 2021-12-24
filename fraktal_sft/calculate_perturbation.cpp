@@ -151,11 +151,11 @@ void CFraktalSFT::MandelCalc1()
             complex<mantissa> X(dxr[antal], dxi[antal]);
             complex<mantissa> D(Dr, Di);
             complex<mantissa> D0(dbD0r, dbD0i);
-            complex<mantissa> c(m_pnExpConsts[0], 0);
+            complex<mantissa> c(m_pnExpConsts[1], 0);
             int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
             complex<mantissa> Dn = c*(X^(m_nPower - 1))*D;
             while (nXExp){
-              c.m_r = m_pnExpConsts[ci++];
+              c.m_r = m_pnExpConsts[++ci];
               Dn += c*(X^nXExp)*(D^nDExp);
               nXExp--;
               nDExp++;
@@ -202,11 +202,11 @@ void CFraktalSFT::MandelCalc1()
             complex<mantissa> X(dxr[antal], dxi[antal]);
             complex<mantissa> D(Dr, Di);
             complex<mantissa> D0(dbD0r, dbD0i);
-            complex<mantissa> c(m_pnExpConsts[0], 0);
+            complex<mantissa> c(m_pnExpConsts[1], 0);
             int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
             complex<mantissa> Dn = c*(X^(m_nPower - 1))*D;
             while (nXExp){
-              c.m_r = m_pnExpConsts[ci++];
+              c.m_r = m_pnExpConsts[++ci];
               Dn += c*(X^nXExp)*(D^nDExp);
               nXExp--;
               nDExp++;

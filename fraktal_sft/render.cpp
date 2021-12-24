@@ -115,29 +115,15 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 			delete[] m_pnExpConsts;
 			m_pnExpConsts = NULL;
 		}
-		CStringTable stVal("4,6", "", ",");
-		int i, k;
-		char szTmp[20];
-		for (i = 5; i <= m_nPower; i++){
-			sprintf(szTmp, "%d", i);
-			stVal[0].InsertString(0, szTmp);
-			for (k = 1; k<stVal.GetCount(); k++){
-				sprintf(szTmp, "%d", atoi(stVal[k - 1][1]) + atoi(stVal[k][0]));
-				stVal[k].InsertString(0, szTmp);
-			}
-			if (i % 2 == 0){
-				stVal.AddRow();
-				stVal.AddInt(stVal.GetCount() - 1, atoi(stVal[stVal.GetCount() - 2][1]) * 2);
-			}
+		// compute Pascal triangle numbers
+		m_pnExpConsts = new int[m_nPower + 1];
+		m_pnExpConsts[0] = 1;
+		int i,k;
+		for(i=1;i<=m_nPower;i++) {
+			m_pnExpConsts[i] = 1;
+			for (k=i-1;k>0;k--)
+				m_pnExpConsts[k] += m_pnExpConsts[k-1];
 		}
-		m_pnExpConsts = new int[m_nPower - 1];
-		k = 0;
-		for (i = 0; i<stVal.GetCount(); i++)
-			m_pnExpConsts[k++] = atoi(stVal[i][0]);
-		if (m_nPower % 2 == 0)
-			i--;
-		for (i--; i >= 0; i--)
-			m_pnExpConsts[k++] = atoi(stVal[i][0]);
 	}
 	else if (m_nPower <= 10 && m_pnExpConsts){
 		delete[] m_pnExpConsts;
