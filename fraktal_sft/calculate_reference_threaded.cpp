@@ -165,7 +165,7 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		HANDLE hDone[3];
 #endif
 		mcthread_common co;
-	  co.barrier = &barrier;
+		co.barrier = &barrier;
 		mp_bitcnt_t bits = mpfr_get_prec(m_rref.m_f.backend().data());
 		mpfr_init2(co.xr, bits);
 		mpfr_init2(co.xi, bits);
