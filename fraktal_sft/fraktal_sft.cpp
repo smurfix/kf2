@@ -355,18 +355,25 @@ void CFraktalSFT::GenerateColors(int nParts, int nSeed)
 }
 extern int MakePrime(int n)
 {
-	int i;
-	int nE = n / 2;
-	while (1){
+	if (n < 1)
+		return 1;
+	else if (n < 4)
+		return n;
+	// poor man's integer square root
+	int nE = 1<<((33-__builtin_clz(n))/2);
+
+	n |= 1; // must be odd
+	int i = 3;
+	while (true){
 		BOOL bDone = TRUE;
-		for (i = 2; i<nE; i++)
-		if (n%i == 0){
-			bDone = FALSE;
-			break;
-		}
+		for (i = 3; i<nE; i += 2)
+			if (n%i == 0){
+				bDone = FALSE;
+				break;
+			}
 		if (bDone)
 			break;
-		n++;
+		n += 2;
 	}
 	return n;
 }
@@ -376,13 +383,10 @@ void CFraktalSFT::AddWave(int nColor, int nP, int nS)
 	int nPeriod;
 	if (nP == -1){
 		nPeriod = rand() % (m_nParts<4 ? m_nParts / 2 : m_nParts);
-		if (nPeriod == 0)
-			nPeriod = 1;
+		nPeriod = MakePrime(nPeriod);
 	}
 	else
 		nPeriod = nP;
-	if (nP == -1)
-		nPeriod = MakePrime(nPeriod);
 	int nStart;
 	if (nS == -1)
 		nStart = rand() % nPeriod;
@@ -433,8 +437,6 @@ void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
 		int nTests, nPeriod;
 		for (nTests = 0; nTests<20; nTests++){
 			nPeriod = rand() % (nParts>4 ? nParts / 4 : nParts);
-			if (nPeriod == 0)
-				nPeriod = 1;
 			nPeriod = MakePrime(nPeriod);
 			if (stPeriods.count(nPeriod) != 0)
 				continue;
