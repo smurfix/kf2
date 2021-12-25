@@ -991,7 +991,7 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 				if (m_bTrans)
 					g = sin((pi*iter) / nPeriod) / 2 + .5;
 				else
-					g = sin((pi*((int)iter)) / nPeriod) / 2 + .5;
+					g = sin((pi*nIter) / nPeriod) / 2 + .5;
 				if (nPeriod<0)
 					g = -(double)nPeriod / (double)100;
 				if (m_MW[i].nType == 0){
