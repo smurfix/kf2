@@ -1026,16 +1026,15 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 				if (m_bITrans)
 					offs = 1 - offs;
 				double nR, nG, nB;
+				int col = nIter % 1024;
 				if (m_bTrans && offs){
 					double g1 = (1 - offs);
-					int col = ((nIter % 1024) + 1024) % 1024;
 					int ncol = (col + 1) % 1024;
 					nR = m_cPos[col].r*offs + m_cPos[ncol].r*g1;
 					nG = m_cPos[col].g*offs + m_cPos[ncol].g*g1;
 					nB = m_cPos[col].b*offs + m_cPos[ncol].b*g1;
 				}
 				else{
-					int col = ((nIter % 1024) + 1024) % 1024;
 					nR = m_cPos[col].r;//+n;
 					nG = m_cPos[col].g;//+n;
 					nB = m_cPos[col].b;//+n;
@@ -1060,16 +1059,15 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 			offs = 1 - (iter - (double)nIter);
 			if (m_bITrans)
 				offs = 1 - offs;
+			int col = nIter % 1024;
 			if (m_bTrans && offs){
 				double g1 = (1 - offs);
-				int col = ((nIter % 1024) + 1024) % 1024;
 				int ncol = (col + 1) % 1024;
 				s.r = (m_cPos[col].r*offs + m_cPos[ncol].r*g1) / 255.0f;
 				s.g = (m_cPos[col].g*offs + m_cPos[ncol].g*g1) / 255.0f;
 				s.b = (m_cPos[col].b*offs + m_cPos[ncol].b*g1) / 255.0f;
 			}
 			else{
-				int col = ((nIter % 1024) + 1024) % 1024;
 				s.r = m_cPos[col].r / 255.0f;
 				s.g = m_cPos[col].g / 255.0f;
 				s.b = m_cPos[col].b / 255.0f;
@@ -3404,7 +3402,7 @@ int CFraktalSFT::GetColorIndex(int x, int y)
 {
 	if (x<0 || x >= m_nX || y<0 || y >= m_nY || !m_nPixels)
 		return -1;
-	return ((((int64_t)floor(m_nPixels[x][y] / m_nIterDiv)) % 1024) + 1024) % 1024;
+	return (int64_t)floor(m_nPixels[x][y] / m_nIterDiv) % 1024;
 }
 
 void CFraktalSFT::SaveMap(const std::string &szFile)
@@ -3612,11 +3610,7 @@ ColorMethod CFraktalSFT::GetColorMethod()
 }
 void CFraktalSFT::SetColorOffset(int nColorOffset)
 {
-	while (nColorOffset<0)
-		nColorOffset += 1024;
-	while (nColorOffset >= 1024)
-		nColorOffset -= 1024;
-	m_nColorOffset = nColorOffset;
+	m_nColorOffset = nColorOffset % 1024;
 }
 int CFraktalSFT::GetColorOffset()
 {
