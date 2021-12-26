@@ -423,185 +423,185 @@ void CFraktalSFT::CalculateApproximation(int nType)
 			}
 		}
 
-			/*
-			An+1 = 2XnAn + 1
-			Bn+1 = 2XnBn + An2
-			Cn+1 = 2XnCn + 2AnBn (33097)
-			Dn+1 = 2XnDn + 2AnCn + Bn2
-			En+1 = 2XnEn + 2AnDn + 2BnCn (38613)
-			Fn+1 = 2XnFn + 2AnEn + 2BnDn + Cn2 (38613)
-			Gn+1 = 2XnGn + 2AnFn + 2BnEn + 2CnDn
-			Hn+1 = 2XnHn + 2AnGn + 2BnFn + 2CnEn + Dn2
-			In+1 = 2XnIn + 2AnHn + 2BnGn + 2CnFn + 2DnEn
-			*/
-			if (iteration<m_nMaxApproximation)
-		  {
-				floatexp dxr, dxi;
-				int64_t old_K = K;
-			  reference_get(m_Reference, K, iteration, dxr, dxi);
-			  K = old_K;
-				int j = 0;
-				for (j = 0; j<nProbe; j++){
+		/*
+		An+1 = 2XnAn + 1
+		Bn+1 = 2XnBn + An2
+		Cn+1 = 2XnCn + 2AnBn (33097)
+		Dn+1 = 2XnDn + 2AnCn + Bn2
+		En+1 = 2XnEn + 2AnDn + 2BnCn (38613)
+		Fn+1 = 2XnFn + 2AnEn + 2BnDn + Cn2 (38613)
+		Gn+1 = 2XnGn + 2AnFn + 2BnEn + 2CnDn
+		Hn+1 = 2XnHn + 2AnGn + 2BnFn + 2CnEn + Dn2
+		In+1 = 2XnIn + 2AnHn + 2BnGn + 2CnFn + 2DnEn
+		*/
+		if (iteration<m_nMaxApproximation)
+		{
+			floatexp dxr, dxi;
+			int64_t old_K = K;
+			reference_get(m_Reference, K, iteration, dxr, dxi);
+			K = old_K;
+			int j = 0;
+			for (j = 0; j<nProbe; j++){
 
-					// do approximation
-					floatexp Dnr, Dni;
-					if (isC)
+				// do approximation
+				floatexp Dnr, Dni;
+				if (isC)
+				{
+					if (rescaled)
 					{
-						if (rescaled)
+						if (m_nMaxApproximation)
 						{
-							if (m_nMaxApproximation)
+							const complex<floatexp> C(dbTr0[j], dbTi0[j]);
+							complex<floatexp> Z(0);
+							for (int k = m_nTerms - 1; k >= 0; --k)
 							{
-								const complex<floatexp> C(dbTr0[j], dbTi0[j]);
-								complex<floatexp> Z(0);
-								for (int k = m_nTerms - 1; k >= 0; --k)
-								{
-									Z += A[dst][k];
-									Z *= C;
-								}
-								Dnr = Z.m_r;
-								Dni = Z.m_i;
+								Z += A[dst][k];
+								Z *= C;
 							}
-							else
-							{
-								Dnr = dbTr0[j];
-								Dni = dbTi0[j];
-							}
+							Dnr = Z.m_r;
+							Dni = Z.m_i;
 						}
 						else
 						{
-							int64_t antal_;
-							floatexp DDnr_, DDni_;
-							DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
+							Dnr = dbTr0[j];
+							Dni = dbTi0[j];
 						}
 					}
-					if (isR)
-						DoApproximation(dbTr0[j], dbTi0[j], Dnr, Dni);
-
-					// compare with probe point
-					floatexp diff = (Dnr - dbTr[j]) / dbTr[j];
-					if (diff>mindiff || diff<-mindiff){
-						m_nMaxApproximation = iteration;
-						break;
-					}
-					diff = (Dni - dbTi[j]) / dbTi[j];
-					if (diff>mindiff || diff<-mindiff){
-						m_nMaxApproximation = iteration;
-						break;
-					}
-					double yr = double(dxr + Dnr);
-					double yi = double(dxi + Dni);
-					if (yr*yr + yi*yi>nBailout2){
-						m_nMaxApproximation = iteration;
-						break;
-					}
-
-					// step probe point using perturbation
-					if (m_nFractalType == 0)
+					else
 					{
-
-						if (m_nPower == 2){
-							Dnr = (dxr*dbTr[j] - dxi*dbTi[j]).mul2() + dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j] + dbTr0[j];
-							Dni = (dxr*dbTi[j] + dxi*dbTr[j] + dbTr[j] * dbTi[j]).mul2() + dbTi0[j];
-						}
-						else if (m_nPower == 3){
-							Dnr = _3*((dxr*dxr - dxi*dxi)*dbTr[j] + dxr*(dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j]) - dbTi[j] * (dxi*(dxr + dbTr[j]).mul2() + dbTr[j] * dbTi[j])) + dbTr[j] * dbTr[j] * dbTr[j] + dbTr0[j];
-							Dni = _3*((dxr*dxr - dxi*dxi)*dbTi[j] + dxi*(dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j]) + dbTr[j] * (dxr*(dxi + dbTi[j]).mul2() + dbTr[j] * dbTi[j])) - dbTi[j] * dbTi[j] * dbTi[j] + dbTi0[j];
-						}
-						else if (m_nPower == 4){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _4(4, 0), _6(6, 0);
-							complex<floatexp> Dn = _4*(X ^ 3)*D + _6*(X ^ 2)*(D ^ 2) + _4*X*(D ^ 3) + (D ^ 4) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 5){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _5(5, 0), _10(10, 0);
-							complex<floatexp> Dn = _5*(X ^ 4)*D + _10*(X ^ 3)*(D ^ 2) + _10*(X ^ 2)*(D ^ 3) + _5*X*(D ^ 4) + (D ^ 5) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 6){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _6(6, 0), _15(15, 0), _20(20, 0);
-							complex<floatexp> Dn = _6*(X ^ 5)*D + _15*(X ^ 4)*(D ^ 2) + _20*(X ^ 3)*(D ^ 3) + _15*(X ^ 2)*(D ^ 4) + _6*X*(D ^ 5) + (D ^ 6) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 7){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _7(7, 0), _21(21, 0), _35(35, 0);
-							complex<floatexp> Dn = _7*(X ^ 6)*D + _21*(X ^ 5)*(D ^ 2) + _35*(X ^ 4)*(D ^ 3) + _35*(X ^ 3)*(D ^ 4) + _21*(X ^ 2)*(D ^ 5) + _7*X*(D ^ 6) + (D ^ 7) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 8){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _8(8, 0), _28(28, 0), _56(56, 0), _70(70, 0);
-							complex<floatexp> Dn = _8*(X ^ 7)*D + _28*(X ^ 6)*(D ^ 2) + _56*(X ^ 5)*(D ^ 3) + _70*(X ^ 4)*(D ^ 4) + _56*(X ^ 3)*(D ^ 5) + _28*(X ^ 2)*(D ^ 6) + _8*X*(D ^ 7) + (D ^ 8) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 9){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _9(9, 0), _36(36, 0), _84(84, 0), _126(126, 0);
-							complex<floatexp> Dn = _9*(X ^ 8)*D + _36*(X ^ 7)*(D ^ 2) + _84*(X ^ 6)*(D ^ 3) + _126*(X ^ 5)*(D ^ 4) + _126*(X ^ 4)*(D ^ 5) + _84*(X ^ 3)*(D ^ 6) + _36*(X ^ 2)*(D ^ 7) + _9*X*(D ^ 8) + (D ^ 9) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else if (m_nPower == 10){
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> _10(10, 0), _45(45, 0), _120(120, 0), _210(210, 0), _252(252, 0);
-							complex<floatexp> Dn = _10*(X ^ 9)*D + _45*(X ^ 8)*(D ^ 2) + _120*(X ^ 7)*(D ^ 3) + _210*(X ^ 6)*(D ^ 4) + _252*(X ^ 5)*(D ^ 5) + _210*(X ^ 4)*(D ^ 6) + _120*(X ^ 3)*(D ^ 7) + _45*(X ^ 2)*(D ^ 8) + _10*X*(D ^ 9) + (D ^ 10) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-						else{
-							complex<floatexp> X(dxr, dxi);
-							complex<floatexp> D(dbTr[j], dbTi[j]);
-							complex<floatexp> D0(dbTr0[j], dbTi0[j]);
-							complex<floatexp> c(m_pnExpConsts[1], 0);
-							int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
-							complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
-							while (nXExp){
-								c.m_r = m_pnExpConsts[++ci];
-								Dn += c*(X^nXExp)*(D^nDExp);
-								nXExp--;
-								nDExp++;
-							}
-							Dn += (D^m_nPower) + D0;
-							Dni = Dn.m_i;
-							Dnr = Dn.m_r;
-						}
-
+						int64_t antal_;
+						floatexp DDnr_, DDni_;
+						DoApproximation(antal_, dbTr0[j], dbTi0[j], Dnr, Dni, DDnr_, DDni_);
 					}
-					else if (m_nFractalType == 1)
-					{
-
-						if (m_nPower == 2)
-						{
-							Dnr = (dxr*dbTr[j] - dxi*dbTi[j]).mul2() + dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j] + dbTr0[j];
-							Dni = diffabs(dxr * dxi, dxr*dbTi[j] + dxi*dbTr[j] + dbTr[j] * dbTi[j]).mul2() + dbTi0[j];
-						}
-
-					}
-					dbTr[j] = Dnr;
-					dbTi[j] = Dni;
 				}
+				if (isR)
+					DoApproximation(dbTr0[j], dbTi0[j], Dnr, Dni);
+
+				// compare with probe point
+				floatexp diff = (Dnr - dbTr[j]) / dbTr[j];
+				if (diff>mindiff || diff<-mindiff){
+					m_nMaxApproximation = iteration;
+					break;
+				}
+				diff = (Dni - dbTi[j]) / dbTi[j];
+				if (diff>mindiff || diff<-mindiff){
+					m_nMaxApproximation = iteration;
+					break;
+				}
+				double yr = double(dxr + Dnr);
+				double yi = double(dxi + Dni);
+				if (yr*yr + yi*yi>nBailout2){
+					m_nMaxApproximation = iteration;
+					break;
+				}
+
+				// step probe point using perturbation
+				if (m_nFractalType == 0)
+				{
+
+					if (m_nPower == 2){
+						Dnr = (dxr*dbTr[j] - dxi*dbTi[j]).mul2() + dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j] + dbTr0[j];
+						Dni = (dxr*dbTi[j] + dxi*dbTr[j] + dbTr[j] * dbTi[j]).mul2() + dbTi0[j];
+					}
+					else if (m_nPower == 3){
+						Dnr = _3*((dxr*dxr - dxi*dxi)*dbTr[j] + dxr*(dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j]) - dbTi[j] * (dxi*(dxr + dbTr[j]).mul2() + dbTr[j] * dbTi[j])) + dbTr[j] * dbTr[j] * dbTr[j] + dbTr0[j];
+						Dni = _3*((dxr*dxr - dxi*dxi)*dbTi[j] + dxi*(dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j]) + dbTr[j] * (dxr*(dxi + dbTi[j]).mul2() + dbTr[j] * dbTi[j])) - dbTi[j] * dbTi[j] * dbTi[j] + dbTi0[j];
+					}
+					else if (m_nPower == 4){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _4(4, 0), _6(6, 0);
+						complex<floatexp> Dn = _4*(X ^ 3)*D + _6*(X ^ 2)*(D ^ 2) + _4*X*(D ^ 3) + (D ^ 4) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 5){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _5(5, 0), _10(10, 0);
+						complex<floatexp> Dn = _5*(X ^ 4)*D + _10*(X ^ 3)*(D ^ 2) + _10*(X ^ 2)*(D ^ 3) + _5*X*(D ^ 4) + (D ^ 5) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 6){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _6(6, 0), _15(15, 0), _20(20, 0);
+						complex<floatexp> Dn = _6*(X ^ 5)*D + _15*(X ^ 4)*(D ^ 2) + _20*(X ^ 3)*(D ^ 3) + _15*(X ^ 2)*(D ^ 4) + _6*X*(D ^ 5) + (D ^ 6) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 7){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _7(7, 0), _21(21, 0), _35(35, 0);
+						complex<floatexp> Dn = _7*(X ^ 6)*D + _21*(X ^ 5)*(D ^ 2) + _35*(X ^ 4)*(D ^ 3) + _35*(X ^ 3)*(D ^ 4) + _21*(X ^ 2)*(D ^ 5) + _7*X*(D ^ 6) + (D ^ 7) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 8){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _8(8, 0), _28(28, 0), _56(56, 0), _70(70, 0);
+						complex<floatexp> Dn = _8*(X ^ 7)*D + _28*(X ^ 6)*(D ^ 2) + _56*(X ^ 5)*(D ^ 3) + _70*(X ^ 4)*(D ^ 4) + _56*(X ^ 3)*(D ^ 5) + _28*(X ^ 2)*(D ^ 6) + _8*X*(D ^ 7) + (D ^ 8) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 9){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _9(9, 0), _36(36, 0), _84(84, 0), _126(126, 0);
+						complex<floatexp> Dn = _9*(X ^ 8)*D + _36*(X ^ 7)*(D ^ 2) + _84*(X ^ 6)*(D ^ 3) + _126*(X ^ 5)*(D ^ 4) + _126*(X ^ 4)*(D ^ 5) + _84*(X ^ 3)*(D ^ 6) + _36*(X ^ 2)*(D ^ 7) + _9*X*(D ^ 8) + (D ^ 9) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else if (m_nPower == 10){
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> _10(10, 0), _45(45, 0), _120(120, 0), _210(210, 0), _252(252, 0);
+						complex<floatexp> Dn = _10*(X ^ 9)*D + _45*(X ^ 8)*(D ^ 2) + _120*(X ^ 7)*(D ^ 3) + _210*(X ^ 6)*(D ^ 4) + _252*(X ^ 5)*(D ^ 5) + _210*(X ^ 4)*(D ^ 6) + _120*(X ^ 3)*(D ^ 7) + _45*(X ^ 2)*(D ^ 8) + _10*X*(D ^ 9) + (D ^ 10) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+					else{
+						complex<floatexp> X(dxr, dxi);
+						complex<floatexp> D(dbTr[j], dbTi[j]);
+						complex<floatexp> D0(dbTr0[j], dbTi0[j]);
+						complex<floatexp> c(m_pnExpConsts[1], 0);
+						int nXExp = m_nPower - 2, nDExp = 2, ci = 1;
+						complex<floatexp> Dn = c*(X^(m_nPower - 1))*D;
+						while (nXExp){
+							c.m_r = m_pnExpConsts[++ci];
+							Dn += c*(X^nXExp)*(D^nDExp);
+							nXExp--;
+							nDExp++;
+						}
+						Dn += (D^m_nPower) + D0;
+						Dni = Dn.m_i;
+						Dnr = Dn.m_r;
+					}
+
+				}
+				else if (m_nFractalType == 1)
+				{
+
+					if (m_nPower == 2)
+					{
+						Dnr = (dxr*dbTr[j] - dxi*dbTi[j]).mul2() + dbTr[j] * dbTr[j] - dbTi[j] * dbTi[j] + dbTr0[j];
+						Dni = diffabs(dxr * dxi, dxr*dbTi[j] + dxi*dbTr[j] + dbTr[j] * dbTi[j]).mul2() + dbTi0[j];
+					}
+
+				}
+				dbTr[j] = Dnr;
+				dbTi[j] = Dni;
+			}
 			if (j<nProbe)
 				break;
 		}
