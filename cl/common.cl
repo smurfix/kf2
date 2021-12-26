@@ -2448,7 +2448,7 @@ void DoApproximationM
 {
     const floatexp zero = fe_floatexp(0.0, 0);
     const floatexp one  = fe_floatexp(1.0, 0);
-    if (g->approximation_type == 1)
+    if (g->approximation_type == 1)  // SeriesType_Complex
     {
       floatexp dx, dy;
       DoApproximationD(g, antal, a, b, x, y, &dx, &dy);
@@ -2458,7 +2458,7 @@ void DoApproximationM
       *dya = dy;
       *dyb = dx;
     }
-    else if (g->approximation_type == 2)
+    else if (g->approximation_type == 2)  // SeriesType_Real
     {
       if (g->m_nMaxApproximation)
       {
