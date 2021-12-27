@@ -281,7 +281,7 @@ void CFraktalSFT::RenderFractal()
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
 
-#if 0
+#if 0  // XXX for m_rApprox
 	if(m_bAddReference)
 	{
 		m_rApprox.left = m_nX/2;
