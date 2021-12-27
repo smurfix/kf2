@@ -33,7 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <filesystem>
 #endif
 
-#ifndef KF_EMBED
+#ifdef WINVER
 #include "shlwapi.h" // PathFileExists
 #endif
 
@@ -469,7 +469,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		SetPosition(re, im, zm);
 	}
 	ApplyColors();
-#ifndef KF_EMBED
+#ifdef WINVER
 	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
 #endif
 	return TRUE;
@@ -631,7 +631,7 @@ BOOL CFraktalSFT::SaveFile(const std::string &szFile, bool overwrite)
 #if __cplusplus >= 201703L
 	if(!overwrite && std::filesystem::exists(szFile))
 		return FALSE;
-#elif !defined(KF_EMBED)
+#elif defined(WINVER)
 	if(!overwrite && PathFileExists(szFile.c_str()))
 		return FALSE;
 #endif

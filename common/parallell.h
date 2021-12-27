@@ -20,13 +20,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef COMMON_PARALLALL_H
 #define COMMON_PARALLALL_H
 
-#ifdef KF_EMBED
+#ifndef WINVER
 #include <thread>
 #endif
 
 typedef int (*LPEXECUTE)(LPVOID pParameter);
 
-#ifdef KF_EMBED
+#ifndef WINVER
 void Parallell_ThExecute(LPVOID pParameter);
 #else
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
@@ -35,7 +35,7 @@ ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
 class CParallell
 {
 	struct EXECUTE{
-#ifdef KF_EMBED
+#ifndef WINVER
 		std::thread hThread;
 #else
 		HANDLE hThread;
@@ -62,7 +62,7 @@ public:
 	void Reset();
 	void SetStackSize(DWORD dwStackSize);
 
-#ifdef KF_EMBED
+#ifndef WINVER
 	friend void Parallell_ThExecute(LPVOID pParameter);
 #else
 	friend ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);

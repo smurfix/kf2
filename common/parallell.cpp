@@ -39,14 +39,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
 #endif
 
-#ifdef KF_EMBED
+#ifndef WINVER
 void Parallell_ThExecute(LPVOID pParameter)
 #else
 ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
 #endif
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
-#ifndef KF_EMBED
+#ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
@@ -58,12 +58,12 @@ try{
 }catch(...){
 }
 #endif
-#ifndef KF_EMBED
+#ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(pE->hDone);
 #endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-#ifndef KF_EMBED
+#ifdef WINVER
 	return 0;
 #endif
 }
@@ -101,7 +101,7 @@ int CParallell::AddFunction(LPEXECUTE lpfnExecute,LPVOID pParameter,LPEXECUTE lp
 	int i = m_nExecute++;
 	m_ppExecute = (EXECUTE**)realloc(m_ppExecute,sizeof(EXECUTE*)*m_nExecute);
 	m_ppExecute[i] = new EXECUTE;
-#ifndef KF_EMBED
+#ifdef WINVER
 	m_ppExecute[i]->hThread = NULL;
 	m_ppExecute[i]->hDone = CreateEvent(NULL,0,0,NULL);
 #endif
@@ -118,11 +118,11 @@ void CParallell::SetStackSize(DWORD dwStackSize)
 int CParallell::Execute()
 {
 	int i, j;
-#ifndef KF_EMBED
+#ifdef WINVER
 	DWORD dw;
 #endif
 	for(i=0;i<m_nParallell && i<m_nExecute;i++){
-#ifdef KF_EMBED
+#ifndef WINVER
 		m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
 #else
 		m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
@@ -133,7 +133,7 @@ int CParallell::Execute()
 #endif
 	}
 	for(j=0;j<m_nExecute;j++){
-#ifdef KF_EMBED
+#ifndef WINVER
 		m_ppExecute[j]->hThread.join();
 #else
 		if(WaitForSingleObject(m_ppExecute[j]->hDone,INFINITE)==WAIT_TIMEOUT)
@@ -141,12 +141,12 @@ int CParallell::Execute()
 #endif
 		if(m_ppExecute[j]->lpfnDone)
 			m_ppExecute[j]->lpfnDone(m_ppExecute[j]->pParameter);
-#ifndef KF_EMBED
+#ifdef WINVER
 		CloseHandle(m_ppExecute[j]->hThread);
 		CloseHandle(m_ppExecute[j]->hDone);
 #endif
 		if(i<m_nExecute){
-#ifdef KF_EMBED
+#ifndef WINVER
 			m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
 #else
 			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);

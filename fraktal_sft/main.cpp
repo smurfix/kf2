@@ -34,14 +34,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <math.h>
 
-#ifndef KF_EMBED
+#ifdef WINVER
 #include <commctrl.h>
 #endif
 #include <math.h>
 #include "../common/parallell.h"
 #include "../common/getimage.h"
 #include "../common/StringVector.h"
-#ifndef KF_EMBED
+#ifdef WINVER
 #include "../common/FolderBrowser.h"
 #include "listbox.h"
 #include "tooltip.h"
@@ -54,7 +54,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
 #endif
-#ifndef KF_EMBED
+#ifdef WINVER
 #include "../common/bitmap.h"
 #endif
 #include <png.h>
@@ -85,13 +85,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 
-#if defined(__clang__) || defined(KF_EMBED)
+#if defined(__clang__) || !defined(WINVER)
 #include <thread>
 #else
 #include <mingw-std-threads/mingw.thread.h>
 #endif
 
-#ifndef KF_EMBED
+#ifdef WINVER
 
 
 POINT g_pInflections[10];
@@ -240,7 +240,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
-#ifndef KF_EMBED
+#ifdef WINVER
 extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
@@ -1139,7 +1139,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	return 0;
 }
 
-#endif // KF_EMBED
+#endif // !WINVER
 
 extern std::string replace_path_filename(const std::string &path, const std::string &file)
 {
@@ -1223,7 +1223,7 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 	return os.str();
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 
 static void AutoIterations()
 {
@@ -1956,12 +1956,12 @@ else if (uMsg == WM_COMMAND)
 return 0;
 }
 #endif // KF_OPENCL
-#endif // KF_EMBED
+#endif // !WINVER
 
 #ifdef KF_OPENCL
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 {
-#ifndef KF_EMBED
+#ifdef WINVER
 	if (hWnd)
 	{
 		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
@@ -1980,7 +1980,7 @@ extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 }
 #endif // KF_OPENCL
 
-#ifndef KF_EMBED
+#ifdef WINVER
 #ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -4800,4 +4800,4 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	return 0;
 }
 
-#endif // KF_EMBED
+#endif // !WINVER

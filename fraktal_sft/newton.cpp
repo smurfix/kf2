@@ -37,7 +37,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <fstream>
 
-#ifdef KF_EMBED
+#ifndef WINVER
 
 #include <thread>
 
@@ -92,7 +92,7 @@ static int64_t g_iterations = 0;
 static std::string s_period, s_center, s_size, s_skew;
 static char g_szProgress[128];
 
-#ifndef KF_EMBED
+#ifdef WINVER
 static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 {
 	while (progress->running)
@@ -210,7 +210,7 @@ struct BallPeriodCommon
 struct BallPeriod
 {
   int threadid;
-#ifdef KF_EMBED
+#ifndef WINVER
   std::thread hDone;
 #else
   HANDLE hDone;
@@ -220,7 +220,7 @@ struct BallPeriod
 
 static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 {
-#ifndef KF_EMBED
+#ifdef WINVER
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
@@ -300,7 +300,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
       *haveperiod = false;
     }
   }
-#ifndef KF_EMBED
+#ifdef WINVER
   SetEvent(b->hDone);
 #endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -314,7 +314,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   barrier_t bar(2);
   bool haveperiod = false;
   int64_t period = 0;
-#ifndef KF_EMBED
+#ifdef WINVER
   HANDLE hDone[2];
 #endif
   // prepare threads
@@ -339,7 +339,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   for (int t = 0; t < 2; ++t)
   {
     ball[t].threadid = t;
-#ifndef KF_EMBED
+#ifdef WINVER
     ball[t].hDone = hDone[t] = CreateEvent(NULL, 0, 0, NULL);
 #endif
     ball[t].c = &c;
@@ -347,7 +347,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   // spawn threads
   for (int i = 0; i < 2; i++)
   {
-#ifdef KF_EMBED
+#ifndef WINVER
     ball[i].hDone = std::thread(ThBallPeriod,&ball[i]);
 #else
     DWORD dw;
@@ -356,12 +356,12 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
 #endif
   }
   // wait for threads to complete
-#ifndef KF_EMBED
+#ifdef WINVER
   WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
 #endif
   for (int i = 0; i < 2; i++)
   {
-#ifdef KF_EMBED
+#ifndef WINVER
     ball[i].hDone.join();
 #else
     CloseHandle(hDone[i]);
@@ -392,7 +392,7 @@ struct STEP_STRUCT_COMMON
 struct STEP_STRUCT
 {
 	int nType;
-#ifdef KF_EMBED
+#ifndef WINVER
     std::thread hDone;
 #else
 	HANDLE hDone;
@@ -401,7 +401,7 @@ struct STEP_STRUCT
 };
 static DWORD WINAPI ThStep(STEP_STRUCT *t0)
 {
-#ifndef KF_EMBED
+#ifdef WINVER
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
@@ -455,7 +455,7 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
   }
-#ifndef KF_EMBED
+#ifdef WINVER
   SetEvent(t0->hDone);
 #endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -512,23 +512,23 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_init2(m.dcizr, bits);
 	mpfr_init2(m.dcizi, bits);
 	STEP_STRUCT mc[4];
-#ifndef KF_EMBED
+#ifdef WINVER
 	HANDLE hDone[4];
 #endif
 	for (i = 0; i<4; i++){
 		mc[i].nType =i;
-#ifndef KF_EMBED
+#ifdef WINVER
 		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
 #endif
 		mc[i].common = &m;
 	}
 
-#ifndef KF_EMBED
+#ifdef WINVER
 	HANDLE hThread;
 	DWORD dw;
 #endif
 	for (i = 0; i<threads; i++){
-#ifdef KF_EMBED
+#ifndef WINVER
 		mc[i].hDone = std::thread(ThStep, &mc[i]);
 #else
 		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
@@ -536,11 +536,11 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 #endif
 	}
 
-#ifndef KF_EMBED
+#ifdef WINVER
 	WaitForMultipleObjects(threads, hDone, TRUE, INFINITE);
 #endif
 	for (i = 0; i<threads; i++){
-#ifdef KF_EMBED
+#ifndef WINVER
 		mc[i].hDone.join();
 #else
 		CloseHandle(hDone[i]);
@@ -567,7 +567,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_clear(m.dcrzi);
 	mpfr_clear(m.dcizr);
 	mpfr_clear(m.dcizi);
-#ifndef KF_EMBED
+#ifdef WINVER
   SetDlgItemText(hWnd,IDC_EDIT4,"");
 #endif
   flyttyp ad;
@@ -716,13 +716,13 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 static double g_skew[4];
 int64_t g_period = 0;
 
-#ifdef KF_EMBED
+#ifndef WINVER
 void ThNewton(PAR_SFT HWND hWnd)
 #else
 static int WINAPI ThNewton(HWND hWnd)
 #endif
 {
-#ifndef KF_EMBED
+#ifdef WINVER
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
@@ -748,11 +748,11 @@ static int WINAPI ThNewton(HWND hWnd)
 	{
 	  // fork progress updater
 	  progress_t progress = { { 0, 0, 0, 0 }, true,
-#ifndef KF_EMBED
+#ifdef WINVER
 		hWnd, CreateEvent(NULL, 0, 0, NULL),
 #endif
 		get_wall_time(), 0 };
-#ifndef KF_EMBED
+#ifdef WINVER
 	  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThPeriodProgress, (LPVOID) &progress, 0, NULL);
 	  CloseHandle(hThread);
 #endif
@@ -788,7 +788,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	  }
 	  // join progress updater
 	  progress.running = false;
-#ifndef KF_EMBED
+#ifdef WINVER
 	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 	  CloseHandle(progress.hDone);
 #endif
@@ -807,11 +807,11 @@ static int WINAPI ThNewton(HWND hWnd)
 	{
 		// fork progress updater
 	    progress_t progress = { { 0, 0, 0, 0 }, true,
-#ifndef KF_EMBED
+#ifdef WINVER
 		  hWnd, CreateEvent(NULL, 0, 0, NULL),
 #endif
 		  get_wall_time(), 0 };
-#ifndef KF_EMBED
+#ifdef WINVER
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThNewtonProgress, (LPVOID) &progress, 0, NULL);
 		CloseHandle(hThread);
 #endif
@@ -851,7 +851,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		}
 		// join progress updater
 		progress.running = false;
-#ifndef KF_EMBED
+#ifdef WINVER
 		WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 		CloseHandle(progress.hDone);
 #endif
@@ -876,11 +876,11 @@ static int WINAPI ThNewton(HWND hWnd)
 
 				// fork progress updater
 				progress_t progress = { { int(g_period), 0, 0, 0 }, true,
-#ifndef KF_EMBED
+#ifdef WINVER
 					hWnd, CreateEvent(NULL, 0, 0, NULL),
 #endif
 					get_wall_time(), 0 };
-#ifndef KF_EMBED
+#ifdef WINVER
 				HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSizeProgress, (LPVOID) &progress, 0, NULL);
 				CloseHandle(hThread);
 #endif
@@ -933,7 +933,7 @@ static int WINAPI ThNewton(HWND hWnd)
 				}
 				// join progress updater
 				progress.running = false;
-#ifndef KF_EMBED
+#ifdef WINVER
 				WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 				CloseHandle(progress.hDone);
 #endif
@@ -989,19 +989,19 @@ static int WINAPI ThNewton(HWND hWnd)
 		bOK = -1;
 	}
 	g_bNewtonRunning=FALSE;
-#ifdef KF_EMBED
+#ifndef WINVER
 	(void)bOK;
 #else
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 #endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 
-#ifndef KF_EMBED
+#ifdef WINVER
 	return 0;
 #endif
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 const struct { const char *name; } action_preset[] =
 { { "Period" }
 , { "Center" }

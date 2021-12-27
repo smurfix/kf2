@@ -2,7 +2,7 @@ WINPREFIXPLUS ?= /usr
 WINPREFIX ?= /usr
 SIMD ?= 4
 OPENCL ?= 1
-COMPILE ?= g++ -march=native -fPIC -DKF_EMBED -I ./embed/
+COMPILE ?= g++ -march=native -fPIC -I ./embed/
 LINK ?= g++
 LIBS ?= -lHalf -lmpfr -lgsl -lIlmImf -lglfw -lclew -lOpenCL -ljpeg -ltiff -lpng -lpixman-1 -ldl -lpthread
 WINDRES ?= false

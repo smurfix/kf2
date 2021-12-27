@@ -31,7 +31,7 @@ struct progress_t
 {
 	int counters[4];
 	volatile bool running;
-#ifndef KF_EMBED
+#ifdef WINVER
 	HWND hWnd;
 	HANDLE hDone;
 #endif

@@ -45,7 +45,7 @@ public:
 		m_f = a.m_f;
 	};
 
-#if KF_EMBED
+#ifndef WINVER
 	inline CFixedFloat(const gmpNumber &a)
 	{
 		unsigned p = a.precision();

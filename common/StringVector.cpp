@@ -41,7 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #define HASHOFFS2 1
 
-#ifdef KF_EMBED
+#ifndef WINVER
 
 #include <malloc.h>
 
@@ -219,12 +219,12 @@ void *kr_malloc(unsigned int nbytes)
 	ReleaseMutex(g_hSTMutex);
 }
 #endif // KR_MALLOC
-#endif // !KF_EMBED
+#endif // WINVER
 
 
 void *realloc_stringtable(void *p,size_t n)
 {
-#if KF_EMBED
+#ifndef WINVER
 	return realloc(p,n);
 #elif defined(_KR_MALLOC_)
 	if(p){
@@ -303,7 +303,7 @@ void *realloc_stringtable(void *p,size_t n)
 }
 void free_stringtable(void *p)
 {
-#if defined(_KR_MALLOC_) || defined(KF_EMBED)
+#if defined(_KR_MALLOC_) || !defined(WINVER)
 	kr_free(p);
 #else
 

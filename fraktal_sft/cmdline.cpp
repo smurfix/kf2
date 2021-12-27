@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <vector>
 #include <cctype>
 
-#ifndef KF_EMBED
+#ifdef WINVER
 
 LogLevel g_log_level = LogLevel_Status;
 

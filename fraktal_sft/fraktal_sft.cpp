@@ -47,7 +47,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <set>
-#ifndef KF_EMBED
+#ifdef WINVER
 #include "../common/bitmap.h"
 #endif
 #include "../formula/formula.h"
@@ -527,7 +527,7 @@ extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 	cPos.b = (byte) c.b;
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode)
 {
 	HDC hDC = GetDC(NULL);
@@ -561,7 +561,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 	ReleaseDC(NULL,hDC);
 	return bmDst;
 }
-#endif // KF_EMBED
+#endif // !WINVER
 
 bool operator==(const TextureParams &a, const TextureParams &b)
 {
@@ -574,7 +574,7 @@ bool operator==(const TextureParams &a, const TextureParams &b)
     a.m_bTextureResize == b.m_bTextureResize;
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 void CFraktalSFT::LoadTexture()
 {
 	TextureParams currentTextureParams =
@@ -625,7 +625,7 @@ void CFraktalSFT::LoadTexture()
 	if (bmBitmapIn) DeleteObject(bmBitmapIn);
 	ReleaseDC(NULL,hDC);
 }
-#endif // KF_EMBED
+#endif // !WINVER
 
 void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
 {
@@ -1214,7 +1214,7 @@ static int ThApplyColors(TH_PARAMS *pMan)
 
 void CFraktalSFT::ApplyColors()
 {
-#ifndef KF_EMBED
+#ifdef WINVER
 	LoadTexture();
 #endif
 	int i, p = 0;
@@ -2005,7 +2005,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	}
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 
 HBITMAP CFraktalSFT::GetBitmap()
 {
@@ -2628,14 +2628,14 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
-#ifndef KF_EMBED
+#ifdef WINVER
 	ReinitializeBitmap();
 #endif
 	m_bIterChanged = true;
 	return ok;
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 void CFraktalSFT::ReinitializeBitmap()
 {
 	if (m_bmBmp)
@@ -2680,7 +2680,7 @@ void CFraktalSFT::SetIterDiv(double nIterDiv)
 		m_nIterDiv = nIterDiv;
 }
 
-#ifndef KF_EMBED
+#ifdef WINVER
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment1(ToText());

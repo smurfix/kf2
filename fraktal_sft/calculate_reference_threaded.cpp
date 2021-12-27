@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reference.h"
 #include "../common/barrier.h"
 
-#ifdef KF_EMBED
+#ifndef WINVER
 #include <thread>
 #endif
 
@@ -47,7 +47,7 @@ struct mcthread_common
 struct mcthread
 {
 	int nType;
-#ifdef KF_EMBED
+#ifndef WINVER
 	std::thread thread;
 #else
 	HANDLE hDone;
@@ -57,7 +57,7 @@ struct mcthread
 
 static DWORD WINAPI mcthreadfunc(mcthread *p0)
 {
-#ifndef KF_EMBED
+#ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
@@ -125,7 +125,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	}
 	if (p->barrier->wait(p->stop))
 	{
-#ifndef KF_EMBED
+#ifdef WINVER
 		SetEvent(p0->hDone);
 #endif
 		mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -138,7 +138,7 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 			reference_append(p->m_Reference, p->X, p->Y, p->Z);
 		}
 	}
-#ifndef KF_EMBED
+#ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
 	SetEvent(p0->hDone);
 #endif
@@ -161,7 +161,7 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		// initialize
 		mcthread mc[3];
 		barrier_t barrier(3);
-#ifndef KF_EMBED
+#ifdef WINVER
 		HANDLE hDone[3];
 #endif
 		mcthread_common co;
@@ -198,11 +198,11 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		for (int i = 0; i < 3; i++)
 		{
 			mc[i].nType = i;
-#ifndef KF_EMBED
+#ifdef WINVER
 			hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
 #endif
 			mc[i].common = &co;
-#ifdef KF_EMBED
+#ifndef WINVER
 			mc[i].thread = std::thread(mcthreadfunc, &mc[i]);
 #else
 			HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) mcthreadfunc, (LPVOID)&mc[i], 0, NULL);
@@ -211,12 +211,12 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		}
 
 		// wait for completion
-#ifndef KF_EMBED
+#ifdef WINVER
 		WaitForMultipleObjects(3, hDone, TRUE, INFINITE);
 #endif
 		for (int i = 0; i < 3; i++)
 		{
-#ifdef KF_EMBED
+#ifndef WINVER
 			mc[i].thread.join();
 #else
 			CloseHandle(hDone[i]);

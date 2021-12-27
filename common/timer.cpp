@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 
 double get_wall_time(){
-#ifdef KF_EMBED
+#ifndef WINVER
     return 0;
 #else
     LARGE_INTEGER time,freq;
@@ -38,7 +38,7 @@ double get_wall_time(){
 }
 
 double get_cpu_time(){
-#ifdef KF_EMBED
+#ifndef WINVER
     return 0;
 #else
     FILETIME a,b,c,d;

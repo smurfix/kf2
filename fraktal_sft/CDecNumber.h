@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <boost/multiprecision/mpfr.hpp>
 typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<0>> decNumber;
-#if KF_EMBED
+#ifndef WINVER
 typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> gmpNumber;
 #endif
 
@@ -58,7 +58,7 @@ public:
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = 0;
 	};
-#if KF_EMBED
+#ifndef WINVER
 	inline CDecNumber(const gmpNumber &a)
 	{
 		m_dec.precision(std::max(decNumber::default_precision(), a.precision()));

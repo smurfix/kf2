@@ -174,7 +174,7 @@ extern hybrid_formula hybrid_formula_from_string(const std::string &s)
 
 static std::vector<HWND> tooltips;
 
-#ifndef KF_EMBED
+#ifdef WINVER
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
   switch (uMsg)

@@ -472,7 +472,7 @@ public:
 	int m_nImgRatio;                    // Texture height/width ratio. Corrently fixed at 100
 	bool m_bTextureResize;              // dies loading the texture resize it to 
 	BYTE *m_lpTextureBits;
-#ifndef KF_EMBED
+#ifdef WINVER
 	std::string m_szTexture;            // file name
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
@@ -601,7 +601,7 @@ public:
 
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
-#ifndef KF_EMBED
+#ifdef WINVER
 	HBITMAP GetBitmap();
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
 	void UpdateBitmap();
@@ -720,7 +720,7 @@ public:
 	float *GetArrayDEy() { return GetDerivatives() ? m_nDEy[0] : nullptr; };
 	half *GetArrayHalfColour() { return m_imageHalf; };
 	size_t GetArrayHalfColourStride() { return m_row; };
-#ifndef KF_EMBED
+#ifdef WINVER
 	void ReinitializeBitmap();
 #endif
 	inline bool GetIsRendering() { return m_bIsRendering; };

@@ -36,7 +36,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #if __cplusplus >= 201703L
 #include <filesystem>
-#elif !defined(KF_EMBED)
+#elif defined(WINVER)
 #include "shlwapi.h" // PathFileExists
 #endif
 
@@ -247,7 +247,7 @@ bool Settings::SaveFile(const std::string &filename, bool overwrite) const
 #if __cplusplus >= 201703L
     if(!overwrite && std::filesystem::exists(filename))
         return false;
-#elif !defined(KF_EMBED)
+#elif defined(WINVER)
     if(!overwrite && PathFileExists(filename.c_str()))
         return false;
 #endif

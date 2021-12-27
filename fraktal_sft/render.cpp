@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#ifdef KF_EMBED
+#ifndef WINVER
 int ThRenderFractal(CFraktalSFT *p)
 #else
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
@@ -87,7 +87,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 
 void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
 {
-#ifndef KF_EMBED
+#ifdef WINVER
 	m_bStop = TRUE;
 	double counter = 0;
 	while(m_bRunning)
@@ -188,7 +188,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
 		CloseHandle(hThread);
 	}
-#endif // KF_EMBED
+#endif // !WINVER
 }
 
 void CFraktalSFT::RenderFractal()
