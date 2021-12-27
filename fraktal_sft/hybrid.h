@@ -1588,7 +1588,7 @@ extern bool reference_hybrid
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   );
 
 #ifndef KF_EMBED

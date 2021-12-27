@@ -3444,7 +3444,7 @@ extern bool reference_hybrid
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate
-  , const double m_bGlitchLowTolerance
+  , const double glitchLowTolerance
   )
 {
     int64_t nMaxIter = m_nMaxIter;
@@ -3452,7 +3452,7 @@ extern bool reference_hybrid
     int power = hybrid_power_inf(h);
     double glitches[] = { 1e-7, 1e-6, 1e-5, 1e-4, 1e-4, 1e-3, 1e-3, 1e-2 };
     double glitch = glitches[std::min(std::max(0, power - 2), 7)];
-    glitch = std::exp(std::log(glitch) * (1 - m_bGlitchLowTolerance / 2));
+    glitch = std::exp(std::log(glitch) * (1 - glitchLowTolerance / 2));
     mpfr_prec_t prec = mpfr_get_prec(Cr0.m_f.backend().data());
     mpfr_t A, B, X, Y, X1, Y1, X2, Y2, T1, T2, T3, T4, T5, T6;
     mpfr_init2(A, prec); mpfr_set(A, Cr0.m_f.backend().data(), MPFR_RNDN);
