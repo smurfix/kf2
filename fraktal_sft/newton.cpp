@@ -773,7 +773,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		  flyttyp r = flyttyp(4) / radius;
 		  if (g_nr_ball_method)
 		  {
-		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_skew[0], &running, &progress.counters[0]);
+		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
 		  }
 		  else
 		  {
@@ -895,7 +895,7 @@ static int WINAPI ThNewton(HWND hWnd)
 				{
 					if (g_nr_zoom_target <= 1)
 					{
-						hybrid_size(g_SFT.GetHybridFormula(), g_period, c.m_r, c.m_i, msize, &g_skew[0], &running, &progress.counters[0]);
+						hybrid_size(g_SFT.GetHybridFormula(), g_period, c.m_r, c.m_i, msize, g_skew, &running, &progress.counters[0]);
 					}
 					else
 					{
@@ -923,11 +923,11 @@ static int WINAPI ThNewton(HWND hWnd)
 					{
 						if (g_nr_zoom_target <= 1)
 						{
-							f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &g_skew[0], &running, &progress.counters[0]);
+							f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
 						}
 						else
 						{
-							// f->domain_size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), &g_skew[0], &running, &progress.counters[0]); // FIXME implement this in et formula generator
+							// f->domain_size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]); // FIXME implement this in et formula generator
 						}
 					}
 				}
