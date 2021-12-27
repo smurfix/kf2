@@ -2378,18 +2378,9 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 					int y2 = ty + y;
 					int nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
 					int nIndex2 = x2 * 3 + (m_bmi->biHeight - 1 - y2)*m_row;
-					int	t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
-					val += (t<0 ? -t : t);
-
-					x1 = tx - x;
-					x2 = tx + x;
-					y1 = ty + y;
-					y2 = ty - y;
-					nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
-					nIndex2 = x2 * 3 + (m_bmi->biHeight - 1 - y2)*m_row;
 					if(((unsigned int)(nIndex2))>m_bmi->biSizeImage-3)
 						continue;
-					t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
+					int	t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
 					val += (t<0 ? -t : t);
 				}
 			}
