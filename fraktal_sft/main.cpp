@@ -1227,6 +1227,8 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 
 static void AutoIterations()
 {
+	// calculates a new max iteration limit.
+	// XXX export this
 	if(g_SFT.GetAutoIterations()){
 		int64_t nMin, nMax, nIter;
 		g_SFT.GetIterations(nMin,nMax);
