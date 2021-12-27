@@ -712,6 +712,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
   return fec1 / (b * l * l);
 }
 
+// XXX move those two to g_SFT
 static double g_skew[4];
 int64_t g_period = 0;
 
