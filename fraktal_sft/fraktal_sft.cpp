@@ -3470,7 +3470,7 @@ SmoothMethod CFraktalSFT::GetSmoothMethod()
 {
 	return m_nSmoothMethod;
 }
-void CFraktalSFT::SetSmoothMethod(int nSmoothMethod)
+void CFraktalSFT::SetSmoothMethod(SmoothMethod nSmoothMethod)
 {
 	switch (nSmoothMethod)
 	{
