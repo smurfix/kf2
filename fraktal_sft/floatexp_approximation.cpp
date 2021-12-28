@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reference.h"
 #include "complex.h"
 
-void CFraktalSFT::CalculateApproximation(int nType)
+void CFraktalSFT::CalculateApproximation()
 {
 	m_nApprox = 0;
 	if (GetNoApprox() || GetApproximationType() == SeriesType_None || m_nZoom < 3 /* g_nRefZero */)

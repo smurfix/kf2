@@ -315,7 +315,7 @@ void CFraktalSFT::RenderFractal()
 	{
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
-		CalculateApproximation(reftype);
+		CalculateApproximation();
 		m_timer_approximation_wall += get_wall_time() - wall;
 		m_timer_approximation_cpu += get_cpu_time() - cpu;
 	}
@@ -424,7 +424,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	//CalculateApproximation(2);
+	//CalculateApproximation();
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
@@ -505,7 +505,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
-	//CalculateApproximation(2);
+	//CalculateApproximation();
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
