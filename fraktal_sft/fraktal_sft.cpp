@@ -627,7 +627,7 @@ void CFraktalSFT::LoadTexture()
 }
 #endif // !WINVER
 
-void CFraktalSFT::SetTexture(int nIndex, int x, int y, srgb &s)
+void CFraktalSFT::SetTexture(int x, int y, srgb &s)
 {
 	if (! m_lpTextureBits)
 	{
@@ -1075,7 +1075,7 @@ void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x,
 		}
 	}
 	if(m_bTexture)
-		SetTexture(nIndex,x,y,s);
+		SetTexture(x,y,s);
 	if (m_bSlopes){
 		double diffx, diffy;
 		if (m_nDifferences == Differences_Analytic)

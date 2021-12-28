@@ -646,7 +646,7 @@ public:
 #endif
 
 	void LoadTexture();
-	void SetTexture(int nIndex, int x, int y, srgb &s); // XXX nIndex is unused
+	void SetTexture(int x, int y, srgb &s);
 
 	// access texture params
 	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture);
