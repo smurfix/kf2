@@ -717,7 +717,6 @@ public:
 // XXX dead/unused
     //BOOL(LongDoubleAlways)
     //BOOL(FloatExpAlways)
-	double m_xrd, m_xid;
 	char *m_szPosition;
 	BOOL m_bReuseRef;
 	int m_nStatus;
