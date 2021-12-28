@@ -25,7 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 
 struct NanoMB1_Reference;
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const complex<decNumber> &c, int bm, int bn, int64_t period, int64_t maxiters, floatexp r0, double er2, double glitchLowTol, volatile bool &stop, int &m_nRDone);
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const complex<decNumber> &c, int bm, int bn, int64_t period, double er2, double glitchLowTol, volatile bool &stop, int &m_nRDone);
 void NanoMB1_Pixel(const NanoMB1_Reference *ctx, complex<floatexp> dc, floatexp pixel_spacing, int64_t maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2, bool singleref);
 
 #endif

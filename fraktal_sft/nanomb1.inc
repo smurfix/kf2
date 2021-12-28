@@ -403,7 +403,7 @@ public:
 	}
 };
 
-void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &er2, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2, bool singleref)
+void iteratePtDE2(const C_lo &d0, const biPolyClass &fp, const refClass &ref, const C_lo &nucleusPos, N period, const R_lo &Bout, const R_lo &pixel_spacing, N maxiter, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2, bool singleref)
 {
 	C_lo d(0);
 	C_lo dd(0);
@@ -569,7 +569,7 @@ struct NanoMB1_Reference
   { };
 };
 
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, N maxiters, R_lo r0, double er2, double lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, double er2, double lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
 {
   double glitch_threshold = 0.0000001;
   glitch_threshold = std::exp(std::log(glitch_threshold) * (1 - lowGlitchTol / 2));
@@ -613,5 +613,5 @@ NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N peri
 
 void NanoMB1_Pixel(const NanoMB1_Reference *ctx, C_lo dc, R_lo pixel_spacing, N maxiters, bool &bGlitch, int64_t &antal, double &test1, double &test2, double &phase, complex<double> &de, bool interior_checking, double g_real, double g_imag, double pval, double mBailout2, bool singleref)
 {
-  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, ctx->er2, pixel_spacing, maxiters, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, pval, mBailout2, singleref);
+  iteratePtDE2(dc, ctx->SSA, ctx->ref, ctx->nucleusPos, ctx->period, ctx->Bout, pixel_spacing, maxiters, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, pval, mBailout2, singleref);
 }

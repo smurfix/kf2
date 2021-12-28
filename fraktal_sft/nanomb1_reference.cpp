@@ -41,5 +41,5 @@ void CFraktalSFT::CalculateReferenceNANOMB1()
 		delete m_NanoMB1Ref;
 		m_NanoMB1Ref = nullptr;
 	}
-	m_NanoMB1Ref = NanoMB1_Reference_Calculate(c, m, n, period, m_nMaxIter, r0, er2, GetGlitchLowTolerance(), m_bStop, m_nRDone);
+	m_NanoMB1Ref = NanoMB1_Reference_Calculate(c, m, n, period, er2, GetGlitchLowTolerance(), m_bStop, m_nRDone);
 }
