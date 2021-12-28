@@ -1982,6 +1982,7 @@ extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 #ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
+  (void)lParam;
   switch(msg)
   {
     case WM_INITDIALOG:
