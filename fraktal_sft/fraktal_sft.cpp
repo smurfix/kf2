@@ -3432,23 +3432,6 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	hFile.close();
 }
 
-SmoothMethod CFraktalSFT::GetSmoothMethod()
-{
-	return m_nSmoothMethod;
-}
-void CFraktalSFT::SetSmoothMethod(SmoothMethod nSmoothMethod)
-{
-	switch (nSmoothMethod)
-	{
-		case 0:
-			m_nSmoothMethod = SmoothMethod_Log;
-			break;
-		default:
-		case 1:
-			m_nSmoothMethod = SmoothMethod_Sqrt;
-			break;
-	}
-}
 BailoutRadiusPreset CFraktalSFT::GetBailoutRadiusPreset()
 {
 	return m_nBailoutRadiusPreset;

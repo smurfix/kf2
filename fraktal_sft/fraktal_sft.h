@@ -151,10 +151,10 @@ public:
 	void SetBailoutNormCustom(double nBailoutNormCustom);
 	double GetBailoutNorm();
 
-    // Smoothing. Accepts Log=0 and Sqrt=1 only. TODO inline these.
+    // Smoothing. Accepts Log=0 and Sqrt=1 only.
 	SmoothMethod m_nSmoothMethod;
-	SmoothMethod GetSmoothMethod();// { return m_nSmoothMethod; }
-	void SetSmoothMethod(SmoothMethod nSmoothMethod);// { m_nSmoothMethod = m_nSmoothMethod; }
+	inline SmoothMethod GetSmoothMethod() { return m_nSmoothMethod; }
+	inline void SetSmoothMethod(SmoothMethod nSmoothMethod) { m_nSmoothMethod = nSmoothMethod; }
   // internals
 	int *m_pnExpConsts;  // Pascal Triangle numbers for m_nPower
 	int m_nPrevPower;    // current power of ExpConsts table. TODO simplify.
