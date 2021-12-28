@@ -717,9 +717,6 @@ public:
 // XXX dead/unused
     //BOOL(LongDoubleAlways)
     //BOOL(FloatExpAlways)
-	BOOL m_bReuseRef;
-	int m_nStatus;
-	int m_nFrameDone;
 	std::vector< complex<CFixedFloat> > m_Inflections;
 	void AddInflectionPont(int x, int y);
 	void RemoveInflectionPoint();
