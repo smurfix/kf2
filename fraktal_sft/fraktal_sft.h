@@ -717,7 +717,6 @@ public:
 // XXX dead/unused
     //BOOL(LongDoubleAlways)
     //BOOL(FloatExpAlways)
-	void CreateLists();
 	int nPos; // possibly used for debugging
 	std::string GetPosition();  // not defined
 
