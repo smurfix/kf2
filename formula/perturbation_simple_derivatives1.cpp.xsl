@@ -54,16 +54,18 @@ bool perturbation_simple_derivatives_<xsl:value-of select="@type" />_<xsl:value-
   using std::log1p;
   using std::atan2;
   using std::floor;
-  (void) Jxa0; // -Wunused-parameter
-  (void) Jxb0; // -Wunused-parameter
-  (void) Jya0; // -Wunused-parameter
-  (void) Jyb0; // -Wunused-parameter
-  (void) h; // -Wunused-parameter
-  (void) e; // -Wunused-parameter
-  (void) daa; // -Wunused-parameter
-  (void) dab; // -Wunused-parameter
-  (void) dba; // -Wunused-parameter
-  (void) dbb; // -Wunused-parameter
+  // -Wunused-parameter
+  (void) Jxa0;
+  (void) Jxb0;
+  (void) Jya0;
+  (void) Jyb0;
+  (void) h;
+  (void) e;
+  (void) daa;
+  (void) dab;
+  (void) dba;
+  (void) dbb;
+  (void) noDerivativeGlitch;
   if (m_nFractalType == <xsl:value-of select="@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
   {
 <xsl:for-each select="glitch">
