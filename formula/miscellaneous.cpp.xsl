@@ -35,7 +35,7 @@ bool is_convergent(const int m_nFractalType, const int m_nPower)
   return false;
 }
 
-bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives)
+bool scaling_supported(const int m_nFractalType, const int m_nPower)
 {
   <xsl:for-each select="//scaled/..">
   if (m_nFractalType == <xsl:value-of select="../@type" /> &amp;&amp; m_nPower == <xsl:value-of select="@power" />)
@@ -74,7 +74,7 @@ void combo5_addstrings(HWND hWnd, const int IDC_COMBO5, bool ignore_hybrids)
   }
 }
 
-int combo5_lookup_fractal_type_ignoring_hybrids(HWND hWnd, int index)
+int combo5_lookup_fractal_type_ignoring_hybrids(int index)
 {
   if (index == 0)
   {
@@ -89,11 +89,11 @@ int combo5_lookup_fractal_type_ignoring_hybrids(HWND hWnd, int index)
   return -2;
 }
 
-int combo5_lookup_fractal_type(HWND hWnd, int index, bool ignore_hybrids)
+int combo5_lookup_fractal_type(int index, bool ignore_hybrids)
 {
   if (ignore_hybrids)
   {
-    return combo5_lookup_fractal_type_ignoring_hybrids(hWnd, index);
+    return combo5_lookup_fractal_type_ignoring_hybrids(index);
   }
   else
   {
@@ -101,7 +101,7 @@ int combo5_lookup_fractal_type(HWND hWnd, int index, bool ignore_hybrids)
   }
 }
 
-int combo5_lookup_dropdown_index_ignoring_hybrids(HWND hWnd, int type)
+int combo5_lookup_dropdown_index_ignoring_hybrids(int type)
 {
   int index = 0;
   if (type == -1)
@@ -118,11 +118,11 @@ int combo5_lookup_dropdown_index_ignoring_hybrids(HWND hWnd, int type)
   return -1;
 }
 
-int combo5_lookup_dropdown_index(HWND hWnd, int type, bool ignore_hybrids)
+int combo5_lookup_dropdown_index(int type, bool ignore_hybrids)
 {
   if (ignore_hybrids)
   {
-    return combo5_lookup_dropdown_index_ignoring_hybrids(hWnd, type);
+    return combo5_lookup_dropdown_index_ignoring_hybrids(type);
   }
   else
   {

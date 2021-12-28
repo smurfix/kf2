@@ -328,10 +328,10 @@ bool perturbation_convergent_simple
 
 typedef struct HWND__* HWND;
 bool is_convergent(const int m_nFractalType, const int m_nPower);
-bool scaling_supported(const int m_nFractalType, const int m_nPower, const bool derivatives);
+bool scaling_supported(const int m_nFractalType, const int m_nPower);
 void combo5_addstrings(HWND hWnd, const int combo, bool ignore_hybrids);
-int combo5_lookup_fractal_type(HWND hWnd, int index, bool ignore_hybrids);
-int combo5_lookup_dropdown_index(HWND hWnd, int type, bool ignore_hybrids);
+int combo5_lookup_fractal_type(int index, bool ignore_hybrids);
+int combo5_lookup_dropdown_index(int type, bool ignore_hybrids);
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower);
 void update_power_dropdown_for_fractal_type(HWND hWnd, const int combo, const int m_nFractalType, const int m_nPower);
 bool builtin_get_hybrid(const int type, const int power, std::string &hybrid);

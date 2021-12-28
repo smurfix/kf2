@@ -71,9 +71,9 @@ static void UpdateFractalType(HWND hWnd, int type = -2, int p = -1)
     if (g_SFT.GetUseHybridFormula()) type = -1;
   }
   if (p < 0) p = g_SFT.GetPower();
-  int index = combo5_lookup_dropdown_index(hWnd, type, g_ignore_hybrids);
+  int index = combo5_lookup_dropdown_index(type, g_ignore_hybrids);
   SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_SETCURSEL, index, 0);
-  type = combo5_lookup_fractal_type(hWnd, SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0), g_ignore_hybrids);
+  type = combo5_lookup_fractal_type(SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0), g_ignore_hybrids);
   if (0 <= type)
   {
     p = validate_power_for_fractal_type(type, p);
@@ -95,7 +95,7 @@ static void UpdateFractalType(HWND hWnd, int type = -2, int p = -1)
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
 {
   int index = SendDlgItemMessage(hWnd,IDC_FORMULA_TYPE,CB_GETCURSEL,0,0);
-  int i = combo5_lookup_fractal_type(hWnd, index, g_ignore_hybrids);
+  int i = combo5_lookup_fractal_type(index, g_ignore_hybrids);
   if (refresh)
   {
     if (0 <= i)
