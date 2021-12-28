@@ -209,7 +209,6 @@ void CFraktalSFT::RenderFractal()
 		f.precision(LOW_PRECISION);
 		ToZoom(CDecNumber(FixedFloat(4 / f)), m_nZoom);
 	}
-	m_nTotal = m_count_queued;
 	Reference_Type reftype = GetReferenceType(m_nZoom);
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{

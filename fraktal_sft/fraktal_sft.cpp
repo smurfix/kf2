@@ -199,7 +199,6 @@ CFraktalSFT::CFraktalSFT()
 	m_bAddReference = FALSE;
 	m_nXPrev = m_nYPrev = -1;
 	m_nSizeImage = -1;
-	m_nTotal = -1;
 	m_pnExpConsts = NULL;
 
 	m_Reference = nullptr;
