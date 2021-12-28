@@ -1234,7 +1234,7 @@ void CFraktalSFT::ApplyColors()
 		{
 			if (m_bGLSLChanged)
 			{
-				m_bGLSLCompiled = OpenGL_Compile(m_sGLSL, m_sGLSLLog);
+				m_bGLSLCompiled = OpenGL_Compile(m_sGLSL);
 				m_bGLSLChanged = false;
 			}
 			if (m_bGLSLCompiled)

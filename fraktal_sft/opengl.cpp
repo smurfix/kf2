@@ -421,7 +421,7 @@ const char *blit_frag =
         glfwTerminate();
       }
 
-  bool OpenGL_processor::compile(const std::string &fragment_src, std::string &log)
+  bool OpenGL_processor::compile(const std::string &fragment_src)
       {
         std::string vertex_log;
         std::string fragment_log;

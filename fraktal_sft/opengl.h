@@ -102,7 +102,7 @@ private:
 
 public:
   bool init(int &major, int &minor, std::string &message);
-  bool compile(const std::string &fragment_src, std::string &log);
+  bool compile(const std::string &fragment_src);
   bool configure(const request_configure_t &req);
   bool render(const request_render_t &req);
   
