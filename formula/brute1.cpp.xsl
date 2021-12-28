@@ -65,7 +65,6 @@ extern int SaveEXR
 , const unsigned char *Data
 , int nWidth
 , int nHeight
-, int nColors
 , const std::string &amp;comment
 , int64_t maxiter
 , int arrWidth
@@ -320,7 +319,7 @@ int main(int argc, char **argv)
       }
     }
   }
-  SaveEXR("brute.exr", ppm, width, height, 3, "-", maxiters, width, height, count, trans, nullptr, nullptr, nullptr, 16, N+NF+Preview);
+  SaveEXR("brute.exr", ppm, width, height, "-", maxiters, width, height, count, trans, nullptr, nullptr, nullptr, 16, N+NF+Preview);
   std::printf("P6\n%d %d\n255\n", width, height);
   std::fwrite(ppm, 3 * width * height, 1, stdout);
   delete[] ppm;

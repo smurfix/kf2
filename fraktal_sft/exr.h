@@ -78,7 +78,6 @@ extern int SaveEXR
 , const unsigned char *Data
 , int nWidth
 , int nHeight
-, int nColors
 , const std::string &comment
 , int64_t maxiter
 , int arrWidth

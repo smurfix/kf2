@@ -281,7 +281,6 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		  , lpJeg
 		  , bmi.biWidth
 		  , bmi.biHeight
-		  , 3
 		  , comment
 		  , g_SFT.GetIterations()
 		  , g_SFT.GetWidth()
@@ -340,7 +339,6 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		  , lpJeg
 		  , biWidth
 		  , biHeight
-		  , 3
 		  , comment
 		  , g_SFT.GetIterations()
 		  , g_SFT.GetWidth()
