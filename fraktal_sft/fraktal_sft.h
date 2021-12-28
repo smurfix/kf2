@@ -717,9 +717,6 @@ public:
 // XXX dead/unused
     //BOOL(LongDoubleAlways)
     //BOOL(FloatExpAlways)
-	std::vector< complex<CFixedFloat> > m_Inflections;
-	void AddInflectionPont(int x, int y);
-	void RemoveInflectionPoint();
 	void CreateLists();
 	int nPos; // possibly used for debugging
 	std::string GetPosition();  // not defined

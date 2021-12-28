@@ -3766,21 +3766,6 @@ void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int
 	m_szTexture = szTexture;
 }
 
-void CFraktalSFT::AddInflectionPont(int nXPos, int nYPos)
-{
-	floatexp a, b;
-	GetPixelCoordinates(nXPos, nYPos, a, b);
-	complex<CFixedFloat> inflect;
-	inflect.m_r = m_rref + CFixedFloat(a);
-	inflect.m_i = m_iref + CFixedFloat(b);
-	m_Inflections.push_back(inflect);
-}
-void CFraktalSFT::RemoveInflectionPoint()
-{
-	if (m_Inflections.size() > 0)
-		m_Inflections.pop_back();
-}
-
 #ifdef KF_OPENCL
 int CFraktalSFT::GetOpenCLDeviceIndex()
 {

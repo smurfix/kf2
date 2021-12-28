@@ -3785,11 +3785,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		POINT p;
 		GetCursorPos(&p);
 		ScreenToClient(hWnd,&p);
-		g_SFT.AddInflectionPont(p.x,p.y);
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_SHIFT))){
-		g_SFT.RemoveInflectionPoint();
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 #if 0
