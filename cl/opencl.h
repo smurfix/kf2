@@ -606,7 +606,7 @@ public:
         stride_offset,
         m_nBailout,
         m_nBailout2,
-        log(m_nBailout),
+        log_m_nBailout,
         log_m_nPower,
         m_nMaxIter,
         int64_t(rN_size),
