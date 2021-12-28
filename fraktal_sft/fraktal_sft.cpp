@@ -184,7 +184,6 @@ CFraktalSFT::CFraktalSFT()
 
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 	m_bRunning = FALSE;
-	m_szPosition = NULL;
 	m_CenterRe = 0;
 	m_CenterIm = 0;
 	m_ZoomRadius = 2;
