@@ -177,6 +177,8 @@ static std::vector<HWND> tooltips;
 #ifdef WINVER
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+  (void)lParam;
+
   switch (uMsg)
   {
     case WM_INITDIALOG:

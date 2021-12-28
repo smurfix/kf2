@@ -74,6 +74,7 @@ static std::string GetDlgItemString(HWND hWnd, int idc)
 
 extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 {
+	(void)lParam;
 	if (uMsg == WM_INITDIALOG)
 	{
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
