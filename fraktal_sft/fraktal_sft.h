@@ -512,8 +512,6 @@ public:
 
 	// fill cKeys with random colors
 	void GenerateColors(int nParts, int nSeed = -1);
-	// fill cKeys with even more random colors. XXX Unused.
-	void GenerateColors2(int nParts, int nSeed = -1, int nWaves = 9);
 
 	// set r/g/b/y (ncol=0,1,2,3) to a sine wave
 	// if ncol&4, overlay a sine wave instead

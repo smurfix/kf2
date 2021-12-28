@@ -432,31 +432,6 @@ void CFraktalSFT::AddWave(int nColor, int nP, int nS)
 	}
 }
 
-void CFraktalSFT::GenerateColors2(int nParts, int nSeed, int nWaves)
-{
-	m_nParts = nParts;
-	m_nSeed = nSeed;
-	if (m_nSeed == -1)
-		m_nSeed = GetTickCount();
-	srand(m_nSeed);
-	int i;
-	for (i = 0; i<1024; i++)
-		m_cKeys[i].r = m_cKeys[i].g = m_cKeys[i].b = 0;
-	int nW;
-	std::set<int> stPeriods;
-	for (nW = 0; nW<nWaves; nW++){
-		int nTests, nPeriod;
-		for (nTests = 0; nTests<20; nTests++){
-			nPeriod = rand() % (nParts>4 ? nParts / 4 : nParts);
-			nPeriod = MakePrime(nPeriod);
-			if (stPeriods.count(nPeriod) != 0)
-				continue;
-			stPeriods.insert(nPeriod);
-		}
-		AddWave(nW%4 | ((nW>=4)?4:0), nPeriod, -1);
-	}
-}
-
 void CFraktalSFT::ChangeNumOfColors(int nParts)
 {
 	m_nParts = nParts;
