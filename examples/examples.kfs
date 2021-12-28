@@ -21,8 +21,6 @@ Guessing: 0
 SolveGlitchNear: 0
 NoApprox: 0
 Mirror: 0
-LongDoubleAlways: 0
-FloatExpAlways: 0
 AutoIterations: 1
 ShowGlitches: 0
 NoReuseCenter: 0

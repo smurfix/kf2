@@ -60,8 +60,6 @@ private:
   bool m_SolveGlitchNear;
   bool m_NoApprox;
   bool m_Mirror;
-  bool m_LongDoubleAlways;
-  bool m_FloatExpAlways;
   bool m_AutoIterations;
   bool m_ShowGlitches;
   bool m_NoReuseCenter;
@@ -127,8 +125,6 @@ public:
   , m_SolveGlitchNear(false)
   , m_NoApprox(false)
   , m_Mirror(false)
-  , m_LongDoubleAlways(false)
-  , m_FloatExpAlways(false)
   , m_AutoIterations(true)
   , m_ShowGlitches(true)
   , m_NoReuseCenter(true)
@@ -247,12 +243,6 @@ public:
 
   inline bool   GetMirror() const { return m_Mirror; };
   inline void   SetMirror(bool b) { m_Mirror = b; };
-
-  inline bool   GetLongDoubleAlways() const { return m_LongDoubleAlways; };
-  inline void   SetLongDoubleAlways(bool b) { m_LongDoubleAlways = b; };
-
-  inline bool   GetFloatExpAlways() const { return m_FloatExpAlways; };
-  inline void   SetFloatExpAlways(bool b) { m_FloatExpAlways = b; };
 
   inline bool   GetAutoIterations() const { return m_AutoIterations; };
   inline void   SetAutoIterations(bool b) { m_AutoIterations = b; };
