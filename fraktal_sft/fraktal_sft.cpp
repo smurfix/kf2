@@ -2301,7 +2301,7 @@ std::string CFraktalSFT::GetRe()
 {
 	return m_CenterRe.ToText();
 }
-std::string CFraktalSFT::GetRe(int nXPos, int nYPos, int width, int height)
+std::string CFraktalSFT::GetRe(int nXPos, int nYPos)
 {
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);
@@ -2312,7 +2312,7 @@ std::string CFraktalSFT::GetIm()
 {
 	return m_CenterIm.ToText();
 }
-std::string CFraktalSFT::GetIm(int nXPos, int nYPos, int width, int height)
+std::string CFraktalSFT::GetIm(int nXPos, int nYPos)
 {
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);

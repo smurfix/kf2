@@ -1205,8 +1205,8 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			g_skew[2] = m[1][0];
 			g_skew[3] = m[1][1];
 			RECT r = *(RECT*)lParam;
-			g_szRe = g_SFT.GetRe(r.left,r.top,r.right,r.bottom);
-			g_szIm = g_SFT.GetIm(r.left,r.top,r.right,r.bottom);
+			g_szRe = g_SFT.GetRe(r.left,r.top);
+			g_szIm = g_SFT.GetIm(r.left,r.top);
 
 			NewtonReadWindows(hWnd);
 

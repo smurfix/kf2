@@ -174,10 +174,9 @@ public:
 	std::string GetZoom();
 
 	// String versions of address at specific positions.
-	// XXX width+height are unused
 	// TODO used only in Newton calc, most probably stupidly
-	std::string GetRe(int nXPos, int nYPos, int width, int height);
-	std::string GetIm(int nXPos, int nYPos, int width, int height);
+	std::string GetRe(int nXPos, int nYPos);
+	std::string GetIm(int nXPos, int nYPos);
 
 	// internal/library use: set position, radius, possibly size
 	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
