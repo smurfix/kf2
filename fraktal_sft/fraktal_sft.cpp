@@ -3605,11 +3605,6 @@ void CFraktalSFT::ErasePixel(int x, int y)
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
 	}
 }
-void CFraktalSFT::StoreLocation()
-{
-	m_storedr = m_rref;
-	m_storedi = m_iref;
-}
 void CFraktalSFT::SetMW(BOOL bMW, BOOL bBlend)
 {
 	m_bMW = bMW;

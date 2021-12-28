@@ -1260,7 +1260,6 @@ static int ResumeZoomSequence(HWND hWnd)
 		return 0;
 	if(!g_SFT.OpenFile(g_szFile))
 		return MessageBox(hWnd,"Could not open file","Error",MB_OK|MB_ICONSTOP);
-	g_SFT.StoreLocation();
 	std::string File = replace_path_filename(g_szFile, "*_*.jpg");
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(File.c_str(),&fd);
@@ -3381,7 +3380,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_bStoreZoom++;
 			szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		}
-		g_SFT.StoreLocation();
 		DisableUnsafeMenus(hWnd);
 		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
 	}

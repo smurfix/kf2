@@ -715,8 +715,6 @@ public:
 	//
 
 // XXX dead/unused
-	CFixedFloat m_storedr, m_storedi;
-	void StoreLocation();
     //BOOL(LongDoubleAlways)
     //BOOL(FloatExpAlways)
 	int m_nTotal;
