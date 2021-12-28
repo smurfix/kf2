@@ -2520,12 +2520,14 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		return FALSE; // FIXME leaks Org arrays
 	char szId[3];
 	hFile.read(szId, 3);
-	char bNewFormat = 0;  // yes that's misnamed
-	if (!strncmp(szId, "KFC", 3))
+	char bNewFormat;  // yes that's misnamed
+	if (!strncmp(szId, "KFB", 3))
+		bNewFormat = 0;
+	else if (!strncmp(szId, "KFC", 3))
 		bNewFormat = 1;
-	if (!strncmp(szId, "KFD", 3))
+	else if (!strncmp(szId, "KFD", 3))
 		bNewFormat = 2;
-	else if (strncmp(szId, "KFB", 3)){
+	else{
 		hFile.close();
 		return FALSE;
 	}
