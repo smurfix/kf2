@@ -501,7 +501,7 @@ public:
 
 	// these end up setting pixels
 	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de, int power);
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, double nBailout, const complex<double> &de);
+	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, const complex<double> &de);
 	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
 	Guess GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
 	Guess GuessPixel(int x, int y, int w, int h);

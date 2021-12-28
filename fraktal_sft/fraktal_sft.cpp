@@ -3841,7 +3841,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 #endif
 
 
-void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, double nBailout, const complex<double> &de)
+void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, const complex<double> &de)
 {
 	int64_t antal0 = antal;
 	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
@@ -3905,7 +3905,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 	}
 	if (!ISFLOATOK(smooth))
 		smooth = 0;
-	OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, nBailout, de);
+	OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, de);
 }
 
 void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)

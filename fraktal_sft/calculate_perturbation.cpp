@@ -251,7 +251,7 @@ void CFraktalSFT::MandelCalc1()
 
     if (is_convergent(m_nFractalType, m_nPower))
     {
-      OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, nBailout, de);
+      OutputIterationData(x, y, w, h, bGlitch, antal, test1, smooth, phase, de);
     }
     else
     {
