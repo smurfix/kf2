@@ -3976,22 +3976,13 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 void CFraktalSFT::SetTransformPolar(const polar2 &P)
 {
 	m_TransformPolar = P;
-	m_TransformMatrix = polar_composition(GetTransformPolar());
-}
-
-polar2 CFraktalSFT::GetTransformPolar() const
-{
-	return m_TransformPolar;
+	m_TransformMatrix = polar_composition(P);
 }
 
 void CFraktalSFT::SetTransformMatrix(const mat2 &M)
 {
-	SetTransformPolar(polar_decomposition(M));
-}
-
-mat2 CFraktalSFT::GetTransformMatrix() const
-{
-	return m_TransformMatrix;
+	m_TransformMatrix = M;
+	m_TransformPolar = polar_decomposition(M);
 }
 
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const

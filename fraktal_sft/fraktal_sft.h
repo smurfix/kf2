@@ -299,12 +299,12 @@ public:
     // matrix for calculation
 	mat2 m_TransformMatrix;
 	void SetTransformMatrix(const mat2 &M);
-	mat2 GetTransformMatrix() const;  // TODO inline this
+	inline mat2 GetTransformMatrix() const { return m_TransformMatrix; }
 
     // GUI's original (polar form) of transform matrix
 	polar2 m_TransformPolar;
 	void SetTransformPolar(const polar2 &P);
-	polar2 GetTransformPolar() const;
+	inline polar2 GetTransformPolar() const { return m_TransformPolar; }
 
   // actually calculate a fractal
   //
