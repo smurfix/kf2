@@ -508,7 +508,7 @@ public:
 
 
 	int m_nSeed;            // Seed for random colorization. Inconsistently used
-	int GetSeed();          // TODO inline me
+	inline int GetSeed() const { return m_nSeed; }
 
 	// fill cKeys with random colors
 	void GenerateColors(int nParts, int nSeed = -1);

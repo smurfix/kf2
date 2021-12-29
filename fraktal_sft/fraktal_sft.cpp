@@ -1319,10 +1319,6 @@ void CFraktalSFT::ApplyColors()
 		}
 	}
 }
-int CFraktalSFT::GetSeed()
-{
-	return m_nSeed;
-}
 CFraktalSFT::~CFraktalSFT()
 {
 	delete[] m_APr;
