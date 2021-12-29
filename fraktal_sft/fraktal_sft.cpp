@@ -72,9 +72,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 //#define TERM6
 //#define TERM7
 
-// TODO move to g_SFT
-double g_Degree = 0;
 #if 0
+double g_Degree = 0;
 void(SetParts)(double,double);
 int(SizeOfLD)();
 int(Version)();
