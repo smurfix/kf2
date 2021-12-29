@@ -459,6 +459,7 @@ public:
     //INT(ApproxTerms)               // Number of terms for series approximation
 	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
 	void   SetApproxTerms(int64_t t);// updates m_APr and m_APi
+
 	// approximation terms. Large.
 	floatexp *m_APr; // settings.approxTerms large
 	floatexp *m_APi;

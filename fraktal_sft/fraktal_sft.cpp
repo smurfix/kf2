@@ -1321,8 +1321,7 @@ void CFraktalSFT::ApplyColors()
 }
 CFraktalSFT::~CFraktalSFT()
 {
-	delete[] m_APr;
-	delete[] m_APi;
+	DeleteArrays();
 }
 std::string CFraktalSFT::ToZoom()
 {
@@ -1438,6 +1437,16 @@ void CFraktalSFT::DeleteArrays()
 				delete_aligned(m_nDEy[0]);
 			delete[] m_nDEy;
 			m_nDEy = nullptr;
+		}
+		if (m_APr)
+		{
+			delete[] m_APr;
+			m_APr = nullptr;
+		}
+		if (m_APi)
+		{
+			delete[] m_APi;
+			m_APi = nullptr;
 		}
 }
 
