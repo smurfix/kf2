@@ -1213,7 +1213,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	g_JpegParams.nWidth = g_SFT.GetWidth();
 	g_JpegParams.nHeight = g_SFT.GetHeight();
 	g_JpegParams.nQuality = 100;
-	//g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+	//g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 	if (bShouldAutoIterations)
 	{
 		AutoIterations();
@@ -2209,7 +2209,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),g_SFT.GetIterations(),hWnd);
+		g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
@@ -2805,13 +2805,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			sc.cx = (double)r.right*((double)sc.cy/(double)r.bottom);
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
 			DisableUnsafeMenus(hWnd);
-			g_SFT.RenderFractal(sc.cx,sc.cy,g_SFT.GetIterations(),hWnd);
+			g_SFT.SetImageSize(sc.cx,sc.cy);
+			g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 		}
 		else
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && otherwise" << std::endl;
 			DisableUnsafeMenus(hWnd);
-			g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+			g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 		}
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_ESCAPE){
@@ -3205,7 +3206,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+		g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+		g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_CENTERCURSOR) || (uMsg==WM_KEYDOWN && wParam=='U' && HIWORD(GetKeyState(VK_CONTROL)))){
 		POINT p;
@@ -3245,7 +3247,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+		g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_REDO) || (uMsg==WM_KEYDOWN && wParam=='Y' && HIWORD(GetKeyState(VK_CONTROL)))){
 		g_SFT.Stop();
@@ -3262,7 +3264,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetWidth(),g_SFT.GetHeight(),g_SFT.GetIterations(),hWnd);
+		g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 	}
 
 	else if ((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL))))
@@ -3306,7 +3308,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
 		SetTimer(hWnd, 0, 500, NULL);
 		DisableUnsafeMenus(hWnd);
-		g_SFT.RenderFractal(g_SFT.GetImageWidth() ,g_SFT.GetImageHeight(), g_SFT.GetIterations(), hWnd);
+		g_SFT.RenderFractal(g_SFT.GetIterations(), hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
 		POINT p;
@@ -3983,7 +3985,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bSaveJpeg=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
-					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
@@ -4008,7 +4010,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bSavePng=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
-					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
@@ -4033,7 +4036,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bSaveTif=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
-					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
@@ -4058,7 +4062,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bSaveExr=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
-					g_SFT.RenderFractal(g_JpegParams.nWidth,g_JpegParams.nHeight,g_SFT.GetIterations(),hWnd);
+					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.RenderFractal(g_SFT.GetIterations(),hWnd);
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
@@ -4394,7 +4399,7 @@ static bool render_frame(int frame, bool onlyKFR)
 	{
 		if (! onlyKFR)
 		{
-			g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+			g_SFT.RenderFractal(g_SFT.GetIterations(), nullptr, true, true);
 		}
 	}
 	else
@@ -4411,7 +4416,7 @@ static bool render_frame(int frame, bool onlyKFR)
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 		if (! onlyKFR)
 		{
-			g_SFT.RenderFractal(g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), g_SFT.GetIterations(), nullptr, true, true);
+			g_SFT.RenderFractal(g_SFT.GetIterations(), nullptr, true, true);
 		}
 	}
 	if (! onlyKFR)

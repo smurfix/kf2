@@ -2058,7 +2058,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 
 	m_ZoomRadius /= nZoomSize;
 
-	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
+	RenderFractal(m_nMaxIter, m_hWnd);
 }
 
 void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool autorender, bool center_view)
@@ -2194,7 +2194,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		m_ZoomRadius = radius;
 	}
 	if (autorender)
-		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
+		RenderFractal(m_nMaxIter, m_hWnd);
 }
 
 extern int g_bAutoGlitch;
@@ -2750,7 +2750,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
-	RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd, m_hWnd == nullptr, FALSE);
+	RenderFractal(m_nMaxIter, m_hWnd, m_hWnd == nullptr, FALSE);
 	return TRUE;
 }
 
