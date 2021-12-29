@@ -478,7 +478,10 @@ public:
 	COLOR14 m_cKeys[1025];  // the color keys (set in the dialog)
 	COLOR14 GetKeyColor(int i);
 	void SetKeyColor(COLOR14 col, int i);
+
 	int m_nParts;           // how many color keys are filled
+	inline void SetNumOfColors(int parts) { m_nParts = parts; }
+	inline int GetNumOfColors() const { return m_nParts; }
 
 	COLOR14 m_cInterior;    // uniform
 	COLOR14 GetInteriorColor() { return m_cInterior; };
@@ -512,9 +515,6 @@ public:
 	// set r/g/b/y (ncol=0,1,2,3) to a sine wave
 	// if ncol&4, overlay a sine wave instead
 	void AddWave(int col, int period = -1, int start = -1);
-	// TODO rename to Set…
-	void ChangeNumOfColors(int parts);
-	int GetNumOfColors();
 
 	// Infinite waves?
 	MULTIWAVE m_MW[MULTIWAVE_MAX];  // see defs.h

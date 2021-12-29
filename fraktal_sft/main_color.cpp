@@ -582,7 +582,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				nColors=1024;
 				SetDlgItemInt(hWnd,IDC_EDIT1,nColors,FALSE);
 			}
-			g_SFT.ChangeNumOfColors(nColors);
+			g_SFT.SetNumOfColors(nColors);
 			char szDiv[256];
 			GetDlgItemText(hWnd,IDC_EDIT3,szDiv,sizeof(szDiv));
 			double nDiv = atof(szDiv);
@@ -717,7 +717,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			nParts*=2;
 			if(nParts>1024)
 				return ColorProc(hWnd,uMsg,IDC_BUTTON7,lParam);
-			g_SFT.ChangeNumOfColors(nParts);
+			g_SFT.SetNumOfColors(nParts);
 			int i;
 			for(i=nParts-1;i>=0;i-=2){
 				COLOR14 n;
@@ -732,7 +732,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(n,i);
 				g_SFT.SetKeyColor(c,i-1);
 			}
-//			g_SFT.ChangeNumOfColors(nParts-1);
+//			g_SFT.SetNumOfColors(nParts-1);
 			SendMessage(hWnd,WM_USER+99,0,0);
 			if (g_AutoColour) g_SFT.ApplyColors();
 		}
@@ -742,7 +742,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			COLOR14 c[1024];
 			for(i=0;i<1024;i++)
 				c[i] = g_SFT.GetColor(i);
-			g_SFT.ChangeNumOfColors(1024);
+			g_SFT.SetNumOfColors(1024);
 			for(i=0;i<1024;i++)
 				g_SFT.SetKeyColor(c[i],i);
 			SendMessage(hWnd,WM_USER+99,0,0);
@@ -822,7 +822,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			int nParts = std::min(std::max(bmi.biWidth, bmi.biHeight), (LONG)1024);
 			double woffs = (double) bmi.biWidth  / (double) nParts;
 			double hoffs = (double) bmi.biHeight / (double) nParts;
-			g_SFT.ChangeNumOfColors(nParts);
+			g_SFT.SetNumOfColors(nParts);
 			int i;
 			for(i=0;i<nParts;i++){
 				int x = i*woffs;
@@ -1087,7 +1087,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			nParts*=2;
 			if(nParts>1024)
 				nParts=1024;
-			g_SFT.ChangeNumOfColors(nParts);
+			g_SFT.SetNumOfColors(nParts);
 			int i, j=0;
 			for(i=nPParts;i<nParts;i++){
 				COLOR14 c = g_SFT.GetKeyColor(j++);

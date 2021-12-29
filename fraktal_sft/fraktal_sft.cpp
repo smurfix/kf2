@@ -430,14 +430,6 @@ void CFraktalSFT::AddWave(int nColor, int nP, int nS)
 	}
 }
 
-void CFraktalSFT::ChangeNumOfColors(int nParts)
-{
-	m_nParts = nParts;
-}
-int CFraktalSFT::GetNumOfColors()
-{
-	return m_nParts;
-}
 void CFraktalSFT::ApplyIterationColors()
 {
 	if (m_nPixels && m_lpBits){
