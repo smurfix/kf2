@@ -119,6 +119,7 @@ public:
 	int m_nPower;
 	int GetPower() const;
 	void SetPower(int nPower);  // limits to [2;70]
+	int *m_pnExpConsts;     // Pascal Triangle, for m_nPower>10
 
 	BOOL(Derivatives)       // also calculate slopes etc.
 	//
@@ -155,9 +156,6 @@ public:
 	SmoothMethod m_nSmoothMethod;
 	inline SmoothMethod GetSmoothMethod() { return m_nSmoothMethod; }
 	inline void SetSmoothMethod(SmoothMethod nSmoothMethod) { m_nSmoothMethod = nSmoothMethod; }
-  // internals
-	int *m_pnExpConsts;  // Pascal Triangle numbers for m_nPower
-	int m_nPrevPower;    // current power of ExpConsts table. TODO simplify.
   //
   // Where do we calculate it? (Parameters etc)
 	int m_nFractalType;

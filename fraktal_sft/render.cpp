@@ -109,26 +109,6 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	m_nRDone = 0;
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
-	if (m_nPower>10 && m_nPrevPower != m_nPower){
-		m_nPrevPower = m_nPower;
-		if (m_pnExpConsts){
-			delete[] m_pnExpConsts;
-			m_pnExpConsts = NULL;
-		}
-		// compute Pascal triangle numbers
-		m_pnExpConsts = new int[m_nPower + 1];
-		m_pnExpConsts[0] = 1;
-		int i,k;
-		for(i=1;i<=m_nPower;i++) {
-			m_pnExpConsts[i] = 1;
-			for (k=i-1;k>0;k--)
-				m_pnExpConsts[k] += m_pnExpConsts[k-1];
-		}
-	}
-	else if (m_nPower <= 10 && m_pnExpConsts){
-		delete[] m_pnExpConsts;
-		m_pnExpConsts = NULL;
-	}
 
 	WaitForMutex(m_hMutex);
 	bool resize = m_nXPrev != m_nX || m_nYPrev != m_nY;

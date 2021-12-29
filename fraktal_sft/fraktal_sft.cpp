@@ -174,7 +174,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bMW = 0;
 	m_bBlend = 0;
 	m_bNoGlitchDetection = FALSE;
-	m_nPrevPower = m_nPower = 2;
+	m_nPower = 0;
 	m_nMaxOldGlitches = OLD_GLITCH;
 
 	int m_nTerms = GetApproxTerms();
@@ -3528,12 +3528,33 @@ int CFraktalSFT::GetPower() const
 }
 void CFraktalSFT::SetPower(int nPower)
 {
-	m_nPower = nPower;
-	if (m_nPower<2)
-		m_nPower = 2;
-	if (m_nPower>70)
-		m_nPower = 70;
+	if (nPower<2)
+		nPower = 2;
+	if (nPower>70)
+		nPower = 70;
 	SetSmoothMethod(m_nSmoothMethod); // update bailout if necessary
+
+	if (m_nPower != nPower) {
+        if (m_pnExpConsts){
+            delete[] m_pnExpConsts;
+            m_pnExpConsts = NULL;
+        }
+        if (nPower > 10) {
+            // compute Pascal triangle numbers.
+			// For n<=10 these are hardcoded into the requisite formula(s).
+            m_pnExpConsts = new int[nPower + 1];
+            m_pnExpConsts[0] = 1;
+            int i,k;
+            for(i=1;i<=nPower;i++) {
+                m_pnExpConsts[i] = 1;
+                for (k=i-1;k>0;k--)
+                    m_pnExpConsts[k] += m_pnExpConsts[k-1];
+            }
+        }
+
+	}
+
+	m_nPower = nPower;
 }
 
 void CFraktalSFT::SetDifferences(int nDifferences)
