@@ -3529,22 +3529,7 @@ ColorMethod CFraktalSFT::GetColorMethod()
 {
 	return m_nColorMethod;
 }
-void CFraktalSFT::SetColorOffset(int nColorOffset)
-{
-	m_nColorOffset = nColorOffset % 1024;
-}
-int CFraktalSFT::GetColorOffset()
-{
-	return m_nColorOffset;
-}
-void CFraktalSFT::SetPhaseColorStrength(double strength)
-{
-	m_nPhaseColorStrength = strength;
-}
-double CFraktalSFT::GetPhaseColorStrength()
-{
-	return m_nPhaseColorStrength;
-}
+
 void CFraktalSFT::ErasePixel(int x, int y)
 {
 	if (x >= 0 && y >= 0 && x<m_nX && y<m_nY){

@@ -488,15 +488,16 @@ public:
 	void SetInteriorColor(const COLOR14 &c) { m_cInterior = c; };
 
 	double m_nIterDiv;      // basic scaling of mapping the iter count to colors
-	double GetIterDiv();    // XXX inline
-	void SetIterDiv(double iterDiv);    // XXX inline; simply tests for >0
+	inline double GetIterDiv() const { return m_nIterDiv; }
+	inline void SetIterDiv(double iterDiv) { if (iterDiv>0) m_nIterDiv = iterDiv; }
 
-	int m_nColorOffset;     // start pos in color list. TODO inline
-	void SetColorOffset(int colorOffset);
-	int GetColorOffset();
+	int m_nColorOffset;     // start pos in color list
+	inline void SetColorOffset(int colorOffset) { m_nColorOffset = colorOffset % 1024; }
+	inline int GetColorOffset() const { return m_nColorOffset; }
+
 	double m_nPhaseColorStrength;
-	void SetPhaseColorStrength(double phaseColorStrength);
-	double GetPhaseColorStrength();
+	inline void SetPhaseColorStrength(double strength) { m_nPhaseColorStrength = strength; }
+	inline double GetPhaseColorStrength() const { return m_nPhaseColorStrength; }
 
 	// these end up setting pixels
 	void OutputIterationData(int x, int y, int w, int h, bool glitch, int64_t antal, double test1, double test2, double phase, double bailout, const complex<double> &de, int power);
