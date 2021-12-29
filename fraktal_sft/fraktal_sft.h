@@ -98,6 +98,10 @@ public:
 	inline NumberType GetNumberTypes() const { return m_Settings.GetNumberTypes(); };
 	inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
 
+	int m_nFractalType;
+	void SetFractalType(int fractalType);
+	inline int GetFractalType() const { return m_nFractalType; }
+
 	bool m_UseHybridFormula;
 	inline bool GetUseHybridFormula() const { return m_UseHybridFormula; };
 	inline void SetUseHybridFormula(bool b)
@@ -107,17 +111,11 @@ public:
 	}
 
 	hybrid_formula m_HybridFormula;
-	const hybrid_formula &GetHybridFormula() const
-	{
-		return m_HybridFormula;
-	};
-	void SetHybridFormula(const hybrid_formula &h)
-	{
-		m_HybridFormula = h;
-	};
+	inline const hybrid_formula &GetHybridFormula() const { return m_HybridFormula; };
+	inline void SetHybridFormula(const hybrid_formula &h) { m_HybridFormula = h; };
 
 	int m_nPower;
-	int GetPower() const;
+	inline int GetPower() const { return m_nPower; }
 	void SetPower(int nPower);  // limits to [2;70]
 	int *m_pnExpConsts;     // Pascal Triangle, for m_nPower>10
 
@@ -136,31 +134,30 @@ public:
   // Bail-out radius: deciding that a point is outside the set
 	BailoutRadiusPreset m_nBailoutRadiusPreset;
 	double m_nBailoutRadiusCustom;
+
 	BailoutRadiusPreset GetBailoutRadiusPreset();
 	void SetBailoutRadiusPreset(int nBailoutRadiusPreset);
 	double GetBailoutRadiusCustom();
+
 	void SetBailoutRadiusCustom(double nBailoutRadiusCustom);
 	double GetBailoutRadius();
-	floatexp GetBailoutSmall();
+	floatexp GetBailoutSmall(); // XXX constant 1e-12
 
     // how to calculate the bail-out distance
 	BailoutNormPreset m_nBailoutNormPreset;
 	double m_nBailoutNormCustom;
-	BailoutNormPreset GetBailoutNormPreset();
+	inline BailoutNormPreset GetBailoutNormPreset() const { return m_nBailoutNormPreset; }
 	void SetBailoutNormPreset(int nBailoutNormPreset);
-	double GetBailoutNormCustom();
-	void SetBailoutNormCustom(double nBailoutNormCustom);
-	double GetBailoutNorm();
+	double GetBailoutNormCustom() const { return m_nBailoutNormCustom; }
+	inline void SetBailoutNormCustom(double nBailoutNormCustom) { m_nBailoutNormCustom = nBailoutNormCustom; }
+	double GetBailoutNorm(); // depends on m_nBailoutNormPreset
 
     // Smoothing. Accepts Log=0 and Sqrt=1 only.
 	SmoothMethod m_nSmoothMethod;
-	inline SmoothMethod GetSmoothMethod() { return m_nSmoothMethod; }
+	inline SmoothMethod GetSmoothMethod() const { return m_nSmoothMethod; }
 	inline void SetSmoothMethod(SmoothMethod nSmoothMethod) { m_nSmoothMethod = nSmoothMethod; }
   //
   // Where do we calculate it? (Parameters etc)
-	int m_nFractalType;
-	void SetFractalType(int nFractalType);
-	int GetFractalType() const;
 
 	// Position of fractal view: where and how large
 	CFixedFloat m_CenterRe, m_CenterIm, m_ZoomRadius;
@@ -192,10 +189,10 @@ public:
 	void SetImageSize(int nx, int ny);
 	int GetWidth();  // returns m_nX
 	int GetHeight(); // TODO inline this
-	inline int64_t GetImageWidth() { if (m_nX) return m_nX; return CalcImageWidth(); }
-	inline int64_t GetImageHeight() { if (m_nY) return m_nY; return CalcImageHeight(); }
-	int64_t CalcImageHeight();  // returns h*s; TODO should simply return m_nX
-	int64_t CalcImageWidth();   // returns w*s; TODO should simply return m_nY
+	inline int64_t GetImageWidth() const { if (m_nX) return m_nX; return CalcImageWidth(); }
+	inline int64_t GetImageHeight() const { if (m_nY) return m_nY; return CalcImageHeight(); }
+	int64_t CalcImageHeight() const;  // returns h*s; TODO should simply return m_nX
+	int64_t CalcImageWidth() const;   // returns w*s; TODO should simply return m_nY
 
 	// forwards to Settings: stores the target image size and a supersampling factor
 	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
@@ -435,7 +432,8 @@ public:
 
   // resizing
 	int m_nZoom;                 // base10 exponent of zoom factor
-	int GetExponent();           // TODO inline
+	inline int GetExponent() { return m_nZoom; }
+	// XXX rename this to GetZoomExponent
 
 	double m_nZooms;             // XXX unused
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
@@ -532,7 +530,6 @@ public:
 	BOOL UpdateMW(int nIndex, int nPeriod, int nStart, int nType);
 	BOOL DeleteMW(int nIndex);
 
-
   // bitmap for the fractal colors
     // TODO strictly 24bit. Needs a 32-bit mode for embedding / unmodified pixbuf lib.
 	HANDLE m_hMutex;                  // protet the stuff below
@@ -562,17 +559,17 @@ public:
 
 
   // More coloring parameters
-	BOOL m_bFlat;      // flat colors. TODO inline accessors
-	BOOL GetFlat();
-	void SetFlat(BOOL bFlat);
+	BOOL m_bFlat;      // flat colors
+	BOOL GetFlat() { return m_bFlat; }
+	void SetFlat(BOOL bFlat) { m_bFlat = bFlat; }
 
-	BOOL m_bTrans;     // smooth color transitions. TODO inline accessors
-	BOOL GetTransition();
-	void SetTransition(BOOL bTransition);
+	BOOL m_bTrans;     // smooth color transitions
+	BOOL GetTransition() { return m_bTrans; }
+	void SetTransition(BOOL bTransition) { m_bTrans = bTransition; }
 
-	BOOL m_bITrans;    // ?? inverse color transitions. TODO inline accessors
-	BOOL GetITransition();
-	void SetITransition(BOOL bITransition);
+	BOOL m_bITrans;    // ?? inverse color transitions
+	BOOL GetITransition() { return m_bITrans; }
+	void SetITransition(BOOL bITransition) { m_bITrans = bITransition; }
 
 	BOOL(ShowGlitches) // show in uniform color?
 

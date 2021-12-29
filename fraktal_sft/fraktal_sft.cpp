@@ -283,14 +283,14 @@ CFraktalSFT::CFraktalSFT()
 	ApplyColors();
 }
 
-int64_t CFraktalSFT::CalcImageWidth()
+int64_t CFraktalSFT::CalcImageWidth() const
 {
    int64_t w,s;
    GetTargetDimensions(&w,nullptr,&s);
    return w*s;
 }
 
-int64_t CFraktalSFT::CalcImageHeight()
+int64_t CFraktalSFT::CalcImageHeight() const
 {
    int64_t h,s;
    GetTargetDimensions(nullptr,&h,&s);
@@ -3339,31 +3339,6 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 }
 #undef KF_CENTER_VIA_TRANS
 
-BOOL CFraktalSFT::GetFlat()
-{
-	return m_bFlat;
-}
-void CFraktalSFT::SetFlat(BOOL bFlat)
-{
-	m_bFlat = bFlat;
-}
-BOOL CFraktalSFT::GetTransition()
-{
-	return m_bTrans;
-}
-void CFraktalSFT::SetTransition(BOOL bTransition)
-{
-	m_bTrans = bTransition;
-}
-BOOL CFraktalSFT::GetITransition()
-{
-	return m_bITrans;
-}
-void CFraktalSFT::SetITransition(BOOL bITransition)
-{
-	m_bITrans = bITransition;
-}
-
 int CFraktalSFT::GetColorIndex(int x, int y)
 {
 	if (x<0 || x >= m_nX || y<0 || y >= m_nY || !m_nPixels)
@@ -3474,10 +3449,6 @@ double CFraktalSFT::GetBailoutRadius()
 		case BailoutRadius_Custom: return GetBailoutRadiusCustom();
 	}
 }
-BailoutNormPreset CFraktalSFT::GetBailoutNormPreset()
-{
-	return m_nBailoutNormPreset;
-}
 void CFraktalSFT::SetBailoutNormPreset(int nBailoutNormPreset)
 {
 	switch (nBailoutNormPreset)
@@ -3497,14 +3468,6 @@ void CFraktalSFT::SetBailoutNormPreset(int nBailoutNormPreset)
 			break;
 	}
 }
-double CFraktalSFT::GetBailoutNormCustom()
-{
-	return m_nBailoutNormCustom;
-}
-void CFraktalSFT::SetBailoutNormCustom(double nBailoutNormCustom)
-{
-	m_nBailoutNormCustom = nBailoutNormCustom;
-}
 double CFraktalSFT::GetBailoutNorm()
 {
 	switch (GetBailoutNormPreset())
@@ -3522,10 +3485,6 @@ floatexp CFraktalSFT::GetBailoutSmall()
 	return 1e-12;
 }
 
-int CFraktalSFT::GetPower() const
-{
-	return m_nPower;
-}
 void CFraktalSFT::SetPower(int nPower)
 {
 	if (nPower<2)
@@ -3689,15 +3648,6 @@ void CFraktalSFT::SetFractalType(int nFractalType)
 		m_nPower = 2;
 
 	SetReferenceStrictZero(nFractalType != 0);
-}
-int CFraktalSFT::GetFractalType() const
-{
-	return m_nFractalType;
-}
-
-int CFraktalSFT::GetExponent()
-{
-	return m_nZoom;
 }
 
 void CFraktalSFT::SetApproxTerms(int64_t nTerms)
