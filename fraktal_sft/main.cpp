@@ -94,8 +94,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef WINVER
 
 
-POINT g_pInflections[10];
-int g_nInflection=0;
+// POINT g_pInflections[10];
+// int g_nInflection=0;
 extern double g_SeedR;
 extern double g_SeedI;
 extern double g_FactorAR;
@@ -2231,11 +2231,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		if(g_bShowInflection){
 			POINT p;
+#if 0
 			int i;
 			for(i=0;i<g_nInflection;i++){
 				p = g_pInflections[i];
 				RotateImageAroundPoint(bmBmp,p);
 			}
+#endif
 			GetCursorPos(&p);
 			ScreenToClient(hWnd,&p);
 			RotateImageAroundPoint(bmBmp,p);
@@ -3122,7 +3124,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SHOWINFLECTION){
 		g_bShowInflection=!g_bShowInflection;
-		g_nInflection=0;
+		// g_nInflection=0;
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SHOWINFLECTION,MF_BYCOMMAND|(g_bShowInflection?MF_CHECKED:MF_UNCHECKED));
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
