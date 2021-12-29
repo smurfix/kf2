@@ -288,12 +288,12 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		nID = stParams.FindString(0, "real");
 		if (nID != -1)
 		{
-			g_real = atof(stParams[nID][1]);
+			m_real = atof(stParams[nID][1]);
 		}
 		nID = stParams.FindString(0, "imag");
 		if (nID != -1)
 		{
-			g_imag = atof(stParams[nID][1]);
+			m_imag = atof(stParams[nID][1]);
 		}
 
 		nID = stParams.FindString(0, "BailoutNormPreset");
@@ -575,8 +575,8 @@ std::string CFraktalSFT::ToText()
 	INT("SlopeRatio", m_nSlopeRatio);
 	INT("SlopeAngle", m_nSlopeAngle);
 
-	DOUBLE("real", g_real)
-	DOUBLE("imag", g_imag)
+	DOUBLE("real", m_real)
+	DOUBLE("imag", m_imag)
 	DOUBLE("SeedR", g_SeedR)
 	DOUBLE("SeedI", g_SeedI)
 	DOUBLE("FactorAR", g_FactorAR)
@@ -657,8 +657,8 @@ void CFraktalSFT::ResetParameters()
 	SetFractalType(0);
 	SetPower(2);
 	SetSlopes(false, 50, 20, 45);
-	g_real = 1;
-	g_imag = 1;
+	m_real = 1;
+	m_imag = 1;
 	SetBailoutNormPreset(BailoutNorm_2);
 	SetBailoutNormCustom(2);
 	g_SeedR = 0;

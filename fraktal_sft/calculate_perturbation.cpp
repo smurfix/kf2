@@ -82,7 +82,7 @@ void CFraktalSFT::MandelCalc1()
     DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
 
     double test1 = 0, test2 = 0, phase = 0, smooth = 0;
-    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
+    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == m_nAddRefX && y == m_nAddRefY);
     bool bGlitch = false;
 
     mantissa dbD0r = mantissa(D0r);
@@ -106,13 +106,13 @@ void CFraktalSFT::MandelCalc1()
         dual<2, mantissa> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
         dual<2, mantissa> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
         dual<2, mantissa> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
-        bool ok = perturbation_dual_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
+        bool ok = perturbation_dual_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
       }
       else
       {
-        bool ok = perturbation_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
+        bool ok = perturbation_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }
@@ -125,7 +125,7 @@ void CFraktalSFT::MandelCalc1()
       if (derivatives)
       {
         complex<mantissa> d(Jxa, Jya);
-        bool no_g = g_real == 1 && g_imag == 1 && p == 2;
+        bool no_g = m_real == 1 && m_imag == 1 && p == 2;
         if (antal<nMaxIter && test1 <= nBailout2){
           for (; antal<nMaxIter; antal++){
             yr = dxr[antal] + Dr;
@@ -140,7 +140,7 @@ void CFraktalSFT::MandelCalc1()
             }
             if (! no_g)
             {
-              test1 = double(pnorm(g_real, g_imag, p, yr, yi));
+              test1 = double(pnorm(m_real, m_imag, p, yr, yi));
             }
             if (test1 > nBailout2)
             {
@@ -178,7 +178,7 @@ void CFraktalSFT::MandelCalc1()
       else
       {
         if (antal<nMaxIter && test1 <= nBailout2){
-          bool no_g = g_real == 1 && g_imag == 1 && p == 2;
+          bool no_g = m_real == 1 && m_imag == 1 && p == 2;
           for (; antal<nMaxIter; antal++){
             yr = dxr[antal] + Dr;
             yi = dxi[antal] + Di;
@@ -192,7 +192,7 @@ void CFraktalSFT::MandelCalc1()
             }
             if (! no_g)
             {
-              test1 = double(pnorm(g_real, g_imag, p, yr, yi));
+              test1 = double(pnorm(m_real, m_imag, p, yr, yi));
             }
             if (test1 > nBailout2)
             {
@@ -233,16 +233,16 @@ void CFraktalSFT::MandelCalc1()
       if (is_convergent(m_nFractalType, m_nPower))
       {
         bool ok = derivatives
-          ? perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref) // FIXME
-          : perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
+          ? perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref) // FIXME
+          : perturbation_convergent_simple (m_nFractalType, m_nPower, m_Reference, antal, test1, smooth, phase, bGlitch, nBailoutSmallP, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
           ;
         assert(ok && "perturbation_convergent");
       }
       else
       {
         bool ok = derivatives
-          ? perturbation_simple_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, s, daa, dab, dba, dbb, noDerivativeGlitch, singleref)
-          : perturbation_simple            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
+          ? perturbation_simple_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, s, daa, dab, dba, dbb, noDerivativeGlitch, singleref)
+          : perturbation_simple            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
           ;
         assert(ok && "perturbation");
       }
@@ -312,7 +312,7 @@ void CFraktalSFT::MandelCalcScaled()
     DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
 
     double test1 = 0, test2 = 0, phase = 0;
-    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
+    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == m_nAddRefX && y == m_nAddRefY);
     bool bGlitch = false;
 
     complex<double> de = 0;
@@ -341,21 +341,21 @@ void CFraktalSFT::MandelCalcScaled()
         dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = s;
         dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = s; dXr.dx[1] = 0;
         dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = s;
-        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, dXr, dXi, dCr, dCi, power, singleref);
+        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dXr, dXi, dCr, dCi, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], tfloatexp<mantissa, exponent>(1), TK);
       }
       else
       {
-        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, Xr, Xi, Cr, Ci, power, singleref);
+        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Xr, Xi, Cr, Ci, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }
     else
     {
       bool ok = is_convergent(m_nFractalType, m_nPower) ? false : derivatives
-        ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF, singleref)
-        : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, singleref);
+        ? perturbation_scaled_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, JxaF, JxbF, JyaF, JybF, daaF, dabF, dbaF, dbbF, singleref)
+        : perturbation_scaled            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Xr, Xi, Cr, Ci, singleref);
       assert(ok && "perturbation_scaled");
       de = compute_de(Xr, Xi, JxaF, JxbF, JyaF, JybF, s, TK);
     }
@@ -425,7 +425,7 @@ void CFraktalSFT::MandelCalcSIMD()
     DoApproximation(antal, D0r, D0i, TDnr, TDni, dxa1, dxb1, dya1, dyb1);
 
     double test1 = 0, test2 = 0, phase = 0;
-    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == g_nAddRefX && y == g_nAddRefY);
+    bool bNoGlitchDetection = m_bNoGlitchDetection || (x == m_nAddRefX && y == m_nAddRefY);
     bool bGlitch = false;
 
     double dbD0r = double(D0r);
@@ -493,8 +493,8 @@ void CFraktalSFT::MandelCalcSIMD()
               } \
             } \
             ok = derivatives \
-              ? perturbation_SIMD_derivatives(m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, g_real, g_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, Jxav, Jxbv, Jyav, Jybv, epsilon, s, daav, dabv, dbav, dbbv, chunksize, noDerivativeGlitch) \
-              : perturbation_SIMD            (m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, g_real, g_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize) \
+              ? perturbation_SIMD_derivatives(m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, m_real, m_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, Jxav, Jxbv, Jyav, Jybv, epsilon, s, daav, dabv, dbav, dbbv, chunksize, noDerivativeGlitch) \
+              : perturbation_SIMD            (m_nFractalType, m_nPower, m_Reference, antalv, test1v, test2v, phasev, bGlitchv, nBailout2, nMaxIter, bNoGlitchDetectionv, m_real, m_imag, p, g_FactorAR, g_FactorAI, Drv, Div, dbD0rv, dbD0iv, chunksize) \
               ; \
             for (int q = 0; q < vectorsize; ++q) \
             { \
@@ -588,8 +588,8 @@ void CFraktalSFT::MandelCalcSIMD()
       double dba = dba16[k];
       double dbb = dbb16[k];
       bool ok = derivatives
-        ? perturbation_simple_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, s, daa, dab, dba, dbb, noDerivativeGlitch, singleref)
-        : perturbation_simple            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, g_real, g_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
+        ? perturbation_simple_derivatives(m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, Jxa, Jxb, Jya, Jyb, epsilon, s, daa, dab, dba, dbb, noDerivativeGlitch, singleref)
+        : perturbation_simple            (m_nFractalType, m_nPower, m_Reference, antal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, g_FactorAR, g_FactorAI, Dr, Di, dbD0r, dbD0i, singleref)
         ;
       assert(ok && "perturbation_double");
       complex<double> de = compute_de(Dr, Di, Jxa, Jxb, Jya, Jyb, s, TK);

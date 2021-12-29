@@ -139,22 +139,22 @@ static void RefreshRadiusCustom(HWND hWnd)
 
 static void UpdateBailoutRe(HWND hWnd)
 {
-  SetDlgItemFloat64(hWnd, IDC_BAILOUT_RE, g_real);
+  SetDlgItemFloat64(hWnd, IDC_BAILOUT_RE, g_SFT.m_real);
 }
 
 static void RefreshBailoutRe(HWND hWnd)
 {
-  g_real = GetDlgItemFloat64(hWnd, IDC_BAILOUT_RE);
+  g_SFT.m_real = GetDlgItemFloat64(hWnd, IDC_BAILOUT_RE);
 }
 
 static void UpdateBailoutIm(HWND hWnd)
 {
-  SetDlgItemFloat64(hWnd, IDC_BAILOUT_IM, g_imag);
+  SetDlgItemFloat64(hWnd, IDC_BAILOUT_IM, g_SFT.m_imag);
 }
 
 static void RefreshBailoutIm(HWND hWnd)
 {
-  g_imag = GetDlgItemFloat64(hWnd, IDC_BAILOUT_IM);
+  g_SFT.m_imag = GetDlgItemFloat64(hWnd, IDC_BAILOUT_IM);
 }
 
 static void UpdateBailoutNormPreset(HWND hWnd)

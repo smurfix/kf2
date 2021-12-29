@@ -153,8 +153,6 @@ double g_nMinDiff=0;
 #define GWL_USERDATA -21
 #endif
 
-extern double g_real;
-extern double g_imag;
 extern int g_bAutoGlitch;
 
 BOOL ISFLOATOK(double a);

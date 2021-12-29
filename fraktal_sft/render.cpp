@@ -241,8 +241,8 @@ void CFraktalSFT::RenderFractal()
 		{
 			m_rref = m_CenterRe;
 			m_iref = m_CenterIm;
-			g_nAddRefX = -1;
-			g_nAddRefY = -1;
+			m_nAddRefX = -1;
+			m_nAddRefY = -1;
 		}
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
@@ -392,8 +392,8 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;
-		g_nAddRefX = -1;
-		g_nAddRefY = -1;
+		m_nAddRefX = -1;
+		m_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
@@ -475,8 +475,8 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;
-		g_nAddRefX = -1;
-		g_nAddRefY = -1;
+		m_nAddRefX = -1;
+		m_nAddRefY = -1;
 		g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();

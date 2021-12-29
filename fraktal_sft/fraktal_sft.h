@@ -378,6 +378,11 @@ public:
 
   // more glitch handling
 	BOOL m_bAddReference; // TODO explain what this does; XXX this is not a bool!
+	int m_nAddRefX;
+	int m_nAddRefY;
+	double m_real;
+	double m_imag;
+
 	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
@@ -770,11 +775,7 @@ public:
 };
 
 // XXX global-ize all of these
-extern int g_nAddRefX;
-extern int g_nAddRefY;
 
-extern double g_real;
-extern double g_imag;
 extern double g_SeedR;
 extern double g_SeedI;
 extern double g_FactorAR;

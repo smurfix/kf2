@@ -66,7 +66,7 @@ void CFraktalSFT::MandelCalcNANOMB2()
 
 		int64_t maxsi = m_nMaxIter; // FIXME
 		if (m_NanoMB2Ref)
-			NanoMB2_Pixel(m_NanoMB2Ref, dc, m_fPixelSpacing, maxsi, m_nMaxIter, bGlitch, antal, test1, test2, phase, de, interior_checking, g_real, g_imag, p, nBailout2);
+			NanoMB2_Pixel(m_NanoMB2Ref, dc, m_fPixelSpacing, maxsi, m_nMaxIter, bGlitch, antal, test1, test2, phase, de, interior_checking, m_real, m_imag, p, nBailout2);
 		if (antal > m_nMaxIter) antal = m_nMaxIter;
 
 		OutputIterationData(x, y, w, h, bGlitch, antal, test1, test2, phase, nBailout, de, m_nPower);

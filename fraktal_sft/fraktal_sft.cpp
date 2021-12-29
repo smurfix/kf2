@@ -63,8 +63,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "dual.h"
 #include "opengl.h"
 
-double g_real=1;
-double g_imag=1;
 double g_SeedR=0;
 double g_SeedI=0;
 double g_FactorAR=1;
@@ -79,7 +77,6 @@ double g_FactorAI=0;
 //#define TERM7
 
 // TODO move to g_SFT
-int g_nAddRefX = -1, g_nAddRefY = -1;
 double g_Degree = 0;
 #if 0
 void(SetParts)(double,double);
@@ -223,6 +220,10 @@ CFraktalSFT::CFraktalSFT()
 	m_row = 0;
 	m_nMaxIter = 200;
 	m_nIterDiv = 0.1;
+	m_nAddRefX = -1;
+	m_nAddRefY = -1;
+	m_real = 1;
+	m_imag = 1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
 	m_UseHybridFormula = false;
@@ -1603,8 +1604,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bNoGlitchDetection,
 		  m_bAddReference,
 		  m_nSmoothMethod,
-		  g_real,
-		  g_imag,
+		  m_real,
+		  m_imag,
 		  norm_p,
 		  g_FactorAR,
 		  g_FactorAI,
@@ -1639,8 +1640,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_HybridFormula,
 
 		  GetGuessing(),
-		  g_nAddRefX,
-		  g_nAddRefY,
+		  m_nAddRefX,
+		  m_nAddRefY,
 
 		  GetGlitchCenterMethod(),
 		  GetIsolatedGlitchNeighbourhood(),
@@ -1729,8 +1730,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bNoGlitchDetection,
 		  m_bAddReference,
 		  m_nSmoothMethod,
-		  g_real,
-		  g_imag,
+		  m_real,
+		  m_imag,
 		  norm_p,
 		  g_FactorAR,
 		  g_FactorAI,
@@ -1765,8 +1766,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_HybridFormula,
 
 		  GetGuessing(),
-		  g_nAddRefX,
-		  g_nAddRefY,
+		  m_nAddRefX,
+		  m_nAddRefY,
 
 		  GetGlitchCenterMethod(),
 		  GetIsolatedGlitchNeighbourhood(),
@@ -1826,8 +1827,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bNoGlitchDetection,
 		  m_bAddReference,
 		  m_nSmoothMethod,
-		  g_real,
-		  g_imag,
+		  m_real,
+		  m_imag,
 		  norm_p,
 		  g_FactorAR,
 		  g_FactorAI,
@@ -1862,8 +1863,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_HybridFormula,
 
 		  GetGuessing(),
-		  g_nAddRefX,
-		  g_nAddRefY,
+		  m_nAddRefX,
+		  m_nAddRefY,
 
 		  GetGlitchCenterMethod(),
 		  GetIsolatedGlitchNeighbourhood(),
@@ -1920,8 +1921,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_bNoGlitchDetection,
 		  m_bAddReference,
 		  m_nSmoothMethod,
-		  g_real,
-		  g_imag,
+		  m_real,
+		  m_imag,
 		  norm_p,
 		  g_FactorAR,
 		  g_FactorAI,
@@ -1956,8 +1957,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_HybridFormula,
 
 		  GetGuessing(),
-		  g_nAddRefX,
-		  g_nAddRefY,
+		  m_nAddRefX,
+		  m_nAddRefY,
 
 		  GetGlitchCenterMethod(),
 		  GetIsolatedGlitchNeighbourhood(),
@@ -2679,7 +2680,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 {
 	if (!m_nPixels)
 		return FALSE;
-	g_nAddRefX=nXPos;g_nAddRefY=nYPos;
+	m_nAddRefX=nXPos;m_nAddRefY=nYPos;
 
 	m_bNoGlitchDetection = bNoGlitchDetection;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
@@ -2691,8 +2692,8 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 		GetPixelCoordinates(nXPos, nYPos, dbD0r, dbD0i);
 		m_rref = m_rref + CFixedFloat(dbD0r);
 		m_iref = m_iref + CFixedFloat(dbD0i);
-		g_nAddRefX = nXPos;
-		g_nAddRefY = nYPos;
+		m_nAddRefX = nXPos;
+		m_nAddRefY = nYPos;
 	}
 #ifdef KF_OPENCL
 	if (cl && GetGlitchCenterMethod() != 0)
@@ -3721,7 +3722,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 			m_nDEy[x][y] = 0;
 	}
 	else{
-		if (x == g_nAddRefX && y == g_nAddRefY)
+		if (x == m_nAddRefX && y == m_nAddRefY)
 		{
 			// never consider the pixel of the reference to be glitched
 			bGlitch = false;
@@ -3809,7 +3810,7 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 	     ( GET_TRANS_GLITCH(m_nTrans[x0][y0]) || (m_nPixels[x0][y0] >= m_nMaxIter) ) &&
 	      // never guess reference, in case we guess it to be glitched
 	      // (prevent possible infinite loop in next reference selection)
-	     x != g_nAddRefX && y != g_nAddRefY
+	     x != m_nAddRefX && y != m_nAddRefY
 	   )
 	{
 		// NOTE cast to int64_t is required to avoid copying just the ref!
