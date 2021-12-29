@@ -73,16 +73,16 @@ public:
 
 	void ResetParameters();
 	BOOL(OpenResetsParameters)
-	BOOL OpenFile(const std::string &szFile, BOOL bNoLocation = FALSE);
-	BOOL OpenString(const std::string &szText, BOOL bNoLocation = FALSE);
-	BOOL OpenMapB(const std::string &szFile, BOOL bReuseCenter = FALSE, double nZoomSize = 1);
-	bool OpenMapEXR(const std::string &szFile);
+	BOOL OpenFile(const std::string &filename, BOOL noLocation = FALSE);
+	BOOL OpenString(const std::string &text, BOOL noLocation = FALSE);
+	BOOL OpenMapB(const std::string &filename, BOOL reuseCenter = FALSE, double zoomSize = 1);
+	bool OpenMapEXR(const std::string &filename);
 
 	std::string ToText();
-	BOOL SaveFile(const std::string &szFile, bool overwrite);
-	int SaveJpg(const std::string &szFile, int nQuality, int nWidth = 0, int nHeight = 0);
-	void SaveMap(const std::string &szFile);
-	void SaveMapB(const std::string &szFile);
+	BOOL SaveFile(const std::string &filename, bool overwrite);
+	int SaveJpg(const std::string &filename, int quality, int width = 0, int height = 0);
+	void SaveMap(const std::string &filename);
+	void SaveMapB(const std::string &filename);
 
 
 
@@ -116,7 +116,7 @@ public:
 
 	int m_nPower;
 	inline int GetPower() const { return m_nPower; }
-	void SetPower(int nPower);  // limits to [2;70]
+	void SetPower(int power);  // limits to [2;70]
 	int *m_pnExpConsts;     // Pascal Triangle, for m_nPower>10
 
 	BOOL(Derivatives)       // also calculate slopes etc.
@@ -136,10 +136,10 @@ public:
 	double m_nBailoutRadiusCustom;
 
 	BailoutRadiusPreset GetBailoutRadiusPreset();
-	void SetBailoutRadiusPreset(int nBailoutRadiusPreset);
+	void SetBailoutRadiusPreset(int bailoutRadiusPreset);
 	double GetBailoutRadiusCustom();
 
-	void SetBailoutRadiusCustom(double nBailoutRadiusCustom);
+	void SetBailoutRadiusCustom(double bailoutRadiusCustom);
 	double GetBailoutRadius();
 	floatexp GetBailoutSmall(); // XXX constant 1e-12
 
@@ -147,15 +147,15 @@ public:
 	BailoutNormPreset m_nBailoutNormPreset;
 	double m_nBailoutNormCustom;
 	inline BailoutNormPreset GetBailoutNormPreset() const { return m_nBailoutNormPreset; }
-	void SetBailoutNormPreset(int nBailoutNormPreset);
+	void SetBailoutNormPreset(int bailoutNormPreset);
 	double GetBailoutNormCustom() const { return m_nBailoutNormCustom; }
-	inline void SetBailoutNormCustom(double nBailoutNormCustom) { m_nBailoutNormCustom = nBailoutNormCustom; }
+	inline void SetBailoutNormCustom(double bailoutNormCustom) { m_nBailoutNormCustom = bailoutNormCustom; }
 	double GetBailoutNorm(); // depends on m_nBailoutNormPreset
 
     // Smoothing. Accepts Log=0 and Sqrt=1 only.
 	SmoothMethod m_nSmoothMethod;
 	inline SmoothMethod GetSmoothMethod() const { return m_nSmoothMethod; }
-	inline void SetSmoothMethod(SmoothMethod nSmoothMethod) { m_nSmoothMethod = nSmoothMethod; }
+	inline void SetSmoothMethod(SmoothMethod smoothMethod) { m_nSmoothMethod = smoothMethod; }
   //
   // Where do we calculate it? (Parameters etc)
 
@@ -486,19 +486,19 @@ public:
 
 	double m_nIterDiv;      // basic scaling of mapping the iter count to colors
 	double GetIterDiv();    // XXX inline
-	void SetIterDiv(double nIterDiv);    // XXX inline; simply tests for >0
+	void SetIterDiv(double iterDiv);    // XXX inline; simply tests for >0
 
 	int m_nColorOffset;     // start pos in color list. TODO inline
-	void SetColorOffset(int nColorOffset);
+	void SetColorOffset(int colorOffset);
 	int GetColorOffset();
 	double m_nPhaseColorStrength;
-	void SetPhaseColorStrength(double nPhaseColorStrength);
+	void SetPhaseColorStrength(double phaseColorStrength);
 	double GetPhaseColorStrength();
 
 	// these end up setting pixels
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double test2, double phase, double nBailout, const complex<double> &de, int power);
-	void OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, const complex<double> &de);
-	void OutputPixelData(int x, int y, int w, int h, bool bGlitch);
+	void OutputIterationData(int x, int y, int w, int h, bool glitch, int64_t antal, double test1, double test2, double phase, double bailout, const complex<double> &de, int power);
+	void OutputIterationData(int x, int y, int w, int h, bool glitch, int64_t antal, double test1, double smooth, double phase, const complex<double> &de);
+	void OutputPixelData(int x, int y, int w, int h, bool glitch);
 	Guess GuessPixel(int x, int y, int x0, int y0, int x1, int y1);
 	Guess GuessPixel(int x, int y, int w, int h);
 
@@ -511,9 +511,9 @@ public:
 
 	// set r/g/b/y (ncol=0,1,2,3) to a sine wave
 	// if ncol&4, overlay a sine wave instead
-	void AddWave(int nCol, int nPeriod = -1, int nStart = -1);
+	void AddWave(int col, int period = -1, int start = -1);
 	// TODO rename to Set…
-	void ChangeNumOfColors(int nParts);
+	void ChangeNumOfColors(int parts);
 	int GetNumOfColors();
 
 	// Infinite waves?
@@ -523,12 +523,12 @@ public:
 	BOOL m_bBlend; // blend them?
 
 	int GetMWCount();
-	void SetMW(BOOL bMW, BOOL bBlend);
-	int GetMW(BOOL *pbBlend = NULL);
-	BOOL GetMW(int nIndex, int &nPeriod, int &nStart, int &nType);
-	BOOL AddMW(int nPeriod, int nStart, int nType);
-	BOOL UpdateMW(int nIndex, int nPeriod, int nStart, int nType);
-	BOOL DeleteMW(int nIndex);
+	void SetMW(BOOL MW, BOOL blend);
+	int GetMW(BOOL *blend = NULL);
+	BOOL GetMW(int index, int &nPeriod, int &start, int &type);
+	BOOL AddMW(int period, int start, int type);
+	BOOL UpdateMW(int index, int period, int start, int type);
+	BOOL DeleteMW(int index);
 
   // bitmap for the fractal colors
     // TODO strictly 24bit. Needs a 32-bit mode for embedding / unmodified pixbuf lib.
@@ -544,7 +544,7 @@ public:
 
   // how to transform iterations to color indices
 	ColorMethod m_nColorMethod;
-	void SetColorMethod(int nColorMethod);
+	void SetColorMethod(int colorMethod);
 	ColorMethod GetColorMethod();
 
   // color slopes
@@ -554,22 +554,22 @@ public:
 	int m_nSlopeAngle;
 	double m_nSlopeX, m_nSlopeY;      // cos/sin of the slope angle
 	// accessors
-	BOOL GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle); // returns m_bSlopes
-	void SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int nSlopeAngle);
+	BOOL GetSlopes(int &slopePower, int &slopeRatio, int &slopeAngle); // returns m_bSlopes
+	void SetSlopes(BOOL slope, int slopePower, int slopeRatio, int slopeAngle);
 
 
   // More coloring parameters
 	BOOL m_bFlat;      // flat colors
 	BOOL GetFlat() { return m_bFlat; }
-	void SetFlat(BOOL bFlat) { m_bFlat = bFlat; }
+	void SetFlat(BOOL flat) { m_bFlat = flat; }
 
 	BOOL m_bTrans;     // smooth color transitions
 	BOOL GetTransition() { return m_bTrans; }
-	void SetTransition(BOOL bTransition) { m_bTrans = bTransition; }
+	void SetTransition(BOOL transition) { m_bTrans = transition; }
 
 	BOOL m_bITrans;    // ?? inverse color transitions
 	BOOL GetITransition() { return m_bITrans; }
-	void SetITransition(BOOL bITransition) { m_bITrans = bITransition; }
+	void SetITransition(BOOL iTransition) { m_bITrans = iTransition; }
 
 	BOOL(ShowGlitches) // show in uniform color?
 
@@ -616,7 +616,7 @@ public:
 
 	// Distance estimation
 	Differences m_nDifferences;
-	void SetDifferences(int nDifferences);
+	void SetDifferences(int differences);
 	Differences GetDifferences();
 
   // Texture support
@@ -641,15 +641,15 @@ public:
 	void SetTexture(int x, int y, srgb &s);
 
 	// access texture params
-	BOOL GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture);
-	void SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture);
+	BOOL GetTexture(double &imgMerge,double &imgPower,int &imgRatio,std::string &filename);
+	void SetTexture(BOOL doTexture,double imgMerge,double imgPower,int imgRatio,const std::string &filename);
 
   // Calculate m_cPos, run OpenGL / CPU coloring
 	void ApplyColors();
   // CPU coloring of a single range, one 16x16 square at a time
 	void ApplyColors(int x0, int x1, int y0, int y1);
   // CPU coloring of a single pixel
-	void SetColor(int nIndex, int64_t nIter, double offs, int x, int y, int w = 1, int h = 1);
+	void SetColor(int index, int64_t iter, double offs, int x, int y, int w = 1, int h = 1);
 	// XXX delete the redundant nIndex parameter and actually compute it in SetColor
 
   // EXR support
@@ -683,9 +683,9 @@ public:
     DOUBLE(ZoomSize)             // zoom factor
     BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
 	void Zoom(double nZoomSize);
-	void Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);
+	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool autoRender = true, bool centerView = false);
 	// 
-	int CountFrames(int nProcent); // == log2(zoomlevel)*nPercent/100+1
+	int CountFrames(int procent); // == log2(zoomlevel)*nPercent/100+1
 	//
     INT(WindowWidth)         // window size, showing the (scaled) output image
     INT(WindowHeight)
