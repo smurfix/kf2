@@ -170,7 +170,6 @@ BOOL g_bShowInflection=FALSE;
 double g_StartDegree=0;
 BOOL bXSign=FALSE;
 double g_MoveDegree=0;
-SIZE g_scSize = {640,360};
 BOOL g_bAnimateEachFrame=FALSE;
 
 int g_nPrevGlitchX=-1;
@@ -3743,10 +3742,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_ENTERSIZEMOVE && g_SFT.GetArbitrarySize()){
 		g_bResizing=TRUE;
-		RECT cr;
-		GetClientRect(hWnd,&cr);
-		g_scSize.cx = cr.right;
-		g_scSize.cy = cr.bottom;
 	}
 	else if(uMsg==WM_EXITSIZEMOVE && g_SFT.GetArbitrarySize() && !g_bFirstDone){
 		g_bResizing=FALSE;
