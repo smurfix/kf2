@@ -403,7 +403,7 @@ public:
 	// TODO add a var for current length instead of terminating with x==-1
 	int m_nMaxOldGlitches; // XXX constant OLD_GLITCH
 
-	int mg_bAutoGlitch;          // #references  XXX it's not a bool!
+	int m_bAutoGlitch;          // #references  XXX it's not a bool!
     INT(MaxReferences)           // 0…OLD_GLITCH  XXX max# of secondary refs
 	//
 	BOOL(AutoSolveGlitches)      // auto-find glitches

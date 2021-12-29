@@ -149,14 +149,11 @@ double g_nMinDiff=0;
 #define GWL_USERDATA -21
 #endif
 
-extern int g_bAutoGlitch;
-
 BOOL ISFLOATOK(double a);
 
 CFraktalSFT g_SFT;
 
 bool g_bAddMainReference=false;
-int g_bAutoGlitch = 1;
 
 BOOL g_bMove=FALSE;
 BOOL g_bShowInflection=FALSE;
@@ -1340,8 +1337,8 @@ nPos=1;
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
 nPos=3;
-		if(g_bAutoGlitch && g_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
-			g_bAutoGlitch++;
+		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
+			g_SFT.m_bAutoGlitch++;
 nPos=4;
 			int x, y, d;
 
@@ -1351,9 +1348,9 @@ nPos=5;
 nPos=6;
 					if (! g_bInteractive)
 					{
-						std::cerr << "add reference " << g_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
+						std::cerr << "add reference " << g_SFT.m_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
 					}
-					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_bAutoGlitch==g_SFT.GetMaxReferences())){
+					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
 						return 0;
 					}
@@ -1361,7 +1358,7 @@ nPos=7;
 			}
 			else
 			{
-				g_bAutoGlitch--;
+				g_SFT.m_bAutoGlitch--;
 				g_SFT.Done();
 			}
 nPos=8;
@@ -1385,15 +1382,15 @@ nPos=8;
 	}
 
 nPos=9;
-	if(g_bAutoGlitch){
-		wsprintf(szTmp+strlen(szTmp)," R:%d",g_bAutoGlitch);
+	if(g_SFT.m_bAutoGlitch){
+		wsprintf(szTmp+strlen(szTmp)," R:%d",g_SFT.m_bAutoGlitch);
 	}
-	if(g_bAutoGlitch){
+	if(g_SFT.m_bAutoGlitch){
 		wsprintf(szTmp+strlen(szTmp)," %s", uMsg==WM_USER+199?"Done":"");
 nPos=10;
 		SendMessage(g_hwStatus,SB_SETTEXT,1,(LPARAM)szTmp);
 		if (uMsg==WM_USER+199)
-			g_bAutoGlitch=1;
+			g_SFT.m_bAutoGlitch=1;
 	}
 	if(g_hwExamine && uMsg==WM_USER+199)
 		PostMessage(g_hwExamine,uMsg,wParam,lParam);
@@ -2537,8 +2534,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.y = (short)(rc.bottom/2-p.y)*g_SFT.GetHeight()/rc.bottom;
 
 		g_SFT.ResetTimers();
-		if(g_bAutoGlitch)
-			g_bAutoGlitch=1;
+		if(g_SFT.m_bAutoGlitch)
+			g_SFT.m_bAutoGlitch=1;
 
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -2822,7 +2819,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		KillTimer(hWnd, 0); // stop the render clock
 		InvalidateRect(hWnd,NULL,FALSE); // update display including status bar...
 		UpdateWindow(hWnd); // ...so that fast zooming makes zoom number change
-		g_bAutoGlitch=1; // reset reference count before next render starts
+		g_SFT.m_bAutoGlitch=1; // reset reference count before next render starts
 		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
@@ -2977,7 +2974,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			delete pAnim;
 
-		g_bAutoGlitch=1;
+		g_SFT.m_bAutoGlitch=1;
 		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
@@ -3037,7 +3034,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else
 			delete pAnim;
 
-		g_bAutoGlitch=1;
+		g_SFT.m_bAutoGlitch=1;
 		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
@@ -3383,9 +3380,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
-		g_bAutoGlitch=!g_bAutoGlitch;
+		g_SFT.m_bAutoGlitch=!g_SFT.m_bAutoGlitch;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
-		g_SFT.SetAutoSolveGlitches(g_bAutoGlitch);
+		g_SFT.SetAutoSolveGlitches(g_SFT.m_bAutoGlitch);
 		UpdateAutoSolveGlitches(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_AUTOITERATION){
@@ -3693,7 +3690,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.UpdateBitmap();
 		}
 		bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
-		if(!g_bAutoGlitch && g_SFT.GetReuseReference() && g_pSelect.x==g_SFT.GetWidth()/2 && g_pSelect.y==g_SFT.GetHeight()/2)
+		if(!g_SFT.m_bAutoGlitch && g_SFT.GetReuseReference() && g_pSelect.x==g_SFT.GetWidth()/2 && g_pSelect.y==g_SFT.GetHeight()/2)
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),bReuseCenter);
 		else
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize());
@@ -4414,7 +4411,7 @@ static bool render_frame(int frame, bool onlyKFR)
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
 		{
 			int x = -1, y = -1;
-			g_bAutoGlitch = r; // needed by random glitch center method
+			g_SFT.m_bAutoGlitch = r; // needed by random glitch center method
 			int n = g_SFT.FindCenterOfGlitch(x, y);
 			if (! n)
 			{

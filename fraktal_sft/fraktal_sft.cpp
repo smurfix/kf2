@@ -223,6 +223,7 @@ CFraktalSFT::CFraktalSFT()
 	m_FactorAI=0;
 	m_real = 1;
 	m_imag = 1;
+	m_bAutoGlitch = 1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
 	m_UseHybridFormula = false;
@@ -1520,8 +1521,6 @@ void CFraktalSFT::SetPosition(const char *const szR, const char *const szI, cons
 
 #ifdef KF_OPENCL
 
-extern int g_bAutoGlitch;
-
 void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 {
 	if (m_bStop)
@@ -1654,7 +1653,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
-		  g_bAutoGlitch,
+		  m_bAutoGlitch,
 		  GetMaxReferences(),
 
 		  m_OpenCL_Glitched,
@@ -1780,7 +1779,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
-		  g_bAutoGlitch,
+		  m_bAutoGlitch,
 		  GetMaxReferences(),
 
 		  m_OpenCL_Glitched,
@@ -1877,7 +1876,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
-		  g_bAutoGlitch,
+		  m_bAutoGlitch,
 		  GetMaxReferences(),
 
 		  m_OpenCL_Glitched,
@@ -1971,7 +1970,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_nDEy ? &m_nDEy[0][0] : nullptr,
 
 		  m_bInteractive,
-		  g_bAutoGlitch,
+		  m_bAutoGlitch,
 		  GetMaxReferences(),
 
 		  m_OpenCL_Glitched,
@@ -2189,11 +2188,10 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		RenderFractal(m_nMaxIter, m_hWnd);
 }
 
-extern int g_bAutoGlitch;
 double CFraktalSFT::GetProgress(double *reference, double *approximation, double *good_guessed, double *good, double *queued, double *bad, double *bad_guessed)
 {
 	int64_t iters = m_nMaxIter;
-	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1) iters = N.g_period;
+	if ((GetUseNanoMB1() || GetUseNanoMB2()) && m_bAutoGlitch == 1) iters = N.g_period;
 	if (iters <= 0) iters = 1;
 	if (reference) *reference = m_nRDone * 100.0 / iters;
 	if (approximation) *approximation = m_nApprox * 100.0 / iters;
