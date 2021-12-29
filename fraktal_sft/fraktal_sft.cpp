@@ -198,7 +198,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bTrans = TRUE;
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
-	m_nXPrev = m_nYPrev = -1;
+	m_nX = m_nY = 0;
 	m_nSizeImage = -1;
 	m_pnExpConsts = NULL;
 
@@ -1324,7 +1324,12 @@ void CFraktalSFT::ApplyColors()
 CFraktalSFT::~CFraktalSFT()
 {
 	DeleteArrays();
+
+	delete[] m_APr;
+	delete[] m_APi;
+	delete m_APs;
 }
+
 std::string CFraktalSFT::ToZoom()
 {
 	return ToZoom(CDecNumber(2) / CDecNumber(m_ZoomRadius.m_f), m_nZoom);
@@ -1399,6 +1404,31 @@ void CFraktalSFT::Mirror(int x, int y)
 //#define HARD_GUESS_EXP
 //60 2.5
 
+void CFraktalSFT::SetupArrays()
+{
+	if (m_nX == 0 || m_nY == 0)
+		return;
+	
+	bool two = GetIterations() >= UINT32_MAX;
+	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
+	m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
+	m_nTrans = new float*[m_nX];
+	m_nPhase = new float*[m_nX];
+	m_nDEx = new float*[m_nX];
+	m_nDEy = new float*[m_nX];
+	m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
+	m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
+	m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
+	m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
+	for (int x = 1; x<m_nX; x++){
+		m_nTrans[x] = m_nTrans[0] + x * m_nY;
+		m_nPhase[x] = m_nPhase[0] + x * m_nY;
+		m_nDEx[x] = m_nDEx[0] + x * m_nY;
+		m_nDEy[x] = m_nDEy[0] + x * m_nY;
+	}
+	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+}
+
 void CFraktalSFT::DeleteArrays()
 {
 		if (m_nPixels_LSB)
@@ -1440,28 +1470,6 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nDEy;
 			m_nDEy = nullptr;
 		}
-		if (m_APr)
-		{
-			delete[] m_APr;
-			m_APr = nullptr;
-		}
-		if (m_APi)
-		{
-			delete[] m_APi;
-			m_APi = nullptr;
-		}
-}
-
-void CFraktalSFT::SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY)
-{
-	m_CenterRe = re;
-	m_CenterIm = im;
-	m_ZoomRadius = radius;
-	if (m_nX != nX || m_nY != nY){
-		DeleteArrays();
-	}
-	m_nX = nX;
-	m_nY = nY;
 }
 
 void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom)
@@ -1477,7 +1485,10 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	m_CenterRe.m_f.precision(digits10);
 	m_CenterIm.m_f.precision(digits10);
 	m_ZoomRadius.m_f.precision(20u);
-	SetPosition(re.m_dec, im.m_dec, (2/zoom).m_dec, m_nX, m_nY);
+
+	m_CenterRe = re.m_dec;
+	m_CenterIm = im.m_dec;
+	m_ZoomRadius = (2/zoom).m_dec;
 }
 
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
@@ -1535,7 +1546,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		tfloatexp<float, int32_t> *APi = nullptr;
 		SeriesR2<float, int32_t> *APs = nullptr;
 		int terms = GetApproxTerms();
-		if (m_APr)
 		{
 		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
@@ -1543,7 +1553,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
 		  }
 		}
-		if (m_APi)
 		{
 		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
@@ -1551,7 +1560,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
 		  }
 		}
-		if (m_APs)
 		{
 		  APs = new SeriesR2<float, int32_t>;
 		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
@@ -1664,7 +1672,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		tfloatexp<float, int32_t> *APi = nullptr;
 		SeriesR2<float, int32_t> *APs = nullptr;
 		int terms = GetApproxTerms();
-		if (m_APr)
 		{
 		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
@@ -1672,7 +1679,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
 		  }
 		}
-		if (m_APi)
 		{
 		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 		  for (int i = 0; i < terms; ++i)
@@ -1680,7 +1686,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
 		  }
 		}
-		if (m_APs)
 		{
 		  APs = new SeriesR2<float, int32_t>;
 		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
@@ -2182,7 +2187,11 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		CFixedFloat im1 = m_iref + CFixedFloat(b);
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
-		SetPosition(re, im, radius, m_nX, m_nY);
+
+
+		m_CenterRe = re;
+		m_CenterIm = im;
+		m_ZoomRadius = radius;
 	}
 	if (autorender)
 		RenderFractal(m_nX, m_nY, m_nMaxIter, m_hWnd);
@@ -2396,37 +2405,16 @@ COLOR14 CFraktalSFT::GetColor(int i)
 
 void CFraktalSFT::SetImageSize(int nx, int ny)
 {
-	m_bResized = m_nXPrev != nx || m_nYPrev != ny;
-	if (m_bResized && m_nPixels){
+	bool resized = m_nX != nx || m_nY != ny;
+	if (resized){
 		DeleteArrays();
-	}
-	m_nX = nx;
-	m_nY = ny;
-	m_nXPrev = m_nX;
-	m_nYPrev = m_nY;
-	bool two = GetIterations() >= UINT32_MAX;
-	if (! m_nPixels_LSB)
-	{
-		m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
-		m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
-		m_nTrans = new float*[m_nX];
-		m_nPhase = new float*[m_nX];
-		m_nDEx = new float*[m_nX];
-		m_nDEy = new float*[m_nX];
-		m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
-		m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
-		m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
-		m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
-		for (int x = 1; x<m_nX; x++){
-			m_nTrans[x] = m_nTrans[0] + x * m_nY;
-			m_nPhase[x] = m_nPhase[0] + x * m_nY;
-			m_nDEx[x] = m_nDEx[0] + x * m_nY;
-			m_nDEy[x] = m_nDEy[0] + x * m_nY;
-		}
-		m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+		m_nX = nx;
+		m_nY = ny;
+		SetupArrays();
+		m_bResized |= resized;
 	}
 	memset(m_nPixels_LSB, 0, sizeof(*m_nPixels_LSB) * m_nX * m_nY);
-	if (two)
+	if (m_nPixels_MSB)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
 	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
@@ -2677,11 +2665,7 @@ int64_t CFraktalSFT::GetMaxApproximation()
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
 	WaitForMutex(m_hMutex);
-	if (!m_nPixels || m_nXPrev != m_nX || m_nYPrev != m_nY){
-		ReleaseMutex(m_hMutex);
-		return PIXEL_UNEVALUATED;
-	}
-	if (x<0 || x >= m_nX || y<0 || y >= m_nY){
+	if (!m_nPixels || x<0 || x >= m_nX || y<0 || y >= m_nY){
 		ReleaseMutex(m_hMutex);
 		return PIXEL_UNEVALUATED;
 	}

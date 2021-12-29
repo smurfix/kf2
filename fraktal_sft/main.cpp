@@ -2159,7 +2159,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowBottom(wr.bottom);
 		UpdateWindowSize(hWnd);
 
-		g_SFT.SetPosition(0, 0, 2, 640, 360);
+		g_SFT.SetImageSize(640, 360);
+		g_SFT.SetPosition(0, 0, 2);
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.ResetTimers();
 

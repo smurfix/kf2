@@ -127,6 +127,7 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 	{
 		DeleteObject(m_bmBmp);
 		m_bmBmp = NULL;
+		m_bResized = false;
 	}
 	HDC hDC = GetDC(NULL);
 	if (!m_bmBmp)

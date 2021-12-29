@@ -613,7 +613,7 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 {
 	if (! g_SFT.GetSaveNewtonProgress())
 		return true;
-#if 1
+#if 0
 	bool overwrite = true; // FIXME
 #endif
 	CStringTable stSave;

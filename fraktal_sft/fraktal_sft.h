@@ -178,7 +178,6 @@ public:
 	std::string GetIm(int nXPos, int nYPos);
 
 	// internal/library use: set position, radius, possibly size
-	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
 	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &radius);
 
 	// GUI use: set position and zoom level.
@@ -204,7 +203,6 @@ public:
 
 	// These handle resizing. TODO clean up.
 	bool m_bResized;
-	int m_nXPrev, m_nYPrev;  // Y size of bitmap
 
 	// distance between two pixels: 2*radius / m_nY
 	floatexp m_fPixelSpacing;
@@ -247,6 +245,7 @@ public:
 	int GetColorIndex(int x, int y);  // into m_cPos (TODO verify)
 	void ErasePixel(int x, int y);  // clear it
 
+	void SetupArrays(); // Set up the above arrays
 	void DeleteArrays(); // Clean up the above arrays
 
     // Pixel calculation sequence; when interactive, this encodes Adam7-style
