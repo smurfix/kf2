@@ -183,7 +183,9 @@ CFraktalSFT::CFraktalSFT()
 	m_APs = new SeriesR2<double, int64_t>;
 
 	m_hMutex = CreateMutex(NULL, 0, NULL);
+#ifdef WINVER
 	m_bRunning = FALSE;
+#endif
 	m_CenterRe = 0;
 	m_CenterIm = 0;
 	m_ZoomRadius = 2;
@@ -2023,6 +2025,7 @@ void CFraktalSFT::Stop()
 	else
 		m_bNoGlitchDetection = TRUE;
 	double counter = 0;
+#ifdef WINVER
 	while (m_bRunning)
 	{
 		Sleep(1);
@@ -2031,6 +2034,9 @@ void CFraktalSFT::Stop()
 #ifdef KF_DEBUG_SLEEP
 	if (counter > 0)
 		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
+#endif
+#else
+	m_renderThread.join();
 #endif
 	m_bStop = FALSE;
 	m_bNoPostWhenDone=0;

@@ -40,14 +40,18 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 #ifdef KF_OPENCL
 	catch (OpenCLException &e)
 	{
+#ifdef WINVER
 		p->m_bRunning = false;
+#endif
 		p->SetOpenCLDeviceIndex(-1);
 		OpenCLErrorDialog(p->m_hWnd, p->m_hWnd ? false : true);
 	}
 #endif
 	catch (...)
 	{
+#ifdef WINVER
 		p->m_bRunning=FALSE;
+#endif
 //MessageBox(GetActiveWindow(),"Krash - 2","Krash",MB_OK);
 	}
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -87,8 +91,8 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 
 void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
 {
-#ifdef WINVER
 	m_bStop = TRUE;
+#ifdef WINVER
 	double counter = 0;
 	while(m_bRunning)
 	{
@@ -100,6 +104,10 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
 #endif
 	m_bRunning = TRUE;
+
+#else // !Windows
+	m_renderThread.join();
+#endif
 	m_bStop = FALSE;
 	if (hWnd)
 		m_hWnd = hWnd;
@@ -164,11 +172,14 @@ void CFraktalSFT::RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOO
 		ThRenderFractal(this);
 	}
 	else{
+#ifdef WINVER
 		DWORD dw;
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
 		CloseHandle(hThread);
+#else
+		m_renderThread = std::thread(ThRenderFractal, this);
+#endif
 	}
-#endif // !WINVER
 }
 
 void CFraktalSFT::RenderFractal()
@@ -370,7 +381,9 @@ void CFraktalSFT::RenderFractal()
 			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	}
 	m_bNoPostWhenDone = FALSE;
+#ifdef WINVER
 	m_bRunning = FALSE;
+#endif
 
 	m_bIsRendering = false;
 	m_timer_perturbation_wall += get_wall_time() - wall;
@@ -453,7 +466,9 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
+#ifdef WINVER
 	m_bRunning = FALSE;
+#endif
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
@@ -534,7 +549,10 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
+#ifdef WINVER
 	m_bRunning = FALSE;
+#endif
+
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
