@@ -2627,16 +2627,6 @@ void CFraktalSFT::ReinitializeBitmap()
 }
 #endif
 
-double CFraktalSFT::GetIterDiv()
-{
-	return m_nIterDiv;
-}
-void CFraktalSFT::SetIterDiv(double nIterDiv)
-{
-	if (nIterDiv>0)
-		m_nIterDiv = nIterDiv;
-}
-
 #ifdef WINVER
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
