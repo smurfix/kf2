@@ -190,8 +190,9 @@ public:
 	// fractal size
 	int m_nX, m_nY;
 	void SetImageSize(int nx, int ny);
-	int GetWidth();  // returns m_nX
-	int GetHeight(); // TODO inline this
+	inline int GetWidth() const { return m_nX; }
+	inline int GetHeight() const { return m_nY; }
+
 	inline int64_t GetImageWidth() const { if (m_nX) return m_nX; return CalcImageWidth(); }
 	inline int64_t GetImageHeight() const { if (m_nY) return m_nY; return CalcImageHeight(); }
 	int64_t CalcImageHeight() const;  // returns h*s; TODO should simply return m_nX

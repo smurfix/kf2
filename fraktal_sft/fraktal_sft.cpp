@@ -2012,14 +2012,6 @@ void CFraktalSFT::UpdateBitmap()
 #endif
 #endif
 
-int CFraktalSFT::GetWidth()
-{
-	return m_nX;
-}
-int CFraktalSFT::GetHeight()
-{
-	return m_nY;
-}
 void CFraktalSFT::Stop()
 {
 	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
