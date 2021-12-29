@@ -38,6 +38,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "itercount_array.h"
 #include "colour.h"
 #include "hybrid.h"
+#include "newton.h"
 #include "main_numbertype.h"
 
 #include "defs.h"
@@ -488,6 +489,7 @@ public:
 	BOOL(UseRescaledSeries)          // Use rescaled version of series approximation, power 2 MB only
 
   // Newton-Raphson zoom support
+    struct CNewton N;                // XXX split that off
 	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
 
 // This part creates a nice image from the fractal

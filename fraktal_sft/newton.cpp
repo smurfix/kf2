@@ -67,25 +67,31 @@ const struct formula *get_formula(int type, int power)
 extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 
-static volatile int running = 0;
-bool g_bNewtonRunning = false;
-bool g_bNewtonStop = false;
-static bool g_bNewtonExit = false;
-bool g_bJustDidNewton = false;
+CNewton::CNewton() {
+	g_bNewtonRunning = false;
+	g_bNewtonStop = false;
+	g_bNewtonExit = false;
+	g_bJustDidNewton = false;
 
-static int g_nr_zoom_target = 0;
-static int g_nr_folding = 1;
-static double g_nr_folding_custom = 1;
-static int g_nr_size_power = 3;
-static double g_nr_size_power_custom = 1;
-static int g_nr_size_factor = 1;
-static double g_nr_size_factor_custom = 1;
-static int g_nr_action = 2;
-static bool g_nr_ball_method = true;
+	g_nr_zoom_target = 0;
+	g_nr_folding = 1;
+	g_nr_folding_custom = 1;
+	g_nr_size_power = 3;
+	g_nr_size_power_custom = 1;
+	g_nr_size_factor = 1;
+	g_nr_size_factor_custom = 1;
+	g_nr_action = 2;
+	g_nr_ball_method = true;
 
-static floatexp g_fNewtonDelta2[2];
-static int g_nNewtonETA = 0;
-static int64_t g_iterations = 0;
+	g_nNewtonETA = 0;
+	g_iterations = 0;
+
+	g_period = 0;
+}
+
+CNewton::~CNewton() {
+	// TODO stop / wait for tasks
+}
 
 // progress reporting threads
 
@@ -323,7 +329,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   c.progress = progress;
   c.maxperiod = maxperiod;
   c.barrier = &bar;
-  c.stop = &g_bNewtonStop;
+  c.stop = &g_SFT.N.g_bNewtonStop;
   c.haveperiod = &haveperiod;
   c.period = &period;
   c.maxperiod = maxperiod;
@@ -491,7 +497,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	STEP_STRUCT_COMMON m;
 	m.hWnd = hWnd;
 	m.barrier = &bar;
-	m.stop = &g_bNewtonStop;
+	m.stop = &g_SFT.N.g_bNewtonStop;
 	m.newtonStep = newtonStep;
 	m.period = period;
 	m.progress = progress;
@@ -590,10 +596,10 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   std::string elast = sqrt(floatexp(4.0)/delta).toString(1);
   std::string etarget = sqrt(floatexp(4.0)/epsilon).toString(1);
   snprintf(g_szProgress, sizeof(g_szProgress) - 1, "%s %s %s", elast.c_str(), ad < epsilon2 ? ">" : "<", etarget.c_str());
-  g_fNewtonDelta2[0] = g_fNewtonDelta2[1];
-  g_fNewtonDelta2[1] = delta;
-  if (g_fNewtonDelta2[0].val > 0)
-    g_nNewtonETA = newtonETA(g_fNewtonDelta2[0], g_fNewtonDelta2[1], epsilon);
+  g_SFT.N.g_fNewtonDelta2[0] = g_SFT.N.g_fNewtonDelta2[1];
+  g_SFT.N.g_fNewtonDelta2[1] = delta;
+  if (g_SFT.N.g_fNewtonDelta2[0].val > 0)
+    g_SFT.N.g_nNewtonETA = newtonETA(g_SFT.N.g_fNewtonDelta2[0], g_SFT.N.g_fNewtonDelta2[1], epsilon);
 
 
   if (ad < epsilon2) {
@@ -661,9 +667,9 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
 
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
   flyttyp radius2 = radius * radius;
-  g_nNewtonETA = -1;
-  for (i = 0; i < maxsteps && !g_bNewtonStop && !g_bNewtonExit; ++i) {
-    progress->counters[0] = g_nNewtonETA;
+  g_SFT.N.g_nNewtonETA = -1;
+  for (i = 0; i < maxsteps && !g_SFT.N.g_bNewtonStop && !g_SFT.N.g_bNewtonExit; ++i) {
+    progress->counters[0] = g_SFT.N.g_nNewtonETA;
     progress->counters[1] = i + 1;
     progress->counters[2] = period;
     progress->counters[3] = 0;
@@ -675,7 +681,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
   }
   steps = i;
   *c_out = c;
-  if(g_bNewtonExit)
+  if(g_SFT.N.g_bNewtonExit)
 	  result=0;
   return result;
 }
@@ -694,7 +700,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
   complex<flyttyp> z(0,0);
   char szStatus[256];
   uint32_t last = GetTickCount();
-  for (int64_t i = 1; i < period && !g_bNewtonStop; ++i) {
+  for (int64_t i = 1; i < period && !g_SFT.N.g_bNewtonStop; ++i) {
 	  if(i%100==0){
 		uint32_t now = GetTickCount();
 		if (now - last > 250)
@@ -713,8 +719,6 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 }
 
 // XXX move those two to g_SFT
-static double g_skew[4];
-int64_t g_period = 0;
 
 #ifndef WINVER
 void ThNewton(PAR_SFT HWND hWnd)
@@ -729,10 +733,10 @@ static int WINAPI ThNewton(HWND hWnd)
   const int type = g_SFT.GetFractalType();
   const int power = g_SFT.GetPower();
   const struct formula *f = get_formula(type, power);
-  g_skew[0] = 1;
-  g_skew[1] = 0;
-  g_skew[2] = 0;
-  g_skew[3] = 1;
+  g_SFT.N.g_skew[0] = 1;
+  g_SFT.N.g_skew[1] = 0;
+  g_SFT.N.g_skew[2] = 0;
+  g_SFT.N.g_skew[3] = 1;
 
 	flyttyp radius = g_SFT.GetZoom();
 	radius*=g_SFT.GetZoomSize();
@@ -759,31 +763,31 @@ static int WINAPI ThNewton(HWND hWnd)
 	  if (g_SFT.GetUseHybridFormula())
 	  {
 		  flyttyp r = flyttyp(4) / radius;
-		  g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_skew[0], &running, &progress.counters[0]);
+		  g_SFT.N.g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_SFT.N.g_skew[0], &g_SFT.N.running, &progress.counters[0]);
 	  }
 	  else if (type == 0 && power == 2)
 	  {
 		int64_t maxperiod = INT_MAX; // FIXME
-		g_period = ball_period_do(center,radius,maxperiod,steps,&progress);
+		g_SFT.N.g_period = ball_period_do(center,radius,maxperiod,steps,&progress);
 	  }
 	  else
 	  {
 		if (f)
 		{
 		  flyttyp r = flyttyp(4) / radius;
-		  if (g_nr_ball_method)
+		  if (g_SFT.N.g_nr_ball_method)
 		  {
-		    g_period = f->period_jsk(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
+		    g_SFT.N.g_period = f->period_jsk(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
 		  }
 		  else
 		  {
-		    g_period = f->period_tri(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running, &progress.counters[0]);
+		    g_SFT.N.g_period = f->period_tri(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_SFT.N.running, &progress.counters[0]);
 		  }
-		  if (g_period < 0) g_period = 0;
+		  if (g_SFT.N.g_period < 0) g_SFT.N.g_period = 0;
 		}
 		else
 		{
-		  g_period = 0;
+		  g_SFT.N.g_period = 0;
 		}
 	  }
 	  // join progress updater
@@ -792,18 +796,18 @@ static int WINAPI ThNewton(HWND hWnd)
 	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 	  CloseHandle(progress.hDone);
 #endif
-	  if (g_period < 0) g_period = 0;
+	  if (g_SFT.N.g_period < 0) g_SFT.N.g_period = 0;
 	  uprec *= 2;
 	  progress.elapsed_time = get_wall_time() - progress.start_time;
 	  char status[100];
-	  snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", (int) g_period, (int) (g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
+	  snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", (int) g_SFT.N.g_period, (int) (g_SFT.N.g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
 	  s_period = status;
 	  SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	Precision prec2(uprec);
 
 	int bOK = 1;
-	if (g_period > 0 && ! g_bNewtonStop && g_nr_action >= 1)
+	if (g_SFT.N.g_period > 0 && ! g_SFT.N.g_bNewtonStop && g_SFT.N.g_nr_action >= 1)
 	{
 		// fork progress updater
 	    progress_t progress = { { 0, 0, 0, 0 }, true,
@@ -823,7 +827,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_period, c.m_r, c.m_i, epsilon2, &running, &progress.counters[0]) ? 0 : 1;
+		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_SFT.N.g_period, c.m_r, c.m_i, epsilon2, &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -832,7 +836,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		else if (type == 0 && power == 2)
 		{
 		  int maxsteps = INT_MAX; // FIXME
-		  test = m_d_nucleus(&c,center,g_period,maxsteps,steps,radius,hWnd,&progress);
+		  test = m_d_nucleus(&c,center,g_SFT.N.g_period,maxsteps,steps,radius,hWnd,&progress);
 		}
 		else
 		{
@@ -842,7 +846,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = f->newton(100, g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &running, &progress.counters[0]) ? 0 : 1;
+		    test = f->newton(100, g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -867,15 +871,15 @@ static int WINAPI ThNewton(HWND hWnd)
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 		}
 
-		if (! g_bNewtonStop && ! test)
+		if (! g_SFT.N.g_bNewtonStop && ! test)
 		{
-			if (g_nr_action >= 2)
+			if (g_SFT.N.g_nr_action >= 2)
 			{
 				g_szRe = c.m_r.ToText();
 				g_szIm = c.m_i.ToText();
 
 				// fork progress updater
-				progress_t progress = { { int(g_period), 0, 0, 0 }, true,
+				progress_t progress = { { int(g_SFT.N.g_period), 0, 0, 0 }, true,
 #ifdef WINVER
 					hWnd, CreateEvent(NULL, 0, 0, NULL),
 #endif
@@ -886,33 +890,33 @@ static int WINAPI ThNewton(HWND hWnd)
 #endif
 				Precision prec3(expo + 6);
 				flyttyp msize = 0;
-				if (g_period <= 1)
+				if (g_SFT.N.g_period <= 1)
 				{
 				  msize = 1;
 				}
 				else
 				if (g_SFT.GetUseHybridFormula())
 				{
-					if (g_nr_zoom_target <= 1)
+					if (g_SFT.N.g_nr_zoom_target <= 1)
 					{
-						hybrid_size(g_SFT.GetHybridFormula(), g_period, c.m_r, c.m_i, msize, g_skew, &running, &progress.counters[0]);
+						hybrid_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
 					}
 					else
 					{
-						hybrid_domain_size(g_SFT.GetHybridFormula(), g_period, c.m_r, c.m_i, msize, &running, &progress.counters[0]);
+						hybrid_domain_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, &g_SFT.N.running, &progress.counters[0]);
 					}
 				}
 				else if (type == 0 && power == 2)
 				{
-					if (g_nr_zoom_target <= 1)
+					if (g_SFT.N.g_nr_zoom_target <= 1)
 					{
-						complex<floatexp> size = m_d_size(c,g_period,hWnd);
+						complex<floatexp> size = m_d_size(c,g_SFT.N.g_period,hWnd);
 						floatexp msizefe = sqrt(cabs2(size));
 						mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
 					}
 					else
 					{
-						complex<floatexp> size = m_d_domain_size(c,g_period,&progress);
+						complex<floatexp> size = m_d_domain_size(c,g_SFT.N.g_period,&progress);
 						floatexp msizefe = sqrt(cabs2(size));
 						mpfr_set_fe(msize.m_dec.backend().data(), msizefe);
 					}
@@ -921,13 +925,13 @@ static int WINAPI ThNewton(HWND hWnd)
 				{
 					if (f)
 					{
-						if (g_nr_zoom_target <= 1)
+						if (g_SFT.N.g_nr_zoom_target <= 1)
 						{
-							f->size(g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
+							f->size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
 						}
 						else
 						{
-							// f->domain_size(g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]); // FIXME implement this in et formula generator
+							// f->domain_size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]); // FIXME implement this in et formula generator
 						}
 					}
 				}
@@ -948,28 +952,28 @@ static int WINAPI ThNewton(HWND hWnd)
 				}
 				if (0 < msize && msize < 2)
 				{
-					double size_factors[] = { g_nr_size_factor_custom, 10, 4, 1, 0.25, 0.1 };
-					double factor = size_factors[std::min(std::max(g_nr_size_factor, 0), 5)];
-					if (g_nr_zoom_target >= 1)
+					double size_factors[] = { g_SFT.N.g_nr_size_factor_custom, 10, 4, 1, 0.25, 0.1 };
+					double factor = size_factors[std::min(std::max(g_SFT.N.g_nr_size_factor, 0), 5)];
+					if (g_SFT.N.g_nr_zoom_target >= 1)
 					{
-						double size_powers[] = { g_nr_size_power_custom, 0.75, 0.875, 1, 1.125, 1.25 };
-						double power = size_powers[std::min(std::max(g_nr_size_power, 0), 5)];
+						double size_powers[] = { g_SFT.N.g_nr_size_power_custom, 0.75, 0.875, 1, 1.125, 1.25 };
+						double power = size_powers[std::min(std::max(g_SFT.N.g_nr_size_power, 0), 5)];
 						floatexp s = floatexp(msize);
 						floatexp r = factor * exp(log(s) * power);
 						g_szZoom = (floatexp(2) / r).toString();
-						g_iterations = (g_nr_zoom_target >= 2 ? 10 : 100) * g_period; // FIXME
+						g_SFT.N.g_iterations = (g_SFT.N.g_nr_zoom_target >= 2 ? 10 : 100) * g_SFT.N.g_period; // FIXME
 						bOK = 1;
 					}
 					else
 					{
-						double foldings[] = { g_nr_folding_custom, 0.5, 0.75, 0.875, 0.9375, 1 };
-						double power = foldings[std::min(std::max(g_nr_folding, 0), 5)];
+						double foldings[] = { g_SFT.N.g_nr_folding_custom, 0.5, 0.75, 0.875, 0.9375, 1 };
+						double power = foldings[std::min(std::max(g_SFT.N.g_nr_folding, 0), 5)];
 						floatexp start = floatexp(flyttyp(g_szZoom));
 						floatexp target = floatexp(2 / factor) / floatexp(msize);
 						g_szZoom = (exp(log(start) * (1 - power) + power * log(target))).toString();
 						double start_iterations = g_SFT.GetIterations();
-						double target_iterations = 100 * g_period;
-						g_iterations = std::min(std::max(start_iterations * log(g_SFT.GetPower() / (1 - std::min(1.0, power))) / log(g_SFT.GetPower()), start_iterations), target_iterations);
+						double target_iterations = 100 * g_SFT.N.g_period;
+						g_SFT.N.g_iterations = std::min(std::max(start_iterations * log(g_SFT.GetPower() / (1 - std::min(1.0, power))) / log(g_SFT.GetPower()), start_iterations), target_iterations);
 						bOK = 1;
 					}
 				}
@@ -988,7 +992,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	{
 		bOK = -1;
 	}
-	g_bNewtonRunning=FALSE;
+	g_SFT.N.g_bNewtonRunning=FALSE;
 #ifndef WINVER
 	(void)bOK;
 #else
@@ -1051,18 +1055,18 @@ static std::vector<HWND> tooltips;
 
 extern void NewtonReadWindows(HWND hWnd)
 {
-	g_nr_zoom_target = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_GETCURSEL, 0, 0);
-	g_nr_folding = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_GETCURSEL, 0, 0);
-	g_nr_size_power = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_GETCURSEL, 0, 0);
-	g_nr_size_factor = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_GETCURSEL, 0, 0);
+	g_SFT.N.g_nr_zoom_target = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_GETCURSEL, 0, 0);
+	g_SFT.N.g_nr_folding = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_GETCURSEL, 0, 0);
+	g_SFT.N.g_nr_size_power = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_GETCURSEL, 0, 0);
+	g_SFT.N.g_nr_size_factor = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_GETCURSEL, 0, 0);
 	{
 		char s[256];
 		GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT, s, sizeof(s));
-		g_nr_folding_custom = atof(s);
+		g_SFT.N.g_nr_folding_custom = atof(s);
 		GetDlgItemText(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT, s, sizeof(s));
-		g_nr_size_power_custom = atof(s);
+		g_SFT.N.g_nr_size_power_custom = atof(s);
 		GetDlgItemText(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT, s, sizeof(s));
-		g_nr_size_factor_custom = atof(s);
+		g_SFT.N.g_nr_size_factor_custom = atof(s);
 		GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, s, sizeof(s));
 		if (std::string(s) == "")
 		{
@@ -1073,21 +1077,21 @@ extern void NewtonReadWindows(HWND hWnd)
 			g_szZoom = s;
 		}
 	}
-	g_nr_action = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_GETCURSEL, 0, 0);
-	g_nr_ball_method = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_GETCHECK, 0, 0);
+	g_SFT.N.g_nr_action = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_GETCURSEL, 0, 0);
+	g_SFT.N.g_nr_ball_method = SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_GETCHECK, 0, 0);
 	g_SFT.SetSaveNewtonProgress(SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SAVE_PROGRESS, BM_GETCHECK, 0, 0));
 }
 
 extern void NewtonEnableWindows(HWND hWnd)
 {
 	// dis/enable optional windows
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START), g_nr_zoom_target == 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START_CAPTURE), g_nr_zoom_target == 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET), g_nr_zoom_target == 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT), g_nr_folding == 0 && g_nr_zoom_target == 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET), g_nr_zoom_target != 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT), g_nr_size_power == 0 && g_nr_zoom_target != 0);
-	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT), g_nr_size_factor == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START), g_SFT.N.g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_START_CAPTURE), g_SFT.N.g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET), g_SFT.N.g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_CUSTOM_EDIT), g_SFT.N.g_nr_folding == 0 && g_SFT.N.g_nr_zoom_target == 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET), g_SFT.N.g_nr_zoom_target != 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_CUSTOM_EDIT), g_SFT.N.g_nr_size_power == 0 && g_SFT.N.g_nr_zoom_target != 0);
+	EnableWindow(GetDlgItem(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_CUSTOM_EDIT), g_SFT.N.g_nr_size_factor == 0);
 }
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
@@ -1137,14 +1141,14 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 		}
 
 		// select combo boxes
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_SETCURSEL, g_nr_zoom_target, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_SETCURSEL, g_nr_action, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_SETCURSEL, g_nr_folding, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_SETCURSEL, g_nr_size_power, 0);
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_SETCURSEL, g_nr_size_factor, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_TARGET_PRESET, CB_SETCURSEL, g_SFT.N.g_nr_zoom_target, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ACTION_PRESET, CB_SETCURSEL, g_SFT.N.g_nr_action, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_RELATIVE_FOLDING_PRESET, CB_SETCURSEL, g_SFT.N.g_nr_folding, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_ABSOLUTE_POWER_PRESET, CB_SETCURSEL, g_SFT.N.g_nr_size_power, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SIZE_FACTOR_PRESET, CB_SETCURSEL, g_SFT.N.g_nr_size_factor, 0);
 
 		// select widgets
-		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_SETCHECK, g_nr_ball_method, 0);
+		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_BALL_METHOD, BM_SETCHECK, g_SFT.N.g_nr_ball_method, 0);
 		SendDlgItemMessage(hWnd, IDC_NR_ZOOM_SAVE_PROGRESS, BM_SETCHECK, g_SFT.GetSaveNewtonProgress(), 0);
 
 		// clear custom fields
@@ -1173,10 +1177,10 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 	}
 	if (uMsg == WM_COMMAND && (wParam == IDOK || wParam == IDCANCEL || wParam == IDCANCEL2))
 	{
-		if(g_bNewtonRunning){
-			running = 0;
-			g_bNewtonStop=TRUE;
-			while(g_bNewtonRunning){
+		if(g_SFT.N.g_bNewtonRunning){
+			g_SFT.N.running = 0;
+			g_SFT.N.g_bNewtonStop=TRUE;
+			while(g_SFT.N.g_bNewtonRunning){
 				MSG msg;
 				while(PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
 					TranslateMessage(&msg);
@@ -1198,12 +1202,12 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 		}
 	}
 	if(uMsg==WM_USER+1){
-		if(!g_bNewtonRunning){
+		if(!g_SFT.N.g_bNewtonRunning){
 			mat2 m = g_SFT.GetTransformMatrix();
-			g_skew[0] = m[0][0];
-			g_skew[1] = m[0][1];
-			g_skew[2] = m[1][0];
-			g_skew[3] = m[1][1];
+			g_SFT.N.g_skew[0] = m[0][0];
+			g_SFT.N.g_skew[1] = m[0][1];
+			g_SFT.N.g_skew[2] = m[1][0];
+			g_SFT.N.g_skew[3] = m[1][1];
 			RECT r = *(RECT*)lParam;
 			g_szRe = g_SFT.GetRe(r.left,r.top);
 			g_szIm = g_SFT.GetIm(r.left,r.top);
@@ -1217,35 +1221,35 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 
 			DWORD dw;
-			g_bNewtonStop=FALSE;
-			g_bNewtonExit=FALSE;
+			g_SFT.N.g_bNewtonStop=FALSE;
+			g_SFT.N.g_bNewtonExit=FALSE;
 			*g_szProgress=0;
-			g_nNewtonETA = -1;
-			g_fNewtonDelta2[0] = 0;
-			g_fNewtonDelta2[1] = 0;
-			running = 1;
+			g_SFT.N.g_nNewtonETA = -1;
+			g_SFT.N.g_fNewtonDelta2[0] = 0;
+			g_SFT.N.g_fNewtonDelta2[1] = 0;
+			g_SFT.N.running = 1;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
 			CloseHandle(hThread);
-			g_bNewtonRunning=TRUE;
+			g_SFT.N.g_bNewtonRunning=TRUE;
 		}
 	}
 	if(uMsg==WM_USER+2){
-		g_bNewtonRunning=FALSE;
+		g_SFT.N.g_bNewtonRunning=FALSE;
 		if(lParam == 1){
 			// newton success
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew + "Done").c_str());
 			g_SFT.UndoStore();
 			g_SFT.Stop();
-			if (g_nr_action >= 3)
+			if (g_SFT.N.g_nr_action >= 3)
 			{
-				g_SFT.SetTransformMatrix(mat2(g_skew[0], g_skew[1], g_skew[2], g_skew[3]));
+				g_SFT.SetTransformMatrix(mat2(g_SFT.N.g_skew[0], g_SFT.N.g_skew[1], g_SFT.N.g_skew[2], g_SFT.N.g_skew[3]));
 			}
-			if (g_nr_action >= 2)
+			if (g_SFT.N.g_nr_action >= 2)
 			{
 				g_SFT.SetPosition(g_szRe,g_szIm,g_szZoom);
-				if (g_iterations)
+				if (g_SFT.N.g_iterations)
 				{
-					g_SFT.SetIterations(g_iterations);
+					g_SFT.SetIterations(g_SFT.N.g_iterations);
 				}
 				char s[256];
 				GetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, s, sizeof(s));
@@ -1253,16 +1257,16 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 				{
 					SetDlgItemText(hWnd, IDC_NR_ZOOM_RELATIVE_START, floatexp(CDecNumber(g_szZoom)).toString(5).c_str());
 				}
-				g_bJustDidNewton = true;
+				g_SFT.N.g_bJustDidNewton = true;
 			}
-			else if (g_nr_action >= 1)
+			else if (g_SFT.N.g_nr_action >= 1)
 			{
 				g_SFT.SetPosition(g_szRe,g_szIm,g_SFT.GetZoom());
-				g_bJustDidNewton = true;
+				g_SFT.N.g_bJustDidNewton = true;
 			}
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 		}
-		if(lParam == -1 && !g_bNewtonStop)
+		if(lParam == -1 && !g_SFT.N.g_bNewtonStop)
 			MessageBox(GetParent(hWnd),"Could not apply Newton-Raphson\r\nYou may zoom in a little and try again","Error",MB_OK|MB_ICONSTOP);
 		if((lParam == 0 || lParam < -1 || lParam > 1))
 			MessageBox(GetParent(hWnd),"Unexpected stop message parameter (internal error)\r\n","Error",MB_OK|MB_ICONSTOP);

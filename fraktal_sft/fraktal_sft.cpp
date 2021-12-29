@@ -138,7 +138,7 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
 }
 
 CFraktalSFT::CFraktalSFT()
-: m_nPixels(0, 0, nullptr, nullptr) // invalid array
+: m_nPixels(0, 0, nullptr, nullptr), N() // invalid array
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -2193,7 +2193,7 @@ extern int g_bAutoGlitch;
 double CFraktalSFT::GetProgress(double *reference, double *approximation, double *good_guessed, double *good, double *queued, double *bad, double *bad_guessed)
 {
 	int64_t iters = m_nMaxIter;
-	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1) iters = g_period;
+	if ((GetUseNanoMB1() || GetUseNanoMB2()) && g_bAutoGlitch == 1) iters = N.g_period;
 	if (iters <= 0) iters = 1;
 	if (reference) *reference = m_nRDone * 100.0 / iters;
 	if (approximation) *approximation = m_nApprox * 100.0 / iters;

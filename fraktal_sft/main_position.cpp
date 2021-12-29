@@ -80,7 +80,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetDlgItemText(hWnd,IDC_EDIT2,s);
 		snprintf(s, 100, "%" PRId64, nMax);
 		SetDlgItemText(hWnd,IDC_EDIT5,s);
-		snprintf(s, 100, "%" PRId64, g_period);
+		snprintf(s, 100, "%" PRId64, g_SFT.N.g_period);
 		SetDlgItemText(hWnd,IDC_LOCATION_PERIOD,s);
 		return 1;
 	}
@@ -106,7 +106,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT4));
 			char *szP = new char[n+1];
 			GetDlgItemText(hWnd,IDC_LOCATION_PERIOD,szP,n+1);
-			g_period = atoll(szP);
+			g_SFT.N.g_period = atoll(szP);
 			g_SFT.SetPosition(szR,szI,szZ);
 			delete [] szR;
 			delete [] szI;

@@ -328,9 +328,9 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 		nID = stParams.FindString(0, "Period");
 		if (nID != -1)
-			g_period = atoll(stParams[nID][1]);
+			N.g_period = atoll(stParams[nID][1]);
 		else
-			g_period = 0;
+			N.g_period = 0;
 	}
 
 	int nC = stParams.FindString(0, "Colors");
@@ -581,7 +581,7 @@ std::string CFraktalSFT::ToText()
 	DOUBLE("SeedI", m_SeedI)
 	DOUBLE("FactorAR", m_FactorAR)
 	DOUBLE("FactorAI", m_FactorAI)
-	INT("Period", g_period)
+	INT("Period", N.g_period)
 
 	INT("TextureEnabled", m_bTexture)
 	DOUBLE("TextureMerge", m_nImgMerge)

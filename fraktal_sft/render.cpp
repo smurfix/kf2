@@ -209,7 +209,7 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 
-	if (m_ReferenceReuse && (! GetReuseReference() || g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
+	if (m_ReferenceReuse && (! GetReuseReference() || N.g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
 	{
 		if (m_Reference == m_ReferenceReuse)
 		{
@@ -217,7 +217,7 @@ void CFraktalSFT::RenderFractal()
 		}
 		reference_delete(m_ReferenceReuse);
 		m_ReferenceReuse = nullptr;
-		g_bJustDidNewton = false;
+		N.g_bJustDidNewton = false;
 	}
 	if (m_Reference)
 	{
@@ -388,13 +388,13 @@ void CFraktalSFT::RenderFractal()
 void CFraktalSFT::RenderFractalNANOMB1()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (! GetReuseReference() || ! m_NanoMB1Ref || g_bJustDidNewton)
+	if (! GetReuseReference() || ! m_NanoMB1Ref || N.g_bJustDidNewton)
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;
 		m_nAddRefX = -1;
 		m_nAddRefY = -1;
-		g_bJustDidNewton = false;
+		N.g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
 		CalculateReferenceNANOMB1();
@@ -471,13 +471,13 @@ void CFraktalSFT::RenderFractalNANOMB1()
 void CFraktalSFT::RenderFractalNANOMB2()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (! GetReuseReference() || ! m_NanoMB2Ref || g_bJustDidNewton)
+	if (! GetReuseReference() || ! m_NanoMB2Ref || N.g_bJustDidNewton)
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;
 		m_nAddRefX = -1;
 		m_nAddRefY = -1;
-		g_bJustDidNewton = false;
+		N.g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
 		CalculateReferenceNANOMB2();

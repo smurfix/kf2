@@ -20,10 +20,33 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_NEWTON_H
 #define KF_NEWTON_H 1
 
-extern bool g_bNewtonRunning;
-extern bool g_bNewtonStop;
-extern int64_t g_period;
-extern bool g_bJustDidNewton;
+struct CNewton {
+	volatile int running;
+	bool g_bNewtonRunning;
+	bool g_bNewtonStop;
+	bool g_bNewtonExit;
+	bool g_bJustDidNewton;
+
+	int g_nr_zoom_target;
+	int g_nr_folding;
+	double g_nr_folding_custom;
+	int g_nr_size_power;
+	double g_nr_size_power_custom;
+	int g_nr_size_factor;
+	double g_nr_size_factor_custom;
+	int g_nr_action;
+	bool g_nr_ball_method;
+
+	floatexp g_fNewtonDelta2[2];
+	int g_nNewtonETA;
+	int64_t g_iterations;
+
+	double g_skew[4];
+	int64_t g_period;
+
+	CNewton();
+	~CNewton();
+};
 
 extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 
