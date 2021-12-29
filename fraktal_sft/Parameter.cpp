@@ -315,16 +315,16 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 
 		nID = stParams.FindString(0, "SeedR");
 		if (nID != -1)
-			g_SeedR = atof(stParams[nID][1]);
+			m_SeedR = atof(stParams[nID][1]);
 		nID = stParams.FindString(0, "SeedI");
 		if (nID != -1)
-			g_SeedI = atof(stParams[nID][1]);
+			m_SeedI = atof(stParams[nID][1]);
 		nID = stParams.FindString(0, "FactorAR");
 		if (nID != -1)
-			g_FactorAR = atof(stParams[nID][1]);
+			m_FactorAR = atof(stParams[nID][1]);
 		nID = stParams.FindString(0, "FactorAI");
 		if (nID != -1)
-			g_FactorAI = atof(stParams[nID][1]);
+			m_FactorAI = atof(stParams[nID][1]);
 
 		nID = stParams.FindString(0, "Period");
 		if (nID != -1)
@@ -577,10 +577,10 @@ std::string CFraktalSFT::ToText()
 
 	DOUBLE("real", m_real)
 	DOUBLE("imag", m_imag)
-	DOUBLE("SeedR", g_SeedR)
-	DOUBLE("SeedI", g_SeedI)
-	DOUBLE("FactorAR", g_FactorAR)
-	DOUBLE("FactorAI", g_FactorAI)
+	DOUBLE("SeedR", m_SeedR)
+	DOUBLE("SeedI", m_SeedI)
+	DOUBLE("FactorAR", m_FactorAR)
+	DOUBLE("FactorAI", m_FactorAI)
 	INT("Period", g_period)
 
 	INT("TextureEnabled", m_bTexture)
@@ -661,8 +661,8 @@ void CFraktalSFT::ResetParameters()
 	m_imag = 1;
 	SetBailoutNormPreset(BailoutNorm_2);
 	SetBailoutNormCustom(2);
-	g_SeedR = 0;
-	g_SeedI = 0;
-	g_FactorAR = 1;
-	g_FactorAI = 0;
+	m_SeedR = 0;
+	m_SeedI = 0;
+	m_FactorAR = 1;
+	m_FactorAI = 0;
 }

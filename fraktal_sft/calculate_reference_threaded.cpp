@@ -30,9 +30,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
 #endif
 
-extern double g_SeedR;
-extern double g_SeedI;
-
 struct mcthread_common
 {
 	barrier_t *barrier;
@@ -181,8 +178,8 @@ bool CFraktalSFT::CalculateReferenceThreaded()
 		mpfr_init2(co.ci, bits);
 		mpfr_set(co.cr, m_rref.m_f.backend().data(), MPFR_RNDN);
 		mpfr_set(co.ci, m_iref.m_f.backend().data(), MPFR_RNDN);
-		mpfr_set_d(co.xr, g_SeedR, MPFR_RNDN);
-		mpfr_set_d(co.xi, g_SeedI, MPFR_RNDN);
+		mpfr_set_d(co.xr, m_SeedR, MPFR_RNDN);
+		mpfr_set_d(co.xi, m_SeedI, MPFR_RNDN);
 		mpfr_sqr(co.sr, co.xr, MPFR_RNDN);
 		mpfr_sqr(co.si, co.xi, MPFR_RNDN);
 		mpfr_set_d(co.xrxid, 0, MPFR_RNDN);

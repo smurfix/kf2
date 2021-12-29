@@ -96,10 +96,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 // POINT g_pInflections[10];
 // int g_nInflection=0;
-extern double g_SeedR;
-extern double g_SeedI;
-extern double g_FactorAR;
-extern double g_FactorAI;
 
 // interactive transformation editing
 

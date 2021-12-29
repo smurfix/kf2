@@ -101,7 +101,7 @@ static int WINAPI ThSkew(HWND hWnd)
   }
   else if (f && f->skew)
   {
-    ok = f->skew(iters, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
+    ok = f->skew(iters, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
   }
   // join progress updater
   progress.running = false;

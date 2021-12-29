@@ -63,10 +63,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "dual.h"
 #include "opengl.h"
 
-double g_SeedR=0;
-double g_SeedI=0;
-double g_FactorAR=1;
-double g_FactorAI=0;
 #define _abs(a) ((_abs_val=(a))>0?_abs_val:-_abs_val)
 #define _SMOOTH_COLORS_
 #define SMOOTH_TOLERANCE 256
@@ -222,6 +218,10 @@ CFraktalSFT::CFraktalSFT()
 	m_nIterDiv = 0.1;
 	m_nAddRefX = -1;
 	m_nAddRefY = -1;
+	m_SeedR=0;
+	m_SeedI=0;
+	m_FactorAR=1;
+	m_FactorAI=0;
 	m_real = 1;
 	m_imag = 1;
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
@@ -1607,8 +1607,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_real,
 		  m_imag,
 		  norm_p,
-		  g_FactorAR,
-		  g_FactorAI,
+		  m_FactorAR,
+		  m_FactorAI,
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
@@ -1733,8 +1733,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_real,
 		  m_imag,
 		  norm_p,
-		  g_FactorAR,
-		  g_FactorAI,
+		  m_FactorAR,
+		  m_FactorAI,
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
@@ -1830,8 +1830,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_real,
 		  m_imag,
 		  norm_p,
-		  g_FactorAR,
-		  g_FactorAI,
+		  m_FactorAR,
+		  m_FactorAI,
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
@@ -1924,8 +1924,8 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_real,
 		  m_imag,
 		  norm_p,
-		  g_FactorAR,
-		  g_FactorAI,
+		  m_FactorAR,
+		  m_FactorAI,
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,

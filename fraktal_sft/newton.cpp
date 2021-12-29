@@ -773,11 +773,11 @@ static int WINAPI ThNewton(HWND hWnd)
 		  flyttyp r = flyttyp(4) / radius;
 		  if (g_nr_ball_method)
 		  {
-		    g_period = f->period_jsk(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
+		    g_period = f->period_jsk(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
 		  }
 		  else
 		  {
-		    g_period = f->period_tri(INT_MAX, 1e50, g_FactorAR, g_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running, &progress.counters[0]);
+		    g_period = f->period_tri(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &running, &progress.counters[0]);
 		  }
 		  if (g_period < 0) g_period = 0;
 		}
@@ -842,7 +842,7 @@ static int WINAPI ThNewton(HWND hWnd)
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = f->newton(100, g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &running, &progress.counters[0]) ? 0 : 1;
+		    test = f->newton(100, g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &running, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -923,11 +923,11 @@ static int WINAPI ThNewton(HWND hWnd)
 					{
 						if (g_nr_zoom_target <= 1)
 						{
-							f->size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
+							f->size(g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]);
 						}
 						else
 						{
-							// f->domain_size(g_period, g_FactorAR, g_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]); // FIXME implement this in et formula generator
+							// f->domain_size(g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_skew, &running, &progress.counters[0]); // FIXME implement this in et formula generator
 						}
 					}
 				}

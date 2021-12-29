@@ -114,7 +114,7 @@ static int RefreshFractalType(HWND hWnd, bool refresh = true)
 static void UpdateSeedR(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SeedR);
+  snprintf(szTmp,40,"%g",g_SFT.m_SeedR);
   SetDlgItemText(hWnd,IDC_FORMULA_SEED_RE,szTmp);
 }
 
@@ -122,13 +122,13 @@ static void RefreshSeedR(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_SEED_RE,szTmp,sizeof(szTmp));
-  g_SeedR = atof(szTmp);
+  g_SFT.m_SeedR = atof(szTmp);
 }
 
 static void UpdateSeedI(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SeedI);
+  snprintf(szTmp,40,"%g",g_SFT.m_SeedI);
   SetDlgItemText(hWnd,IDC_FORMULA_SEED_IM,szTmp);
 }
 
@@ -136,13 +136,13 @@ static void RefreshSeedI(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_SEED_IM,szTmp,sizeof(szTmp));
-  g_SeedI = atof(szTmp);
+  g_SFT.m_SeedI = atof(szTmp);
 }
 
 static void UpdateFactorAR(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_FactorAR);
+  snprintf(szTmp,40,"%g",g_SFT.m_FactorAR);
   SetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_RE,szTmp);
 }
 
@@ -150,13 +150,13 @@ static void RefreshFactorAR(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_RE,szTmp,sizeof(szTmp));
-  g_FactorAR = atof(szTmp);
+  g_SFT.m_FactorAR = atof(szTmp);
 }
 
 static void UpdateFactorAI(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_FactorAI);
+  snprintf(szTmp,40,"%g",g_SFT.m_FactorAI);
   SetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_IM,szTmp);
 }
 
@@ -164,7 +164,7 @@ static void RefreshFactorAI(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_IM,szTmp,sizeof(szTmp));
-  g_FactorAI = atof(szTmp);
+  g_SFT.m_FactorAI = atof(szTmp);
 }
 
 static void UpdateJitterSeed(HWND hWnd)

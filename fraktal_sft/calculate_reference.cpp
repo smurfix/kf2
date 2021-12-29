@@ -23,11 +23,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../formula/formula.h"
 #include "../common/barrier.h"
 
-extern double g_SeedR;
-extern double g_SeedI;
-extern double g_FactorAR;
-extern double g_FactorAI;
-
 void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 {
 	Precision prec(m_rref.m_f.precision());
@@ -44,7 +39,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 
 	if (GetUseHybridFormula())
 	{
-		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, terminate, GetGlitchLowTolerance());
+		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, m_SeedR, m_SeedI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference_hybrid");
 	}
 
@@ -55,7 +50,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 
 	else if (m_nFractalType == 0 && m_nPower > 10)
 	{
-		CFixedFloat xr = g_SeedR, xi = g_SeedI;
+		CFixedFloat xr = m_SeedR, xi = m_SeedI;
 		double threshold = 0.0001;
 		for (int i = 7; i <= m_nPower; i += 2)
 			threshold *= 10;
@@ -85,7 +80,7 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 
 	else
 	{
-		bool ok = reference(m_nFractalType, m_nPower, m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, g_SeedR, g_SeedI, g_FactorAR, g_FactorAI, terminate, GetGlitchLowTolerance());
+		bool ok = reference(m_nFractalType, m_nPower, m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, m_SeedR, m_SeedI, m_FactorAR, m_FactorAI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference");
 	}
 }

@@ -382,6 +382,11 @@ public:
 	int m_nAddRefY;
 	double m_real;
 	double m_imag;
+	double m_SeedR;
+	double m_SeedI;
+	double m_FactorAR;
+	double m_FactorAI;
+
 
 	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
@@ -773,13 +778,6 @@ public:
 
 
 };
-
-// XXX global-ize all of these
-
-extern double g_SeedR;
-extern double g_SeedI;
-extern double g_FactorAR;
-extern double g_FactorAI;
 
 // XXX only used in main_color. Move there and make static.
 extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
