@@ -343,9 +343,10 @@ extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm)
   POINT p1, p2;
   for(p1.y=0;p1.y<bmiDraw.biHeight;p1.y++){
     for(p1.x=0;p1.x<bmiDraw.biWidth;p1.x++){
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw] = lpOrgBits[0];
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+1] = lpOrgBits[1];
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+2] = lpOrgBits[2];
+      int offP = p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw;
+      lpBits[offP] = lpOrgBits[0];
+      lpBits[offP+1] = lpOrgBits[1];
+      lpBits[offP+2] = lpOrgBits[2];
 
       p2 = p1;
 
@@ -370,50 +371,56 @@ extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm)
       Y = 1 - Yn;
       Zn = (Xn+Yn)/2;
       Z = 1 - Zn;
-      R = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-      G = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-      B = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
+
+      offP = p2.x*3 + (bmi.biHeight-p2.y-1)*row;
+      R = lpOrgBits[offP];
+      G = lpOrgBits[offP + 1];
+      B = lpOrgBits[offP + 2];
       p2.x++;
-      if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
+      if(p2.x>=bmi.biWidth){
         Rx = R;
         Gx = G;
         Bx = B;
       }
       else{
-        Rx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-        Gx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-        Bx = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
+        offP = p2.x*3 + (bmi.biHeight-p2.y-1)*row;
+        Rx = lpOrgBits[offP];
+        Gx = lpOrgBits[offP + 1];
+        Bx = lpOrgBits[offP + 2];
       }
       p2.x--;
       p2.y++;
-      if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
+      if(p2.y>=bmi.biHeight){
         Ry = R;
         Gy = G;
         By = B;
       }
       else{
-        Ry = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-        Gy = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-        By = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
+        offP = p2.x*3 + (bmi.biHeight-p2.y-1)*row;
+        Ry = lpOrgBits[offP];
+        Gy = lpOrgBits[offP + 1];
+        By = lpOrgBits[offP + 2];
       }
       p2.x++;
-      if(p2.x<0 || p2.x>=bmi.biWidth || p2.y<0 || p2.y>=bmi.biHeight){
+      if(p2.x>=bmi.biWidth || p2.y>=bmi.biHeight){
         Rz = R;
         Gz = G;
         Bz = B;
       }
       else{
-        Rz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row];
-        Gz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 1];
-        Bz = lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row + 2];
+        offP = p2.x*3 + (bmi.biHeight-p2.y-1)*row;
+        Rz = lpOrgBits[offP];
+        Gz = lpOrgBits[offP + 1];
+        Bz = lpOrgBits[offP + 2];
       }
 
       R = (int)(((double)R*X + (double)Rx*Xn + (double)R*Y + (double)Ry*Yn + (double)R*Z + (double)Rz*Zn)/3);
       G = (int)(((double)G*X + (double)Gx*Xn + (double)G*Y + (double)Gy*Yn + (double)G*Z + (double)Gz*Zn)/3);
       B = (int)(((double)B*X + (double)Bx*Xn + (double)B*Y + (double)By*Yn + (double)B*Z + (double)Bz*Zn)/3);
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw] = R;
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+1] = G;
-      lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw+2] = B;
+      offP = p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw;
+      lpBits[offP] = R;
+      lpBits[offP+1] = G;
+      lpBits[offP+2] = B;
 
 //      memcpy(&lpBits[p1.x*3 + (bmiDraw.biHeight-p1.y-1)*rowDraw],&lpOrgBits[p2.x*3 + (bmi.biHeight-p2.y-1)*row],3);
     }
