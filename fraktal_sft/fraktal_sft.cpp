@@ -694,15 +694,17 @@ void CFraktalSFT::SetTexture(int x, int y, srgb &s)
 static inline double hypot2(double x, double y) { return x * x + y * y; }
 static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
-void CFraktalSFT::SetColor(int nIndex, const int64_t nIter0, double offs, int x, int y, int w, int h)
+void CFraktalSFT::SetColor(int x, int y, int w, int h)
 {
 	if (m_bInhibitColouring || UseOpenGL()) return;
-	srgb s;
-	s.r = 0;
-	s.g = 0;
-	s.b = 0;
+
+	double offs = m_nTrans[x][y];
 	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
 		return;
+
+	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+	int64_t nIter0 = m_nPixels[x][y];
+	srgb s;
 	if (nIter0 == m_nMaxIter)
 	{
 		// this is reset later to the precise RGB8 (unless image texture)
@@ -1156,8 +1158,7 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 		for (int x = x0; x < x1; ++x)
 		for (int y = y0; y < y1; ++y)
 		{
-			int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-			SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, 1, 1);
+			SetColor(x, y, 1, 1);
 		}
 	}
 	else if (w <= h)
@@ -1396,8 +1397,7 @@ void CFraktalSFT::Mirror(int x, int y)
 		m_nDEx[tx][ty] = -m_nDEx[x][y];
 	if (m_nDEy)
 		m_nDEy[tx][ty] = -m_nDEy[x][y];
-	int nIndex1 = tx * 3 + (m_bmi->biHeight - 1 - ty)*m_row;
-	SetColor(nIndex1, m_nPixels[tx][ty], m_nTrans[tx][ty], tx, ty, 1, 1);
+	SetColor(tx, ty, 1, 1);
 }
 
 #define GET_EXP(val) ((*((__int64*)&val) & 0x7FF0000000000000)>>52)
@@ -3515,8 +3515,7 @@ void CFraktalSFT::ErasePixel(int x, int y)
 		m_nPhase[x][y] = 0;
 		m_nDEx[x][y] = 0;
 		m_nDEy[x][y] = 0;
-		int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
-		SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, 1, 1);
+		SetColor(x, y, 1, 1);
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
 	}
 }
@@ -3705,7 +3704,6 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, int64_t antal, double test1, double smooth, double phase, const complex<double> &de)
 {
 	int64_t antal0 = antal;
-	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
 	if (std::isnan(smooth) || std::isinf(smooth)) smooth = 0;
 	double i = antal + smooth;
 	antal = std::floor(i);
@@ -3746,7 +3744,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 			m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
 		}
 	}
-	SetColor(nIndex, m_nPixels[x][y], m_nTrans[x][y], x, y, w, h);
+	SetColor(x, y, w, h);
 	if (m_bMirrored)
 		Mirror(x, y);
 }

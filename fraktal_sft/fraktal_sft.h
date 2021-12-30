@@ -672,8 +672,7 @@ public:
   // CPU coloring of a single range, one 16x16 square at a time
 	void ApplyColors(int x0, int x1, int y0, int y1);
   // CPU coloring of a single pixel
-	void SetColor(int index, int64_t iter, double offs, int x, int y, int w = 1, int h = 1);
-	// XXX delete the redundant nIndex parameter and actually compute it in SetColor
+	void SetColor(int x, int y, int w = 1, int h = 1);
 
   // EXR support
 	half *m_imageHalf;     // linear SRGB data, for EXR export
