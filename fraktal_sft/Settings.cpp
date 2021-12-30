@@ -124,6 +124,26 @@ bool Settings::FromText(const std::string &text)
 #undef DOUBLE
 #undef INT
 #undef BOOL
+  {
+    int iw = 0;
+    int ih = 0;
+    int n;
+
+    n = s.FindString(0, "ImageWidth");
+    if (n != -1)
+      iw = atof(s[n][1]);
+
+    n = s.FindString(0, "ImageHeight");
+    if (n != -1)
+      ih = atof(s[n][1]);
+
+    n = s.FindString(0, "TargetSupersample");
+    if (n == -1 && (iw || ih)) {
+      // old config file
+      m_TargetSupersample = iw ? iw/m_TargetWidth : ih/m_TargetHeight;
+    }
+  }
+
   std::free(data);
   return true;
 }
@@ -197,6 +217,9 @@ std::string Settings::ToText() const
 #undef DOUBLE
 #undef INT
 #undef BOOL
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "ImageWidth"); s.AddInt(s.GetCount() - 1, m_TargetWidth*m_TargetSupersample); }
+  { s.AddRow(); s.AddString(s.GetCount() - 1, "ImageHeight"); s.AddInt(s.GetCount() - 1, m_TargetHeight*m_TargetSupersample); }
+
   { s.AddRow(); s.AddString(s.GetCount() - 1, "SettingsVersion"); s.AddInt(s.GetCount() - 1, kfs_version_number); }
   char *data = s.ToText(": ", "\n");
   std::string r(data);
