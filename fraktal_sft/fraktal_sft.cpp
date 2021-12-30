@@ -2064,6 +2064,8 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
+
+	// zooming out. XXX do the same, inverted, for zooming in.
 	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
 		m_bAddReference = 2;
 		int nOX = m_nX*nZoomSize;
@@ -2099,7 +2101,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 				for (y = 0; y<nOY; y++){
 					a = (x + nXPos-nX2) / nZoomSize;
 					b = (y + nYPos-nY2) / nZoomSize;
-					if (a >= 0 && a<m_nX && b >= 0 && b<m_nY){
+					if (a >= 0 && a < m_nX && b >= 0 && b < m_nY){
 						Org[x][y] = m_nPixels[a][b];
 						OrgT[x][y] = m_nTrans[a][b];
 						OrgP[x][y] = m_nPhase[a][b];
@@ -2123,7 +2125,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		b = (m_nY - nOY) / 2;
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
-				if (x - a>=0 && x - a<nOX && y - b>=0 && y - b<nOY){
+				if (x-a >= 0 && x-a < nOX && y-b >= 0 && y-b < nOY){
 					m_nPixels[x][y] = Org[x - a][y - b];
 					m_nTrans[x][y] = OrgT[x - a][y - b];
 					m_nPhase[x][y] = OrgP[x - a][y - b];
