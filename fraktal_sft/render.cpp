@@ -89,7 +89,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
-void CFraktalSFT::RenderFractal(int64_t nMaxIter, HWND hWnd, BOOL bNoThread, BOOL bResetOldGlitch)
+void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = TRUE;
 #ifdef WINVER
@@ -109,9 +109,6 @@ void CFraktalSFT::RenderFractal(int64_t nMaxIter, HWND hWnd, BOOL bNoThread, BOO
 	m_renderThread.join();
 #endif
 	m_bStop = FALSE;
-	if (hWnd)
-		m_hWnd = hWnd;
-	m_nMaxIter = nMaxIter;
 	m_nRDone = 0;
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));

@@ -313,8 +313,7 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
-	// XXX drop hWnd parameter (useless)
-	void RenderFractal(int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
+	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 
 	bool m_bIsRendering;
 	inline bool GetIsRendering() { return m_bIsRendering; };
