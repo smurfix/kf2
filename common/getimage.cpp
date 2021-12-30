@@ -393,7 +393,7 @@ void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNe
 }
 
 
-void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark, int nCorner)
+void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark)
 {
 	HPEN wp=CreatePen(PS_SOLID,1,bDark?RGB(192,192,192):RGB(255,255,255)), 
 		 gp=CreatePen(PS_SOLID,1,bDark?RGB(0,0,0):RGB(128,128,128)), op;
@@ -403,22 +403,22 @@ void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark, int nCorner)
 		op = (HPEN)SelectObject(pDC,gp);
 	else
 		op = (HPEN)SelectObject(pDC,wp);
-	MoveToEx(pDC,wr.left+nCorner,wr.bottom-1,NULL);
-	LineTo(pDC,wr.right-1-nCorner,wr.bottom-1);
-	LineTo(pDC,wr.right-1,wr.bottom-1-nCorner);
-	LineTo(pDC,wr.right-1,wr.top+nCorner);
-	LineTo(pDC,wr.right-1-nCorner,wr.top);
+	MoveToEx(pDC,wr.left,wr.bottom-1,NULL);
+	LineTo(pDC,wr.right-1,wr.bottom-1);
+	LineTo(pDC,wr.right-1,wr.bottom-1);
+	LineTo(pDC,wr.right-1,wr.top);
+	LineTo(pDC,wr.right-1,wr.top);
 
 	// Rita högra och undre med andra färgen
 	if(bUpp)
 		SelectObject(pDC,wp);
 	else
 		SelectObject(pDC,gp);
-	MoveToEx(pDC,wr.right-1-nCorner,wr.top,NULL);
-	LineTo(pDC,wr.left+nCorner,wr.top);
-	LineTo(pDC,wr.left,wr.top+nCorner);
-	LineTo(pDC,wr.left,wr.bottom-1-nCorner);
-	LineTo(pDC,wr.left+nCorner,wr.bottom-1);
+	MoveToEx(pDC,wr.right-1,wr.top,NULL);
+	LineTo(pDC,wr.left,wr.top);
+	LineTo(pDC,wr.left,wr.top);
+	LineTo(pDC,wr.left,wr.bottom-1);
+	LineTo(pDC,wr.left,wr.bottom-1);
 
 	// Frigör GDI-minne
 	SelectObject(pDC,op);
@@ -437,24 +437,12 @@ void SkuggadCirkle(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark)
 	else
 		op = (HPEN)SelectObject(pDC,wp);
 	Arc(pDC,wr.left,wr.top,wr.right,wr.bottom,wr.left,wr.bottom,wr.right,wr.top);
-/*	MoveToEx(pDC,wr.left+nCorner,wr.bottom-1,NULL);
-	LineTo(pDC,wr.right-1-nCorner,wr.bottom-1);
-	LineTo(pDC,wr.right-1,wr.bottom-1-nCorner);
-	LineTo(pDC,wr.right-1,wr.top+nCorner);
-	LineTo(pDC,wr.right-1-nCorner,wr.top);
-*/
 	// Rita högra och undre med andra färgen
 	if(bUpp)
 		SelectObject(pDC,wp);
 	else
 		SelectObject(pDC,gp);
 	Arc(pDC,wr.left,wr.top,wr.right,wr.bottom,wr.right,wr.top,wr.left,wr.bottom);
-/*	MoveToEx(pDC,wr.right-1-nCorner,wr.top,NULL);
-	LineTo(pDC,wr.left+nCorner,wr.top);
-	LineTo(pDC,wr.left,wr.top+nCorner);
-	LineTo(pDC,wr.left,wr.bottom-1-nCorner);
-	LineTo(pDC,wr.left+nCorner,wr.bottom-1);
-*/
 	// Frigör GDI-minne
 	SelectObject(pDC,op);
 	DeleteObject(wp);

@@ -1177,12 +1177,12 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		FillRect(lpdis->hDC,&lpdis->rcItem,br);
 		DeleteObject(br);
 		if(lpdis->itemState & ODS_SELECTED){
-			SkuggadRect(lpdis->hDC,lpdis->rcItem,FALSE,0,0);
+			SkuggadRect(lpdis->hDC,lpdis->rcItem,FALSE,FALSE);
 			lpdis->rcItem.left++;
 			lpdis->rcItem.top++;
 			lpdis->rcItem.right--;
 			lpdis->rcItem.bottom--;
-			SkuggadRect(lpdis->hDC,lpdis->rcItem,FALSE,TRUE,0);
+			SkuggadRect(lpdis->hDC,lpdis->rcItem,FALSE,TRUE);
 		}
 	}
 	else if(uMsg==WM_TIMER){

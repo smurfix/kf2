@@ -423,21 +423,21 @@ void CListBox::DrawButton(LPDRAWITEMSTRUCT lpdis)
 #ifndef NO_GETIMAGE
 	RECT r = lpdis->rcItem;
 	if(lpdis->itemState & ODS_SELECTED){
-		SkuggadRect(lpdis->hDC,r,FALSE,TRUE,0);
+		SkuggadRect(lpdis->hDC,r,FALSE,TRUE);
 		r.left++;
 		r.top++;
 		r.right--;
 		r.bottom--;
-		SkuggadRect(lpdis->hDC,r,FALSE,FALSE,0);
+		SkuggadRect(lpdis->hDC,r,FALSE,FALSE);
 		BitBlt(lpdis->hDC,4,4,bm.bmWidth,bm.bmHeight,dcBmp,0,0,SRCCOPY);
 	}
 	else{
-		SkuggadRect(lpdis->hDC,r,TRUE,TRUE,0);
+		SkuggadRect(lpdis->hDC,r,TRUE,TRUE);
 		r.left++;
 		r.top++;
 		r.right--;
 		r.bottom--;
-		SkuggadRect(lpdis->hDC,r,TRUE,FALSE,0);
+		SkuggadRect(lpdis->hDC,r,TRUE,FALSE);
 		BitBlt(lpdis->hDC,2,2,bm.bmWidth,bm.bmHeight,dcBmp,0,0,SRCCOPY);
 	}
 #endif

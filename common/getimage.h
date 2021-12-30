@@ -27,7 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 HBITMAP GetImageFromData(char *szImgData,int nImgData);
 HBITMAP GetImage(const std::string &szFile);
 void FillRectShade(HDC hDC, RECT r, int nR1, int nG1, int nB1,int nR2, int nG2, int nB2,int nType=0);
-void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark, int nCorner=0);
+void SkuggadRect(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark);
 void SkuggadCirkle(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark);
 
 HBITMAP GetImageFromResource(char *szResourceType, char *szResourceName,HINSTANCE hInstance);
