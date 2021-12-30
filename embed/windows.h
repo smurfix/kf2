@@ -172,6 +172,7 @@ static inline void DeleteObject(HGLOBAL hdl)
 // // // system info // // //
 
 typedef struct _SYSTEM_INFO {
+#if 0
     __extension__ union {
       DWORD dwOemId;
       __extension__ struct {
@@ -183,11 +184,12 @@ typedef struct _SYSTEM_INFO {
     LPVOID lpMinimumApplicationAddress;
     LPVOID lpMaximumApplicationAddress;
     DWORD_PTR dwActiveProcessorMask;
-    DWORD dwNumberOfProcessors;
     DWORD dwProcessorType;
     DWORD dwAllocationGranularity;
     WORD wProcessorLevel;
     WORD wProcessorRevision;
+#endif
+    DWORD dwNumberOfProcessors;
 } SYSTEM_INFO, *LPSYSTEM_INFO;
 
 static inline void GetSystemInfo(SYSTEM_INFO *info)
@@ -198,14 +200,7 @@ static inline void GetSystemInfo(SYSTEM_INFO *info)
   CPU_ZERO(&cs);
   sched_getaffinity(0, sizeof(cs), &cs);
 
-  int count = 0;
-  for (int i = 0; i < 8; i++)
-  {
-   if (CPU_ISSET(i, &cs))
-    count++;
-  }
-
-  info->dwNumberOfProcessors = count;
+  info->dwNumberOfProcessors = CPU_COUNT(&cs);
 }
 
 // // // misc // // //
