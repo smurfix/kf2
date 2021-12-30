@@ -32,10 +32,6 @@ void SkuggadCirkle(HDC pDC, RECT wr, BOOL bUpp,BOOL bDark);
 
 HBITMAP GetImageFromResource(char *szResourceType, char *szResourceName,HINSTANCE hInstance);
 
-// Denna funktion skall anropas med hDC=NULL för att frigöra minnet
-COLORREF GetPixelDIB(HDC hDC, HBITMAP bmBitmap,int x, int y);
-// Denna funktion skall avslutas med bCreate=TRUE för att skapa bilden och frigöra minnet
-void SetPixelDIB(HDC hDC, HBITMAP bmBitmap,int x, int y,COLORREF col,BOOL bCreate);
 
 void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNewHeight,BOOL bHalftone=TRUE,__int64 *pnData=NULL);
 
