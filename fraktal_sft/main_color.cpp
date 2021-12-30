@@ -1156,52 +1156,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetKeyColor(g_colCopy,i);
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 		}
-		else if(rc==3){
+		else if(rc>=3 && rc <= 9){
 			do{
 				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=2;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==4){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=3;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==5){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=4;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==6){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=5;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==7){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=6;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==8){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=7;
-			}while(i<g_SFT.GetNumOfColors());
-			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
-		}
-		else if(rc==9){
-			do{
-				g_SFT.SetKeyColor(g_colCopy,i);
-				i+=8;
+				i+=rc-1;
 			}while(i<g_SFT.GetNumOfColors());
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 		}
