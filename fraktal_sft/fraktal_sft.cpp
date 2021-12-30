@@ -291,20 +291,6 @@ CFraktalSFT::CFraktalSFT()
 	ApplyColors();
 }
 
-int64_t CFraktalSFT::CalcImageWidth() const
-{
-   int64_t w,s;
-   GetTargetDimensions(&w,nullptr,&s);
-   return w*s;
-}
-
-int64_t CFraktalSFT::CalcImageHeight() const
-{
-   int64_t h,s;
-   GetTargetDimensions(nullptr,&h,&s);
-   return h*s;
-}
-
 bool CFraktalSFT::UseOpenGL()
 {
 	if(!m_bUseOpenGL || m_bBadOpenGL)

@@ -195,10 +195,8 @@ public:
 	inline int GetWidth() const { return m_nX; }
 	inline int GetHeight() const { return m_nY; }
 
-	inline int64_t GetImageWidth() const { if (m_nX) return m_nX; return CalcImageWidth(); }
-	inline int64_t GetImageHeight() const { if (m_nY) return m_nY; return CalcImageHeight(); }
-	int64_t CalcImageHeight() const;  // returns h*s; TODO should simply return m_nX
-	int64_t CalcImageWidth() const;   // returns w*s; TODO should simply return m_nY
+	inline int64_t GetImageWidth() const { return m_nX; }
+	inline int64_t GetImageHeight() const { return m_nY; }
 
 	// forwards to Settings: stores the target image size and a supersampling factor
 	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
