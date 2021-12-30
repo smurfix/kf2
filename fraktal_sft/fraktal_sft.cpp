@@ -38,6 +38,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/StringVector.h"
 #include "../common/getimage.h"
 #include "../common/timer.h"
+#include "../common/bitmap.h"
 #include <float.h>
 #include <malloc.h>
 #include <stdio.h>
@@ -146,7 +147,11 @@ CFraktalSFT::CFraktalSFT()
 #endif
 
 #ifdef KF_OPENCL
-    m_cldevices = initialize_opencl(nullptr);
+    m_cldevices = initialize_opencl(
+#ifdef WINVER
+	                                nullptr
+#endif
+									);
 #endif
 	m_bTexture=FALSE;
 	m_nImgMerge=1;
@@ -174,8 +179,8 @@ CFraktalSFT::CFraktalSFT()
 	m_APi = new floatexp[m_nTerms];
 	m_APs = new SeriesR2<double, int64_t>;
 
-	m_hMutex = CreateMutex(NULL, 0, NULL);
 #ifdef WINVER
+	m_hMutex = CreateMutex(NULL, 0, NULL);
 	m_bRunning = FALSE;
 #endif
 	m_CenterRe = 0;
@@ -1428,6 +1433,8 @@ void CFraktalSFT::SetupArrays()
 		m_nDEy[x] = m_nDEy[0] + x * m_nY;
 	}
 	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+
+	AllocateBitmap();
 }
 
 void CFraktalSFT::DeleteArrays()
@@ -1471,6 +1478,7 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nDEy;
 			m_nDEy = nullptr;
 		}
+		FreeBitmap();
 }
 
 void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom)
@@ -2020,8 +2028,8 @@ void CFraktalSFT::Stop()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-	double counter = 0;
 #ifdef WINVER
+	double counter = 0;
 	while (m_bRunning)
 	{
 		Sleep(1);
@@ -2577,32 +2585,41 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
-#ifdef WINVER
 	ReinitializeBitmap();
-#endif
 	m_bIterChanged = true;
 	return ok;
 }
 
-#ifdef WINVER
 void CFraktalSFT::ReinitializeBitmap()
 {
+	FreeBitmap();
+	AllocateBitmap();
+}
+
+void CFraktalSFT::AllocateBitmap()
+{
+#ifdef WINVER
 	if (m_bmBmp)
 		DeleteObject(m_bmBmp);
-	HDC hDC = GetDC(NULL);
-	m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
+#endif
+
 	if (m_bmi)
 		free(m_bmi);
 	m_bmi = (BITMAPINFOHEADER *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 	memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
+#ifdef WINVER
 	m_bmi->biSize = sizeof(BITMAPINFOHEADER);
+	m_bmi->biCompression = m_bmi->biClrUsed = m_bmi->biClrImportant = 0;
+	HDC hDC = GetDC(NULL);
+	m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
 	if (!GetDIBits(hDC, m_bmBmp, 0, 0, NULL, (LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 		{ /*Beep(1000,10)*/ }
 	ReleaseDC(NULL, hDC);
-	m_bmi->biCompression = m_bmi->biClrUsed = m_bmi->biClrImportant = 0;
-	m_bmi->biBitCount = 24;
-	if (m_bmi->biBitCount != 24)
-		m_bmi->biClrUsed = 1 << m_bmi->biBitCount;
+#else
+	m_bmi->biWidth = m_nX;
+	m_bmi->biHeight = m_nY;
+#endif
+	m_bmi->biBitCount = 8*BM_WIDTH;
 	m_row = ((((m_bmi->biWidth*(DWORD)m_bmi->biBitCount) + 31)&~31) >> 3);
 	m_bmi->biSizeImage = m_row*m_bmi->biHeight;
 
@@ -2611,13 +2628,35 @@ void CFraktalSFT::ReinitializeBitmap()
 		if (m_lpBits)
 			delete[] m_lpBits;
 		m_lpBits = new BYTE[m_bmi->biSizeImage];
-
+#ifdef WINVER
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
 			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 			{ /*Beep(1000,10)*/ }
+#endif
 	}
 }
+
+void CFraktalSFT::FreeBitmap()
+{
+	if(m_bAddReference)
+		abort();
+
+#ifdef WINVER
+	if (m_bmBmp) {
+		DeleteObject(m_bmBmp);
+		m_bmBmp = nullptr;
+	}
 #endif
+
+	if (m_bmi) {
+		free(m_bmi);
+		m_bmi = nullptr;
+	}
+	if (m_lpBits) {
+		delete[] m_lpBits;
+		m_lpBits = nullptr;
+	}
+}
 
 #ifdef WINVER
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
@@ -2675,7 +2714,7 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 	return diff<nSpan;
 }
 
-BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming)
+BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming, bool noThread)
 {
 	if (!m_nPixels)
 		return FALSE;
@@ -2732,7 +2771,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
-	Render(m_hWnd == nullptr, FALSE);
+	Render(noThread, FALSE);
 	return TRUE;
 }
 

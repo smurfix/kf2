@@ -200,6 +200,12 @@ struct TH_PARAMS
 	Reference_Type reftype;
 };
 
+#ifdef WINVER
+inline void ReportProgress(void *p, int d, const std::string &s) { SetDlgItemText((HWND)p,d,s.c_str()); }
+#else
+#define ReportProgress(p, d, s) do { } while(0)  // XXX use a callback
+#endif
+
 const double pi = 3.141592653589793;
 extern const std::string version;
 extern const int kfr_version_number;

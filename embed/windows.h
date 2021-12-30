@@ -100,21 +100,29 @@ typedef struct tagBITMAP {
 } BITMAP,*PBITMAP,*NPBITMAP,*LPBITMAP;
 
 #if 0
+
 struct HBITMAP__ { int unused; }; typedef struct HBITMAP__ *HBITMAP;
 struct HDC__ { int unused; }; typedef struct HDC__ *HDC;
 struct HFONT__ { int unused; }; typedef struct HFONT__ *HFONT;
 struct HICON__ { int unused; }; typedef struct HICON__ *HICON;
 struct HINSTANCE__ { int unused; }; typedef struct HINSTANCE__ *HINSTANCE;
 
+#endif
+
 typedef struct tagBITMAPINFOHEADER {
-  DWORD biSize;
   LONG biWidth;
   LONG biHeight;
-  WORD biPlanes;
   WORD biBitCount;
-  DWORD biCompression;
   DWORD biSizeImage;
-} BITMAPINFOHEADER,*LPBITMAPINFOHEADER;
+} BITMAPINFOHEADER;
+
+#if 0
+
+typedef struct tagBITMAPINFO {
+  BITMAPINFOHEADER bmiHeader;
+  RGBQUAD bmiColors[1];
+} BITMAPINFO,*LPBITMAPINFO,*PBITMAPINFO;
+
 #endif
 
 typedef struct tagRGBQUAD {
@@ -124,26 +132,23 @@ typedef struct tagRGBQUAD {
   BYTE rgbReserved;
 } RGBQUAD,*LPRGBQUAD;
 
-typedef struct tagBITMAPINFO {
-  BITMAPINFOHEADER bmiHeader;
-  RGBQUAD bmiColors[1];
-} BITMAPINFO,*LPBITMAPINFO,*PBITMAPINFO;
-
 // // // mutex nonsense // // //
 //
 #include <mutex>
-static inline HANDLE CreateMutex(void *_x1, BOOL owned, void *_x2) {
+static inline void *CreateMutex(void *_x1, BOOL owned, void *_x2) {
+  (void)_x1;
+  (void)_x2;
   std::mutex *m = new std::mutex;
   if (owned)
     m->lock();
   return m;
 }
 
-static inline void ReleaseMutex(HANDLE m)
+static inline void ReleaseMutex(void *m)
 {
   (static_cast<std::mutex *>(m))->unlock();
 }
-static inline void WaitForMutex(HANDLE m)
+static inline void WaitForMutex(void *m)
 {
   (static_cast<std::mutex *>(m))->lock();
 }
@@ -156,6 +161,7 @@ static inline clock_t GetTickCount() {
 // // // memory // // //
 static inline HGLOBAL GlobalAlloc(UINT uFlags, SIZE_T dwBytes)
 {
+  (void)uFlags;
   return malloc(dwBytes);
 }
 
@@ -204,7 +210,7 @@ static inline void GetSystemInfo(SYSTEM_INFO *info)
 }
 
 // // // misc // // //
-static inline void Beep(int a, int b) {}
+static inline void Beep(int a, int b) { (void)a; (void)b; }
 static inline void Sleep(int n) { usleep(n*1000); }
 static inline LONG InterlockedIncrement(volatile LONG *ptr)
 {
@@ -215,9 +221,13 @@ static inline LONG InterlockedDecrement(volatile LONG *ptr)
   return __atomic_add_fetch(ptr, -1, __ATOMIC_ACQ_REL);
 }
 static inline void SwitchToThread() { usleep(1000); }
-static inline void *GetModuleHandle(void *x) { return NULL; }
+static inline void *GetModuleHandle(void *x) { (void)x; return NULL; }
 static inline void *GetProcAddress(void *x, const char *name) { return dlsym(x,name); }
-static inline void SetDlgItemText(void *hwnd, int dlgID, const char *str) {}
+static inline void SetDlgItemText(void *hwnd, int dlgID, const char *str) {
+  (void)hwnd;
+  (void)dlgID;
+  (void)str;
+}
 
 // // // UI // // //
 //

@@ -23,6 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "../common/matrix.h"
 
+#ifdef WINVER
 extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 extern void TransformImage(HBITMAP bmBmp);
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm);
@@ -34,5 +35,6 @@ extern polar2 TransformUpdateStretch(const polar2 &P0, const double x0, const do
 
 extern HWND g_hwTransformationDialog;
 extern bool g_bTransformationDialogIsOpen;
+#endif
 
 #endif

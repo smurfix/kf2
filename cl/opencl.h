@@ -849,7 +849,11 @@ public:
 
 };
 
-std::vector<cldevice> initialize_opencl(HWND hWnd);
+std::vector<cldevice> initialize_opencl(
+#ifdef WINVER
+                                        HWND hWnd
+#endif
+                                        );
 
 #endif
 #endif

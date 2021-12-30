@@ -28,6 +28,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
+#ifdef WINVER
 HBITMAP create_bitmap(HDC hdc, int width, int height);
+#endif
 
 #endif

@@ -77,7 +77,11 @@ void error_print(int err, int loc) {
 
 #define E(err) error_print(err, __LINE__)
 
-std::vector<cldevice> initialize_opencl(HWND hWnd)
+std::vector<cldevice> initialize_opencl(
+#ifdef WINVER
+                                        HWND hWnd
+#endif
+                                        )
 {
   std::vector<cldevice> devices;
   try
@@ -128,7 +132,13 @@ std::vector<cldevice> initialize_opencl(HWND hWnd)
   }
   catch (OpenCLException &e)
   {
+#ifdef WINVER
     OpenCLErrorDialog(hWnd, false);
+#else
+    // XXX report error
+    std::cerr << "OpenCL: ERROR" // << e  // TODO
+        << std::endl;
+#endif
   }
   return devices;
 }

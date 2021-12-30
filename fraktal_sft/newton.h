@@ -57,6 +57,8 @@ struct progress_t
 #ifdef WINVER
 	HWND hWnd;
 	HANDLE hDone;
+#else
+	void *hWnd;
 #endif
 	double start_time, elapsed_time;
 };

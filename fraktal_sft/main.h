@@ -24,7 +24,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
+#ifdef WINVER
 extern int SaveImage(const std::string &szFileName, HBITMAP bmBmp, int nQuality, const std::string &comment);
+#endif
 extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment);
 extern char *GetToolText(int nID,LPARAM lParam);
 extern double GetDlgItemFloat(HWND hWnd,int nID);
@@ -38,7 +40,6 @@ extern std::string get_filename_file(const std::string &file);
 extern std::string get_filename_extension(const std::string &file);
 extern std::string get_filename_zoom_string(const std::string &file);
 
-extern std::string g_szFile;
 extern bool g_bExamineDirty;
 extern bool g_bAnim;
 extern bool g_bAddReference;
@@ -46,6 +47,7 @@ extern bool g_bAddMainReference;
 extern bool g_bEraser;
 extern bool g_bWaitRead;
 
+#ifdef WINVER
 extern HICON g_hIcon;
 extern HFONT g_monospaced_font;
 
@@ -54,6 +56,7 @@ extern HWND g_hwExamine;
 extern HWND g_hwColors;
 
 extern void OpenCLErrorDialog(HWND hWnd, bool fatal);
+#endif
 
 // compatibility
 #ifdef WINVER

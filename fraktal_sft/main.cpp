@@ -91,8 +91,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <mingw-std-threads/mingw.thread.h>
 #endif
 
-#ifdef WINVER
+CFraktalSFT g_SFT;  // TODO: replace this
 
+#ifdef WINVER
 
 // POINT g_pInflections[10];
 // int g_nInflection=0;
@@ -150,8 +151,6 @@ double g_nMinDiff=0;
 #endif
 
 BOOL ISFLOATOK(double a);
-
-CFraktalSFT g_SFT;
 
 bool g_bAddMainReference=false;
 
@@ -359,7 +358,6 @@ HWND g_hwStatus=NULL;
 BOOL g_bRunning=FALSE;
 HWND g_hwHair;
 HWND g_hwColors=NULL;
-std::string g_szFile;
 std::string g_szSettingsFile;
 
 static void GetDisplayRect(RECT &r)
@@ -1068,12 +1066,12 @@ static void AutoIterations()
 
 static int ResumeZoomSequence(HWND hWnd)
 {
-	g_szFile = "";
-	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_szFile))
+	g_SFT.m_szFile = "";
+	if(!BrowseFile(hWnd,TRUE,"Open location","Kalle's fraktaler\0*.kfr\0\0",g_SFT.m_szFile))
 		return 0;
-	if(!g_SFT.OpenFile(g_szFile))
+	if(!g_SFT.OpenFile(g_SFT.m_szFile))
 		return MessageBox(hWnd,"Could not open file","Error",MB_OK|MB_ICONSTOP);
-	std::string File = replace_path_filename(g_szFile, "*_*.jpg");
+	std::string File = replace_path_filename(g_SFT.m_szFile, "*_*.jpg");
 	WIN32_FIND_DATA fd;
 	HANDLE hFind = FindFirstFile(File.c_str(),&fd);
 	int countJpg = 0;
@@ -1086,7 +1084,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomJpg=0;
-	File = replace_path_filename(g_szFile, "*_*.tif");
+	File = replace_path_filename(g_SFT.m_szFile, "*_*.tif");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	int countTif = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1098,7 +1096,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomTif=0;
-	File = replace_path_filename(g_szFile, "*_*.png");
+	File = replace_path_filename(g_SFT.m_szFile, "*_*.png");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	int countPng = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1110,7 +1108,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomPng=0;
-	File = replace_path_filename(g_szFile, "*_*.exr");
+	File = replace_path_filename(g_SFT.m_szFile, "*_*.exr");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	int countExr = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1122,7 +1120,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	else
 		g_bStoreZoomExr=0;
-	File = replace_path_filename(g_szFile, "*_*.kfr");
+	File = replace_path_filename(g_SFT.m_szFile, "*_*.kfr");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	int countKfr = 0;
 	if(hFind!=INVALID_HANDLE_VALUE){
@@ -1135,7 +1133,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	else
 		g_bStoreZoomKfr=0;
 
-	File = replace_path_filename(g_szFile, "*_*.kfb");
+	File = replace_path_filename(g_SFT.m_szFile, "*_*.kfb");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		g_bStoreZoomMap=1;
@@ -1147,7 +1145,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	if(hFind!=INVALID_HANDLE_VALUE){
 		do{
 			countMap++;
-			File = replace_path_filename(g_szFile, fd.cFileName);
+			File = replace_path_filename(g_SFT.m_szFile, fd.cFileName);
 			stExamine.push_back(File);
 		}while(FindNextFile(hFind,&fd));
 		FindClose(hFind);
@@ -1156,7 +1154,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	std::reverse(stExamine.begin(), stExamine.end());
 	bool bShouldAutoIterations = false;
 	BOOL bRecoveryFile=FALSE;
-	File = replace_path_filename(g_szFile, "recovery.kfb");
+	File = replace_path_filename(g_SFT.m_szFile, "recovery.kfb");
 	hFind = FindFirstFile(File.c_str(),&fd);
 	if(hFind!=INVALID_HANDLE_VALUE){
 		FindClose(hFind);
@@ -1165,7 +1163,7 @@ static int ResumeZoomSequence(HWND hWnd)
 		bShouldAutoIterations = true;
 	}
 	else{
-		File = replace_path_filename(g_szFile, "last.kfb");
+		File = replace_path_filename(g_SFT.m_szFile, "last.kfb");
 		hFind = FindFirstFile(File.c_str(),&fd);
 		if(hFind!=INVALID_HANDLE_VALUE){
 			FindClose(hFind);
@@ -1210,7 +1208,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
-		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE);
+		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE, false);
 	}
 	else
 	{
@@ -1248,7 +1246,7 @@ static long OpenSettings(HWND hWnd, bool &ret, bool warn = true);
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
 	if(g_bStoreZoom){
-		std::string File = replace_path_filename(g_szFile, "recovery.kfb");
+		std::string File = replace_path_filename(g_SFT.m_szFile, "recovery.kfb");
 		if(uMsg==WM_USER+199)
 			DeleteFile(File.c_str());
 		else{
@@ -1346,30 +1344,30 @@ nPos=12;
 nPos=13;
 			std::string szZ = g_SFT.ToZoom();
 			if(!g_bAnimateEachFrame && g_bStoreZoomJpg){
-				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
+				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "jpg"));
 				g_SFT.SaveJpg(File,100);
 			}
 			if(!g_bAnimateEachFrame && g_bStoreZoomPng){
-				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
+				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "png"));
 				g_SFT.SaveJpg(File,-1);
 			}
 			if(!g_bAnimateEachFrame && g_bStoreZoomTif){
-				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "tif"));
+				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "tif"));
 				g_SFT.SaveJpg(File,-2);
 			}
 			if(!g_bAnimateEachFrame && g_bStoreZoomExr){
-				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "exr"));
+				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "exr"));
 				g_SFT.SaveJpg(File,-3);
 			}
 			if(!g_bAnimateEachFrame && g_bStoreZoomKfr){
-				std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfr"));
+				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfr"));
 				g_SFT.SaveFile(File, true);
 			}
-			std::string File = replace_path_filename(g_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
+			std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
 				g_SFT.SaveMapB(File);
 
-			File = replace_path_filename(g_szFile, "last.kfb");
+			File = replace_path_filename(g_SFT.m_szFile, "last.kfb");
 			if(!g_bAnimateEachFrame && !g_bStoreZoomMap)
 				g_SFT.SaveMapB(File);
 nPos=14;
@@ -1709,6 +1707,8 @@ extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
 	}
 	else
+#else
+    (void)hWnd;
 #endif
 	{
 		std::cerr << "OpenCL C source:" << std::endl << g_OpenCL_Error_Source << std::endl;
@@ -1794,7 +1794,7 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 				g_SFT.UndoStore();
 				g_SFT.Stop();
 				g_bAnim=false;
-				if(!g_SFT.OpenFile(g_szFile))
+				if(!g_SFT.OpenFile(g_SFT.m_szFile))
 				{
 					ret = true;
 					if (hWnd && warn)
@@ -1803,24 +1803,24 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 						return 0;
 				}
 				else{
-					std::string extension = get_filename_extension(g_szFile);
+					std::string extension = get_filename_extension(g_SFT.m_szFile);
 					if (extension != "kfr")
 					{
 						// prevent ctrl-s save overwriting a file with the wrong extension
-						g_szFile += ".kfr";
+						g_SFT.m_szFile += ".kfr";
 					}
 					if(g_hwColors)
 						SendMessage(g_hwColors,WM_USER+99,0,0);
 					if (hWnd)
 					{
 						char szTitle[1024];
-						snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
+						snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_SFT.m_szFile).c_str());
 						SetWindowText(hWnd,szTitle);
 					}
 					if (g_hwColors)
 					{
 						char szTitle[1024];
-						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(g_szFile).c_str());
+						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(g_SFT.m_szFile).c_str());
 						SetWindowText(g_hwColors,szTitle);
 					}
 					if (g_SFT.GetDifferences() == Differences_Analytic && !g_SFT.GetDerivatives())
@@ -1928,12 +1928,12 @@ static void open_default_location(HWND hWnd)
 		if (0 < len && len < 1024)
 		{
 			std::string default_location(exe);
-			g_szFile = replace_path_extension(default_location, "kfr");
+			g_SFT.m_szFile = replace_path_extension(default_location, "kfr");
 			bool ret;
 			OpenFile(hWnd, ret, false);
 			if (! ret)
 			{
-				output_log_message(Info, "loaded default location " << g_szFile);
+				output_log_message(Info, "loaded default location " << g_SFT.m_szFile);
 			}
 		}
 	}
@@ -2111,8 +2111,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (g_args->bLoadLocation)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadLocation;
-			std::cerr << "loading location: " << g_szFile << std::endl;
+			g_SFT.m_szFile = g_args->sLoadLocation;
+			std::cerr << "loading location: " << g_SFT.m_szFile << std::endl;
 			OpenFile(hWnd, ret);
 		}
 		else
@@ -2821,7 +2821,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 						std::string file(buffer);
 						// call function OpenFile() (not the similarly named method)
 						// so that the window title is set correctly
-						g_szFile = file;
+						g_SFT.m_szFile = file;
 						bool err = false;
 						g_SFT.UndoStore();
 						g_SFT.Stop();
@@ -3115,7 +3115,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_STOREZOOM),hWnd,(DLGPROC)StoreZoomProc,0))
 			return 0;
-		std::string path = get_filename_path(g_szFile);
+		std::string path = get_filename_path(g_SFT.m_szFile);
 		if(!Browse(hWnd,path))
 			return 0;
 		if (path[path.length() - 1] != '\\')
@@ -3861,7 +3861,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_OPEN_){
-			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_szFile)){
+			if(BrowseFile(hWnd,TRUE,"Open Location Parameters","Kalle's fraktaler\0*.kfr\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_SFT.m_szFile)){
 				bool ret;
 				g_SFT.UndoStore();
 				g_SFT.Stop();
@@ -3879,18 +3879,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVE_){
-			if(g_szFile == "")
+			if(g_SFT.m_szFile == "")
 				PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 			else if (g_SFT.GetSaveOverwrites()){
-				if(!g_SFT.SaveFile(g_szFile, true))
+				if(!g_SFT.SaveFile(g_SFT.m_szFile, true))
 				  return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 			}
-			else if (!g_SFT.SaveFile(g_szFile, false)){
+			else if (!g_SFT.SaveFile(g_SFT.m_szFile, false)){
 				SYSTEMTIME now = { 0 };
 				GetSystemTime(&now);
 				char date[100];
 				snprintf(date, 100 - 1, "%04d-%02d-%02dT%02d-%02d-%02d-%03d.%s", now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond, now.wMilliseconds, "kfr");
-				if (! g_SFT.SaveFile(replace_path_extension(g_szFile, date), false))
+				if (! g_SFT.SaveFile(replace_path_extension(g_SFT.m_szFile, date), false))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
@@ -3992,12 +3992,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEAS_){
-			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_szFile)){
+			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_SFT.m_szFile)){
 				g_FileSaveAs_Cancelled = false;
-				if(!g_SFT.SaveFile(g_szFile, true))
+				if(!g_SFT.SaveFile(g_SFT.m_szFile, true))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[1024];
-				snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_szFile).c_str());
+				snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_SFT.m_szFile).c_str());
 				SetWindowText(hWnd,szTitle);
 			}
 			else
@@ -4009,7 +4009,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG6),hWnd,(DLGPROC)ZoomProc,0);
 		}
 */		else if(wParam==ID_ACTIONS_RESET){
-			g_szFile="";
+			g_SFT.m_szFile="";
 			SetWindowText(hWnd,"Kalle's Fraktaler 2");
 			g_SFT.UndoStore();
 			g_SFT.Stop();
@@ -4442,27 +4442,27 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		if (g_args->bLoadLocation)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadLocation;
-			output_log_message(Info, "loading location " << g_szFile);
+			g_SFT.m_szFile = g_args->sLoadLocation;
+			output_log_message(Info, "loading location " << g_SFT.m_szFile);
 			OpenFile(nullptr, ret);
 			if (ret)
 			{
-				output_log_message(Error, "loading location " << g_szFile << " FAILED");
+				output_log_message(Error, "loading location " << g_SFT.m_szFile << " FAILED");
 				return 1;
 			}
 		}
 		if (g_args->bLoadMap)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadMap;
-			output_log_message(Info, "loading map " << g_szFile);
-			ret = ! g_SFT.OpenMapB(g_szFile);
+			g_SFT.m_szFile = g_args->sLoadMap;
+			output_log_message(Info, "loading map " << g_SFT.m_szFile);
+			ret = ! g_SFT.OpenMapB(g_SFT.m_szFile);
 			if (ret)
 			{
-				ret = ! g_SFT.OpenMapEXR(g_szFile);
+				ret = ! g_SFT.OpenMapEXR(g_SFT.m_szFile);
 				if (ret)
 				{
-					output_log_message(Error, "loading map " << g_szFile << " FAILED");
+					output_log_message(Error, "loading map " << g_SFT.m_szFile << " FAILED");
 					return 1;
 				}
 		  }
@@ -4470,13 +4470,13 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		if (g_args->bLoadPalette)
 		{
 			bool ret;
-			g_szFile = g_args->sLoadPalette;
-			output_log_message(Info, "loading palette " << g_szFile);
+			g_SFT.m_szFile = g_args->sLoadPalette;
+			output_log_message(Info, "loading palette " << g_SFT.m_szFile);
 			g_SFT.m_bInhibitColouring = true;
-			ret = ! g_SFT.OpenFile(g_szFile, TRUE);
+			ret = ! g_SFT.OpenFile(g_SFT.m_szFile, TRUE);
 			if (ret)
 			{
-				output_log_message(Error, "loading palette " << g_szFile << " FAILED");
+				output_log_message(Error, "loading palette " << g_SFT.m_szFile << " FAILED");
 				return 1;
 			}
 			g_SFT.m_bInhibitColouring = false;

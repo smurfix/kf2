@@ -44,7 +44,9 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 		p->m_bRunning = false;
 #endif
 		p->SetOpenCLDeviceIndex(-1);
+#ifdef WINVER
 		OpenCLErrorDialog(p->m_hWnd, p->m_hWnd ? false : true);
+#endif
 	}
 #endif
 	catch (...)
@@ -115,52 +117,18 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 
 	WaitForMutex(m_hMutex);
 	if (m_bResized)
-	{
-		DeleteObject(m_bmBmp);
-		m_bmBmp = NULL;
-		m_bResized = false;
-	}
-	HDC hDC = GetDC(NULL);
-	if (!m_bmBmp)
-		m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
-
-	if (!m_bAddReference){
-		if (m_bmi)
-			free(m_bmi);
-		m_bmi = (BITMAPINFOHEADER *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
-		memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
-		m_bmi->biSize = sizeof(BITMAPINFOHEADER);
-		if (!GetDIBits(hDC, m_bmBmp, 0, 0, NULL, (LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-			{ /*Beep(1000,10)*/ }
-		m_bmi->biCompression = m_bmi->biClrUsed = m_bmi->biClrImportant = 0;
-		m_bmi->biBitCount = 24;
-		if (m_bmi->biBitCount != 24)
-			m_bmi->biClrUsed = 1 << m_bmi->biBitCount;
-		m_row = ((((m_bmi->biWidth*(DWORD)m_bmi->biBitCount) + 31)&~31) >> 3);
-		m_bmi->biSizeImage = m_row*m_bmi->biHeight;
-		if (!m_lpBits || (int)m_bmi->biSizeImage != m_nSizeImage){
-			m_nSizeImage = m_bmi->biSizeImage;
-			if (m_lpBits)
-				delete[] m_lpBits;
-			m_lpBits = new BYTE[m_bmi->biSizeImage];
-			if (m_imageHalf)
-				delete[] m_imageHalf;
-			m_imageHalf = nullptr;
-			SetHalfColour(GetHalfColour()); // reallocate if necessary
-			if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
-				(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-				{ /*Beep(1000,10)*/ }
-		}
-	}
-	ReleaseDC(NULL, hDC);
+	    FreeBitmap();
+	AllocateBitmap();
 	ReleaseMutex(m_hMutex);
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
 
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
+#ifdef WINVER
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
+#endif
 		ThRenderFractal(this);
 	}
 	else{
@@ -369,8 +337,10 @@ void CFraktalSFT::RenderFractal()
 	m_bAddReference = FALSE;
 	if (!m_bNoPostWhenDone)
 	{
+#ifdef WINVER
 		if (m_hWnd)
 			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+#endif
 	}
 	m_bNoPostWhenDone = FALSE;
 #ifdef WINVER

@@ -62,6 +62,7 @@ public:
 	~CFraktalSFT();
 
 	Settings m_Settings;
+	std::string m_szFile;
 #define DOUBLE(KEY) \
 	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
 	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };
@@ -390,7 +391,7 @@ public:
 
 	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
-	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE);
+	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE,bool noThread = false);
 
 	INT(GlitchCenterMethod)          // Menu: advanced > Reference Selection
 	INT(IsolatedGlitchNeighbourhood) // Menu: adv > Ignore isolated
@@ -554,11 +555,17 @@ public:
 	BOOL DeleteMW(int index);
 
   // bitmap for the fractal colors
-	HANDLE m_hMutex;                  // protet the stuff below
-	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
-	BYTE *m_lpBits;                   // fractal image bits (RGB)
 	BITMAPINFOHEADER *m_bmi;          // bitmap header of fractal image bitmap
+	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
+	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
+#ifdef WINVER
+	HANDLE m_hMutex;                  // protet the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
+#else
+	void *m_hMutex;                  // protet the stuff below
+#endif
+	void FreeBitmap();
+	void AllocateBitmap();
 	void ReinitializeBitmap();
 
 	int m_row;                        // Y stride (32-bit aligned)
@@ -652,12 +659,10 @@ public:
 	inline void SetTextureResize(bool resize) { m_bTextureResize = resize; }
 
 	BYTE *m_lpTextureBits;
-#ifdef WINVER
 	std::string m_szTexture;            // file name
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
 	TextureParams m_ActiveTextureParams;  // loaded currently
-#endif
 
 	void LoadTexture();
 	void SetTexture(int x, int y, srgb &s);

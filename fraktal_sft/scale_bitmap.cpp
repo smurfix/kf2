@@ -72,7 +72,7 @@ extern bool scale_bitmap_rgb8
 #else
 // annoyingly pixman wants A in front, so we need to shift things around.
 #define RGBp PIXMAN_r8g8b8x8
-#define RGBs PIXMAN_a8r8g8b8_SRGB
+#define RGBs PIXMAN_a8r8g8b8_sRGB
 #endif
   int sstride = get_bitmap_stride(sw, 8*BM_WIDTH);
   pixman_image_t *src = pixman_image_create_bits(sRGB ? RGBs : RGBp, sw, sh, (uint32_t *) sp, sstride);

@@ -65,7 +65,9 @@ const struct formula *get_formula(int type, int power)
 }
 
 extern CFraktalSFT g_SFT;
+#ifdef WINVER
 extern HICON g_hIcon;
+#endif
 
 CNewton::CNewton() {
 	g_bNewtonRunning = false;
@@ -110,7 +112,7 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 		char status[100];
 		snprintf(status, 100, "Period %d (%d%%) (%ds)\n", iter, (int) (iter * 100.0 / limit), (int) progress->elapsed_time);
 		s_period = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -129,7 +131,7 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 		char status[200];
 		snprintf(status, sizeof(status), "Center %d/%d (%d%%) (%s) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), g_szProgress, (int) progress->elapsed_time);
 		s_center = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -146,7 +148,7 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 		char status[100];
 		snprintf(status, sizeof(status), "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress->elapsed_time);
 		s_size = status;
-		SetDlgItemText(progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
 	return 0;
@@ -387,7 +389,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
 
 struct STEP_STRUCT_COMMON
 {
-	HWND hWnd;
+	void *hWnd;
 	barrier_t *barrier;
 	volatile bool *stop;
 	int newtonStep;
@@ -485,7 +487,7 @@ extern floatexp m_d_domain_size(const complex<flyttyp> &c, int period, progress_
   return sqrt(zq2) / sqrt(cabs2(dc));
 }
 
-static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, const int64_t period,const flyttyp &epsilon2,HWND hWnd,int newtonStep, const flyttyp &radius2, progress_t *progress) {
+static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, const int64_t period,const flyttyp &epsilon2,void *hWnd,int newtonStep, const flyttyp &radius2, progress_t *progress) {
   complex<flyttyp> z(0,0);
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
@@ -574,7 +576,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_clear(m.dcizr);
 	mpfr_clear(m.dcizi);
 #ifdef WINVER
-  SetDlgItemText(hWnd,IDC_EDIT4,"");
+  SetDlgItemText((HWND)hWnd,IDC_EDIT4,"");
 #endif
   flyttyp ad;
 #if 0
@@ -657,10 +659,10 @@ bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_o
   std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();
   char extension[100];
   snprintf(extension, sizeof(extension) - 1, "newton-%04d.kfr", step);
-  return SaveNewtonBackup(g_szFile == "" ? extension : replace_path_extension(g_szFile, extension), re, im, zoom, period);
+  return SaveNewtonBackup(g_SFT.m_szFile == "" ? extension : replace_path_extension(g_SFT.m_szFile, extension), re, im, zoom, period);
 }
 
-static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int64_t period, int maxsteps,int &steps,const flyttyp &radius,HWND hWnd, progress_t *progress) {
+static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int64_t period, int maxsteps,int &steps,const flyttyp &radius,void *hWnd, progress_t *progress) {
   int result = -1, i;
   complex<flyttyp> c = c_guess;
   complex<flyttyp> c_new;
@@ -691,7 +693,7 @@ static inline complex<floatexp> fec(const complex<flyttyp> &z)
   return complex<floatexp>(mpfr_get_fe(z.m_r.m_dec.backend().data()), mpfr_get_fe(z.m_i.m_dec.backend().data()));
 }
 
-static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t period,HWND hWnd)
+static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t period, void *hWnd)
 {
   complex<floatexp> fec1(1,0);
   complex<floatexp> fec2(2,0);
@@ -706,7 +708,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 		if (now - last > 250)
 		{
 		  wsprintf(szStatus,"Determine size %" PRId64 "%%...",100*i/period);
-		  SetDlgItemText(hWnd,IDC_EDIT1,szStatus);
+		  SetDlgItemText((HWND)hWnd,IDC_EDIT1,szStatus);
 		  last = now;
 		}
 	  }
@@ -720,10 +722,10 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 
 // XXX move those two to g_SFT
 
-#ifndef WINVER
-void ThNewton(PAR_SFT HWND hWnd)
-#else
+#ifdef WINVER
 static int WINAPI ThNewton(HWND hWnd)
+#else
+void ThNewton(void *hWnd)
 #endif
 {
 #ifdef WINVER
@@ -751,9 +753,9 @@ static int WINAPI ThNewton(HWND hWnd)
 	int steps = 0;
 	{
 	  // fork progress updater
-	  progress_t progress = { { 0, 0, 0, 0 }, true,
+	  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd,
 #ifdef WINVER
-		hWnd, CreateEvent(NULL, 0, 0, NULL),
+		CreateEvent(NULL, 0, 0, NULL),
 #endif
 		get_wall_time(), 0 };
 #ifdef WINVER
@@ -802,7 +804,7 @@ static int WINAPI ThNewton(HWND hWnd)
 	  char status[100];
 	  snprintf(status, 100, "Period %d (%d%%) (%ds)\r\n", (int) g_SFT.N.g_period, (int) (g_SFT.N.g_period * 100.0 / INT_MAX), (int) progress.elapsed_time);
 	  s_period = status;
-	  SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+	  ReportProgress(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew));
 	}
 	Precision prec2(uprec);
 
@@ -810,9 +812,9 @@ static int WINAPI ThNewton(HWND hWnd)
 	if (g_SFT.N.g_period > 0 && ! g_SFT.N.g_bNewtonStop && g_SFT.N.g_nr_action >= 1)
 	{
 		// fork progress updater
-	    progress_t progress = { { 0, 0, 0, 0 }, true,
+	    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd,
 #ifdef WINVER
-		  hWnd, CreateEvent(NULL, 0, 0, NULL),
+		  CreateEvent(NULL, 0, 0, NULL),
 #endif
 		  get_wall_time(), 0 };
 #ifdef WINVER
@@ -868,7 +870,7 @@ static int WINAPI ThNewton(HWND hWnd)
 			char status[100];
 			snprintf(status, 100, "Center %d/%d (%d%%) (%ds)\r\n", step, eta >= 0 ? step + eta : 0, (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 			s_center = status;
-			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+			ReportProgress(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew));
 		}
 
 		if (! g_SFT.N.g_bNewtonStop && ! test)
@@ -879,9 +881,9 @@ static int WINAPI ThNewton(HWND hWnd)
 				g_szIm = c.m_i.ToText();
 
 				// fork progress updater
-				progress_t progress = { { int(g_SFT.N.g_period), 0, 0, 0 }, true,
+				progress_t progress = { { int(g_SFT.N.g_period), 0, 0, 0 }, true, hWnd,
 #ifdef WINVER
-					hWnd, CreateEvent(NULL, 0, 0, NULL),
+					CreateEvent(NULL, 0, 0, NULL),
 #endif
 					get_wall_time(), 0 };
 #ifdef WINVER
@@ -948,7 +950,7 @@ static int WINAPI ThNewton(HWND hWnd)
 					char status[100];
 					snprintf(status, 100, "Size %d%% (%ds)\r\n", (int) (iter * 100.0 / period), (int) progress.elapsed_time);
 					s_size = status;
-					SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
+					ReportProgress(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew));
 				}
 				if (0 < msize && msize < 2)
 				{
