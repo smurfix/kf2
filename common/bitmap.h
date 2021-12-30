@@ -20,6 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef BITMAP_H
 #define BITMAP_H 1
 
+#ifdef WINVER
+#define BM_WIDTH 3
+#else
+#define BM_WIDTH 4
+#endif
+
 #include <windows.h>
 
 HBITMAP create_bitmap(HDC hdc, int width, int height);

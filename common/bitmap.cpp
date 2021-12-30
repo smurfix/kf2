@@ -31,7 +31,7 @@ static inline long long get_bitmap_stride(long long width, long long bpp)
 // see also: http://www.fractalforums.com/windows-fractal-software/windows-bitmap-size-test/
 HBITMAP create_bitmap(HDC hdc, int width, int height)
 {
-  long long stride = get_bitmap_stride(width, 24LL);
+  long long stride = get_bitmap_stride(width, 8LL*BM_WIDTH);
   long long bytes = stride * height;
   if (bytes >= 2LL * 1024LL * 1024LL * 1024LL || bytes <= 0LL)
   {
@@ -43,7 +43,7 @@ HBITMAP create_bitmap(HDC hdc, int width, int height)
   bmi.bmiHeader.biWidth = width;
   bmi.bmiHeader.biHeight = height;
   bmi.bmiHeader.biPlanes = 1;
-  bmi.bmiHeader.biBitCount = 24;
+  bmi.bmiHeader.biBitCount = 8*BM_WIDTH;
   bmi.bmiHeader.biCompression = BI_RGB;
   bmi.bmiHeader.biSizeImage = bytes;
   bmi.bmiHeader.biXPelsPerMeter = 2835; // 72 dpi

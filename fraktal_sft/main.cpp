@@ -226,7 +226,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 				*rgb++ = bmp[--k];
 				*rgb++ = bmp[--k];
 				*rgb++ = bmp[--k];
-				k += 3;
+				k += BM_WIDTH;
 			}
 	}
 }
@@ -240,7 +240,7 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 	if(!GetDIBits(hDC,bmBmp,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS))
 		Beep(1000,10);
 	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
-	bmi.biBitCount = 24;
+	bmi.biBitCount = 24; // does not depend on BM_WIDTH
 	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
 	bmi.biSizeImage=row*bmi.biHeight;
 	lpBits = new BYTE[bmi.biSizeImage];
@@ -302,7 +302,7 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 	assert(lpBits);
 	assert(biWidth);
 	assert(biHeight);
-	int biBitCount = 24;
+	int biBitCount = 24; // does not depend on BM_WIDTH
 	int row = ((((biWidth*(DWORD)biBitCount)+31)&~31) >> 3);
 	int biSizeImage=row*biHeight;
 	BYTE *lpJeg = new BYTE[biSizeImage];
@@ -2008,7 +2008,7 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	int row;
 	GetDIBits(hDC,bmBkg,0,0,NULL,(LPBITMAPINFO)&bmi,DIB_RGB_COLORS);
 	bmi.biCompression=bmi.biClrUsed=bmi.biClrImportant=0;
-	bmi.biBitCount = 24;
+	bmi.biBitCount = 8*BM_WIDTH;
 	row = ((((bmi.biWidth*(DWORD)bmi.biBitCount)+31)&~31) >> 3);
 	bmi.biSizeImage=row*bmi.biHeight;
 	BYTE *lpOrgBits = new BYTE[bmi.biSizeImage];
@@ -2032,8 +2032,8 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 			int dy = z.m_i;
 			if(dx<=-1 || dy<=-1 || dx>=bmi.biWidth || dy>=bmi.biHeight)
 				continue;
-			int nIndex = x*3 + (bmi.biHeight-1-y)*row;
-			int nDIndex = dx*3 + (bmi.biHeight-1-dy)*row;
+			int nIndex = x*BM_WIDTH + (bmi.biHeight-1-y)*row;
+			int nDIndex = dx*BM_WIDTH + (bmi.biHeight-1-dy)*row;
 			lpBits[nIndex]=lpOrgBits[nDIndex];
 			lpBits[nIndex+1]=lpOrgBits[nDIndex+1];
 			lpBits[nIndex+2]=lpOrgBits[nDIndex+2];

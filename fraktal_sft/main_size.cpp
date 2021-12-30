@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "resource.h"
 #include "tooltip.h"
 
+#include "../common/bitmap.h"
+
 /**
  * This code controls the window+image size dialog.
  */
@@ -159,7 +161,7 @@ void UpdateDisplays(HWND hWnd, bool set)
   bool bad_size =
     image_width <= 0 || image_width >= 65536 ||
     image_height <= 0 || image_height >= 65536 ||
-    image_width * image_height * 3 >= (((int64_t)1) << 31);
+    image_width * image_height * BM_WIDTH >= (((int64_t)1) << 31);
   EnableWindow(GetDlgItem(hWnd, IDOK), ! bad_size);
   if (set)
   {

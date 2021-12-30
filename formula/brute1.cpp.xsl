@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include &lt;cstdio&gt;
 #include &lt;cstdlib&gt;
 
+#include "../common/bitmap.h"
 #include "../fraktal_sft/CFixedFloat.h"
 #include "../fraktal_sft/floatexp.h"
 #include "../fraktal_sft/complex.h"
@@ -130,7 +131,7 @@ extern int SaveEXR
       {
         for (int i = 0; i &lt; nWidth; ++i)
         {
-          size_t k = (j * size_t(nWidth) + i) * 3;
+          size_t k = (j * size_t(nWidth) + i) * BM_WIDTH;
           PreviewRgba &amp;o = preview[j][i];
           o.r = Data[k + 0];
           o.g = Data[k + 1];
@@ -168,10 +169,10 @@ extern int SaveEXR
     if (rgb)
     {
       // [y][x]
-      size_t row = 3 * arrWidth;//g_SFT.GetArrayHalfColourStride();
-      if (C&amp;R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      if (C&amp;G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      if (C&amp;B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      size_t row = BM_WIDTH * arrWidth;//g_SFT.GetArrayHalfColourStride();
+      if (C&amp;R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
+      if (C&amp;G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
+      if (C&amp;B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
     }
     // [x][y]
     if (n1 &amp;&amp; n0)
@@ -225,7 +226,7 @@ int main(int argc, char **argv)
   CC C0(Cr0, Ci0);
   CC A(Ar, Ai);
   CC S(Sr, Si);
-  unsigned char *ppm = new unsigned char[3 * width * height];
+  unsigned char *ppm = new unsigned char[BM_WIDTH * width * height];
   int32_t *count = new int32_t[width * height];
   float *trans = new float[width * height];
   #pragma omp parallel for schedule(dynamic, 1)
@@ -239,9 +240,9 @@ int main(int argc, char **argv)
       RR Cr = Cr0 + x / zoom;
       CC C(Cr, Ci);
       int k = j * width + i;
-      ppm[3*k+0] = 0;
-      ppm[3*k+1] = 0;
-      ppm[3*k+2] = 0;
+      ppm[BM_WIDTH*k+0] = 0;
+      ppm[BM_WIDTH*k+1] = 0;
+      ppm[BM_WIDTH*k+2] = 0;
       count[k] = maxiters;
       trans[k] = 0;
       CC X = S;
@@ -288,9 +289,9 @@ int main(int argc, char **argv)
 #endif
           m /= maxiters;
           m *= 10;
-          ppm[3*k+0] = ((int)(128 + 127 * cos(m * 2 * M_PI + 0))) &amp; 0xFF;
-          ppm[3*k+1] = ((int)(128 + 127 * cos(m * 2 * M_PI + 1))) &amp; 0xFF;
-          ppm[3*k+2] = ((int)(128 + 127 * cos(m * 2 * M_PI + 2))) &amp; 0xFF;
+          ppm[BM_WIDTH*k+0] = ((int)(128 + 127 * cos(m * 2 * M_PI + 0))) &amp; 0xFF;
+          ppm[BM_WIDTH*k+1] = ((int)(128 + 127 * cos(m * 2 * M_PI + 1))) &amp; 0xFF;
+          ppm[BM_WIDTH*k+2] = ((int)(128 + 127 * cos(m * 2 * M_PI + 2))) &amp; 0xFF;
           count[k] = n;
           trans[k] = 1 - f;
           break;
@@ -305,9 +306,9 @@ int main(int argc, char **argv)
           floatexp q = log(d) / log(d1);
           double f = double((log(log(diverge)/2) - log(log(d)/2)) / log(q));
           double m = n + f;
-          ppm[3*k+0] = ((int)(m)      ) &amp; 0xFF;
-          ppm[3*k+1] = ((int)(m) >>  8) &amp; 0xFF;
-          ppm[3*k+2] = ((int)(m) >> 16) &amp; 0xFF;
+          ppm[BM_WIDTH*k+0] = ((int)(m)      ) &amp; 0xFF;
+          ppm[BM_WIDTH*k+1] = ((int)(m) >>  8) &amp; 0xFF;
+          ppm[BM_WIDTH*k+2] = ((int)(m) >> 16) &amp; 0xFF;
           count[k] = n;
           trans[k] = 1 - f;
           break;
@@ -321,7 +322,7 @@ int main(int argc, char **argv)
   }
   SaveEXR("brute.exr", ppm, width, height, "-", maxiters, width, height, count, trans, nullptr, nullptr, nullptr, 16, N+NF+Preview);
   std::printf("P6\n%d %d\n255\n", width, height);
-  std::fwrite(ppm, 3 * width * height, 1, stdout);
+  std::fwrite(ppm, BM_WIDTH * width * height, 1, stdout);
   delete[] ppm;
   return 0;
 }

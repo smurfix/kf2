@@ -203,7 +203,7 @@ public:
 	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
 	inline void SetTargetDimensions(int64_t w, int64_t h, int64_t s) { m_Settings.SetTargetDimensions(w, h, s); SetImageSize(w * s, h * s); }
 
-	// These handle resizing. TODO clean up.
+	// Flag for resizing the main bitmap before rendering
 	bool m_bResized;
 
 	// distance between two pixels: 2*radius / m_nY
@@ -554,7 +554,6 @@ public:
 	BOOL DeleteMW(int index);
 
   // bitmap for the fractal colors
-    // TODO strictly 24bit. Needs a 32-bit mode for embedding / unmodified pixbuf lib.
 	HANDLE m_hMutex;                  // protet the stuff below
 	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 	BYTE *m_lpBits;                   // fractal image bits (RGB)

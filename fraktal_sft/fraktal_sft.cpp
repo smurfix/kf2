@@ -443,7 +443,7 @@ void CFraktalSFT::ApplyIterationColors()
 		int x, y;
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
-				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+				int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
 				m_lpBits[nIndex] = 255 * (m_nPixels[x][y] - nMin) / (nMax - nMin);
 				m_lpBits[nIndex + 1] = m_lpBits[nIndex];
 				m_lpBits[nIndex + 2] = m_lpBits[nIndex];
@@ -456,7 +456,7 @@ void CFraktalSFT::ApplyPhaseColors()
 	if (m_nPhase && m_lpBits){
 		for (int x = 0; x<m_nX; x++){
 			for (int y = 0; y<m_nY; y++){
-				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+				int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
 				m_lpBits[nIndex] = 256 * m_nPhase[x][y];
 				m_lpBits[nIndex + 1] = m_lpBits[nIndex];
 				m_lpBits[nIndex + 2] = m_lpBits[nIndex];
@@ -471,7 +471,7 @@ void CFraktalSFT::ApplySmoothColors()
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
 				float tr = m_nTrans[x][y];
-				int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+				int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
 				m_lpBits[nIndex] = 255 * tr;
 				m_lpBits[nIndex + 1] = 255 * tr;
 				m_lpBits[nIndex + 2] = 255 * tr;
@@ -582,7 +582,7 @@ void CFraktalSFT::LoadTexture()
 	if(!GetDIBits(hDC,bmBitmap,0,0,NULL,(LPBITMAPINFO)&m_bmiBkg,DIB_RGB_COLORS))
 		Beep(1000,10);
 	m_bmiBkg.biCompression=m_bmiBkg.biClrUsed=m_bmiBkg.biClrImportant=0;
-	m_bmiBkg.biBitCount = 24;
+	m_bmiBkg.biBitCount = 8*BM_WIDTH;
 	m_rowBkg = ((((m_bmiBkg.biWidth*(DWORD)m_bmiBkg.biBitCount)+31)&~31) >> 3);
 	m_bmiBkg.biSizeImage=m_rowBkg*m_bmiBkg.biHeight;
 	m_lpTextureBits = new BYTE[m_bmiBkg.biSizeImage];
@@ -685,7 +685,7 @@ void CFraktalSFT::SetTexture(int x, int y, srgb &s)
 		nX=0;
 	else if(nX>m_bmiBkg.biWidth-1)
 		nX=m_bmiBkg.biWidth-1;
-	int nIndexBkg = nX*3 + (m_bmiBkg.biHeight-1-nY)*m_rowBkg;
+	int nIndexBkg = nX*BM_WIDTH + (m_bmiBkg.biHeight-1-nY)*m_rowBkg;
 	s.r = s.r * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+0] / 255.0;
 	s.g = s.g * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+1] / 255.0;
 	s.b = s.b * (1 - m_nImgMerge) + m_nImgMerge * m_lpTextureBits[nIndexBkg+2] / 255.0;
@@ -702,7 +702,7 @@ void CFraktalSFT::SetColor(int x, int y, int w, int h)
 	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
 		return;
 
-	int nIndex = x * 3 + (m_bmi->biHeight - 1 - y)*m_row;
+	int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
 	int64_t nIter0 = m_nPixels[x][y];
 	srgb s;
 	if (nIter0 == m_nMaxIter)
@@ -2353,8 +2353,8 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 					int x2 = tx + x;
 					int y1 = ty - y;
 					int y2 = ty + y;
-					int nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
-					int nIndex2 = x2 * 3 + (m_bmi->biHeight - 1 - y2)*m_row;
+					int nIndex1 = x1 * BM_WIDTH + (m_bmi->biHeight - 1 - y1)*m_row;
+					int nIndex2 = x2 * BM_WIDTH + (m_bmi->biHeight - 1 - y2)*m_row;
 					if(((unsigned int)(nIndex2))>m_bmi->biSizeImage-3)
 						continue;
 					int	t = (m_lpBits[nIndex1]+m_lpBits[nIndex1+1]+m_lpBits[nIndex1+2])-(m_lpBits[nIndex2]+m_lpBits[nIndex2+1]+m_lpBits[nIndex2+2]);
@@ -3771,7 +3771,7 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 {
 		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring && ! GetUseOpenGL())
     {
-      int nIndex = x * 3 + (m_bmi->biHeight - 1 - y) * m_row;
+      int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y) * m_row;
       for (int ty = 0; ty < h; ++ty)
       {
         int y2 = y + ty;
@@ -3784,7 +3784,7 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
             {
               if (m_nPixels[x2][y2] == PIXEL_UNEVALUATED)
               {
-                int index2 = x2 * 3 + (m_bmi->biHeight - 1 - y2) * m_row;
+                int index2 = x2 * BM_WIDTH + (m_bmi->biHeight - 1 - y2) * m_row;
                 m_lpBits[index2    ] = m_lpBits[nIndex    ];
                 m_lpBits[index2 + 1] = m_lpBits[nIndex + 1];
                 m_lpBits[index2 + 2] = m_lpBits[nIndex + 2];
@@ -3832,9 +3832,9 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		m_nDEx[x][y] = 0.5 * (m_nDEx[x0][y0] + m_nDEx[x1][y1]);
 		m_nDEy[x][y] = 0.5 * (m_nDEy[x0][y0] + m_nDEy[x1][y1]);
 #endif
-		int nIndex  = x  * 3 + (m_bmi->biHeight - 1 - y )*m_row;
-		int nIndex0 = x0 * 3 + (m_bmi->biHeight - 1 - y0)*m_row;
-		int nIndex1 = x1 * 3 + (m_bmi->biHeight - 1 - y1)*m_row;
+		int nIndex  = x  * BM_WIDTH + (m_bmi->biHeight - 1 - y )*m_row;
+		int nIndex0 = x0 * BM_WIDTH + (m_bmi->biHeight - 1 - y0)*m_row;
+		int nIndex1 = x1 * BM_WIDTH + (m_bmi->biHeight - 1 - y1)*m_row;
 		m_lpBits[nIndex    ] = (m_lpBits[nIndex0    ] + m_lpBits[nIndex1    ]) / 2;
 		m_lpBits[nIndex + 1] = (m_lpBits[nIndex0 + 1] + m_lpBits[nIndex1 + 1]) / 2;
 		m_lpBits[nIndex + 2] = (m_lpBits[nIndex0 + 2] + m_lpBits[nIndex1 + 2]) / 2;

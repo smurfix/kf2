@@ -806,6 +806,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::string szFile;
 			if(!BrowseFile(hWnd,TRUE,"Open image","Supported Images\0*.bmp;*.gif;*.jpeg;*.jpg;*.png\0\0",szFile))
 				return 0;
+
+			// RGB only, no BM_WIDTH
 			HBITMAP bmBmp = GetImage(szFile.c_str());
 			HDC hDC = GetDC(NULL);
 			BITMAPINFOHEADER bmi={sizeof(BITMAPINFOHEADER)};

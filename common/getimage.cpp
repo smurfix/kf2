@@ -108,9 +108,9 @@ void UpsideBitmap(HBITMAP bmBitmap)
 	int nX, nY;
 	for(nX=0;nX<bmi.biWidth;nX++)
 		for(nY=0;nY<bmi.biHeight;nY++){
-			lpBitsNew[nX*3 + (bmi.biHeight-nY-1)*row] = lpBits[nX*3 + nY*row];
-			lpBitsNew[nX*3 + (bmi.biHeight-nY-1)*row + 1] = lpBits[nX*3 + nY*row + 1];
-			lpBitsNew[nX*3 + (bmi.biHeight-nY-1)*row + 2] = lpBits[nX*3 + nY*row + 2];
+			lpBitsNew[nX*BM_WIDTH + (bmi.biHeight-nY-1)*row] = lpBits[nX*BM_WIDTH + nY*row];
+			lpBitsNew[nX*BM_WIDTH + (bmi.biHeight-nY-1)*row + 1] = lpBits[nX*BM_WIDTH + nY*row + 1];
+			lpBitsNew[nX*BM_WIDTH + (bmi.biHeight-nY-1)*row + 2] = lpBits[nX*BM_WIDTH + nY*row + 2];
 		}
 	if(!SetDIBits(hDC,bmBitmap,0,bmi.biHeight,lpBitsNew,
 			(LPBITMAPINFO)&bmi,DIB_RGB_COLORS))
@@ -283,8 +283,11 @@ COLORREF GetPixelDIB(HDC hDC, HBITMAP bmBitmap,int x, int y)
 				(LPBITMAPINFO)&bmi,DIB_RGB_COLORS))
 			Beep(100,10);
 	}
-	if(x*3 + (bmi.biHeight-y-1)*row + 2 < (int)bmi.biSizeImage){
-		int B = lpBits[x*3 + (bmi.biHeight-y-1)*row], G = lpBits[x*3 + (bmi.biHeight-y-1)*row + 1], R = lpBits[x*3 + (bmi.biHeight-y-1)*row + 2];
+	int xoff = x*BM_WIDTH + (bmi.biHeight-y-1)*row;
+	if(xoff + 2 < (int)bmi.biSizeImage){
+		int B = lpBits[xoff];
+		int G = lpBits[xoff + 1];
+		int R = lpBits[xoff + 2];
 		return RGB(R,G,B);
 	}
 	return 0;
@@ -319,13 +322,11 @@ void SetPixelDIB(HDC hDC, HBITMAP bmBitmap,int x, int y,COLORREF col,BOOL bCreat
 			Beep(100,10);
 	}
 	unsigned char *Colors = (unsigned char*)&col;
-	if(x*3 + (bmi.biHeight-y-1)*row + 2 < (int)bmi.biSizeImage){
-		lpBits[x*3 + (bmi.biHeight-y-1)*row] = Colors[2];
-		lpBits[x*3 + (bmi.biHeight-y-1)*row + 1] = Colors[1];
-		lpBits[x*3 + (bmi.biHeight-y-1)*row + 2] = Colors[0];
-//		lpBits[x*3 + y*row] = Colors[2];
-//		lpBits[x*3 + y*row + 1] = Colors[1];
-//		lpBits[x*3 + y*row + 2] = Colors[0];
+	int xoff = x*BM_WIDTH + (bmi.biHeight-y-1)*row;
+	if(xoff + 2 < (int)bmi.biSizeImage){
+		lpBits[xoff] = Colors[2];
+		lpBits[xoff + 1] = Colors[1];
+		lpBits[xoff + 2] = Colors[0];
 	}
 }
 
@@ -354,7 +355,7 @@ void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNe
 	if(!GetDIBits(dcNew,bmNew,0,0,NULL,(LPBITMAPINFO)&bmiNew,DIB_RGB_COLORS))
 		Beep(1000,10);
 	bmiNew.biCompression=bmiNew.biClrUsed=bmiNew.biClrImportant=0;
-	bmiNew.biBitCount = 24;
+	bmiNew.biBitCount = 8*BM_WIDTH;
 	rowNew = ((((bmiNew.biWidth*(DWORD)bmiNew.biBitCount)+31)&~31) >> 3);
 	bmiNew.biSizeImage=rowNew*bmiNew.biHeight;
 	lpBitsNew = new BYTE[bmiNew.biSizeImage];
@@ -377,54 +378,62 @@ void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNe
 				int Colors[3]={0};
 				int nDiv=0;
 				for(nXStart=nXNew*nWidth/nNewWidth;nXStart<(nXNew+1)*nWidth/nNewWidth;nXStart++)
-					for(nYStart=nYNew*nHeight/nNewHeight;nYStart<(nYNew+1)*nHeight/nNewHeight;nYStart++)
-						if(nXStart*3 + nYStart*row + 2 < (int)bmi.biSizeImage){
+					for(nYStart=nYNew*nHeight/nNewHeight;nYStart<(nYNew+1)*nHeight/nNewHeight;nYStart++) {
+						int pixOff = nXStart*BM_WIDTH + nYStart*row;
+						if(pixOff + 2 < (int)bmi.biSizeImage){
 							nDiv++;
-							Colors[0]+=lpBits[nXStart*3 + nYStart*row];
-							Colors[1]+=lpBits[nXStart*3 + nYStart*row + 1];
-							Colors[2]+=lpBits[nXStart*3 + nYStart*row + 2];
+							Colors[0]+=lpBits[pixOff];
+							Colors[1]+=lpBits[pixOff + 1];
+							Colors[2]+=lpBits[pixOff + 2];
 						}
+					}
+
 				if(!nDiv){
 					nXStart=nXNew*nWidth/nNewWidth;
 					nYStart=nYNew*nHeight/nNewHeight;
-					Colors[0]+=lpBits[nXStart*3 + nYStart*row];
-					Colors[1]+=lpBits[nXStart*3 + nYStart*row + 1];
-					Colors[2]+=lpBits[nXStart*3 + nYStart*row + 2];
+					int pixOff = nXStart*BM_WIDTH + nYStart*row;
+					Colors[0]+=lpBits[pixOff];
+					Colors[1]+=lpBits[pixOff + 1];
+					Colors[2]+=lpBits[pixOff + 2];
 					nDiv++;
 					if(nXNew && nXStart==(nXNew-1)*nWidth/nNewWidth){
 						nXNew--;
-						Colors[0]+=lpBitsNew[nXNew*3 + nYNew*rowNew];
-						Colors[1]+=lpBitsNew[nXNew*3 + nYNew*rowNew + 1];
-						Colors[2]+=lpBitsNew[nXNew*3 + nYNew*rowNew + 2];
+						pixOff = nXNew*BM_WIDTH + nYNew*rowNew;
+						Colors[0]+=lpBitsNew[pixOff];
+						Colors[1]+=lpBitsNew[pixOff + 1];
+						Colors[2]+=lpBitsNew[pixOff + 2];
 						nXNew++;
 						nDiv++;
 					}
 					if(nYNew && nYStart==(nYNew+1)*nHeight/nNewHeight){
 						nYNew--;
-						Colors[0]+=lpBitsNew[nXNew*3 + nYNew*rowNew];
-						Colors[1]+=lpBitsNew[nXNew*3 + nYNew*rowNew + 1];
-						Colors[2]+=lpBitsNew[nXNew*3 + nYNew*rowNew + 2];
+						pixOff = nXNew*BM_WIDTH + nYNew*rowNew;
+						Colors[0]+=lpBitsNew[pixOff];
+						Colors[1]+=lpBitsNew[pixOff + 1];
+						Colors[2]+=lpBitsNew[pixOff + 2];
 						nYNew++;
 						nDiv++;
 					}
-				if(nXNew*3 + nYNew*rowNew + 2 < (int)bmiNew.biSizeImage){
-						lpBitsNew[nXNew*3 + nYNew*rowNew] = Colors[0]/nDiv;
-						lpBitsNew[nXNew*3 + nYNew*rowNew + 1] = Colors[1]/nDiv;
-						lpBitsNew[nXNew*3 + nYNew*rowNew + 2] = Colors[2]/nDiv;
+					pixOff = nXNew*BM_WIDTH + nYNew*rowNew;
+					if(pixOff + 2 < (int)bmiNew.biSizeImage){
+						lpBitsNew[pixOff] = Colors[0]/nDiv;
+						lpBitsNew[pixOff + 1] = Colors[1]/nDiv;
+						lpBitsNew[pixOff + 2] = Colors[2]/nDiv;
 						if(pnData)
-							*pnData+=lpBitsNew[nXNew*3 + nYNew*rowNew]+lpBitsNew[nXNew*3 + nYNew*rowNew + 1]+lpBitsNew[nXNew*3 + nYNew*rowNew + 2];
+							*pnData+=lpBitsNew[pixOff]+lpBitsNew[pixOff + 1]+lpBitsNew[pixOff + 2];
 					}
 				}
 				else{
 					Colors[0]/=nDiv;
 					Colors[1]/=nDiv;
 					Colors[2]/=nDiv;
-					if(nXNew*3 + nYNew*rowNew + 2 < (int)bmiNew.biSizeImage){
-						lpBitsNew[nXNew*3 + nYNew*rowNew] = Colors[0];
-						lpBitsNew[nXNew*3 + nYNew*rowNew + 1] = Colors[1];
-						lpBitsNew[nXNew*3 + nYNew*rowNew + 2] = Colors[2];
+					int pixOff = nXNew*BM_WIDTH + nYNew*rowNew;
+					if(pixOff + 2 < (int)bmiNew.biSizeImage){
+						lpBitsNew[pixOff] = Colors[0];
+						lpBitsNew[pixOff + 1] = Colors[1];
+						lpBitsNew[pixOff + 2] = Colors[2];
 						if(pnData)
-							*pnData+=lpBitsNew[nXNew*3 + nYNew*rowNew]+lpBitsNew[nXNew*3 + nYNew*rowNew + 1]+lpBitsNew[nXNew*3 + nYNew*rowNew + 2];
+							*pnData+=lpBitsNew[pixOff]+lpBitsNew[pixOff + 1]+lpBitsNew[pixOff + 2];
 					}
 				}
 			}
@@ -434,11 +443,13 @@ void ResizeBitmap(HBITMAP *bmBitmap,int nWidth,int nHeight,int nNewWidth,int nNe
 			for(nYNew=0;nYNew<nNewHeight;nYNew++){
 				nXStart=nXNew*nWidth/nNewWidth;
 				nYStart=nYNew*nHeight/nNewHeight;
-				lpBitsNew[nXNew*3 + nYNew*rowNew] = lpBits[nXStart*3 + nYStart*row];
-				lpBitsNew[nXNew*3 + nYNew*rowNew + 1] = lpBits[nXStart*3 + nYStart*row+1];
-				lpBitsNew[nXNew*3 + nYNew*rowNew + 2] = lpBits[nXStart*3 + nYStart*row+2];
+				int pixOff = nXStart*BM_WIDTH + nYStart*row;
+				int pixOffNew = nXNew*BM_WIDTH + nYNew*rowNew;
+				lpBitsNew[pixOffNew] = lpBits[pixOff];
+				lpBitsNew[pixOffNew + 1] = lpBits[pixOff + 1];
+				lpBitsNew[pixOffNew + 2] = lpBits[pixOff + 2];
 				if(pnData)
-					*pnData+=lpBitsNew[nXNew*3 + nYNew*rowNew]+lpBitsNew[nXNew*3 + nYNew*rowNew + 1]+lpBitsNew[nXNew*3 + nYNew*rowNew + 2];
+					*pnData+=lpBitsNew[pixOffNew]+lpBitsNew[pixOffNew + 1]+lpBitsNew[pixOffNew + 2];
 			}
 	}
 	if(!SetDIBits(hDC,bmNew,0,bmiNew.biHeight,lpBitsNew,

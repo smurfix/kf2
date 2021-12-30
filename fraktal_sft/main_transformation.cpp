@@ -309,6 +309,7 @@ extern void TransformRefresh(const polar2 &P)
 
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm)
 {
+  // XXX does not depend on BM_WIDTH?
   const bool imag_up = SendDlgItemMessage(g_hwTransformationDialog, IDC_TRANSFORMATION_IMAGUP, BM_GETCHECK, 0, 0);
   const double rotate = GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ROTATEANGLE) / deg;
   const double zoom_amount = std::exp2(GetDlgItemFloat(g_hwTransformationDialog, IDC_TRANSFORMATION_ZOOMAMOUNT) / -100);

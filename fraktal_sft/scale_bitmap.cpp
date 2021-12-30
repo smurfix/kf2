@@ -49,6 +49,8 @@ This file based in part on `pixman-0.38.4/demos/scale.c`:
 #include <pixman.h>
 #include <stdlib.h>
 
+#include "../common/bitmap.h"
+
 // <https://docs.microsoft.com/en-us/windows/win32/api/wingdi/ns-wingdi-bitmapinfoheader#calculating-surface-stride>
 static inline long long get_bitmap_stride(long long width, long long bpp)
 {
@@ -63,10 +65,36 @@ extern bool scale_bitmap_rgb8
 {
   bool retval = false;
 
-  int sstride = get_bitmap_stride(sw, 24);
-  pixman_image_t *src = pixman_image_create_bits(sRGB ? PIXMAN_r8g8b8_sRGB : PIXMAN_r8g8b8, sw, sh, (uint32_t *) sp, sstride);
-  int dstride = get_bitmap_stride(dw, 24);
-  pixman_image_t *dst = pixman_image_create_bits(sRGB ? PIXMAN_r8g8b8_sRGB : PIXMAN_r8g8b8, dw, dh, (uint32_t *) dp, dstride);
+#if BM_WIDTH == 3
+// requires hacked pixman library
+#define RGBp PIXMAN_r8g8b8
+#define RGBs PIXMAN_r8g8b8_sRGB
+#else
+// annoyingly pixman wants A in front, so we need to shift things around.
+#define RGBp PIXMAN_r8g8b8x8
+#define RGBs PIXMAN_a8r8g8b8_SRGB
+#endif
+  int sstride = get_bitmap_stride(sw, 8*BM_WIDTH);
+  pixman_image_t *src = pixman_image_create_bits(sRGB ? RGBs : RGBp, sw, sh, (uint32_t *) sp, sstride);
+  int dstride = get_bitmap_stride(dw, 8*BM_WIDTH);
+  pixman_image_t *dst = pixman_image_create_bits(sRGB ? RGBs : RGBp, dw, dh, (uint32_t *) dp, dstride);
+#if BM_WIDTH == 4
+  if(sRGB) {
+    for(int j = 0; j < sh; j++) {
+      uint32_t *p = (uint32_t *)(sp+j*sstride);
+      for(int i = 0; i < sw; i++) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        *p = (*p)<<8 | 0xFF;
+#elif __BYTE_ORDER__ == __ORDER_BIG_ENDIAN__
+        *p = (*p)>>8 | 0xFF0000;
+#else
+#error your byte ordering is not supported
+#endif
+        p++;
+      }
+    }
+  }
+#endif
 
   double fscale_x = dw / (double) sw;
   double fscale_y = dh / (double) sh;
@@ -108,5 +136,33 @@ cleanup:
   if (dst) pixman_image_unref(dst);
   if (src) pixman_image_unref(src);
   if (params) free(params);
+#if BM_WIDTH == 4
+  // undo the above annoying byte shuffling
+  if(sRGB) {
+    for(int j = 0; j < sh; j++) {
+      uint32_t *p = (uint32_t *)(sp+j*sstride);
+      for(int i = 0; i < sw; i++) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+        *p = (*p)>>8;
+#else
+        *p = (*p)<<8;
+#endif
+        p++;
+      }
+    }
+    if(retval)
+      for(int j = 0; j < dh; j++) {
+        uint32_t *p = (uint32_t *)(dp+j*dstride);
+        for(int i = 0; i < dw; i++) {
+#if __BYTE_ORDER__ == __ORDER_LITTLE_ENDIAN__
+          *p = (*p)>>8;
+#else
+          *p = (*p)<<8;
+#endif
+          p++;
+        }
+      }
+  }
+#endif
   return retval;
 }

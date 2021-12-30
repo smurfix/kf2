@@ -33,6 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <cstdlib>
 
+#include "../common/bitmap.h"
 #include "fraktal_sft.h"
 #include "exr.h"
 
@@ -113,7 +114,7 @@ extern int SaveEXR
       {
         for (int i = 0; i < nWidth; ++i)
         {
-          size_t k = (j * size_t(nWidth) + i) * 3;
+          size_t k = (j * size_t(nWidth) + i) * BM_WIDTH;
           PreviewRgba &o = preview[j][i];
           o.r = Data[k + 0];
           o.g = Data[k + 1];
@@ -152,9 +153,9 @@ extern int SaveEXR
     {
       // [y][x]
       size_t row = g_SFT.GetArrayHalfColourStride();
-      if (C.R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      if (C.G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * 3, sizeof(*rgb) * row));
-      if (C.B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * 3, sizeof(*rgb) * row));
+      if (C.R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
+      if (C.G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
+      if (C.B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
     }
     else
     {
@@ -180,7 +181,7 @@ extern int SaveEXR
     delete[] nf;
     return 1;
   }
-  catch (...)
+  catch (...)  // XXX at least report the error!
   {
     return 0;
   }
