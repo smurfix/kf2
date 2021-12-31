@@ -149,7 +149,7 @@ public:
 	double GetBailoutRadius();
 	floatexp GetBailoutSmall(); // XXX constant 1e-12
 
-    // how to calculate the bail-out distance
+	// how to calculate the bail-out distance
 	BailoutNormPreset m_nBailoutNormPreset;
 	double m_nBailoutNormCustom;
 	inline BailoutNormPreset GetBailoutNormPreset() const { return m_nBailoutNormPreset; }
@@ -158,7 +158,7 @@ public:
 	inline void SetBailoutNormCustom(double bailoutNormCustom) { m_nBailoutNormCustom = bailoutNormCustom; }
 	double GetBailoutNorm(); // depends on m_nBailoutNormPreset
 
-    // Smoothing. Accepts Log=0 and Sqrt=1 only.
+	// Smoothing. Accepts Log=0 and Sqrt=1 only.
 	SmoothMethod m_nSmoothMethod;
 	inline SmoothMethod GetSmoothMethod() const { return m_nSmoothMethod; }
 	inline void SetSmoothMethod(SmoothMethod smoothMethod) { m_nSmoothMethod = smoothMethod; }
@@ -249,7 +249,7 @@ public:
 	void SetupArrays(); // Set up the above arrays
 	void DeleteArrays(); // Clean up the above arrays
 
-    // Pixel calculation sequence; when interactive, this encodes Adam7-style
+	// Pixel calculation sequence; when interactive, this encodes Adam7-style
 	// incremental refinement.
 	CPixels m_P;
 
@@ -297,12 +297,12 @@ public:
 	CFixedFloat m_rref, m_iref;  // XXX starts off as center of image
 
   // transformation
-    // matrix for calculation
+	// matrix for calculation
 	mat2 m_TransformMatrix;
 	void SetTransformMatrix(const mat2 &M);
 	inline mat2 GetTransformMatrix() const { return m_TransformMatrix; }
 
-    // GUI's original (polar form) of transform matrix
+	// GUI's original (polar form) of transform matrix
 	polar2 m_TransformPolar;
 	void SetTransformPolar(const polar2 &P);
 	inline polar2 GetTransformPolar() const { return m_TransformPolar; }
@@ -402,7 +402,7 @@ public:
 	int m_nMaxOldGlitches; // XXX constant OLD_GLITCH
 
 	int m_bAutoGlitch;          // #references  XXX it's not a bool!
-    INT(MaxReferences)           // 0…OLD_GLITCH  XXX max# of secondary refs
+	INT(MaxReferences)           // 0…OLD_GLITCH  XXX max# of secondary refs
 	//
 	BOOL(AutoSolveGlitches)      // auto-find glitches
 	BOOL(SolveGlitchNear)        // only re-render connected pixels
@@ -432,7 +432,7 @@ public:
 	Reference *m_ReferenceReuse;
 	CFixedFloat m_rrefReuse, m_irefReuse;
 
-    //BOOL(DerivativeGlitch)     // Use derivative-based glitch detection for power 2 Mandelbrot
+	//BOOL(DerivativeGlitch)     // Use derivative-based glitch detection for power 2 Mandelbrot
 	inline bool GetDerivativeGlitch() const {
 		switch (GetReferenceType(m_nZoom)) {
 			// disable for single precision (does not work properly)
@@ -471,11 +471,11 @@ public:
 	// TODO this is a constant: it doesn't belong here.
 
   // perturbation tuning             // Menu: Advanced > Perturbation and …
-    DOUBLE(GlitchLowTolerance)       // tolerance for glitch detection, 0…1
-    DOUBLE(ApproxLowTolerance)       // tolerance for series approximation, 0…1
-    BOOL(AutoApproxTerms)            // choose ApproxTerms based on remaining pixels
+	DOUBLE(GlitchLowTolerance)       // tolerance for glitch detection, 0…1
+	DOUBLE(ApproxLowTolerance)       // tolerance for series approximation, 0…1
+	BOOL(AutoApproxTerms)            // choose ApproxTerms based on remaining pixels
 	//
-    //INT(ApproxTerms)               // Number of terms for series approximation
+	//INT(ApproxTerms)               // Number of terms for series approximation
 	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
 	void   SetApproxTerms(int64_t t);// updates m_APr and m_APi
 
@@ -487,7 +487,7 @@ public:
 	BOOL(UseRescaledSeries)          // Use rescaled version of series approximation, power 2 MB only
 
   // Newton-Raphson zoom support
-    struct CNewton N;                // XXX split that off
+	struct CNewton N;                // XXX split that off
 	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
 
 // This part creates a nice image from the fractal
@@ -680,18 +680,18 @@ public:
 	half *m_imageHalf;     // linear SRGB data, for EXR export
 	half *GetArrayHalfColour() { return m_imageHalf; };
 
-    //BOOL(HalfColour)     // pre-calculate m_imageHalf (if you know you'll export EXR eventually)
+	//BOOL(HalfColour)     // pre-calculate m_imageHalf (if you know you'll export EXR eventually)
 	// Setter needs to alloc/destroy data
 	inline bool GetHalfColour() const { return m_Settings.GetHalfColour(); };
 	void SetHalfColour(bool b);
 
-    //INT(EXRChannels)          // bitmap which channels to save to EXR files
+	//INT(EXRChannels)          // bitmap which channels to save to EXR files
 	// unpacked to a struct for faster access
 	inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };
 	inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };
 
 	BOOL(EXRParallel)           // save w/ multiple tasks
-    BOOL(ExponentialMap)         // coordinate transform, for reassembly with zoomasm
+	BOOL(ExponentialMap)         // coordinate transform, for reassembly with zoomasm
 
 	//
   // strictly GUI
@@ -704,21 +704,21 @@ public:
 	void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
 
 
-    DOUBLE(ZoomSize)             // zoom factor
-    BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
+	DOUBLE(ZoomSize)             // zoom factor
+	BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
 	void Zoom(double nZoomSize);
 	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool autoRender = true, bool centerView = false);
 	// 
 	int CountFrames(int procent); // == log2(zoomlevel)*nPercent/100+1
 	//
-    INT(WindowWidth)         // window size, showing the (scaled) output image
-    INT(WindowHeight)
-    INT(Shrink)              // shrink quality (enum: fast default best sRGB)
+	INT(WindowWidth)         // window size, showing the (scaled) output image
+	INT(WindowHeight)
+	INT(Shrink)              // shrink quality (enum: fast default best sRGB)
 	//
 	BOOL(ArbitrarySize)      // flag: output to window ratio is not 1, XXX remove from config
 	BOOL(ShowCrossHair)      // small magnifier window. Doesn't work on WINE?
 	//
-    // show special coloring
+	// show special coloring
 	void ApplyIterationColors();
 	void ApplyPhaseColors();
 	void ApplySmoothColors();
