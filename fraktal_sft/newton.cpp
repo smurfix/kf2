@@ -493,7 +493,6 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   complex<flyttyp> dc(0,0);
   int i;
 
-	int threads = 4;
 	mp_bitcnt_t bits = mpfr_get_prec(c_guess.m_r.m_dec.backend().data());
 	barrier_t bar(4);
 	STEP_STRUCT_COMMON m;
@@ -535,7 +534,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	HANDLE hThread;
 	DWORD dw;
 #endif
-	for (i = 0; i<threads; i++){
+	for (i = 0; i<4; i++){
 #ifndef WINVER
 		mc[i].hDone = std::thread(ThStep, &mc[i]);
 #else
@@ -545,9 +544,9 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	}
 
 #ifdef WINVER
-	WaitForMultipleObjects(threads, hDone, TRUE, INFINITE);
+	WaitForMultipleObjects(4, hDone, TRUE, INFINITE);
 #endif
-	for (i = 0; i<threads; i++){
+	for (i = 0; i<4; i++){
 #ifndef WINVER
 		mc[i].hDone.join();
 #else
