@@ -728,16 +728,16 @@ void ThNewton(void *hWnd)
 #endif
 {
 #ifdef WINVER
-  SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
-  SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #endif
-  const int type = g_SFT.GetFractalType();
-  const int power = g_SFT.GetPower();
-  const struct formula *f = get_formula(type, power);
-  g_SFT.N.g_skew[0] = 1;
-  g_SFT.N.g_skew[1] = 0;
-  g_SFT.N.g_skew[2] = 0;
-  g_SFT.N.g_skew[3] = 1;
+	const int type = g_SFT.GetFractalType();
+	const int power = g_SFT.GetPower();
+	const struct formula *f = get_formula(type, power);
+	g_SFT.N.g_skew[0] = 1;
+	g_SFT.N.g_skew[1] = 0;
+	g_SFT.N.g_skew[2] = 0;
+	g_SFT.N.g_skew[3] = 1;
 
 	flyttyp radius = g_SFT.GetZoom();
 	radius*=g_SFT.GetZoomSize();
