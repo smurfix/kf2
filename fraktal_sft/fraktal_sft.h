@@ -353,6 +353,7 @@ public:
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 #ifndef WINVER
 	std::thread m_renderThread;
+	inline bool renderRunning() const { return m_renderThread.joinable(); }
 #endif
 
 	//
