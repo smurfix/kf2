@@ -2598,13 +2598,14 @@ void CFraktalSFT::ReinitializeBitmap()
 
 void CFraktalSFT::AllocateBitmap()
 {
-#ifdef WINVER
-	if (m_bmBmp)
-		DeleteObject(m_bmBmp);
-#endif
+	if (m_bmi) {
+		if(!m_lpBits)
+			abort();
+		return;
+	}
+	if(m_lpBits)
+		abort();
 
-	if (m_bmi)
-		free(m_bmi);
 	m_bmi = (BITMAPINFOHEADER *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 	memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 #ifdef WINVER
@@ -2614,7 +2615,6 @@ void CFraktalSFT::AllocateBitmap()
 	m_bmBmp = create_bitmap(hDC, m_nX, m_nY);
 	if (!GetDIBits(hDC, m_bmBmp, 0, 0, NULL, (LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
 		{ /*Beep(1000,10)*/ }
-	ReleaseDC(NULL, hDC);
 #else
 	m_bmi->biWidth = m_nX;
 	m_bmi->biHeight = m_nY;
@@ -2623,23 +2623,20 @@ void CFraktalSFT::AllocateBitmap()
 	m_row = ((((m_bmi->biWidth*(DWORD)m_bmi->biBitCount) + 31)&~31) >> 3);
 	m_bmi->biSizeImage = m_row*m_bmi->biHeight;
 
-	if (!m_lpBits || (int)m_bmi->biSizeImage != m_nSizeImage){
-		m_nSizeImage = m_bmi->biSizeImage;
-		if (m_lpBits)
-			delete[] m_lpBits;
-		m_lpBits = new BYTE[m_bmi->biSizeImage];
+	m_nSizeImage = m_bmi->biSizeImage;
+	m_lpBits = new BYTE[m_bmi->biSizeImage];
 #ifdef WINVER
-		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
-			(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
-			{ /*Beep(1000,10)*/ }
+	if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
+		(LPBITMAPINFO)m_bmi, DIB_RGB_COLORS))
+			abort();
+	ReleaseDC(NULL, hDC);
 #endif
-	}
 }
 
 void CFraktalSFT::FreeBitmap()
 {
 	if(m_bAddReference)
-		abort();
+		return;
 
 #ifdef WINVER
 	if (m_bmBmp) {
