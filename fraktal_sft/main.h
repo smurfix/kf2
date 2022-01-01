@@ -24,10 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-#ifdef WINVER
-extern int SaveImage(const std::string &szFileName, HBITMAP bmBmp, int nQuality, const std::string &comment);
-#endif
-extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment);
 extern char *GetToolText(int nID,LPARAM lParam);
 extern double GetDlgItemFloat(HWND hWnd,int nID);
 extern void SetDlgItemFloat(HWND hWnd,int nID,double val);
