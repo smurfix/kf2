@@ -488,6 +488,9 @@ public:
 
   // Newton-Raphson zoom support
 	struct CNewton N;                // XXX split that off
+#ifndef WINVER
+	void ThNewton();
+#endif
 	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
 
 // This part creates a nice image from the fractal

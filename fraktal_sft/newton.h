@@ -58,7 +58,7 @@ struct progress_t
 	HWND hWnd;
 	HANDLE hDone;
 #else
-	void *hWnd;
+	void *SFT;
 #endif
 	double start_time, elapsed_time;
 };

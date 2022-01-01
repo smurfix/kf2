@@ -34,6 +34,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "newton.h"
 #include "hybrid.h"
 #include "tooltip.h"
+#include "fraktal_sft.h"
 #include <string>
 #include <fstream>
 
@@ -724,12 +725,14 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 #ifdef WINVER
 static int WINAPI ThNewton(HWND hWnd)
 #else
-void ThNewton(void *hWnd)
+void CFractalSFT::ThNewton()
 #endif
 {
 #ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+#else
+	#define g_SFT (*this)
 #endif
 	const int type = g_SFT.GetFractalType();
 	const int power = g_SFT.GetPower();
@@ -752,9 +755,11 @@ void ThNewton(void *hWnd)
 	int steps = 0;
 	{
 	  // fork progress updater
-	  progress_t progress = { { 0, 0, 0, 0 }, false, hWnd,
+	  progress_t progress = { { 0, 0, 0, 0 }, false,
 #ifdef WINVER
-		CreateEvent(NULL, 0, 0, NULL),
+		hWnd, CreateEvent(NULL, 0, 0, NULL),
+#else
+        this,
 #endif
 		get_wall_time(), 0 };
 #ifdef WINVER
@@ -994,17 +999,14 @@ void ThNewton(void *hWnd)
 		bOK = -1;
 	}
 	g_SFT.N.g_bNewtonRunning=FALSE;
-#ifndef WINVER
-	(void)bOK;
-#else
 	PostMessage(hWnd,WM_USER+2,0,bOK);
-#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 
 #ifdef WINVER
 	return 0;
 #endif
 }
+#undef g_SFT
 
 #ifdef WINVER
 const struct { const char *name; } action_preset[] =
