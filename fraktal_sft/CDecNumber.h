@@ -22,14 +22,15 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <boost/multiprecision/mpfr.hpp>
 typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<0>> decNumber;
-#ifndef WINVER
-typedef boost::multiprecision::number<boost::multiprecision::gmp_float<0>> gmpNumber;
-#endif
 
 #define LOW_PRECISION 20u
 
 #include <cassert>
 #include <string>
+
+#ifndef WINVER
+#include <mpfr.h>
+#endif
 
 #include "floatexp.h"
 
@@ -59,9 +60,9 @@ public:
 		m_dec = 0;
 	};
 #ifndef WINVER
-	inline CDecNumber(const gmpNumber &a)
+	inline CDecNumber(const mpfr_t a)
 	{
-		m_dec.precision(std::max(decNumber::default_precision(), a.precision()));
+		m_dec.precision(std::max((mpfr_prec_t)decNumber::default_precision(), mpfr_get_prec(a)));
 		m_dec = a;
 	};
 #endif
@@ -159,6 +160,12 @@ public:
 	explicit inline operator double() const
 	{
 		return mpfr_get_d(m_dec.backend().data(), MPFR_RNDN);
+	};
+	inline CDecNumber operator=(const mpfr_t &a)
+	{
+		m_dec.precision(std::max((mpfr_prec_t)decNumber::default_precision(), mpfr_get_prec(a)));
+		m_dec = a;
+		return *this;
 	};
 };
 

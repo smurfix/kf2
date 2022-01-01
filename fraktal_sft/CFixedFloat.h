@@ -22,6 +22,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "CDecNumber.h"
 
+#ifndef WINVER
+#include <mpfr.h>
+#endif
+
 typedef decNumber FixedFloat;
 
 class CFixedFloat
@@ -46,9 +50,9 @@ public:
 	};
 
 #ifndef WINVER
-	inline CFixedFloat(const gmpNumber &a)
+	inline CFixedFloat(const mpfr_t &a)
 	{
-		unsigned p = a.precision();
+		unsigned p = mpfr_get_prec(a);
 		Precision q(p);
 		m_f.precision(p);
 		m_f = a;
@@ -612,7 +616,7 @@ inline std::ostream& operator<<(std::ostream& a, const CFixedFloat& b) noexcept
 	return a << b.m_f;
 }
 
-#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? 0 : a; }
+#define I(T) inline T infnan_to_zero(const T &a) { return (isinf(a) || isnan(a)) ? (int)0 : a; }
 I(CFixedFloat)
 #undef I
 
