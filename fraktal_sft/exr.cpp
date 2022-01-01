@@ -44,34 +44,31 @@ using namespace IMATH_NAMESPACE;
 const char magic[] = "KallesFraktaler2+";
 const int64_t BIAS = 1024;
 
-extern int SaveEXR
+extern int CFraktalSFT::SaveEXR
 ( const std::string &filename
 , const unsigned char *Data
 , int nWidth
 , int nHeight
 , const std::string &comment
-, int64_t maxiter
-, int arrWidth
-, int arrHeight
-, const itercount_array &count
-, const float *trans
-, const float *phase
-, const float *rawdex
-, const float *rawdey
-, const EXRChannels C
-, int threads
-)
+, unsigned int nParallel)
 {
   try
   {
-    setGlobalThreadCount(threads);
+    int64_t maxiter = GetIterations();
+    int arrWidth = GetWidth();
+    int arrHeight = GetHeight();
+    const itercount_array &count = GetArrayCount();
+    const float *trans = GetArrayTrans();
+    const EXRChannels C = GetEXRChannels();
+     
+    setGlobalThreadCount(nParallel);
     // prepare arrays with proper format
     uint32_t *n0 = C.N ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     uint32_t *n1 = C.N && (maxiter + BIAS >= 0xFFffFFffLL) ? new uint32_t[size_t(arrWidth) * arrHeight] : nullptr;
     float *nf = C.NF ? new float[size_t(arrWidth) * arrHeight] : nullptr;
-    const float *t = C.T ? phase : nullptr;
-    const float *dex = C.DEX ? rawdex : nullptr;
-    const float *dey = C.DEY ? rawdey : nullptr;
+    const float *t = C.T ? GetArrayPhase() : nullptr;
+    const float *dex = C.DEX ? GetArrayDEx() : nullptr;
+    const float *dey = C.DEY ? GetArrayDEy() : nullptr;
     // TODO parallelize
     for (int i = 0; i < arrWidth; ++i)
     {
@@ -129,7 +126,7 @@ extern int SaveEXR
     header.insert("Iterations", IntAttribute(maxiter));
     header.insert("IterationsBias", IntAttribute(BIAS));
     // write image
-    const half *rgb = g_SFT.GetArrayHalfColour();
+    const half *rgb = GetArrayHalfColour();
     if (rgb)
     {
       if (C.R) header.channels().insert("R", Channel(IMF::HALF));
@@ -152,7 +149,7 @@ extern int SaveEXR
     if (rgb)
     {
       // [y][x]
-      size_t row = g_SFT.GetArrayHalfColourStride();
+      size_t row = GetArrayHalfColourStride();
       if (C.R) fb.insert("R", Slice(IMF::HALF, (char *) (rgb + 0), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
       if (C.G) fb.insert("G", Slice(IMF::HALF, (char *) (rgb + 1), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
       if (C.B) fb.insert("B", Slice(IMF::HALF, (char *) (rgb + 2), sizeof(*rgb) * BM_WIDTH, sizeof(*rgb) * row));
@@ -216,7 +213,7 @@ extern std::string ReadEXRComment(const std::string &filename)
   return "";
 }
 
-extern bool ReadEXRMapFile(const std::string &filename, int threads)
+bool CFraktalSFT::ReadEXRMapFile(const std::string &filename, int threads)
 {
   bool retval = false;
   uint32_t *N0 = nullptr;
@@ -265,16 +262,16 @@ extern bool ReadEXRMapFile(const std::string &filename, int threads)
     size_t height = dw.max.y - dw.min.y + 1;
 
     // prepare KF arrays
-    g_SFT.SetIterations(maxiter);
-    g_SFT.SetImageSize(width, height);
+    SetIterations(maxiter);
+    SetImageSize(width, height);
     // rely on internal memory layout of itercount_array for efficiency
-    itercount_array count = g_SFT.GetArrayCount();
+    itercount_array count = GetArrayCount();
     N0 = count.get_lsb_array();
     N1 = count.get_msb_array(); // check what happens re: maxiter + bias >= 0xFFffFFffLL ?
-    NF = g_SFT.GetArrayTrans();
-    T = g_SFT.GetArrayPhase();
-    DEX = g_SFT.GetArrayDEx();
-    DEY = g_SFT.GetArrayDEy();
+    NF = GetArrayTrans();
+    T = GetArrayPhase();
+    DEX = GetArrayDEx();
+    DEY = GetArrayDEy();
 
     FrameBuffer fb;
     // [x][y]
@@ -324,7 +321,7 @@ extern bool ReadEXRMapFile(const std::string &filename, int threads)
       }
     }
 #ifdef WINVER
-    g_SFT.ReinitializeBitmap();
+    ReinitializeBitmap();
 #endif
     retval = true;
   }

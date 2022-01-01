@@ -73,26 +73,6 @@ static inline EXRChannels unpack_exr_channels(int64_t x)
   return r;
 }
 
-extern int SaveEXR
-( const std::string &filename
-, const unsigned char *Data
-, int nWidth
-, int nHeight
-, const std::string &comment
-, int64_t maxiter
-, int arrWidth
-, int arrHeight
-, const itercount_array &count
-, const float *trans
-, const float *phase
-, const float *dex
-, const float *dey
-, const EXRChannels channels
-, int threads
-);
-
 extern std::string ReadEXRComment(const std::string &filename);
-
-extern bool ReadEXRMapFile(const std::string &filename, int threads);
 
 #endif

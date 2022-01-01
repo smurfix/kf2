@@ -493,6 +493,9 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
   int i;
+#ifndef WINVER
+#define g_SFT (*(CFraktalSFT *)hWnd)
+#endif
 
 	mp_bitcnt_t bits = mpfr_get_prec(c_guess.m_r.m_dec.backend().data());
 	barrier_t bar(4);
@@ -616,8 +619,9 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
     return -1;
   }
 }
+#undef g_SFT
 
-bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const std::string &im, const std::string &zoom, int64_t period)
+static bool SaveNewtonBackup(CFraktalSFT &g_SFT, const std::string &szFile, const std::string &re, const std::string &im, const std::string &zoom, int64_t period)
 {
 	if (! g_SFT.GetSaveNewtonProgress())
 		return true;
@@ -650,7 +654,7 @@ bool SaveNewtonBackup(const std::string &szFile, const std::string &re, const st
 	return true;
 }
 
-bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_old, int64_t period, int step)
+static bool SaveNewtonBackup(CFraktalSFT &g_SFT, const complex<flyttyp> &c_new, const complex<flyttyp> &c_old, int64_t period, int step)
 {
   complex<flyttyp> delta = c_new - c_old;
   complex<floatexp> delta_lo = complex<floatexp>(floatexp(delta.m_r), floatexp(delta.m_i));
@@ -659,7 +663,7 @@ bool SaveNewtonBackup(const complex<flyttyp> &c_new, const complex<flyttyp> &c_o
   std::string zoom = sqrt(floatexp(4.0) / cabs2(delta_lo)).toString();
   char extension[100];
   snprintf(extension, sizeof(extension) - 1, "newton-%04d.kfr", step);
-  return SaveNewtonBackup(g_SFT.m_szFile == "" ? extension : replace_path_extension(g_SFT.m_szFile, extension), re, im, zoom, period);
+  return SaveNewtonBackup(g_SFT, g_SFT.m_szFile == "" ? extension : replace_path_extension(g_SFT.m_szFile, extension), re, im, zoom, period);
 }
 
 static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess, int64_t period, int maxsteps,int &steps,const flyttyp &radius,void *hWnd, progress_t *progress) {
@@ -667,6 +671,9 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
   complex<flyttyp> c = c_guess;
   complex<flyttyp> c_new;
 
+#ifndef WINVER
+#define g_SFT (*(CFraktalSFT *)hWnd)
+#endif
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
   flyttyp radius2 = radius * radius;
   g_SFT.N.g_nNewtonETA = -1;
@@ -676,7 +683,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
     progress->counters[2] = period;
     progress->counters[3] = 0;
     result = m_d_nucleus_step(&c_new, c, period,epsilon2,hWnd,i,radius2, progress);
-    SaveNewtonBackup(c_new, c, period, i + 1);
+    SaveNewtonBackup(g_SFT, c_new, c, period, i + 1);
     c = c_new;
     if (result != 1)
       break;
@@ -687,6 +694,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
 	  result=0;
   return result;
 }
+#undef g_SFT
 
 static inline complex<floatexp> fec(const complex<flyttyp> &z)
 {
@@ -702,6 +710,9 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
   complex<flyttyp> z(0,0);
   char szStatus[256];
   uint32_t last = GetTickCount();
+#ifndef WINVER
+#define g_SFT (*(CFraktalSFT *)hWnd)
+#endif
   for (int64_t i = 1; i < period && !g_SFT.N.g_bNewtonStop; ++i) {
 	  if(i%100==0){
 		uint32_t now = GetTickCount();
@@ -719,13 +730,14 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
   }
   return fec1 / (b * l * l);
 }
+#undef g_SFT
 
 // XXX move those two to g_SFT
 
 #ifdef WINVER
 static int WINAPI ThNewton(HWND hWnd)
 #else
-void CFractalSFT::ThNewton()
+void CFraktalSFT::ThNewton()
 #endif
 {
 #ifdef WINVER
@@ -733,6 +745,7 @@ void CFractalSFT::ThNewton()
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 #else
 	#define g_SFT (*this)
+	#define hWnd ((void*)this)
 #endif
 	const int type = g_SFT.GetFractalType();
 	const int power = g_SFT.GetPower();
@@ -755,11 +768,9 @@ void CFractalSFT::ThNewton()
 	int steps = 0;
 	{
 	  // fork progress updater
-	  progress_t progress = { { 0, 0, 0, 0 }, false,
+	  progress_t progress = { { 0, 0, 0, 0 }, false, hWnd,
 #ifdef WINVER
-		hWnd, CreateEvent(NULL, 0, 0, NULL),
-#else
-        this,
+		CreateEvent(NULL, 0, 0, NULL),
 #endif
 		get_wall_time(), 0 };
 #ifdef WINVER
@@ -812,7 +823,9 @@ void CFractalSFT::ThNewton()
 	}
 	Precision prec2(uprec);
 
+#ifdef WINVER
 	int bOK = 1;
+#endif
 	if (g_SFT.N.g_period > 0 && ! g_SFT.N.g_bNewtonStop && g_SFT.N.g_nr_action >= 1)
 	{
 		// fork progress updater
@@ -968,7 +981,9 @@ void CFractalSFT::ThNewton()
 						floatexp r = factor * exp(log(s) * power);
 						g_szZoom = (floatexp(2) / r).toString();
 						g_SFT.N.g_iterations = (g_SFT.N.g_nr_zoom_target >= 2 ? 10 : 100) * g_SFT.N.g_period; // FIXME
+#ifdef WINVER
 						bOK = 1;
+#endif
 					}
 					else
 					{
@@ -980,24 +995,32 @@ void CFractalSFT::ThNewton()
 						double start_iterations = g_SFT.GetIterations();
 						double target_iterations = 100 * g_SFT.N.g_period;
 						g_SFT.N.g_iterations = std::min(std::max(start_iterations * log(g_SFT.GetPower() / (1 - std::min(1.0, power))) / log(g_SFT.GetPower()), start_iterations), target_iterations);
+#ifdef WINVER
 						bOK = 1;
+#endif
 					}
 				}
+#ifdef WINVER
 				else
 				{
 					bOK = -1;
 				}
+#endif
 			}
 		}
+#ifdef WINVER
 		else
 		{
 			bOK = -1;
 		}
+#endif
 	}
+#ifdef WINVER
 	else
 	{
 		bOK = -1;
 	}
+#endif
 	g_SFT.N.g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -1007,6 +1030,7 @@ void CFractalSFT::ThNewton()
 #endif
 }
 #undef g_SFT
+#undef hWnd
 
 #ifdef WINVER
 const struct { const char *name; } action_preset[] =

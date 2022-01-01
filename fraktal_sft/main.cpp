@@ -271,15 +271,6 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,in
 		  , bmi.biWidth
 		  , bmi.biHeight
 		  , comment
-		  , GetIterations()
-		  , GetWidth()
-		  , GetHeight()
-		  , GetArrayCount()
-		  , GetArrayTrans()
-		  , GetArrayPhase()
-		  , GetArrayDEx()
-		  , GetArrayDEy()
-		  , GetEXRChannels()
 		  , nParallel
 		  );
 		if (allocate)
@@ -330,15 +321,6 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpB
 		  , biWidth
 		  , biHeight
 		  , comment
-		  , GetIterations()
-		  , GetWidth()
-		  , GetHeight()
-		  , GetArrayCount()
-		  , GetArrayTrans()
-		  , GetArrayPhase()
-		  , GetArrayDEx()
-		  , GetArrayDEy()
-		  , GetEXRChannels()
 		  , nParallel
 		  );
 		if (allocate)

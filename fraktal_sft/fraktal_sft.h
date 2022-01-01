@@ -767,6 +767,17 @@ public:
 #endif
 	int SaveImage(const std::string &fileName, const BYTE *bits, int width, int height, int quality, const std::string &comment);
 
+	int SaveEXR
+		( const std::string &filename
+		, const unsigned char *Data
+		, int nWidth
+		, int nHeight
+		, const std::string &comment
+		, unsigned int nParallel
+		);
+
+	bool ReadEXRMapFile(const std::string &filename, int threads);
+
 	void Done()
 	{
 #ifdef KF_OPENCL
@@ -792,7 +803,9 @@ public:
 extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
 
 // singleton instance
+#ifdef WINVER
 extern CFraktalSFT g_SFT;
+#endif
 
 // 1 is considered prime, 0 is not. TODO should be unsigned. XXX move?
 extern int MakePrime(int n);

@@ -24,10 +24,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
+#ifdef WINVER
 extern char *GetToolText(int nID,LPARAM lParam);
 extern double GetDlgItemFloat(HWND hWnd,int nID);
 extern void SetDlgItemFloat(HWND hWnd,int nID,double val);
 extern int FileExists(const std::string &szFind);
+#endif
 
 extern std::string replace_path_filename(const std::string &path, const std::string &file);
 extern std::string replace_path_extension(const std::string &path, const std::string &ext);
