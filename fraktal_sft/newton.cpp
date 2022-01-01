@@ -103,7 +103,7 @@ static char g_szProgress[128];
 #ifdef WINVER
 static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 {
-	while (progress->running)
+	while (!progress->stop)
 	{
 		Sleep(250);
 		progress->elapsed_time = get_wall_time() - progress->start_time;
@@ -120,7 +120,7 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 
 static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 {
-	while (progress->running)
+	while (!progress->stop)
 	{
 		Sleep(250);
 		progress->elapsed_time = get_wall_time() - progress->start_time;
@@ -139,7 +139,7 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 
 static DWORD WINAPI ThSizeProgress(progress_t *progress)
 {
-	while (progress->running)
+	while (!progress->stop)
 	{
 		Sleep(250);
 		progress->elapsed_time = get_wall_time() - progress->start_time;
@@ -331,7 +331,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   c.progress = progress;
   c.maxperiod = maxperiod;
   c.barrier = &bar;
-  c.stop = &g_SFT.N.g_bNewtonStop;
+  c.stop = &progress->stop;
   c.haveperiod = &haveperiod;
   c.period = &period;
   c.maxperiod = maxperiod;
@@ -752,7 +752,7 @@ void ThNewton(void *hWnd)
 	int steps = 0;
 	{
 	  // fork progress updater
-	  progress_t progress = { { 0, 0, 0, 0 }, true, hWnd,
+	  progress_t progress = { { 0, 0, 0, 0 }, false, hWnd,
 #ifdef WINVER
 		CreateEvent(NULL, 0, 0, NULL),
 #endif
@@ -764,7 +764,7 @@ void ThNewton(void *hWnd)
 	  if (g_SFT.GetUseHybridFormula())
 	  {
 		  flyttyp r = flyttyp(4) / radius;
-		  g_SFT.N.g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_SFT.N.g_skew[0], &g_SFT.N.running, &progress.counters[0]);
+		  g_SFT.N.g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_SFT.N.g_skew[0], &g_SFT.N.stop, &progress.counters[0]);
 	  }
 	  else if (type == 0 && power == 2)
 	  {
@@ -778,11 +778,11 @@ void ThNewton(void *hWnd)
 		  flyttyp r = flyttyp(4) / radius;
 		  if (g_SFT.N.g_nr_ball_method)
 		  {
-		    g_SFT.N.g_period = f->period_jsk(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
+		    g_SFT.N.g_period = f->period_jsk(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.stop, &progress.counters[0]);
 		  }
 		  else
 		  {
-		    g_SFT.N.g_period = f->period_tri(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_SFT.N.running, &progress.counters[0]);
+		    g_SFT.N.g_period = f->period_tri(INT_MAX, 1e50, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), r.m_dec.backend().data(), &g_SFT.N.stop, &progress.counters[0]);
 		  }
 		  if (g_SFT.N.g_period < 0) g_SFT.N.g_period = 0;
 		}
@@ -792,7 +792,7 @@ void ThNewton(void *hWnd)
 		}
 	  }
 	  // join progress updater
-	  progress.running = false;
+	  progress.stop = true;
 #ifdef WINVER
 	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 	  CloseHandle(progress.hDone);
@@ -828,7 +828,7 @@ void ThNewton(void *hWnd)
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_SFT.N.g_period, c.m_r, c.m_i, epsilon2, &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
+		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_SFT.N.g_period, c.m_r, c.m_i, epsilon2, &g_SFT.N.stop, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -847,7 +847,7 @@ void ThNewton(void *hWnd)
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = f->newton(100, g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
+		    test = f->newton(100, g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), epsilon2.m_dec.backend().data(), &g_SFT.N.stop, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -855,7 +855,7 @@ void ThNewton(void *hWnd)
 		  }
 		}
 		// join progress updater
-		progress.running = false;
+		progress.stop = true;
 #ifdef WINVER
 		WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 		CloseHandle(progress.hDone);
@@ -900,11 +900,11 @@ void ThNewton(void *hWnd)
 				{
 					if (g_SFT.N.g_nr_zoom_target <= 1)
 					{
-						hybrid_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
+						hybrid_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, g_SFT.N.g_skew, &g_SFT.N.stop, &progress.counters[0]);
 					}
 					else
 					{
-						hybrid_domain_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, &g_SFT.N.running, &progress.counters[0]);
+						hybrid_domain_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, &g_SFT.N.stop, &progress.counters[0]);
 					}
 				}
 				else if (type == 0 && power == 2)
@@ -928,16 +928,16 @@ void ThNewton(void *hWnd)
 					{
 						if (g_SFT.N.g_nr_zoom_target <= 1)
 						{
-							f->size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
+							f->size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.stop, &progress.counters[0]);
 						}
 						else
 						{
-							// f->domain_size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]); // FIXME implement this in et formula generator
+							// f->domain_size(g_SFT.N.g_period, g_SFT.m_FactorAR, g_SFT.m_FactorAI, c.m_r.m_dec.backend().data(), c.m_i.m_dec.backend().data(), msize.m_dec.backend().data(), g_SFT.N.g_skew, &g_SFT.N.stop, &progress.counters[0]); // FIXME implement this in et formula generator
 						}
 					}
 				}
 				// join progress updater
-				progress.running = false;
+				progress.stop = true;
 #ifdef WINVER
 				WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
 				CloseHandle(progress.hDone);
@@ -1179,7 +1179,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 	if (uMsg == WM_COMMAND && (wParam == IDOK || wParam == IDCANCEL || wParam == IDCANCEL2))
 	{
 		if(g_SFT.N.g_bNewtonRunning){
-			g_SFT.N.running = 0;
+			g_SFT.N.stop = true;
 			g_SFT.N.g_bNewtonStop=TRUE;
 			while(g_SFT.N.g_bNewtonRunning){
 				MSG msg;
@@ -1228,7 +1228,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			g_SFT.N.g_nNewtonETA = -1;
 			g_SFT.N.g_fNewtonDelta2[0] = 0;
 			g_SFT.N.g_fNewtonDelta2[1] = 0;
-			g_SFT.N.running = 1;
+			g_SFT.N.stop = false;
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
 			CloseHandle(hThread);
 			g_SFT.N.g_bNewtonRunning=TRUE;

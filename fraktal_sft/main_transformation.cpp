@@ -37,7 +37,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 static bool g_transformation_useddz = false;
-static volatile int g_transformation_running = 0;
+static volatile bool g_transformation_stop = true;
 static volatile bool g_transformation_still_running = false;
 
 static polar2 original_transformation = polar2(1, 1, 0, 1, 0);
@@ -53,7 +53,7 @@ static std::string s_skew;
 
 static DWORD WINAPI ThSkewProgress(progress_t *progress)
 {
-  while (progress->running)
+  while (!progress->stop)
   {
     Sleep(250);
     progress->elapsed_time = get_wall_time() - progress->start_time;
@@ -97,14 +97,14 @@ static int WINAPI ThSkew(HWND hWnd)
   bool ok = false;
   if (g_SFT.GetUseHybridFormula())
   {
-    ok = hybrid_skew(g_SFT.GetHybridFormula(), iters, center.m_r.m_dec, center.m_i.m_dec, g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
+    ok = hybrid_skew(g_SFT.GetHybridFormula(), iters, center.m_r.m_dec, center.m_i.m_dec, g_transformation_useddz, &g_skew[0], &g_transformation_stop, &progress.counters[0]);
   }
   else if (f && f->skew)
   {
-    ok = f->skew(iters, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
+    ok = f->skew(iters, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_stop, &progress.counters[0]);
   }
   // join progress updater
-  progress.running = false;
+  progress.stop = true;
   WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
   CloseHandle(progress.hDone);
   char status[100];
@@ -112,7 +112,7 @@ static int WINAPI ThSkew(HWND hWnd)
   s_skew = status;
   SetDlgItemText(hWnd, IDC_TRANSFORMATION_STATUS, status);
   // report success
-  g_transformation_running = false;
+  g_transformation_stop = true;
   g_transformation_still_running = false;
   PostMessage(hWnd, WM_USER + 2, 0, ok);
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
@@ -235,7 +235,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       if (g_transformation_still_running)
       {
         // signal stop and wait for thread to finish
-        g_transformation_running = false;
+        g_transformation_stop = true;
         while (g_transformation_still_running)
         {
           MSG msg;
@@ -252,7 +252,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       {
         // launch thread
         g_transformation_useddz = SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_USEDDZ, BM_GETCHECK, 0, 0);
-        g_transformation_running = true;
+        g_transformation_stop = false;
         g_transformation_still_running = true;
         DWORD dw;
         HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);

@@ -63,21 +63,21 @@ static inline long double diffabsl(long double c, long double d) {
   }
 }
 
-typedef int f_plainf(int,float,float*,float,float,float,float,float*,volatile int*);
-typedef int f_plain(int,double,double*,double,double,double,double,double*,volatile int*);
-typedef int f_plainl(int,long double,long double*,long double,long double,long double,long double,long double*,volatile int*);
-typedef int f_referencef(int,float,float,float,mpfr_t,mpfr_t,float*,volatile int*);
-typedef int f_reference(int,double,double,double,mpfr_t,mpfr_t,double*,volatile int*);
-typedef int f_referencel(int,long double,long double,long double,mpfr_t,mpfr_t,long double*,volatile int*);
-typedef int f_perturbationf(int,int,float,float*,float,float,float,float,float*,float*,volatile int*);
-typedef int f_perturbation(int,int,double,double*,double,double,double,double,double*,double*,volatile int*);
-typedef int f_perturbationl(int,int,long double,long double*,long double,long double,long double,long double,long double*,long double*,volatile int*);
-typedef int f_period_tri(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*,int*);
-typedef int f_period_jsk(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*,int*);
-typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*,int*);
-typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile int*,int*);
-typedef int f_skew(int,double,double,mpfr_t,mpfr_t,int,double*,volatile int*,int*);
-typedef int f_domain_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile int*);
+typedef int f_plainf(int,float,float*,float,float,float,float,float*,volatile bool*);
+typedef int f_plain(int,double,double*,double,double,double,double,double*,volatile bool*);
+typedef int f_plainl(int,long double,long double*,long double,long double,long double,long double,long double*,volatile bool*);
+typedef int f_referencef(int,float,float,float,mpfr_t,mpfr_t,float*,volatile bool*);
+typedef int f_reference(int,double,double,double,mpfr_t,mpfr_t,double*,volatile bool*);
+typedef int f_referencel(int,long double,long double,long double,mpfr_t,mpfr_t,long double*,volatile bool*);
+typedef int f_perturbationf(int,int,float,float*,float,float,float,float,float*,float*,volatile bool*);
+typedef int f_perturbation(int,int,double,double*,double,double,double,double,double*,double*,volatile bool*);
+typedef int f_perturbationl(int,int,long double,long double*,long double,long double,long double,long double,long double*,long double*,volatile bool*);
+typedef int f_period_tri(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,volatile bool*,int*);
+typedef int f_period_jsk(int,double,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile bool*,int*);
+typedef int f_newton(int,int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile bool*,int*);
+typedef int f_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,double*,volatile bool*,int*);
+typedef int f_skew(int,double,double,mpfr_t,mpfr_t,int,double*,volatile bool*,int*);
+typedef int f_domain_size(int,double,double,mpfr_t,mpfr_t,mpfr_t,volatile bool*);
 
 #ifndef KF_MAIN
 static f_plainf plainf;

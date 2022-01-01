@@ -692,7 +692,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 }
 #endif
 
-extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile int *running, int *progress)
+extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile bool *stop, int *progress)
 {
   Precision prec(std::max(cr0.m_dec.precision(), ci0.m_dec.precision()));
   using N = int;
@@ -705,7 +705,7 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
   double ldelta1 = 0;
   int eta = 0;
   bool converged = false;
-  for (N j = 0; j < maxsteps && *running && ! converged; ++j)
+  for (N j = 0; j < maxsteps && !*stop && ! converged; ++j)
   {
     progress[0] = eta;
     progress[1] = j;
@@ -718,7 +718,7 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
     // iteration
     int count = 0;
     int stanza = 0;
-    for (N i = 0; i < period && *running; ++i)
+    for (N i = 0; i < period && !*stop; ++i)
     {
       progress[3] = i;
       z = hybrid_f(h.stanzas[stanza], z, c);
@@ -731,7 +731,7 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
         }
       }
     }
-    if (*running)
+    if (!*stop)
     {
       const CDecNumber &x = z.m_r.x;
       const CDecNumber &y = z.m_i.x;
@@ -762,7 +762,7 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
   return false;
 }
 
-extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, volatile int *running, int *progress)
+extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, volatile bool *stop, int *progress)
 {
   Precision prec(std::max(cr.m_dec.precision(), ci.m_dec.precision()));
   using N = int;
@@ -779,7 +779,7 @@ extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber 
   R cy_dz(ci);
   C c_dz(cx_dz, cy_dz);
   C z_dz(c_dc);
-  for (N j = 0; j < maxiters && *running; ++j)
+  for (N j = 0; j < maxiters && !*stop; ++j)
   {
     progress[0] = j;
     progress[1] = 0;
@@ -803,7 +803,7 @@ extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber 
       z_dz = hybrid_f(h.stanzas[stanza], z_dz, c_dz);
     }
   }
-  if (running)
+  if (!*stop)
   {
     const CDecNumber &dxa = z_dc.m_r.dx[0];
     const CDecNumber &dxb = z_dc.m_r.dx[1];
@@ -842,7 +842,7 @@ extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber 
   return false;
 }
 
-extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile int *running, int *progress)
+extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile bool *stop, int *progress)
 {
   using R = dual<2, CDecNumber>;
   using C = complex<R>;
@@ -866,7 +866,7 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
   int i = 0;
   int count = 0;
   int stanza = 0;
-  while (i < N && z2 < r2 && p && *running)
+  while (i < N && z2 < r2 && p && !*stop)
   {
     progress[0] = N;
     progress[1] = i;
@@ -907,14 +907,14 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
     double yf = double(y);
     z2 = xf * xf + yf * yf;
   }
-  if (i == N || r2 <= z2 || p || ! *running)
+  if (i == N || r2 <= z2 || p || *stop)
   {
     i = -1;
   }
   return i;
 }
 
-extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile int *running, int *progress)
+extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile bool *stop, int *progress)
 {
   // compute average degree
   double degree = 0;
@@ -933,7 +933,7 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   int j = 1;
   int count = 0;
   int stanza = 0;
-  while (j < period && *running)
+  while (j < period && !*stop)
   {
     progress[0] = period;
     progress[1] = j;
@@ -990,7 +990,7 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   double deg = degree / (degree - 1);
   if (isnan(deg) || isinf(deg)) deg = 0;
   // l^d b
-  if (*running)
+  if (!*stop)
   {
     const CDecNumber &lxa = z.m_r.dx[0];
     const CDecNumber &lxb = z.m_r.dx[1];
@@ -1013,7 +1013,7 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   return false;
 }
 
-extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, volatile int *running, int *progress)
+extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, volatile bool *stop, int *progress)
 {
   using R = dual<2, CDecNumber>;
   using C = complex<R>;
@@ -1025,7 +1025,7 @@ extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNu
   int count = 0;
   int stanza = 0;
   CDecNumber zq2 = sqr(z.m_r.x) + sqr(z.m_i.x);
-  while (j <= period && *running)
+  while (j <= period && !*stop)
   {
     progress[0] = period;
     progress[1] = j;
@@ -1047,7 +1047,7 @@ extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNu
     }
     ++j;
   }
-  if (*running)
+  if (!*stop)
   {
     const CDecNumber &lxa = z.m_r.dx[0];
     const CDecNumber &lxb = z.m_r.dx[1];
