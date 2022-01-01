@@ -65,8 +65,8 @@ const struct formula *get_formula(int type, int power)
   return f;
 }
 
-extern CFraktalSFT g_SFT;
 #ifdef WINVER
+extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 #endif
 

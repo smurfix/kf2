@@ -91,9 +91,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <mingw-std-threads/mingw.thread.h>
 #endif
 
-CFraktalSFT g_SFT;  // TODO: replace this
-
 #ifdef WINVER
+
+CFraktalSFT g_SFT;  // TODO: replace this
 
 // POINT g_pInflections[10];
 // int g_nInflection=0;
