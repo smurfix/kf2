@@ -138,11 +138,13 @@ class OpenCLException : public std::exception
   }
 };
 
-void error_print(int err, int loc);
-extern std::string g_OpenCL_Error_Source;
-extern std::string g_OpenCL_Error_Log;;
-extern std::string g_OpenCL_Error_Message;;
-extern std::string g_OpenCL_Error_Line;;
+struct OpenCL_ErrorInfo {
+  // error handling
+  std::string source;
+  std::string log;
+  std::string message;
+  std::string line;
+};
 
 struct OpenCL
 {
@@ -186,13 +188,15 @@ public:
   // formula kernels
   std::vector<clformula> formulas;
 
-  OpenCL(cl_platform_id platform, cl_device_id device_id, bool supports_double);
+  OpenCL(OpenCL_ErrorInfo*, cl_platform_id platform, cl_device_id device_id, bool supports_double);
   ~OpenCL();
 
   void lock();
   void unlock();
 
-#define E(err) error_print(err, __LINE__)
+  OpenCL_ErrorInfo *error;
+  void error_print(int err, int loc);
+  #define E(err) error_print(err, __LINE__)
 
   template<typename mantissa, typename exponent, typename R>
   void run
@@ -558,13 +562,13 @@ public:
               << " -D MAX_HYBRID_STANZAS=" << MAX_HYBRID_STANZAS
               << (tia ? " -D TRIANGLE_INEQUALITY_AVERAGE=1" : "");
       err = clBuildProgram(program, 1, &device_id, options.str().c_str(), 0, 0);
-      g_OpenCL_Error_Source = source;
-      g_OpenCL_Error_Log = "";
+      error->source = source;
+      error->log = "";
       if (err != CL_SUCCESS) {
         char *buf = (char *) malloc(1000000);
         buf[0] = 0;
         E(clGetProgramBuildInfo(program, device_id, CL_PROGRAM_BUILD_LOG, 1000000, &buf[0], 0));
-        g_OpenCL_Error_Log = buf;
+        error->log = buf;
         free(buf);
         E(err);
       }
@@ -849,9 +853,9 @@ public:
 
 };
 
-std::vector<cldevice> initialize_opencl(
+std::vector<cldevice> initialize_opencl(OpenCL_ErrorInfo *cle
 #ifdef WINVER
-                                        HWND hWnd
+                                        , HWND hWnd
 #endif
                                         );
 

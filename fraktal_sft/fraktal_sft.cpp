@@ -147,9 +147,9 @@ CFraktalSFT::CFraktalSFT()
 #endif
 
 #ifdef KF_OPENCL
-    m_cldevices = initialize_opencl(
+    m_cldevices = initialize_opencl(&cl_error
 #ifdef WINVER
-	                                nullptr
+	                                , nullptr
 #endif
 									);
 #endif
@@ -3714,7 +3714,7 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 		if (0 <= i && i < (int) m_cldevices.size())
 		{
 			clid = i;
-			cl = new OpenCL(m_cldevices[i].pid, m_cldevices[i].did, m_cldevices[i].supports_double);
+			cl = new OpenCL(&cl_error, m_cldevices[i].pid, m_cldevices[i].did, m_cldevices[i].supports_double);
 			SetUseOpenCL(true);
 			SetOpenCLPlatform(i);
 		}

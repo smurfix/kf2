@@ -45,7 +45,7 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 #endif
 		p->SetOpenCLDeviceIndex(-1);
 #ifdef WINVER
-		OpenCLErrorDialog(p->m_hWnd, p->m_hWnd ? false : true);
+		OpenCLErrorDialog(&p->cl_error, p->m_hWnd, p->m_hWnd ? false : true);
 #endif
 	}
 #endif

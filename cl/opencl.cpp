@@ -61,25 +61,23 @@ const char *error_string(int err) {
   }
 }
 
-std::string g_OpenCL_Error_Source = "";
-std::string g_OpenCL_Error_Log = "";
-std::string g_OpenCL_Error_Message = "";
-std::string g_OpenCL_Error_Line = "";
-
-void error_print(int err, int loc) {
+static void error_print(OpenCL_ErrorInfo *cle, int err, int loc) {
   if (err == CL_SUCCESS) { return; }
-  g_OpenCL_Error_Message = error_string(err);
-  std::ostringstream s;
-  s << loc;
-  g_OpenCL_Error_Line = s.str();
+  cle->message = error_string(err);
+  cle->line = std::to_string(loc);
   throw OpenCLException();
 }
 
-#define E(err) error_print(err, __LINE__)
+void OpenCL::error_print(int err, int loc) {
+  ::error_print(error, err, loc);
+}
 
-std::vector<cldevice> initialize_opencl(
+#undef E
+#define E(cle,err) ::error_print(cle, err, __LINE__)
+
+std::vector<cldevice> initialize_opencl(OpenCL_ErrorInfo *cle
 #ifdef WINVER
-                                        HWND hWnd
+                                        , HWND hWnd
 #endif
                                         )
 {
@@ -103,19 +101,19 @@ std::vector<cldevice> initialize_opencl(
   char buf[1024];
   for (cl_uint i = 0; i < platform_ids; ++i) {
     buf[0] = 0;
-    E(clGetPlatformInfo(platform_id[i], CL_PLATFORM_VERSION, 1024, &buf[0], 0));
+    E(cle,clGetPlatformInfo(platform_id[i], CL_PLATFORM_VERSION, 1024, &buf[0], 0));
     std::string version(buf);
     buf[0] = 0;
-    E(clGetPlatformInfo(platform_id[i], CL_PLATFORM_VENDOR, 1024, &buf[0], 0));
+    E(cle,clGetPlatformInfo(platform_id[i], CL_PLATFORM_VENDOR, 1024, &buf[0], 0));
     std::string vendor(buf);
 
     cl_device_id device_id[64];
     cl_uint device_ids;
-    E(clGetDeviceIDs(platform_id[i], CL_DEVICE_TYPE_ALL, 64, &device_id[0], &device_ids));
+    E(cle,clGetDeviceIDs(platform_id[i], CL_DEVICE_TYPE_ALL, 64, &device_id[0], &device_ids));
     for (cl_uint j = 0; j < device_ids; ++j)
     {
       buf[0] = 0;
-      E(clGetDeviceInfo(device_id[j], CL_DEVICE_NAME, 1024, &buf[0], 0));
+      E(cle,clGetDeviceInfo(device_id[j], CL_DEVICE_NAME, 1024, &buf[0], 0));
       std::string dname(buf);
       buf[0] = 0;
       cl_uint dvecsize = 0;
@@ -133,18 +131,15 @@ std::vector<cldevice> initialize_opencl(
   catch (OpenCLException &e)
   {
 #ifdef WINVER
-    OpenCLErrorDialog(hWnd, false);
+    OpenCLErrorDialog(cle, hWnd, false);
 #else
-    // XXX report error
-    std::cerr << "OpenCL: ERROR" // << e  // TODO
-        << std::endl;
+    std::cerr << "OpenCL: ERROR " << cle->message << ":" << cle->line << std::endl;
 #endif
   }
   return devices;
 }
 
-
-OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool supports_double)
+OpenCL::OpenCL(OpenCL_ErrorInfo *errinfo, cl_platform_id platform_id0, cl_device_id device_id0, bool supports_double)
 : platform_id(platform_id0)
 , device_id(device_id0)
 , supports_double(supports_double)
@@ -152,6 +147,7 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool suppor
 , commands(0)
 , program(0)
 , config(0)
+, error(errinfo)
 , refx_bytes(0), refx(0)
 , refy_bytes(0), refy(0)
 , refz_bytes(0), refz(0)
@@ -182,11 +178,11 @@ OpenCL::OpenCL(cl_platform_id platform_id0, cl_device_id device_id0, bool suppor
     };
   cl_int err;
   context = clCreateContext(properties, 1, &device_id, NULL, NULL, &err);
-  if (! context) { E(err); }
+  if (! context) { E(error, err); }
   commands = clCreateCommandQueue(context, device_id, 0, &err);
-  if (! commands) { E(err); }
+  if (! commands) { E(error, err); }
   size_t max_config_bytes = supports_double ? sizeof(p_config<double, int64_t>) : sizeof(p_config<float, int32_t>);
-  config = clCreateBuffer(context, CL_MEM_READ_ONLY, max_config_bytes, 0, &err); if (! config) { E(err); }
+  config = clCreateBuffer(context, CL_MEM_READ_ONLY, max_config_bytes, 0, &err); if (! config) { E(error, err); }
 }
 
 OpenCL::~OpenCL()

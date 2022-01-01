@@ -1657,10 +1657,10 @@ LRESULT CALLBACK OpenCLErrorProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_MESSAGE, EM_SETLIMITTEXT, 0, 0);
 		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_SOURCE, WM_SETFONT, WPARAM(g_monospaced_font), 1);
 		SendDlgItemMessage(hWnd, IDC_OPENCL_ERROR_MESSAGE, WM_SETFONT, WPARAM(g_monospaced_font), 1);
-		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_SOURCE,  g_OpenCL_Error_Source.c_str());
-		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LOG,     g_OpenCL_Error_Log.c_str());
-		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_MESSAGE, g_OpenCL_Error_Message.c_str());
-		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LINE,    g_OpenCL_Error_Line.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_SOURCE,  g_SFT.cl_error.source.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LOG,     g_SFT.cl_error.log.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_MESSAGE, g_SFT.cl_error.message.c_str());
+		SetDlgItemText(hWnd, IDC_OPENCL_ERROR_LINE,    g_SFT.cl_error.line.c_str());
 		return 1;
 	}
 else if (uMsg == WM_COMMAND)
@@ -1681,7 +1681,7 @@ return 0;
 #endif // !WINVER
 
 #ifdef KF_OPENCL
-extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
+extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal)
 {
 #ifdef WINVER
 	if (hWnd)
@@ -1692,14 +1692,14 @@ extern void OpenCLErrorDialog(HWND hWnd, bool fatal)
 #else
     (void)hWnd;
 #endif
+	if(cle){
+		std::cerr << "OpenCL C source:" << std::endl << cle->source << std::endl;
+		std::cerr << "OpenCL build log:" << std::endl << cle->log << std::endl;
+		std::cerr << "OpenCL error '" << cle->message << "' at C++ line " << cle->line << std::endl;
+	}
+	if (fatal)
 	{
-		std::cerr << "OpenCL C source:" << std::endl << g_OpenCL_Error_Source << std::endl;
-		std::cerr << "OpenCL build log:" << std::endl << g_OpenCL_Error_Log << std::endl;
-		std::cerr << "OpenCL error '" << g_OpenCL_Error_Message << "' at C++ line " << g_OpenCL_Error_Line << std::endl;
-		if (fatal)
-		{
-			exit(1);
-		}
+		exit(1);
 	}
 }
 #endif // KF_OPENCL
@@ -1755,7 +1755,7 @@ LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 				}
 				catch (OpenCLException &e)
 				{
-					OpenCLErrorDialog(hWnd, false);
+					OpenCLErrorDialog(&g_SFT.cl_error, hWnd, false);
 				}
 				EndDialog(hWnd, 0);
 			}
@@ -1866,7 +1866,7 @@ static long OpenSettings(HWND hWnd, bool &ret, bool warn)
 					}
 					catch (OpenCLException &e)
 					{
-						OpenCLErrorDialog(hWnd, hWnd ? false : true);
+						OpenCLErrorDialog(&g_SFT.cl_error, hWnd, hWnd ? false : true);
 					}
 #endif
 					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());

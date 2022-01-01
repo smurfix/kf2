@@ -363,6 +363,7 @@ public:
 	INT(OpenCLPlatform)    // select which OpenCL impl to use
 	int clid;              // device index
 	OpenCL *cl;            // device interface
+	OpenCL_ErrorInfo cl_error; // opencl errors
 	std::vector<cldevice> m_cldevices;
 
 	int GetOpenCLDeviceIndex();

@@ -24,6 +24,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
+struct OpenCL_ErrorInfo;
+
 #ifdef WINVER
 extern char *GetToolText(int nID,LPARAM lParam);
 extern double GetDlgItemFloat(HWND hWnd,int nID);
@@ -53,7 +55,7 @@ extern HWND g_hwStatus;
 extern HWND g_hwExamine;
 extern HWND g_hwColors;
 
-extern void OpenCLErrorDialog(HWND hWnd, bool fatal);
+extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal);
 #endif
 
 // compatibility
