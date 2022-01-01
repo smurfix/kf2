@@ -3302,9 +3302,15 @@ Capture the mouse, hover the mouse over the fractal image and the
 corresponding color in the list will be highlighted. Click and the color
 selection dialog will be displayed for the active color
 
+### Flat color transition
+
+Makes the transitions of colors flat. That is, the base value (before
+applying distance estimation and coloring method) is an integer, without
+the fractional part that says how close to the next-higher band it is.
+
 ### Smooth color transition
 
-Makes the transitions of colors smooth
+Makes the transitions of colors smooth.
 
 ### Inverse smooth color transition
 
