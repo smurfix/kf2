@@ -758,7 +758,11 @@ public:
 	HBITMAP GetBitmap();
 	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
 	void UpdateBitmap();
+
+// main window
+	int SaveImage(const std::string &fileName,HBITMAP bmp,int quality, const std::string &comment);
 #endif
+	int SaveImage(const std::string &fileName, const BYTE *bits, int width, int height, int quality, const std::string &comment);
 
 	void Done()
 	{

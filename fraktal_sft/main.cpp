@@ -230,7 +230,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 	}
 }
 #ifdef WINVER
-extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
+extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
 	BYTE *lpBits, *lpJeg;
@@ -255,36 +255,36 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else if (nQuality == -3)
 	{
-		bool allocate = ! g_SFT.GetHalfColour();
+		bool allocate = ! GetHalfColour();
 		if (allocate)
 		{
-			g_SFT.SetHalfColour(true);
-			g_SFT.ApplyColors();
+			SetHalfColour(true);
+			ApplyColors();
 		}
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = g_SFT.GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - g_SFT.GetThreadsReserveCore();
-		if (nParallel < 1 || ! g_SFT.GetEXRParallel()) nParallel = 1;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
 		  , bmi.biWidth
 		  , bmi.biHeight
 		  , comment
-		  , g_SFT.GetIterations()
-		  , g_SFT.GetWidth()
-		  , g_SFT.GetHeight()
-		  , g_SFT.GetArrayCount()
-		  , g_SFT.GetArrayTrans()
-		  , g_SFT.GetArrayPhase()
-		  , g_SFT.GetArrayDEx()
-		  , g_SFT.GetArrayDEy()
-		  , g_SFT.GetEXRChannels()
+		  , GetIterations()
+		  , GetWidth()
+		  , GetHeight()
+		  , GetArrayCount()
+		  , GetArrayTrans()
+		  , GetArrayPhase()
+		  , GetArrayDEx()
+		  , GetArrayDEy()
+		  , GetEXRChannels()
 		  , nParallel
 		  );
 		if (allocate)
 		{
-			g_SFT.SetHalfColour(false);
+			SetHalfColour(false);
 		}
 	}
 	else
@@ -294,9 +294,10 @@ extern int SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, c
 	ReleaseDC(NULL,hDC);
 	return nRet;
 }
+#endif
 
 // this version doesn't go via a bitmap structure, avoiding dreaded blank images...
-extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
+extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
 {
 	assert(lpBits);
 	assert(biWidth);
@@ -313,36 +314,36 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
 	else if (nQuality == -3)
 	{
-		bool allocate = ! g_SFT.GetHalfColour();
+		bool allocate = ! GetHalfColour();
 		if (allocate)
 		{
-			g_SFT.SetHalfColour(true);
-			g_SFT.ApplyColors();
+			SetHalfColour(true);
+			ApplyColors();
 		}
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = g_SFT.GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - g_SFT.GetThreadsReserveCore();
-		if (nParallel < 1 || ! g_SFT.GetEXRParallel()) nParallel = 1;
+		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
 		  , biWidth
 		  , biHeight
 		  , comment
-		  , g_SFT.GetIterations()
-		  , g_SFT.GetWidth()
-		  , g_SFT.GetHeight()
-		  , g_SFT.GetArrayCount()
-		  , g_SFT.GetArrayTrans()
-		  , g_SFT.GetArrayPhase()
-		  , g_SFT.GetArrayDEx()
-		  , g_SFT.GetArrayDEy()
-		  , g_SFT.GetEXRChannels()
+		  , GetIterations()
+		  , GetWidth()
+		  , GetHeight()
+		  , GetArrayCount()
+		  , GetArrayTrans()
+		  , GetArrayPhase()
+		  , GetArrayDEx()
+		  , GetArrayDEy()
+		  , GetEXRChannels()
 		  , nParallel
 		  );
 		if (allocate)
 		{
-			g_SFT.SetHalfColour(false);
+			SetHalfColour(false);
 		}
 	}
 	else
@@ -350,7 +351,6 @@ extern int SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWi
 	delete [] lpJeg;
 	return nRet;
 }
-#endif
 
 POINT g_pSelect, g_pStart;
 int g_bSelect=0;

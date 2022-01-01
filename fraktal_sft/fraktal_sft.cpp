@@ -2652,10 +2652,10 @@ int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, in
 	if (nHeight == 0)
 		nHeight = m_nY;
 	if (m_nX == nWidth && m_nY == nHeight)
-		return ::SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
+		return SaveImage(szFile, m_lpBits, m_nX, m_nY, nQuality, comment);
 	else{
 		HBITMAP bmSave = ShrinkBitmap(GetBitmap(), nWidth, nHeight, 3); // always use high quality sRGB shrinking when saving
-		int nRet = ::SaveImage(szFile, bmSave, nQuality, comment);
+		int nRet = SaveImage(szFile, bmSave, nQuality, comment);
 		DeleteObject(bmSave);
 		return nRet;
 	}
