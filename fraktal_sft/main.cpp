@@ -1014,37 +1014,36 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 	return os.str();
 }
 
-#ifdef WINVER
-
-static void AutoIterations()
+void CFraktalSFT::FixIterLimit()
 {
 	// calculates a new max iteration limit.
-	// XXX export this
-	if(g_SFT.GetAutoIterations()){
+	if(GetAutoIterations()){
 		int64_t nMin, nMax, nIter;
-		g_SFT.GetIterations(nMin,nMax);
+		GetIterations(nMin,nMax);
 		// sanity check, abort if no pixels have been calculated
 		if (nMax == PIXEL_UNEVALUATED)
 			return;
 		// sanity increase
-		nIter = g_SFT.GetIterations();
+		nIter = GetIterations();
 		if(nIter<nMax)
-			g_SFT.SetIterations(nMax);
+			SetIterations(nMax);
 		// increase
-		nIter = g_SFT.GetIterations();
+		nIter = GetIterations();
 		if(nIter<nMin+nMin+2000)
-			g_SFT.SetIterations(nMin+nMin+3000);
+			SetIterations(nMin+nMin+3000);
 		// decrease
-		nMax = g_SFT.GetMaxExceptCenter();
+		nMax = GetMaxExceptCenter();
 		// sanity check, abort if no pixels have been calculated
 		if (nMax == PIXEL_UNEVALUATED)
 			return;
-		if(nMax<g_SFT.GetIterations()/3)
+		if(nMax<GetIterations()/3)
 			// above sanity check sometimes fails?
 			if (nMax * 3 > 1000)
-				g_SFT.SetIterations(nMax * 3);
+				SetIterations(nMax * 3);
 	}
 }
+
+#ifdef WINVER
 
 static int ResumeZoomSequence(HWND hWnd)
 {
@@ -1186,7 +1185,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	//g_SFT.Render();
 	if (bShouldAutoIterations)
 	{
-		AutoIterations();
+		g_SFT.FixIterLimit();
 	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
@@ -1372,7 +1371,7 @@ nPos=14;
 				g_bStoreZoom=FALSE;
 			}
 			else{
-				AutoIterations();
+				g_SFT.FixIterLimit();
 				{
 //					if(g_bAnimateEachFrame)
 //						g_Degree+=0.01;
@@ -2546,7 +2545,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
 			CloseHandle(hThread);
 		}
-		AutoIterations();
+		g_SFT.FixIterLimit();
 		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.GetWidth()/rc.right;
 		p.y = (short)(p.y)*g_SFT.GetHeight()/rc.bottom;
@@ -2620,7 +2619,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					UpdateWindow(hWnd);
 				}
 
-				AutoIterations();
+				g_SFT.FixIterLimit();
 			}
 
 			g_SFT.ResetTimers();
@@ -2866,7 +2865,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			q.x=rc.right/2 + (q.x-rc.right/2)/2;
 			q.y=rc.bottom/2 + (q.y-rc.bottom/2)/2;
 		}
-		AutoIterations();
+		g_SFT.FixIterLimit();
 		g_pSelect.x = -g_SFT.GetWidth()/2;
 		g_pSelect.y = g_SFT.GetHeight()/2;
 		ANIM* pAnim = new ANIM;
@@ -4305,7 +4304,7 @@ static bool render_frame(int frame, bool onlyKFR)
 		}
 		if (! onlyKFR)
 		{
-			FixIterLimit();
+			g_SFT.FixIterLimit();
 		}
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 	}

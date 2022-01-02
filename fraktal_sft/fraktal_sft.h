@@ -272,6 +272,7 @@ public:
 	BOOL m_bIterChanged;
 
 	BOOL(AutoIterations)   // auto-calculate the iteration limit
+	void FixIterLimit();   // calculate a new limit
 
   // approximation
 	BOOL m_bNoApproximation;
