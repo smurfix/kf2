@@ -54,9 +54,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifdef KF_OPENCL
 #include "../cl/opencl.h"
 #endif
-#ifdef WINVER
 #include "../common/bitmap.h"
-#endif
 #include <png.h>
 #include <zlib.h>
 #include <gsl/gsl_version.h>
@@ -211,6 +209,7 @@ int g_bFindMinibrotPos=0;
 
 BOOL g_bZoomRunning=FALSE;
 BOOL g_bZoomStop=FALSE;
+#endif
 
 static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int stride, int bytes)
 {
@@ -334,6 +333,7 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpB
 	return nRet;
 }
 
+#ifdef WINVER
 POINT g_pSelect, g_pStart;
 int g_bSelect=0;
 HWND g_hwStatus=NULL;
