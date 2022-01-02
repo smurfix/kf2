@@ -4296,14 +4296,7 @@ static bool render_frame(int frame, bool onlyKFR)
 	}
 	g_SFT.m_bInhibitColouring = TRUE;
 	g_SFT.m_bInteractive = false;
-	if (frame == 0)
-	{
-		if (! onlyKFR)
-		{
-			g_SFT.Render(true, true);
-		}
-	}
-	else
+	if (frame > 0)
 	{
 		int j = g_SFT.GetJitterSeed();
 		if (j)
@@ -4312,16 +4305,13 @@ static bool render_frame(int frame, bool onlyKFR)
 		}
 		if (! onlyKFR)
 		{
-			AutoIterations();
+			FixIterLimit();
 		}
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
-		if (! onlyKFR)
-		{
-			g_SFT.Render(true, true);
-		}
 	}
 	if (! onlyKFR)
 	{
+		g_SFT.Render(true, true);
 		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
 		{
 			int x = -1, y = -1;
