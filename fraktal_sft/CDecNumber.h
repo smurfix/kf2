@@ -98,7 +98,7 @@ public:
 	};
 
 	template <typename mantissa, typename exponent>
-	inline CDecNumber(const tfloatexp<mantissa, exponent> &a) noexcept
+	explicit inline CDecNumber(const tfloatexp<mantissa, exponent> &a) noexcept
 	{
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		if (a.exp > exponent(INT_MAX))

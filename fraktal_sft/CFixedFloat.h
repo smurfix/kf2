@@ -98,7 +98,7 @@ public:
 	};
 
 	template <typename mantissa, typename exponent>
-	inline CFixedFloat(const tfloatexp<mantissa, exponent> &a) noexcept
+	explicit inline CFixedFloat(const tfloatexp<mantissa, exponent> &a) noexcept
 	{
 		m_f.precision(std::max(FixedFloat::default_precision(), LOW_PRECISION));
 		if (a.exp > exponent(INT_MAX))

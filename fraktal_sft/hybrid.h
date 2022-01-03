@@ -1366,7 +1366,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
           phase -= std::floor(phase);
           break;
         }
-        if (test1 < xr.x * xr.x + xi.x * xi.x || rantal == size_x)
+        if ((tfloatexp<R, I>)test1 < xr.x * xr.x + xi.x * xi.x || rantal == size_x)
         {
           xr = Xxr;
           xi = Xxi;
