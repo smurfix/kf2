@@ -7,6 +7,11 @@ CPixels::CPixels()
 #endif
 {
 	m_pPixels = NULL;
+	m_nX = 0;
+	m_nY = 0;
+	m_nY2 = 0;
+	m_nPixels = 0;
+	m_nNextPixel = 0;
 #ifdef WINVER
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 #endif
