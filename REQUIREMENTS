@@ -1,0 +1,11 @@
+# this is for building the embedded library on Debian
+libopenexr-dev
+libmpfr-dev
+libgsl-dev
+libglfw3-dev
+libclew-dev
+ocl-icd-opencl-dev
+libjpeg-dev
+libtiff-dev
+libpng-dev
+libpixman-1-dev
