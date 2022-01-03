@@ -522,7 +522,7 @@ void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
 
 static int ThCalcStart(TH_PARAMS *pMan)
 {
-	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight());
+	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight());
 	return 0;
 }
 

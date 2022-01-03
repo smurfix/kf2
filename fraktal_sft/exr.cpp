@@ -55,8 +55,8 @@ extern int CFraktalSFT::SaveEXR
   try
   {
     int64_t maxiter = GetIterations();
-    int arrWidth = GetWidth();
-    int arrHeight = GetHeight();
+    int arrWidth = GetImageWidth();
+    int arrHeight = GetImageHeight();
     const itercount_array &count = GetArrayCount();
     const float *trans = GetArrayTrans();
     const EXRChannels C = GetEXRChannels();

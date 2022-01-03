@@ -462,14 +462,14 @@ extern void TransformImage(HBITMAP bmBmp)
 
 extern void TransformBlit(HDC hDC, int w, int h)
 {
-  HBITMAP bmBmp = create_bitmap(hDC, g_SFT.GetWidth(), g_SFT.GetHeight());
-  POINT pm = { g_SFT.GetWidth() / 2, g_SFT.GetHeight() / 2 };
+  HBITMAP bmBmp = create_bitmap(hDC, g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
+  POINT pm = { g_SFT.GetImageWidth() / 2, g_SFT.GetImageHeight() / 2 };
   TransformImage(g_SFT.GetBitmap(), bmBmp, pm);
   HDC dcBmp = CreateCompatibleDC(hDC);
   HBITMAP bmOld = (HBITMAP) SelectObject(dcBmp, bmBmp);
   SetStretchBltMode(dcBmp, HALFTONE);
   SetStretchBltMode(hDC, HALFTONE);
-  StretchBlt(hDC, 0, 0, w, h, dcBmp, 0, 0, g_SFT.GetWidth(), g_SFT.GetHeight(), SRCCOPY);
+  StretchBlt(hDC, 0, 0, w, h, dcBmp, 0, 0, g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), SRCCOPY);
   SelectObject(dcBmp, bmOld);
   DeleteObject(dcBmp);
   DeleteObject(bmBmp);

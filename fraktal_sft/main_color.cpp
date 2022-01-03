@@ -1195,8 +1195,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		int x = p.x*g_SFT.GetWidth()/rc.right;
-		int y = p.y*g_SFT.GetHeight()/rc.bottom;
+		int x = p.x*g_SFT.GetImageWidth()/rc.right;
+		int y = p.y*g_SFT.GetImageHeight()/rc.bottom;
 		int i = g_SFT.GetColorIndex(x,y);
 		i/=(1024/g_SFT.GetNumOfColors());
 		SendDlgItemMessage(hWnd,IDC_LIST1,LB_SETCURSEL,i,0);
@@ -1224,8 +1224,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		int x = p.x*g_SFT.GetWidth()/rc.right;
-		int y = p.y*g_SFT.GetHeight()/rc.bottom;
+		int x = p.x*g_SFT.GetImageWidth()/rc.right;
+		int y = p.y*g_SFT.GetImageHeight()/rc.bottom;
 
 		int i = g_SFT.GetColorIndex(x,y);
 		i/=(1024/g_SFT.GetNumOfColors());

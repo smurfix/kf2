@@ -1227,7 +1227,7 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 
 static int ThApplyColors(TH_PARAMS *pMan)
 {
-	pMan->p->ApplyColors(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight());
+	pMan->p->ApplyColors(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight());
 	return 0;
 }
 
@@ -3054,7 +3054,7 @@ struct TH_FIND_CENTER
 
 static int ThFindCenterOfGlitch(TH_FIND_CENTER *pMan)
 {
-	pMan->p->FindCenterOfGlitch(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetHeight(), pMan);
+	pMan->p->FindCenterOfGlitch(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight(), pMan);
 	return 0;
 }
 
