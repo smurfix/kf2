@@ -191,11 +191,11 @@ public:
 	// fractal size
 	int m_nX, m_nY;
 	void SetImageSize(int nx, int ny);
-	inline int GetWidth() const { return m_nX; }
-	inline int GetHeight() const { return m_nY; }
+	inline int GetWidth() const { return m_nX; } // TODO remove
+	inline int GetHeight() const { return m_nY; } // TODO remove
 
-	inline int64_t GetImageWidth() const { return m_nX; }
-	inline int64_t GetImageHeight() const { return m_nY; }
+	inline int64_t GetImageWidth() const { return m_nX; } // TODO int32
+	inline int64_t GetImageHeight() const { return m_nY; } // TODO int32
 
 	// forwards to Settings: stores the target image size and a supersampling factor
 	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
