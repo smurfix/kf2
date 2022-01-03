@@ -139,11 +139,22 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
 }
 
 CFraktalSFT::CFraktalSFT()
-: m_nPixels(0, 0, nullptr, nullptr)
+: m_Settings()
+, m_HybridFormula()
+, m_nPixels(0, 0, nullptr, nullptr)
+, m_P()
 #ifndef WINVER
 , m_renderThread()
 #endif
+, m_cldevices()
 , N() // invalid array
+#ifndef WINVER
+, m_mutex()
+#endif
+, m_sGLSL(KF_DEFAULT_GLSL)
+, m_sGLSLLog("")
+, m_undo()
+, m_redo()
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -163,14 +174,21 @@ CFraktalSFT::CFraktalSFT()
 	m_nImgRatio=100;
 	m_szTexture="";
 	m_bTextureResize = true;
+	m_lpTextureBits = nullptr;
+	m_rowBkg = 0;
 
 	m_bSlopes = FALSE;
 	m_nSlopePower = 50;
 	m_nSlopeRatio = 50;
 	m_nSlopeAngle = 45;
+	m_nSlopeX = m_nSlopeY = 0;
 	m_bNoPostWhenDone = FALSE;
 	SetTransformMatrix(mat2(1.0, 0.0, 0.0, 1.0));
 	m_nFractalType = 0;
+	m_bmi = nullptr;
+#ifdef WINVER
+	m_bmBmp = nullptr;
+#endif
 	m_bMirrored = 0;
 	m_bMW = 0;
 	m_bBlend = 0;
@@ -187,6 +205,8 @@ CFraktalSFT::CFraktalSFT()
 	m_hMutex = CreateMutex(NULL, 0, NULL);
 	m_bRunning = FALSE;
 #endif
+	m_bStop = false;
+
 	m_CenterRe = 0;
 	m_CenterIm = 0;
 	m_ZoomRadius = 2;
@@ -200,13 +220,19 @@ CFraktalSFT::CFraktalSFT()
 	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
 	m_nX = m_nY = 0;
+	m_bResized = true;
 	m_nSizeImage = -1;
-	m_pnExpConsts = NULL;
+	m_pnExpConsts = nullptr;
+	m_fPixelSpacing = 0;
+	m_nParts = 0;
 
 	m_Reference = nullptr;
 	m_ReferenceReuse = nullptr;
+	m_rrefReuse = m_irefReuse = 0;
 	m_NanoMB1Ref = nullptr;
 	m_NanoMB2Ref = nullptr;
+	m_nPixels_LSB = nullptr;
+	m_nPixels_MSB = nullptr;
 
 	m_nSmoothMethod = SmoothMethod_Log;
 	m_nBailoutRadiusPreset = BailoutRadius_High;
@@ -219,20 +245,37 @@ CFraktalSFT::CFraktalSFT()
 
 	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
 
-	m_imageHalf = NULL;
-	m_lpBits = NULL;
+	m_imageHalf = nullptr;
+	m_lpBits = nullptr;
 	m_row = 0;
 	m_nMaxIter = 200;
+	m_nMinI = m_nMaxI = 0;
+	m_bIterChanged = false;
+	m_bNoApproximation = false;
+	m_nMaxApproximation = 0;
+	m_nApprox = 0;
+	m_pixel_center_x = m_pixel_center_y = 0;
+	m_pixel_scale = 0;
+
 	m_nIterDiv = 0.1;
+	m_nColorOffset = 0;
 	m_nAddRefX = -1;
 	m_nAddRefY = -1;
-	m_SeedR=0;
-	m_SeedI=0;
-	m_FactorAR=1;
-	m_FactorAI=0;
+	m_SeedR = 0;
+	m_SeedI = 0;
+	m_FactorAR = 1;
+	m_FactorAI = 0;
 	m_real = 1;
 	m_imag = 1;
+	m_rref = m_iref = 0;
 	m_bAutoGlitch = 1;
+	m_nSeed = 1;
+	m_nMW = 0;
+	m_bMW = false;
+	m_bBlend = false;
+	m_bUseSRGB = false;
+	m_bTriangleInequalityAverage = false;
+
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
 	m_UseHybridFormula = false;
@@ -255,12 +298,23 @@ CFraktalSFT::CFraktalSFT()
 	m_bUseOpenGL = false;
 	m_bBadOpenGL = false;
 	m_bGLSLChanged = true;
-	m_sGLSL = KF_DEFAULT_GLSL;
+	m_bGLSLCompiled = false;
+
+#ifdef KF_OPENCL
+	m_opengl_major = 0;
+	m_opengl_minor = 0;
+	m_OpenCL_Glitched = false;
+	m_OpenCL_Glitched_X = m_OpenCL_Glitched_Y = 0;
+	m_OpenCL_Glitched_Count = 0;
+#endif
+	m_bAddReference = 0;
 
 	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
+	m_nRDone = 0;
 	GenerateColors(128, 1);
+	ResetTimers();
 	OpenString(
 "Re: 0\n"
 "Im: 0\n"
