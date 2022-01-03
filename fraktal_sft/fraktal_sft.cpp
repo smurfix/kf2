@@ -205,7 +205,6 @@ CFraktalSFT::CFraktalSFT()
 
 #ifdef WINVER
 	m_hMutex = CreateMutex(NULL, 0, NULL);
-	m_bRunning = FALSE;
 #endif
 	m_bStop = false;
 
@@ -2076,7 +2075,7 @@ void CFraktalSFT::Stop()
 		m_bNoGlitchDetection = TRUE;
 #ifdef WINVER
 	double counter = 0;
-	while (m_bRunning)
+	while (m_bIsRendering)
 	{
 		Sleep(1);
 		counter += 1;

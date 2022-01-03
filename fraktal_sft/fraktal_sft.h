@@ -341,9 +341,6 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
-#ifdef WINVER
-	BOOL m_bRunning;          // Render running?
-#endif
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	ABOOL m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
