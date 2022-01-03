@@ -139,7 +139,11 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
 }
 
 CFraktalSFT::CFraktalSFT()
-: m_nPixels(0, 0, nullptr, nullptr), N() // invalid array
+: m_nPixels(0, 0, nullptr, nullptr)
+#ifndef WINVER
+, m_renderThread()
+#endif
+, N() // invalid array
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -2026,7 +2030,8 @@ void CFraktalSFT::Stop()
 		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
 #endif
 #else
-	m_renderThread.join();
+	if(m_renderThread.joinable())
+		m_renderThread.join();
 #endif
 	m_bStop = FALSE;
 	m_bNoPostWhenDone=0;

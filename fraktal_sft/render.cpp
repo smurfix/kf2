@@ -108,7 +108,8 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	m_bRunning = TRUE;
 
 #else // !Windows
-	m_renderThread.join();
+	if(m_renderThread.joinable())
+		m_renderThread.join();
 #endif
 	m_bStop = FALSE;
 	m_nRDone = 0;
