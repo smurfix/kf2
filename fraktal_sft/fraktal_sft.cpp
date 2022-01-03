@@ -143,9 +143,11 @@ CFraktalSFT::CFraktalSFT()
 , m_HybridFormula()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
+, m_bStop(false)
 #ifndef WINVER
 , m_renderThread()
 #endif
+, m_bIsRendering(false)
 , m_cldevices()
 , N() // invalid array
 #ifndef WINVER

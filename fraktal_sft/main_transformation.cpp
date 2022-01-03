@@ -37,8 +37,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #endif
 
 static bool g_transformation_useddz = false;
-static volatile bool g_transformation_stop = true;
-static volatile bool g_transformation_still_running = false;
+static ABOOL g_transformation_stop = true;
+static ABOOL g_transformation_still_running = false;
 
 static polar2 original_transformation = polar2(1, 1, 0, 1, 0);
 static polar2 current_transformation = polar2(1, 1, 0, 1, 0);

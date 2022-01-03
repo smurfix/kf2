@@ -692,7 +692,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
 }
 #endif
 
-extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile bool *stop, int *progress)
+extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, ABOOL *stop, int *progress)
 {
   Precision prec(std::max(cr0.m_dec.precision(), ci0.m_dec.precision()));
   using N = int;
@@ -762,7 +762,7 @@ extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDe
   return false;
 }
 
-extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, volatile bool *stop, int *progress)
+extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, ABOOL *stop, int *progress)
 {
   Precision prec(std::max(cr.m_dec.precision(), ci.m_dec.precision()));
   using N = int;
@@ -842,7 +842,7 @@ extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber 
   return false;
 }
 
-extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile bool *stop, int *progress)
+extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, ABOOL *stop, int *progress)
 {
   using R = dual<2, CDecNumber>;
   using C = complex<R>;
@@ -914,7 +914,7 @@ extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, co
   return i;
 }
 
-extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile bool *stop, int *progress)
+extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, ABOOL *stop, int *progress)
 {
   // compute average degree
   double degree = 0;
@@ -1013,7 +1013,7 @@ extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A
   return false;
 }
 
-extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, volatile bool *stop, int *progress)
+extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, ABOOL *stop, int *progress)
 {
   using R = dual<2, CDecNumber>;
   using C = complex<R>;
@@ -3442,7 +3442,7 @@ static void pow(mpfr_t X, mpfr_t Y, int p, mpfr_t T1, mpfr_t T2, mpfr_t T3, mpfr
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , ABOOL &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate

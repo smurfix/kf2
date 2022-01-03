@@ -133,6 +133,8 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
 
+	m_bIsRendering = true; // avoid race conditions
+
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
 #ifdef WINVER
 		if (m_hWnd)
@@ -153,7 +155,6 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 
 void CFraktalSFT::RenderFractal()
 {
-	m_bIsRendering = true;
 	if (! m_bAddReference)
 	{
 		m_count_queued = m_nX * m_nY;

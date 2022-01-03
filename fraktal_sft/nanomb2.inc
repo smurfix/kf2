@@ -582,7 +582,7 @@ struct NanoMB2_Reference
   { };
 };
 
-NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, volatile bool &stop, int64_t &m_nRDone, R_lo radius_scale)
+NanoMB2_Reference *NanoMB2_Reference_Calculate(const C_hi &c, N bm, N bn, N maxperiod, R_lo r0, ABOOL &stop, int64_t &m_nRDone, R_lo radius_scale)
 {
   R_lo tmax = r0;
 

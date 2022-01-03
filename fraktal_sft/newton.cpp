@@ -70,9 +70,10 @@ extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 #endif
 
-CNewton::CNewton() {
+CNewton::CNewton()
+: stop(false)
+{
 	g_bNewtonRunning = false;
-	g_bNewtonStop = false;
 	g_bNewtonExit = false;
 	g_bJustDidNewton = false;
 
@@ -207,7 +208,7 @@ static inline bool cisfinite(const complex<flyttyp> &z) {
 struct BallPeriodCommon
 {
   barrier_t *barrier;
-  volatile bool *stop;
+  ABOOL *stop;
   bool *haveperiod;
   int64_t *period;
   int64_t maxperiod;
@@ -235,7 +236,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
 #endif
   int t = b->threadid;
   barrier_t *barrier = b->c->barrier;
-  volatile bool *stop = b->c->stop;
+  ABOOL *stop = b->c->stop;
   bool *haveperiod = b->c->haveperiod;
   int64_t *period = b->c->period;
   progress_t *progress = b->c->progress;
@@ -392,7 +393,7 @@ struct STEP_STRUCT_COMMON
 {
 	void *hWnd;
 	barrier_t *barrier;
-	volatile bool *stop;
+	ABOOL *stop;
 	int newtonStep;
 	int64_t period;
 	mpfr_t zr, zi, zrn, zin, zr2, zi2, cr, ci, dcr, dci, dcrn, dcin, dcrzr, dcrzi, dcizr, dcizi;
@@ -502,7 +503,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	STEP_STRUCT_COMMON m;
 	m.hWnd = hWnd;
 	m.barrier = &bar;
-	m.stop = &g_SFT.N.g_bNewtonStop;
+	m.stop = &g_SFT.N.stop;
 	m.newtonStep = newtonStep;
 	m.period = period;
 	m.progress = progress;
@@ -677,7 +678,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
   flyttyp radius2 = radius * radius;
   g_SFT.N.g_nNewtonETA = -1;
-  for (i = 0; i < maxsteps && !g_SFT.N.g_bNewtonStop && !g_SFT.N.g_bNewtonExit; ++i) {
+  for (i = 0; i < maxsteps && !g_SFT.N.stop && !g_SFT.N.g_bNewtonExit; ++i) {
     progress->counters[0] = g_SFT.N.g_nNewtonETA;
     progress->counters[1] = i + 1;
     progress->counters[2] = period;
@@ -713,7 +714,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 #ifndef WINVER
 #define g_SFT (*(CFraktalSFT *)hWnd)
 #endif
-  for (int64_t i = 1; i < period && !g_SFT.N.g_bNewtonStop; ++i) {
+  for (int64_t i = 1; i < period && !g_SFT.N.stop; ++i) {
 	  if(i%100==0){
 		uint32_t now = GetTickCount();
 		if (now - last > 250)
@@ -826,7 +827,7 @@ void CFraktalSFT::ThNewton()
 #ifdef WINVER
 	int bOK = 1;
 #endif
-	if (g_SFT.N.g_period > 0 && ! g_SFT.N.g_bNewtonStop && g_SFT.N.g_nr_action >= 1)
+	if (g_SFT.N.g_period > 0 && ! g_SFT.N.stop && g_SFT.N.g_nr_action >= 1)
 	{
 		// fork progress updater
 	    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd,
@@ -890,7 +891,7 @@ void CFraktalSFT::ThNewton()
 			ReportProgress(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew));
 		}
 
-		if (! g_SFT.N.g_bNewtonStop && ! test)
+		if (! g_SFT.N.stop && ! test)
 		{
 			if (g_SFT.N.g_nr_action >= 2)
 			{
@@ -1206,7 +1207,6 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 	{
 		if(g_SFT.N.g_bNewtonRunning){
 			g_SFT.N.stop = true;
-			g_SFT.N.g_bNewtonStop=TRUE;
 			while(g_SFT.N.g_bNewtonRunning){
 				MSG msg;
 				while(PeekMessage(&msg,NULL,0,0,PM_REMOVE)){
@@ -1248,7 +1248,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 
 			DWORD dw;
-			g_SFT.N.g_bNewtonStop=FALSE;
+			g_SFT.N.stop=false;
 			g_SFT.N.g_bNewtonExit=FALSE;
 			*g_szProgress=0;
 			g_SFT.N.g_nNewtonETA = -1;
@@ -1293,7 +1293,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			}
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 		}
-		if(lParam == -1 && !g_SFT.N.g_bNewtonStop)
+		if(lParam == -1 && !g_SFT.N.stop)
 			MessageBox(GetParent(hWnd),"Could not apply Newton-Raphson\r\nYou may zoom in a little and try again","Error",MB_OK|MB_ICONSTOP);
 		if((lParam == 0 || lParam < -1 || lParam > 1))
 			MessageBox(GetParent(hWnd),"Unexpected stop message parameter (internal error)\r\n","Error",MB_OK|MB_ICONSTOP);

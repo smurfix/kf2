@@ -569,7 +569,7 @@ struct NanoMB1_Reference
   { };
 };
 
-NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, double er2, double lowGlitchTol, volatile bool &stop, int64_t &m_nRDone)
+NanoMB1_Reference *NanoMB1_Reference_Calculate(const C_hi &c, N bm, N bn, N period, double er2, double lowGlitchTol, ABOOL &stop, int64_t &m_nRDone)
 {
   double glitch_threshold = 0.0000001;
   glitch_threshold = std::exp(std::log(glitch_threshold) * (1 - lowGlitchTol / 2));
