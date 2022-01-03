@@ -45,13 +45,12 @@ instead.
 
 ## Get the source
 
-- cd ..
-- git clone https://github.com/smurfix/kf2-py.git
-- cd kf2-py
+- git clone https://github.com/smurfix/kf2-py.git python
+- cd python
 
 ## install modules
 
-- On Debian: `sudo dpkg -i $(cat REQUIREMENTS)`
+- On Debian: `sudo dpkg -i $(grep -v '#' REQUIREMENTS)`
 
 ## Build
 
@@ -64,4 +63,24 @@ instead.
 If that shows your KF2 source's version number, success! You have cleared
 the first hurdle.
 
+## Debugging
+
+When built with embedding, this library manages to find a GDB bug.
+
+Workaround:
+
+- get GDB sources
+- edit gdb/gdbtypes.c
+- patch internal_type_vptr_fieldno function:
+
+	   type = check_typedef (type);
+    -   gdb_assert (type->code () == TYPE_CODE_STRUCT
+    -              || type->code () == TYPE_CODE_UNION);
+
+	+  if (type->code () != TYPE_CODE_STRUCT
+	+      && type->code () != TYPE_CODE_UNION) {
+	+    return -1;
+	+  }
+
+- build, install, and use this version.
 
