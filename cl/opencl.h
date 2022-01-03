@@ -6,6 +6,9 @@
 #include <stdint.h>
 #include <string>
 #include <vector>
+#ifndef WINVER
+#include <mutex>
+#endif
 
 #include "../fraktal_sft/defs.h"
 #include "../fraktal_sft/floatexp.h"
@@ -183,7 +186,11 @@ public:
   size_t counts_bytes; cl_mem counts;
   size_t glitch_out_bytes; cl_mem glitch_out;
 
+#ifdef WINVER
   HANDLE mutex;
+#else
+  std::mutex mutex;
+#endif
 
   // formula kernels
   std::vector<clformula> formulas;

@@ -2675,13 +2675,25 @@ int64_t CFraktalSFT::GetMaxApproximation()
 }
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
+#ifdef WINVER
 	WaitForMutex(m_hMutex);
+#else
+	m_mutex.lock();
+#endif
 	if (!m_nPixels || x<0 || x >= m_nX || y<0 || y >= m_nY){
+#ifdef WINVER
 		ReleaseMutex(m_hMutex);
+#else
+		m_mutex.unlock();
+#endif
 		return PIXEL_UNEVALUATED;
 	}
 	int64_t nRet = m_nPixels[x][y];
+#ifdef WINVER
 	ReleaseMutex(m_hMutex);
+#else
+	m_mutex.unlock();
+#endif
 	return nRet;
 }
 double CFraktalSFT::GetTransOnPoint(int x, int y)

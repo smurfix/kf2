@@ -116,11 +116,19 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
+#ifdef WINVER
 	WaitForMutex(m_hMutex);
+#else
+	m_mutex.lock();
+#endif
 	if (m_bResized)
 	    FreeBitmap();
 	AllocateBitmap();
+#ifdef WINVER
 	ReleaseMutex(m_hMutex);
+#else
+	m_mutex.unlock();
+#endif
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);

@@ -147,7 +147,6 @@ OpenCL::OpenCL(OpenCL_ErrorInfo *errinfo, cl_platform_id platform_id0, cl_device
 , commands(0)
 , program(0)
 , config(0)
-, error(errinfo)
 , refx_bytes(0), refx(0)
 , refy_bytes(0), refy(0)
 , refz_bytes(0), refz(0)
@@ -165,9 +164,14 @@ OpenCL::OpenCL(OpenCL_ErrorInfo *errinfo, cl_platform_id platform_id0, cl_device
 , glitch_x_bytes(0), glitch_x(0)
 , counts_bytes(0), counts(0)
 , glitch_out_bytes(0), glitch_out(0)
-
+#ifndef WINVER
+, mutex()
+#endif
+, error(errinfo)
 {
+#ifdef WINVER
   mutex = CreateMutex(0,0,0);
+#endif
   platform_id = platform_id0;
   device_id = device_id0;
   // create context
@@ -213,12 +217,20 @@ OpenCL::~OpenCL()
 
 void OpenCL::lock()
 {
+#ifdef WINVER
   WaitForMutex(mutex);
+#else
+  mutex.lock();
+#endif
 }
 
 void OpenCL::unlock()
 {
+#ifdef WINVER
   ReleaseMutex(mutex);
+#else
+  mutex.unlock();
+#endif
 }
 
 struct softfloat

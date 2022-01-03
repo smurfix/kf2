@@ -6,6 +6,7 @@
 #include <inttypes.h>
 #include <time.h>
 #include <memory.h>
+#include <stdlib.h>
 #include <string.h>
 #include <sched.h>
 #include <unistd.h>
@@ -131,27 +132,6 @@ typedef struct tagRGBQUAD {
   BYTE rgbRed;
   BYTE rgbReserved;
 } RGBQUAD,*LPRGBQUAD;
-
-// // // mutex nonsense // // //
-//
-#include <mutex>
-static inline void *CreateMutex(void *_x1, BOOL owned, void *_x2) {
-  (void)_x1;
-  (void)_x2;
-  std::mutex *m = new std::mutex;
-  if (owned)
-    m->lock();
-  return m;
-}
-
-static inline void ReleaseMutex(void *m)
-{
-  (static_cast<std::mutex *>(m))->unlock();
-}
-static inline void WaitForMutex(void *m)
-{
-  (static_cast<std::mutex *>(m))->lock();
-}
 
 // // // clock // // //
 static inline clock_t GetTickCount() {

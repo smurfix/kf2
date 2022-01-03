@@ -2,9 +2,14 @@
 
 
 CPixels::CPixels()
+#ifndef WINVER
+: mutex()
+#endif
 {
 	m_pPixels = NULL;
+#ifdef WINVER
 	m_hMutex = CreateMutex(NULL, 0, NULL);
+#endif
 }
 
 struct CPixel

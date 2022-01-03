@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #ifndef WINVER
 #include <thread>
+#include <mutex>
 #endif
 
 #include <atomic>
@@ -566,7 +567,7 @@ public:
 	HANDLE m_hMutex;                  // protet the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
 #else
-	void *m_hMutex;                  // protet the stuff below
+	std::mutex m_mutex;                  // protect the stuff below
 #endif
 	void FreeBitmap();
 	void AllocateBitmap();
