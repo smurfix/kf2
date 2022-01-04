@@ -155,8 +155,10 @@ CFraktalSFT::CFraktalSFT()
 #endif
 , m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
+#ifdef WINVER
 , m_undo()
 , m_redo()
+#endif
 {
 #ifdef KF_OPENCL
 	clid = -1;

@@ -694,13 +694,14 @@ public:
 	//
   // strictly GUI
 	bool m_bInteractive;     // do we have a GUI at all?
+#ifdef WINVER
 	std::vector<std::string> m_undo;  // settings string lists for undo/redo
 	std::vector<std::string> m_redo;
 
 	void UndoStore() { m_undo.push_back(ToText()); m_redo.clear(); };
 	void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
 	void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
-
+#endif
 
 	DOUBLE(ZoomSize)             // zoom factor
 	BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
@@ -759,8 +760,8 @@ public:
 
 // main window
 	int SaveImage(const std::string &fileName,HBITMAP bmp,int quality, const std::string &comment);
-#endif
 	int SaveImage(const std::string &fileName, const BYTE *bits, int width, int height, int quality, const std::string &comment);
+#endif
 
 	int SaveEXR
 		( const std::string &filename
