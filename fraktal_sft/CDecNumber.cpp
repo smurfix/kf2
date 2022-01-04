@@ -23,6 +23,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <sstream>
 #include <string>
 
+std::string str_rtrim(std::string x)
+{
+       x.erase(x.find_last_not_of("\t\n\v\f\r ") + 1);
+       return x;
+}
+
 std::string CDecNumber::ToText() const
 {
 	std::ostringstream os;

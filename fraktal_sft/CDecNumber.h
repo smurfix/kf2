@@ -49,6 +49,8 @@ public:
 	};
 };
 
+extern std::string str_rtrim(std::string x);
+
 class CDecNumber
 {
 public:
@@ -83,7 +85,7 @@ public:
 		m_dec = decNumber(a);
 	};
 	inline CDecNumber(const std::string &a)
-	: CDecNumber(a.c_str())
+	: CDecNumber(str_rtrim(a).c_str())
 	{
 	};
 	inline CDecNumber(double a)
