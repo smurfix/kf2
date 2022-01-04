@@ -76,7 +76,7 @@ time (
       do
         n="hybrid-$usehybrid-$type-$power-$derivatives"
         echo -ne "OpenResetsParameters: 0\r\nImageWidth: 1024\r\nImageHeight: 1024\r\nJitterSeed: 1\r\nDerivatives: $derivatives\r\nUseOpenCL: $opencl\r\nOpenCLPlatform: $platform\r\nGuessing: $((1 - opencl))\r\n" > "$out/$n.kfs"
-        ( cat "$hybrid" | sed "s/UseHybridFormula: .*\r/UseHybridFormula: $usehybrid\r/" && echo -ne "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r\n" ) > "$out/$n.kfr"
+        ( sed < "$hybrid" "s/UseHybridFormula: .*\r/UseHybridFormula: $usehybrid\r/" && echo -ne "Iterations: 10100\r\nDifferences: $((3 + 4 * $derivatives))\r\n" ) > "$out/$n.kfr"
         "$kf" --log info -s "${out}/$n.kfs" -l "${out}/$n.kfr" -t "${out}/$n.tif" 2>&1 |
         tail -n 4 |
         tr -d '\r' |
