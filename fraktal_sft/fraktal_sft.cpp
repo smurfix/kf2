@@ -531,21 +531,6 @@ void CFraktalSFT::ApplySmoothColors()
 	}
 }
 
-extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
-{
-	hsv a;
-	a.h = hue;
-	a.s = sat;
-	a.v = bri;
-	srgb c = hsv2rgb(a);
-	c.r *= 255.0;
-	c.g *= 255.0;
-	c.b *= 255.0;
-	cPos.r = (byte) c.r;
-	cPos.g = (byte) c.g;
-	cPos.b = (byte) c.b;
-}
-
 #ifdef WINVER
 HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode)
 {

@@ -795,9 +795,6 @@ public:
 
 };
 
-// XXX only used in main_color. Move there and make static.
-extern void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos);
-
 // singleton instance
 #ifdef WINVER
 extern CFraktalSFT g_SFT;

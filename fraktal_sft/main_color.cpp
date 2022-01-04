@@ -54,6 +54,21 @@ static std::string read_file(const std::string &filename)
   return "";
 }
 
+static void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
+{
+	hsv a;
+	a.h = hue;
+	a.s = sat;
+	a.v = bri;
+	srgb c = hsv2rgb(a);
+	c.r *= 255.0;
+	c.g *= 255.0;
+	c.b *= 255.0;
+	cPos.r = (byte) c.r;
+	cPos.g = (byte) c.g;
+	cPos.b = (byte) c.b;
+}
+
 static bool write_file(const std::string &filename, const std::string &data)
 {
 	std::ofstream out(filename);
