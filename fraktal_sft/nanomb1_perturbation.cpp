@@ -29,10 +29,10 @@ void CFraktalSFT::MandelCalcNANOMB1()
   const double p = GetBailoutNorm();
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 	const bool singleref = GetGlitchCenterMethod() == 3;
-	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+	while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
 		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
 			SetColor(x, y, w, h);
-			if (m_bMirrored)
+			if (GetMirror())
 				Mirror(x, y);
 			continue;
 		}

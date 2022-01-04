@@ -3118,7 +3118,7 @@ __kernel void perturbation_double
     const floatexp one  = fe_floatexp(1.0, 0);
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -3308,7 +3308,7 @@ __kernel void perturbation_floatexp
     const floatexp one  = fe_floatexp(1.0, 0);
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -3497,7 +3497,7 @@ __kernel void perturbation_scaled
     const floatexp one  = fe_floatexp(1.0, 0);
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -3676,7 +3676,7 @@ __kernel void perturbation_softfloat
     const floatexp one  = fe_floatexp(1.0, 0);
     // FIXME TODO mirroring, incremental rendering, guessing
 /*
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;

@@ -452,14 +452,11 @@ public:
 	inline int GetExponent() { return m_nZoom; }
 	// XXX rename this to GetZoomExponent
 
-	double m_nZooms;             // XXX unused
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
 	std::string ToZoom(const CDecNumber &z, int &zoom);
 
-	BOOL m_bMirrored;            // XXX never set
 	BOOL(Mirror)                 // XXX never read
 	void Mirror(int x, int y);   // set value corresponding to mirrored x/y
-
 
   // random parameters
 	BOOL(Guessing)               // guess interior of same-itercount regions

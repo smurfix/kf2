@@ -47,7 +47,7 @@ void CFraktalSFT::MandelCalc1()
   const bool singleref = GetGlitchCenterMethod() == 3;
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -276,7 +276,7 @@ void CFraktalSFT::MandelCalcScaled()
   const bool singleref = GetGlitchCenterMethod() == 3;
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -387,7 +387,7 @@ void CFraktalSFT::MandelCalcSIMD()
   const bool derivatives = GetDerivatives();
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored))
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror()))
   {
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);

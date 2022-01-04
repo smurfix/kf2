@@ -191,7 +191,6 @@ CFraktalSFT::CFraktalSFT()
 #ifdef WINVER
 	m_bmBmp = nullptr;
 #endif
-	m_bMirrored = 0;
 	m_bMW = 0;
 	m_bBlend = 0;
 	m_bNoGlitchDetection = FALSE;
@@ -1398,7 +1397,6 @@ std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 	if (m_nZoom <= 0){
 		strncpy(szRet, szZoom, 3);
 		szRet[3] = 0;
-		m_nZooms = 1+log10(atof(szRet)) / log10(2.0);
 		return szRet;
 	}
 	szRet[0] = szZoom[0];
@@ -1419,7 +1417,6 @@ std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 	strcpy(szTmp, szRet);
 	if (strlen(szTmp)>4)
 		szTmp[4] = 0;
-	m_nZooms = 1 + (log10(atof(szTmp)) + m_nZoom) / (log10(2.0));
 	return szRet;
 }
 
@@ -1432,7 +1429,7 @@ static BOOL ISFLOATOK(double a)
 
 void CFraktalSFT::Mirror(int x, int y)
 {
-	if (!m_bMirrored)
+	if (!GetMirror())
 		return;
 	int ty = m_nY - y - 1;
 	if (ty<y)
@@ -3018,7 +3015,7 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 						}
 						if (m_nDEx) m_nDEx[x][y] = sum_de_x / neighbourhood;
 						if (m_nDEy) m_nDEy[x][y] = sum_de_y / neighbourhood;
-						if(m_bMirrored)
+						if(GetMirror())
 						{
 							Mirror(x,y);
 						}
@@ -3183,7 +3180,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 	int nDistance=-1;
 
 	int nHeight = m_nY;
-	if(m_bMirrored)
+	if(GetMirror())
 		nHeight=(nHeight+1)/2;
 
 	int nQSize = m_nX*m_nY;
@@ -3839,7 +3836,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 		}
 	}
 	SetColor(x, y, w, h);
-	if (m_bMirrored)
+	if (GetMirror())
 		Mirror(x, y);
 }
 
@@ -3932,7 +3929,7 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		m_lpBits[nIndex    ] = (m_lpBits[nIndex0    ] + m_lpBits[nIndex1    ]) / 2;
 		m_lpBits[nIndex + 1] = (m_lpBits[nIndex0 + 1] + m_lpBits[nIndex1 + 1]) / 2;
 		m_lpBits[nIndex + 2] = (m_lpBits[nIndex0 + 2] + m_lpBits[nIndex1 + 2]) / 2;
-		if (m_bMirrored)
+		if (GetMirror())
 			Mirror(x, y);
 		return GET_TRANS_GLITCH(m_nTrans[x0][y0]) ? Guess_Glitch : Guess_Interior;
 	}

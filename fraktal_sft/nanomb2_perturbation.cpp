@@ -29,10 +29,10 @@ void CFraktalSFT::MandelCalcNANOMB2()
 
 	m_bIterChanged = TRUE;
 	int x, y, w, h;
-	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_bMirrored)){
+	while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
 		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
 			SetColor(x, y, w, h);
-			if (m_bMirrored)
+			if (GetMirror())
 				Mirror(x, y);
 			continue;
 		}
