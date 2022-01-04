@@ -20,10 +20,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-double get_wall_time(){
 #ifndef WINVER
-    return 0;
-#else
+#include <time.h>
+#endif
+
+double get_wall_time(){
+#ifdef WINVER
     LARGE_INTEGER time,freq;
     if (!QueryPerformanceFrequency(&freq)){
         //  Handle error
@@ -34,13 +36,16 @@ double get_wall_time(){
         return 0;
     }
     return (double)time.QuadPart / freq.QuadPart;
+#else
+    struct timespec t;
+    if(clock_gettime(CLOCK_MONOTONIC_RAW, &t) == -1)
+        return 0;
+    return t.tv_sec + (double)t.tv_nsec/1000000000.;
 #endif
 }
 
 double get_cpu_time(){
-#ifndef WINVER
-    return 0;
-#else
+#ifdef WINVER
     FILETIME a,b,c,d;
     if (GetProcessTimes(GetCurrentProcess(),&a,&b,&c,&d) != 0){
         //  Returns total user time.
@@ -52,5 +57,11 @@ double get_cpu_time(){
         //  Handle error
         return 0;
     }
+#else
+    struct timespec t;
+    if(clock_gettime(CLOCK_PROCESS_CPUTIME_ID, &t) == -1)
+        return 0;
+    return t.tv_sec + (double)t.tv_nsec/1000000000.;
+    
 #endif
 }
