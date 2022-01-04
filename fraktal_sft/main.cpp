@@ -1214,7 +1214,7 @@ static HBITMAP ShrinkBitmap2(HBITMAP bmBmp,int nX, int nY)
 double g_length=0;
 double g_degree=0;
 
-static long OpenSettings(HWND hWnd, bool &ret, bool warn = true);
+static bool OpenSettings(HWND hWnd, bool warn = true);
 
 static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 {
@@ -1399,8 +1399,9 @@ nPos=19;
 					CloseHandle(hFile);
 					std::string old = g_szSettingsFile;
 					g_szSettingsFile = g_szRecoveryKFS;
-					bool r;
-					OpenSettings(hWnd, r);
+					bool r = OpenSettings(hWnd);
+					if(!r)
+					    std::cerr << "Could not load saved settings!" << std::endl;
 					g_szSettingsFile = old;
 				}
 				g_SFT.OpenFile(g_szRecoveryKFR);
@@ -1837,17 +1838,15 @@ static long OpenMap(HWND hWnd, bool &ret, const std::string &szFile)
 	return 0;
 }
 
-static long OpenSettings(HWND hWnd, bool &ret, bool warn)
+static bool OpenSettings(HWND hWnd, bool warn)
 {
 				g_SFT.Stop();
 				g_bAnim=false;
 				if(!g_SFT.OpenSettings(g_szSettingsFile))
 				{
-					ret = true;
 					if (hWnd && warn)
-						return MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
-					else
-						return 0;
+						MessageBox(hWnd,"Invalid settings file","Error",MB_OK|MB_ICONSTOP);
+					return false;
 				}
 				else{
 #ifdef KF_OPENCL
@@ -1867,8 +1866,7 @@ static long OpenSettings(HWND hWnd, bool &ret, bool warn)
 						UpdateWindowSize(hWnd);
 					if (hWnd)
 						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-					ret = false;
-					return 0;
+					return true;
 				}
 }
 
@@ -1882,9 +1880,8 @@ static void open_default_settings(HWND hWnd)
 		{
 			std::string default_settings(exe);
 			g_szSettingsFile = replace_path_extension(default_settings, "kfs");
-			bool ret;
-			OpenSettings(hWnd, ret, false);
-			if (! ret)
+			bool ret = OpenSettings(hWnd, false);
+			if (ret)
 			{
 				output_log_message(Info, "loaded default settings " << g_szSettingsFile);
 			}
@@ -2072,10 +2069,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		if (g_args->bLoadSettings)
 		{
-			bool ret;
 			g_szSettingsFile = g_args->sLoadSettings;
 			std::cerr << "loading settings: " << g_szSettingsFile << std::endl;
-			OpenSettings(hWnd, ret);
+			OpenSettings(hWnd);
 		}
 		else
 		{
@@ -3822,9 +3818,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
 			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_szSettingsFile)){
-				bool ret;
-				long r = OpenSettings(hWnd, ret);
-				if (ret) return r;
+				bool r = OpenSettings(hWnd);
+				if (!r) return !r;
 			}
 		}
 		else if(wParam==ID_FILE_SAVESETTINGS){
@@ -4388,11 +4383,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		g_SFT.ResetTimers();
 		if (g_args->bLoadSettings)
 		{
-			bool ret;
 			g_szSettingsFile = g_args->sLoadSettings;
 			output_log_message(Info, "loading settings " << g_szSettingsFile);
-			OpenSettings(nullptr, ret);
-			if (ret)
+			if(!OpenSettings(nullptr))
 			{
 				output_log_message(Error, "loading settings " << g_szSettingsFile << " FAILED");
 				return 1;
