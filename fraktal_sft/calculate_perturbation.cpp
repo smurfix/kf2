@@ -27,6 +27,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../formula/simd3.h"
 #include "../formula/simd4.h"
 
+template<typename T>
+static inline complex<double> compute_de(T Dr, T Di, T Jxa, T Jxb, T Jya, T Jyb, T s, const mat2 &TK)
+{
+  vec2 u = { double(Dr), double(Di) };
+  mat2 J = { double(Jxa * s), double(Jxb * s), double(Jya * s), double(Jyb * s) };
+  complex<double> v(u[0], u[1]);
+  complex<double> num = abs(v) * log(abs(v));
+  vec2 den = normalize(u) * (transpose(J) * TK);
+  return num / complex<double>(den[0], den[1]);
+}
+
 template <typename mantissa>
 void CFraktalSFT::MandelCalc1()
 {

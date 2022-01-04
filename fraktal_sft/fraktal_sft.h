@@ -803,18 +803,6 @@ extern CFraktalSFT g_SFT;
 // 1 is considered prime, 0 is not. TODO should be unsigned. XXX move?
 extern int MakePrime(int n);
 
-// XXX move this to matrix.h or whatever
-template<typename T>
-inline complex<double> compute_de(T Dr, T Di, T Jxa, T Jxb, T Jya, T Jyb, T s, const mat2 &TK)
-{
-  vec2 u = { double(Dr), double(Di) };
-  mat2 J = { double(Jxa * s), double(Jxb * s), double(Jya * s), double(Jyb * s) };
-  complex<double> v(u[0], u[1]);
-  complex<double> num = abs(v) * log(abs(v));
-  vec2 den = normalize(u) * (transpose(J) * TK);
-  return num / complex<double>(den[0], den[1]);
-}
-
 #define KF_DEFAULT_GLSL "vec3 colour() { return KF_Colour(); }\n"
 
 #endif
