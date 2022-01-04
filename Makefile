@@ -88,7 +88,6 @@ fraktal_sft/fraktal_sft.cpp \
 fraktal_sft/gradient.cpp \
 fraktal_sft/hybrid.cpp \
 fraktal_sft/jpeg.cpp \
-fraktal_sft/png.cpp \
 fraktal_sft/main.cpp \
 fraktal_sft/nanomb1_perturbation.cpp \
 fraktal_sft/nanomb2_perturbation.cpp \
@@ -96,12 +95,12 @@ fraktal_sft/nanomb1_reference.cpp \
 fraktal_sft/nanomb2_reference.cpp \
 fraktal_sft/newton.cpp \
 fraktal_sft/opengl.cpp \
+fraktal_sft/png.cpp \
+fraktal_sft/tiff.cpp \
 fraktal_sft/Parameter.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/reference.cpp \
-fraktal_sft/scale_bitmap.cpp \
 fraktal_sft/Settings.cpp \
-fraktal_sft/tiff.cpp \
 common/matrix.cpp \
 common/StringVector.cpp \
 common/parallell.cpp \

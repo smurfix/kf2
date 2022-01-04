@@ -191,7 +191,7 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 
 #endif
 
-
+#ifdef WINVER
 int SaveJPG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const std::string &comment)
 {
   if (nColors != 3)
@@ -239,6 +239,7 @@ int SaveJPG(const std::string &szFileName, char *Data, int nHeight, int nWidth, 
   jpeg_destroy_compress(&cinfo);
   return 1;
 }
+#endif
 
 
 std::string ReadJPEGComment(const std::string &filename)

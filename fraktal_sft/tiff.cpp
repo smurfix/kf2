@@ -25,6 +25,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "tiff.h"
 
+#ifdef WINVER
 extern int SaveTIFF(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, const std::string &comment)
 {
 	bool ok = true;
@@ -46,6 +47,7 @@ extern int SaveTIFF(const std::string &szFileName, char *Data, int nHeight, int 
 	TIFFClose(tif);
 	return ok ? 1 : 0;
 }
+#endif
 
 extern std::string ReadTIFFComment(const std::string &filename)
 {

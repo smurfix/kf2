@@ -284,7 +284,6 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,in
 	ReleaseDC(NULL,hDC);
 	return nRet;
 }
-#endif
 
 // this version doesn't go via a bitmap structure, avoiding dreaded blank images...
 extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpBits, int biWidth, int biHeight, int nQuality, const std::string &comment)
@@ -333,7 +332,6 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpB
 	return nRet;
 }
 
-#ifdef WINVER
 POINT g_pSelect, g_pStart;
 int g_bSelect=0;
 HWND g_hwStatus=NULL;
