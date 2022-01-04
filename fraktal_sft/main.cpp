@@ -224,7 +224,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 				*rgb++ = bmp[--k];
 				*rgb++ = bmp[--k];
 				*rgb++ = bmp[--k];
-				k += BM_WIDTH;
+				k += 3;
 			}
 	}
 }
