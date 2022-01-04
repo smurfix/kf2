@@ -2685,6 +2685,16 @@ void CFraktalSFT::FreeBitmap()
 	}
 }
 
+bool CFraktalSFT::OpenSettings(const std::string &filename) {
+	bool ok = m_Settings.OpenFile(filename);
+	if(ok) {
+		int64_t w,h,s;
+		GetTargetDimensions(&w, &h, &s);
+		SetImageSize(w * s, h * s);
+	}
+	return ok;
+}
+
 #ifdef WINVER
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {

@@ -73,7 +73,7 @@ public:
 	inline void   Set##KEY(bool x) { return m_Settings.Set##KEY(x); };
 
   // settings and parameters
-	inline bool OpenSettings(const std::string &filename) { return m_Settings.OpenFile(filename); }
+	bool OpenSettings(const std::string &filename);
 	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
 
 	void ResetParameters();

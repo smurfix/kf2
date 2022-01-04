@@ -130,12 +130,18 @@ bool Settings::FromText(const std::string &text)
     int n;
 
     n = s.FindString(0, "ImageWidth");
-    if (n != -1)
+    if (n != -1) {
       iw = atof(s[n][1]);
+      if (m_TargetWidth == 0 || s.FindString(0, "TargetWidth") == -1)
+        m_TargetWidth = iw;
+    }
 
     n = s.FindString(0, "ImageHeight");
-    if (n != -1)
+    if (n != -1) {
       ih = atof(s[n][1]);
+      if (m_TargetHeight == 0 || s.FindString(0, "TargetHeight") == -1)
+        m_TargetHeight = ih;
+    }
 
     n = s.FindString(0, "TargetSupersample");
     if (n == -1 && (iw || ih)) {
