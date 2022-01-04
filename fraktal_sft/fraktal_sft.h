@@ -85,10 +85,11 @@ public:
 
 	std::string ToText();
 	BOOL SaveFile(const std::string &filename, bool overwrite);
+#ifdef WINVER
 	int SaveJpg(const std::string &filename, int quality, int width = 0, int height = 0);
+#endif
 	void SaveMap(const std::string &filename);
 	void SaveMapB(const std::string &filename);
-
 
 
 // Basics
@@ -415,6 +416,7 @@ public:
 	bool CalculateReferenceThreaded();
 	void CalculateReferenceNANOMB1();
 	void CalculateReferenceNANOMB2();
+
 	void RenderFractalNANOMB1();
 	void RenderFractalNANOMB2();
 #ifdef KF_OPENCL
