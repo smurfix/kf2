@@ -1374,18 +1374,19 @@ CFraktalSFT::~CFraktalSFT()
 
 std::string CFraktalSFT::ToZoom()
 {
-	return ToZoom(CDecNumber(2) / CDecNumber(m_ZoomRadius.m_f), m_nZoom);
+	return ToZoom(CDecNumber(2) / CDecNumber(m_ZoomRadius.m_f));
 }
-std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
+std::string CFraktalSFT::ToZoom(const CDecNumber &z)
 {
-	// XXX &zoom always refers to m_nZoom. Remove.
+	// Returns a human-readable version of the zoom factor
 	static char szRet[40];
 	std::string sszZoom = z.ToText();
 	const char *szZoom = sszZoom.c_str();
-	*szRet = 0;
-	for (m_nZoom = 0; szZoom[m_nZoom] && szZoom[m_nZoom] != '.'; m_nZoom++);
-	m_nZoom--;
-	if (m_nZoom <= 0){
+
+	int len;
+	for (len = 0; szZoom[len] && szZoom[len] != '.'; len++);
+	len--;
+	if (len <= 0){
 		strncpy(szRet, szZoom, 3);
 		szRet[3] = 0;
 		return szRet;
@@ -1396,14 +1397,13 @@ std::string CFraktalSFT::ToZoom(const CDecNumber &z, int &zoom)
 		szRet[2] = szZoom[1];
 		if (szZoom[2] && szZoom[2] != '.'){
 			szRet[3] = szZoom[2];
-			wsprintf(szRet + 4, "e%03d", zoom);
+			wsprintf(szRet + 4, "e%03d", len);
 		}
 		else
-			wsprintf(szRet + 3, "e%03d", zoom);
+			wsprintf(szRet + 3, "e%03d", len);
 	}
 	else
 		szRet[1] = 0;
-	zoom = m_nZoom;
 	char szTmp[40];
 	strcpy(szTmp, szRet);
 	if (strlen(szTmp)>4)
@@ -1514,6 +1514,29 @@ void CFraktalSFT::DeleteArrays()
 		FreeBitmap();
 }
 
+void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10)
+{
+
+	long e = 0;
+	mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
+
+	m_nZoom = std::max(long(double(e)*0.30103), 1L);
+	if(digits10 == 0)
+		digits10 = 20 + std::max(20, m_nZoom);
+	Precision pHi(digits10);
+
+	m_rref.m_f.precision(digits10);
+	m_iref.m_f.precision(digits10);
+	m_CenterRe.m_f.precision(digits10);
+	m_CenterIm.m_f.precision(digits10);
+	m_ZoomRadius.m_f.precision(20u);
+
+	m_CenterRe = re.m_dec;
+	m_CenterIm = im.m_dec;
+	m_ZoomRadius = (2/zoom).m_dec;
+
+}
+
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
 	/*
@@ -1526,25 +1549,16 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 	{
 		Precision pLo(20u);
 		CDecNumber z(szZ); // throws on bad string
-		CDecNumber di(2 / z);
 
 		long e = 0;
 		mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
-		unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
+		unsigned digits10 = std::max(20L, long(20 + 0.30103 * e));
 		Precision pHi(digits10);
 
 		CDecNumber re(szR); // throws on bad string
 		CDecNumber im(szI); // throws on bad string
-		m_rref.m_f.precision(digits10);
-		m_iref.m_f.precision(digits10);
-		m_CenterRe.m_f.precision(digits10);
-		m_CenterIm.m_f.precision(digits10);
-		m_ZoomRadius.m_f.precision(20u);
-		m_rref = re.m_dec;
-		m_iref = im.m_dec;
-		m_CenterRe = re.m_dec;
-		m_CenterIm = im.m_dec;
-		m_ZoomRadius = di.m_dec;
+
+		SetPosition(re,im,z, digits10);
 	}
 	catch (...)
 	{

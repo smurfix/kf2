@@ -183,7 +183,7 @@ public:
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
-
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0);
 
 	BOOL(NoReuseCenter)     // when zooming out, re-use the center?
 
@@ -449,7 +449,7 @@ public:
 	// XXX rename this to GetZoomExponent
 
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
-	std::string ToZoom(const CDecNumber &z, int &zoom);
+	std::string ToZoom(const CDecNumber &z);
 
 	BOOL(Mirror)                 // XXX never read
 	void Mirror(int x, int y);   // set value corresponding to mirrored x/y

@@ -1180,7 +1180,6 @@ static int ResumeZoomSequence(HWND hWnd)
 		g_SFT.FixIterLimit();
 	}
 	if(bRecoveryFile){
-		g_SFT.ToZoom();
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,TRUE);
 	}
 	else
