@@ -1181,7 +1181,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	if(bRecoveryFile){
 		g_SFT.ToZoom();
-		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE, false);
+		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,TRUE);
 	}
 	else
 	{
@@ -1255,7 +1255,7 @@ nPos=6;
 					{
 						std::cerr << "add reference " << g_SFT.m_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
 					}
-					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
+					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
 						return 0;
 					}
@@ -2642,7 +2642,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
-				if(g_SFT.AddReference(x,y,FALSE,g_SFT.GetSolveGlitchNear()))
+				if(g_SFT.AddReference(x,y,FALSE))
 					SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
