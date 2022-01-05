@@ -99,7 +99,7 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	m_bStop = false;
 	m_nRDone = 0;
 	if (bResetOldGlitch)
-		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
+		ResetGlitches();
 
 	WaitForMutex(m_hMutex);
 	if (m_bResized)
@@ -124,6 +124,12 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	}
 }
 #endif
+
+void CFraktalSFT::ResetGlitches(void)
+{
+	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
+}
+
 
 void CFraktalSFT::RenderFractal()
 {
