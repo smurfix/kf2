@@ -84,7 +84,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 #ifdef WINVER
 void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
-	m_bStop = TRUE;
+	m_bStop = true;
 	double counter = 0;
 	while(m_bIsRendering)
 	{
@@ -96,7 +96,7 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
 #endif
 
-	m_bStop = FALSE;
+	m_bStop = false;
 	m_nRDone = 0;
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
