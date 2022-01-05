@@ -1232,6 +1232,7 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 	}
 nPos=0;
 	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
+		// Not stopped and not animating: fix colors and update window.
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
@@ -1239,6 +1240,7 @@ nPos=0;
 nPos=1;
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
+		// Auto-glitch handling.
 nPos=3;
 		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
 			g_SFT.m_bAutoGlitch++;
