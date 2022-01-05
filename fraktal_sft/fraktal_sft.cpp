@@ -2822,7 +2822,9 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
+#ifdef WINVER
 	Render(noThread, FALSE);
+#endif
 	return TRUE;
 }
 
