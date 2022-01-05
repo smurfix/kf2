@@ -1531,6 +1531,11 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	m_CenterIm = im.m_dec;
 	m_ZoomRadius = (2/zoom).m_dec;
 
+#ifndef WINVER
+	// XXX code also in SetImageSize; if WINVER, in Render.
+	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
+	m_fPixelSpacing = floatexp(pixel_spacing);
+#endif
 	m_nZoom = e;
 }
 
@@ -2440,7 +2445,13 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 		m_nY = ny;
 		SetupArrays();
 		m_bResized |= resized;
+#ifndef WINVER
+		// XXX code also in SetPosition; if WINVER, in Render.
+		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
+		m_fPixelSpacing = floatexp(pixel_spacing);
+#endif
 	}
+
 	memset(m_nPixels_LSB, 0, sizeof(*m_nPixels_LSB) * m_nX * m_nY);
 	if (m_nPixels_MSB)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
