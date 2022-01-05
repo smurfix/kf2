@@ -28,11 +28,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#ifndef WINVER
-int ThRenderFractal(CFraktalSFT *p)
-#else
+#ifdef WINVER
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
-#endif
 {
 	try{
 		p->RenderFractal();
@@ -41,9 +38,7 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 	catch (OpenCLException &e)
 	{
 		p->SetOpenCLDeviceIndex(-1);
-#ifdef WINVER
 		OpenCLErrorDialog(&p->cl_error, p->m_hWnd, p->m_hWnd ? false : true);
-#endif
 	}
 #endif
 	catch (...)
@@ -54,6 +49,7 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
+#endif
 
 static int ThMandelCalc(TH_PARAMS *pMan)
 {
@@ -85,10 +81,10 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
+#ifdef WINVER
 void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = TRUE;
-#ifdef WINVER
 	double counter = 0;
 	while(m_bIsRendering)
 	{
@@ -100,28 +96,16 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
 #endif
 
-#else // !Windows
-	if(m_renderThread.joinable())
-		m_renderThread.join();
-#endif
 	m_bStop = FALSE;
 	m_nRDone = 0;
 	if (bResetOldGlitch)
 		memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 
-#ifdef WINVER
 	WaitForMutex(m_hMutex);
-#else
-	m_mutex.lock();
-#endif
 	if (m_bResized)
 	    FreeBitmap();
 	AllocateBitmap();
-#ifdef WINVER
 	ReleaseMutex(m_hMutex);
-#else
-	m_mutex.unlock();
-#endif
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
@@ -129,22 +113,17 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	m_bIsRendering = true; // avoid race conditions
 
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
-#ifdef WINVER
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
-#endif
 		ThRenderFractal(this);
 	}
 	else{
-#ifdef WINVER
 		DWORD dw;
 		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
 		CloseHandle(hThread);
-#else
-		m_renderThread = std::thread(ThRenderFractal, this);
-#endif
 	}
 }
+#endif
 
 void CFraktalSFT::RenderFractal()
 {
@@ -336,14 +315,14 @@ void CFraktalSFT::RenderFractal()
 		delete[] pMan;
 	}
 	m_bAddReference = FALSE;
+#ifdef WINVER
 	if (!m_bNoPostWhenDone)
 	{
-#ifdef WINVER
 		if (m_hWnd)
 			PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-#endif
 	}
 	m_bNoPostWhenDone = FALSE;
+#endif
 
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
@@ -422,9 +401,11 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
+#ifdef WINVER
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
+#endif
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
@@ -502,10 +483,11 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
+#ifdef WINVER
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
-
+#endif
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
