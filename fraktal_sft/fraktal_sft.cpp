@@ -143,10 +143,10 @@ CFraktalSFT::CFraktalSFT()
 , m_HybridFormula()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
-, m_bStop(false)
 #ifdef WINVER
 , m_bIsRendering(false)
 #endif
+, m_bStop(false)
 , m_cldevices()
 , N() // invalid array
 #ifndef WINVER
@@ -1583,29 +1583,29 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		SeriesR2<float, int32_t> *APs = nullptr;
 		int terms = GetApproxTerms();
 		{
-		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
-		  for (int i = 0; i < terms; ++i)
-		  {
-		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
-		  }
+			APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
+			for (int i = 0; i < terms; ++i)
+			{
+				APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
+			}
 		}
 		{
-		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
-		  for (int i = 0; i < terms; ++i)
-		  {
-		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
-		  }
+			APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
+			for (int i = 0; i < terms; ++i)
+			{
+				APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
+			}
 		}
 		{
-		  APs = new SeriesR2<float, int32_t>;
-		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
-		  {
-		    for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
-		    {
-		      APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
-		      APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
-		    }
-		  }
+			APs = new SeriesR2<float, int32_t>;
+			for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
+			{
+				for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
+				{
+					APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
+					APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
+				}
+			}
 		}
 		cl->run<float, int32_t, float>
 		(
@@ -1709,29 +1709,29 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		SeriesR2<float, int32_t> *APs = nullptr;
 		int terms = GetApproxTerms();
 		{
-		  APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
-		  for (int i = 0; i < terms; ++i)
-		  {
-		    APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
-		  }
+			APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
+			for (int i = 0; i < terms; ++i)
+			{
+				APr[i] = tfloatexp<float, int32_t>(m_APr[i]);
+			}
 		}
 		{
-		  APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
-		  for (int i = 0; i < terms; ++i)
-		  {
-		    APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
-		  }
+			APi = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
+			for (int i = 0; i < terms; ++i)
+			{
+				APi[i] = tfloatexp<float, int32_t>(m_APi[i]);
+			}
 		}
 		{
-		  APs = new SeriesR2<float, int32_t>;
-		  for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
-		  {
-		    for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
-		    {
-		      APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
-		      APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
-		    }
-		  }
+			APs = new SeriesR2<float, int32_t>;
+			for (int i = 0; i < MAX_APPROX_TERMS+1; ++i)
+			{
+				for (int j = 0; j < MAX_APPROX_TERMS+1; ++j)
+				{
+				APs->s[i][j] = tfloatexp<float, int32_t>(m_APs->s[i][j]);
+				APs->t[i][j] = tfloatexp<float, int32_t>(m_APs->t[i][j]);
+				}
+			}
 		}
 		cl->run<float, int32_t, tfloatexp<float, int32_t>>
 		(
@@ -3159,238 +3159,238 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		}
 	}
 	else
-{
-	int x, y, i=0, io;
-	int rx = -1, ry = -1;
-
-	itercount_array &Pixels = m_nPixels;
-
-	uint32_t *lsb = new uint32_t[m_nX * m_nY];
-	uint32_t *msb = m_nPixels_MSB ? new uint32_t[m_nX * m_nY] : nullptr;
-	memcpy(lsb, m_nPixels_LSB, sizeof(*lsb) * m_nX * m_nY);
-	if (msb)
-		memcpy(msb, m_nPixels_MSB, sizeof(*msb) * m_nX * m_nY);
-	itercount_array Node(m_nY, 1, lsb, msb);
-
-	int nDistance=-1;
-
-	int nHeight = m_nY;
-	if(GetMirror())
-		nHeight=(nHeight+1)/2;
-
-	int nQSize = m_nX*m_nY;
-	if(nQSize>230400)
-		nQSize=230400;
-	POINT *pQ = new POINT[nQSize];
-	for(x=0;x<m_nX;x++){
-		for(y=0;y<nHeight;y++){
-			int nDone = - (x*m_nY+y);
-			if(Node[x][y]>0 && GET_TRANS_GLITCH(m_nTrans[x][y]) && Pixels[x][y]!=m_nMaxIter){
-				itercount_array invalid(0, 0, nullptr, nullptr);
-				int nDist = GetArea(Node,x,y,1,invalid,nDone, pQ, nQSize);
-				if(nDistance<nDist){
-					nDistance=nDist;
-					rx=x;
-					ry=y;
-				}
-			}
-		}
-	}
-	delete[] pQ;
-	pQ = nullptr;
-
-	// now (rx,ry) is a point in the largest glitch of size (nDistance)
-	// or (nDistance == -1) for no glitches
-
-	if(nDistance!=-1){
-		for(io=0;io<m_nMaxOldGlitches;io++){
-			if(m_pOldGlitch[io].x==-1)
-				break;
-		}
-/*		if(io<m_nMaxOldGlitches){
-			m_pOldGlitch[io].x=rx;
-			m_pOldGlitch[io].y=ry;
-		}
-*/		ret_x=rx;
-		ret_y=ry;
-		int nMaxDist=0;
-		int offs = 1 + nDistance/100000;
-		if(io%2==0 && io>3){
-			// find the (rx, ry) that maximizes the minimum radius from the center to the edge of the glitch in 8 directions from the point
-			for(x=1;x<m_nX-1;x+=offs){
-				for(y=1;y<m_nY-1;y+=offs){
-					if(Node[x][y]!=Node[ret_x][ret_y])
-						continue;
-					int tm=m_nX*m_nY, to;
-					for(to=0;x-to>=0 && Node[x-to][y]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;x+to<m_nX && Node[x+to][y]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;y-to>=0 && Node[x][y-to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;y+to<m_nY && Node[x][y+to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;x-to>=0 && y-to>=0 && Node[x-to][y-to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;x+to<m_nX && y+to<m_nY && Node[x+to][y+to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;x-to>=0 && y+to<m_nY && Node[x-to][y+to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					for(to=0;x+to<m_nX && y-to>=0 && Node[x+to][y-to]==Node[ret_x][ret_y];to++);
-					if(tm>to)
-						tm=to;
-					if(nMaxDist<tm){
-						nMaxDist=tm;
-						rx=x;
-						ry=y;
-					}
-				}
-			}
-			ret_x=rx;
-			ret_y=ry;
-		}
-		else{
-			// find the (rx, ry) that minimizes the total diameter between opposite ends of the glitch in 4 bi-directions from the point
-			for(x=1;x<m_nX-1;x+=offs){
-				for(y=1;y<m_nY-1;y+=offs){
-					if(Node[x][y]!=Node[ret_x][ret_y])
-						continue;
-					int t=0, to, c, ct;
-					ct=c=0;
-					for(to=0;x-to>=0 && Node[x-to][y]==Node[ret_x][ret_y];to++){
-						t++;
-						ct++;
-					}
-					for(to=0;x+to<m_nX && Node[x+to][y]==Node[ret_x][ret_y];to++){
-						t++;
-						ct--;
-					}
-					c+=(ct<0?-ct:ct);
-					ct=0;
-					for(to=0;y-to>=0 && Node[x][y-to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct++;
-					}
-					for(to=0;y+to<m_nY && Node[x][y+to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct--;
-					}
-
-					c+=(ct<0?-ct:ct);
-					ct=0;
-					for(to=0;x-to>=0 && y-to>=0 && Node[x-to][y-to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct++;
-					}
-					for(to=0;x+to<m_nX && y+to<m_nY && Node[x+to][y+to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct--;
-					}
-					c+=(ct<0?-ct:ct);
-					ct=0;
-					for(to=0;x-to>=0 && y+to<m_nY && Node[x-to][y+to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct++;
-					}
-					for(to=0;x+to<m_nX && y-to>=0 && Node[x+to][y-to]==Node[ret_x][ret_y];to++){
-						t++;
-						ct--;
-					}
-					c+=(ct<0?-ct:ct);
-
-					t-=c;
-
-					if(nMaxDist<t){
-						nMaxDist=t;
-						rx=x;
-						ry=y;
-					}
-				}
-			}
-			ret_x=rx;
-			ret_y=ry;
-		}
-	}
-
-#ifdef KF_CENTER_VIA_TRANS
-	// find center of glitch via gradient descent
-	if (nDistance != -1)
 	{
-	  // arbitrary loop count limit to help termination guarantee
-		for (int k = 0; k < nDistance; ++k)
-		{
-			// find minimum of neighbourhood (with reflection at image edges)
-			double m = 1.0 / 0.0;
-			int mx = rx;
-			int my = ry;
-			for (int dx = -1; dx <= 1; ++dx)
-			{
-				int px = rx + dx;
-				if (px < 0 || px >= m_nX) px = rx - dx;
-				for (int dy = -1; dy <= 1; ++dy)
-				{
-					int py = ry + dy;
-					if (py < 0 || py >= m_nY) py = ry - dy;
-					if (m_nTrans[px][py] < m) // strict inequality for cycle prevention
-					{
-						m = m_nTrans[px][py];
-						mx = px;
-						my = py;
-					}
-				}
-			}
-			if (mx == rx && my == ry)
-			{
-				// found local minimum
-				break;
-			}
-			rx = mx;
-			ry = my;
-		}
-		ret_x = rx;
-		ret_y = ry;
-	}
-#endif
+		int x, y, i=0, io;
+		int rx = -1, ry = -1;
 
-	if(nDistance!=-1){
-		for(io=0;io<m_nMaxOldGlitches;io++)
-			if(m_pOldGlitch[io].x==-1 || (m_pOldGlitch[io].x==ret_x && m_pOldGlitch[io].y==ret_y))
-				break;
-		if(io<1 && m_pOldGlitch[io].x==-1 && Center(rx,ry,FALSE,TRUE) && Pixels[ret_x][ret_y]==Pixels[rx][ry] && Pixels[rx][ry]!=m_nMaxIter){
-			ret_x=rx;
-			ret_y=ry;
-		}
-		if(io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1){
-			m_P.Init(m_nX, m_nY, m_bInteractive);
-			int w,h;
-			while(m_P.GetPixel(x,y,w,h)){
-				if(Node[x][y]==Node[ret_x][ret_y]){
-					for(i=0;i<m_nMaxOldGlitches && m_pOldGlitch[i].x!=-1 && !(m_pOldGlitch[i].x==x && m_pOldGlitch[i].y==y);i++);
-					if(i==m_nMaxOldGlitches || m_pOldGlitch[i].x==-1){
-						ret_x=x;
-						ret_y=y;
-						break;
+		itercount_array &Pixels = m_nPixels;
+
+		uint32_t *lsb = new uint32_t[m_nX * m_nY];
+		uint32_t *msb = m_nPixels_MSB ? new uint32_t[m_nX * m_nY] : nullptr;
+		memcpy(lsb, m_nPixels_LSB, sizeof(*lsb) * m_nX * m_nY);
+		if (msb)
+			memcpy(msb, m_nPixels_MSB, sizeof(*msb) * m_nX * m_nY);
+		itercount_array Node(m_nY, 1, lsb, msb);
+
+		int nDistance=-1;
+
+		int nHeight = m_nY;
+		if(GetMirror())
+			nHeight=(nHeight+1)/2;
+
+		int nQSize = m_nX*m_nY;
+		if(nQSize>230400)
+			nQSize=230400;
+		POINT *pQ = new POINT[nQSize];
+		for(x=0;x<m_nX;x++){
+			for(y=0;y<nHeight;y++){
+				int nDone = - (x*m_nY+y);
+				if(Node[x][y]>0 && GET_TRANS_GLITCH(m_nTrans[x][y]) && Pixels[x][y]!=m_nMaxIter){
+					itercount_array invalid(0, 0, nullptr, nullptr);
+					int nDist = GetArea(Node,x,y,1,invalid,nDone, pQ, nQSize);
+					if(nDistance<nDist){
+						nDistance=nDist;
+						rx=x;
+						ry=y;
 					}
 				}
 			}
 		}
-		for(;io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1;io++);
-		if(io<m_nMaxOldGlitches){
-			m_pOldGlitch[io].x=ret_x;
-			m_pOldGlitch[io].y=ret_y;
+		delete[] pQ;
+		pQ = nullptr;
+
+		// now (rx,ry) is a point in the largest glitch of size (nDistance)
+		// or (nDistance == -1) for no glitches
+
+		if(nDistance!=-1){
+			for(io=0;io<m_nMaxOldGlitches;io++){
+				if(m_pOldGlitch[io].x==-1)
+					break;
+			}
+	/*		if(io<m_nMaxOldGlitches){
+				m_pOldGlitch[io].x=rx;
+				m_pOldGlitch[io].y=ry;
+			}
+	*/		ret_x=rx;
+			ret_y=ry;
+			int nMaxDist=0;
+			int offs = 1 + nDistance/100000;
+			if(io%2==0 && io>3){
+				// find the (rx, ry) that maximizes the minimum radius from the center to the edge of the glitch in 8 directions from the point
+				for(x=1;x<m_nX-1;x+=offs){
+					for(y=1;y<m_nY-1;y+=offs){
+						if(Node[x][y]!=Node[ret_x][ret_y])
+							continue;
+						int tm=m_nX*m_nY, to;
+						for(to=0;x-to>=0 && Node[x-to][y]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;x+to<m_nX && Node[x+to][y]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;y-to>=0 && Node[x][y-to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;y+to<m_nY && Node[x][y+to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;x-to>=0 && y-to>=0 && Node[x-to][y-to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;x+to<m_nX && y+to<m_nY && Node[x+to][y+to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;x-to>=0 && y+to<m_nY && Node[x-to][y+to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						for(to=0;x+to<m_nX && y-to>=0 && Node[x+to][y-to]==Node[ret_x][ret_y];to++);
+						if(tm>to)
+							tm=to;
+						if(nMaxDist<tm){
+							nMaxDist=tm;
+							rx=x;
+							ry=y;
+						}
+					}
+				}
+				ret_x=rx;
+				ret_y=ry;
+			}
+			else{
+				// find the (rx, ry) that minimizes the total diameter between opposite ends of the glitch in 4 bi-directions from the point
+				for(x=1;x<m_nX-1;x+=offs){
+					for(y=1;y<m_nY-1;y+=offs){
+						if(Node[x][y]!=Node[ret_x][ret_y])
+							continue;
+						int t=0, to, c, ct;
+						ct=c=0;
+						for(to=0;x-to>=0 && Node[x-to][y]==Node[ret_x][ret_y];to++){
+							t++;
+							ct++;
+						}
+						for(to=0;x+to<m_nX && Node[x+to][y]==Node[ret_x][ret_y];to++){
+							t++;
+							ct--;
+						}
+						c+=(ct<0?-ct:ct);
+						ct=0;
+						for(to=0;y-to>=0 && Node[x][y-to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct++;
+						}
+						for(to=0;y+to<m_nY && Node[x][y+to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct--;
+						}
+
+						c+=(ct<0?-ct:ct);
+						ct=0;
+						for(to=0;x-to>=0 && y-to>=0 && Node[x-to][y-to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct++;
+						}
+						for(to=0;x+to<m_nX && y+to<m_nY && Node[x+to][y+to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct--;
+						}
+						c+=(ct<0?-ct:ct);
+						ct=0;
+						for(to=0;x-to>=0 && y+to<m_nY && Node[x-to][y+to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct++;
+						}
+						for(to=0;x+to<m_nX && y-to>=0 && Node[x+to][y-to]==Node[ret_x][ret_y];to++){
+							t++;
+							ct--;
+						}
+						c+=(ct<0?-ct:ct);
+
+						t-=c;
+
+						if(nMaxDist<t){
+							nMaxDist=t;
+							rx=x;
+							ry=y;
+						}
+					}
+				}
+				ret_x=rx;
+				ret_y=ry;
+			}
 		}
+
+	#ifdef KF_CENTER_VIA_TRANS
+		// find center of glitch via gradient descent
+		if (nDistance != -1)
+		{
+		// arbitrary loop count limit to help termination guarantee
+			for (int k = 0; k < nDistance; ++k)
+			{
+				// find minimum of neighbourhood (with reflection at image edges)
+				double m = 1.0 / 0.0;
+				int mx = rx;
+				int my = ry;
+				for (int dx = -1; dx <= 1; ++dx)
+				{
+					int px = rx + dx;
+					if (px < 0 || px >= m_nX) px = rx - dx;
+					for (int dy = -1; dy <= 1; ++dy)
+					{
+						int py = ry + dy;
+						if (py < 0 || py >= m_nY) py = ry - dy;
+						if (m_nTrans[px][py] < m) // strict inequality for cycle prevention
+						{
+							m = m_nTrans[px][py];
+							mx = px;
+							my = py;
+						}
+					}
+				}
+				if (mx == rx && my == ry)
+				{
+					// found local minimum
+					break;
+				}
+				rx = mx;
+				ry = my;
+			}
+			ret_x = rx;
+			ret_y = ry;
+		}
+	#endif
+
+		if(nDistance!=-1){
+			for(io=0;io<m_nMaxOldGlitches;io++)
+				if(m_pOldGlitch[io].x==-1 || (m_pOldGlitch[io].x==ret_x && m_pOldGlitch[io].y==ret_y))
+					break;
+			if(io<1 && m_pOldGlitch[io].x==-1 && Center(rx,ry,FALSE,TRUE) && Pixels[ret_x][ret_y]==Pixels[rx][ry] && Pixels[rx][ry]!=m_nMaxIter){
+				ret_x=rx;
+				ret_y=ry;
+			}
+			if(io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1){
+				m_P.Init(m_nX, m_nY, m_bInteractive);
+				int w,h;
+				while(m_P.GetPixel(x,y,w,h)){
+					if(Node[x][y]==Node[ret_x][ret_y]){
+						for(i=0;i<m_nMaxOldGlitches && m_pOldGlitch[i].x!=-1 && !(m_pOldGlitch[i].x==x && m_pOldGlitch[i].y==y);i++);
+						if(i==m_nMaxOldGlitches || m_pOldGlitch[i].x==-1){
+							ret_x=x;
+							ret_y=y;
+							break;
+						}
+					}
+				}
+			}
+			for(;io<m_nMaxOldGlitches && m_pOldGlitch[io].x!=-1;io++);
+			if(io<m_nMaxOldGlitches){
+				m_pOldGlitch[io].x=ret_x;
+				m_pOldGlitch[io].y=ret_y;
+			}
+		}
+		delete[] lsb;
+		delete[] msb;
+		return nDistance + 1; // -1 becomes 0
 	}
-	delete[] lsb;
-	delete[] msb;
-	return nDistance + 1; // -1 becomes 0
-}
 }
 #undef KF_CENTER_VIA_TRANS
 
@@ -3584,8 +3584,8 @@ Differences CFraktalSFT::GetDifferences()
 
 void CFraktalSFT::SetColorMethod(int nColorMethod)
 {
-  if (nColorMethod < 0) nColorMethod = 0;
-  if (nColorMethod > 11) nColorMethod = 0;
+	if (nColorMethod < 0) nColorMethod = 0;
+	if (nColorMethod > 11) nColorMethod = 0;
 	m_nColorMethod = ColorMethod(nColorMethod);
 }
 ColorMethod CFraktalSFT::GetColorMethod()
