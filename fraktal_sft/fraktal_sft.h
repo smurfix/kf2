@@ -24,7 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <half.h>
 
 #ifndef WINVER
-#include <thread>
 #include <mutex>
 #endif
 
@@ -552,7 +551,7 @@ public:
 	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
 	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 #ifdef WINVER
-	HANDLE m_hMutex;                  // protet the stuff below
+	HANDLE m_hMutex;                  // protect the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
 #else
 	std::mutex m_mutex;                  // protect the stuff below
