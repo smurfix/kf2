@@ -4,6 +4,15 @@ This file contains some notes about the data structures used by KF2.
 
 Help wanted!
 
+## TODO
+
+There are various XXX and TODO comments in there.
+
+The boost::multiprecision wrapper of `mpfr_t` seems to be, umm, entirely superfluous.
+
+The whole precision-setting and -getting machinery seems not to be
+required. All calculations originate with the center point. Set their
+precision correctly (i.e. when zooming) and you should be OK.
 
 ## Basic rendering process
 
@@ -11,7 +20,7 @@ KF2 uses the center of the image as a reference, which gets computed the
 old-fashioned way. Then it calculates the points around it with faster
 arithmetic. 
 
-See https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Perturbation_theory_and_series_approximation
+See [Wikipedia](https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Perturbation_theory_and_series_approximation)
 for a more maths-centered (and probably more accurate) overview of this technique.
 
 This process may break down for various math reasons. This problem is
