@@ -2091,7 +2091,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 #endif
 }
 
-void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool autorender, bool center_view)
+void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool center_view)
 {
 #ifdef WINVER
 	Stop();
@@ -2226,8 +2226,9 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		m_CenterIm = im;
 		m_ZoomRadius = radius;
 	}
-	if (autorender)
-		Render();
+#ifdef WINVER
+	Render();
+#endif
 }
 
 double CFraktalSFT::GetProgress(double *reference, double *approximation, double *good_guessed, double *good, double *queued, double *bad, double *bad_guessed)

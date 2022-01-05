@@ -309,7 +309,9 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
+#ifdef WINVER
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
+#endif
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
@@ -703,7 +705,7 @@ public:
 	DOUBLE(ZoomSize)             // zoom factor
 	BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
 	void Zoom(double nZoomSize);
-	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool autoRender = true, bool centerView = false);
+	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool centerView = false);
 	// 
 	INT(WindowWidth)         // window size, showing the (scaled) output image
 	INT(WindowHeight)
