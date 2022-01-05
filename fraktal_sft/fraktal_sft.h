@@ -381,7 +381,7 @@ public:
 
 	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
-	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE,bool noThread = false);
+	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bResuming = FALSE);
 
 	INT(GlitchCenterMethod)          // Menu: advanced > Reference Selection
 	INT(IsolatedGlitchNeighbourhood) // Menu: adv > Ignore isolated

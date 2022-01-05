@@ -2765,13 +2765,12 @@ static BOOL IsEqual(int a, int b, int nSpan = 2, BOOL bGreaterThan = FALSE)
 	return diff<nSpan;
 }
 
-BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGlitchDetection, BOOL bResuming, bool noThread)
+BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bResuming)
 {
 	if (!m_nPixels)
 		return FALSE;
-	m_nAddRefX=nXPos;m_nAddRefY=nYPos;
 
-	m_bNoGlitchDetection = bNoGlitchDetection;
+	// is there free space in the m_pOldGlitch array?
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
 	else
@@ -2823,7 +2822,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
 #ifdef WINVER
-	Render(noThread, FALSE);
+	Render(FALSE, FALSE);
 #endif
 	return TRUE;
 }
