@@ -2797,8 +2797,8 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bNoGli
 		int nCount = 0;
 		if (bEraseAll){
 			for (x = 0; x<m_nX; x++)
-			for (y = 0; y<m_nY; y++)
-				m_nPixels[x][y] = PIXEL_UNEVALUATED;
+				for (y = 0; y<m_nY; y++)
+					m_nPixels[x][y] = PIXEL_UNEVALUATED;
 			nCount = m_nX * m_nY;
 		}
   		else if (!bResuming){
