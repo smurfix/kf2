@@ -3059,6 +3059,11 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 	int64_t count = 0;
 	for (int x = x0; x < x1; ++x)
 	{
+		if (m_bStop) {
+			p->count = 0;
+			return;
+		}
+			
 		for (int y = y0; y < y1; ++y)
 		{
 			float t = m_nTrans[x][y];
@@ -3187,6 +3192,9 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			nQSize=230400;
 		POINT *pQ = new POINT[nQSize];
 		for(x=0;x<m_nX;x++){
+			if (m_bStop)
+				return 0;
+
 			for(y=0;y<nHeight;y++){
 				int nDone = - (x*m_nY+y);
 				if(Node[x][y]>0 && GET_TRANS_GLITCH(m_nTrans[x][y]) && Pixels[x][y]!=m_nMaxIter){
@@ -3222,6 +3230,8 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			if(io%2==0 && io>3){
 				// find the (rx, ry) that maximizes the minimum radius from the center to the edge of the glitch in 8 directions from the point
 				for(x=1;x<m_nX-1;x+=offs){
+					if (m_bStop)
+						return 0;
 					for(y=1;y<m_nY-1;y+=offs){
 						if(Node[x][y]!=Node[ret_x][ret_y])
 							continue;
@@ -3263,6 +3273,8 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 			else{
 				// find the (rx, ry) that minimizes the total diameter between opposite ends of the glitch in 4 bi-directions from the point
 				for(x=1;x<m_nX-1;x+=offs){
+					if (m_bStop)
+						return 0;
 					for(y=1;y<m_nY-1;y+=offs){
 						if(Node[x][y]!=Node[ret_x][ret_y])
 							continue;
