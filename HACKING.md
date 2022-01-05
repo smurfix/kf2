@@ -5,6 +5,32 @@ This file contains some notes about the data structures used by KF2.
 Help wanted!
 
 
+## Basic rendering process
+
+KF2 uses the center of the image as a reference, which gets computed the
+old-fashioned way. Then it calculates the points around it with faster
+arithmetic. 
+
+See https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Perturbation_theory_and_series_approximation
+for a more maths-centered (and probably more accurate) overview of this technique.
+
+This process may break down for various math reasons. This problem is
+called a glitch, and it's fixed by finding reference within the glitched
+region (randomly or by choosing the region's center) and re-rendering the
+glitched area with the new reference. Repeat until either done or we get
+bored (i.e. exceed a set limit).
+
+The "repeat" part of this is signalled by posting a "WM\_USER+199" message.
+This may have been a good idea at some time in the distant past, but
+already doesn't really work when writing batch images, leading to code
+duplication, and totally breaks down when embedding.
+
+Since this stuff *does* depend on the user interface somewhat and (more
+importantly) this author's desire to write C++ code is severely limited,
+you need to take care of the render / find glitch / repeat loop yourself
+if you embed KF2 in your own code.
+
+
 ## Window, image etc. sizes et al.
 
 KF2 knows four different sizes.
@@ -30,20 +56,22 @@ These are stored in the settings file thus:
 - WindowTop/Left/Bottom/Right describe the window's position on the screen,
   thus also (implicitly) its size.
 
-This is redundant and confusing. Thus,
+This is redundant and somewhat confusing. Thus,
 
-- The settings' ImageWidth/Height are ignored.
+- the settings' ImageWidth/Height are ignored unless no target dimensions
+  are given.
 
 - the Get/SetTargetDimensions() function returns/affects both image width and target width.
 
 
-## floating point formats
+## high-precision floating point formats
 
 KF2 has somewhat too many wrappers for these.
 
+
 ### decNumber
 
-This is an alias for a Boost-wrapped MPFR (multiprecision real).
+This is an alias for a Boost-wrapped `mpfr_t` (multi-precision floating-point real).
 
 ### FixedFloat
 
@@ -54,10 +82,19 @@ This is merely an alias for decNumber.
 Wraps FixedFloat (.m_f) with a heap of code that sets the global default
 precision from the source precision(s) before doing its operations.
 
+Thus, to access the `mpfr_t` structure hidden in a `CFixedFloat`, use
+`.m_f.backend().data()`.
+
 ### CDecNumber
 
 Wraps decNumber (.m_dec) with a heap of code that sets the target's
 precision from the global default precision before doing its operations.
+
+
+## somewhat-standard-precision floating-point formats
+
+except with larger exponents. Or rather, smaller exponents, since they are
+used to calculate the deviation(s) from a reference.
 
 ### floatexp
 
@@ -69,5 +106,5 @@ Packages a standard "float" plus a separate int32_t exponent.
 
 ### tfloatexp
 
-That's the template "floatexp" and "floatexpf" are built from.
+The template "floatexp" and "floatexpf" are built from.
 
