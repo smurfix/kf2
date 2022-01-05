@@ -450,7 +450,7 @@ public:
 	// XXX rename this to GetZoomExponent
 
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
-	std::string ToZoom(const CDecNumber &z, int &zoom);
+	std::string ToZoom(const CDecNumber &z);
 
 	BOOL(Mirror)                 // XXX never read
 	void Mirror(int x, int y);   // set value corresponding to mirrored x/y
