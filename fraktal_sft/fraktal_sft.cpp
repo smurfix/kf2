@@ -277,7 +277,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bUseSRGB = false;
 	m_bTriangleInequalityAverage = false;
 
-	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
+	ResetGlitches();
 
 	m_UseHybridFormula = false;
 	{

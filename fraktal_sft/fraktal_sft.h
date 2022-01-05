@@ -393,7 +393,9 @@ public:
 	//
 	// set when too many glitches found
 	BOOL m_bNoGlitchDetection;
-	POINT m_pOldGlitch[OLD_GLITCH];
+	POINT m_pOldGlitch[OLD_GLITCH];  // TODO convert to a vector
+	void ResetGlitches();
+
 	// TODO add a var for current length instead of terminating with x==-1
 	int m_nMaxOldGlitches; // XXX constant OLD_GLITCH
 
