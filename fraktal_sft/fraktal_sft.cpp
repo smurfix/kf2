@@ -143,10 +143,12 @@ CFraktalSFT::CFraktalSFT()
 , m_HybridFormula()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
+, m_bStop(false)
 #ifndef WINVER
 , m_renderThread()
 #endif
 , m_bIsRendering(false)
+#endif
 , m_cldevices()
 , N() // invalid array
 #ifndef WINVER
@@ -185,12 +187,12 @@ CFraktalSFT::CFraktalSFT()
 	m_nSlopeRatio = 50;
 	m_nSlopeAngle = 45;
 	m_nSlopeX = m_nSlopeY = 0;
-	m_bNoPostWhenDone = FALSE;
 	SetTransformMatrix(mat2(1.0, 0.0, 0.0, 1.0));
 	m_nFractalType = 0;
 	m_bmi = nullptr;
 #ifdef WINVER
 	m_bmBmp = nullptr;
+	m_bNoPostWhenDone = FALSE;
 #endif
 	m_bMW = 0;
 	m_bBlend = 0;
@@ -310,7 +312,9 @@ CFraktalSFT::CFraktalSFT()
 #endif
 	m_bAddReference = 0;
 
+#ifdef WINVER
 	m_bIsRendering = false;
+#endif
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -1557,7 +1561,6 @@ void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
 }
 
 #ifdef KF_OPENCL
-
 void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 {
 	if (m_bStop)
@@ -2017,9 +2020,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		);
 	}
 }
+#endif
 
 #ifdef WINVER
-
 HBITMAP CFraktalSFT::GetBitmap()
 {
 	WaitForMutex(m_hMutex);
@@ -2045,8 +2048,6 @@ void CFraktalSFT::UpdateBitmap()
 	}
 	ReleaseMutex(m_hMutex);
 }
-#endif
-#endif
 
 void CFraktalSFT::Stop()
 {
@@ -2057,7 +2058,6 @@ void CFraktalSFT::Stop()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef WINVER
 	double counter = 0;
 	while (m_bIsRendering)
 	{
@@ -2068,17 +2068,16 @@ void CFraktalSFT::Stop()
 	if (counter > 0)
 		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
 #endif
-#else
-	if(m_renderThread.joinable())
-		m_renderThread.join();
-#endif
 	m_bStop = FALSE;
 	m_bNoPostWhenDone=0;
 }
+#endif
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {
+#ifdef WINVER
 	Stop();
+#endif
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
@@ -2086,14 +2085,16 @@ void CFraktalSFT::Zoom(double nZoomSize)
 		m_bNoGlitchDetection = TRUE;
 
 	m_ZoomRadius /= nZoomSize;
-
+#ifdef WINVER
 	Render();
+#endif
 }
 
 void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool autorender, bool center_view)
 {
+#ifdef WINVER
 	Stop();
-
+#endif
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);
 

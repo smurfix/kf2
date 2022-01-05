@@ -345,9 +345,9 @@ public:
 	inline void renderJoin() { return m_renderThread.join(); }
 #endif
 	bool m_bIsRendering;
+
 	inline bool GetIsRendering() { return m_bIsRendering; };
 
-	//
 #ifdef KF_OPENCL
   // calculate faster with GPUs
 	BOOL(UseOpenCL)        // use it?
