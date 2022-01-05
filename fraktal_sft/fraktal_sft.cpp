@@ -2053,7 +2053,7 @@ void CFraktalSFT::UpdateBitmap()
 void CFraktalSFT::Stop()
 {
 	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
-	m_bStop = TRUE;
+	m_bStop = true;
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches - 1].x == -1)
 		m_bNoGlitchDetection = FALSE;
@@ -2069,7 +2069,7 @@ void CFraktalSFT::Stop()
 	if (counter > 0)
 		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
 #endif
-	m_bStop = FALSE;
+	m_bStop = false;
 	m_bNoPostWhenDone=0;
 }
 #endif
