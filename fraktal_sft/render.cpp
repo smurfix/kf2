@@ -129,6 +129,7 @@ void CFraktalSFT::RenderFractal()
 {
 	if (! m_bAddReference)
 	{
+		// we are starting off.
 		m_count_queued = m_nX * m_nY;
 		m_count_good_guessed = 0;
 		m_count_good = 0;
@@ -136,11 +137,11 @@ void CFraktalSFT::RenderFractal()
 		m_count_bad_guessed = 0;
 	}
 	{
-		CFixedFloat div = m_ZoomRadius * 2;
+		CFixedFloat div = m_ZoomRadius;
 		Precision q(LOW_PRECISION);
 		FixedFloat f(div.m_f);
 		f.precision(LOW_PRECISION);
-		ToZoom(CDecNumber(FixedFloat(4 / f)), m_nZoom);
+		ToZoom(CDecNumber(FixedFloat(2 / f)), m_nZoom);
 	}
 	Reference_Type reftype = GetReferenceType(m_nZoom);
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
