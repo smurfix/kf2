@@ -2252,11 +2252,6 @@ double CFraktalSFT::GetProgress(double *reference, double *approximation, double
 	return (good_guessed_0 + good_0) * 100.0 / total;
 }
 
-int CFraktalSFT::CountFrames(int nProcent)
-{
-	double z = std::stod(ToZoom().substr(0, 4));
-	return (int)((log10(z) + m_nZoom) / (log10(1 + (double)2 * (double)nProcent / (double)100))) + 1;
-}
 void CFraktalSFT::GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated, int *pnType, BOOL bSkipMaxIter)
 {
 	if (m_bIterChanged || pnCalculated){
