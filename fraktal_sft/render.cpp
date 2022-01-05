@@ -137,7 +137,7 @@ void CFraktalSFT::RenderFractal()
 		m_count_bad_guessed = 0;
 	}
 	
-	Reference_Type reftype = GetReferenceType(m_nZoom);
+	// Do NanoMB* if requested
 	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
@@ -149,6 +149,7 @@ void CFraktalSFT::RenderFractal()
 		return;
 	}
 
+	Reference_Type reftype = GetReferenceType(m_nZoom);
 	if (m_ReferenceReuse && (! GetReuseReference() || N.g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
 	{
 		if (m_Reference == m_ReferenceReuse)
