@@ -340,7 +340,7 @@ void CFraktalSFT::RenderFractal()
 	{
 #ifdef WINVER
 		if (m_hWnd)
-			PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+			PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 #endif
 	}
 	m_bNoPostWhenDone = FALSE;
@@ -423,7 +423,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	else
 		m_bNoGlitchDetection = TRUE;
 	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
@@ -503,7 +503,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	else
 		m_bNoGlitchDetection = TRUE;
 	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER + 199, m_bStop, 0);
+		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
 
 	m_timer_perturbation_wall += get_wall_time() - wall;
