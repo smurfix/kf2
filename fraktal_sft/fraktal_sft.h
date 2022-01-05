@@ -705,8 +705,6 @@ public:
 	void Zoom(double nZoomSize);
 	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool autoRender = true, bool centerView = false);
 	// 
-	int CountFrames(int procent); // == log2(zoomlevel)*nPercent/100+1
-	//
 	INT(WindowWidth)         // window size, showing the (scaled) output image
 	INT(WindowHeight)
 	INT(Shrink)              // shrink quality (enum: fast default best sRGB)
