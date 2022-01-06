@@ -74,6 +74,8 @@ public:
   // settings and parameters
 	bool OpenSettings(const std::string &filename);
 	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
+	inline std::string GetSettings() const { return m_Settings.ToText(); }
+	inline bool SetSettings(const std::string &data) { return m_Settings.FromText(data); }
 
 	void ResetParameters();
 	BOOL(OpenResetsParameters)
