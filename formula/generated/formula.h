@@ -141,9 +141,15 @@ struct formula
 #endif
 };
 
+#ifdef WINVER
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+
 #if 1
 #define FORMULA(name,source,degree) \
-extern "C" { __declspec(dllexport) struct formula et = \
+extern "C" { EXPORT struct formula et = \
 { MAGIC, SIZE, VERSION \
 , &period_tri, &period_jsk, &newton, &size, &skew \
 }; }
