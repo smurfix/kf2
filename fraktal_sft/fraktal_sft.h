@@ -28,6 +28,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <mutex>
 #endif
 
+#include <atomic>
+
 #include "Settings.h"
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
@@ -312,6 +314,9 @@ public:
 	// actual work. All of which should be factored out.
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 
+	bool m_bIsRendering;
+	inline bool GetIsRendering() { return m_bIsRendering; };
+
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
 
@@ -340,16 +345,13 @@ public:
 
   // … and stop doing so.
 	void Stop();              // user interrupted (Escape key, Zoom, …)
-	ABOOL m_bStop;             // flag to tell rendering threads to stop
+	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 #ifndef WINVER
 	std::thread m_renderThread;
 	inline bool renderRunning() const { return m_renderThread.joinable(); }
-	inline void renderJoin() { return m_renderThread.join(); };
 #endif
-	ABOOL m_bIsRendering;
-	inline bool GetIsRendering() { return m_bIsRendering; };
 
 	//
 #ifdef KF_OPENCL

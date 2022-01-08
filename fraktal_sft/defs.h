@@ -27,17 +27,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 #include "reference.h"
 
-#ifdef WINVER
-
-typedef volatile bool ABOOL;
-
-#else // embedded
-
-#include <atomic>
-typedef std::atomic<bool> ABOOL;
-
+#ifndef WINVER
 #include <mutex>
-
 #endif
 
 struct Reference;

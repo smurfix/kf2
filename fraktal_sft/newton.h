@@ -20,11 +20,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef KF_NEWTON_H
 #define KF_NEWTON_H 1
 
-#include "defs.h"
-
 struct CNewton {
-	ABOOL stop;
+	volatile bool stop;
 	bool g_bNewtonRunning;
+	bool g_bNewtonStop;
 	bool g_bNewtonExit;
 	bool g_bJustDidNewton;
 
@@ -54,7 +53,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 struct progress_t
 {
 	int counters[4];
-	ABOOL stop;
+	volatile bool stop;
 #ifdef WINVER
 	HWND hWnd;
 	HANDLE hDone;

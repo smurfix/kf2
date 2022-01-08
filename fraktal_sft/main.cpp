@@ -2990,7 +2990,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_NEWTON,MF_BYCOMMAND|(g_bNewton?MF_CHECKED:MF_UNCHECKED));
 		if(!g_bNewton && g_hwNewton){
 			if(g_SFT.N.g_bNewtonRunning){
-				g_SFT.N.stop=true;
+				g_SFT.N.g_bNewtonStop=TRUE;
 				while(g_SFT.N.g_bNewtonRunning)
 					Sleep(10);
 			}
@@ -4183,7 +4183,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 }
 
 // detailed progress reporting thread for command line rendering
-static ABOOL ThReportProgress_running = true;
+static volatile bool ThReportProgress_running = true;
 DWORD ThReportProgress(LPVOID arg)
 {
 (void) arg;

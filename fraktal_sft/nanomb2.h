@@ -32,7 +32,7 @@ NanoMB2_Reference *NanoMB2_Reference_Calculate
   , int64_t bn
   , int64_t maxperiod
   , floatexp r0
-  , ABOOL &stop
+  , volatile bool &stop
   , int64_t &m_nRDone
   , floatexp radius_scale
   );

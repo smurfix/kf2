@@ -47,7 +47,7 @@ public:
     yielding = LONG(sysinfo.dwNumberOfProcessors) < num_thread;
   };
 
-  inline bool wait(ABOOL *stop)
+  inline bool wait(volatile bool *stop)
   {
     LONG flag = release;
     LONG count = InterlockedDecrement(&counter);

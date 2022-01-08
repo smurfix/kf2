@@ -25,7 +25,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cmath>
 
 #include "../fraktal_sft/floatexp.h"
-#include "../fraktal_sft/defs.h"
 
 class CFixedFloat;
 class Reference;
@@ -181,7 +180,7 @@ static inline V special_93_2(const T &XC, const T &Xr, const V &Xxr, const V &xr
 bool reference
   ( const int m_nFractalType, const int m_nPower
   , Reference *Reference
-  , ABOOL &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI

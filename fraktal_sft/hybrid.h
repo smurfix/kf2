@@ -26,7 +26,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 #include "complex.h"
 #include "dual.h"
-#include "defs.h"
 #include "reference.h"
 
 // FIXME TODO check that input from KFR files does not exceed this
@@ -1585,7 +1584,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , ABOOL &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate
@@ -1596,11 +1595,11 @@ extern bool reference_hybrid
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
-extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, ABOOL *stop, int *progress);
-extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, ABOOL *stop, int *progress);
-extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, ABOOL *stop, int *progress);
-extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, ABOOL *stop, int *progress);
-extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, ABOOL *stop, int *progress);
+extern bool hybrid_newton(const hybrid_formula &h, int maxsteps, int period, CDecNumber &cr0, CDecNumber &ci0, const CDecNumber &epsilon2, volatile bool *stop, int *progress);
+extern int hybrid_period(const hybrid_formula &h, int N, const CDecNumber &A, const CDecNumber &B, const CDecNumber &S, const double *K, volatile bool *stop, int *progress);
+extern bool hybrid_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, double *K, volatile bool *stop, int *progress);
+extern bool hybrid_domain_size(const hybrid_formula &h, int period, const CDecNumber &A, const CDecNumber &B, CDecNumber &S, volatile bool *stop, int *progress);
+extern bool hybrid_skew(const hybrid_formula &h, int maxiters, const CDecNumber &cr, const CDecNumber &ci, bool useDZ, double *skew_matrix, volatile bool *stop, int *progress);
 
 extern std::string hybrid_perturbation_double_opencl(const hybrid_formula &h, bool derivatives);
 extern std::string hybrid_perturbation_floatexp_opencl(const hybrid_formula &h, bool derivatives);

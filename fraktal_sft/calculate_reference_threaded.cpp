@@ -38,7 +38,7 @@ struct mcthread_common
 	Reference *m_Reference;
 	double *terminate, *glitch_threshold;
 	int64_t *m_nMaxIter, *nMaxIter, *m_nRDone;
-	ABOOL *stop;
+	volatile bool *stop;
 };
 
 struct mcthread
