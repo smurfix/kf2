@@ -311,9 +311,6 @@ public:
 	// actual work. All of which should be factored out.
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 
-	bool m_bIsRendering;
-	inline bool GetIsRendering() { return m_bIsRendering; };
-
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
 
@@ -345,7 +342,10 @@ public:
 #ifndef WINVER
 	std::thread m_renderThread;
 	inline bool renderRunning() const { return m_renderThread.joinable(); }
+	inline void renderJoin() { return m_renderThread.join(); }
 #endif
+	bool m_bIsRendering;
+	inline bool GetIsRendering() { return m_bIsRendering; };
 
 	//
 #ifdef KF_OPENCL

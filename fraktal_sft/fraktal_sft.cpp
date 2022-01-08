@@ -146,6 +146,7 @@ CFraktalSFT::CFraktalSFT()
 #ifndef WINVER
 , m_renderThread()
 #endif
+, m_bIsRendering(false)
 , m_cldevices()
 , N() // invalid array
 #ifndef WINVER
