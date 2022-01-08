@@ -63,6 +63,15 @@ static inline long double diffabsl(long double c, long double d) {
   }
 }
 
+/*
+  This defines the ABI for the generated code.
+  The generated code is not in the git repository,
+  but it is included with source code release bundles.
+  Any changes here require changing the code generator (et).
+  If you do not, compilation may fail, and/or linking may fail.
+  The last parameter changes from non-zero to 0 to signal from outside
+  (e.g. another thread) that the function should abort as soon as possible.
+*/
 typedef int f_plainf(int,float,float*,float,float,float,float,float*,volatile int*);
 typedef int f_plain(int,double,double*,double,double,double,double,double*,volatile int*);
 typedef int f_plainl(int,long double,long double*,long double,long double,long double,long double,long double*,volatile int*);
