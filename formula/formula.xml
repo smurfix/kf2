@@ -9,8 +9,8 @@
   <formula power="8" hybrid="0/1|0,0,0,0,8,1,0;0,0,0,0,0,0,0;0" />
   <formula power="9" hybrid="0/1|0,0,0,0,9,1,0;0,0,0,0,0,0,0;0" />
   <formula power="10" hybrid="0/1|0,0,0,0,10,1,0;0,0,0,0,0,0,0;0" />
-  <formula power="11" hybrid="0/1|0,0,0,0,10,1,0;0,0,0,0,0,0,0;0" />
-  <formula power="12" hybrid="0/1|0,0,0,0,10,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="11" hybrid="0/1|0,0,0,0,11,1,0;0,0,0,0,0,0,0;0" />
+  <formula power="12" hybrid="0/1|0,0,0,0,12,1,0;0,0,0,0,0,0,0;0" />
 </group>
 <group type="1" name="Burning Ship">
   <formula power="2" hybrid="0/1|1,1,0,0,2,1,0;0,0,0,0,0,0,0;0"><scaled /></formula>
