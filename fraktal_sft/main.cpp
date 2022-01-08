@@ -2051,7 +2051,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		UpdateWindowSize(hWnd);
 
 		g_SFT.SetImageSize(640, 360);
-		g_SFT.SetPosition(0, 0, 2);
+		g_SFT.SetPosition("0", "0", "1");
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.ResetTimers();
 

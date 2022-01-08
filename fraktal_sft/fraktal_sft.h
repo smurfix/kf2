@@ -181,9 +181,6 @@ public:
 	std::string GetRe(int nXPos, int nYPos);
 	std::string GetIm(int nXPos, int nYPos);
 
-	// internal/library use: set position, radius, possibly size
-	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &radius);
-
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
@@ -336,21 +333,7 @@ public:
 	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
 	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
 
-	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
-	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
-	std::string ToZoom();
-	void SetImageSize(int nx, int ny);
 	void RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
-	void RenderFractal();
-	void CalcStart(int x0, int x1, int y0, int y1);
-	HBITMAP GetBitmap();
-	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
-	void UpdateBitmap();
-	int GetWidth();
-	int GetHeight();
-	void Stop();
-	int CountFrames(int nProcent);
-	void Zoom(double nZoomSize);
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
@@ -420,6 +403,7 @@ public:
 	void IgnoreIsolatedGlitches();
 	int FindCenterOfGlitch(int &rx, int &ry);
 	void FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CENTER *p);
+	int GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize);
 
   // references, for faster calculation
 	BOOL(ReuseReference)         // Do not re-calculate the reference for further zooming

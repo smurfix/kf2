@@ -1510,6 +1510,12 @@ void CFraktalSFT::DeleteArrays()
 
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
+	/*
+		one must get the required precision from the zoom level
+		before using that precision when converting re,im from string
+		otherwise the precision is likely to be too low (e.g. unzoomed)
+		leading to incorrect images (precision loss from rounding)
+	*/
 	try
 	{
 		Precision pLo(20u);
@@ -1528,12 +1534,25 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 		m_CenterRe.m_f.precision(digits10);
 		m_CenterIm.m_f.precision(digits10);
 		m_ZoomRadius.m_f.precision(20u);
-		SetPosition(re.m_dec, im.m_dec, di.m_dec, m_nX, m_nY);
+		m_rref = re.m_dec;
+		m_iref = im.m_dec;
+		m_CenterRe = re.m_dec;
+		m_CenterIm = im.m_dec;
+		m_ZoomRadius = di.m_dec;
 	}
 	catch (...)
 	{
 		std::cerr << "ERROR: SetPosition(): couldn't parse float (ignored)" << std::endl;
+		/*
+			if a float could not be parsed, the previous value will be used
+			because all the parsing is done before the state is modified
+		*/
 	}
+}
+
+void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
+{
+	return SetPosition(std::string(szR), std::string(szI), std::string(szZ));
 }
 
 #ifdef KF_OPENCL
