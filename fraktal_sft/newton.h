@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define KF_NEWTON_H 1
 
 struct CNewton {
-	volatile bool stop;
+	volatile int running;
 	bool g_bNewtonRunning;
 	bool g_bNewtonStop;
 	bool g_bNewtonExit;
@@ -53,7 +53,7 @@ extern int WINAPI NewtonProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 struct progress_t
 {
 	int counters[4];
-	volatile bool stop;
+	volatile bool running;
 #ifdef WINVER
 	HWND hWnd;
 	HANDLE hDone;
