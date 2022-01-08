@@ -1510,7 +1510,6 @@ void CFraktalSFT::DeleteArrays()
 
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
-	CDecNumber re, im, z;
 	try
 	{
 		Precision pLo(20u);
@@ -1533,13 +1532,8 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 	}
 	catch (...)
 	{
-		std::cerr << std::endl << "ERROR: SetPosition()" << std::endl << szR << std::endl << szI << std::endl << szZ << std::endl;
-
-		re = 0;
-		im = 0;
-		z = 1;
+		std::cerr << "ERROR: SetPosition(): couldn't parse float (ignored)" << std::endl;
 	}
-	SetPosition(re.m_dec, im.m_dec, z.m_dec);
 }
 
 #ifdef KF_OPENCL
