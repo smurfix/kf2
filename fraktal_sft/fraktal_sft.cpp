@@ -303,6 +303,7 @@ CFraktalSFT::CFraktalSFT()
 	m_bBadOpenGL = false;
 	m_bGLSLChanged = true;
 	m_bGLSLCompiled = false;
+	m_sGLSL = KF_DEFAULT_GLSL;
 
 #ifdef KF_OPENCL
 	m_opengl_major = 0;
@@ -364,14 +365,18 @@ bool CFraktalSFT::UseOpenGL()
 
 	OpenGL_processor *opengl = new OpenGL_processor();
 
-	m_sGLSLLog.clear();
-	bool ok = opengl->init(m_opengl_major, m_opengl_minor, m_sGLSLLog);
-	if(!ok) {
+	response_init_t resp;
+	opengl->init(resp);
+
+	SetGLSLLog(resp.message);
+
+	if(!resp.success) {
 		delete opengl;
 		m_bBadOpenGL = true;
 		return false;
 	}
-	m_bBadOpenGL = false;
+	m_opengl_major = resp.major;
+	m_opengl_minor = resp.minor;
 
 	m_OpenGL.reset(opengl);
 	return true;
@@ -383,10 +388,13 @@ void CFraktalSFT::SetUseOpenGL(bool gl)
 	if(gl)
 		return;
 
-	// Disable OpenGL: delete the backend
+	// Disable OpenGL: delete the backend safely
 	OpenGL_processor *openGL = m_OpenGL.release();
 	if(openGL) {
-		m_bBadOpenGL = false;  // allow for retrying
+		if (m_bBadOpenGL)
+			m_bBadOpenGL = false;  // allow for retrying
+		else
+			openGL->deinit();
 		delete openGL;
 	}
 }
@@ -1238,12 +1246,27 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
+#ifdef KF_OPENGL
 		bool opengl_rendered = false;
 		if (UseOpenGL())
 		{
-			if (m_bGLSLChanged)
+			if (m_bGLSLChanged || ! m_bGLSLCompiled)
 			{
-				m_bGLSLCompiled = OpenGL_Compile(m_sGLSL);
+				request_compile_t req;
+				response_compile_t resp;
+
+				req.fragment_src = GetGLSL();
+
+				m_OpenGL->compile(req, resp);
+
+				std::string nl = "\n";
+				SetGLSLLog
+					( (resp.success ? "compiled" : "NOT COMPILED") + nl
+					+ resp.vertex_log + nl
+					+ resp.fragment_log + nl
+					+ resp.link_log + nl
+					);
+				m_bGLSLCompiled = resp.success;
 				m_bGLSLChanged = false;
 			}
 			if (m_bGLSLCompiled)
@@ -1309,10 +1332,10 @@ void CFraktalSFT::ApplyColors()
 					floatexp zoomFE = floatexp(zoom);
 					req.zoom_log2 = double(log2(zoomFE));
 				}
-
-				opengl_rendered = OpenGL_Configure(req);
+				m_OpenGL->configure(req);
 			}
-			if(opengl_rendered) {
+			if (m_bGLSLCompiled)
+			{
 				request_render_t req;
 
 				req.width = m_nX;
@@ -1326,13 +1349,15 @@ void CFraktalSFT::ApplyColors()
 				req.rgb16 = m_imageHalf;
 				req.rgb8 = m_lpBits; // FIXME row alignment?
 
-				opengl_rendered = OpenGL_Render(req);
+				m_OpenGL->render(req);
+				opengl_rendered = true;
 			}
 		}
 		if (opengl_rendered)
 		{
 		}
 		else
+#endif // KF_OPENGL
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);

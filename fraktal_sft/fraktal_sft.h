@@ -601,35 +601,26 @@ public:
 	BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
-	// OpenGL accessors
 	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
-	// Only call these if UseOpenGL() is true!
-	inline bool OpenGL_Configure(const request_configure_t &req)
-		{ return m_OpenGL->configure(req); }
-	inline bool OpenGL_Compile(const std::string &fragment_src)
-		{ return m_OpenGL->compile(fragment_src); }
-	inline bool OpenGL_Render(const request_render_t &req)
-		{ return m_OpenGL->render(req); }
-
 	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // use this for settings
 	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
 
-	std::unique_ptr<OpenGL_processor> m_OpenGL;  // our OpenGL instance
+	std::unique_ptr<OpenGL_processor> m_OpenGL; // our OpenGL instance
 	bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
 
-	std::string m_sGLSL;     // shader code fragment
-	inline std::string GetGLSL() { return m_sGLSL; } // current shader fragment
-	inline void SetGLSL(const std::string &gl) { m_bGLSLChanged |= (m_sGLSL != gl); m_sGLSL = gl; }
+	std::string m_sGLSL;     // current shader fragment
+	inline std::string GetGLSL() { return m_sGLSL; }
+	inline void SetGLSL(const std::string frag) { m_sGLSL = frag; }
 
 	std::string m_sGLSLLog;  // compilation log
 	inline std::string GetGLSLLog() { return m_sGLSLLog; } // compile log
 	inline void SetGLSLLog(const std::string &gl) { m_sGLSLLog = gl; }
 
-	bool m_bGLSLChanged;     // changed since last compile
+	bool m_bGLSLChanged;     // changed since last compile attempt
 	bool m_bGLSLCompiled;    // false == not compileable
 
 	bool m_bUseSRGB;         // use SRGB colors?

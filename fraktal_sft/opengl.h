@@ -21,12 +21,48 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <string>
 #include <vector>
-#include <half.h>
 
+#ifndef WINVER
+#include <thread>
+#include <mutex>
+#endif
+
+#include <half.h>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 
 #include "defs.h"
+
+enum request_t
+{
+  request_quit,
+  request_init,
+  request_deinit,
+  request_compile,
+  request_configure,
+  request_render
+};
+
+struct response_init_t
+{
+  bool success;
+  int major;
+  int minor;
+  std::string message;
+};
+
+struct request_compile_t
+{
+  std::string fragment_src;
+};
+
+struct response_compile_t
+{
+  bool success;
+  std::string vertex_log;
+  std::string fragment_log;
+  std::string link_log;
+};
 
 struct request_configure_t
 {
@@ -82,15 +118,30 @@ struct request_render_t
   unsigned char *rgb8;
 };
 
+struct request
+{
+  volatile request_t tag;
+  union {
+    request_compile_t *compile;
+    request_configure_t *configure;
+    request_render_t *render;
+  };
+};
+
+struct response
+{
+  union {
+    response_init_t *init;
+    response_compile_t *compile;
+  };
+};
+
 class OpenGL_processor
 {
-public:
+private:
   const int64_t max_tile_width = 1024;
   const int64_t max_tile_height = 1024;
   const int tu_n_msb = 1, tu_n_lsb = 2, tu_n_f = 3, tu_t = 4, tu_dex = 5, tu_dey = 6, tu_rgb16 = 7,tu_rgb8 = 8, tu_texture = 9, tu_palette = 10;
-
-private:
-  std::string m_fragment_src;
   GLuint t_n_msb = 0, t_n_lsb = 0, t_n_f = 0, t_t = 0, t_dex = 0, t_dey = 0, t_rgb16 = 0, t_rgb8 = 0, t_texture = 0, t_palette = 0;
   std::string version;
   GLuint p_colour = 0, p_blit = 0, f_linear = 0, f_srgb = 0;
@@ -100,14 +151,78 @@ private:
   // default is false (incorrect blending) for historical reasons
   bool sRGB = false;
 
+#ifdef WINVER
+  HANDLE hDone;
+  HANDLE hThread;
+#else
+  std::thread opengl_thread;
+#endif
+
+#ifdef WINVER
+  HANDLE req_lock;
+  HANDLE resp_lock;
+#else
+  std::mutex req_lock;
+  std::mutex resp_lock;
+#endif
+
+
+  // Initial state: mutexes are locked. Handler waits for req_lock.
+  // Client fills req, unlocks req_in, waits for resp_lock.
+  // Handler processes req, fill response, re-locks and waits for req_lock.
+  // Client reads resp, re-locks resp_lock.
+
+  void handle_init();
+  void handle_deinit();
+  void handle_compile();
+  void handle_configure();
+  void handle_render();
+
+  void process_request();
+
+  inline void quit() { req.tag = request_quit; process_request(); }
 public:
-  bool init(int &major, int &minor, std::string &message);
-  bool compile(const std::string &fragment_src);
-  bool configure(const request_configure_t &req);
-  bool render(const request_render_t &req);
-  
-  OpenGL_processor() {}
+  request req;
+  response resp;
+
+  OpenGL_processor();
   ~OpenGL_processor();
+
+  // only one of these may run at any time. 
+  inline bool init(response_init_t &resp)
+  {
+    this->req.tag = request_init;
+    this->resp.init = &resp;
+    process_request();
+    return resp.success;
+  }
+  inline void deinit()
+  {
+    this->req.tag = request_deinit;
+    process_request();
+  }
+  inline bool compile(request_compile_t &req, response_compile_t &resp)
+  {
+    this->req.tag = request_compile;
+    this->req.compile = &req;
+    this->resp.compile = &resp;
+    process_request();
+    return resp.success;
+  }
+  inline void configure(request_configure_t &req)
+  {
+    this->req.tag = request_configure;
+    this->req.configure = &req;
+    process_request();
+  }
+  inline void render(request_render_t &req)
+  {
+    this->req.tag = request_render;
+    this->req.render = &req;
+    process_request();
+  }
+
+  void th_handler(); // task's main loop
 };
 
 #endif
