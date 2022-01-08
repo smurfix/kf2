@@ -336,11 +336,22 @@ public:
 	void DoApproximation(int64_t &antal, const floatexp &a, const floatexp &b, floatexp &x, floatexp &y, floatexp &dxa, floatexp &dxb, floatexp &dya, floatexp &dyb);
 	void DoApproximation(const floatexp &a, const floatexp &b, floatexp &x, floatexp &y); // for internal usage only, assumes isR
 
-	int GetArea(itercount_array &Node, int nXStart, int nXStop, int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize);
-	// XXX "Pixels" is only ever used with an invalid array
-	// TODO what does this actually do?
-
-	// XXX what exactly does this do?
+	void SetPosition(const CFixedFloat &re, const CFixedFloat &im, const CFixedFloat &radius, int nX, int nY);
+	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
+	std::string ToZoom();
+	void SetImageSize(int nx, int ny);
+	void RenderFractal(int nX, int nY, int64_t nMaxIter, HWND hWnd, BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
+	void RenderFractal();
+	void CalcStart(int x0, int x1, int y0, int y1);
+	HBITMAP GetBitmap();
+	HBITMAP ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode = 1);
+	void UpdateBitmap();
+	int GetWidth();
+	int GetHeight();
+	void Stop();
+	int CountFrames(int nProcent);
+	void Zoom(double nZoomSize);
+	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.

@@ -1508,35 +1508,28 @@ void CFraktalSFT::DeleteArrays()
 		FreeBitmap();
 }
 
-void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &radius)
-{
-
-	long e = 0;
-	mpfr_get_d_2exp(&e, radius.m_dec.backend().data(), MPFR_RNDN);
-	unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
-
-	Precision pHi(digits10);
-	m_rref.m_f.precision(digits10);
-	m_iref.m_f.precision(digits10);
-	m_CenterRe.m_f.precision(digits10);
-	m_CenterIm.m_f.precision(digits10);
-	m_ZoomRadius.m_f.precision(20u);
-	SetPosition(re.m_dec, im.m_dec, radius.m_dec, m_nX, m_nY);
-}
-
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 {
 	CDecNumber re, im, z;
 	try
 	{
-		re = CDecNumber(szR); // throws on bad string
-		im = CDecNumber(szI); // throws on bad string
-
 		Precision pLo(20u);
 		CDecNumber z(szZ); // throws on bad string
-		z = 2/z;
+		CDecNumber di(2 / z);
 
-		SetPosition(re.m_dec, im.m_dec, z.m_dec);
+		long e = 0;
+		mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
+		unsigned digits10 = std::max(20L, long(20 + 0.30102999566398114 * e));
+		Precision pHi(digits10);
+
+		CDecNumber re(szR); // throws on bad string
+		CDecNumber im(szI); // throws on bad string
+		m_rref.m_f.precision(digits10);
+		m_iref.m_f.precision(digits10);
+		m_CenterRe.m_f.precision(digits10);
+		m_CenterIm.m_f.precision(digits10);
+		m_ZoomRadius.m_f.precision(20u);
+		SetPosition(re.m_dec, im.m_dec, di.m_dec, m_nX, m_nY);
 	}
 	catch (...)
 	{
@@ -1547,11 +1540,6 @@ void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, co
 		z = 1;
 	}
 	SetPosition(re.m_dec, im.m_dec, z.m_dec);
-}
-
-void CFraktalSFT::SetPosition(const char *const szR, const char *const szI, const char *const szZ)
-{
-	SetPosition(std::string(szR), std::string(szI), std::string(szZ));
 }
 
 #ifdef KF_OPENCL
