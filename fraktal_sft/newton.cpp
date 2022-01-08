@@ -316,7 +316,7 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
   return 0;
 }
 
-static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps, progress_t *progress)
+static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps, volatile bool *stop, progress_t *progress)
 {
   radius = flyttyp(4)/radius;
   mp_bitcnt_t bits = mpfr_get_prec(center.m_r.m_dec.backend().data());
@@ -332,7 +332,7 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   c.progress = progress;
   c.maxperiod = maxperiod;
   c.barrier = &bar;
-  c.stop = &g_SFT.N.g_bNewtonStop;
+  c.stop = stop;
   c.haveperiod = &haveperiod;
   c.period = &period;
   c.maxperiod = maxperiod;
@@ -785,7 +785,7 @@ void CFraktalSFT::ThNewton()
 	  else if (type == 0 && power == 2)
 	  {
 		int64_t maxperiod = INT_MAX; // FIXME
-		g_SFT.N.g_period = ball_period_do(center,radius,maxperiod,steps,&progress);
+		g_SFT.N.g_period = ball_period_do(center,radius,maxperiod,steps,&g_SFT.N.g_bNewtonStop,&progress);
 	  }
 	  else
 	  {
