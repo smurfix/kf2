@@ -525,7 +525,6 @@ void CFraktalSFT::CalcStart()
 #endif
 			);
 		TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-// TODO split by Y, not X, due to cache locality
 		int nXStart = 0;
 		int nXStep = (m_nX + nParallel - 1) / nParallel;
 		for (int i = 0; i < nParallel; i++)
