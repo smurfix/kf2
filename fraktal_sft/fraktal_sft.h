@@ -182,6 +182,9 @@ public:
 	std::string GetRe(int nXPos, int nYPos);
 	std::string GetIm(int nXPos, int nYPos);
 
+	// internal use: set position and zoom level.
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom);
+
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
