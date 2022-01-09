@@ -147,10 +147,10 @@ CFraktalSFT::CFraktalSFT()
 #ifndef WINVER
 , m_renderThread()
 #endif
-#ifdef WINVER
 , m_bIsRendering(false)
-#endif
+#ifdef KF_OPENCL
 , m_cldevices()
+#endif
 , N() // invalid array
 #ifndef WINVER
 , m_mutex()
