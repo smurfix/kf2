@@ -152,9 +152,7 @@ CFraktalSFT::CFraktalSFT()
 , m_cldevices()
 #endif
 , N() // invalid array
-#ifndef WINVER
 , m_mutex()
-#endif
 , m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
 #ifndef KF_EMBED
@@ -208,9 +206,6 @@ CFraktalSFT::CFraktalSFT()
 	m_APi = new floatexp[m_nTerms];
 	m_APs = new SeriesR2<double, int64_t>;
 
-#ifdef WINVER
-	m_hMutex = CreateMutex(NULL, 0, NULL);
-#endif
 	m_bStop = false;
 
 	m_CenterRe = 0;
@@ -2070,7 +2065,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 #ifndef KF_EMBED
 HBITMAP CFraktalSFT::GetBitmap()
 {
-	WaitForMutex(m_hMutex);
+	m_mutex.lock());
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!SetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2078,12 +2073,12 @@ HBITMAP CFraktalSFT::GetBitmap()
 			Beep(1000, 10);
 		ReleaseDC(NULL, hDC);
 	}
-	ReleaseMutex(m_hMutex);
+	m_mutex.unlock());
 	return m_bmBmp;
 }
 void CFraktalSFT::UpdateBitmap()
 {
-	WaitForMutex(m_hMutex);
+	m_mutex.lock());
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2091,7 +2086,7 @@ void CFraktalSFT::UpdateBitmap()
 			{ /*Beep(1000,10)*/ }
 		ReleaseDC(NULL, hDC);
 	}
-	ReleaseMutex(m_hMutex);
+	m_mutex.unlock());
 }
 
 void CFraktalSFT::Stop()
@@ -2770,25 +2765,13 @@ int64_t CFraktalSFT::GetMaxApproximation()
 }
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
-#ifdef WINVER
-	WaitForMutex(m_hMutex);
-#else
 	m_mutex.lock();
-#endif
 	if (!m_nPixels || x<0 || x >= m_nX || y<0 || y >= m_nY){
-#ifdef WINVER
-		ReleaseMutex(m_hMutex);
-#else
 		m_mutex.unlock();
-#endif
 		return PIXEL_UNEVALUATED;
 	}
 	int64_t nRet = m_nPixels[x][y];
-#ifdef WINVER
-	ReleaseMutex(m_hMutex);
-#else
 	m_mutex.unlock();
-#endif
 	return nRet;
 }
 double CFraktalSFT::GetTransOnPoint(int x, int y)

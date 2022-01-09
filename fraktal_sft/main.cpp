@@ -83,11 +83,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 
-#if defined(__clang__) || !defined(WINVER)
-#include <thread>
-#else
-#include <mingw-std-threads/mingw.thread.h>
-#endif
+#include "kf-task.h"
 
 #ifndef KF_EMBED
 
@@ -2531,9 +2527,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs = p;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.FixIterLimit();
 		g_SFT.ResetTimers();
@@ -2571,9 +2567,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				pAnim->pOffs = g_pSelect;
 				pAnim->bZoomOut = FALSE;
 				pAnim->bZoomOne = FALSE;
-				DWORD dw;
-				HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-				CloseHandle(hThread);
+
+				std::thread anim(ThAnim,pAnim);
+				anim.detach();
 			}
 
 			if(!g_bAddMainReference && !g_bAddReference && !g_bEraser){
@@ -2870,9 +2866,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -2930,9 +2925,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -3376,9 +3370,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3400,9 +3394,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3424,9 +3418,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = -r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3448,9 +3442,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom+r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3564,9 +3558,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = (short)HIWORD(lParam);
 			pAnim->bZoomOut = TRUE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 
 			RECT r = {0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight()};
 			double zoomDiff = (double)1/(double)g_SFT.GetZoomSize();
@@ -4456,8 +4450,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				// render the image (add reference calls render fractal...)
 				if (LogLevel_Status >= g_log_level)
 				{
-					HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-					CloseHandle(hProgress);
+					std::thread report(ThReportProgress,0);
+					report.detach();
 				}
 			}
 			if (g_args->bZoomOut)

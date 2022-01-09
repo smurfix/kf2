@@ -27,8 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 #include "reference.h"
 
-#ifndef WINVER
-#include <mutex>
+#include "kf-task.h"
 #endif
 
 struct Reference;
@@ -44,11 +43,7 @@ class CPixels
 	CPixel *m_pPixels;
 	int m_nPixels;
 	LONG m_nNextPixel;
-#ifdef WINVER
-	HANDLE m_hMutex;
-#else
 	std::mutex mutex;
-#endif
 
 public:
 	CPixels();

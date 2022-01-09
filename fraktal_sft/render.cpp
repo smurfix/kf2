@@ -118,9 +118,8 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		ThRenderFractal(this);
 	}
 	else{
-		DWORD dw;
-		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
-		CloseHandle(hThread);
+	    std::thread renderth(ThRenderFractal,this);
+		renderth.detach();
 	}
 }
 #endif

@@ -23,9 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <half.h>
 
-#ifndef WINVER
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <atomic>
 
@@ -557,11 +555,9 @@ public:
 	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
 	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 #ifdef WINVER
-	HANDLE m_hMutex;                  // protect the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
-#else
-	std::mutex m_mutex;                  // protect the stuff below
 #endif
+	std::mutex m_mutex;                  // protect the stuff below
 	void FreeBitmap();
 	void AllocateBitmap();
 	void ReinitializeBitmap();

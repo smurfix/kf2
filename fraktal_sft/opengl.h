@@ -22,10 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-#ifndef WINVER
-#include <thread>
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <half.h>
 #include <glad/glad.h>
@@ -158,13 +155,8 @@ private:
   std::thread opengl_thread;
 #endif
 
-#ifdef WINVER
-  HANDLE req_lock;
-  HANDLE resp_lock;
-#else
   std::mutex req_lock;
   std::mutex resp_lock;
-#endif
 
 
   // Initial state: mutexes are locked. Handler waits for req_lock.
