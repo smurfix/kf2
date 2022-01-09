@@ -27,9 +27,8 @@ include $(SYSTEM).mk
 CLEWPREFIX := $(HOME)/win/src/clew
 TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -gstabs
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/wx-3.1 -I$(WINPREFIX)/lib/wx/include/x86_64-w64-mingw32-msw-unicode-static-3.1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -D_WIN32_WINNT=0x501 -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Iglad/include -fno-var-tracking-assignments
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Iglad/include -fno-var-tracking-assignments
 LINK_FLAGS := -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
-WX_LIBS ?= -lwx_mswu_core-3.1-x86_64-w64-mingw32 -lwx_baseu-3.1-x86_64-w64-mingw32 -lwxpng-3.1-x86_64-w64-mingw32 -lwxzlib-3.1-x86_64-w64-mingw32
 LIBS ?= -luxtheme -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleacc -lshlwapi -lversion -lwinspool -loleaut32 -lcomctl32 -lkernel32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 STD ?= c++11
 

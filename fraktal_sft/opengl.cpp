@@ -17,8 +17,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include <algorithm>
+#include <iostream>
+#include <math.h>
+
 #include "opengl.h"
-#include <GLFW/glfw3.h>
 
 #include "colour.h"
 
@@ -26,6 +28,41 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../gl/kf_frag_glsl.h"
 
 #define D { GLint e = 0; while ((e = glGetError())) { std::cerr << "OpenGL error " << e << " at line " << __LINE__ << std::endl; } }
+
+static unsigned long WINAPI opengl_loop(void *proc);
+
+OpenGL_processor::OpenGL_processor()
+#ifndef WINVER
+: req_lock()
+, resp_lock()
+#endif
+{
+#ifdef WINVER
+    DWORD dw;
+    req_lock = CreateMutex(NULL, 1, NULL);
+    resp_lock = CreateMutex(NULL, 1, NULL);
+    hDone = CreateEvent(NULL, 0, 0, NULL);
+    hThread = CreateThread(NULL,0, opengl_loop,this, 0,&dw);
+#else
+    req_lock.lock();
+    resp_lock.lock();
+    opengl_thread = std::thread(opengl_loop,this);
+#endif
+}
+
+OpenGL_processor::~OpenGL_processor()
+{
+    quit();
+#ifdef WINVER
+    WaitForMultipleObjects(1, &hDone, TRUE, INFINITE);
+    CloseHandle(hDone);
+    CloseHandle(req_lock);
+    CloseHandle(resp_lock);
+    TerminateThread(hThread,0);
+#else
+    opengl_thread.join();
+#endif
+}
 
 static bool debug_program(GLuint program, std::string &log) {
   GLint status = 0;
@@ -135,20 +172,22 @@ const char *blit_frag =
       "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
   ;
 
-
-  bool OpenGL_processor::init(int &r_major, int &r_minor, std::string &r_message)
+  void OpenGL_processor::handle_init()
       {
+        auto &resp = *this->resp.init;
+
         if (! glfwInit())
         {
+          resp.success = false;
           std::cerr << "error: glfwInit()" << std::endl;
-          return false;
+          return;
         }
         const int nversions = 11;
         const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3 };
         const int minor[] = { 6, 5, 4, 3, 2, 1, 0, 3, 2, 1, 0 };
         const int glslv[] = { 460, 450, 440, 430, 420, 410, 400, 330, 150, 140, 130 };
-        r_major = 0;
-        r_minor = 0;
+        resp.major = 0;
+        resp.minor = 0;
         for (int k = 0; k < nversions; ++k)
         {
           glfwDefaultWindowHints();
@@ -173,16 +212,17 @@ const char *blit_frag =
           window = glfwCreateWindow(1, 1, "", nullptr, nullptr);
           if (window)
           {
-            r_major = major[k];
-            r_minor = minor[k];
+            resp.major = major[k];
+            resp.minor = minor[k];
             break;
           }
         }
         if (! window)
         {
           glfwTerminate();
-          r_message = "error: could not create OpenGL context with version 3.0 or greater\n";
-          return false;
+          resp.success = false;
+          resp.message = "error: could not create OpenGL context with version 3.0 or greater\n";
+          return;
         }
         glfwMakeContextCurrent(window);
         if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -190,8 +230,9 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          r_message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
-          return false;
+          resp.success = false;
+          resp.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
+          return;
         }
 
         std::string vertex_log, fragment_log, link_log;
@@ -202,12 +243,13 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          r_message =
+          resp.success = false;
+          resp.message =
             "error: could not compile internal shader:\n" +
             vertex_log + nl +
             fragment_log + nl +
             link_log + nl;
-          return false;
+          return;
         }
         glUseProgram(p_blit);
         glUniform1i(glGetUniformLocation(p_blit, "t"), tu_rgb16);
@@ -342,10 +384,10 @@ const char *blit_frag =
         glBindVertexArray(vao);
         D
 
-        return true;
+        resp.success = true;
       }
 
-  OpenGL_processor::~OpenGL_processor()
+  void OpenGL_processor::handle_deinit()
       {
         if (vao)
         {
@@ -421,24 +463,22 @@ const char *blit_frag =
         glfwTerminate();
       }
 
-  bool OpenGL_processor::compile(const std::string &fragment_src)
+  void OpenGL_processor::handle_compile()
       {
-        std::string vertex_log;
-        std::string fragment_log;
-        std::string link_log;
-        if (m_fragment_src == fragment_src) {
-          return (m_fragment_src.length() > 0);
-        }
-        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, fragment_src.c_str(), vertex_log, fragment_log, link_log);
+        auto &req = *this->req.compile;
+        auto &resp = *this->resp.compile;
+        resp.vertex_log = "";
+        resp.fragment_log = "";
+        resp.link_log = "";
+        p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.fragment_src.c_str(), resp.vertex_log, resp.fragment_log, resp.link_log);
         D
-        bool res = p_colour > 0;
-        if (res)
-          m_fragment_src = fragment_src;
-        return res;
+        resp.success = p_colour > 0;
       }
 
-  bool OpenGL_processor::configure(const request_configure_t &req)
+  void OpenGL_processor::handle_configure()
       {
+        auto &req = *this->req.configure;
+
         glUseProgram(p_colour);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N1"), tu_n_msb);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N0"), tu_n_lsb);
@@ -512,11 +552,12 @@ const char *blit_frag =
         D
         glUniform1i(glGetUniformLocation(p_colour, "KFP_Texture"), tu_texture);
         D
-        return true;
       }
 
-  bool OpenGL_processor::render(const request_render_t &req)
+  void OpenGL_processor::handle_render()
       {
+        auto &req = *this->req.render;
+
         const int padding = 1;
         uint32_t *n_msb = req.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
         uint32_t *n_lsb = req.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
@@ -801,7 +842,59 @@ const char *blit_frag =
           }
           delete[] tmp;
         }
-
-        return true;
       }
 
+static unsigned long opengl_loop(void *proc)
+{
+    ((OpenGL_processor *)proc)->th_handler();
+    return 0;
+}
+
+// This is the OpenGL task's main loop.
+void OpenGL_processor::th_handler()
+{
+    request_t tag;
+    do {
+#ifdef WINVER
+        WaitForMultipleObjects(1, &req_lock, TRUE, INFINITE);
+#else
+        req_lock.lock();
+#endif
+        tag = req.tag;
+        switch (tag) {
+          case request_init:
+            handle_init();
+            break;
+          case request_deinit:
+            handle_deinit();
+            break;
+          case request_compile:
+            handle_compile();
+            break;
+          case request_configure:
+            handle_configure();
+            break;
+          case request_render:
+            handle_render();
+            break;
+          case request_quit:
+            break;
+        }
+#ifdef WINVER
+        ReleaseMutex(resp_lock);
+#else
+        resp_lock.unlock();
+#endif
+    } while (tag != request_quit);
+}
+ 
+void OpenGL_processor::process_request()
+{
+#ifdef WINVER
+    ReleaseMutex(req_lock);
+    WaitForMultipleObjects(1, &resp_lock, TRUE, INFINITE);
+#else
+    req_lock.unlock();
+    resp_lock.lock();
+#endif
+}

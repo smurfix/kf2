@@ -24,7 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <half.h>
 
 #ifndef WINVER
-#include <thread>
 #include <mutex>
 #endif
 
@@ -77,6 +76,8 @@ public:
   // settings and parameters
 	bool OpenSettings(const std::string &filename);
 	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
+	inline std::string GetSettings() const { return m_Settings.ToText(); }
+	inline bool SetSettings(const std::string &data) { return m_Settings.FromText(data); }
 
 	void ResetParameters();
 	BOOL(OpenResetsParameters)
@@ -279,7 +280,7 @@ public:
 			return SeriesType_None;
 		if (m_nFractalType == 0)
 			return SeriesType_Complex;
-		if (m_nFractalType == 1 && m_nPower == 2 && ! m_Settings.GetUseOpenCL())
+		if (m_nFractalType == 1 && m_nPower == 2 && ! GetUseOpenCL())
 			return SeriesType_Real;
 		return SeriesType_None;
 	}
@@ -309,7 +310,9 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
+#ifdef WINVER
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
+#endif
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
@@ -335,17 +338,14 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
+#ifdef WINVER
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
-#ifndef WINVER
-	std::thread m_renderThread;
-	inline bool renderRunning() const { return m_renderThread.joinable(); }
-	inline void renderJoin() { return m_renderThread.join(); }
-#endif
 	bool m_bIsRendering;
 	inline bool GetIsRendering() { return m_bIsRendering; };
+#endif
 
 	//
 #ifdef KF_OPENCL
@@ -382,7 +382,7 @@ public:
 
 	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
-	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bNoGlitchDetection = FALSE, BOOL bResuming = FALSE,bool noThread = false);
+	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bResuming = FALSE);
 
 	INT(GlitchCenterMethod)          // Menu: advanced > Reference Selection
 	INT(IsolatedGlitchNeighbourhood) // Menu: adv > Ignore isolated
@@ -390,7 +390,9 @@ public:
 	//
 	// set when too many glitches found
 	BOOL m_bNoGlitchDetection;
-	POINT m_pOldGlitch[OLD_GLITCH];
+	POINT m_pOldGlitch[OLD_GLITCH];  // TODO convert to a vector
+	void ResetGlitches();
+
 	// TODO add a var for current length instead of terminating with x==-1
 	int m_nMaxOldGlitches; // XXX constant OLD_GLITCH
 
@@ -450,7 +452,7 @@ public:
 	// XXX rename this to GetZoomExponent
 
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
-	std::string ToZoom(const CDecNumber &z, int &zoom);
+	std::string ToZoom(const CDecNumber &z);
 
 	BOOL(Mirror)                 // XXX never read
 	void Mirror(int x, int y);   // set value corresponding to mirrored x/y
@@ -552,7 +554,7 @@ public:
 	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
 	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 #ifdef WINVER
-	HANDLE m_hMutex;                  // protet the stuff below
+	HANDLE m_hMutex;                  // protect the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
 #else
 	std::mutex m_mutex;                  // protect the stuff below
@@ -596,35 +598,26 @@ public:
 	BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
-	// OpenGL accessors
 	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
-	// Only call these if UseOpenGL() is true!
-	inline bool OpenGL_Configure(const request_configure_t &req)
-		{ return m_OpenGL->configure(req); }
-	inline bool OpenGL_Compile(const std::string &fragment_src)
-		{ return m_OpenGL->compile(fragment_src); }
-	inline bool OpenGL_Render(const request_render_t &req)
-		{ return m_OpenGL->render(req); }
-
 	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // use this for settings
 	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
 
-	std::unique_ptr<OpenGL_processor> m_OpenGL;  // our OpenGL instance
+	std::unique_ptr<OpenGL_processor> m_OpenGL; // our OpenGL instance
 	bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
 
-	std::string m_sGLSL;     // shader code fragment
-	inline std::string GetGLSL() { return m_sGLSL; } // current shader fragment
-	inline void SetGLSL(const std::string &gl) { m_bGLSLChanged |= (m_sGLSL != gl); m_sGLSL = gl; }
+	std::string m_sGLSL;     // current shader fragment
+	inline std::string GetGLSL() { return m_sGLSL; }
+	inline void SetGLSL(const std::string frag) { m_sGLSL = frag; }
 
 	std::string m_sGLSLLog;  // compilation log
 	inline std::string GetGLSLLog() { return m_sGLSLLog; } // compile log
 	inline void SetGLSLLog(const std::string &gl) { m_sGLSLLog = gl; }
 
-	bool m_bGLSLChanged;     // changed since last compile
+	bool m_bGLSLChanged;     // changed since last compile attempt
 	bool m_bGLSLCompiled;    // false == not compileable
 
 	bool m_bUseSRGB;         // use SRGB colors?
@@ -703,10 +696,8 @@ public:
 	DOUBLE(ZoomSize)             // zoom factor
 	BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
 	void Zoom(double nZoomSize);
-	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool autoRender = true, bool centerView = false);
+	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool centerView = false);
 	// 
-	int CountFrames(int procent); // == log2(zoomlevel)*nPercent/100+1
-	//
 	INT(WindowWidth)         // window size, showing the (scaled) output image
 	INT(WindowHeight)
 	INT(Shrink)              // shrink quality (enum: fast default best sRGB)

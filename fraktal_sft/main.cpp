@@ -1180,8 +1180,7 @@ static int ResumeZoomSequence(HWND hWnd)
 		g_SFT.FixIterLimit();
 	}
 	if(bRecoveryFile){
-		g_SFT.ToZoom();
-		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,FALSE,TRUE, false);
+		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,TRUE);
 	}
 	else
 	{
@@ -1232,6 +1231,7 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 	}
 nPos=0;
 	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
+		// Not stopped and not animating: fix colors and update window.
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
@@ -1239,6 +1239,7 @@ nPos=0;
 nPos=1;
 nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
+		// Auto-glitch handling.
 nPos=3;
 		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
 			g_SFT.m_bAutoGlitch++;
@@ -1253,7 +1254,7 @@ nPos=6;
 					{
 						std::cerr << "add reference " << g_SFT.m_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
 					}
-					if(g_SFT.AddReference(x, y,FALSE,g_SFT.GetSolveGlitchNear(),g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
+					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
 nPos=7;
 						return 0;
 					}
@@ -2640,7 +2641,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
-				if(g_SFT.AddReference(x,y,FALSE,g_SFT.GetSolveGlitchNear()))
+				if(g_SFT.AddReference(x,y,FALSE))
 					SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
@@ -2664,7 +2665,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			{
 				g_SFT.UndoStore();
 				g_SFT.Stop();
-				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetZoomSize()==1, true, true);
+				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetZoomSize()==1, true);
 			}
 			SetTimer(hWnd,0,500,NULL);
 		}
@@ -4341,6 +4342,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	if (interactive)
 	{
+		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFR,sizeof(g_szRecoveryKFR));
 		strcpy(strrchr(g_szRecoveryKFR,'.'),".rec_kfr");
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFS,sizeof(g_szRecoveryKFS));
@@ -4375,6 +4377,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		DeleteFile(g_szRecoveryKFR);
 		DeleteFile(g_szRecoveryKFS);
+		g_SFT.m_OpenGL.reset();
 	}
 	else
 	{
@@ -4437,6 +4440,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			}
 			g_SFT.m_bInhibitColouring = false;
 		}
+		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
 		bool ok = true;
 		if (g_args->bLoadMap)
@@ -4491,7 +4495,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			output_log_message(Info, "  apx time\t" << approximation_wall << "\t" << approximation_cpu);
 			output_log_message(Info, "  ptb time\t" << perturbation_wall << "\t" << perturbation_cpu);
 		}
-		g_SFT.SetUseOpenGL(false);
+		g_SFT.m_OpenGL.reset();
 		return ok ? 0 : 1;
 	}
 
