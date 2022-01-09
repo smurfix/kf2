@@ -810,7 +810,7 @@ void CFraktalSFT::ThNewton()
 	  // join progress updater
 	  progress.running = false;
 #ifdef WINVER
-	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+	  WaitForSingleObject(progress.hDone, INFINITE);
 	  CloseHandle(progress.hDone);
 #endif
 	  if (g_SFT.N.g_period < 0) g_SFT.N.g_period = 0;
@@ -875,7 +875,7 @@ void CFraktalSFT::ThNewton()
 		// join progress updater
 		progress.running = false;
 #ifdef WINVER
-		WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+		WaitForSingleObject(progress.hDone, INFINITE);
 		CloseHandle(progress.hDone);
 #endif
 		{
@@ -957,7 +957,7 @@ void CFraktalSFT::ThNewton()
 				// join progress updater
 				progress.running = false;
 #ifdef WINVER
-				WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+				WaitForSingleObject(progress.hDone, INFINITE);
 				CloseHandle(progress.hDone);
 #endif
 				{
