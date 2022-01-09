@@ -361,7 +361,7 @@ earlier).
 2021-12-05
 
   - new: single-reference implementation for avoiding glitches (thanks
-    Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
+    Zhuoran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
     enabled by default; also supported in nanomb1
     - known issue: does not work with every hybrid formula (only very
       simple cases work)
@@ -2333,7 +2333,7 @@ Thanks to:
 - stardust4ever for other fractal types
 - claude for the Newton-Raphson method
 - gerrit for the distance colouring differencing variations
-- Zhouran for the single reference method
+- Zhuoran for the single reference method
 - Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
