@@ -28,7 +28,7 @@ typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<
 #include <cassert>
 #include <string>
 
-#ifndef WINVER
+#ifdef KF_EMBED
 #include <mpfr.h>
 #endif
 
@@ -61,7 +61,7 @@ public:
 		m_dec.precision(std::max(decNumber::default_precision(), LOW_PRECISION));
 		m_dec = 0;
 	};
-#ifndef WINVER
+#ifdef KF_EMBED
 	inline CDecNumber(const mpfr_t a)
 	{
 		m_dec.precision(std::max((mpfr_prec_t)decNumber::default_precision(), mpfr_get_prec(a)));

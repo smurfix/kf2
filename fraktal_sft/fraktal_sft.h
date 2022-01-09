@@ -310,7 +310,7 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
-#ifdef WINVER
+#ifndef KF_EMBED
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 #endif
 
@@ -485,7 +485,7 @@ public:
 
   // Newton-Raphson zoom support
 	struct CNewton N;                // XXX split that off
-#ifndef WINVER
+#ifdef KF_EMBED
 	void ThNewton();
 #endif
 	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
@@ -687,7 +687,7 @@ public:
 	//
   // strictly GUI
 	bool m_bInteractive;     // do we have a GUI at all?
-#ifdef WINVER
+#ifndef KF_EMBED
 	std::vector<std::string> m_undo;  // settings string lists for undo/redo
 	std::vector<std::string> m_redo;
 
@@ -741,7 +741,7 @@ public:
 	void GetTimers(double *total_wall, double *total_cpu = nullptr, double *reference_wall = nullptr, double *reference_cpu = nullptr, double *approximation_wall = nullptr, double *approximation_cpu = nullptr, double *perturbation_wall = nullptr, double *perturbation_cpu = nullptr);
 
 // Windows only stuff, TODO
-#ifdef WINVER
+#ifndef KF_EMBED
 	HWND m_hWnd;  // XXX also set by RenderFractal(…hWnd…)
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
@@ -787,7 +787,7 @@ public:
 };
 
 // singleton instance
-#ifdef WINVER
+#ifndef KF_EMBED
 extern CFraktalSFT g_SFT;
 #endif
 

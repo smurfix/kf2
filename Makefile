@@ -80,7 +80,6 @@ fraktal_sft/calculate_reference.cpp \
 fraktal_sft/calculate_reference_threaded.cpp \
 fraktal_sft/CDecNumber.cpp \
 fraktal_sft/CFixedFloat.cpp \
-fraktal_sft/cmdline.cpp \
 fraktal_sft/defs.cpp \
 fraktal_sft/exr.cpp \
 fraktal_sft/floatexp_approximation.cpp \

@@ -44,7 +44,7 @@ bool scaling_supported(const int m_nFractalType, const int m_nPower)
   return false;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 
 void combo5_addstrings_including_hybrids(HWND hWnd, const int IDC_COMBO5)
 {
@@ -129,7 +129,7 @@ int combo5_lookup_dropdown_index(int type, bool ignore_hybrids)
     return type + 1;
   }
 }
-#endif // !WINVER
+#endif // !KF_EMBED
 
 int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower)
 {
@@ -152,7 +152,7 @@ int validate_power_for_fractal_type(const int m_nFractalType, const int m_nPower
   }
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 void update_power_dropdown_for_fractal_type(HWND hWnd, const int IDC_COMBO3, const int m_nFractalType, const int m_nPower)
 {
   SendDlgItemMessage(hWnd,IDC_COMBO3,CB_RESETCONTENT,0,0);

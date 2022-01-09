@@ -48,7 +48,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <fstream>
 #include <set>
-#ifdef WINVER
+#ifndef KF_EMBED
 #include "../common/bitmap.h"
 #endif
 #include "../formula/formula.h"
@@ -157,7 +157,7 @@ CFraktalSFT::CFraktalSFT()
 #endif
 , m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
-#ifdef WINVER
+#ifndef KF_EMBED
 , m_undo()
 , m_redo()
 #endif
@@ -169,7 +169,7 @@ CFraktalSFT::CFraktalSFT()
 
 #ifdef KF_OPENCL
     m_cldevices = initialize_opencl(&cl_error
-#ifdef WINVER
+#ifndef KF_EMBED
 	                                , nullptr
 #endif
 									);
@@ -193,6 +193,8 @@ CFraktalSFT::CFraktalSFT()
 	m_bmi = nullptr;
 #ifdef WINVER
 	m_bmBmp = nullptr;
+#endif
+#ifndef KF_EMBED
 	m_bNoPostWhenDone = FALSE;
 #endif
 	m_bMW = 0;
@@ -314,9 +316,7 @@ CFraktalSFT::CFraktalSFT()
 #endif
 	m_bAddReference = 0;
 
-#ifdef WINVER
 	m_bIsRendering = false;
-#endif
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -543,7 +543,7 @@ void CFraktalSFT::ApplySmoothColors()
 	}
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int mode)
 {
 	HDC hDC = GetDC(NULL);
@@ -577,7 +577,7 @@ HBITMAP CFraktalSFT::ShrinkBitmap(HBITMAP bmSrc,int nNewWidth,int nNewHeight,int
 	ReleaseDC(NULL,hDC);
 	return bmDst;
 }
-#endif // !WINVER
+#endif // !KF_EMBED
 
 bool operator==(const TextureParams &a, const TextureParams &b)
 {
@@ -590,7 +590,7 @@ bool operator==(const TextureParams &a, const TextureParams &b)
     a.m_bTextureResize == b.m_bTextureResize;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 void CFraktalSFT::LoadTexture()
 {
 	TextureParams currentTextureParams =
@@ -641,7 +641,7 @@ void CFraktalSFT::LoadTexture()
 	if (bmBitmapIn) DeleteObject(bmBitmapIn);
 	ReleaseDC(NULL,hDC);
 }
-#endif // !WINVER
+#endif // !KF_EMBED
 
 void CFraktalSFT::SetTexture(int x, int y, srgb &s)
 {
@@ -1231,7 +1231,7 @@ static int ThApplyColors(TH_PARAMS *pMan)
 
 void CFraktalSFT::ApplyColors()
 {
-#ifdef WINVER
+#ifndef KF_EMBED
 	LoadTexture();
 #endif
 	int i, p = 0;
@@ -1560,8 +1560,8 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	m_CenterIm = im.m_dec;
 	m_ZoomRadius = (2/zoom).m_dec;
 
-#ifndef WINVER
-	// XXX code also in SetImageSize; if WINVER, in Render.
+#ifdef KF_EMBED
+	// XXX code also in SetImageSize; if not embedded, in Render.
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
 	m_fPixelSpacing = floatexp(pixel_spacing);
 #endif
@@ -2067,7 +2067,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 }
 #endif
 
-#ifdef WINVER
+#ifndef KF_EMBED
 HBITMAP CFraktalSFT::GetBitmap()
 {
 	WaitForMutex(m_hMutex);
@@ -2120,7 +2120,7 @@ void CFraktalSFT::Stop()
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {
-#ifdef WINVER
+#ifndef KF_EMBED
 	Stop();
 #endif
 	m_bAddReference = FALSE;
@@ -2130,14 +2130,14 @@ void CFraktalSFT::Zoom(double nZoomSize)
 		m_bNoGlitchDetection = TRUE;
 
 	m_ZoomRadius /= nZoomSize;
-#ifdef WINVER
+#ifndef KF_EMBED
 	Render();
 #endif
 }
 
 void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter, bool center_view)
 {
-#ifdef WINVER
+#ifndef KF_EMBED
 	Stop();
 #endif
 	floatexp a, b;
@@ -2270,7 +2270,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		m_CenterIm = im;
 		m_ZoomRadius = radius;
 	}
-#ifdef WINVER
+#ifndef KF_EMBED
 	Render();
 #endif
 }
@@ -2484,8 +2484,8 @@ void CFraktalSFT::SetImageSize(int nx, int ny)
 		m_nY = ny;
 		SetupArrays();
 		m_bResized |= resized;
-#ifndef WINVER
-		// XXX code also in SetPosition; if WINVER, in Render.
+#ifdef KF_EMBED
+		// XXX code also in SetPosition; if KF_EMBED, in Render.
 		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
 		m_fPixelSpacing = floatexp(pixel_spacing);
 #endif
@@ -2743,7 +2743,7 @@ bool CFraktalSFT::OpenSettings(const std::string &filename) {
 	return ok;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
 	std::string comment1(ToText());
@@ -2867,7 +2867,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bResum
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	Render(FALSE, FALSE);
 #endif
 	return TRUE;

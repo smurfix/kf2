@@ -20,7 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef BITMAP_H
 #define BITMAP_H 1
 
-#ifdef WINVER
+#ifndef KF_EMBED
 #define BM_WIDTH 3
 #else
 #define BM_WIDTH 4

@@ -41,7 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/parallell.h"
 #include "../common/getimage.h"
 #include "../common/StringVector.h"
-#ifdef WINVER
+#ifndef KF_EMBED
 #include "../common/FolderBrowser.h"
 #include "listbox.h"
 #include "tooltip.h"
@@ -89,9 +89,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <mingw-std-threads/mingw.thread.h>
 #endif
 
-#ifdef WINVER
+#ifndef KF_EMBED
 
-CFraktalSFT g_SFT;  // TODO: replace this
+CFraktalSFT g_SFT;
 
 // POINT g_pInflections[10];
 // int g_nInflection=0;
@@ -228,7 +228,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
-#ifdef WINVER
+#ifndef KF_EMBED
 extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
@@ -922,7 +922,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	return 0;
 }
 
-#endif // !WINVER
+#endif // !KF_EMBED
 
 extern std::string replace_path_filename(const std::string &path, const std::string &file)
 {
@@ -1035,7 +1035,7 @@ void CFraktalSFT::FixIterLimit()
 	}
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 
 static int ResumeZoomSequence(HWND hWnd)
 {
@@ -1671,12 +1671,12 @@ else if (uMsg == WM_COMMAND)
 return 0;
 }
 #endif // KF_OPENCL
-#endif // !WINVER
+#endif // !KF_EMBED
 
 #ifdef KF_OPENCL
 extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal)
 {
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (hWnd)
 	{
 		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
@@ -1697,7 +1697,8 @@ extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal)
 }
 #endif // KF_OPENCL
 
-#ifdef WINVER
+#ifndef KF_EMBED
+
 #ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -4502,4 +4503,4 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	return 0;
 }
 
-#endif // !WINVER
+#endif // !KF_EMBED

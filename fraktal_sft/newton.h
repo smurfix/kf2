@@ -57,7 +57,8 @@ struct progress_t
 #ifdef WINVER
 	HWND hWnd;
 	HANDLE hDone;
-#else
+#endif
+#ifdef KF_EMBED
 	void *SFT;
 #endif
 	double start_time, elapsed_time;

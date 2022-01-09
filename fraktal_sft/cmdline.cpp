@@ -21,7 +21,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <vector>
 #include <cctype>
 
-#ifdef WINVER
+#ifdef KF_EMBED
+#error This file is only useful in standalone code
+#endif
 
 LogLevel g_log_level = LogLevel_Status;
 
@@ -295,4 +297,3 @@ const std::string usage =
 "    -h, -H, -?, --help              show this help\n"
 ;
 
-#endif

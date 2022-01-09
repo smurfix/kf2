@@ -1591,7 +1591,7 @@ extern bool reference_hybrid
   , const double glitchLowTolerance
   );
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 

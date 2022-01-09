@@ -320,7 +320,7 @@ bool CFraktalSFT::ReadEXRMapFile(const std::string &filename, int threads)
         }
       }
     }
-#ifdef WINVER
+#ifndef KF_EMBED
     ReinitializeBitmap();
 #endif
     retval = true;

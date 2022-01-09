@@ -50,7 +50,7 @@ static void kf_png_warning_handler(png_structp png, png_const_charp msg)
 
 static bool skip_png_image(png_structp png, png_infop info);
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern int SavePNG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, const std::string &comment)
 {
 	jmp_buf jmpbuf;

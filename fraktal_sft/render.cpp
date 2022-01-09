@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#ifdef WINVER
+#ifndef KF_EMBED
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 	try{
@@ -81,7 +81,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = true;
@@ -317,7 +317,7 @@ void CFraktalSFT::RenderFractal()
 		delete[] pMan;
 	}
 	m_bAddReference = FALSE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 	{
 		if (m_hWnd)
@@ -403,7 +403,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
@@ -485,7 +485,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;

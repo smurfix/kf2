@@ -21,7 +21,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
 
