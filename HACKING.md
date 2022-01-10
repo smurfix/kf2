@@ -1,8 +1,21 @@
-# KF2 and its data
+# Some notes about KF2 internals
 
 This file contains some notes about the data structures used by KF2.
 
 Help wanted!
+
+## Differences between embedded and Windows code
+
+The Windows version does some low-level locking on the main bitmap. The
+embedded code doesn#t do that, it's the responsibility of the application
+to ensure that there's exactly one GUI thread, and to prevent that thread
+from stepping onto anything while a render / Newton / whatnot is in
+progress.
+
+The Windows versions of AddReference() and Zoom() call Render(); the embedded code
+don't do that, as it's the .
+the Windows version
+of Render calls PostMessage(WM\_USER+199)
 
 ## TODO
 
