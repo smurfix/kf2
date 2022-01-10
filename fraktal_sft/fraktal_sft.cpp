@@ -1563,7 +1563,6 @@ void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
 	m_fPixelSpacing = floatexp(pixel_spacing);
 #endif
-	m_nZoom = e;
 }
 
 void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
