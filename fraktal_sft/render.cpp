@@ -101,11 +101,15 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	if (bResetOldGlitch)
 		ResetGlitches();
 
-	WaitForMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.lock();
+#endif
 	if (m_bResized)
 	    FreeBitmap();
 	AllocateBitmap();
-	ReleaseMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.unlock();
+#endif
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
@@ -118,9 +122,8 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		ThRenderFractal(this);
 	}
 	else{
-		DWORD dw;
-		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
-		CloseHandle(hThread);
+	    std::thread renderth(ThRenderFractal,this);
+		renderth.detach();
 	}
 }
 #endif

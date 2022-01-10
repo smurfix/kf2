@@ -22,10 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-#ifndef WINVER
-#include <thread>
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <half.h>
 #include <glad/glad.h>
@@ -33,6 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "defs.h"
 
+#ifdef KF_OPENGL_THREAD
 enum request_t
 {
   request_quit,
@@ -42,6 +40,7 @@ enum request_t
   request_configure,
   request_render
 };
+#endif
 
 struct response_init_t
 {
@@ -118,9 +117,8 @@ struct request_render_t
   unsigned char *rgb8;
 };
 
-struct request
+struct request_ptr
 {
-  volatile request_t tag;
   union {
     request_compile_t *compile;
     request_configure_t *configure;
@@ -128,13 +126,39 @@ struct request
   };
 };
 
-struct response
+struct response_ptr
 {
   union {
     response_init_t *init;
     response_compile_t *compile;
   };
 };
+
+#ifdef KF_OPENGL_THREAD
+class t_signal
+{
+  std::mutex lock;
+  std::condition_variable cond;
+  volatile bool seen;
+
+public:
+  void recv()
+  {
+    std::unique_lock<std::mutex> _lock(lock);
+    while(!seen)
+      cond.wait(_lock);
+    seen = false;
+  }
+
+  void send()
+  {
+    std::unique_lock<std::mutex> _lock(lock);
+    seen = true;
+    cond.notify_all();
+  }
+  t_signal():lock(),cond() { seen=false; }
+};
+#endif
 
 class OpenGL_processor
 {
@@ -151,77 +175,51 @@ private:
   // default is false (incorrect blending) for historical reasons
   bool sRGB = false;
 
-#ifdef WINVER
-  HANDLE hDone;
-  HANDLE hThread;
-#else
+#ifdef KF_OPENGL_THREAD
+  volatile request_t req_tag;
+
   std::thread opengl_thread;
-#endif
 
-#ifdef WINVER
-  HANDLE req_lock;
-  HANDLE resp_lock;
-#else
-  std::mutex req_lock;
-  std::mutex resp_lock;
-#endif
-
+  t_signal t_req;
+  t_signal t_resp;
 
   // Initial state: mutexes are locked. Handler waits for req_lock.
   // Client fills req, unlocks req_in, waits for resp_lock.
   // Handler processes req, fill response, re-locks and waits for req_lock.
   // Client reads resp, re-locks resp_lock.
 
-  void handle_init();
+  // thread code
+  bool handle_init(response_init_t &resp);
   void handle_deinit();
-  void handle_compile();
-  void handle_configure();
-  void handle_render();
+  bool handle_compile(request_compile_t &req, response_compile_t &resp);
+  void handle_configure(request_configure_t &req);
+  void handle_render(request_render_t &req);
 
+  // client side
   void process_request();
 
-  inline void quit() { req.tag = request_quit; process_request(); }
-public:
-  request req;
-  response resp;
+  request_ptr p_req;
+  response_ptr p_resp;
 
+public:
   OpenGL_processor();
   ~OpenGL_processor();
+#endif
 
-  // only one of these may run at any time. 
-  inline bool init(response_init_t &resp)
-  {
-    this->req.tag = request_init;
-    this->resp.init = &resp;
-    process_request();
-    return resp.success;
-  }
-  inline void deinit()
-  {
-    this->req.tag = request_deinit;
-    process_request();
-  }
-  inline bool compile(request_compile_t &req, response_compile_t &resp)
-  {
-    this->req.tag = request_compile;
-    this->req.compile = &req;
-    this->resp.compile = &resp;
-    process_request();
-    return resp.success;
-  }
-  inline void configure(request_configure_t &req)
-  {
-    this->req.tag = request_configure;
-    this->req.configure = &req;
-    process_request();
-  }
-  inline void render(request_render_t &req)
-  {
-    this->req.tag = request_render;
-    this->req.render = &req;
-    process_request();
-  }
+public:
+  // only one of these may be called at any time.
+  bool init(response_init_t &resp);
+  void deinit();
+  bool compile(request_compile_t &req, response_compile_t &resp);
+  void configure(request_configure_t &req);
+  void render(request_render_t &req);
 
+#ifdef KF_OPENGL_THREAD
+private:
+  void quit();
+#endif
+
+public:
   void th_handler(); // task's main loop
 };
 

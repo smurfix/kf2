@@ -23,9 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <half.h>
 
-#ifndef WINVER
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <atomic>
 
@@ -554,9 +552,9 @@ public:
 	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
 	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 #ifdef WINVER
-	HANDLE m_hMutex;                  // protect the stuff below
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
-#else
+#endif
+#ifndef KF_EMBED
 	std::mutex m_mutex;                  // protect the stuff below
 #endif
 	void FreeBitmap();
@@ -598,16 +596,19 @@ public:
 	BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
-	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable
+	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable+locked.
+	void StopUseOpenGL();  // close the OpenGL instance, if any is open
+
+	OpenGL_processor *m_OpenGL; // our OpenGL instance
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
-	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // use this for settings
+	bool m_bUseOpenGL;       // use it at all?
+	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // stored in settings
 	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
 
-	std::unique_ptr<OpenGL_processor> m_OpenGL; // our OpenGL instance
-	bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
+	inline bool GetBadOpenGL() { return m_bBadOpenGL; }
 
 	std::string m_sGLSL;     // current shader fragment
 	inline std::string GetGLSL() { return m_sGLSL; }

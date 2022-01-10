@@ -31,38 +31,110 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 static unsigned long WINAPI opengl_loop(void *proc);
 
+#ifdef KF_OPENGL_THREAD
+
+#define FN(_name) handle_ ## _name
+
 OpenGL_processor::OpenGL_processor()
-#ifndef WINVER
-: req_lock()
-, resp_lock()
-#endif
+: t_req(), t_resp()
 {
-#ifdef WINVER
-    DWORD dw;
-    req_lock = CreateMutex(NULL, 1, NULL);
-    resp_lock = CreateMutex(NULL, 1, NULL);
-    hDone = CreateEvent(NULL, 0, 0, NULL);
-    hThread = CreateThread(NULL,0, opengl_loop,this, 0,&dw);
-#else
-    req_lock.lock();
-    resp_lock.lock();
     opengl_thread = std::thread(opengl_loop,this);
-#endif
 }
 
 OpenGL_processor::~OpenGL_processor()
 {
     quit();
-#ifdef WINVER
-    WaitForSingleObject(hDone, INFINITE);
-    CloseHandle(hDone);
-    CloseHandle(req_lock);
-    CloseHandle(resp_lock);
-    TerminateThread(hThread,0);
-#else
     opengl_thread.join();
-#endif
 }
+
+bool OpenGL_processor::init(response_init_t &resp)
+{
+    req_tag = request_init;
+    p_resp.init = &resp;
+    process_request();
+    return resp.success;
+}
+
+void OpenGL_processor::deinit()
+{
+    req_tag = request_deinit;
+    process_request();
+}
+
+bool OpenGL_processor::compile(request_compile_t &req, response_compile_t &resp)
+{
+    req_tag = request_compile;
+    p_req.compile = &req;
+    p_resp.compile = &resp;
+
+    process_request();
+    return resp.success;
+}
+
+void OpenGL_processor::configure(request_configure_t &req)
+{
+    req_tag = request_configure;
+    p_req.configure = &req;
+    process_request();
+}
+
+void OpenGL_processor::render(request_render_t &req)
+{
+    req_tag = request_render;
+    p_req.render = &req;
+    process_request();
+}
+
+void OpenGL_processor::quit()
+{
+    req_tag = request_quit;
+    process_request();
+}
+ 
+void OpenGL_processor::process_request()
+{
+    t_req.send();
+    t_resp.recv();
+}
+
+static unsigned long opengl_loop(void *proc)
+{
+    ((OpenGL_processor *)proc)->th_handler();
+    return 0;
+}
+
+// This is the OpenGL task's main loop.
+void OpenGL_processor::th_handler()
+{
+    request_t tag;
+    do {
+        t_req.recv();
+        tag = req_tag;
+        switch (tag) {
+          case request_init:
+            handle_init(*p_resp.init);
+            break;
+          case request_deinit:
+            handle_deinit();
+            break;
+          case request_compile:
+            handle_compile(*p_req.compile, *p_resp.compile);
+            break;
+          case request_configure:
+            handle_configure(*p_req.configure);
+            break;
+          case request_render:
+            handle_render(*p_req.render);
+            break;
+          case request_quit:
+            break;
+        }
+        t_resp.send();
+    } while (tag != request_quit);
+}
+#else // !KF_OPENGL_THREAD
+#define FN(_name) _name
+#endif
 
 static bool debug_program(GLuint program, std::string &log) {
   GLint status = 0;
@@ -172,15 +244,13 @@ const char *blit_frag =
       "void main(void) { colour = texelFetch(t, ivec2(gl_FragCoord.xy), 0); }\n"
   ;
 
-  void OpenGL_processor::handle_init()
+  bool OpenGL_processor::FN(init)(response_init_t &resp)
       {
-        auto &resp = *this->resp.init;
-
         if (! glfwInit())
         {
           resp.success = false;
-          std::cerr << "error: glfwInit()" << std::endl;
-          return;
+          resp.message = "error: glfwInit()";
+          return false;
         }
         const int nversions = 11;
         const int major[] = { 4, 4, 4, 4, 4, 4, 4, 3, 3, 3, 3 };
@@ -222,7 +292,7 @@ const char *blit_frag =
           glfwTerminate();
           resp.success = false;
           resp.message = "error: could not create OpenGL context with version 3.0 or greater\n";
-          return;
+          return false;
         }
         glfwMakeContextCurrent(window);
         if (! gladLoadGLLoader((GLADloadproc) glfwGetProcAddress))
@@ -232,7 +302,7 @@ const char *blit_frag =
           glfwTerminate();
           resp.success = false;
           resp.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
-          return;
+          return false;
         }
 
         std::string vertex_log, fragment_log, link_log;
@@ -249,7 +319,7 @@ const char *blit_frag =
             vertex_log + nl +
             fragment_log + nl +
             link_log + nl;
-          return;
+          return false;
         }
         glUseProgram(p_blit);
         glUniform1i(glGetUniformLocation(p_blit, "t"), tu_rgb16);
@@ -385,9 +455,10 @@ const char *blit_frag =
         D
 
         resp.success = true;
+        return true;
       }
 
-  void OpenGL_processor::handle_deinit()
+  void OpenGL_processor::FN(deinit)()
       {
         if (vao)
         {
@@ -463,22 +534,19 @@ const char *blit_frag =
         glfwTerminate();
       }
 
-  void OpenGL_processor::handle_compile()
+  bool OpenGL_processor::FN(compile)(request_compile_t &req, response_compile_t &resp)
       {
-        auto &req = *this->req.compile;
-        auto &resp = *this->resp.compile;
         resp.vertex_log = "";
         resp.fragment_log = "";
         resp.link_log = "";
         p_colour = vertex_fragment_shader(version.c_str(), kf_vert_glsl, kf_frag_glsl, req.fragment_src.c_str(), resp.vertex_log, resp.fragment_log, resp.link_log);
         D
         resp.success = p_colour > 0;
+        return resp.success;
       }
 
-  void OpenGL_processor::handle_configure()
+  void OpenGL_processor::FN(configure)(request_configure_t &req)
       {
-        auto &req = *this->req.configure;
-
         glUseProgram(p_colour);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N1"), tu_n_msb);
         glUniform1i(glGetUniformLocation(p_colour, "Internal_N0"), tu_n_lsb);
@@ -554,10 +622,8 @@ const char *blit_frag =
         D
       }
 
-  void OpenGL_processor::handle_render()
+  void OpenGL_processor::FN(render)(request_render_t &req)
       {
-        auto &req = *this->req.render;
-
         const int padding = 1;
         uint32_t *n_msb = req.n_msb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
         uint32_t *n_lsb = req.n_lsb ? new uint32_t[max_tile_width * max_tile_height] : nullptr;
@@ -844,57 +910,3 @@ const char *blit_frag =
         }
       }
 
-static unsigned long opengl_loop(void *proc)
-{
-    ((OpenGL_processor *)proc)->th_handler();
-    return 0;
-}
-
-// This is the OpenGL task's main loop.
-void OpenGL_processor::th_handler()
-{
-    request_t tag;
-    do {
-#ifdef WINVER
-        WaitForSingleObject(req_lock, INFINITE);
-#else
-        req_lock.lock();
-#endif
-        tag = req.tag;
-        switch (tag) {
-          case request_init:
-            handle_init();
-            break;
-          case request_deinit:
-            handle_deinit();
-            break;
-          case request_compile:
-            handle_compile();
-            break;
-          case request_configure:
-            handle_configure();
-            break;
-          case request_render:
-            handle_render();
-            break;
-          case request_quit:
-            break;
-        }
-#ifdef WINVER
-        ReleaseMutex(resp_lock);
-#else
-        resp_lock.unlock();
-#endif
-    } while (tag != request_quit);
-}
- 
-void OpenGL_processor::process_request()
-{
-#ifdef WINVER
-    ReleaseMutex(req_lock);
-    WaitForSingleObject(resp_lock, INFINITE);
-#else
-    req_lock.unlock();
-    resp_lock.lock();
-#endif
-}

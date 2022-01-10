@@ -83,11 +83,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 
-#if defined(__clang__) || !defined(WINVER)
-#include <thread>
-#else
-#include <mingw-std-threads/mingw.thread.h>
-#endif
+#include "kf-task.h"
 
 #ifndef KF_EMBED
 
@@ -2531,9 +2527,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs = p;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.FixIterLimit();
 		g_SFT.ResetTimers();
@@ -2571,9 +2567,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				pAnim->pOffs = g_pSelect;
 				pAnim->bZoomOut = FALSE;
 				pAnim->bZoomOne = FALSE;
-				DWORD dw;
-				HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-				CloseHandle(hThread);
+
+				std::thread anim(ThAnim,pAnim);
+				anim.detach();
 			}
 
 			if(!g_bAddMainReference && !g_bAddReference && !g_bEraser){
@@ -2870,9 +2866,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -2930,9 +2925,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -3376,9 +3370,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3400,9 +3394,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3424,9 +3418,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = -r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3448,9 +3442,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom+r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3564,9 +3558,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = (short)HIWORD(lParam);
 			pAnim->bZoomOut = TRUE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 
 			RECT r = {0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight()};
 			double zoomDiff = (double)1/(double)g_SFT.GetZoomSize();
@@ -4186,9 +4180,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 // detailed progress reporting thread for command line rendering
 static volatile bool ThReportProgress_running = true;
-DWORD ThReportProgress(LPVOID arg)
+static void ThReportProgress()
 {
-(void) arg;
 	while (ThReportProgress_running)
 	{
 		Sleep(1000);
@@ -4198,7 +4191,6 @@ DWORD ThReportProgress(LPVOID arg)
 		wsprintf(status, "R:%3d%% A:%3d%% P:%3d%% (%3d%% %3d%% %3d%% %3d%% %3d%%)\r", (int) p_reference, (int) p_approximation, (int) p_progress, (int) p_good_guessed, (int) p_good, (int) p_queued, (int) p_bad, (int) p_bad_guessed);
 		std::cerr << std::string(status);
 	}
-	return 0;
 }
 
 static bool save_frame(int frame, bool onlyKFR)
@@ -4341,9 +4333,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	g_args = &args;
 
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
+	bool ok = true;
 	if (interactive)
 	{
-		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFR,sizeof(g_szRecoveryKFR));
 		strcpy(strrchr(g_szRecoveryKFR,'.'),".rec_kfr");
 		GetModuleFileName(GetModuleHandle(NULL),g_szRecoveryKFS,sizeof(g_szRecoveryKFS));
@@ -4378,7 +4370,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		DeleteFile(g_szRecoveryKFR);
 		DeleteFile(g_szRecoveryKFS);
-		g_SFT.m_OpenGL.reset();
 	}
 	else
 	{
@@ -4441,9 +4432,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			}
 			g_SFT.m_bInhibitColouring = false;
 		}
-		g_SFT.m_OpenGL.reset(new OpenGL_processor());
 		bool onlyKFR = g_args->bSaveKFR && ! (g_args->bSaveEXR || g_args->bSaveJPG || g_args->bSaveMap || g_args->bSavePNG || g_args->bSaveTIF);
-		bool ok = true;
 		if (g_args->bLoadMap)
 		{
 			save_frame(0, onlyKFR);
@@ -4456,8 +4445,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				// render the image (add reference calls render fractal...)
 				if (LogLevel_Status >= g_log_level)
 				{
-					HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-					CloseHandle(hProgress);
+					std::thread report(ThReportProgress);
+					report.detach();
 				}
 			}
 			if (g_args->bZoomOut)
@@ -4496,10 +4485,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			output_log_message(Info, "  apx time\t" << approximation_wall << "\t" << approximation_cpu);
 			output_log_message(Info, "  ptb time\t" << perturbation_wall << "\t" << perturbation_cpu);
 		}
-		g_SFT.m_OpenGL.reset();
-		return ok ? 0 : 1;
-	}
 
+	}
 	return 0;
 }
 

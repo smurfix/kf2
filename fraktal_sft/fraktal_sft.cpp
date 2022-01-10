@@ -152,7 +152,7 @@ CFraktalSFT::CFraktalSFT()
 , m_cldevices()
 #endif
 , N() // invalid array
-#ifndef WINVER
+#ifndef KF_EMBED
 , m_mutex()
 #endif
 , m_sGLSL(KF_DEFAULT_GLSL)
@@ -161,6 +161,7 @@ CFraktalSFT::CFraktalSFT()
 , m_undo()
 , m_redo()
 #endif
+, m_OpenGL(nullptr)
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -209,9 +210,6 @@ CFraktalSFT::CFraktalSFT()
 	m_APi = new floatexp[m_nTerms];
 	m_APs = new SeriesR2<double, int64_t>;
 
-#ifdef WINVER
-	m_hMutex = CreateMutex(NULL, 0, NULL);
-#endif
 	m_bStop = false;
 
 	m_CenterRe = 0;
@@ -363,6 +361,7 @@ bool CFraktalSFT::UseOpenGL()
 {
 	if(!m_bUseOpenGL || m_bBadOpenGL)
 		return false;
+
 	if(m_OpenGL)
 		return true;
 
@@ -381,24 +380,28 @@ bool CFraktalSFT::UseOpenGL()
 	m_opengl_major = resp.major;
 	m_opengl_minor = resp.minor;
 
-	m_OpenGL.reset(opengl);
+	m_OpenGL = opengl;
 	return true;
 }
 
 void CFraktalSFT::SetUseOpenGL(bool gl)
 {
 	m_bUseOpenGL = gl;
-	if(gl)
-		return;
+	if(!gl)
+		StopUseOpenGL();
+}
 
+void CFraktalSFT::StopUseOpenGL()
+{
 	// Disable OpenGL: delete the backend safely
-	OpenGL_processor *openGL = m_OpenGL.release();
-	if(openGL) {
+	if(m_OpenGL) {
+		std::cerr << "DEL_OPENGL" << std::endl;
 		if (m_bBadOpenGL)
 			m_bBadOpenGL = false;  // allow for retrying
 		else
-			openGL->deinit();
-		delete openGL;
+			m_OpenGL->deinit();
+		delete m_OpenGL;
+		m_OpenGL = nullptr;
 	}
 }
 
@@ -747,7 +750,7 @@ static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int x, int y, int w, int h)
 {
-	if (m_bInhibitColouring || UseOpenGL()) return;
+	if (m_bInhibitColouring || GetUseOpenGL()) return;
 
 	double offs = m_nTrans[x][y];
 	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
@@ -1249,14 +1252,13 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-#ifdef KF_OPENGL
 		bool opengl_rendered = false;
 		if (UseOpenGL())
 		{
 			if (m_bGLSLChanged || ! m_bGLSLCompiled)
 			{
-				request_compile_t req;
-				response_compile_t resp;
+				request_compile_t req{};
+				response_compile_t resp{};
 
 				req.fragment_src = GetGLSL();
 
@@ -1274,7 +1276,7 @@ void CFraktalSFT::ApplyColors()
 			}
 			if (m_bGLSLCompiled)
 			{
-				request_configure_t req;
+				request_configure_t req{};
 
 				req.iterations = GetIterations();
 				GetIterations(req.iterations_min, req.iterations_max, nullptr, nullptr, true);
@@ -1339,7 +1341,7 @@ void CFraktalSFT::ApplyColors()
 			}
 			if (m_bGLSLCompiled)
 			{
-				request_render_t req;
+				request_render_t req{};
 
 				req.width = m_nX;
 				req.height = m_nY;
@@ -1360,7 +1362,6 @@ void CFraktalSFT::ApplyColors()
 		{
 		}
 		else
-#endif // KF_OPENGL
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
@@ -1394,6 +1395,7 @@ void CFraktalSFT::ApplyColors()
 CFraktalSFT::~CFraktalSFT()
 {
 	DeleteArrays();
+
 
 	delete[] m_APr;
 	delete[] m_APi;
@@ -2068,7 +2070,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 #ifndef KF_EMBED
 HBITMAP CFraktalSFT::GetBitmap()
 {
-	WaitForMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.lock();
+#endif
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!SetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2076,12 +2080,16 @@ HBITMAP CFraktalSFT::GetBitmap()
 			Beep(1000, 10);
 		ReleaseDC(NULL, hDC);
 	}
-	ReleaseMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.unlock();
+#endif
 	return m_bmBmp;
 }
 void CFraktalSFT::UpdateBitmap()
 {
-	WaitForMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.lock();
+#endif
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2089,7 +2097,9 @@ void CFraktalSFT::UpdateBitmap()
 			{ /*Beep(1000,10)*/ }
 		ReleaseDC(NULL, hDC);
 	}
-	ReleaseMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.unlock();
+#endif
 }
 
 void CFraktalSFT::Stop()
@@ -2736,7 +2746,7 @@ bool CFraktalSFT::OpenSettings(const std::string &filename) {
 	if(ok) {
 		int64_t w,h,s;
 		GetTargetDimensions(&w, &h, &s);
-		SetImageSize(w * s, h * s);
+//		SetImageSize(w * s, h * s);
 	}
 	return ok;
 }
@@ -2768,23 +2778,17 @@ int64_t CFraktalSFT::GetMaxApproximation()
 }
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
-#ifdef WINVER
-	WaitForMutex(m_hMutex);
-#else
+#ifndef KF_EMBED
 	m_mutex.lock();
 #endif
 	if (!m_nPixels || x<0 || x >= m_nX || y<0 || y >= m_nY){
-#ifdef WINVER
-		ReleaseMutex(m_hMutex);
-#else
+#ifndef KF_EMBED
 		m_mutex.unlock();
 #endif
 		return PIXEL_UNEVALUATED;
 	}
 	int64_t nRet = m_nPixels[x][y];
-#ifdef WINVER
-	ReleaseMutex(m_hMutex);
-#else
+#ifndef KF_EMBED
 	m_mutex.unlock();
 #endif
 	return nRet;

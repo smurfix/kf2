@@ -20,27 +20,16 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef COMMON_PARALLALL_H
 #define COMMON_PARALLALL_H
 
-#ifndef WINVER
-#include <thread>
-#endif
+#include "kf-task.h"
 
 typedef int (*LPEXECUTE)(LPVOID pParameter);
 
-#ifndef WINVER
 void Parallell_ThExecute(LPVOID pParameter);
-#else
-ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
-#endif
 
 class CParallell
 {
 	struct EXECUTE{
-#ifndef WINVER
 		std::thread hThread;
-#else
-		HANDLE hThread;
-		HANDLE hDone;
-#endif
 		LPEXECUTE lpfnExecute;
 		LPEXECUTE lpfnDone;
 		LPVOID pParameter;
@@ -62,11 +51,7 @@ public:
 	void Reset();
 	void SetStackSize(DWORD dwStackSize);
 
-#ifndef WINVER
 	friend void Parallell_ThExecute(LPVOID pParameter);
-#else
-	friend ULONG WINAPI Parallell_ThExecute(LPVOID pParameter);
-#endif
 };
 
 #endif // COMMON_PARALLALL_H

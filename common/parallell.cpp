@@ -39,11 +39,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
 #endif
 
-#ifndef WINVER
 void Parallell_ThExecute(LPVOID pParameter)
-#else
-ULONG WINAPI Parallell_ThExecute(LPVOID pParameter)
-#endif
 {
 	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
 #ifdef WINVER
@@ -58,14 +54,7 @@ try{
 }catch(...){
 }
 #endif
-#ifdef WINVER
-	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_END);
-	SetEvent(pE->hDone);
-#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-#ifdef WINVER
-	return 0;
-#endif
 }
 
 CParallell::CParallell(int nParallell)
@@ -101,10 +90,6 @@ int CParallell::AddFunction(LPEXECUTE lpfnExecute,LPVOID pParameter,LPEXECUTE lp
 	int i = m_nExecute++;
 	m_ppExecute = (EXECUTE**)realloc(m_ppExecute,sizeof(EXECUTE*)*m_nExecute);
 	m_ppExecute[i] = new EXECUTE;
-#ifdef WINVER
-	m_ppExecute[i]->hThread = NULL;
-	m_ppExecute[i]->hDone = CreateEvent(NULL,0,0,NULL);
-#endif
 	m_ppExecute[i]->lpfnExecute = lpfnExecute;
 	m_ppExecute[i]->lpfnDone = lpfnDone;
 	m_ppExecute[i]->pParameter = pParameter;
@@ -118,43 +103,15 @@ void CParallell::SetStackSize(DWORD dwStackSize)
 int CParallell::Execute()
 {
 	int i, j;
-#ifdef WINVER
-	DWORD dw;
-#endif
 	for(i=0;i<m_nParallell && i<m_nExecute;i++){
-#ifndef WINVER
 		m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
-#else
-		m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-		while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
-			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-			Sleep(20);
-		}
-#endif
 	}
 	for(j=0;j<m_nExecute;j++){
-#ifndef WINVER
 		m_ppExecute[j]->hThread.join();
-#else
-		if(WaitForSingleObject(m_ppExecute[j]->hDone,INFINITE)==WAIT_TIMEOUT)
-			TerminateThread(m_ppExecute[j]->hThread,0);
-#endif
 		if(m_ppExecute[j]->lpfnDone)
 			m_ppExecute[j]->lpfnDone(m_ppExecute[j]->pParameter);
-#ifdef WINVER
-		CloseHandle(m_ppExecute[j]->hThread);
-		CloseHandle(m_ppExecute[j]->hDone);
-#endif
 		if(i<m_nExecute){
-#ifndef WINVER
 			m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
-#else
-			m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-			while(m_ppExecute[i]->hThread==INVALID_HANDLE_VALUE || m_ppExecute[i]->hThread==NULL){
-				m_ppExecute[i]->hThread = CreateThread(NULL,m_dwStackSize,Parallell_ThExecute,m_ppExecute[i],0,&dw);
-				Sleep(20);
-			}
-#endif
 			i++;
 		}
 	}

@@ -58,9 +58,4 @@ extern HWND g_hwColors;
 extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal);
 #endif
 
-// compatibility
-#ifdef WINVER
-#define WaitForMutex(_m) WaitForSingleObject(_m, INFINITE)
-#endif
-
 #endif
