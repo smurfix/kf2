@@ -4127,7 +4127,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				" - stardust4ever for other fractal types\n"
 				" - claude for Newton-Raphson method\n"
 				" - gerrit for differencing variations\n"
-				" - Zhouran for the single reference method\n"
+				" - Zhuoran for the single reference method\n"
 				" - Bruce Dawson for Hidden Mandelbrot formula\n"
 				" - Dinkydau, Fractal universe, CFJH, Foxxie, FractalAlex and others for bug reports\n"
 				" - Chillheimer for hosting <http://www.chillheimer.de/kallesfraktaler>\n"

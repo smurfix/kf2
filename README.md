@@ -382,7 +382,7 @@ earlier).
 2021-12-05
 
   - new: single-reference implementation for avoiding glitches (thanks
-    Zhouran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
+    Zhuoran <https://fractalforums.org/f/28/t/4360/msg29835#msg29835>);
     enabled by default; also supported in nanomb1
     - known issue: does not work with every hybrid formula (only very
       simple cases work)
@@ -1772,6 +1772,9 @@ earlier).
 - two-phase parameter loading with validation (suggested by Pauldelbrot)
 - presets menu could be populated from a folder of KFS settings files
 - "zoom size is not 2" warning should have an "ok, fix it for me" option
+- option to disable progressive display sorting and just do left-right
+  top-bottom for each progressive interlacing level, saving time and
+  memory
 
 ### Calculations
 
@@ -2351,7 +2354,7 @@ Thanks to:
 - stardust4ever for other fractal types
 - claude for the Newton-Raphson method
 - gerrit for the distance colouring differencing variations
-- Zhouran for the single reference method
+- Zhuoran for the single reference method
 - Dinkydau, Fractal universe, CFJH, Foxxie and others for reporting bugs
 - Chillheimer for hosting my program
 
