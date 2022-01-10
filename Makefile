@@ -25,7 +25,7 @@ SYSTEM ?= x86_64+native
 include $(SYSTEM).mk
 
 CLEWPREFIX := $(HOME)/win/src/clew
-TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -gstabs
+TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_OPENGL_THREAD
 
 FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Icommon -Iglad/include -fno-var-tracking-assignments
 LINK_FLAGS := -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib

@@ -30,6 +30,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "defs.h"
 
+#ifdef KF_OPENGL_THREAD
 enum request_t
 {
   request_quit,
@@ -39,6 +40,7 @@ enum request_t
   request_configure,
   request_render
 };
+#endif
 
 struct response_init_t
 {
@@ -115,7 +117,7 @@ struct request_render_t
   unsigned char *rgb8;
 };
 
-struct request
+struct request_ptr
 {
   union {
     request_compile_t *compile;
@@ -124,7 +126,7 @@ struct request
   };
 };
 
-struct response
+struct response_ptr
 {
   union {
     response_init_t *init;
@@ -132,6 +134,7 @@ struct response
   };
 };
 
+#ifdef KF_OPENGL_THREAD
 class t_signal
 {
   std::mutex lock;
@@ -155,6 +158,7 @@ public:
   }
   t_signal():lock(),cond() { seen=false; }
 };
+#endif
 
 class OpenGL_processor
 {
@@ -170,7 +174,9 @@ private:
   // should we do gamma-correct linear-light blending?
   // default is false (incorrect blending) for historical reasons
   bool sRGB = false;
-  volatile request_t tag;
+
+#ifdef KF_OPENGL_THREAD
+  volatile request_t req_tag;
 
   std::thread opengl_thread;
 
@@ -182,30 +188,36 @@ private:
   // Handler processes req, fill response, re-locks and waits for req_lock.
   // Client reads resp, re-locks resp_lock.
 
-  void handle_init();
+  // thread code
+  bool handle_init(response_init_t &resp);
   void handle_deinit();
-  void handle_compile();
-  void handle_configure();
-  void handle_render();
+  bool handle_compile(request_compile_t &req, response_compile_t &resp);
+  void handle_configure(request_configure_t &req);
+  void handle_render(request_render_t &req);
 
+  // client side
   void process_request();
 
-public:
-  request req;
-  response resp;
+  request_ptr p_req;
+  response_ptr p_resp;
 
+public:
   OpenGL_processor();
   ~OpenGL_processor();
+#endif
 
-  // only one of these may run at any time. 
+public:
+  // only one of these may be called at any time.
   bool init(response_init_t &resp);
   void deinit();
   bool compile(request_compile_t &req, response_compile_t &resp);
   void configure(request_configure_t &req);
   void render(request_render_t &req);
 
+#ifdef KF_OPENGL_THREAD
 private:
   void quit();
+#endif
 
 public:
   void th_handler(); // task's main loop
