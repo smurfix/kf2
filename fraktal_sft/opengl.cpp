@@ -32,6 +32,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static unsigned long WINAPI opengl_loop(void *proc);
 
 OpenGL_processor::OpenGL_processor()
+: t_req(), t_resp()
 {
     opengl_thread = std::thread(opengl_loop,this);
 }
@@ -44,17 +45,14 @@ OpenGL_processor::~OpenGL_processor()
 
 bool OpenGL_processor::init(response_init_t &resp)
 {
-    std::cerr << "GL init" << (uint64_t)(&this->tag) << std::endl;
     this->tag = request_init;
     this->resp.init = &resp;
     process_request();
-    std::cerr << "GL init:" << resp.success << std::endl;
     return resp.success;
 }
 
 void OpenGL_processor::deinit()
 {
-    std::cerr << "GL deinit" << std::endl;
     this->tag = request_deinit;
     process_request();
 }
@@ -65,21 +63,12 @@ bool OpenGL_processor::compile(request_compile_t &req, response_compile_t &resp)
     this->req.compile = &req;
     this->resp.compile = &resp;
 
-    std::cerr << "GL compile: " << req.fragment_src << std::endl;
-    std::cerr << "COMP:V " << resp.vertex_log << std::endl;
-    std::cerr << "COMP:F " << resp.fragment_log << std::endl;
-    std::cerr << "COMP:L " << resp.link_log << std::endl;
     process_request();
-    std::cerr << "GL compile:" << resp.success << std::endl;
-    std::cerr << "COMP:V " << resp.vertex_log << std::endl;
-    std::cerr << "COMP:F " << resp.fragment_log << std::endl;
-    std::cerr << "COMP:L " << resp.link_log << std::endl;
     return resp.success;
 }
 
 void OpenGL_processor::configure(request_configure_t &req)
 {
-    std::cerr << "GL configure" << std::endl;
     this->tag = request_configure;
     this->req.configure = &req;
     process_request();
@@ -87,7 +76,6 @@ void OpenGL_processor::configure(request_configure_t &req)
 
 void OpenGL_processor::render(request_render_t &req)
 {
-    std::cerr << "GL render" << std::endl;
     this->tag = request_render;
     this->req.render = &req;
     process_request();
@@ -95,7 +83,6 @@ void OpenGL_processor::render(request_render_t &req)
 
 void OpenGL_processor::quit()
 {
-    std::cerr << "GL quit" << std::endl;
     this->tag = request_quit;
     process_request();
 }
@@ -221,7 +208,7 @@ const char *blit_frag =
         if (! glfwInit())
         {
           resp.success = false;
-          std::cerr << "error: glfwInit()" << std::endl;
+          resp.message = "error: glfwInit()";
           return;
         }
         const int nversions = 11;
@@ -898,33 +885,24 @@ void OpenGL_processor::th_handler()
     request_t tag;
     do {
         t_req.recv();
-        std::cerr << "GL" << (uint64_t)(&this->tag) << ":" << this->tag << std::endl;
         tag = this->tag;
         switch (tag) {
           case request_init:
-            std::cerr << "GL INIT" << std::endl;
             handle_init();
-            std::cerr << "GL INIT:" << resp.init->success <<std::endl;
             break;
           case request_deinit:
-            std::cerr << "GL DEINIT" <<std::endl;
             handle_deinit();
             break;
           case request_compile:
-            std::cerr << "GL COMPILE" <<std::endl;
             handle_compile();
-            std::cerr << "GL COMPILE:" << resp.compile->success <<std::endl;
             break;
           case request_configure:
-            std::cerr << "GL CONFIG" <<std::endl;
             handle_configure();
             break;
           case request_render:
-            std::cerr << "GL RENDER" <<std::endl;
             handle_render();
             break;
           case request_quit:
-            std::cerr << "GL QUIT" <<std::endl;
             break;
         }
         t_resp.send();

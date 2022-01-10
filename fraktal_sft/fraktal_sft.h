@@ -599,19 +599,19 @@ public:
 	BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
-    std::mutex m_opengl_lock;
-	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable.
-	                   // NOTE if True, the lock is taken!
-	void StopUseOpenGL();  // close our OpenGL instance
+	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable+locked.
+	void StopUseOpenGL();  // close the OpenGL instance, if any is open
+
+	OpenGL_processor *m_OpenGL; // our OpenGL instance
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
-	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // use this for settings
+	bool m_bUseOpenGL;       // use it at all?
+	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // stored in settings
 	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
 
-	OpenGL_processor *m_OpenGL; // our OpenGL instance
-	bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
+	inline bool GetBadOpenGL() { return m_bBadOpenGL; }
 
 	std::string m_sGLSL;     // current shader fragment
 	inline std::string GetGLSL() { return m_sGLSL; }

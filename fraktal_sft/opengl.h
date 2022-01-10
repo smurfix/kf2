@@ -153,6 +153,7 @@ public:
     seen = true;
     cond.notify_all();
   }
+  t_signal():lock(),cond() { seen=false; }
 };
 
 class OpenGL_processor

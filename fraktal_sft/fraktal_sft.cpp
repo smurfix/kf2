@@ -161,7 +161,6 @@ CFraktalSFT::CFraktalSFT()
 , m_undo()
 , m_redo()
 #endif
-, m_opengl_lock()
 , m_OpenGL(nullptr)
 {
 #ifdef KF_OPENCL
@@ -360,18 +359,11 @@ CFraktalSFT::CFraktalSFT()
 
 bool CFraktalSFT::UseOpenGL()
 {
-	std::cerr << "GL use" << std::endl;
-	if(!m_bUseOpenGL || m_bBadOpenGL) {
-		std::cerr << "GL use no:" << m_bUseOpenGL << std::endl;
+	if(!m_bUseOpenGL || m_bBadOpenGL)
 		return false;
-	}
 
-	m_opengl_lock.lock();
-
-	if(m_OpenGL) {
-		std::cerr << "GL use yes:on:" << std::endl;
+	if(m_OpenGL)
 		return true;
-	}
 
 	OpenGL_processor *opengl = new OpenGL_processor();
 
@@ -383,30 +375,25 @@ bool CFraktalSFT::UseOpenGL()
 	if(!resp.success) {
 		delete opengl;
 		m_bBadOpenGL = true;
-		std::cerr << "GL use no:bad:" << resp.message << std::endl;
-		m_opengl_lock.unlock();
 		return false;
 	}
 	m_opengl_major = resp.major;
 	m_opengl_minor = resp.minor;
 
 	m_OpenGL = opengl;
-	std::cerr << "GL use yes:ok" << std::endl;
 	return true;
 }
 
 void CFraktalSFT::SetUseOpenGL(bool gl)
 {
 	m_bUseOpenGL = gl;
-	if(gl)
-		return;
-	StopUseOpenGL();
+	if(!gl)
+		StopUseOpenGL();
 }
 
 void CFraktalSFT::StopUseOpenGL()
 {
 	// Disable OpenGL: delete the backend safely
-	m_opengl_lock.lock();
 	if(m_OpenGL) {
 		std::cerr << "DEL_OPENGL" << std::endl;
 		if (m_bBadOpenGL)
@@ -416,7 +403,6 @@ void CFraktalSFT::StopUseOpenGL()
 		delete m_OpenGL;
 		m_OpenGL = nullptr;
 	}
-	m_opengl_lock.unlock();
 }
 
 void CFraktalSFT::GenerateColors(int nParts, int nSeed)
@@ -1371,7 +1357,6 @@ void CFraktalSFT::ApplyColors()
 				m_OpenGL->render(req);
 				opengl_rendered = true;
 			}
-			m_opengl_lock.unlock();
 		}
 		if (opengl_rendered)
 		{
