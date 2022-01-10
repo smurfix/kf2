@@ -120,7 +120,6 @@ struct request_render_t
 
 struct request
 {
-  volatile request_t tag;
   union {
     request_compile_t *compile;
     request_configure_t *configure;
@@ -150,6 +149,7 @@ private:
   // should we do gamma-correct linear-light blending?
   // default is false (incorrect blending) for historical reasons
   bool sRGB = false;
+  volatile request_t tag;
 
 #ifdef WINVER
   HANDLE hDone;
@@ -180,7 +180,6 @@ private:
 
   void process_request();
 
-  inline void quit() { req.tag = request_quit; process_request(); }
 public:
   request req;
   response resp;
@@ -189,39 +188,16 @@ public:
   ~OpenGL_processor();
 
   // only one of these may run at any time. 
-  inline bool init(response_init_t &resp)
-  {
-    this->req.tag = request_init;
-    this->resp.init = &resp;
-    process_request();
-    return resp.success;
-  }
-  inline void deinit()
-  {
-    this->req.tag = request_deinit;
-    process_request();
-  }
-  inline bool compile(request_compile_t &req, response_compile_t &resp)
-  {
-    this->req.tag = request_compile;
-    this->req.compile = &req;
-    this->resp.compile = &resp;
-    process_request();
-    return resp.success;
-  }
-  inline void configure(request_configure_t &req)
-  {
-    this->req.tag = request_configure;
-    this->req.configure = &req;
-    process_request();
-  }
-  inline void render(request_render_t &req)
-  {
-    this->req.tag = request_render;
-    this->req.render = &req;
-    process_request();
-  }
+  bool init(response_init_t &resp);
+  void deinit();
+  bool compile(request_compile_t &req, response_compile_t &resp);
+  void configure(request_configure_t &req);
+  void render(request_render_t &req);
 
+private:
+  void quit();
+
+public:
   void th_handler(); // task's main loop
 };
 

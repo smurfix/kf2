@@ -23,9 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include <half.h>
 
-#ifndef WINVER
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <atomic>
 
@@ -601,14 +599,17 @@ public:
 	BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
-	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable
+    std::mutex m_opengl_lock;
+	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable.
+	                   // NOTE if True, the lock is taken!
+	void StopUseOpenGL();  // close our OpenGL instance
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
 	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // use this for settings
 	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
 
-	std::unique_ptr<OpenGL_processor> m_OpenGL; // our OpenGL instance
+	OpenGL_processor *m_OpenGL; // our OpenGL instance
 	bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
 

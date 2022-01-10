@@ -161,6 +161,8 @@ CFraktalSFT::CFraktalSFT()
 , m_undo()
 , m_redo()
 #endif
+, m_opengl_lock()
+, m_OpenGL(nullptr)
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -358,10 +360,18 @@ CFraktalSFT::CFraktalSFT()
 
 bool CFraktalSFT::UseOpenGL()
 {
-	if(!m_bUseOpenGL || m_bBadOpenGL)
+	std::cerr << "GL use" << std::endl << std::flush;
+	if(!m_bUseOpenGL || m_bBadOpenGL) {
+		std::cerr << "GL use no:" << m_bUseOpenGL << std::endl << std::flush;
 		return false;
-	if(m_OpenGL)
+	}
+
+	m_opengl_lock.lock();
+
+	if(m_OpenGL) {
+		std::cerr << "GL use yes:on:" << std::endl << std::flush;
 		return true;
+	}
 
 	OpenGL_processor *opengl = new OpenGL_processor();
 
@@ -373,12 +383,15 @@ bool CFraktalSFT::UseOpenGL()
 	if(!resp.success) {
 		delete opengl;
 		m_bBadOpenGL = true;
+		std::cerr << "GL use no:bad:" << resp.message << std::endl << std::flush;
+		m_opengl_lock.unlock();
 		return false;
 	}
 	m_opengl_major = resp.major;
 	m_opengl_minor = resp.minor;
 
-	m_OpenGL.reset(opengl);
+	m_OpenGL = opengl;
+	std::cerr << "GL use yes:ok" << std::endl << std::flush;
 	return true;
 }
 
@@ -387,16 +400,23 @@ void CFraktalSFT::SetUseOpenGL(bool gl)
 	m_bUseOpenGL = gl;
 	if(gl)
 		return;
+	StopUseOpenGL();
+}
 
+void CFraktalSFT::StopUseOpenGL()
+{
 	// Disable OpenGL: delete the backend safely
-	OpenGL_processor *openGL = m_OpenGL.release();
-	if(openGL) {
+	m_opengl_lock.lock();
+	if(m_OpenGL) {
+		std::cerr << "DEL_OPENGL" << std::endl << std::flush;
 		if (m_bBadOpenGL)
 			m_bBadOpenGL = false;  // allow for retrying
 		else
-			openGL->deinit();
-		delete openGL;
+			m_OpenGL->deinit();
+		delete m_OpenGL;
+		m_OpenGL = nullptr;
 	}
+	m_opengl_lock.unlock();
 }
 
 void CFraktalSFT::GenerateColors(int nParts, int nSeed)
@@ -744,7 +764,7 @@ static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int x, int y, int w, int h)
 {
-	if (m_bInhibitColouring || UseOpenGL()) return;
+	if (m_bInhibitColouring || GetUseOpenGL()) return;
 
 	double offs = m_nTrans[x][y];
 	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
@@ -1352,6 +1372,7 @@ void CFraktalSFT::ApplyColors()
 				m_OpenGL->render(req);
 				opengl_rendered = true;
 			}
+			m_opengl_lock.unlock();
 		}
 		if (opengl_rendered)
 		{
@@ -1391,6 +1412,7 @@ void CFraktalSFT::ApplyColors()
 CFraktalSFT::~CFraktalSFT()
 {
 	DeleteArrays();
+
 
 	delete[] m_APr;
 	delete[] m_APi;

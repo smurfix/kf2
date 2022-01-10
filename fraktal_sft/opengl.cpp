@@ -64,6 +64,56 @@ OpenGL_processor::~OpenGL_processor()
 #endif
 }
 
+bool OpenGL_processor::init(response_init_t &resp)
+{
+    std::cerr << "GL init" << std::endl << std::flush;
+    this->tag = request_init;
+    this->resp.init = &resp;
+    process_request();
+    std::cerr << "GL init:" << resp.success << std::endl << std::flush;
+    return resp.success;
+}
+
+void OpenGL_processor::deinit()
+{
+    std::cerr << "GL deinit" << std::endl << std::flush;
+    this->tag = request_deinit;
+    process_request();
+}
+
+bool OpenGL_processor::compile(request_compile_t &req, response_compile_t &resp)
+{
+    this->tag = request_compile;
+    this->req.compile = &req;
+    this->resp.compile = &resp;
+    process_request();
+    std::cerr << "GL compile:" << resp.success << std::endl << std::flush;
+    return resp.success;
+}
+
+void OpenGL_processor::configure(request_configure_t &req)
+{
+    std::cerr << "GL configure" << std::endl << std::flush;
+    this->tag = request_configure;
+    this->req.configure = &req;
+    process_request();
+}
+
+void OpenGL_processor::render(request_render_t &req)
+{
+    std::cerr << "GL render" << std::endl << std::flush;
+    this->tag = request_render;
+    this->req.render = &req;
+    process_request();
+}
+
+void OpenGL_processor::quit()
+{
+    std::cerr << "GL quit" << std::endl << std::flush;
+    this->tag = request_quit;
+    process_request();
+}
+
 static bool debug_program(GLuint program, std::string &log) {
   GLint status = 0;
   glGetProgramiv(program, GL_LINK_STATUS, &status);
@@ -860,24 +910,32 @@ void OpenGL_processor::th_handler()
 #else
         req_lock.lock();
 #endif
-        tag = req.tag;
+        tag = this->tag;
         switch (tag) {
           case request_init:
+            std::cerr << "GL INIT" <<std::endl;
             handle_init();
+            std::cerr << "GL INIT:" << resp.init->success <<std::endl;
             break;
           case request_deinit:
+            std::cerr << "GL DEINIT" <<std::endl;
             handle_deinit();
             break;
           case request_compile:
+            std::cerr << "GL COMPILE" <<std::endl;
             handle_compile();
+            std::cerr << "GL COMPILE:" << resp.compile->success <<std::endl;
             break;
           case request_configure:
+            std::cerr << "GL CONFIG" <<std::endl;
             handle_configure();
             break;
           case request_render:
+            std::cerr << "GL RENDER" <<std::endl;
             handle_render();
             break;
           case request_quit:
+            std::cerr << "GL QUIT" <<std::endl;
             break;
         }
 #ifdef WINVER
