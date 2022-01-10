@@ -32,41 +32,19 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 static unsigned long WINAPI opengl_loop(void *proc);
 
 OpenGL_processor::OpenGL_processor()
-#ifndef WINVER
-: req_lock()
-, resp_lock()
-#endif
 {
-#ifdef WINVER
-    DWORD dw;
-    req_lock = CreateMutex(NULL, 1, NULL);
-    resp_lock = CreateMutex(NULL, 1, NULL);
-    hDone = CreateEvent(NULL, 0, 0, NULL);
-    hThread = CreateThread(NULL,0, opengl_loop,this, 0,&dw);
-#else
-    req_lock.lock();
-    resp_lock.lock();
     opengl_thread = std::thread(opengl_loop,this);
-#endif
 }
 
 OpenGL_processor::~OpenGL_processor()
 {
     quit();
-#ifdef WINVER
-    WaitForMultipleObjects(1, &hDone, TRUE, INFINITE);
-    CloseHandle(hDone);
-    CloseHandle(req_lock);
-    CloseHandle(resp_lock);
-    TerminateThread(hThread,0);
-#else
     opengl_thread.join();
-#endif
 }
 
 bool OpenGL_processor::init(response_init_t &resp)
 {
-    std::cerr << "GL init" << std::endl;
+    std::cerr << "GL init" << (uint64_t)(&this->tag) << std::endl;
     this->tag = request_init;
     this->resp.init = &resp;
     process_request();
@@ -120,6 +98,12 @@ void OpenGL_processor::quit()
     std::cerr << "GL quit" << std::endl;
     this->tag = request_quit;
     process_request();
+}
+ 
+void OpenGL_processor::process_request()
+{
+    t_req.send();
+    t_resp.recv();
 }
 
 static bool debug_program(GLuint program, std::string &log) {
@@ -913,15 +897,12 @@ void OpenGL_processor::th_handler()
 {
     request_t tag;
     do {
-#ifdef WINVER
-        WaitForMultipleObjects(1, &req_lock, TRUE, INFINITE);
-#else
-        req_lock.lock();
-#endif
+        t_req.recv();
+        std::cerr << "GL" << (uint64_t)(&this->tag) << ":" << this->tag << std::endl;
         tag = this->tag;
         switch (tag) {
           case request_init:
-            std::cerr << "GL INIT" <<std::endl;
+            std::cerr << "GL INIT" << std::endl;
             handle_init();
             std::cerr << "GL INIT:" << resp.init->success <<std::endl;
             break;
@@ -946,21 +927,6 @@ void OpenGL_processor::th_handler()
             std::cerr << "GL QUIT" <<std::endl;
             break;
         }
-#ifdef WINVER
-        ReleaseMutex(resp_lock);
-#else
-        resp_lock.unlock();
-#endif
+        t_resp.send();
     } while (tag != request_quit);
-}
- 
-void OpenGL_processor::process_request()
-{
-#ifdef WINVER
-    ReleaseMutex(req_lock);
-    WaitForMultipleObjects(1, &resp_lock, TRUE, INFINITE);
-#else
-    req_lock.unlock();
-    resp_lock.lock();
-#endif
 }

@@ -22,10 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 #include <vector>
 
-#ifndef WINVER
-#include <thread>
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 #include <half.h>
 #include <glad/glad.h>
@@ -135,6 +132,29 @@ struct response
   };
 };
 
+class t_signal
+{
+  std::mutex lock;
+  std::condition_variable cond;
+  volatile bool seen;
+
+public:
+  void recv()
+  {
+    std::unique_lock<std::mutex> _lock(lock);
+    while(!seen)
+      cond.wait(_lock);
+    seen = false;
+  }
+
+  void send()
+  {
+    std::unique_lock<std::mutex> _lock(lock);
+    seen = true;
+    cond.notify_all();
+  }
+};
+
 class OpenGL_processor
 {
 private:
@@ -151,21 +171,10 @@ private:
   bool sRGB = false;
   volatile request_t tag;
 
-#ifdef WINVER
-  HANDLE hDone;
-  HANDLE hThread;
-#else
   std::thread opengl_thread;
-#endif
 
-#ifdef WINVER
-  HANDLE req_lock;
-  HANDLE resp_lock;
-#else
-  std::mutex req_lock;
-  std::mutex resp_lock;
-#endif
-
+  t_signal t_req;
+  t_signal t_resp;
 
   // Initial state: mutexes are locked. Handler waits for req_lock.
   // Client fills req, unlocks req_in, waits for resp_lock.
