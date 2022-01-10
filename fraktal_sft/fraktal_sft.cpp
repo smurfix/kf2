@@ -375,6 +375,8 @@ bool CFraktalSFT::UseOpenGL()
 	}
 	m_opengl_major = resp.major;
 	m_opengl_minor = resp.minor;
+	m_bGLSLChanged = true;
+	m_bGLSLCompiled = false;
 
 	m_OpenGL = opengl;
 	return true;
@@ -391,7 +393,6 @@ void CFraktalSFT::StopUseOpenGL()
 {
 	// Disable OpenGL: delete the backend safely
 	if(m_OpenGL) {
-		std::cerr << "DEL_OPENGL" << std::endl;
 		if (m_bBadOpenGL)
 			m_bBadOpenGL = false;  // allow for retrying
 		else

@@ -185,6 +185,8 @@ public:
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
+
+	// internal / embedded use: set position and zoom level.
 	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0);
 
 	BOOL(NoReuseCenter)     // when zooming out, re-use the center?
@@ -341,7 +343,6 @@ public:
 
   // … and stop doing so.
 	void Stop();              // user interrupted (Escape key, Zoom, …)
-	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 #ifndef WINVER
@@ -349,6 +350,8 @@ public:
 	inline bool renderRunning() const { return m_renderThread.joinable(); }
 	inline void renderJoin() { return m_renderThread.join(); }
 #endif
+	bool m_bStop;             // flag to tell rendering threads to stop
+	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 
 	inline bool GetIsRendering() { if (m_render_in_progress.try_lock()) { m_render_in_progress.unlock(); return false; } else return true; };
 

@@ -29,9 +29,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #define D { GLint e = 0; while ((e = glGetError())) { std::cerr << "OpenGL error " << e << " at line " << __LINE__ << std::endl; } }
 
-static unsigned long WINAPI opengl_loop(void *proc);
-
 #ifdef KF_OPENGL_THREAD
+
+static void opengl_loop(OpenGL_processor *proc);
 
 #define FN(_name) handle_ ## _name
 
@@ -95,12 +95,6 @@ void OpenGL_processor::process_request()
 {
     t_req.send();
     t_resp.recv();
-}
-
-static unsigned long opengl_loop(void *proc)
-{
-    ((OpenGL_processor *)proc)->th_handler();
-    return 0;
 }
 
 // This is the OpenGL task's main loop.
@@ -290,8 +284,8 @@ const char *blit_frag =
         if (! window)
         {
           glfwTerminate();
-          resp.success = false;
           resp.message = "error: could not create OpenGL context with version 3.0 or greater\n";
+          resp.success = false;
           return false;
         }
         glfwMakeContextCurrent(window);
@@ -300,8 +294,8 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          resp.success = false;
           resp.message = "error: could not initialize OpenGL context with version 3.0 or greater\n";
+          resp.success = false;
           return false;
         }
 
@@ -313,12 +307,12 @@ const char *blit_frag =
           glfwDestroyWindow(window);
           window = nullptr;
           glfwTerminate();
-          resp.success = false;
           resp.message =
             "error: could not compile internal shader:\n" +
             vertex_log + nl +
             fragment_log + nl +
             link_log + nl;
+          resp.success = false;
           return false;
         }
         glUseProgram(p_blit);
@@ -910,3 +904,7 @@ const char *blit_frag =
         }
       }
 
+static void opengl_loop(OpenGL_processor *proc)
+{
+    proc->th_handler();
+}
