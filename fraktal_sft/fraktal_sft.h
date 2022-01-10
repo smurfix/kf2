@@ -46,11 +46,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../cl/opencl.h"
 #endif
 
-#define KF2_TIMEOUT_FOREVER (~(uint64_t)0)
-#define KF2_STATE_IDLE 0
-#define KF2_STATE_REFERENCE 1
-#define KF2_STATE_APPROXIMATION 2
-#define KF2_STATE_PERTURBATION 3
+#include "../include/kf2.h"
 
 // terminology: the fractal is what we calculate. The image is the output
 // that gets saved to disk, and the window is the on-screen view.

@@ -3,7 +3,7 @@ WINPREFIX ?= /usr
 SIMD ?= 4
 OPENCL ?= 1
 COMPILE ?= g++ -march=native
-TYPEFLAGS ?= -march=native -fPIC -I ./embed/ -DKF_EMBED
+TYPEFLAGS ?= -march=native -fPIC -fvisibility=hidden -Iembed -DKF_EMBED
 # -g -Og
 LINK ?= g++ -g
 LIBS ?= -lHalf -lmpfr -lgsl -lIlmImf -lglfw -lclew -lOpenCL -ljpeg -ltiff -lpng -lpixman-1 -ldl -lpthread
@@ -15,3 +15,4 @@ XSLTPROC ?= xsltproc
 RM ?= rm -f
 GCC ?= gcc
 STD ?= c++17
+STRIP ?= strip

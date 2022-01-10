@@ -74,6 +74,7 @@ fraktal_sft/tiff.cpp \
 fraktal_sft/tooltip.cpp
 
 EMBED_SOURCES = \
+lib/libkf2.cpp \
 cl/opencl.cpp \
 fraktal_sft/calculate_perturbation.cpp \
 fraktal_sft/calculate_reference.cpp \
@@ -284,9 +285,10 @@ all: kf.exe kf-tile.exe
 embed:
 	$(MAKE) SYSTEM=embed _embed
 
-_embed: libkf2-embed.so
-libkf2-embed.so: embed.a $(FORMULA_LIBS) formula/generated.a
+_embed: libkf2.so
+libkf2.so: embed.a $(FORMULA_LIBS) formula/generated.a
 	$(LINK) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive $(LIBS)
+	$(STRIP) --strip-all --discard-all $@
 
 clean:
 	rm -f $(OBJECTS) fraktal_sft/main.o res.o
@@ -323,7 +325,7 @@ clean:
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_OBJECTS)
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS)
 	rm -f $(FORMULA_LIBS) formula/generated.a kf.a
-	rm -f embed.a libkf2-embed.so
+	rm -f embed.a libkf2.so
 	rm -f cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o

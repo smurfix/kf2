@@ -14,3 +14,5 @@ preprocessor.hi
 /*.so
 /*.rec_kfr
 /*.rec_kfs
+bin/example
+*.ppm
