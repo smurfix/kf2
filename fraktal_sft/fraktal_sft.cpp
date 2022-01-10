@@ -360,16 +360,16 @@ CFraktalSFT::CFraktalSFT()
 
 bool CFraktalSFT::UseOpenGL()
 {
-	std::cerr << "GL use" << std::endl << std::flush;
+	std::cerr << "GL use" << std::endl;
 	if(!m_bUseOpenGL || m_bBadOpenGL) {
-		std::cerr << "GL use no:" << m_bUseOpenGL << std::endl << std::flush;
+		std::cerr << "GL use no:" << m_bUseOpenGL << std::endl;
 		return false;
 	}
 
 	m_opengl_lock.lock();
 
 	if(m_OpenGL) {
-		std::cerr << "GL use yes:on:" << std::endl << std::flush;
+		std::cerr << "GL use yes:on:" << std::endl;
 		return true;
 	}
 
@@ -383,7 +383,7 @@ bool CFraktalSFT::UseOpenGL()
 	if(!resp.success) {
 		delete opengl;
 		m_bBadOpenGL = true;
-		std::cerr << "GL use no:bad:" << resp.message << std::endl << std::flush;
+		std::cerr << "GL use no:bad:" << resp.message << std::endl;
 		m_opengl_lock.unlock();
 		return false;
 	}
@@ -391,7 +391,7 @@ bool CFraktalSFT::UseOpenGL()
 	m_opengl_minor = resp.minor;
 
 	m_OpenGL = opengl;
-	std::cerr << "GL use yes:ok" << std::endl << std::flush;
+	std::cerr << "GL use yes:ok" << std::endl;
 	return true;
 }
 
@@ -408,7 +408,7 @@ void CFraktalSFT::StopUseOpenGL()
 	// Disable OpenGL: delete the backend safely
 	m_opengl_lock.lock();
 	if(m_OpenGL) {
-		std::cerr << "DEL_OPENGL" << std::endl << std::flush;
+		std::cerr << "DEL_OPENGL" << std::endl;
 		if (m_bBadOpenGL)
 			m_bBadOpenGL = false;  // allow for retrying
 		else
@@ -1266,14 +1266,13 @@ void CFraktalSFT::ApplyColors()
 		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
 	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
-#ifdef KF_OPENGL
 		bool opengl_rendered = false;
 		if (UseOpenGL())
 		{
 			if (m_bGLSLChanged || ! m_bGLSLCompiled)
 			{
-				request_compile_t req;
-				response_compile_t resp;
+				request_compile_t req{};
+				response_compile_t resp{};
 
 				req.fragment_src = GetGLSL();
 
@@ -1291,7 +1290,7 @@ void CFraktalSFT::ApplyColors()
 			}
 			if (m_bGLSLCompiled)
 			{
-				request_configure_t req;
+				request_configure_t req{};
 
 				req.iterations = GetIterations();
 				GetIterations(req.iterations_min, req.iterations_max, nullptr, nullptr, true);
@@ -1356,7 +1355,7 @@ void CFraktalSFT::ApplyColors()
 			}
 			if (m_bGLSLCompiled)
 			{
-				request_render_t req;
+				request_render_t req{};
 
 				req.width = m_nX;
 				req.height = m_nY;
@@ -1378,7 +1377,6 @@ void CFraktalSFT::ApplyColors()
 		{
 		}
 		else
-#endif // KF_OPENGL
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
