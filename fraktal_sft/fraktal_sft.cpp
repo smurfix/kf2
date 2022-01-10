@@ -2743,7 +2743,7 @@ bool CFraktalSFT::OpenSettings(const std::string &filename) {
 	if(ok) {
 		int64_t w,h,s;
 		GetTargetDimensions(&w, &h, &s);
-		SetImageSize(w * s, h * s);
+//		SetImageSize(w * s, h * s);
 	}
 	return ok;
 }
