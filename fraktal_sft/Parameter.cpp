@@ -31,9 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <fstream>
 #if __cplusplus >= 201703L
 #include <filesystem>
-#endif
-
-#ifdef WINVER
+#elif defined( WINVER)
 #include "shlwapi.h" // PathFileExists
 #endif
 
@@ -469,7 +467,7 @@ BOOL CFraktalSFT::OpenString(const std::string &data, BOOL bNoLocation)
 		SetPosition(re, im, zm);
 	}
 	ApplyColors();
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (m_hWnd) InvalidateRect(m_hWnd, NULL, FALSE);
 #endif
 	return TRUE;

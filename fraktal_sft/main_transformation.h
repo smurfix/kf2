@@ -23,7 +23,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "../common/matrix.h"
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
 extern void TransformImage(HBITMAP bmBmp);
 extern void TransformImage(HBITMAP bmBkg, HBITMAP bmBkgDraw, POINT pm);

@@ -54,7 +54,7 @@ OpenGL_processor::~OpenGL_processor()
 {
     quit();
 #ifdef WINVER
-    WaitForMultipleObjects(1, &hDone, TRUE, INFINITE);
+    WaitForSingleObject(hDone, INFINITE);
     CloseHandle(hDone);
     CloseHandle(req_lock);
     CloseHandle(resp_lock);
@@ -856,7 +856,7 @@ void OpenGL_processor::th_handler()
     request_t tag;
     do {
 #ifdef WINVER
-        WaitForMultipleObjects(1, &req_lock, TRUE, INFINITE);
+        WaitForSingleObject(req_lock, INFINITE);
 #else
         req_lock.lock();
 #endif
@@ -892,7 +892,7 @@ void OpenGL_processor::process_request()
 {
 #ifdef WINVER
     ReleaseMutex(req_lock);
-    WaitForMultipleObjects(1, &resp_lock, TRUE, INFINITE);
+    WaitForSingleObject(resp_lock, INFINITE);
 #else
     req_lock.unlock();
     resp_lock.lock();

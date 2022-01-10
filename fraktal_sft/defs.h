@@ -209,7 +209,7 @@ struct TH_PARAMS
 	Reference_Type reftype;
 };
 
-#ifdef WINVER
+#ifndef KF_EMBED
 inline void ReportProgress(void *p, int d, const std::string &s) { SetDlgItemText((HWND)p,d,s.c_str()); }
 #else
 #define ReportProgress(p, d, s) do { } while(0)  // XXX use a callback

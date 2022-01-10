@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 struct OpenCL_ErrorInfo;
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern char *GetToolText(int nID,LPARAM lParam);
 extern double GetDlgItemFloat(HWND hWnd,int nID);
 extern void SetDlgItemFloat(HWND hWnd,int nID,double val);
@@ -47,7 +47,7 @@ extern bool g_bAddMainReference;
 extern bool g_bEraser;
 extern bool g_bWaitRead;
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern HICON g_hIcon;
 extern HFONT g_monospaced_font;
 

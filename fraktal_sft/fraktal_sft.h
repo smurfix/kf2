@@ -182,13 +182,10 @@ public:
 	std::string GetRe(int nXPos, int nYPos);
 	std::string GetIm(int nXPos, int nYPos);
 
-	// internal use: set position and zoom level.
-	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom);
-
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
-
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0);
 
 	BOOL(NoReuseCenter)     // when zooming out, re-use the center?
 
@@ -313,7 +310,7 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
-#ifdef WINVER
+#ifndef KF_EMBED
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 #endif
 
@@ -347,10 +344,10 @@ public:
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 	bool m_bIsRendering;
+
 	inline bool GetIsRendering() { return m_bIsRendering; };
 #endif
 
-	//
 #ifdef KF_OPENCL
   // calculate faster with GPUs
 	BOOL(UseOpenCL)        // use it?
@@ -485,7 +482,7 @@ public:
 
   // Newton-Raphson zoom support
 	struct CNewton N;                // XXX split that off
-#ifndef WINVER
+#ifdef KF_EMBED
 	void ThNewton();
 #endif
 	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
@@ -687,7 +684,7 @@ public:
 	//
   // strictly GUI
 	bool m_bInteractive;     // do we have a GUI at all?
-#ifdef WINVER
+#ifndef KF_EMBED
 	std::vector<std::string> m_undo;  // settings string lists for undo/redo
 	std::vector<std::string> m_redo;
 
@@ -741,7 +738,7 @@ public:
 	void GetTimers(double *total_wall, double *total_cpu = nullptr, double *reference_wall = nullptr, double *reference_cpu = nullptr, double *approximation_wall = nullptr, double *approximation_cpu = nullptr, double *perturbation_wall = nullptr, double *perturbation_cpu = nullptr);
 
 // Windows only stuff, TODO
-#ifdef WINVER
+#ifndef KF_EMBED
 	HWND m_hWnd;  // XXX also set by RenderFractal(…hWnd…)
 	inline void SetWindow(HWND hWnd) { m_hWnd = hWnd; };
 
@@ -787,7 +784,7 @@ public:
 };
 
 // singleton instance
-#ifdef WINVER
+#ifndef KF_EMBED
 extern CFraktalSFT g_SFT;
 #endif
 

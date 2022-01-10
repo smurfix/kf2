@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-#ifdef WINVER
+#ifndef KF_EMBED
 HBITMAP GetImageFromData(char *szImgData,int nImgData);
 HBITMAP GetImage(const std::string &szFile);
 void FillRectShade(HDC hDC, RECT r, int nR1, int nG1, int nB1,int nR2, int nG2, int nB2,int nType=0);

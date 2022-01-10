@@ -76,7 +76,7 @@ void OpenCL::error_print(int err, int loc) {
 #define E(cle,err) ::error_print(cle, err, __LINE__)
 
 std::vector<cldevice> initialize_opencl(OpenCL_ErrorInfo *cle
-#ifdef WINVER
+#ifndef KF_EMBED
                                         , HWND hWnd
 #endif
                                         )
@@ -130,7 +130,7 @@ std::vector<cldevice> initialize_opencl(OpenCL_ErrorInfo *cle
   }
   catch (OpenCLException &e)
   {
-#ifdef WINVER
+#ifndef KF_EMBED
     OpenCLErrorDialog(cle, hWnd, false);
 #else
     std::cerr << "OpenCL: ERROR " << cle->message << ":" << cle->line << std::endl;

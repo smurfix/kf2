@@ -3,7 +3,7 @@ WINPREFIX ?= /usr
 SIMD ?= 4
 OPENCL ?= 1
 COMPILE ?= g++ -march=native
-TYPEFLAGS ?= -march=native -fPIC -I ./embed/ -DKF_EMBED
+TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501
 # -g -Og
 LINK ?= g++ -g
 LIBS ?= -lHalf -lmpfr -lgsl -lIlmImf -lglfw -lclew -lOpenCL -ljpeg -ltiff -lpng -lpixman-1 -ldl -lpthread
