@@ -28,7 +28,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#ifndef KF_EMBED
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 	try{
@@ -38,18 +37,19 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 	catch (OpenCLException &e)
 	{
 		p->SetOpenCLDeviceIndex(-1);
+#ifndef KF_EMBED
 		OpenCLErrorDialog(&p->cl_error, p->m_hWnd, p->m_hWnd ? false : true);
+#endif
 	}
 #endif
 	catch (...)
 	{
 //MessageBox(GetActiveWindow(),"Krash - 2","Krash",MB_OK);
 	}
-	p->m_bIsRendering = false;
+	p->m_render_in_progress.unlock();
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
 	return 0;
 }
-#endif
 
 static int ThMandelCalc(TH_PARAMS *pMan)
 {
@@ -81,20 +81,15 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
-#ifndef KF_EMBED
 void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = true;
-	double counter = 0;
-	while(m_bIsRendering)
-	{
-		Sleep(4);
-		counter += 4;
-	}
-#ifdef KF_DEBUG_SLEEP
-	if (counter > 0)
-		std::cerr << "RenderFractal() slept for " << counter << "ms" << std::endl;
-#endif
+	Wait();
+	m_render_in_progress.lock();
+
+	int64_t w = 0, h = 0, s = 0;
+	GetTargetDimensions(&w, &h, &s);
+	SetImageSize(w * s, h * s);
 
 	m_bStop = false;
 	m_nRDone = 0;
@@ -114,11 +109,11 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
 
-	m_bIsRendering = true;
-
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
+#ifndef KF_EMBED
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
+#endif
 		ThRenderFractal(this);
 	}
 	else{
@@ -126,7 +121,6 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		renderth.detach();
 	}
 }
-#endif
 
 void CFraktalSFT::ResetGlitches(void)
 {
@@ -196,6 +190,7 @@ void CFraktalSFT::RenderFractal()
 		}
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
+		m_state = KF2_STATE_REFERENCE;
 		CalculateReference(reftype);
 		if (! m_ReferenceReuse && GetReuseReference())
 		{
@@ -250,12 +245,14 @@ void CFraktalSFT::RenderFractal()
 	{
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
+		m_state = KF2_STATE_APPROXIMATION;
 		CalculateApproximation();
 		m_timer_approximation_wall += get_wall_time() - wall;
 		m_timer_approximation_cpu += get_cpu_time() - cpu;
 	}
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
+	m_state = KF2_STATE_PERTURBATION;
 
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
@@ -345,12 +342,14 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		N.g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
+		m_state = KF2_STATE_REFERENCE;
 		CalculateReferenceNANOMB1();
 		m_timer_reference_wall += get_wall_time() - wall;
 		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
+	m_state = KF2_STATE_PERTURBATION;
 	int i;
 	m_pixel_center_x = floatexp(m_CenterRe - m_rref);
 	m_pixel_center_y = floatexp(m_CenterIm - m_iref);
@@ -359,6 +358,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
+	//m_state = KF2_STATE_APPROXIMATION;
 	//CalculateApproximation();
 	CalcStart();
 	SYSTEM_INFO sysinfo;
@@ -427,12 +427,14 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		N.g_bJustDidNewton = false;
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
+		m_state = KF2_STATE_REFERENCE;
 		CalculateReferenceNANOMB2();
 		m_timer_reference_wall += get_wall_time() - wall;
 		m_timer_reference_cpu += get_cpu_time() - cpu;
 	}
 	double wall = get_wall_time();
 	double cpu = get_cpu_time();
+	m_state = KF2_STATE_PERTURBATION;
 	int i;
 	m_pixel_center_x = floatexp(m_CenterRe - m_rref);
 	m_pixel_center_y = floatexp(m_CenterIm - m_iref);
@@ -441,6 +443,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	m_rApprox.top = 0;
 	m_rApprox.right = m_nX;
 	m_rApprox.bottom = m_nY;
+	//m_state = KF2_STATE_APPROXIMATION;
 	//CalculateApproximation();
 	CalcStart();
 	SYSTEM_INFO sysinfo;

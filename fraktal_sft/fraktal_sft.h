@@ -46,6 +46,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../cl/opencl.h"
 #endif
 
+#define KF2_TIMEOUT_FOREVER (~(uint64_t)0)
+#define KF2_STATE_IDLE 0
+#define KF2_STATE_REFERENCE 1
+#define KF2_STATE_APPROXIMATION 2
+#define KF2_STATE_PERTURBATION 3
+
 // terminology: the fractal is what we calculate. The image is the output
 // that gets saved to disk, and the window is the on-screen view.
 
@@ -308,9 +314,11 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
-#ifndef KF_EMBED
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
-#endif
+
+	std::timed_mutex m_render_in_progress;
+	// returns false when render is finished, so you can while(Wait())...
+	bool Wait(uint64_t nanoseconds = KF2_TIMEOUT_FOREVER);
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
@@ -345,9 +353,8 @@ public:
 	inline bool renderRunning() const { return m_renderThread.joinable(); }
 	inline void renderJoin() { return m_renderThread.join(); }
 #endif
-	bool m_bIsRendering;
 
-	inline bool GetIsRendering() { return m_bIsRendering; };
+	inline bool GetIsRendering() { if (m_render_in_progress.try_lock()) { m_render_in_progress.unlock(); return false; } else return true; };
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs
@@ -785,6 +792,7 @@ public:
 	#undef BOOL
 
 
+	int m_state;
 };
 
 // singleton instance

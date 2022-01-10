@@ -147,7 +147,6 @@ CFraktalSFT::CFraktalSFT()
 #ifndef WINVER
 , m_renderThread()
 #endif
-, m_bIsRendering(false)
 #ifdef KF_OPENCL
 , m_cldevices()
 #endif
@@ -155,13 +154,14 @@ CFraktalSFT::CFraktalSFT()
 #ifndef KF_EMBED
 , m_mutex()
 #endif
+, m_OpenGL(nullptr)
 , m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
 #ifndef KF_EMBED
 , m_undo()
 , m_redo()
 #endif
-, m_OpenGL(nullptr)
+, m_state(KF2_STATE_IDLE)
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -314,7 +314,6 @@ CFraktalSFT::CFraktalSFT()
 #endif
 	m_bAddReference = 0;
 
-	m_bIsRendering = false;
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -2106,6 +2105,7 @@ void CFraktalSFT::UpdateBitmap()
 	m_mutex.unlock();
 #endif
 }
+#endif
 
 void CFraktalSFT::Stop()
 {
@@ -2116,20 +2116,10 @@ void CFraktalSFT::Stop()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-	double counter = 0;
-	while (m_bIsRendering)
-	{
-		Sleep(1);
-		counter += 1;
-	}
-#ifdef KF_DEBUG_SLEEP
-	if (counter > 0)
-		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
-#endif
+	Wait();
 	m_bStop = false;
 	m_bNoPostWhenDone=0;
 }
-#endif
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {
@@ -4174,4 +4164,28 @@ void CFraktalSFT::GetTimers(double *total_wall, double *total_cpu, double *refer
 	if (approximation_cpu) *approximation_cpu = m_timer_approximation_cpu;
 	if (perturbation_wall) *perturbation_wall = m_timer_perturbation_wall;
 	if (perturbation_cpu) *perturbation_cpu = m_timer_perturbation_cpu;
+}
+
+
+bool CFraktalSFT::Wait(uint64_t nanoseconds)
+{
+	if (nanoseconds == KF2_TIMEOUT_FOREVER)
+	{
+		m_render_in_progress.lock();
+		m_render_in_progress.unlock();
+		return false;
+	}
+	else
+	{
+		std::chrono::nanoseconds ns(nanoseconds);
+		if (m_render_in_progress.try_lock_for(ns))
+		{
+			m_render_in_progress.unlock();
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 }

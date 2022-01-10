@@ -887,7 +887,7 @@ static int WINAPI ThAnim_(ANIM *pAnim)
 		nToYStopPos+=nToYStopOffs;
 		Sleep(7);
 	}
-	if(pMyID==g_nAnim && !g_SFT.m_bIsRendering){ // Render is done during animation
+	if(pMyID==g_nAnim && !g_SFT.GetIsRendering()){ // Render is done during animation
 
 //		g_SFT.ApplyColors();
 		InvalidateRect(pAnim->hWnd,NULL,FALSE);
