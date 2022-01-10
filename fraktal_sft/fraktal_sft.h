@@ -180,12 +180,11 @@ public:
 	std::string GetRe(int nXPos, int nYPos);
 	std::string GetIm(int nXPos, int nYPos);
 
-	// internal use: set position and zoom level.
-	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom);
-
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
+
+	// internal / embedded use: set position and zoom level.
 	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0);
 
 	BOOL(NoReuseCenter)     // when zooming out, re-use the center?
