@@ -41,13 +41,14 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #define HASHOFFS2 1
 
-#ifndef WINVER
+#ifdef KF_EMBED
 
 #include <malloc.h>
 
 #define kr_malloc malloc
 #define kr_free free
 
+// XXX do we really need that? Why?
 #else
 
 int g_Allocated_StringTable=0;

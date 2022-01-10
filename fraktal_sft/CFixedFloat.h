@@ -22,7 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "CDecNumber.h"
 
-#ifndef WINVER
+#ifdef KF_EMBED
 #include <mpfr.h>
 #endif
 
@@ -49,7 +49,7 @@ public:
 		m_f = a.m_f;
 	};
 
-#ifndef WINVER
+#ifdef KF_EMBED
 	inline CFixedFloat(const mpfr_t &a)
 	{
 		unsigned p = mpfr_get_prec(a);

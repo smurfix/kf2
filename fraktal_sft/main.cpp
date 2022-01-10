@@ -41,7 +41,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../common/parallell.h"
 #include "../common/getimage.h"
 #include "../common/StringVector.h"
-#ifdef WINVER
+#ifndef KF_EMBED
 #include "../common/FolderBrowser.h"
 #include "listbox.h"
 #include "tooltip.h"
@@ -83,15 +83,11 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <sstream>
 
-#if defined(__clang__) || !defined(WINVER)
-#include <thread>
-#else
-#include <mingw-std-threads/mingw.thread.h>
-#endif
+#include "kf-task.h"
 
-#ifdef WINVER
+#ifndef KF_EMBED
 
-CFraktalSFT g_SFT;  // TODO: replace this
+CFraktalSFT g_SFT;
 
 // POINT g_pInflections[10];
 // int g_nInflection=0;
@@ -228,7 +224,7 @@ static void bmp2rgb(BYTE *rgb, const BYTE *bmp, int height, int width, int strid
 			}
 	}
 }
-#ifdef WINVER
+#ifndef KF_EMBED
 extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,int nQuality, const std::string &comment)
 {
 	int row;
@@ -922,7 +918,7 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	return 0;
 }
 
-#endif // !WINVER
+#endif // !KF_EMBED
 
 extern std::string replace_path_filename(const std::string &path, const std::string &file)
 {
@@ -1035,7 +1031,7 @@ void CFraktalSFT::FixIterLimit()
 	}
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 
 static int ResumeZoomSequence(HWND hWnd)
 {
@@ -1671,12 +1667,12 @@ else if (uMsg == WM_COMMAND)
 return 0;
 }
 #endif // KF_OPENCL
-#endif // !WINVER
+#endif // !KF_EMBED
 
 #ifdef KF_OPENCL
 extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal)
 {
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (hWnd)
 	{
 		DialogBox(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_OPENCL_ERROR), hWnd, (DLGPROC) OpenCLErrorProc);
@@ -1697,7 +1693,8 @@ extern void OpenCLErrorDialog(OpenCL_ErrorInfo *cle, HWND hWnd, bool fatal)
 }
 #endif // KF_OPENCL
 
-#ifdef WINVER
+#ifndef KF_EMBED
+
 #ifdef KF_OPENCL
 LRESULT CALLBACK OpenCLProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 {
@@ -2530,9 +2527,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs = p;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.FixIterLimit();
 		g_SFT.ResetTimers();
@@ -2570,9 +2567,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				pAnim->pOffs = g_pSelect;
 				pAnim->bZoomOut = FALSE;
 				pAnim->bZoomOne = FALSE;
-				DWORD dw;
-				HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-				CloseHandle(hThread);
+
+				std::thread anim(ThAnim,pAnim);
+				anim.detach();
 			}
 
 			if(!g_bAddMainReference && !g_bAddReference && !g_bEraser){
@@ -2869,9 +2866,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -2929,9 +2925,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
 		if(g_SFT.GetAnimateZoom()){
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		else
 			delete pAnim;
@@ -3375,9 +3370,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3399,9 +3394,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3423,9 +3418,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = -r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3447,9 +3442,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = r.bottom+r.bottom/2;
 			pAnim->bZoomOut = FALSE;
 			pAnim->bZoomOne = TRUE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 		}
 		g_SFT.UndoStore();
 		g_SFT.Stop();
@@ -3563,9 +3558,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			pAnim->pOffs.y = (short)HIWORD(lParam);
 			pAnim->bZoomOut = TRUE;
 			pAnim->bZoomOne = FALSE;
-			DWORD dw;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThAnim,(LPVOID)pAnim,0,&dw);
-			CloseHandle(hThread);
+
+			std::thread anim(ThAnim,pAnim);
+			anim.detach();
 
 			RECT r = {0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight()};
 			double zoomDiff = (double)1/(double)g_SFT.GetZoomSize();
@@ -4185,9 +4180,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 // detailed progress reporting thread for command line rendering
 static volatile bool ThReportProgress_running = true;
-DWORD ThReportProgress(LPVOID arg)
+static void ThReportProgress()
 {
-(void) arg;
 	while (ThReportProgress_running)
 	{
 		Sleep(1000);
@@ -4197,7 +4191,6 @@ DWORD ThReportProgress(LPVOID arg)
 		wsprintf(status, "R:%3d%% A:%3d%% P:%3d%% (%3d%% %3d%% %3d%% %3d%% %3d%%)\r", (int) p_reference, (int) p_approximation, (int) p_progress, (int) p_good_guessed, (int) p_good, (int) p_queued, (int) p_bad, (int) p_bad_guessed);
 		std::cerr << std::string(status);
 	}
-	return 0;
 }
 
 static bool save_frame(int frame, bool onlyKFR)
@@ -4452,8 +4445,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 				// render the image (add reference calls render fractal...)
 				if (LogLevel_Status >= g_log_level)
 				{
-					HANDLE hProgress = CreateThread(0,0,(LPTHREAD_START_ROUTINE)ThReportProgress,0,0,0);
-					CloseHandle(hProgress);
+					std::thread report(ThReportProgress);
+					report.detach();
 				}
 			}
 			if (g_args->bZoomOut)
@@ -4497,4 +4490,4 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	return 0;
 }
 
-#endif // !WINVER
+#endif // !KF_EMBED

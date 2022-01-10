@@ -191,7 +191,7 @@ int ReadJPG (char * filename,char **ppData, int *pnWidth, int *pnHeight,int *pnC
 
 #endif
 
-#ifdef WINVER
+#ifndef KF_EMBED
 int SaveJPG(const std::string &szFileName, char *Data, int nHeight, int nWidth, int nColors, int nQuality, const std::string &comment)
 {
   if (nColors != 3)

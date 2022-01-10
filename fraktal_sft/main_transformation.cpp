@@ -91,8 +91,8 @@ static int WINAPI ThSkew(HWND hWnd)
   g_skew[3] = 1;
   // fork progress updater
   progress_t progress = { { int(std::min(iters, int64_t(INT_MAX))), 0, 0, 0 }, true, hWnd, CreateEvent(NULL, 0, 0, NULL), get_wall_time(), 0 };
-  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSkewProgress, (LPVOID) &progress, 0, NULL);
-  CloseHandle(hThread);
+  std::thread progr(ThSkewProgress,&progress);
+  progr.detach();
   // find skew
   bool ok = false;
   if (g_SFT.GetUseHybridFormula())
@@ -254,9 +254,9 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
         g_transformation_useddz = SendDlgItemMessage(hWnd, IDC_TRANSFORMATION_USEDDZ, BM_GETCHECK, 0, 0);
         g_transformation_running = true;
         g_transformation_still_running = true;
-        DWORD dw;
-        HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThSkew,hWnd,0,&dw);
-        CloseHandle(hThread);
+
+        std::thread skewer(ThSkew,hWnd);
+        skewer.detach();
         SetDlgItemText(hWnd, IDC_TRANSFORMATION_AUTOSKEW, "Stop");
       }
     }

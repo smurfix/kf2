@@ -1,8 +1,21 @@
-# KF2 and its data
+# Some notes about KF2 internals
 
 This file contains some notes about the data structures used by KF2.
 
 Help wanted!
+
+## Differences between embedded and Windows code
+
+The Windows version does some low-level locking on the main bitmap. The
+embedded code doesn#t do that, it's the responsibility of the application
+to ensure that there's exactly one GUI thread, and to prevent that thread
+from stepping onto anything while a render / Newton / whatnot is in
+progress.
+
+The Windows versions of AddReference() and Zoom() call Render(); the embedded code
+don't do that, as it's the .
+the Windows version
+of Render calls PostMessage(WM\_USER+199)
 
 ## TODO
 
@@ -88,7 +101,7 @@ This is merely an alias for decNumber.
 
 ### CFixedFloat
 
-Wraps FixedFloat (.m_f) with a heap of code that sets the global default
+Wraps FixedFloat (.m\_f) with a heap of code that sets the global default
 precision from the source precision(s) before doing its operations.
 
 Thus, to access the `mpfr_t` structure hidden in a `CFixedFloat`, use
@@ -96,7 +109,7 @@ Thus, to access the `mpfr_t` structure hidden in a `CFixedFloat`, use
 
 ### CDecNumber
 
-Wraps decNumber (.m_dec) with a heap of code that sets the target's
+Wraps decNumber (.m\_dec) with a heap of code that sets the target's
 precision from the global default precision before doing its operations.
 
 
@@ -107,13 +120,31 @@ used to calculate the deviation(s) from a reference.
 
 ### floatexp
 
-Packages a standard "double" plus a separate int64_t exponent.
+Packages a standard "double" plus a separate int64\_t exponent.
 
 ### floatexpf
 
-Packages a standard "float" plus a separate int32_t exponent.
+Packages a standard "float" plus a separate int32\_t exponent.
 
 ### tfloatexp
 
 The template "floatexp" and "floatexpf" are built from.
+
+
+## Building
+
+### C preprocessor flags
+
+At least one of WINVER and KF\_EMBED must be set.
+
+- WINVER is defined on Windows builds, no matter whether embedded or not.
+  
+  It selects various Windows-specific APIs instead of their C++ equivalent.
+
+- KF\_EMBED is set for building a shared library. It turns off all
+  Windows-specific APIs that are not affected by WINVER.
+  
+  If KF\_EMBED is not set, WINVER must be.
+
+- KF\_OPENCL controls whether support for computation with OpenCL is included.
 

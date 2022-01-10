@@ -28,7 +28,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cstring>
 
-#ifdef WINVER
+#ifndef KF_EMBED
 static int WINAPI ThRenderFractal(CFraktalSFT *p)
 {
 	try{
@@ -81,7 +81,7 @@ static int ThMandelCalcNANOMB2(TH_PARAMS *pMan)
 	return 0;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = true;
@@ -101,11 +101,15 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	if (bResetOldGlitch)
 		ResetGlitches();
 
-	WaitForMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.lock();
+#endif
 	if (m_bResized)
 	    FreeBitmap();
 	AllocateBitmap();
-	ReleaseMutex(m_hMutex);
+#ifndef KF_EMBED
+	m_mutex.unlock();
+#endif
 
 	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY; // FIXME skew
 	m_fPixelSpacing = floatexp(pixel_spacing);
@@ -118,9 +122,8 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 		ThRenderFractal(this);
 	}
 	else{
-		DWORD dw;
-		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThRenderFractal, (LPVOID)this, 0, &dw);
-		CloseHandle(hThread);
+	    std::thread renderth(ThRenderFractal,this);
+		renderth.detach();
 	}
 }
 #endif
@@ -317,7 +320,7 @@ void CFraktalSFT::RenderFractal()
 		delete[] pMan;
 	}
 	m_bAddReference = FALSE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 	{
 		if (m_hWnd)
@@ -403,7 +406,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;
@@ -485,7 +488,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifdef WINVER
+#ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
 	m_bNoPostWhenDone = FALSE;

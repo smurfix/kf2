@@ -27,9 +27,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "floatexp.h"
 #include "reference.h"
 
-#ifndef WINVER
-#include <mutex>
-#endif
+#include "kf-task.h"
 
 struct Reference;
 struct NanoMB1_Reference;
@@ -44,11 +42,7 @@ class CPixels
 	CPixel *m_pPixels;
 	int m_nPixels;
 	LONG m_nNextPixel;
-#ifdef WINVER
-	HANDLE m_hMutex;
-#else
 	std::mutex mutex;
-#endif
 
 public:
 	CPixels();
@@ -209,7 +203,7 @@ struct TH_PARAMS
 	Reference_Type reftype;
 };
 
-#ifdef WINVER
+#ifndef KF_EMBED
 inline void ReportProgress(void *p, int d, const std::string &s) { SetDlgItemText((HWND)p,d,s.c_str()); }
 #else
 #define ReportProgress(p, d, s) do { } while(0)  // XXX use a callback

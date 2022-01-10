@@ -65,7 +65,7 @@ const struct formula *get_formula(int type, int power)
   return f;
 }
 
-#ifdef WINVER
+#ifndef KF_EMBED
 extern CFraktalSFT g_SFT;
 extern HICON g_hIcon;
 #endif
@@ -101,7 +101,7 @@ CNewton::~CNewton() {
 static std::string s_period, s_center, s_size, s_skew;
 static char g_szProgress[128];
 
-#ifdef WINVER
+#ifndef KF_EMBED
 static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 {
 	while (progress->running)
@@ -219,11 +219,7 @@ struct BallPeriodCommon
 struct BallPeriod
 {
   int threadid;
-#ifndef WINVER
   std::thread hDone;
-#else
-  HANDLE hDone;
-#endif
   BallPeriodCommon *c;
 };
 
@@ -309,9 +305,6 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
       *haveperiod = false;
     }
   }
-#ifdef WINVER
-  SetEvent(b->hDone);
-#endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
@@ -323,9 +316,6 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   barrier_t bar(2);
   bool haveperiod = false;
   int64_t period = 0;
-#ifdef WINVER
-  HANDLE hDone[2];
-#endif
   // prepare threads
   BallPeriod ball[2];
   BallPeriodCommon c;
@@ -348,33 +338,17 @@ static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, in
   for (int t = 0; t < 2; ++t)
   {
     ball[t].threadid = t;
-#ifdef WINVER
-    ball[t].hDone = hDone[t] = CreateEvent(NULL, 0, 0, NULL);
-#endif
     ball[t].c = &c;
   }
   // spawn threads
   for (int i = 0; i < 2; i++)
   {
-#ifndef WINVER
     ball[i].hDone = std::thread(ThBallPeriod,&ball[i]);
-#else
-    DWORD dw;
-    HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThBallPeriod, (LPVOID)&ball[i], 0, &dw);
-    CloseHandle(hThread);
-#endif
   }
   // wait for threads to complete
-#ifdef WINVER
-  WaitForMultipleObjects(2, hDone, TRUE, INFINITE);
-#endif
   for (int i = 0; i < 2; i++)
   {
-#ifndef WINVER
     ball[i].hDone.join();
-#else
-    CloseHandle(hDone[i]);
-#endif
   }
   mpfr_clear(c.cr);
   mpfr_clear(c.ci);
@@ -401,11 +375,7 @@ struct STEP_STRUCT_COMMON
 struct STEP_STRUCT
 {
 	int nType;
-#ifndef WINVER
     std::thread hDone;
-#else
-	HANDLE hDone;
-#endif
 	STEP_STRUCT_COMMON *common;
 };
 static DWORD WINAPI ThStep(STEP_STRUCT *t0)
@@ -464,9 +434,6 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       }
       break;
   }
-#ifdef WINVER
-  SetEvent(t0->hDone);
-#endif
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
   return 0;
 }
@@ -493,7 +460,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
   complex<flyttyp> zr(0,0);
   complex<flyttyp> dc(0,0);
   int i;
-#ifndef WINVER
+#ifdef KF_EMBED
 #define g_SFT (*(CFraktalSFT *)hWnd)
 #endif
 
@@ -523,39 +490,14 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_init2(m.dcizr, bits);
 	mpfr_init2(m.dcizi, bits);
 	STEP_STRUCT mc[4];
-#ifdef WINVER
-	HANDLE hDone[4];
-#endif
 	for (i = 0; i<4; i++){
 		mc[i].nType =i;
-#ifdef WINVER
-		hDone[i] = mc[i].hDone = CreateEvent(NULL, 0, 0, NULL);
-#endif
 		mc[i].common = &m;
-	}
-
-#ifdef WINVER
-	HANDLE hThread;
-	DWORD dw;
-#endif
-	for (i = 0; i<4; i++){
-#ifndef WINVER
 		mc[i].hDone = std::thread(ThStep, &mc[i]);
-#else
-		hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE)ThStep, (LPVOID)&mc[i], 0, &dw);
-		CloseHandle(hThread);
-#endif
 	}
 
-#ifdef WINVER
-	WaitForMultipleObjects(4, hDone, TRUE, INFINITE);
-#endif
 	for (i = 0; i<4; i++){
-#ifndef WINVER
 		mc[i].hDone.join();
-#else
-		CloseHandle(hDone[i]);
-#endif
 	}
 
 	mpfr_set(z.m_r.m_dec.backend().data(), m.zr, MPFR_RNDN);
@@ -578,7 +520,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 	mpfr_clear(m.dcrzi);
 	mpfr_clear(m.dcizr);
 	mpfr_clear(m.dcizi);
-#ifdef WINVER
+#ifndef KF_EMBED
   SetDlgItemText((HWND)hWnd,IDC_EDIT4,"");
 #endif
   flyttyp ad;
@@ -671,7 +613,7 @@ static int m_d_nucleus(complex<flyttyp> *c_out, const complex<flyttyp> &c_guess,
   complex<flyttyp> c = c_guess;
   complex<flyttyp> c_new;
 
-#ifndef WINVER
+#ifdef KF_EMBED
 #define g_SFT (*(CFraktalSFT *)hWnd)
 #endif
   flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
@@ -710,7 +652,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
   complex<flyttyp> z(0,0);
   char szStatus[256];
   uint32_t last = GetTickCount();
-#ifndef WINVER
+#ifdef KF_EMBED
 #define g_SFT (*(CFraktalSFT *)hWnd)
 #endif
   for (int64_t i = 1; i < period && !g_SFT.N.g_bNewtonStop; ++i) {
@@ -734,7 +676,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 
 // XXX move those two to g_SFT
 
-#ifdef WINVER
+#ifndef KF_EMBED
 static int WINAPI ThNewton(HWND hWnd)
 #else
 void CFraktalSFT::ThNewton()
@@ -743,7 +685,8 @@ void CFraktalSFT::ThNewton()
 #ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-#else
+#endif
+#ifdef KF_EMBED
 	#define g_SFT (*this)
 	#define hWnd ((void*)this)
 #endif
@@ -773,10 +716,10 @@ void CFraktalSFT::ThNewton()
 		CreateEvent(NULL, 0, 0, NULL),
 #endif
 		get_wall_time(), 0 };
-#ifdef WINVER
-	  HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThPeriodProgress, (LPVOID) &progress, 0, NULL);
-	  CloseHandle(hThread);
-#endif
+
+      std::thread pprogr(ThPeriodProgress,&progress);
+	  pprogr.detach();
+
 	  if (g_SFT.GetUseHybridFormula())
 	  {
 		  flyttyp r = flyttyp(4) / radius;
@@ -808,9 +751,9 @@ void CFraktalSFT::ThNewton()
 		}
 	  }
 	  // join progress updater
+#ifndef KF_EMBED
 	  progress.running = false;
-#ifdef WINVER
-	  WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+	  WaitForSingleObject(progress.hDone, INFINITE);
 	  CloseHandle(progress.hDone);
 #endif
 	  if (g_SFT.N.g_period < 0) g_SFT.N.g_period = 0;
@@ -830,13 +773,13 @@ void CFraktalSFT::ThNewton()
 	{
 		// fork progress updater
 	    progress_t progress = { { 0, 0, 0, 0 }, true, hWnd,
-#ifdef WINVER
+#ifndef KF_EMBED
 		  CreateEvent(NULL, 0, 0, NULL),
 #endif
 		  get_wall_time(), 0 };
-#ifdef WINVER
-		HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThNewtonProgress, (LPVOID) &progress, 0, NULL);
-		CloseHandle(hThread);
+#ifndef KF_EMBED
+        std::thread nprogr(ThNewtonProgress,&progress);
+		nprogr.detach();
 #endif
 		complex<flyttyp> c;
 		int test = 1;
@@ -874,8 +817,8 @@ void CFraktalSFT::ThNewton()
 		}
 		// join progress updater
 		progress.running = false;
-#ifdef WINVER
-		WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+#ifndef KF_EMBED
+		WaitForSingleObject(progress.hDone, INFINITE);
 		CloseHandle(progress.hDone);
 #endif
 		{
@@ -899,13 +842,13 @@ void CFraktalSFT::ThNewton()
 
 				// fork progress updater
 				progress_t progress = { { int(g_SFT.N.g_period), 0, 0, 0 }, true, hWnd,
-#ifdef WINVER
+#ifndef KF_EMBED
 					CreateEvent(NULL, 0, 0, NULL),
 #endif
 					get_wall_time(), 0 };
-#ifdef WINVER
-				HANDLE hThread = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ThSizeProgress, (LPVOID) &progress, 0, NULL);
-				CloseHandle(hThread);
+#ifndef KF_EMBED
+                std::thread szprogr(ThSizeProgress,&progress);
+				szprogr.detach();
 #endif
 				Precision prec3(expo + 6);
 				flyttyp msize = 0;
@@ -956,8 +899,8 @@ void CFraktalSFT::ThNewton()
 				}
 				// join progress updater
 				progress.running = false;
-#ifdef WINVER
-				WaitForMultipleObjects(1, &progress.hDone, TRUE, INFINITE);
+#ifndef KF_EMBED
+				WaitForSingleObject(progress.hDone, INFINITE);
 				CloseHandle(progress.hDone);
 #endif
 				{
@@ -995,12 +938,12 @@ void CFraktalSFT::ThNewton()
 						double start_iterations = g_SFT.GetIterations();
 						double target_iterations = 100 * g_SFT.N.g_period;
 						g_SFT.N.g_iterations = std::min(std::max(start_iterations * log(g_SFT.GetPower() / (1 - std::min(1.0, power))) / log(g_SFT.GetPower()), start_iterations), target_iterations);
-#ifdef WINVER
+#ifndef KF_EMBED
 						bOK = 1;
 #endif
 					}
 				}
-#ifdef WINVER
+#ifndef KF_EMBED
 				else
 				{
 					bOK = -1;
@@ -1008,14 +951,14 @@ void CFraktalSFT::ThNewton()
 #endif
 			}
 		}
-#ifdef WINVER
+#ifndef KF_EMBED
 		else
 		{
 			bOK = -1;
 		}
 #endif
 	}
-#ifdef WINVER
+#ifndef KF_EMBED
 	else
 	{
 		bOK = -1;
@@ -1032,7 +975,7 @@ void CFraktalSFT::ThNewton()
 #undef g_SFT
 #undef hWnd
 
-#ifdef WINVER
+#ifndef KF_EMBED
 const struct { const char *name; } action_preset[] =
 { { "Period" }
 , { "Center" }
@@ -1247,7 +1190,6 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			s_skew = "";
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 
-			DWORD dw;
 			g_SFT.N.g_bNewtonStop=FALSE;
 			g_SFT.N.g_bNewtonExit=FALSE;
 			*g_szProgress=0;
@@ -1255,8 +1197,8 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 			g_SFT.N.g_fNewtonDelta2[0] = 0;
 			g_SFT.N.g_fNewtonDelta2[1] = 0;
 			g_SFT.N.running = 1;
-			HANDLE hThread = CreateThread(NULL,0,(LPTHREAD_START_ROUTINE)ThNewton,hWnd,0,&dw);
-			CloseHandle(hThread);
+			std::thread newt(ThNewton,hWnd);
+			newt.detach();
 			g_SFT.N.g_bNewtonRunning=TRUE;
 		}
 	}
