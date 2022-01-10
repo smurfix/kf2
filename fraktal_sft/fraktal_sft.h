@@ -336,15 +336,18 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
-#ifdef WINVER
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
+#ifndef WINVER
+	std::thread m_renderThread;
+	inline bool renderRunning() const { return m_renderThread.joinable(); }
+	inline void renderJoin() { return m_renderThread.join(); }
+#endif
 	bool m_bIsRendering;
 
 	inline bool GetIsRendering() { return m_bIsRendering; };
-#endif
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs

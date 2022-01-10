@@ -194,7 +194,6 @@ CFraktalSFT::CFraktalSFT()
 	m_bmi = nullptr;
 #ifdef WINVER
 	m_bmBmp = nullptr;
-	m_bNoPostWhenDone = FALSE;
 #endif
 #ifndef KF_EMBED
 	m_bNoPostWhenDone = FALSE;
@@ -315,9 +314,7 @@ CFraktalSFT::CFraktalSFT()
 #endif
 	m_bAddReference = 0;
 
-#ifdef WINVER
 	m_bIsRendering = false;
-#endif
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -1546,8 +1543,16 @@ void CFraktalSFT::DeleteArrays()
 
 void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10)
 {
+	// calculate di first, in low precision
+	// avoids m_ZoomRadius becoming accidentally high precision
 	Precision pLo(20u);
 	CDecNumber di(2/zoom);
+
+	long e = 0;
+	mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
+	m_nZoom = e * 0.30102999566398114; // FIXME check overflow
+	if(digits10 == 0) // automatic precision adjustment
+		digits10 = std::max(20, 20 + m_nZoom);
 
 	Precision pHi(digits10);
 	m_rref.m_f.precision(digits10);

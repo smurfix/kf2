@@ -147,3 +147,4 @@ At least one of WINVER and KF\_EMBED must be set.
   If KF\_EMBED is not set, WINVER must be.
 
 - KF\_OPENCL controls whether support for computation with OpenCL is included.
+
