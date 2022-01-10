@@ -39,9 +39,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define THREAD_MODE_BACKGROUND_END PROCESS_MODE_BACKGROUND_END
 #endif
 
-void Parallell_ThExecute(LPVOID pParameter)
+void Parallell_ThExecute(CParallell::EXECUTE *pE)
 {
-	CParallell::EXECUTE *pE = (CParallell::EXECUTE *)pParameter;
 #ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
 	SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);

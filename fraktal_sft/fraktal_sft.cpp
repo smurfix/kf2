@@ -143,11 +143,11 @@ CFraktalSFT::CFraktalSFT()
 , m_HybridFormula()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
-, m_bStop(false)
 #ifndef WINVER
 , m_renderThread()
 #endif
 , m_bIsRendering(false)
+, m_bStop(false)
 #ifdef KF_OPENCL
 , m_cldevices()
 #endif
@@ -155,13 +155,13 @@ CFraktalSFT::CFraktalSFT()
 #ifndef KF_EMBED
 , m_mutex()
 #endif
+, m_OpenGL(nullptr)
 , m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
 #ifndef KF_EMBED
 , m_undo()
 , m_redo()
 #endif
-, m_OpenGL(nullptr)
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -314,7 +314,9 @@ CFraktalSFT::CFraktalSFT()
 #endif
 	m_bAddReference = 0;
 
+#ifdef WINVER
 	m_bIsRendering = false;
+#endif
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -392,7 +394,6 @@ void CFraktalSFT::StopUseOpenGL()
 {
 	// Disable OpenGL: delete the backend safely
 	if(m_OpenGL) {
-		std::cerr << "DEL_OPENGL" << std::endl;
 		if (m_bBadOpenGL)
 			m_bBadOpenGL = false;  // allow for retrying
 		else
@@ -2126,7 +2127,7 @@ void CFraktalSFT::Stop()
 	m_bStop = false;
 	m_bNoPostWhenDone=0;
 }
-#endif
+#endif // !KF_EMBED
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {

@@ -7,7 +7,7 @@ Help wanted!
 ## Differences between embedded and Windows code
 
 The Windows version does some low-level locking on the main bitmap. The
-embedded code doesn#t do that, it's the responsibility of the application
+embedded code doesn't do that, it's the responsibility of the application
 to ensure that there's exactly one GUI thread, and to prevent that thread
 from stepping onto anything while a render / Newton / whatnot is in
 progress.
@@ -52,6 +52,40 @@ importantly) this author's desire to write C++ code is severely limited,
 you need to take care of the render / find glitch / repeat loop yourself
 if you embed KF2 in your own code.
 
+## TODO
+
+There are various XXX and TODO comments in there.
+
+The boost::multiprecision wrapper of `mpfr_t` seems to be, umm, entirely superfluous.
+
+The whole precision-setting and -getting machinery seems not to be
+required. All calculations originate with the center point. Set their
+precision correctly (i.e. when zooming) and you should be OK.
+
+## Basic rendering process
+
+KF2 uses the center of the image as a reference, which gets computed the
+old-fashioned way. Then it calculates the points around it with faster
+arithmetic. 
+
+See [Wikipedia](https://en.wikipedia.org/wiki/Plotting_algorithms_for_the_Mandelbrot_set#Perturbation_theory_and_series_approximation)
+for a more maths-centered (and probably more accurate) overview of this technique.
+
+This process may break down for various math reasons. This problem is
+called a glitch, and it's fixed by finding reference within the glitched
+region (randomly or by choosing the region's center) and re-rendering the
+glitched area with the new reference. Repeat until either done or we get
+bored (i.e. exceed a set limit).
+
+The "repeat" part of this is signalled by posting a "WM\_USER+199" message.
+This may have been a good idea at some time in the distant past, but
+already doesn't really work when writing batch images, leading to code
+duplication, and totally breaks down when embedding.
+
+Since this stuff *does* depend on the user interface somewhat and (more
+importantly) this author's desire to write C++ code is severely limited,
+you need to take care of the render / find glitch / repeat loop yourself
+if you embed KF2 in your own code.
 
 ## Window, image etc. sizes et al.
 
@@ -128,7 +162,7 @@ Packages a standard "float" plus a separate int32\_t exponent.
 
 ### tfloatexp
 
-The template "floatexp" and "floatexpf" are built from.
+That's the template "floatexp" and "floatexpf" are built from.
 
 
 ## Building

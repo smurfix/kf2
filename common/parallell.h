@@ -24,8 +24,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 typedef int (*LPEXECUTE)(LPVOID pParameter);
 
-void Parallell_ThExecute(LPVOID pParameter);
-
 class CParallell
 {
 	struct EXECUTE{
@@ -51,7 +49,7 @@ public:
 	void Reset();
 	void SetStackSize(DWORD dwStackSize);
 
-	friend void Parallell_ThExecute(LPVOID pParameter);
+	friend void Parallell_ThExecute(CParallell::EXECUTE *pE);
 };
 
 #endif // COMMON_PARALLALL_H

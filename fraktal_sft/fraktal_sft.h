@@ -180,6 +180,9 @@ public:
 	std::string GetRe(int nXPos, int nYPos);
 	std::string GetIm(int nXPos, int nYPos);
 
+	// internal use: set position and zoom level.
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom);
+
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
@@ -336,18 +339,15 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
+#ifndef KF_EMBED
 	void Stop();              // user interrupted (Escape key, Zoom, …)
-	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
-	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
-#ifndef WINVER
-	std::thread m_renderThread;
-	inline bool renderRunning() const { return m_renderThread.joinable(); }
-	inline void renderJoin() { return m_renderThread.join(); }
-#endif
 	bool m_bIsRendering;
 
 	inline bool GetIsRendering() { return m_bIsRendering; };
+#endif
+	bool m_bStop;             // flag to tell rendering threads to stop
+	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs
