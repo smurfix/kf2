@@ -378,6 +378,8 @@ bool CFraktalSFT::UseOpenGL()
 	}
 	m_opengl_major = resp.major;
 	m_opengl_minor = resp.minor;
+	m_bGLSLChanged = true;
+	m_bGLSLCompiled = false;
 
 	m_OpenGL = opengl;
 	return true;
