@@ -341,10 +341,10 @@ public:
 #ifndef KF_EMBED
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
+#endif
 	bool m_bIsRendering;
 
 	inline bool GetIsRendering() { return m_bIsRendering; };
-#endif
 	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 

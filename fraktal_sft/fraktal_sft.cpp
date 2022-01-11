@@ -143,9 +143,6 @@ CFraktalSFT::CFraktalSFT()
 , m_HybridFormula()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
-#ifndef WINVER
-, m_renderThread()
-#endif
 , m_bIsRendering(false)
 , m_bStop(false)
 #ifdef KF_OPENCL
