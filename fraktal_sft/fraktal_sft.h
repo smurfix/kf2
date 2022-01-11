@@ -344,7 +344,6 @@ public:
   // … and stop doing so.
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
-	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 #ifndef WINVER
 	std::thread m_renderThread;
 	inline bool renderRunning() const { return m_renderThread.joinable(); }
