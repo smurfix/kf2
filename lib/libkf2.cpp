@@ -70,6 +70,7 @@ extern "C" void kf2_start(struct kf2_t *kf2)
   assert(kf2);
   assert(kf2->state == kf2_state_idle);
   assert(kf2->g_SFT);
+  int64_t w = 0, h = 0, s = 0;
   kf2->g_SFT->GetTargetDimensions(&w, &h, &s);
   kf2->g_SFT->SetImageSize(w * s, h * s);
   kf2->state = kf2_state_rendering;
