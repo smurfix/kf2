@@ -31,7 +31,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 bool reference_<xsl:value-of select="@type" />_<xsl:value-of select="@power" />
   ( const int m_nFractalType, const int m_nPower
   , Reference *m_Reference
-  , bool &amp;m_bStop, int64_t &amp;m_nRDone, int64_t &amp;m_nMaxIter
+  , bool &amp;m_bStop, int64_t &amp;m_nRDone, const int64_t &amp;m_nMaxIter
   , const CFixedFloat &amp;Cr0, const CFixedFloat &amp;Ci0
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI

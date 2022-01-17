@@ -3735,7 +3735,7 @@ Numerical differencing method.  See above.
 
 #### `int KFP_ColorMethod`
 
-Color method, one of the following `#define`d constants:
+Color method, one of the following constants:
 
 ```
 ColorMethod_Standard

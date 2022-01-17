@@ -36,6 +36,9 @@ struct polar2
   , stretch_angle(sa)
   { };
   polar2() : polar2(1, 1, 0, 1, 0) { };
+
+  bool operator==(const polar2 &other) const;
+  bool operator==(const polar2 &&other) const;
 };
 
 mat2 polar_composition(const polar2 &P);

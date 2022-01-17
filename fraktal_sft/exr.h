@@ -41,37 +41,47 @@ enum EXRChannel_Bit {
 struct EXRChannels
 {
   bool R, G, B, N, NF, DEX, DEY, T, Preview;
+
+  EXRChannels() {
+    R=G=B=N=NF=DEX=DEY=T=Preview=false;
+  }
+  EXRChannels(unsigned int x) : EXRChannels() { unpack(x); }
+  EXRChannels(std::string_view x) : EXRChannels(str_atoi(x)) { }
+
+  void unpack(unsigned int x) {
+    R = bool(x & (1 << EXRChannel_R));
+    G = bool(x & (1 << EXRChannel_G));
+    B = bool(x & (1 << EXRChannel_B));
+    N = bool(x & (1 << EXRChannel_N));
+    NF = bool(x & (1 << EXRChannel_NF));
+    DEX = bool(x & (1 << EXRChannel_DEX));
+    DEY = bool(x & (1 << EXRChannel_DEY));
+    T = bool(x & (1 << EXRChannel_T));
+    Preview = bool(x & (1 << EXRChannel_Preview));
+  }
+  unsigned int pack() const {
+    return
+    ((unsigned int) R << EXRChannel_R) |
+    ((unsigned int) G << EXRChannel_G) |
+    ((unsigned int) B << EXRChannel_B) |
+    ((unsigned int) N << EXRChannel_N) |
+    ((unsigned int) NF << EXRChannel_NF) |
+    ((unsigned int) DEX << EXRChannel_DEX) |
+    ((unsigned int) DEY << EXRChannel_DEY) |
+    ((unsigned int) T << EXRChannel_T) |
+    ((unsigned int) Preview << EXRChannel_Preview);
+  }
+  inline std::string to_string() const { return std::to_string(pack()); }
+  inline bool operator==(const EXRChannels &other) const {
+     return pack() == other.pack();
+  }
+  inline bool operator==(const EXRChannels &&other) const {
+     return pack() == other.pack();
+  }
 };
 
-static inline int64_t pack_exr_channels(EXRChannels c)
-{
-  return
-    ((int64_t) c.R << EXRChannel_R) |
-    ((int64_t) c.G << EXRChannel_G) |
-    ((int64_t) c.B << EXRChannel_B) |
-    ((int64_t) c.N << EXRChannel_N) |
-    ((int64_t) c.NF << EXRChannel_NF) |
-    ((int64_t) c.DEX << EXRChannel_DEX) |
-    ((int64_t) c.DEY << EXRChannel_DEY) |
-    ((int64_t) c.T << EXRChannel_T) |
-    ((int64_t) c.Preview << EXRChannel_Preview);
-}
-
-static inline EXRChannels unpack_exr_channels(int64_t x)
-{
-  EXRChannels r =
-    { bool(x & (1 << EXRChannel_R))
-    , bool(x & (1 << EXRChannel_G))
-    , bool(x & (1 << EXRChannel_B))
-    , bool(x & (1 << EXRChannel_N))
-    , bool(x & (1 << EXRChannel_NF))
-    , bool(x & (1 << EXRChannel_DEX))
-    , bool(x & (1 << EXRChannel_DEY))
-    , bool(x & (1 << EXRChannel_T))
-    , bool(x & (1 << EXRChannel_Preview))
-    };
-  return r;
-}
+static inline unsigned int pack_EXRChannels(EXRChannels c) { return c.pack(); }
+static inline EXRChannels unpack_EXRChannels(unsigned int x) { return EXRChannels(x); }
 
 extern std::string ReadEXRComment(const std::string &filename);
 

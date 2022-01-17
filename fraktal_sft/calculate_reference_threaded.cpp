@@ -35,7 +35,8 @@ struct mcthread_common
 	floatexp X, Y, Z;
 	Reference *m_Reference;
 	double *terminate, *glitch_threshold;
-	int64_t *m_nMaxIter, *nMaxIter, *m_nRDone;
+	const int64_t *m_nMaxIter;
+	int64_t *nMaxIter, *m_nRDone;
 	volatile bool *stop;
 };
 

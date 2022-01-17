@@ -89,7 +89,6 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	    {
 		int retval = 0;
 		if(wParam==IDOK){
-			g_SFT.UndoStore();
 			g_SFT.Stop();
 			int n = GetWindowTextLength(GetDlgItem(hWnd,IDC_EDIT1));
 			char *szR = new char[n+1];
@@ -112,6 +111,7 @@ extern int WINAPI PositionProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			delete [] szI;
 			delete [] szZ;
 			delete [] szP;
+			g_SFT.ApplyNewSettings();
 			retval = 1;
 		}
 		for (auto tooltip : tooltips)

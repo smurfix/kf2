@@ -89,7 +89,7 @@ static void UpdateFractalType(HWND hWnd, int type = -2, int p = -1)
     EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), false);
     g_SFT.SetUseHybridFormula(true);
   }
-  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(to_string(g_SFT.GetHybridFormula()), type, p));
+  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(g_SFT.GetHybridFormula().to_string(), type, p));
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
@@ -122,7 +122,7 @@ static void RefreshSeedR(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_SEED_RE,szTmp,sizeof(szTmp));
-  g_SFT.m_SeedR = atof(szTmp);
+  g_SFT.SetSeedR(atof(szTmp));
 }
 
 static void UpdateSeedI(HWND hWnd)
@@ -136,7 +136,7 @@ static void RefreshSeedI(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_SEED_IM,szTmp,sizeof(szTmp));
-  g_SFT.m_SeedI = atof(szTmp);
+  g_SFT.SetSeedI(atof(szTmp));
 }
 
 static void UpdateFactorAR(HWND hWnd)
@@ -150,7 +150,7 @@ static void RefreshFactorAR(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_RE,szTmp,sizeof(szTmp));
-  g_SFT.m_FactorAR = atof(szTmp);
+  g_SFT.SetFactorAR(atof(szTmp));
 }
 
 static void UpdateFactorAI(HWND hWnd)
@@ -164,7 +164,7 @@ static void RefreshFactorAI(HWND hWnd)
 {
   char szTmp[40];
   GetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_IM,szTmp,sizeof(szTmp));
-  g_SFT.m_FactorAI = atof(szTmp);
+  g_SFT.SetFactorAI(atof(szTmp));
 }
 
 static void UpdateJitterSeed(HWND hWnd)
@@ -239,7 +239,7 @@ static void UpdateIgnoreHybrids(HWND hWnd)
   g_ignore_hybrids = SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_GETCHECK, 0, 0);
   if (g_ignore_hybrids && to_hybrid)
   {
-    g_SFT.SetHybridFormula(hybrid_formula_from_string(hybrid));
+    g_SFT.SetHybridFormula(hybrid_formula(hybrid));
     g_SFT.SetUseHybridFormula(true);
     EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), true);
   }
@@ -300,8 +300,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     {
       int retval = 0;
       if (wParam == IDOK){
-        g_SFT.UndoStore();
-				g_SFT.Stop();
+        g_SFT.Stop();
         g_bExamineDirty=TRUE;
         RefreshSeedR(hWnd);
         RefreshSeedI(hWnd);
@@ -314,6 +313,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
         RefreshJitterSeed(hWnd);
         RefreshJitterScale(hWnd);
         RefreshJitterShape(hWnd);
+        g_SFT.ApplyNewSettings();
         retval = 1;
       }
       for (auto tooltip : tooltips)
@@ -331,11 +331,11 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       const bool to_hybrid = builtin_get_hybrid(nType, nPow, hybrid);
       if (to_hybrid)
       {
-        g_SFT.UndoStore();
-				g_SFT.Stop();
-        g_SFT.SetHybridFormula(hybrid_formula_from_string(hybrid));
+        g_SFT.Stop();
+        g_SFT.SetHybridFormula(hybrid_formula(hybrid));
         g_SFT.SetUseHybridFormula(true);
         UpdateFractalType(hWnd);
+        g_SFT.ApplyNewSettings();
         EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), true);
       }
     }
@@ -343,18 +343,18 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     {
       SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_SETCHECK, 0, 0);
       UpdateIgnoreHybrids(hWnd);
-      std::string hybrid = to_string(g_SFT.GetHybridFormula());
+      std::string hybrid = g_SFT.GetHybridFormula().to_string();
       int nType = -2;
       int nPow = -1;
       const bool from_hybrid = hybrid_get_builtin(hybrid, nType, nPow);
       if (from_hybrid)
       {
-        g_SFT.UndoStore();
-				g_SFT.Stop();
+        g_SFT.Stop();
         g_SFT.SetUseHybridFormula(false);
         g_SFT.SetFractalType(nType);
         g_SFT.SetPower(nPow);
         UpdateFractalType(hWnd);
+        g_SFT.ApplyNewSettings();
         EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), true);
       }
     }

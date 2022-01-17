@@ -85,6 +85,7 @@ private:
   uint32_t *lsb;
   uint32_t *msb; // may be nullptr
 public:
+  inline itercount_array() { lsb = nullptr; msb = nullptr; stridex=0; stridey=0; }
   inline itercount_array(ptrdiff_t stridex, ptrdiff_t stridey, uint32_t *lsb, uint32_t *msb = nullptr)
   : stridex(stridex)
   , stridey(stridey)

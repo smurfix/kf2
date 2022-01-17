@@ -61,8 +61,7 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
       int retval = 0;
       if (wParam == IDOK)
       {
-        g_SFT.UndoStore();
-				g_SFT.Stop();
+        g_SFT.Stop();
         NumberType n;
         n.Single         = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_SINGLE,         BM_GETCHECK, 0, 0);
         n.Double         = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_DOUBLE,         BM_GETCHECK, 0, 0);
@@ -73,6 +72,7 @@ extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
         n.RescaledSingle = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_RESCALEDSINGLE, BM_GETCHECK, 0, 0);
         n.RescaledDouble = SendDlgItemMessage(hWnd, IDC_NUMBERTYPE_RESCALEDDOUBLE, BM_GETCHECK, 0, 0);
         g_SFT.SetNumberTypes(n);
+        g_SFT.ApplyNewSettings();
         retval = 1;
       }
       for (auto tooltip : tooltips)

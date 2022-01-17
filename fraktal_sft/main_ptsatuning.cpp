@@ -62,7 +62,6 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
       int retval = 0;
       if (wParam == IDOK)
       {
-        g_SFT.UndoStore();
         g_SFT.Stop();
         g_bExamineDirty=TRUE;
         g_SFT.SetGlitchLowTolerance(GetDlgItemFloat(hWnd, IDC_PTSATUNING_GLITCHTOLERANCE));
@@ -73,6 +72,7 @@ extern INT_PTR WINAPI PTSATuningProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lP
         g_SFT.SetDerivativeGlitch(SendDlgItemMessage(hWnd, IDC_PTSATUNING_DERIVATIVEGLITCH, BM_GETCHECK, 0, 0));
         g_SFT.SetReferenceStrictZero(SendDlgItemMessage(hWnd, IDC_PTSATUNING_REFERENCESTRICTZERO, BM_GETCHECK, 0, 0));
         g_SFT.SetUseRescaledSeries(SendDlgItemMessage(hWnd, IDC_PTSATUNING_RESCALEDSERIES, BM_GETCHECK, 0, 0));
+        g_SFT.ApplyNewSettings();
         retval = 1;
       }
       for (auto tooltip : tooltips)

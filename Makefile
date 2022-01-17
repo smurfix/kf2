@@ -30,7 +30,7 @@ TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF
 FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -O3 -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Icommon -Iglad/include -fno-var-tracking-assignments
 LINK_FLAGS := -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
 LIBS ?= -luxtheme -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleacc -lshlwapi -lversion -lwinspool -loleaut32 -lcomctl32 -lkernel32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
-STD ?= c++11
+STD ?= c++17
 
 FRAKTAL_SOURCES_CPP = \
 fraktal_sft/calculate_perturbation.cpp \
@@ -64,7 +64,6 @@ fraktal_sft/nanomb2_perturbation.cpp \
 fraktal_sft/nanomb2_reference.cpp \
 fraktal_sft/newton.cpp \
 fraktal_sft/opengl.cpp \
-fraktal_sft/Parameter.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/reference.cpp \
 fraktal_sft/render.cpp \
@@ -96,11 +95,11 @@ fraktal_sft/newton.cpp \
 fraktal_sft/opengl.cpp \
 fraktal_sft/png.cpp \
 fraktal_sft/tiff.cpp \
-fraktal_sft/Parameter.cpp \
 fraktal_sft/render.cpp \
 fraktal_sft/reference.cpp \
 fraktal_sft/Settings.cpp \
 common/matrix.cpp \
+common/StringHelper.cpp \
 common/StringVector.cpp \
 common/parallell.cpp \
 common/timer.cpp \
@@ -155,6 +154,7 @@ COMMON_SOURCES_CPP = \
 common/FolderBrowser.cpp \
 common/getimage.cpp \
 common/parallell.cpp \
+common/StringHelper.cpp \
 common/StringVector.cpp \
 common/bitmap.cpp \
 common/matrix.cpp \
@@ -164,6 +164,7 @@ COMMON_SOURCES_H = \
 common/FolderBrowser.h \
 common/getimage.h \
 common/parallell.h \
+common/StringHelper.h \
 common/StringVector.h \
 common/bitmap.h \
 common/matrix.h \
@@ -230,8 +231,7 @@ FORMULA_LIBS := \
 	formula/perturbation_opencl.a \
 	formula/miscellaneous.a \
 	formula/perturbation_convergent_simple.a \
-
-# blank line above
+	#
 
 UTILS_SOURCES_CPP = utils/kf-tile.cpp
 
@@ -324,6 +324,7 @@ clean:
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS)
 	rm -f $(FORMULA_LIBS) formula/generated.a kf.a
 	rm -f embed.a libkf2-embed.so
+	rm -f fraktal_sft/Settings.*.inc Settings.stamp
 	rm -f cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o
@@ -336,7 +337,7 @@ embed.a: $(EMBED_OBJECTS)
 	$(AR) rs $@ $(EMBED_OBJECTS)
 
 kf.exe: kf.a res.o fraktal_sft/main.o $(FORMULA_LIBS) formula/generated.a
-	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) -Wl,--whole-archive formula/generated.a -Wl,--no-whole-archive kf.a res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
+	$(LINK) -o kf.exe fraktal_sft/main.o $(FORMULA_LIBS) -Wl,--whole-archive formula/generated.a kf.a -Wl,--no-whole-archive res.o $(FORMULA_LIBS) $(LINK_FLAGS) $(LIBS)
 
 kf-tile.exe: utils/kf-tile.o common/matrix.o
 	$(LINK) -o kf-tile.exe utils/kf-tile.o common/matrix.o -static-libgcc -static-libstdc++ -L$(WINPREFIX)/lib -lmpfr -lgmp
@@ -347,7 +348,7 @@ res.o: res.res
 res.res: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
 	 $(WINDRES2) -i fraktal_sft/fraktal_sft.rc -o res.res $(FLAGS_WINDRES)
 
-%.o: %.cpp
+%.o: %.cpp Settings.stamp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
 %.o: %.c
@@ -478,6 +479,21 @@ gl/%_frag_glsl.h: gl/%.frag.glsl gl/s2c.sh
 
 fraktal_sft/opengl.o: fraktal_sft/opengl.cpp fraktal_sft/opengl.h gl/kf_vert_glsl.h gl/kf_frag_glsl.h
 
+# Settings
+
+prep: Settings.stamp
+Settings.stamp: gen_settings.py Settings.tab
+	@echo Re-generating settings
+	@touch Settings.stamp
+	@set -e; for a in s l p ; do \
+		for b in $$(./gen_settings.py '??' || exit 1) ; do \
+			if ! ./gen_settings.py $$a $$b Settings.tab fraktal_sft/Settings.$${a}$${b}.inc ; then rm -f Settings.stamp; exit 1; fi; \
+		done; \
+	done
+	test -f Settings.stamp
+
+# Manual
+
 %.pdf: %.md
 	pandoc -f markdown -t latex -V "toc=true" -V "papersize=a4" -V "geometry=margin=1.2in" < $< -o $@
 
@@ -513,8 +529,6 @@ FORMULA_BRUTE_SOURCES_CPP = formula/formula_75_3.brute.cpp formula/formula_76_2.
 	$(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS) \
 	#
 
-# blank line above
-#
 .PHONY: \
-	embed \	
+	embed _embed \	
 	#

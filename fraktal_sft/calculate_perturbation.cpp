@@ -53,7 +53,7 @@ void CFraktalSFT::MandelCalc1()
   const mantissa nBailoutSmallP = p < 1.0/0.0 ? pow(nBailoutSmall, p) : nBailoutSmall;
   const mantissa s = mantissa(m_fPixelSpacing);
   const mat2 TK = GetTransformMatrix();
-  const bool noDerivativeGlitch = ! GetDerivativeGlitch();
+  const bool noDerivativeGlitch = ! m_DerivativeGlitch;
   const bool derivatives = GetDerivatives();
   const bool singleref = GetGlitchCenterMethod() == 3;
 
@@ -386,7 +386,7 @@ void CFraktalSFT::MandelCalcSIMD()
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
   const double s = double(m_fPixelSpacing);
   const mat2 TK = GetTransformMatrix();
-  const bool noDerivativeGlitch = ! GetDerivativeGlitch();
+  const bool noDerivativeGlitch = ! m_DerivativeGlitch;
   const bool singleref = GetGlitchCenterMethod() == 3;
 
   // vectorization

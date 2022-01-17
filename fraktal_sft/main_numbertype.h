@@ -21,6 +21,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
+#include "StringHelper.h"
+
 #ifndef KF_EMBED
 extern INT_PTR WINAPI NumberTypeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 #endif
@@ -40,34 +42,40 @@ enum NumberType_Bit
 struct NumberType
 {
   bool Single, Double, LongDouble, Quad, FloatExpSingle, FloatExpDouble, RescaledSingle, RescaledDouble;
+
+  NumberType() {
+    Single=Double=LongDouble=Quad=FloatExpSingle=FloatExpDouble=RescaledSingle=RescaledDouble=false;
+  }
+  NumberType(unsigned int x) : NumberType() { unpack(x); }
+  NumberType(std::string_view x) : NumberType(str_atoi(x)) { }
+  void unpack(unsigned int x) {
+    Single = bool(x & (1 << NumberType_Single));
+    Double = bool(x & (1 << NumberType_Double));
+    LongDouble = bool(x & (1 << NumberType_LongDouble));
+    Quad = bool(x & (1 << NumberType_Quad));
+    FloatExpSingle = bool(x & (1 << NumberType_FloatExpSingle));
+    FloatExpDouble = bool(x & (1 << NumberType_FloatExpDouble));
+    RescaledSingle = bool(x & (1 << NumberType_RescaledSingle));
+    RescaledDouble = bool(x & (1 << NumberType_RescaledDouble));
+  }
+  unsigned int pack() const {
+    return
+    ((unsigned int) Single << NumberType_Single) |
+    ((unsigned int) Double << NumberType_Double) |
+    ((unsigned int) LongDouble << NumberType_LongDouble) |
+    ((unsigned int) Quad << NumberType_Quad) |
+    ((unsigned int) FloatExpSingle << NumberType_FloatExpSingle) |
+    ((unsigned int) FloatExpDouble << NumberType_FloatExpDouble) |
+    ((unsigned int) RescaledSingle << NumberType_RescaledSingle) |
+    ((unsigned int) RescaledDouble << NumberType_RescaledDouble);
+  }
+  std::string to_string() const { return std::to_string(pack()); }
+  inline bool operator==(const NumberType &other) const {
+     return pack() == other.pack();
+  }
+  inline bool operator==(const NumberType &&other) const {
+     return pack() == other.pack();
+  }
 };
-
-static inline int64_t pack_number_type(NumberType c)
-{
-  return
-    ((int64_t) c.Single << NumberType_Single) |
-    ((int64_t) c.Double << NumberType_Double) |
-    ((int64_t) c.LongDouble << NumberType_LongDouble) |
-    ((int64_t) c.Quad << NumberType_Quad) |
-    ((int64_t) c.FloatExpSingle << NumberType_FloatExpSingle) |
-    ((int64_t) c.FloatExpDouble << NumberType_FloatExpDouble) |
-    ((int64_t) c.RescaledSingle << NumberType_RescaledSingle) |
-    ((int64_t) c.RescaledDouble << NumberType_RescaledDouble);
-}
-
-static inline NumberType unpack_number_type(int64_t x)
-{
-  NumberType r =
-    { bool(x & (1 << NumberType_Single))
-    , bool(x & (1 << NumberType_Double))
-    , bool(x & (1 << NumberType_LongDouble))
-    , bool(x & (1 << NumberType_Quad))
-    , bool(x & (1 << NumberType_FloatExpSingle))
-    , bool(x & (1 << NumberType_FloatExpDouble))
-    , bool(x & (1 << NumberType_RescaledSingle))
-    , bool(x & (1 << NumberType_RescaledDouble))
-    };
-  return r;
-}
 
 #endif

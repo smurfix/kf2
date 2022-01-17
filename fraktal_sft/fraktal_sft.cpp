@@ -138,9 +138,13 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
 
-CFraktalSFT::CFraktalSFT()
+CFraktalSFT::CFraktalSFT() {
+	CFraktalSFT(std::make_shared<Settings>());
+}
+
+CFraktalSFT::CFraktalSFT(SP_Settings data)
 : m_Settings()
-, m_HybridFormula()
+, m_NewSettings()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
 , m_bIsRendering(false)
@@ -153,7 +157,6 @@ CFraktalSFT::CFraktalSFT()
 , m_mutex()
 #endif
 , m_OpenGL(nullptr)
-, m_sGLSL(KF_DEFAULT_GLSL)
 , m_sGLSLLog("")
 #ifndef KF_EMBED
 , m_undo()
@@ -172,22 +175,10 @@ CFraktalSFT::CFraktalSFT()
 #endif
 									);
 #endif
-	m_bTexture=FALSE;
-	m_nImgMerge=1;
-	m_nImgPower=200;
-	m_nImgRatio=100;
-	m_szTexture="";
-	m_bTextureResize = true;
 	m_lpTextureBits = nullptr;
 	m_rowBkg = 0;
 
-	m_bSlopes = FALSE;
-	m_nSlopePower = 50;
-	m_nSlopeRatio = 50;
-	m_nSlopeAngle = 45;
 	m_nSlopeX = m_nSlopeY = 0;
-	SetTransformMatrix(mat2(1.0, 0.0, 0.0, 1.0));
-	m_nFractalType = 0;
 	m_bmi = nullptr;
 #ifdef WINVER
 	m_bmBmp = nullptr;
@@ -195,37 +186,19 @@ CFraktalSFT::CFraktalSFT()
 #ifndef KF_EMBED
 	m_bNoPostWhenDone = FALSE;
 #endif
-	m_bMW = 0;
-	m_bBlend = 0;
 	m_bNoGlitchDetection = FALSE;
-	m_nPower = 0;
 	m_nMaxOldGlitches = OLD_GLITCH;
-
-	int m_nTerms = GetApproxTerms();
-	m_APr = new floatexp[m_nTerms];
-	m_APi = new floatexp[m_nTerms];
-	m_APs = new SeriesR2<double, int64_t>;
 
 	m_bStop = false;
 
-	m_CenterRe = 0;
-	m_CenterIm = 0;
-	m_ZoomRadius = 2;
-	m_nZoom = 0;
 	m_nTrans = NULL;
 	m_nPhase = nullptr;
 	m_nDEx = nullptr;
 	m_nDEy = nullptr;
-	m_bFlat = FALSE;
-	m_bTrans = TRUE;
-	m_bITrans = FALSE;
 	m_bAddReference = FALSE;
-	m_nX = m_nY = 0;
 	m_bResized = true;
-	m_nSizeImage = -1;
 	m_pnExpConsts = nullptr;
 	m_fPixelSpacing = 0;
-	m_nParts = 0;
 
 	m_Reference = nullptr;
 	m_ReferenceReuse = nullptr;
@@ -235,21 +208,11 @@ CFraktalSFT::CFraktalSFT()
 	m_nPixels_LSB = nullptr;
 	m_nPixels_MSB = nullptr;
 
-	m_nSmoothMethod = SmoothMethod_Log;
-	m_nBailoutRadiusPreset = BailoutRadius_High;
-	m_nBailoutRadiusCustom = 2;
-	m_nBailoutNormPreset = BailoutNorm_2;
-	m_nBailoutNormCustom = 2;
-	m_nColorMethod = ColorMethod_DistanceLog;
-	m_nDifferences = Differences_Analytic;
-	m_nPhaseColorStrength = 0;
-
 	m_epsilon = 1.1102230246251565e-16 * (1 << 10);
 
 	m_imageHalf = nullptr;
 	m_lpBits = nullptr;
 	m_row = 0;
-	m_nMaxIter = 200;
 	m_nMinI = m_nMaxI = 0;
 	m_bIterChanged = false;
 	m_bNoApproximation = false;
@@ -258,49 +221,16 @@ CFraktalSFT::CFraktalSFT()
 	m_pixel_center_x = m_pixel_center_y = 0;
 	m_pixel_scale = 0;
 
-	m_nIterDiv = 0.1;
-	m_nColorOffset = 0;
 	m_nAddRefX = -1;
 	m_nAddRefY = -1;
-	m_SeedR = 0;
-	m_SeedI = 0;
-	m_FactorAR = 1;
-	m_FactorAI = 0;
-	m_real = 1;
-	m_imag = 1;
 	m_rref = m_iref = 0;
 	m_bAutoGlitch = 1;
-	m_nSeed = 1;
-	m_nMW = 0;
-	m_bMW = false;
-	m_bBlend = false;
-	m_bUseSRGB = false;
-	m_bTriangleInequalityAverage = false;
 
 	ResetGlitches();
 
-	m_UseHybridFormula = false;
-	{
-		// Mandelbrot power 2
-		hybrid_line l =
-			{ { false, false, false, false, 2, 1.0, 0.0 }
-			, { false, false, false, false, 0, 0.0, 0.0 }
-			, hybrid_combine_add
-			};
-	        hybrid_stanza s;
-		s.lines.push_back(l);
-		s.repeats = 1;
-		hybrid_formula h;
-		h.stanzas.push_back(s);
-		h.loop_start = 0;
-		m_HybridFormula = h;
-	}
-
-	m_bUseOpenGL = false;
 	m_bBadOpenGL = false;
 	m_bGLSLChanged = true;
 	m_bGLSLCompiled = false;
-	m_sGLSL = KF_DEFAULT_GLSL;
 
 #ifdef KF_OPENCL
 	m_opengl_major = 0;
@@ -317,41 +247,152 @@ CFraktalSFT::CFraktalSFT()
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
-	GenerateColors(128, 1);
 	ResetTimers();
-	OpenString(
-"Re: 0\n"
-"Im: 0\n"
-"Zoom: 1\n"
-"Iterations: 200\n"
-"IterDiv: 0.010000\n"
-"SmoothMethod: 0\n"
-"ColorMethod: 7\n"
-"Differences: 3\n"
-"ColorOffset: 0\n"
-"Rotate: 0.000000\n"
-"Ratio: 360.000000\n"
-"Colors: 255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,\n"
-"InteriorColor: 0,0,0,\n"
-"Smooth: 1\n"
-"MultiColor: 0\n"
-"BlendMC: 0\n"
-"MultiColors: \n"
-"Power: 2\n"
-"FractalType: 0\n"
-"Slopes: 1\n"
-"SlopePower: 50\n"
-"SlopeRatio: 20\n"
-"SlopeAngle: 45\n"
-"imag: 1\n"
-"real: 1\n"
-"SeedR: 0\n"
-"SeedI: 0\n"
-"FactorAR: 1\n"
-"FactorAI: 0\n"
-, FALSE);
-	ApplyColors();
+
+	m_Settings = data;
+	if(!OpenNewSettings(nullptr)) {
+		std::cerr << "Could not apply settings." << std::endl << std::flush;
+		m_Settings = std::make_shared<Settings>();
+		if(!OpenNewSettings(nullptr)) {
+			std::cerr << "Could not apply default settings either. Closing down." << std::endl << std::flush;
+			abort();
+		}
+	}
+
+	m_nTerms = m_Settings->GetApproxTerms();
+	m_APr = new floatexp[m_nTerms];
+	m_APi = new floatexp[m_nTerms];
+	m_APs = new SeriesR2<double, int64_t>;
 }
+
+
+void CFraktalSFT::PrepareSave()
+{
+	SetPeriod(N.g_period);
+}
+
+#define C(N) || !(m_Settings->Get ## N () == data->Get ## N ())
+
+bool CFraktalSFT::CloseOldSettings(SP_Settings data)
+{
+	// The old settings are active. DATA are the new settings.
+	// If DATA is nullptr, we are shutting down.
+	//
+	if(!data) {
+		if(m_bIsRendering)
+			throw_invalid("Render is running","shutdown");
+		StopUseOpenGL();
+	}
+
+	if(!data C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
+		if(m_bIsRendering)
+			throw_invalid("Render is running","formula");
+	}
+	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
+		if(m_bIsRendering)
+			throw_invalid("Render is running","resize");
+		FreeBitmap();
+		DeleteArrays();
+	}
+	m_Settings->SetParent(nullptr);
+	return true;
+}
+
+bool CFraktalSFT::OpenNewSettings(SP_Settings data)
+{
+	// The new settings are active. DATA are the old settings.
+	//
+	m_Settings->SetParent(this);
+
+#include "Settings.scs.inc"
+#include "Settings.lcs.inc"
+#include "Settings.pcs.inc"
+
+	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
+		SetupArrays();
+		AllocateBitmap();
+
+		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
+		m_fPixelSpacing = floatexp(pixel_spacing);
+	}
+
+	if(!data C(Digits10)) {
+		m_rref.m_f.precision(m_digits10);
+		m_iref.m_f.precision(m_digits10);    
+	}
+
+	if(!data C(Power))
+		UpdatePower();
+	if(GetUseHybridFormula())
+		SetReferenceStrictZero(true);
+	if(!data C(SlopeAngle))
+		UpdateSlopes();
+
+	if(!m_Settings->GetAutoApproxTerms())
+		UpdateApproxTerms();
+
+	N.g_period = m_Period; // XXX clean up?
+
+	ApplyColors(); // TODO not always
+
+	return true;
+}
+
+void CFraktalSFT::SetImageSize(int nX, int nY)
+{
+	SetTargetWidth(nX / GetTargetSupersample());
+	SetTargetHeight(nY / GetTargetSupersample());
+}
+
+
+void CFraktalSFT::UpdateDerivativeGlitch()
+{
+	switch (GetReferenceType(m_nZoom)) {
+		// disable for single precision (does not work properly)
+		case Reference_Float:
+		case Reference_ScaledFloat:
+		case Reference_FloatExpFloat:
+			p_m_DerivativeGlitch = false;
+			break;
+		default:
+			p_m_DerivativeGlitch = GetDerivativeGlitch();
+			break;
+	}
+}
+
+bool CFraktalSFT::ApplySettings(SP_Settings data)
+{
+	if(!CloseOldSettings(data))
+		return false;
+
+	SP_Settings old = m_Settings;
+	m_Settings = data;
+
+	if(OpenNewSettings(data))
+		return true;
+	m_Settings = old;
+	if(OpenNewSettings(nullptr))
+		return false;
+	std::cerr << "Could neither apply new nor restore old settings. Closing down." << std::endl << std::flush;
+	abort();
+}
+
+bool CFraktalSFT::ApplyNewSettings()
+{
+	if(m_NewSettings == nullptr)
+		return true;
+	auto s = m_NewSettings;
+	auto p = m_Settings;
+	m_NewSettings = nullptr;
+
+	if(ApplySettings(m_NewSettings)) {
+		UndoStore(p);
+		return true;
+	} else {
+		return false;
+	}
+}
+
 
 bool CFraktalSFT::UseOpenGL()
 {
@@ -382,13 +423,6 @@ bool CFraktalSFT::UseOpenGL()
 	return true;
 }
 
-void CFraktalSFT::SetUseOpenGL(bool gl)
-{
-	m_bUseOpenGL = gl;
-	if(!gl)
-		StopUseOpenGL();
-}
-
 void CFraktalSFT::StopUseOpenGL()
 {
 	// Disable OpenGL: delete the backend safely
@@ -399,103 +433,6 @@ void CFraktalSFT::StopUseOpenGL()
 			m_OpenGL->deinit();
 		delete m_OpenGL;
 		m_OpenGL = nullptr;
-	}
-}
-
-void CFraktalSFT::GenerateColors(int nParts, int nSeed)
-{
-	m_nParts = nParts;
-	m_nSeed = nSeed;
-	if (m_nSeed == -1)
-		m_nSeed = GetTickCount();
-	srand(m_nSeed);
-	m_cKeys[0].r = m_cKeys[0].g = m_cKeys[0].b = m_cKeys[1024].r = m_cKeys[1024].g = m_cKeys[1024].b = 0;
-	int i;
-	for (i = (m_nSeed == 1 ? 1 : 0); i<1024; i++){
-		m_cKeys[i].r = rand() % 256;
-		m_cKeys[i].g = rand() % 256;
-		m_cKeys[i].b = rand() % 256;
-	}
-	m_cKeys[m_nParts].r = m_cKeys[0].r;
-	m_cKeys[m_nParts].g = m_cKeys[0].g;
-	m_cKeys[m_nParts].b = m_cKeys[0].b;
-}
-extern int MakePrime(int n)
-{
-	if (n < 1)
-		return 1;
-	else if (n < 4)
-		return n;
-	// poor man's integer square root
-	int nE = 1<<((33-__builtin_clz(n))/2);
-
-	n |= 1; // must be odd
-	int i = 3;
-	while (true){
-		BOOL bDone = TRUE;
-		for (i = 3; i<nE; i += 2)
-			if (n%i == 0){
-				bDone = FALSE;
-				break;
-			}
-		if (bDone)
-			break;
-		n += 2;
-	}
-	return n;
-}
-
-void CFraktalSFT::AddWave(int nColor, int nP, int nS)
-{
-	srand(GetTickCount());
-	int nPeriod;
-	if (nP == 0)
-		return;
-	if (nP == -1){
-		nPeriod = rand() % (m_nParts<4 ? m_nParts / 2 : m_nParts);
-		nPeriod = MakePrime(nPeriod);
-	}
-	else {
-		nPeriod = nP;
-	}
-	int nStart;
-	if (nS == -1)
-		nStart = rand() % nPeriod;
-	else
-		nStart = nS;
-	int i;
-	for (i = 0; i<m_nParts; i++){
-		int val = nP ? 127 + 127 * sin((double)(i + nStart) * 2 * pi*((double)nPeriod / (double)m_nParts)) : 0;
-		switch (nColor){
-		case 0:
-			m_cKeys[i].r = val;
-			break;
-		case 1:
-			m_cKeys[i].g = val;
-			break;
-		case 2:
-			m_cKeys[i].b = val;
-			break;
-		case 3:
-			m_cKeys[i].r = val;
-			m_cKeys[i].g = val;
-			m_cKeys[i].b = val;
-			break;
-		case 4:
-			m_cKeys[i].r += (int)(m_cKeys[i].r + val) / 2;
-			break;
-		case 5:
-			m_cKeys[i].g += (int)(m_cKeys[i].g + val) / 2;
-			break;
-		case 6:
-			m_cKeys[i].b += (int)(m_cKeys[i].b + val) / 2;
-			break;
-		case 7:
-			m_cKeys[i].r = (int)(m_cKeys[i].r + val) / 2;
-			m_cKeys[i].g = (int)(m_cKeys[i].g + val) / 2;
-			m_cKeys[i].b = (int)(m_cKeys[i].b + val) / 2;
-			break;
-		}
 	}
 }
 
@@ -753,7 +690,7 @@ void CFraktalSFT::SetColor(int x, int y, int w, int h)
 	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
 		return;
 
-	int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
+	size_t nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
 	int64_t nIter0 = m_nPixels[x][y];
 	srgb s;
 	if (nIter0 == m_nMaxIter)
@@ -1187,13 +1124,11 @@ void CFraktalSFT::SetColor(int x, int y, int w, int h)
 	if (m_imageHalf)
 	{
 		// flip vertically and convert BGR to RGB
-		size_t i3 = (nIndex % m_row);
-		size_t j = nIndex / m_row;
-		size_t nIndex2 = (m_nY - 1 - j) * m_row + i3;
+		nIndex = (x + y * m_nX) * 3;
 		float c; // clamp to finite non-negative
-		c = l.b; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2    ] = c;
-		c = l.g; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2 + 1] = c;
-		c = l.r; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex2 + 2] = c;
+		c = l.b; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex    ] = c;
+		c = l.g; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex + 1] = c;
+		c = l.r; if (! (c > 0)) c = 0; if (! (c < 65504)) c = 65504; m_imageHalf[nIndex + 2] = c;
 	}
 }
 
@@ -1539,72 +1474,6 @@ void CFraktalSFT::DeleteArrays()
 			m_nDEy = nullptr;
 		}
 		FreeBitmap();
-}
-
-void CFraktalSFT::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10)
-{
-
-	long e = 0;
-	mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
-
-	m_nZoom = std::max(long(double(e)*0.30103), 1L);
-	if(digits10 == 0)
-		digits10 = 20 + std::max(20, m_nZoom);
-	Precision pHi(digits10);
-
-	m_rref.m_f.precision(digits10);
-	m_iref.m_f.precision(digits10);
-	m_CenterRe.m_f.precision(digits10);
-	m_CenterIm.m_f.precision(digits10);
-	m_ZoomRadius.m_f.precision(20u);
-
-	m_CenterRe = re.m_dec;
-	m_CenterIm = im.m_dec;
-	m_ZoomRadius = (2/zoom).m_dec;
-
-#ifdef KF_EMBED
-	// XXX code also in SetImageSize; if not embedded, in Render.
-	CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
-	m_fPixelSpacing = floatexp(pixel_spacing);
-#endif
-}
-
-void CFraktalSFT::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
-{
-	/*
-		one must get the required precision from the zoom level
-		before using that precision when converting re,im from string
-		otherwise the precision is likely to be too low (e.g. unzoomed)
-		leading to incorrect images (precision loss from rounding)
-	*/
-	try
-	{
-		Precision pLo(20u);
-		CDecNumber z(szZ); // throws on bad string
-
-		long e = 0;
-		mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
-		unsigned digits10 = std::max(20L, long(20 + 0.30103 * e));
-		Precision pHi(digits10);
-
-		CDecNumber re(szR); // throws on bad string
-		CDecNumber im(szI); // throws on bad string
-
-		SetPosition(re,im,z, digits10);
-	}
-	catch (...)
-	{
-		std::cerr << "ERROR: SetPosition(): couldn't parse float (ignored)" << std::endl;
-		/*
-			if a float could not be parsed, the previous value will be used
-			because all the parsing is done before the state is modified
-		*/
-	}
-}
-
-void CFraktalSFT::SetPosition(const char *szR, const char *szI, const char *szZ)
-{
-	return SetPosition(std::string(szR), std::string(szI), std::string(szZ));
 }
 
 #ifdef KF_OPENCL
@@ -2139,7 +2008,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 	else
 		m_bNoGlitchDetection = TRUE;
 
-	m_ZoomRadius /= nZoomSize;
+	SetZoomRadius(m_ZoomRadius / nZoomSize);
 #ifndef KF_EMBED
 	Render();
 #endif
@@ -2264,21 +2133,18 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		{
 		  g = 1.0 / 0.0;
 		}
-		m_CenterRe.m_f.precision(digits10);
-		m_CenterIm.m_f.precision(digits10);
-		m_rref.m_f.precision(digits10);
-		m_iref.m_f.precision(digits10);
 		CFixedFloat re0 = m_CenterRe;
 		CFixedFloat im0 = m_CenterIm;
+		re0.m_f.precision(digits10);
+		re0.m_f.precision(digits10);
+		m_rref.m_f.precision(digits10);
+		m_iref.m_f.precision(digits10);
 		CFixedFloat re1 = m_rref + CFixedFloat(a);
 		CFixedFloat im1 = m_iref + CFixedFloat(b);
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
 
-
-		m_CenterRe = re;
-		m_CenterIm = im;
-		m_ZoomRadius = radius;
+		SetPosition(re.m_f,im.m_f,radius.m_f,digits10);
 	}
 #ifndef KF_EMBED
 	Render();
@@ -2356,18 +2222,6 @@ void CFraktalSFT::GetIterations(int64_t &nMin, int64_t &nMax, int *pnCalculated,
 		nMax = m_nMaxI;
 	}
 }
-int64_t CFraktalSFT::GetIterations()
-{
-	return m_nMaxIter;
-}
-void CFraktalSFT::SetIterations(int64_t nIterations)
-{
-	m_nMaxIter = nIterations;
-}
-std::string CFraktalSFT::GetRe()
-{
-	return m_CenterRe.ToText();
-}
 std::string CFraktalSFT::GetRe(int nXPos, int nYPos)
 {
 	floatexp a, b;
@@ -2375,10 +2229,7 @@ std::string CFraktalSFT::GetRe(int nXPos, int nYPos)
 	CFixedFloat re = m_rref + CFixedFloat(a);
 	return re.ToText();
 }
-std::string CFraktalSFT::GetIm()
-{
-	return m_CenterIm.ToText();
-}
+
 std::string CFraktalSFT::GetIm(int nXPos, int nYPos)
 {
 	floatexp a, b;
@@ -2386,12 +2237,7 @@ std::string CFraktalSFT::GetIm(int nXPos, int nYPos)
 	CFixedFloat im = m_iref + CFixedFloat(b);
 	return im.ToText();
 }
-std::string CFraktalSFT::GetZoom()
-{
-	CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
-	floatexp zoomFE = floatexp(zoom);
-	return zoomFE.toString();
-}
+
 BOOL CFraktalSFT::HighestIteration(int &rx, int &ry)
 {
 	if (!m_nPixels)
@@ -2464,19 +2310,6 @@ BOOL CFraktalSFT::Center(int &rx, int &ry, BOOL bSkipM, BOOL bQuick)
 	return TRUE;
 }
 
-COLOR14 CFraktalSFT::GetKeyColor(int i)
-{
-	if (i<0 || i >= m_nParts)
-		return m_cKeys[0];
-	else
-		return m_cKeys[i];
-}
-void CFraktalSFT::SetKeyColor(COLOR14 col, int i)
-{
-	if (i<0 || i >= m_nParts)
-		return;
-	m_cKeys[i] = col;
-}
 COLOR14 CFraktalSFT::GetColor(int i)
 {
 	if (i<0 || i >= 1024)
@@ -2485,22 +2318,8 @@ COLOR14 CFraktalSFT::GetColor(int i)
 		return m_cPos[i];
 }
 
-void CFraktalSFT::SetImageSize(int nx, int ny)
+void CFraktalSFT::ClearImage()
 {
-	bool resized = m_nX != nx || m_nY != ny;
-	if (resized){
-		DeleteArrays();
-		m_nX = nx;
-		m_nY = ny;
-		SetupArrays();
-		m_bResized |= resized;
-#ifdef KF_EMBED
-		// XXX code also in SetPosition; if KF_EMBED, in Render.
-		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
-		m_fPixelSpacing = floatexp(pixel_spacing);
-#endif
-	}
-
 	memset(m_nPixels_LSB, 0, sizeof(*m_nPixels_LSB) * m_nX * m_nY);
 	if (m_nPixels_MSB)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
@@ -2523,6 +2342,12 @@ bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
 
 BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double nZoomSize)
 {
+#if 1 // TODO XXX TODO
+	(void)szFile;
+	(void)bReuseCenter;
+	(void)nZoomSize;
+	return FALSE;
+#else
 	int **Org = 0;
 	float **OrgT = 0;
 	float **OrgP = 0;
@@ -2676,6 +2501,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	ReinitializeBitmap();
 	m_bIterChanged = true;
 	return ok;
+#endif
 }
 
 void CFraktalSFT::ReinitializeBitmap()
@@ -2711,7 +2537,6 @@ void CFraktalSFT::AllocateBitmap()
 	m_row = ((((m_bmi->biWidth*(DWORD)m_bmi->biBitCount) + 31)&~31) >> 3);
 	m_bmi->biSizeImage = m_row*m_bmi->biHeight;
 
-	m_nSizeImage = m_bmi->biSizeImage;
 	m_lpBits = new BYTE[m_bmi->biSizeImage];
 #ifdef WINVER
 	if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -2743,22 +2568,10 @@ void CFraktalSFT::FreeBitmap()
 	}
 }
 
-bool CFraktalSFT::OpenSettings(const std::string &filename) {
-	bool ok = m_Settings.OpenFile(filename);
-	if(ok) {
-		int64_t w,h,s;
-		GetTargetDimensions(&w, &h, &s);
-//		SetImageSize(w * s, h * s);
-	}
-	return ok;
-}
-
 #ifndef KF_EMBED
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
-	std::string comment1(ToText());
-	std::string comment2(m_Settings.ToText());
-	std::string comment = comment1 + comment2;
+	std::string comment(m_Settings->ToText(true,true,true));
 	if (nWidth == 0)
 		nWidth = m_nX;
 	if (nHeight == 0)
@@ -3497,6 +3310,10 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 }
 void CFraktalSFT::SaveMapB(const std::string &szFile)
 {
+#if 1 // TODO XXX TODO
+	(void)szFile;
+	return;
+#else
 	// WONTFIX doesn't save m_nPixels_MSB
 	if (!m_nPixels_LSB)
 		return;
@@ -3527,39 +3344,9 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 		delete[] column;
 	}
 	hFile.close();
+#endif
 }
 
-BailoutRadiusPreset CFraktalSFT::GetBailoutRadiusPreset()
-{
-	return m_nBailoutRadiusPreset;
-}
-void CFraktalSFT::SetBailoutRadiusPreset(int nBailoutRadiusPreset)
-{
-	switch (nBailoutRadiusPreset)
-	{
-		default:
-		case 0:
-			m_nBailoutRadiusPreset = BailoutRadius_High;
-			break;
-		case 1:
-			m_nBailoutRadiusPreset = BailoutRadius_2;
-			break;
-		case 2:
-			m_nBailoutRadiusPreset = BailoutRadius_Low;
-			break;
-		case 3:
-			m_nBailoutRadiusPreset = BailoutRadius_Custom;
-			break;
-	}
-}
-double CFraktalSFT::GetBailoutRadiusCustom()
-{
-	return m_nBailoutRadiusCustom;
-}
-void CFraktalSFT::SetBailoutRadiusCustom(double nBailoutRadiusCustom)
-{
-	m_nBailoutRadiusCustom = nBailoutRadiusCustom;
-}
 double CFraktalSFT::GetBailoutRadius()
 {
 	switch (GetBailoutRadiusPreset())
@@ -3571,25 +3358,7 @@ double CFraktalSFT::GetBailoutRadius()
 		case BailoutRadius_Custom: return GetBailoutRadiusCustom();
 	}
 }
-void CFraktalSFT::SetBailoutNormPreset(int nBailoutNormPreset)
-{
-	switch (nBailoutNormPreset)
-	{
-		case 0:
-			m_nBailoutNormPreset = BailoutNorm_1;
-			break;
-		default:
-		case 1:
-			m_nBailoutNormPreset = BailoutNorm_2;
-			break;
-		case 2:
-			m_nBailoutNormPreset = BailoutNorm_Infinity;
-			break;
-		case 3:
-			m_nBailoutNormPreset = BailoutNorm_Custom;
-			break;
-	}
-}
+
 double CFraktalSFT::GetBailoutNorm()
 {
 	switch (GetBailoutNormPreset())
@@ -3607,57 +3376,24 @@ floatexp CFraktalSFT::GetBailoutSmall()
 	return 1e-12;
 }
 
-void CFraktalSFT::SetPower(int nPower)
+void CFraktalSFT::UpdatePower()
 {
-	if (nPower<2)
-		nPower = 2;
-	if (nPower>70)
-		nPower = 70;
-	SetSmoothMethod(m_nSmoothMethod); // update bailout if necessary
-
-	if (m_nPower != nPower) {
-        if (m_pnExpConsts){
-            delete[] m_pnExpConsts;
-            m_pnExpConsts = NULL;
-        }
-        if (nPower > 10) {
-            // compute Pascal triangle numbers.
-			// For n<=10 these are hardcoded into the requisite formula(s).
-            m_pnExpConsts = new int[nPower + 1];
-            m_pnExpConsts[0] = 1;
-            int i,k;
-            for(i=1;i<=nPower;i++) {
-                m_pnExpConsts[i] = 1;
-                for (k=i-1;k>0;k--)
-                    m_pnExpConsts[k] += m_pnExpConsts[k-1];
-            }
-        }
-
+	if (m_pnExpConsts){
+		delete[] m_pnExpConsts;
+		m_pnExpConsts = NULL;
 	}
-
-	m_nPower = nPower;
-}
-
-void CFraktalSFT::SetDifferences(int nDifferences)
-{
-	if (nDifferences < 0) nDifferences = 0;
-	if (nDifferences > 7) nDifferences = 0;
-	m_nDifferences = Differences(nDifferences);
-}
-Differences CFraktalSFT::GetDifferences()
-{
-	return m_nDifferences;
-}
-
-void CFraktalSFT::SetColorMethod(int nColorMethod)
-{
-	if (nColorMethod < 0) nColorMethod = 0;
-	if (nColorMethod > 11) nColorMethod = 0;
-	m_nColorMethod = ColorMethod(nColorMethod);
-}
-ColorMethod CFraktalSFT::GetColorMethod()
-{
-	return m_nColorMethod;
+	if (m_nPower > 10) {
+		// compute Pascal triangle numbers.
+		// For n<=10 these are hardcoded into the requisite formula(s).
+		m_pnExpConsts = new int[m_nPower + 1];
+		m_pnExpConsts[0] = 1;
+		int i,k;
+		for(i=1;i<=m_nPower;i++) {
+			m_pnExpConsts[i] = 1;
+			for (k=i-1;k>0;k--)
+				m_pnExpConsts[k] += m_pnExpConsts[k-1];
+		}
+	}
 }
 
 void CFraktalSFT::ErasePixel(int x, int y)
@@ -3672,59 +3408,7 @@ void CFraktalSFT::ErasePixel(int x, int y)
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
 	}
 }
-void CFraktalSFT::SetMW(BOOL bMW, BOOL bBlend)
-{
-	m_bMW = bMW;
-	m_bBlend = bBlend;
-}
-int CFraktalSFT::GetMWCount()
-{
-	return m_nMW;
-}
-int CFraktalSFT::GetMW(BOOL *pbBlend)
-{
-	if (pbBlend)
-		*pbBlend = m_bBlend;
-	return m_bMW;
-}
-BOOL CFraktalSFT::GetMW(int nIndex, int &nPeriod, int &nStart, int &nType)
-{
-	if (nIndex<0 || nIndex >= m_nMW)
-		return FALSE;
-	nPeriod = m_MW[nIndex].nPeriod;
-	nStart = m_MW[nIndex].nStart;
-	nType = m_MW[nIndex].nType;
-	return TRUE;
-}
-BOOL CFraktalSFT::AddMW(int nPeriod, int nStart, int nType)
-{
-	if (m_nMW == MULTIWAVE_MAX - 1)
-		return FALSE;
-	int i = m_nMW++;
-	m_MW[i].nPeriod = nPeriod;
-	m_MW[i].nStart = nStart;
-	m_MW[i].nType = nType;
-	return TRUE;
-}
-BOOL CFraktalSFT::UpdateMW(int nIndex, int nPeriod, int nStart, int nType)
-{
-	if (nIndex<0 || nIndex >= m_nMW)
-		return FALSE;
-	m_MW[nIndex].nPeriod = nPeriod;
-	m_MW[nIndex].nStart = nStart;
-	m_MW[nIndex].nType = nType;
-	return TRUE;
-}
-BOOL CFraktalSFT::DeleteMW(int nIndex)
-{
-	int i;
-	if (!m_nMW)
-		return FALSE;
-	m_nMW--;
-	for (i = nIndex; i<m_nMW; i++)
-		m_MW[i].nPeriod = m_MW[i + 1].nPeriod;
-	return TRUE;
-}
+
 int64_t CFraktalSFT::GetMaxExceptCenter()
 {
 	int64_t nMax = 0;
@@ -3743,39 +3427,32 @@ int64_t CFraktalSFT::GetMaxExceptCenter()
 	}
 	return nMax;
 }
-void CFraktalSFT::SetFractalType(int nFractalType)
-{
-	if (nFractalType < 0 || nFractalType > 102)
-		nFractalType = 0;
-	m_nFractalType = nFractalType;
-	if ((1 <= m_nFractalType && m_nFractalType <= 4) && !(2 <= m_nPower && m_nPower <= 5))
-		m_nPower = 2;
-	if (m_nFractalType>2 && m_nPower>2)
-		m_nPower = 2;
 
-	SetReferenceStrictZero(nFractalType != 0);
-}
-
-void CFraktalSFT::SetApproxTerms(int64_t nTerms)
+void CFraktalSFT::UpdateApproxTerms(int nT)
 {
-	m_Settings.SetApproxTerms(nTerms);
-	int m_nTerms = GetApproxTerms();
+	if(nT == -1)
+		nT = m_Settings->GetApproxTerms();
+	if(nT == m_nTerms)
+		return;
+
+	m_nTerms = nT;
 	delete[] m_APr;
 	delete[] m_APi;
-	m_APr = new floatexp[m_nTerms];
-	m_APi = new floatexp[m_nTerms];
+	m_APr = new floatexp[nT];
+	m_APi = new floatexp[nT];
 }
 
-void CFraktalSFT::SetHalfColour(bool b)
+void CFraktalSFT::UpdateHalfColour()
 {
-	m_Settings.SetHalfColour(b);
-	b = m_Settings.GetHalfColour();
+	bool b = m_Settings->GetHalfColour();
 	if (b)
 	{
-		if (! m_imageHalf)
-		{
-			m_imageHalf = new half[m_nSizeImage];
-		}
+		size_t sz = 3 * m_nX * m_nY;
+
+		// don't bother with realloc(), the data is toast anyway
+		if (m_imageHalf)
+			delete[] m_imageHalf;
+		m_imageHalf = new half[sz];
 	}
 	else
 	{
@@ -3794,21 +3471,14 @@ BOOL CFraktalSFT::GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle
 	nSlopeAngle = m_nSlopeAngle;
 	return m_bSlopes;
 }
-void CFraktalSFT::SetSlopes(BOOL bSlope, int nSlopePower, int nSlopeRatio, int nSlopeAngle)
-{
-	m_bSlopes = bSlope;
-	m_nSlopePower = nSlopePower;
-	if (m_nSlopePower<1)
-		m_nSlopePower = 1;
-	m_nSlopeRatio = nSlopeRatio;
-	if (m_nSlopeRatio<0)
-		m_nSlopeRatio = 0;
-	m_nSlopeAngle = nSlopeAngle;
 
+void CFraktalSFT::UpdateSlopes()
+{
 	double lightAngleRadians = pi*(double)m_nSlopeAngle / 180;
 	m_nSlopeX = cos(lightAngleRadians);
 	m_nSlopeY = sin(lightAngleRadians);
 }
+
 BOOL CFraktalSFT::GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,std::string &szTexture)
 {
 	nImgMerge = m_nImgMerge;
@@ -3819,11 +3489,11 @@ BOOL CFraktalSFT::GetTexture(double &nImgMerge,double &nImgPower,int &nImgRatio,
 }
 void CFraktalSFT::SetTexture(BOOL bTexture,double nImgMerge,double nImgPower,int nImgRatio,const std::string &szTexture)
 {
-	m_bTexture = bTexture;
-	m_nImgMerge = nImgMerge;
-	m_nImgPower = nImgPower;
-	m_nImgRatio = nImgRatio;
-	m_szTexture = szTexture;
+	SetTextureEnabled(bTexture);
+	SetTextureMerge(nImgMerge);
+	SetTexturePower(nImgPower);
+	SetTextureRatio(nImgRatio);
+	SetTextureFile(szTexture);
 }
 
 #ifdef KF_OPENCL
@@ -3840,14 +3510,14 @@ void CFraktalSFT::SetOpenCLDeviceIndex(int i)
 			delete cl;
 			cl = NULL;
 			clid = -1;
-			SetUseOpenCL(false);
+			m_Settings->SetUseOpenCL(false);
 		}
 		if (0 <= i && i < (int) m_cldevices.size())
 		{
 			clid = i;
 			cl = new OpenCL(&cl_error, m_cldevices[i].pid, m_cldevices[i].did, m_cldevices[i].supports_double);
-			SetUseOpenCL(true);
-			SetOpenCLPlatform(i);
+			m_Settings->SetUseOpenCL(true);
+			m_Settings->SetOpenCLPlatform(i);
 		}
 	}
 }
@@ -4114,18 +3784,6 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	dab = x0.dx[1];
 	dba = y0.dx[0];
 	dbb = y0.dx[1];
-}
-
-void CFraktalSFT::SetTransformPolar(const polar2 &P)
-{
-	m_TransformPolar = P;
-	m_TransformMatrix = polar_composition(P);
-}
-
-void CFraktalSFT::SetTransformMatrix(const mat2 &M)
-{
-	m_TransformMatrix = M;
-	m_TransformPolar = polar_decomposition(M);
 }
 
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const

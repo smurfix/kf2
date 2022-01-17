@@ -180,7 +180,7 @@ static inline V special_93_2(const T &XC, const T &Xr, const V &Xxr, const V &xr
 bool reference
   ( const int m_nFractalType, const int m_nPower
   , Reference *Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, const int64_t &m_nMaxIter
   , const CFixedFloat &Cr, const CFixedFloat &Ci
   , const double g_SeedR, const double g_SeedI
   , const double g_FactorAR, const double g_FactorAI

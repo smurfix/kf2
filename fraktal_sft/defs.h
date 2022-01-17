@@ -22,18 +22,42 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 
-#include "Settings.h"
+#include <ostream>
+#include <string>
+#include <string_view>
+#include "StringHelper.h"
+
 #include "CFixedFloat.h"
 #include "floatexp.h"
 #include "reference.h"
 
 #include "kf-task.h"
 
+
+// this sets the maximum number of references per image
+#define OLD_GLITCH 10000
+
+// this sets the range of approximation terms
+// storage is O(terms^2) for R2 fractals, O(terms) for C fractals
+#define MIN_APPROX_TERMS 3
+#define MAX_APPROX_TERMS 63
+
+
+#include <type_traits>
+template <typename T>
+constexpr auto operator+(T e) noexcept
+    -> std::enable_if_t<std::is_enum<T>::value, std::underlying_type_t<T>>
+{
+    return static_cast<std::underlying_type_t<T>>(e);
+}
+
+
 struct Reference;
 struct NanoMB1_Reference;
 struct NanoMB2_Reference;
 
 struct CPixel;
+
 class CPixels
 {
 	int m_nX;
@@ -72,6 +96,32 @@ public:
 #define DOUBLE_THRESHOLD_DEFAULT 20
 
 #define SMOOTH_BAILOUT 10000
+
+
+// We use this to implement redirecting accesses to Settings
+// without a metric ton of GetXXX()/SetXXX() methods
+// or m_Settings-> stanzas everywhere.
+//
+// Example usage:
+//
+// class Test{
+// public:
+//   Property<int, Test> Number{this,&Test::setNumber,&Test::getNumber};
+//
+// private:
+//   int itsNumber;
+//
+//   void setNumber(int theNumber)
+//     { itsNumber = theNumber; }
+//
+//   int getNumber() const
+//     { return itsNumber; }
+// };
+//
+class CFraktal;
+
+extern int MakePrime(int n);
+
 struct MC
 {
 	CFixedFloat *xr, *xi, *sr, *si, *xrxid;
@@ -80,6 +130,7 @@ struct MC
 	HANDLE hExit;
 	int nType;
 };
+
 struct MC2
 {
 	CFixedFloat *xrn, *xin, *xrxid, *sr, *si, *m_iref, *m_rref;
@@ -89,8 +140,40 @@ struct MC2
 	int nType;
 };
 
+struct COLOR14 {
+	unsigned char r, g, b;
 
-struct COLOR14 { unsigned char r, g, b; };
+    inline COLOR14() : COLOR14(0,0,0) { }
+	inline COLOR14(unsigned char rr, unsigned char gg, unsigned char bb) { r=rr; g=gg; b=bb; }
+	inline COLOR14(uint32_t rgb) { r=rgb>>16; g=rgb>>8; b=rgb; }
+	inline int32_t pack() const { return (r<<16) | (g<<8) | b; }
+	COLOR14(std::string_view rgb);
+	std::string to_string() const;
+    inline bool operator==(const COLOR14 &other) const {
+       return pack() == other.pack();
+    }
+    inline bool operator==(const COLOR14 &&other) const {
+       return pack() == other.pack();
+    }
+
+};
+
+// TODO should be a vector, but one step at a time
+struct ColorArray : std::array<COLOR14,1025> {
+	std::string to_string(int n) const;
+	int from_string(std::string_view data);
+
+	ColorArray() {}
+	ColorArray(std::string_view data) : ColorArray() { from_string(data); }
+};
+
+static inline std::ostream& 
+operator<<(std::ostream& output, COLOR14& col)
+{
+    output << col.to_string();
+    return output;
+}
+
 
 #if 0
 typedef long double ldbl;
@@ -107,7 +190,32 @@ struct MULTIWAVE
 	int nPeriod;
 	int nStart;
 	int nType;
+
+    inline MULTIWAVE() : MULTIWAVE(0,0,0) { }
+	inline MULTIWAVE(unsigned char p, unsigned char s, unsigned char t) {
+		nPeriod = p;
+		nStart = s;
+		nType = t;
+	}
+    inline MULTIWAVE(std::string_view data) : MULTIWAVE() { from_string(data); }
+	std::string to_string() const;
+	void from_string(std::string_view data);
+    inline bool operator==(const MULTIWAVE &other) const {
+       return nPeriod == other.nPeriod && nStart == other.nStart && nType == other.nType;
+    }
+    inline bool operator==(const MULTIWAVE &&other) const {
+       return nPeriod == other.nPeriod && nStart == other.nStart && nType == other.nType;
+    }
 };
+
+struct MultiWaveArray : std::array<MULTIWAVE,MULTIWAVE_MAX> {
+	std::string to_string(int n) const;
+	int from_string(std::string_view data);
+
+	MultiWaveArray() {}
+	MultiWaveArray(std::string_view data) : MultiWaveArray() { from_string(data); }
+};
+
 
 enum SmoothMethod
 {

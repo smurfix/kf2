@@ -144,7 +144,7 @@ static void UpdateBailoutRe(HWND hWnd)
 
 static void RefreshBailoutRe(HWND hWnd)
 {
-  g_SFT.m_real = GetDlgItemFloat64(hWnd, IDC_BAILOUT_RE);
+  g_SFT.SetBailoutReal(GetDlgItemFloat64(hWnd, IDC_BAILOUT_RE));
 }
 
 static void UpdateBailoutIm(HWND hWnd)
@@ -154,7 +154,7 @@ static void UpdateBailoutIm(HWND hWnd)
 
 static void RefreshBailoutIm(HWND hWnd)
 {
-  g_SFT.m_imag = GetDlgItemFloat64(hWnd, IDC_BAILOUT_IM);
+  g_SFT.SetBailoutImag(GetDlgItemFloat64(hWnd, IDC_BAILOUT_IM));
 }
 
 static void UpdateBailoutNormPreset(HWND hWnd)
@@ -256,8 +256,8 @@ extern INT_PTR WINAPI BailoutProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
       int retval = 0;
       if (wParam == IDOK)
       {
-        g_SFT.UndoStore();
-				g_SFT.Stop();
+        g_SFT.Stop();
+        g_SFT.ApplyNewSettings();
         g_bExamineDirty=TRUE;
         RefreshIterations(hWnd);
         RefreshSmoothMethod(hWnd);

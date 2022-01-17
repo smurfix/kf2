@@ -31,93 +31,140 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "tooltip.h"
 #include "dual.h"
 
-std::vector<std::string> split(std::string s, char sep)
-{
-  std::vector<std::string> r;
-  while (true)
-  {
-    std::size_t ix = s.find(sep);
-    r.push_back(s.substr(0, ix));
-    if (ix == std::string::npos)
-    {
-      break;
-    }
-    else
-    {
-      s = s.substr(ix + 1);
-    }
-  }
-  return r;
-}
 
-extern std::string to_string(const hybrid_operator &h)
+std::string hybrid_operator::to_string() const
 {
   std::ostringstream o;
-  o << (h.abs_x ? 1 : 0) << ',';
-  o << (h.abs_y ? 1 : 0) << ',';
-  o << (h.neg_x ? 1 : 0) << ',';
-  o << (h.neg_y ? 1 : 0) << ',';
-  o << h.pow << ',';
-  o << std::setprecision(17) << h.mul_re << ',';
-  o << std::setprecision(17) << h.mul_im;
+  o << (abs_x ? 1 : 0) << ',';
+  o << (abs_y ? 1 : 0) << ',';
+  o << (neg_x ? 1 : 0) << ',';
+  o << (neg_y ? 1 : 0) << ',';
+  o << pow << ',';
+  o << std::setprecision(17) << mul_re << ',';
+  o << std::setprecision(17) << mul_im;
   return o.str();
 }
 
-extern std::string to_string(const hybrid_combine &h)
+bool hybrid_operator::operator==(const hybrid_operator &other) const
+{
+    if(abs_x != other.abs_x) return false;
+    if(abs_y != other.abs_y) return false;
+    if(neg_x != other.neg_x) return false;
+    if(neg_y != other.neg_y) return false;
+    if(pow != other.pow) return false;
+    if(mul_re != other.mul_re) return false;
+    if(mul_im != other.mul_im) return false;
+    return true;
+}
+
+bool hybrid_operator::operator==(const hybrid_operator &&other) const
+{
+    if(abs_x != other.abs_x) return false;
+    if(abs_y != other.abs_y) return false;
+    if(neg_x != other.neg_x) return false;
+    if(neg_y != other.neg_y) return false;
+    if(pow != other.pow) return false;
+    if(mul_re != other.mul_re) return false;
+    if(mul_im != other.mul_im) return false;
+    return true;
+}
+
+std::string to_string(const hybrid_combine h)
 {
   std::ostringstream o;
   o << int(h);
   return o.str();
 }
 
-extern std::string to_string(const hybrid_line &h)
+std::string hybrid_line::to_string() const
 {
   std::ostringstream o;
-  o << to_string(h.one) << ';';
-  o << to_string(h.two) << ';';
-  o << to_string(h.mode);
+  o << one.to_string() << ';';
+  o << two.to_string() << ';';
+  o << std::to_string(mode);
   return o.str();
 }
 
-extern std::string to_string(const hybrid_stanza &h)
+bool hybrid_line::operator==(const hybrid_line &other) const
+{
+    if(mode != other.mode) return false;
+    if(!(one == other.one)) return false;
+    if(!(two == other.two)) return false;
+    return true;
+}
+
+bool hybrid_line::operator==(const hybrid_line &&other) const
+{
+    if(mode != other.mode) return false;
+    if(!(one == other.one)) return false;
+    if(!(two == other.two)) return false;
+    return true;
+}
+
+std::string hybrid_stanza::to_string() const
 {
   std::ostringstream o;
-  o << h.repeats;
-  for (size_t i = 0; i < h.lines.size(); ++i)
+  o << repeats;
+  for (size_t i = 0; i < lines.size(); ++i)
   {
     o << '|';
-    o << to_string(h.lines[i]);
+    o << lines[i].to_string();
   }
   return o.str();
 }
 
-extern std::string to_string(const hybrid_formula &h)
+bool hybrid_stanza::operator==(const hybrid_stanza &other) const
+{
+    if(repeats != other.repeats) return false;
+    if(!(lines == other.lines)) return false;
+    return true;
+}
+
+bool hybrid_stanza::operator==(const hybrid_stanza &&other) const
+{
+    if(repeats != other.repeats) return false;
+    if(!(lines == other.lines)) return false;
+    return true;
+}
+
+std::string hybrid_formula::to_string() const
 {
   std::ostringstream o;
-  o << h.loop_start;
-  for (size_t i = 0; i < h.stanzas.size(); ++i)
+  o << loop_start;
+  for (size_t i = 0; i < stanzas.size(); ++i)
   {
     o << '/';
-    o << to_string(h.stanzas[i]);
+    o << stanzas[i].to_string();
   }
   return o.str();
 }
 
-extern hybrid_operator hybrid_operator_from_string(const std::string &s)
+bool hybrid_formula::operator==(const hybrid_formula &other) const
 {
-  hybrid_operator r = { false, false, false, false, 0, 0.0, 0.0 };
-  std::vector<std::string> v = split(s, ',');
-  if (v.size() > 0) r.abs_x = std::stoi(v[0]);
-  if (v.size() > 1) r.abs_y = std::stoi(v[1]);
-  if (v.size() > 2) r.neg_x = std::stoi(v[2]);
-  if (v.size() > 3) r.neg_y = std::stoi(v[3]);
-  if (v.size() > 4) r.pow = std::stoi(v[4]);
-  if (v.size() > 5) r.mul_re = std::stof(v[5]);
-  if (v.size() > 6) r.mul_im = std::stof(v[6]);
-  return r;
+    if(loop_start != other.loop_start) return false;
+    if(!(stanzas == other.stanzas)) return false;
+    return true;
+}
+bool hybrid_formula::operator==(const hybrid_formula &&other) const
+{
+    if(loop_start != other.loop_start) return false;
+    if(!(stanzas == other.stanzas)) return false;
+    return true;
 }
 
-extern hybrid_combine hybrid_combine_from_string(const std::string &s)
+hybrid_operator::hybrid_operator(std::string_view s) : hybrid_operator()
+{
+  std::vector<std::string> v = str_split(s, ",");
+  if (v.size() > 0) abs_x = std::stoi(v[0]);
+  if (v.size() > 1) abs_y = std::stoi(v[1]);
+  if (v.size() > 2) neg_x = std::stoi(v[2]);
+  if (v.size() > 3) neg_y = std::stoi(v[3]);
+  if (v.size() > 4) pow = std::stoi(v[4]);
+  if (v.size() > 5) mul_re = std::stof(v[5]);
+  if (v.size() > 6) mul_im = std::stof(v[6]);
+}
+
+hybrid_combine hybrid_combine_from_string(const std::string &s)
 {
   hybrid_combine r = hybrid_combine_add;
   switch (std::stoi(s))
@@ -130,46 +177,69 @@ extern hybrid_combine hybrid_combine_from_string(const std::string &s)
   return r;
 }
 
-extern hybrid_line hybrid_line_from_string(const std::string &s)
+hybrid_line::hybrid_line(std::string_view s) : hybrid_line()
 {
-  hybrid_line r;
-  std::vector<std::string> v = split(s, ';');
-  if (v.size() > 0) r.one = hybrid_operator_from_string(v[0]);
-  if (v.size() > 1) r.two = hybrid_operator_from_string(v[1]);
-  if (v.size() > 2) r.mode = hybrid_combine_from_string(v[2]);
-  return r;
+  std::vector<std::string> v = str_split(s, ";");
+  if (v.size() > 0) one = hybrid_operator(v[0]);
+  if (v.size() > 1) two = hybrid_operator(v[1]);
+  if (v.size() > 2) mode = hybrid_combine_from_string(v[2]);
 }
 
-extern hybrid_stanza hybrid_stanza_from_string(const std::string &s)
+hybrid_stanza::hybrid_stanza(std::string_view s) : hybrid_stanza()
 {
-  hybrid_stanza r;
-  std::vector<std::string> v = split(s, '|');
-  r.repeats = 0;
+  std::vector<std::string> v = str_split(s, "|");
+  repeats = 0;
   if (v.size() > 0)
   {
-    r.repeats = std::stoi(v[0]);
+    repeats = std::stoi(v[0]);
   }
   for (int l = 1; l < (ssize_t) v.size(); ++l)
   {
-    r.lines.push_back(hybrid_line_from_string(v[l]));
+    lines.push_back(hybrid_line(v[l]));
   }
-  return r;
 }
 
-extern hybrid_formula hybrid_formula_from_string(const std::string &s)
+hybrid_formula::hybrid_formula(std::string_view s) : hybrid_formula()
 {
-  hybrid_formula r;
-  std::vector<std::string> v = split(s, '/');
-  r.loop_start = 0;
+  std::vector<std::string> v = str_split(s, "/");
+  loop_start = 0;
   if (v.size() > 0)
   {
-    r.loop_start = std::stoi(v[0]);
+    loop_start = std::stoi(v[0]);
   }
   for (int l = 1; l < (ssize_t) v.size(); ++l)
   {
-    r.stanzas.push_back(hybrid_stanza_from_string(v[l]));
+    stanzas.push_back(hybrid_stanza(v[l]));
   }
-  return r;
+}
+
+bool hybrid_formula::is_valid()const
+{
+  if (loop_start < 0)
+  {
+    return false;
+  }
+  if ((ssize_t) stanzas.size() <= loop_start)
+  {
+    return false;
+  }
+  if (stanzas.size() <= 0)
+  {
+    return false;
+  }
+  for (auto s : stanzas)
+  {
+    if (s.repeats <= 0)
+    {
+      return false;
+    }
+    if (s.lines.size() <= 0)
+    {
+      return false;
+    }
+  }
+  return true;
+
 }
 
 static std::vector<HWND> tooltips;
@@ -394,7 +464,6 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
         int retval = 0;
         if (wParam == IDOK)
         {
-          g_SFT.UndoStore();
           g_bExamineDirty=TRUE;
 
           // copy formula from UI
@@ -670,13 +739,14 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
             }
           }
 
-          retval = valid(h);
+          retval = formula_valid(h);
           if (retval)
           {
             g_SFT.Stop();
             g_SFT.SetHybridFormula(h);
             g_SFT.SetUseHybridFormula(true);
           }
+          g_SFT.ApplyNewSettings();
         }
         for (auto tooltip : tooltips)
         {
@@ -2592,7 +2662,7 @@ extern std::string hybrid_perturbation_scaled_opencl(const hybrid_formula &h, co
     h.stanzas[0].lines[1].mode == hybrid_combine_add &&
     h.stanzas[0].lines[1].two.mul_re == 0 &&
     h.stanzas[0].lines[1].two.mul_im == 0;
-  hybrid_operator op1 = {0}, op2 = {0};
+  hybrid_operator op1 = {}, op2 = {};
   if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
 
@@ -3442,7 +3512,7 @@ static void pow(mpfr_t X, mpfr_t Y, int p, mpfr_t T1, mpfr_t T2, mpfr_t T3, mpfr
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, const int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate

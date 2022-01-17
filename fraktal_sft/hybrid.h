@@ -28,78 +28,10 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "dual.h"
 #include "reference.h"
 
-// FIXME TODO check that input from KFR files does not exceed this
-#define MAX_HYBRID_STANZAS 4
+#include "hybrid_def.h"
 
-struct hybrid_operator
-{
-  bool abs_x;
-  bool abs_y;
-  bool neg_x;
-  bool neg_y;
-  int pow;
-  double mul_re;
-  double mul_im;
-};
-inline bool operator==(const hybrid_operator &a, const hybrid_operator &b)
-{
-  return
-    a.abs_x == b.abs_x &&
-    a.abs_y == b.abs_y &&
-    a.neg_x == b.neg_x &&
-    a.neg_y == b.neg_y &&
-    a.pow == b.pow &&
-    a.mul_re == b.mul_re &&
-    a.mul_im == b.mul_im ;
-}
 
-enum hybrid_combine
-{
-  hybrid_combine_add = 0,
-  hybrid_combine_sub = 1,
-  hybrid_combine_mul = 2,
-  hybrid_combine_div = 3
-};
-
-struct hybrid_line
-{
-  hybrid_operator one;
-  hybrid_operator two;
-  hybrid_combine mode;
-};
-inline bool operator==(const hybrid_line &a, const hybrid_line &b)
-{
-  return
-    a.one == b.one &&
-    a.two == b.two &&
-    a.mode == b.mode ;
-}
-
-struct hybrid_stanza
-{
-  std::vector<hybrid_line> lines;
-  int repeats;
-};
-inline bool operator==(const hybrid_stanza &a, const hybrid_stanza &b)
-{
-  return
-    a.lines == b.lines &&
-    a.repeats == b.repeats ;
-}
-
-struct hybrid_formula
-{
-  std::vector<hybrid_stanza> stanzas;
-  int loop_start;
-};
-inline bool operator==(const hybrid_formula &a, const hybrid_formula &b)
-{
-  return
-    a.stanzas == b.stanzas &&
-    a.loop_start == b.loop_start ;
-}
-
-static inline bool valid(const hybrid_formula &h)
+static inline bool formula_valid(const hybrid_formula &h)
 {
   if (h.loop_start < 0)
   {
@@ -126,18 +58,6 @@ static inline bool valid(const hybrid_formula &h)
   }
   return true;
 }
-
-extern std::string to_string(const hybrid_operator &h);
-extern std::string to_string(const hybrid_combine &h);
-extern std::string to_string(const hybrid_line &h);
-extern std::string to_string(const hybrid_stanza &h);
-extern std::string to_string(const hybrid_formula &h);
-
-extern hybrid_operator hybrid_operator_from_string(const std::string &s);
-extern hybrid_combine hybrid_combine_from_string(const std::string &s);
-extern hybrid_line hybrid_line_from_string(const std::string &s);
-extern hybrid_stanza hybrid_stanza_from_string(const std::string &s);
-extern hybrid_formula hybrid_formula_from_string(const std::string &s);
 
 template <typename R>
 inline complex<R> hybrid_f(const hybrid_operator &h, const complex<R> &Z)
@@ -614,7 +534,7 @@ inline bool perturbation_hybrid(const hybrid_formula &h, const Reference *m_Refe
     h.stanzas[0].lines[1].mode == hybrid_combine_add &&
     h.stanzas[0].lines[1].two.mul_re == 0 &&
     h.stanzas[0].lines[1].two.mul_im == 0;
-  hybrid_operator op1 = {0}, op2 = {0};
+  hybrid_operator op1 = {}, op2 = {};
   if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
@@ -757,7 +677,7 @@ inline bool perturbation_dual_hybrid(const hybrid_formula &h, const Reference *m
     h.stanzas[0].lines[1].mode == hybrid_combine_add &&
     h.stanzas[0].lines[1].two.mul_re == 0 &&
     h.stanzas[0].lines[1].two.mul_im == 0;
-  hybrid_operator op1 = {0}, op2 = {0};
+  hybrid_operator op1 = {}, op2 = {};
   if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
@@ -915,7 +835,7 @@ inline bool perturbation_hybrid_scaled(const hybrid_formula &h, const Reference 
     h.stanzas[0].lines[1].mode == hybrid_combine_add &&
     h.stanzas[0].lines[1].two.mul_re == 0 &&
     h.stanzas[0].lines[1].two.mul_im == 0;
-  hybrid_operator op1 = {0}, op2 = {0};
+  hybrid_operator op1 = {}, op2 = {};
   if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
@@ -1264,7 +1184,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
     h.stanzas[0].lines[1].mode == hybrid_combine_add &&
     h.stanzas[0].lines[1].two.mul_re == 0 &&
     h.stanzas[0].lines[1].two.mul_im == 0;
-  hybrid_operator op1 = {0}, op2 = {0};
+  hybrid_operator op1 = {}, op2 = {};
   if (h.stanzas[0].lines.size() > 0) op1 = h.stanzas[0].lines[0].one;
   if (h.stanzas[0].lines.size() > 1) op2 = h.stanzas[0].lines[1].one;
   const bool no_g = g_real == 1.0 && g_imag == 1.0 && p == 2.0;
@@ -1584,7 +1504,7 @@ inline bool perturbation_dual_hybrid_scaled(const hybrid_formula &h, const Refer
 extern bool reference_hybrid
   ( const hybrid_formula &h
   , Reference *m_Reference
-  , bool &m_bStop, int64_t &m_nRDone, int64_t &m_nMaxIter
+  , bool &m_bStop, int64_t &m_nRDone, const int64_t &m_nMaxIter
   , const CFixedFloat &Cr0, const CFixedFloat &Ci0
   , const double g_SeedR, const double g_SeedI
   , const double terminate

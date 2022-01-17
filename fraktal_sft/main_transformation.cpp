@@ -194,8 +194,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
       int retval = 0;
       if (wParam == IDOK)
       {
-        g_SFT.UndoStore();
-				g_SFT.Stop();
+        g_SFT.Stop();
         g_bExamineDirty=TRUE;
         polar2 total_transformation = polar_decomposition(polar_composition(current_transformation) * polar_composition(original_transformation));
         const double total_transformation_zoom = total_transformation.scale;
@@ -203,6 +202,7 @@ extern INT_PTR WINAPI TransformationProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARA
         g_SFT.SetTransformPolar(total_transformation);
         floatexp current_zoom(CDecNumber(g_SFT.GetZoom()));
         g_SFT.SetPosition(g_SFT.GetRe(), g_SFT.GetIm(), (current_zoom / total_transformation_zoom).toString());
+        g_SFT.ApplyNewSettings();
         PostMessage(GetParent(hWnd), WM_KEYDOWN, VK_F5, 0);
         retval = 1;
       }

@@ -21,6 +21,26 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <cmath>
 
+bool polar2::operator==(const polar2 &other) const
+{
+    if(sign != other.sign) return false;
+    if(scale != other.scale) return false;
+    if(rotate != other.rotate) return false;
+    if(stretch_factor != other.stretch_factor) return false;
+    if(stretch_angle != other.stretch_angle) return false;
+    return true;
+}
+
+bool polar2::operator==(const polar2 &&other) const
+{
+    if(sign != other.sign) return false;
+    if(scale != other.scale) return false;
+    if(rotate != other.rotate) return false;
+    if(stretch_factor != other.stretch_factor) return false;
+    if(stretch_angle != other.stretch_angle) return false;
+    return true;
+}
+
 mat2 polar_composition(const polar2 &P)
 {
   using std::cos;

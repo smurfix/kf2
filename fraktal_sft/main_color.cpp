@@ -142,7 +142,6 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		else if (wParam == IDC_OPENGL_IMPORT)
 		{
-			g_SFT.UndoStore();
 			std::string file;
 			if (BrowseFile(hWnd, true, "Select shader file", "GLSL\0*.glsl\0\0", file))
 			{
@@ -154,7 +153,6 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		else if (wParam == IDC_OPENGL_DEFAULT)
 		{
-			g_SFT.UndoStore();
 			SetDlgItemText(hWnd, IDC_OPENGL_GLSL, KF_DEFAULT_GLSL);
 			g_AutoUpdate++;
 			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
@@ -162,7 +160,6 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		else if (wParam == IDC_OPENGL_SRGB)
 		{
-			g_SFT.UndoStore();
 			g_SFT.SetUseSRGB(SendDlgItemMessage(hWnd, IDC_OPENGL_SRGB, BM_GETCHECK, 0, 0));
 			g_AutoUpdate++;
 			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
@@ -170,7 +167,6 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		else if (wParam == IDC_OPENGL_ENABLED)
 		{
-			g_SFT.UndoStore();
 			g_SFT.SetUseOpenGL(SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_GETCHECK, 0, 0));
 			g_AutoUpdate++;
 			SendMessage(hWnd, WM_COMMAND, IDOK, 0);
@@ -178,11 +174,9 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		}
 		else if (wParam == IDOK)
 		{
-			if (! g_AutoUpdate)
-			{
-				g_SFT.UndoStore();
-			}
 			g_SFT.SetGLSL(GetDlgItemString(hWnd, IDC_OPENGL_GLSL));
+			if (! g_AutoUpdate)
+				g_SFT.ApplyNewSettings();
 			SendMessage(g_hwColors, WM_COMMAND, IDOK, 0);
 			SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_SETCHECK, g_SFT.GetUseOpenGL() ? 1 : 0, 0);
 			SetDlgItemText(hWnd, IDC_OPENGL_LOG, g_SFT.GetGLSLLog().c_str());
@@ -329,15 +323,15 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendDlgItemMessage(hWnd,IDC_COMBO4,CB_ADDSTRING,0,(LPARAM)"Brightness");
 		}
 		if(uMsg==WM_COMMAND && (wParam==IDC_CHECK6 || wParam==IDC_CHECK7)){
-			g_SFT.SetMW(SendDlgItemMessage(hWnd,IDC_CHECK6,BM_GETCHECK,0,0),SendDlgItemMessage(hWnd,IDC_CHECK7,BM_GETCHECK,0,0));
+			g_SFT.SetMW(SendDlgItemMessage(hWnd,IDC_CHECK6,BM_GETCHECK,0,0));
+			g_SFT.SetBlendMC(SendDlgItemMessage(hWnd,IDC_CHECK7,BM_GETCHECK,0,0));
 			g_AutoUpdate++;
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
 		else{
-			BOOL bBlend=FALSE;
-			SendDlgItemMessage(hWnd,IDC_CHECK6,BM_SETCHECK,g_SFT.GetMW(&bBlend),0);
-			SendDlgItemMessage(hWnd,IDC_CHECK7,BM_SETCHECK,bBlend,0);
+			SendDlgItemMessage(hWnd,IDC_CHECK6,BM_SETCHECK,g_SFT.GetMW(),0);
+			SendDlgItemMessage(hWnd,IDC_CHECK7,BM_SETCHECK,g_SFT.GetBlendMC(),0);
 		}
 		EnableWindow(GetDlgItem(hWnd,IDC_COMBO4),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_EDIT23),g_SFT.GetMW());
@@ -580,8 +574,6 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==IDOK){
-			if (! g_AutoUpdate)
-				g_SFT.UndoStore();
 			char szTexture[1024];
 			double nPower;
 			int nRatio;
@@ -656,6 +648,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
+
+			if (! g_AutoUpdate)
+				g_SFT.ApplyNewSettings();
 		}
 		else if(wParam==IDC_COLOR_TRANSITION_FLAT || wParam==IDC_COLOR_PHASE_STRENGTH || wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 		{

@@ -25,8 +25,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include "kf-task.h"
 
-#include <atomic>
-
 #include "Settings.h"
 #include "CFixedFloat.h"
 #include "CDecNumber.h"
@@ -57,35 +55,80 @@ class CFraktalSFT
 
 public:
 	CFraktalSFT();
+	CFraktalSFT(SP_Settings data);
 	~CFraktalSFT();
 
-	Settings m_Settings;
+	SP_Settings m_Settings;
+	SP_Settings m_NewSettings;
+
+	inline Settings& ModSettings() {
+	  if(m_NewSettings == nullptr)
+		m_NewSettings = std::make_shared<Settings>(*m_Settings);
+	  return *m_NewSettings;
+	}
+
+
+
 	std::string m_szFile;
-#define DOUBLE(KEY) \
-	inline double Get##KEY() const { return m_Settings.Get##KEY(); }; \
-	inline void   Set##KEY(double x) { return m_Settings.Set##KEY(x); };
-#define INT(KEY) \
-	inline int64_t    Get##KEY() const { return m_Settings.Get##KEY(); }; \
-	inline void   Set##KEY(int64_t x) { return m_Settings.Set##KEY(x); };
-#define BOOL(KEY) \
-	inline bool   Get##KEY() const { return m_Settings.Get##KEY(); }; \
-	inline void   Set##KEY(bool x) { return m_Settings.Set##KEY(x); };
+
+private:
+#include "Settings.scp.inc"
+#include "Settings.pcp.inc"
+#include "Settings.lcp.inc"
+
+public:
+#include "Settings.sca.inc"
+#include "Settings.pca.inc"
+#include "Settings.lca.inc"
+
+#include "Settings.sgf.inc"
+#include "Settings.pgf.inc"
+#include "Settings.lgf.inc"
+
+#include "Settings.ssf.inc"
+#include "Settings.psf.inc"
+#include "Settings.lsf.inc"
+
+	bool ApplySettings(SP_Settings data);
+	bool ApplyNewSettings();
+	void UpdateHalfColour();
+	void UpdateApproxTerms(int nT = -1);
+
+	void PrepareSave();
 
   // settings and parameters
-	bool OpenSettings(const std::string &filename);
-	inline bool SaveSettings(const std::string &filename, bool overwrite) const { return m_Settings.SaveFile(filename, overwrite); }
-	inline std::string GetSettings() const { return m_Settings.ToText(); }
-	inline bool SetSettings(const std::string &data) { return m_Settings.FromText(data); }
+	bool OpenSettings(const std::string &filename) {
+		return ModSettings().OpenFile(filename, true, false, false); }
+	inline bool SaveSettings(const std::string &filename, bool overwrite) {
+		PrepareSave();
+		return m_Settings->SaveFile(filename, overwrite, true, false, false); }
+	inline std::string GetSettings() {
+		return m_Settings->ToText(true,false,false); }
+	inline bool SetSettings(const std::string &data) {
+		return ModSettings().FromText(data,true,false,false); }
+
+private:
+
+    bool CloseOldSettings(SP_Settings data);
+    bool OpenNewSettings(SP_Settings data);
+
+public:
 
 	void ResetParameters();
-	BOOL(OpenResetsParameters)
-	BOOL OpenFile(const std::string &filename, BOOL noLocation = FALSE);
-	BOOL OpenString(const std::string &text, BOOL noLocation = FALSE);
+	// S BOOL(OpenResetsParameters)
+	inline bool OpenFile(const std::string &filename, BOOL noLocation = FALSE) {
+		return ModSettings().OpenFile(filename, false, true, !noLocation); }
+	inline bool OpenString(const std::string &text, BOOL noLocation = FALSE) {
+		return ModSettings().FromText(text, false, true, !noLocation); }
+
 	BOOL OpenMapB(const std::string &filename, BOOL reuseCenter = FALSE, double zoomSize = 1);
 	bool OpenMapEXR(const std::string &filename);
 
-	std::string ToText();
-	BOOL SaveFile(const std::string &filename, bool overwrite);
+	std::string ToText() { return m_Settings->ToText(true,true,true); };
+	BOOL SaveFile(const std::string &filename, bool overwrite) {
+		PrepareSave();
+		return m_Settings->SaveFile(filename, overwrite, false, true, true);
+	}
 #ifdef WINVER
 	int SaveJpg(const std::string &filename, int quality, int width = 0, int height = 0);
 #endif
@@ -94,86 +137,60 @@ public:
 
 
 // Basics
-	DOUBLE(ThreadsPerCore)
-	INT(ThreadsReserveCore)
+	// S DOUBLE(ThreadsPerCore)
+	// S INT(ThreadsReserveCore)
 	// nParallel is calculated as GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
 	// TODO refactor: export that as a method
 
 // This part actually calculates a fractal
 //
   // What and how do we calculate?
-	inline NumberType GetNumberTypes() const { return m_Settings.GetNumberTypes(); };
-	inline void SetNumberTypes(const NumberType x) { return m_Settings.SetNumberTypes(x); };
-
-	int m_nFractalType;
-	void SetFractalType(int fractalType);
-	inline int GetFractalType() const { return m_nFractalType; }
-
-	bool m_UseHybridFormula;
-	inline bool GetUseHybridFormula() const { return m_UseHybridFormula; };
-	inline void SetUseHybridFormula(bool b)
-	{
-		SetReferenceStrictZero(true);
-		m_UseHybridFormula = b;
-	}
-
-	hybrid_formula m_HybridFormula;
-	inline const hybrid_formula &GetHybridFormula() const { return m_HybridFormula; };
-	inline void SetHybridFormula(const hybrid_formula &h) { m_HybridFormula = h; };
-
-	int m_nPower;
-	inline int GetPower() const { return m_nPower; }
-	void SetPower(int power);  // limits to [2;70]
+	// L int m_nFractalType;
+	// P bool m_ReferenceStrictZero;
+	// L bool m_UseHybridFormula;
+	// L hybrid_formula m_HybridFormula;
+	// P int m_nPower;
 	int *m_pnExpConsts;     // Pascal Triangle, for m_nPower>10
+	void UpdatePower();
 
-	BOOL(Derivatives)       // also calculate slopes etc.
+	// S BOOL(Derivatives)       // also calculate slopes etc.
 	//
-	BOOL(UseNanoMB1)        // run experimental code?
-	BOOL(UseNanoMB2)        // more experimental code?
-	INT(OrderM)             // NanoMBx parameter
-	INT(OrderN)             // NanoMBx parameter
-	DOUBLE(RadiusScale)     // NanoMBx parameter 
-	BOOL(InteriorChecking)  // NanoMBx: may speed up interior space calc
+	// S BOOL(UseNanoMB1)        // run experimental code?
+	// S BOOL(UseNanoMB2)        // more experimental code?
+	// S INT(OrderM)             // NanoMBx parameter
+	// S INT(OrderN)             // NanoMBx parameter
+	// S DOUBLE(RadiusScale)     // NanoMBx parameter 
+	// S BOOL(InteriorChecking)  // NanoMBx: may speed up interior space calc
 	//
-	INT(SIMDVectorSize)     // CPU vector calc optimization
-	INT(SIMDChunkSize)      // CPU vector calc optimization
+	// S INT(SIMDVectorSize)     // CPU vector calc optimization
+	// S INT(SIMDChunkSize)      // CPU vector calc optimization
 
   // Bail-out radius: deciding that a point is outside the set
-	BailoutRadiusPreset m_nBailoutRadiusPreset;
-	double m_nBailoutRadiusCustom;
-
-	BailoutRadiusPreset GetBailoutRadiusPreset();
-	void SetBailoutRadiusPreset(int bailoutRadiusPreset);
-	double GetBailoutRadiusCustom();
-
-	void SetBailoutRadiusCustom(double bailoutRadiusCustom);
 	double GetBailoutRadius();
+	// P BailoutRadiusPreset m_nBailoutRadiusPreset;
+	// P double m_nBailoutRadiusCustom;
 	floatexp GetBailoutSmall(); // XXX constant 1e-12
 
 	// how to calculate the bail-out distance
-	BailoutNormPreset m_nBailoutNormPreset;
-	double m_nBailoutNormCustom;
-	inline BailoutNormPreset GetBailoutNormPreset() const { return m_nBailoutNormPreset; }
-	void SetBailoutNormPreset(int bailoutNormPreset);
-	double GetBailoutNormCustom() const { return m_nBailoutNormCustom; }
-	inline void SetBailoutNormCustom(double bailoutNormCustom) { m_nBailoutNormCustom = bailoutNormCustom; }
+	// L BailoutNormPreset m_nBailoutNormPreset;
+	// L double m_nBailoutNormCustom;
 	double GetBailoutNorm(); // depends on m_nBailoutNormPreset
 
 	// Smoothing. Accepts Log=0 and Sqrt=1 only.
-	SmoothMethod m_nSmoothMethod;
-	inline SmoothMethod GetSmoothMethod() const { return m_nSmoothMethod; }
-	inline void SetSmoothMethod(SmoothMethod smoothMethod) { m_nSmoothMethod = smoothMethod; }
+	// P SmoothMethod m_nSmoothMethod;
   //
   // Where do we calculate it? (Parameters etc)
 
 	// Position of fractal view: where and how large
-	CFixedFloat m_CenterRe, m_CenterIm, m_ZoomRadius;
+	// L CFixedFloat m_CenterRe, m_CenterIm, m_ZoomRadius;
+	
 	// radius is from center to top/bottom edge
+	// set in SaveNew
 	//
 	// String versions of center and zoom
-	std::string GetRe();
-	std::string GetIm();
-	std::string GetZoom();
+	// L std::string GetRe();
+	// L std::string GetIm();
+	// L std::string GetZoom();
 
 	// String versions of address at specific positions.
 	// TODO used only in Newton calc, most probably stupidly
@@ -181,23 +198,31 @@ public:
 	std::string GetIm(int nXPos, int nYPos);
 
 	// GUI use: set position and zoom level.
-	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ);
-	void SetPosition(const char *const szR, const char *const szI, const char *const szZ);
+	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
+	{
+		m_Settings->SetPosition(szR,szI,szZ);
+	}
+	void SetPosition(const char *const szR, const char *const szI, const char *const szZ)
+	{
+		m_Settings->SetPosition(szR,szI,szZ);
+	}
 
 	// internal / embedded use: set position and zoom level.
-	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0);
+	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0) {
+		m_Settings->SetPosition(re,im,zoom,digits10);
+	}
 
-	BOOL(NoReuseCenter)     // when zooming out, re-use the center?
+	// S BOOL(NoReuseCenter)     // when zooming out, re-use the center?
 
 	// fractal size
-	int m_nX, m_nY;
+	// S int m_nX, m_nY;
 	void SetImageSize(int nx, int ny);
-	inline int GetImageWidth() const { return m_nX; } // TODO int32
-	inline int GetImageHeight() const { return m_nY; } // TODO int32
+
+	void ClearImage();
 
 	// forwards to Settings: stores the target image size and a supersampling factor
-	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) const { return m_Settings.GetTargetDimensions(w, h, s); }
-	inline void SetTargetDimensions(int64_t w, int64_t h, int64_t s) { m_Settings.SetTargetDimensions(w, h, s); SetImageSize(w * s, h * s); }
+	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) { m_Settings->GetTargetDimensions(w, h, s); }
+	inline void SetTargetDimensions(int64_t w, int64_t h, int64_t s) { ModSettings().SetTargetDimensions(w, h, s); }
 
 	// Flag for resizing the main bitmap before rendering
 	bool m_bResized;
@@ -206,9 +231,9 @@ public:
 	floatexp m_fPixelSpacing;
 
 	// Jitter, i.e. vary pixel position slightly
-	INT(JitterSeed)
-	INT(JitterShape)
-	DOUBLE(JitterScale)
+	// S INT(JitterSeed)
+	// S INT(JitterShape)
+	// S DOUBLE(JitterScale)
 
 	// Retrieve jitter offset
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
@@ -250,11 +275,8 @@ public:
 	// incremental refinement.
 	CPixels m_P;
 
-	int64_t m_nMaxIter; // iterate this often before declaring a point to be within the set.
-
-	// Accessors. TODO inline them, they don't do any work.
-	int64_t GetIterations();
-	void SetIterations(int64_t nIterations);
+	// L int64_t m_nMaxIter; // iterate this often before declaring a point to be within the set.
+	// Get/SetIterations
 
 	// Get the observed iteration min/max.
 	// pnCalculated is the sum of all iterations, pnType is set to 1 if that should be *1mio.
@@ -268,7 +290,7 @@ public:
 	int64_t m_nMinI, m_nMaxI;
 	BOOL m_bIterChanged;
 
-	BOOL(AutoIterations)   // auto-calculate the iteration limit
+	// S BOOL(AutoIterations)   // auto-calculate the iteration limit
 	void FixIterLimit();   // calculate a new limit
 
   // approximation
@@ -296,14 +318,14 @@ public:
 
   // transformation
 	// matrix for calculation
-	mat2 m_TransformMatrix;
-	void SetTransformMatrix(const mat2 &M);
-	inline mat2 GetTransformMatrix() const { return m_TransformMatrix; }
+	// L mat2 m_TransformMatrix;
+	// L void SetTransformMatrix(const mat2 &M);
+	// L inline mat2 GetTransformMatrix() const { return m_TransformMatrix; }
 
 	// GUI's original (polar form) of transform matrix
-	polar2 m_TransformPolar;
-	void SetTransformPolar(const polar2 &P);
-	inline polar2 GetTransformPolar() const { return m_TransformPolar; }
+	// L polar2 m_TransformPolar;
+	// L void SetTransformPolar(const polar2 &P);
+	// L inline polar2 GetTransformPolar() const { return m_TransformPolar; }
 
   // actually calculate a fractal
   //
@@ -350,9 +372,9 @@ public:
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs
-	BOOL(UseOpenCL)        // use it?
-	BOOL(OpenCLThreaded)   // run OpenCL in render thread?
-	INT(OpenCLPlatform)    // select which OpenCL impl to use
+	// S BOOL(UseOpenCL)        // use it?
+	// S BOOL(OpenCLThreaded)   // run OpenCL in render thread?
+	// S INT(OpenCLPlatform)    // select which OpenCL impl to use
 	int clid;              // device index
 	OpenCL *cl;            // device interface
 	OpenCL_ErrorInfo cl_error; // opencl errors
@@ -372,20 +394,20 @@ public:
 	BOOL m_bAddReference; // TODO explain what this does; XXX this is not a bool!
 	int m_nAddRefX;
 	int m_nAddRefY;
-	double m_real;
-	double m_imag;
-	double m_SeedR;
-	double m_SeedI;
-	double m_FactorAR;
-	double m_FactorAI;
+	// L double m_real;
+	// L double m_imag;
+	// L double m_SeedR;
+	// L double m_SeedI;
+	// L double m_FactorAR;
+	// L double m_FactorAI;
 
 
-	BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
+	// S BOOL(ThreadedReference) // use multiple threads for ref calculation? MB2 only
 	Reference_Type GetReferenceType(int64_t exponent10) const;
 	BOOL AddReference(int x, int y, BOOL bEraseAll = FALSE, BOOL bResuming = FALSE);
 
-	INT(GlitchCenterMethod)          // Menu: advanced > Reference Selection
-	INT(IsolatedGlitchNeighbourhood) // Menu: adv > Ignore isolated
+	// S INT(GlitchCenterMethod)          // Menu: advanced > Reference Selection
+	// S INT(IsolatedGlitchNeighbourhood) // Menu: adv > Ignore isolated
 	//     either 0 (ignore), 4 (orthogonal) or 8 (+diagonal)
 	//
 	// set when too many glitches found
@@ -397,10 +419,10 @@ public:
 	int m_nMaxOldGlitches; // XXX constant OLD_GLITCH
 
 	int m_bAutoGlitch;          // #references  XXX it's not a bool!
-	INT(MaxReferences)           // 0…OLD_GLITCH  XXX max# of secondary refs
+	// S INT(MaxReferences)           // 0…OLD_GLITCH  XXX max# of secondary refs
 	//
-	BOOL(AutoSolveGlitches)      // auto-find glitches
-	BOOL(SolveGlitchNear)        // only re-render connected pixels
+	// S BOOL(AutoSolveGlitches)      // auto-find glitches
+	// S BOOL(SolveGlitchNear)        // only re-render connected pixels
 
 	void IgnoreIsolatedGlitches();
 	int FindCenterOfGlitch(int &rx, int &ry);
@@ -408,8 +430,8 @@ public:
 	int GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqSpan, itercount_array &Pixels, int nDone, POINT *pQ, int nQSize);
 
   // references, for faster calculation
-	BOOL(ReuseReference)         // Do not re-calculate the reference for further zooming
-	BOOL(ReferenceStrictZero)        // Use strict zero test for reference dynamic range
+	// S BOOL(ReuseReference)         // Do not re-calculate the reference for further zooming
+	// S BOOL(ReferenceStrictZero)        // Use strict zero test for reference dynamic range
 
 	void CalculateReference(enum Reference_Type reftype);
 	bool CalculateReferenceThreaded();
@@ -429,63 +451,51 @@ public:
 	Reference *m_ReferenceReuse;
 	CFixedFloat m_rrefReuse, m_irefReuse;
 
-	//BOOL(DerivativeGlitch)     // Use derivative-based glitch detection for power 2 Mandelbrot
-	inline bool GetDerivativeGlitch() const {
-		switch (GetReferenceType(m_nZoom)) {
-			// disable for single precision (does not work properly)
-			case Reference_Float:
-			case Reference_ScaledFloat:
-			case Reference_FloatExpFloat:
-				return false;
-			default:
-				return m_Settings.GetDerivativeGlitch();
-		}
-	};
-	inline void SetDerivativeGlitch(bool x)
-	{
-		return m_Settings.SetDerivativeGlitch(x);
-	};
+	// BOOL(DerivativeGlitch)     // Use derivative-based glitch detection for power 2 Mandelbrot
+	// S bool m_DerivativeGlitch;      // filtered: does not work for some reference types
+	void UpdateDerivativeGlitch();
 
   // resizing
-	int m_nZoom;                 // base10 exponent of zoom factor
+	// L int m_nZoom;                 // base10 exponent of zoom factor
 	inline int GetExponent() { return m_nZoom; }
 	// XXX rename this to GetZoomExponent
 
 	std::string ToZoom();        // return a human-readable zoom scale. Also, set "m_nZoom".
 	std::string ToZoom(const CDecNumber &z);
 
-	BOOL(Mirror)                 // XXX never read
+	// S BOOL(Mirror)                 // XXX never read
 	void Mirror(int x, int y);   // set value corresponding to mirrored x/y
 
   // random parameters
-	BOOL(Guessing)               // guess interior of same-itercount regions
-	BOOL(NoApprox)               // disable series approximation
+	// S BOOL(Guessing)               // guess interior of same-itercount regions
+	// S BOOL(NoApprox)               // disable series approximation
 
 	double m_epsilon;            // used for glitch avoidance. Undocumented constant.
 	// TODO this is a constant: it doesn't belong here.
 
   // perturbation tuning             // Menu: Advanced > Perturbation and …
-	DOUBLE(GlitchLowTolerance)       // tolerance for glitch detection, 0…1
-	DOUBLE(ApproxLowTolerance)       // tolerance for series approximation, 0…1
-	BOOL(AutoApproxTerms)            // choose ApproxTerms based on remaining pixels
+	// S DOUBLE(GlitchLowTolerance)       // tolerance for glitch detection, 0…1
+	// S DOUBLE(ApproxLowTolerance)       // tolerance for series approximation, 0…1
+	// S BOOL(AutoApproxTerms)            // choose ApproxTerms based on remaining pixels
 	//
 	//INT(ApproxTerms)               // Number of terms for series approximation
-	inline int64_t    GetApproxTerms() const { return m_Settings.GetApproxTerms(); };
-	void   SetApproxTerms(int64_t t);// updates m_APr and m_APi
+	int m_nTerms;
 
 	// approximation terms. Large.
+	// Updated by UpdateApproxTerms.
 	floatexp *m_APr; // settings.approxTerms large
 	floatexp *m_APi;
+
 	SeriesR2<double,int64_t> *m_APs; // always MAX_APPROX_TERMS sized
   
-	BOOL(UseRescaledSeries)          // Use rescaled version of series approximation, power 2 MB only
+	// S BOOL(UseRescaledSeries)          // Use rescaled version of series approximation, power 2 MB only
 
   // Newton-Raphson zoom support
 	struct CNewton N;                // XXX split that off
 #ifdef KF_EMBED
 	void ThNewton();
 #endif
-	BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
+	// S BOOL(SaveNewtonProgress)         // status files. No read-back, so of limited use
 
 // This part creates a nice image from the fractal
 
@@ -493,29 +503,18 @@ public:
 	COLOR14 m_cPos[1025];   // pre-calculated spread of m_cKeys, 1024 wide
 	COLOR14 GetColor(int i);
 
-	COLOR14 m_cKeys[1025];  // the color keys (set in the dialog)
-	COLOR14 GetKeyColor(int i);
-	void SetKeyColor(COLOR14 col, int i);
+	// P ColorArray m_cKeys;  // the color keys (set in the dialog)
+	inline COLOR14 GetKeyColor(int i) { return m_Settings->GetKeyColor(i); }
+	inline void SetKeyColor(COLOR14 col, int i) { ModSettings().SetKeyColor(col, i); }
 
-	int m_nParts;           // how many color keys are filled
-	inline void SetNumOfColors(int parts) { m_nParts = parts; }
-	inline int GetNumOfColors() const { return m_nParts; }
+	// P int m_nParts;           // how many color keys are filled
 
-	COLOR14 m_cInterior;    // uniform
-	COLOR14 GetInteriorColor() { return m_cInterior; };
-	void SetInteriorColor(const COLOR14 &c) { m_cInterior = c; };
+	// P COLOR14 m_cInterior;    // uniform
 
-	double m_nIterDiv;      // basic scaling of mapping the iter count to colors
-	inline double GetIterDiv() const { return m_nIterDiv; }
-	inline void SetIterDiv(double iterDiv) { if (iterDiv>0) m_nIterDiv = iterDiv; }
+	// double m_nIterDiv;      // basic scaling of mapping the iter count to colors
+	// P int m_nColorOffset;     // start pos in color list
 
-	int m_nColorOffset;     // start pos in color list
-	inline void SetColorOffset(int colorOffset) { m_nColorOffset = colorOffset % 1024; }
-	inline int GetColorOffset() const { return m_nColorOffset; }
-
-	double m_nPhaseColorStrength;
-	inline void SetPhaseColorStrength(double strength) { m_nPhaseColorStrength = strength; }
-	inline double GetPhaseColorStrength() const { return m_nPhaseColorStrength; }
+	// P double m_nPhaseColorStrength;
 
 	// these end up setting pixels
 	void OutputIterationData(int x, int y, int w, int h, bool glitch, int64_t antal, double test1, double test2, double phase, double bailout, const complex<double> &de, int power);
@@ -525,77 +524,84 @@ public:
 	Guess GuessPixel(int x, int y, int w, int h);
 
 
-	int m_nSeed;            // Seed for random colorization. Inconsistently used
-	inline int GetSeed() const { return m_nSeed; }
+	// P int m_nSeed;            // Seed for random colorization. Inconsistently used
 
 	// fill cKeys with random colors
-	void GenerateColors(int nParts, int nSeed = -1);
+	void GenerateColors(int nParts, int nSeed = -1) {
+		ModSettings().GenerateColors(nParts, nSeed);
+	}
 
 	// set r/g/b/y (ncol=0,1,2,3) to a sine wave
 	// if ncol&4, overlay a sine wave instead
-	void AddWave(int col, int period = -1, int start = -1);
+	void AddWave(int col, int period = -1, int start = -1) {
+		ModSettings().AddWave(col,period,start);
+	}
 
 	// Infinite waves?
-	MULTIWAVE m_MW[MULTIWAVE_MAX];  // see defs.h
-	int m_nMW;    // how many?
-	BOOL m_bMW;   // enabled?
-	BOOL m_bBlend; // blend them?
+	// P MultiWaveArray m_MW;  // see defs.h
+	// P int m_nMW;    // how many?
+	// P BOOL m_bMW;   // enabled?
+	// P BOOL m_bBlend; // blend them?
 
-	int GetMWCount();
-	void SetMW(BOOL MW, BOOL blend);
-	int GetMW(BOOL *blend = NULL);
-	BOOL GetMW(int index, int &nPeriod, int &start, int &type);
-	BOOL AddMW(int period, int start, int type);
-	BOOL UpdateMW(int index, int period, int start, int type);
-	BOOL DeleteMW(int index);
+	inline int GetMWCount() {
+		return ModSettings().GetMWCount();
+	}
+	inline bool GetMW(int index, int &period, int &start, int &type) {
+		return ModSettings().GetMW(index, period,start,type);
+	}
+	inline bool AddMW(int period, int start, int type) {
+		return ModSettings().AddMW(period,start,type);
+	}
+	inline bool UpdateMW(int index, int period, int start, int type) {
+		return ModSettings().UpdateMW(index, period,start,type);
+	}
+	inline bool DeleteMW(int index) {
+		return ModSettings().DeleteMW(index);
+	}
 
   // bitmap for the fractal colors
 	BITMAPINFOHEADER *m_bmi;          // bitmap header of fractal image bitmap
 	BYTE *m_lpBits;                   // fractal image bits (RGB / RGBA)
-	int m_nSizeImage;                 // bytes in m_bmi = m_lpBits
 #ifdef WINVER
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
 #endif
 #ifndef KF_EMBED
 	std::mutex m_mutex;                  // protect the stuff below
 #endif
-	void FreeBitmap();
 	void AllocateBitmap();
+	void FreeBitmap();
 	void ReinitializeBitmap();
 
 	int m_row;                        // Y stride (32-bit aligned)
+	int m_rowHalf;                    // Y stride (24-bit aligned)
 	size_t GetArrayHalfColourStride() { return m_row; };
 
   // how to transform iterations to color indices
-	ColorMethod m_nColorMethod;
-	void SetColorMethod(int colorMethod);
-	ColorMethod GetColorMethod();
+	// P ColorMethod m_nColorMethod;
 
   // color slopes
-	BOOL m_bSlopes;                   // whether to do them at all
-	int m_nSlopePower;
-	int m_nSlopeRatio;
-	int m_nSlopeAngle;
+	// P BOOL m_bSlopes;                   // whether to do them at all
+	// P int m_nSlopePower;
+	// P int m_nSlopeRatio;
+	// P int m_nSlopeAngle;
 	double m_nSlopeX, m_nSlopeY;      // cos/sin of the slope angle
+	void UpdateSlopes();              // called when the angle has changed
 	// accessors
-	BOOL GetSlopes(int &slopePower, int &slopeRatio, int &slopeAngle); // returns m_bSlopes
-	void SetSlopes(BOOL slope, int slopePower, int slopeRatio, int slopeAngle);
+	BOOL GetSlopes(int &slopePower, int &slopeRatio, int &slopeAngle); // returns current m_bSlopes
+	inline void SetSlopes(BOOL slope, int slopePower, int slopeRatio, int slopeAngle) {
+		ModSettings().SetSlopes(slope);
+		ModSettings().SetSlopePower(slopePower);
+		ModSettings().SetSlopeRatio(slopeRatio);
+		ModSettings().SetSlopeAngle(slopeAngle);
+	}
 
 
   // More coloring parameters
-	BOOL m_bFlat;      // flat colors
-	BOOL GetFlat() { return m_bFlat; }
-	void SetFlat(BOOL flat) { m_bFlat = flat; }
+	// P BOOL m_bFlat;      // flat colors
+	// P BOOL GetFlat() { return m_bFlat; }
+	// P void SetFlat(BOOL flat) { m_bFlat = flat; }
 
-	BOOL m_bTrans;     // smooth color transitions
-	BOOL GetTransition() { return m_bTrans; }
-	void SetTransition(BOOL transition) { m_bTrans = transition; }
-
-	BOOL m_bITrans;    // ?? inverse color transitions
-	BOOL GetITransition() { return m_bITrans; }
-	void SetITransition(BOOL iTransition) { m_bITrans = iTransition; }
-
-	BOOL(ShowGlitches) // show in uniform color?
+	// S BOOL(ShowGlitches) // show in uniform color?
 
   // Fast coloring? Use OpenGL!
 	bool UseOpenGL();  // initializes OpenGL if enabled+necessary. Returns true if useable+locked.
@@ -605,16 +611,11 @@ public:
 	int m_opengl_major; // info only
 	int m_opengl_minor;
 
-	bool m_bUseOpenGL;       // use it at all?
-	inline bool GetUseOpenGL() { return m_bUseOpenGL; }  // stored in settings
-	void SetUseOpenGL(bool gl);  // turns OpenGL off when !gl
-
+	// P bool m_bUseOpenGL;       // use it at all?
 	bool m_bBadOpenGL;       // init failed: unuseable.
 	inline bool GetBadOpenGL() { return m_bBadOpenGL; }
 
-	std::string m_sGLSL;     // current shader fragment
-	inline std::string GetGLSL() { return m_sGLSL; }
-	inline void SetGLSL(const std::string frag) { m_sGLSL = frag; }
+	// P std::string m_sGLSL;     // current shader fragment
 
 	std::string m_sGLSLLog;  // compilation log
 	inline std::string GetGLSLLog() { return m_sGLSLLog; } // compile log
@@ -623,32 +624,25 @@ public:
 	bool m_bGLSLChanged;     // changed since last compile attempt
 	bool m_bGLSLCompiled;    // false == not compileable
 
-	bool m_bUseSRGB;         // use SRGB colors?
-	inline bool GetUseSRGB() { return m_bUseSRGB; } // shader's SRGB flag
-	inline void SetUseSRGB(bool b) { m_bUseSRGB = b; }
+	// P bool m_bUseSRGB;         // use SRGB colors?
 
 	// Triangle Inequity Average coloring, requires OpenGL
-	bool m_bTriangleInequalityAverage;
-	bool GetTriangleInequalityAverage() { return m_bTriangleInequalityAverage; };
-	void SetTriangleInequalityAverage(bool b) { m_bTriangleInequalityAverage = b; if (b) SetNoApprox(true); };
+	// L bool m_bTriangleInequalityAverage;
 
 	// Distance estimation
-	Differences m_nDifferences;
-	void SetDifferences(int differences);
-	Differences GetDifferences();
+	// P Differences m_nDifferences;
 
   // Texture support
-	BOOL m_bTexture;                    // apply at all?
-	double m_nImgMerge;                 // 0…1 how much texture to apply
-	double m_nImgPower;                 // warping power
-	int m_nImgRatio;                    // Texture height/width ratio. Corrently fixed at 100
+	// P BOOL m_bTexture;                    // apply at all?
+	// P double m_nImgMerge;                 // 0…1 how much texture to apply
+	// P double m_nImgPower;                 // warping power
+	// P int m_nImgRatio;                    // Texture height/width ratio. Corrently fixed at 100
 
-	bool m_bTextureResize;              // dies loading the texture resize it to 
-	inline bool GetTextureResize() const { return m_bTextureResize; }
-	inline void SetTextureResize(bool resize) { m_bTextureResize = resize; }
+	// P bool m_bTextureResize;              // dies loading the texture resize it to 
 
 	BYTE *m_lpTextureBits;
-	std::string m_szTexture;            // file name
+	// P std::string m_szTexture;            // file name
+	//
 	BITMAPINFOHEADER m_bmiBkg;
 	int m_rowBkg;
 	TextureParams m_ActiveTextureParams;  // loaded currently
@@ -673,40 +667,38 @@ public:
 
 	//BOOL(HalfColour)     // pre-calculate m_imageHalf (if you know you'll export EXR eventually)
 	// Setter needs to alloc/destroy data
-	inline bool GetHalfColour() const { return m_Settings.GetHalfColour(); };
-	void SetHalfColour(bool b);
 
 	//INT(EXRChannels)          // bitmap which channels to save to EXR files
 	// unpacked to a struct for faster access
-	inline EXRChannels GetEXRChannels() const { return m_Settings.GetEXRChannels(); };
-	inline void SetEXRChannels(const EXRChannels x) { return m_Settings.SetEXRChannels(x); };
 
-	BOOL(EXRParallel)           // save w/ multiple tasks
-	BOOL(ExponentialMap)         // coordinate transform, for reassembly with zoomasm
+	// S BOOL(EXRParallel)           // save w/ multiple tasks
+	// S BOOL(ExponentialMap)         // coordinate transform, for reassembly with zoomasm
 
 	//
   // strictly GUI
 	bool m_bInteractive;     // do we have a GUI at all?
-#ifndef KF_EMBED
-	std::vector<std::string> m_undo;  // settings string lists for undo/redo
-	std::vector<std::string> m_redo;
 
-	void UndoStore() { m_undo.push_back(ToText()); m_redo.clear(); };
-	void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); OpenString(s); } };
-	void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); OpenString(s); } };
-#endif
+	std::vector<SP_Settings> m_undo;  // settings storage for undo/redo
+	std::vector<SP_Settings> m_redo;
 
-	DOUBLE(ZoomSize)             // zoom factor
-	BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
+	void UndoStore(SP_Settings old) {
+		m_undo.push_back(old);
+		m_redo.clear();
+	};
+	void Undo() { if (! m_undo.empty()) { auto s = m_undo.back(); m_undo.pop_back(); m_redo.push_back(s); ApplySettings(s); } };
+	void Redo() { if (! m_redo.empty()) { auto s = m_redo.back(); m_redo.pop_back(); m_undo.push_back(s); ApplySettings(s); } };
+
+	// S DOUBLE(ZoomSize)             // zoom factor
+	// S BOOL(AnimateZoom)        // animate zooming; currently only zoom factor 2 works correctly
 	void Zoom(double nZoomSize);
 	void Zoom(int xPos, int yPos, double zoomSize, BOOL reuseCenter = FALSE, bool centerView = false);
 	// 
-	INT(WindowWidth)         // window size, showing the (scaled) output image
-	INT(WindowHeight)
-	INT(Shrink)              // shrink quality (enum: fast default best sRGB)
+	// S INT(WindowWidth)         // window size, showing the (scaled) output image
+	// S INT(WindowHeight)
+	// S INT(Shrink)              // shrink quality (enum: fast default best sRGB)
 	//
-	BOOL(ArbitrarySize)      // flag: output to window ratio is not 1, XXX remove from config
-	BOOL(ShowCrossHair)      // small magnifier window. Doesn't work on WINE?
+	// S BOOL(ArbitrarySize)      // flag: output to window ratio is not 1, XXX remove from config
+	// S BOOL(ShowCrossHair)      // small magnifier window. Doesn't work on WINE?
 	//
 	// show special coloring
 	void ApplyIterationColors();
@@ -715,12 +707,12 @@ public:
 
   // OS GUI interface
   //
-	INT(WindowTop)
-	INT(WindowLeft)
-	INT(WindowBottom)
-	INT(WindowRight)
+	// S INT(WindowTop)
+	// S INT(WindowLeft)
+	// S INT(WindowBottom)
+	// S INT(WindowRight)
 	//
-	BOOL(SaveOverwrites)    // flag for Save to append a timestamp to the filename
+	// S BOOL(SaveOverwrites)    // flag for Save to append a timestamp to the filename
 	//
 
   // somewhat-useful statistics

@@ -330,7 +330,7 @@ extern INT_PTR WINAPI WindowSizeProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM
       int retval = 0;
       if (wParam == IDOK)
       {
-        g_SFT.UndoStore();
+        g_SFT.ApplyNewSettings();
         if (! refreshing)
         {
           refreshing = true;

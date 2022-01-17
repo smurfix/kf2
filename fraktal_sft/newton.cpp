@@ -1209,7 +1209,6 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 		if(lParam == 1){
 			// newton success
 			SetDlgItemText(hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew + "Done").c_str());
-			g_SFT.UndoStore();
 			g_SFT.Stop();
 			if (g_SFT.N.g_nr_action >= 3)
 			{
@@ -1235,6 +1234,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 				g_SFT.SetPosition(g_szRe,g_szIm,g_SFT.GetZoom());
 				g_SFT.N.g_bJustDidNewton = true;
 			}
+			g_SFT.ApplyNewSettings();
 			PostMessage(GetParent(hWnd),WM_KEYDOWN,VK_F5,0);
 		}
 		if(lParam == -1 && !g_SFT.N.g_bNewtonStop)
