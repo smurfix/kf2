@@ -2,10 +2,10 @@ WINPREFIXPLUS ?= /usr
 WINPREFIX ?= /usr
 SIMD ?= 4
 OPENCL ?= 1
-COMPILE ?= g++ -march=native
+COMPILE ?= g++-12 -march=native
 TYPEFLAGS ?= -march=native -fPIC -I ./embed/ -DKF_EMBED
 # -g -Og
-LINK ?= g++ -g
+LINK ?= g++-12
 LIBS ?= -lHalf -lmpfr -lgsl -lIlmImf -lglfw -lclew -lOpenCL -ljpeg -ltiff -lpng -lpixman-1 -ldl -lpthread
 WINDRES ?= false
 WINDRES2 ?= false
@@ -14,4 +14,3 @@ AR2 ?= ranlib
 XSLTPROC ?= xsltproc
 RM ?= rm -f
 GCC ?= gcc
-STD ?= c++17
