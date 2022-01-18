@@ -6,6 +6,9 @@
 #include <cstring>
 #include <boost/tokenizer.hpp>
 
+#include <ostream>
+#include <iostream>
+#include <windows.h>
 
 // printf
 std::string str_format(const std::string &fmt, ...);
@@ -51,6 +54,10 @@ static inline std::string strv_cat(const char *a, const char *b, bool c)
 // error
 template<typename T>
 static inline void throw_invalid(const char *msg, T var) {
+    std::cerr << msg << ": " << var << std::endl;
+#ifndef KF_EMBED
+    Sleep(1000);
+#endif
 	throw std::invalid_argument(strv_cat(msg,": ",var));
 }
 
