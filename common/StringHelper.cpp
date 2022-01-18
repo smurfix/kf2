@@ -8,7 +8,7 @@ int64_t str_atoi(std::string_view data)
 {
 	const std::string_view odata = data;
 
-	int64_t val;
+	int64_t val = 0;
 	bool neg;
 
 	if(data.length() == 0)
