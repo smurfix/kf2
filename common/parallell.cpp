@@ -62,8 +62,6 @@ CParallell::CParallell(int nParallell)
 	m_nParallell = nParallell;
 	m_ppExecute = NULL;
 	m_nExecute = 0;
-	m_lpfnTotalDone = NULL;
-	m_pDone = NULL;
 }
 CParallell::~CParallell()
 {
@@ -79,18 +77,12 @@ void CParallell::Reset()
 	m_ppExecute=NULL;
 }
 
-void CParallell::SetTotalDone(LPEXECUTE lpfnTotalDone,LPVOID pDone)
-{
-	m_lpfnTotalDone = lpfnTotalDone;
-	m_pDone = pDone;
-}
-int CParallell::AddFunction(LPEXECUTE lpfnExecute,LPVOID pParameter,LPEXECUTE lpfnDone)
+int CParallell::AddFunction(LPEXECUTE lpfnExecute,LPVOID pParameter)
 {
 	int i = m_nExecute++;
 	m_ppExecute = (EXECUTE**)realloc(m_ppExecute,sizeof(EXECUTE*)*m_nExecute);
 	m_ppExecute[i] = new EXECUTE;
 	m_ppExecute[i]->lpfnExecute = lpfnExecute;
-	m_ppExecute[i]->lpfnDone = lpfnDone;
 	m_ppExecute[i]->pParameter = pParameter;
 	return m_nExecute;
 }
@@ -107,15 +99,11 @@ int CParallell::Execute()
 	}
 	for(j=0;j<m_nExecute;j++){
 		m_ppExecute[j]->hThread.join();
-		if(m_ppExecute[j]->lpfnDone)
-			m_ppExecute[j]->lpfnDone(m_ppExecute[j]->pParameter);
 		if(i<m_nExecute){
 			m_ppExecute[i]->hThread = std::thread(Parallell_ThExecute,m_ppExecute[i]);
 			i++;
 		}
 	}
-	if(m_lpfnTotalDone)
-		m_lpfnTotalDone(m_pDone);
 	return 1;
 }
 

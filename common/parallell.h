@@ -29,11 +29,9 @@ class CParallell
 	struct EXECUTE{
 		std::thread hThread;
 		LPEXECUTE lpfnExecute;
-		LPEXECUTE lpfnDone;
 		LPVOID pParameter;
 	}**m_ppExecute;
 	int m_nExecute;
-	LPEXECUTE m_lpfnTotalDone;
 	LPVOID m_pDone;
 
 	int m_nParallell;
@@ -43,8 +41,7 @@ public:
 	CParallell(int nParallell);
 	~CParallell();
 
-	void SetTotalDone(LPEXECUTE lpfnTotalDone,LPVOID pDone);
-	int AddFunction(LPEXECUTE lpfnExecute, LPVOID pParameter, LPEXECUTE lpfnDone=NULL);
+	int AddFunction(LPEXECUTE lpfnExecute, LPVOID pParameter);
 	int Execute();
 	void Reset();
 	void SetStackSize(DWORD dwStackSize);
