@@ -125,9 +125,9 @@ public:
 	bool OpenMapEXR(const std::string &filename);
 
 	std::string ToText() { return m_Settings->ToText(true,true,true); };
-	BOOL SaveFile(const std::string &filename, bool overwrite) {
+	BOOL SaveFile(const std::string &filename, bool overwrite, bool useSettings=false, bool useParams=true, bool useLocation=true) {
 		PrepareSave();
-		return m_Settings->SaveFile(filename, overwrite, false, true, true);
+		return m_Settings->SaveFile(filename, overwrite, useSettings,useParams,useLocation);
 	}
 #ifdef WINVER
 	int SaveJpg(const std::string &filename, int quality, int width = 0, int height = 0);
