@@ -63,7 +63,7 @@ public:
 
 	inline Settings& ModSettings() {
 	  if(m_NewSettings == nullptr)
-		m_NewSettings = std::make_shared<Settings>(*m_Settings);
+		m_NewSettings = NEW_SETTINGS(*m_Settings);
 	  return *m_NewSettings;
 	}
 

@@ -94,6 +94,13 @@ Settings::Settings()
 #include "Settings.psc.inc"
 #include "Settings.lsc.inc"
 
+void Settings::SetParent(CFraktalSFT *p)
+{
+    if(parent && p && parent != p)
+        throw std::logic_error("parent already set");
+    parent = p;
+}
+
 bool Settings::operator==(const SP_Settings &other) const
 {
 #include "Settings.seq.inc"

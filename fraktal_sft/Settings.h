@@ -41,7 +41,13 @@ struct SettingsEntry
 class CFraktalSFT;
 
 class Settings;
+#if 0 // def WINVER
+typedef Settings* SP_Settings;
+#define NEW_SETTINGS new Settings
+#else
 typedef std::shared_ptr<Settings> SP_Settings;
+#define NEW_SETTINGS std::make_shared<Settings>
+#endif
 
 class Settings
 {
@@ -58,12 +64,8 @@ public:
   Settings();
   Settings(Settings &) = default;
 
-  CFraktalSFT *GetParent() { return parent; }
-  void SetParent(CFraktalSFT *p) {
-    if(parent)
-      throw std::logic_error("parent already set");
-    parent = p;
-  }
+  inline CFraktalSFT *GetParent() { return parent; }
+  void SetParent(CFraktalSFT *p);
   inline bool is_active() { return parent != nullptr; }
 
   bool FromText(const std::string &text, bool useSettings, bool useParams, bool useLocation);
