@@ -138,12 +138,10 @@ static double dither(uint32_t x, uint32_t y, uint32_t c)
   return burtle_hash(x + burtle_hash(y + burtle_hash(c))) / (double) (0x100000000LL);
 }
 
-CFraktalSFT::CFraktalSFT() {
-	CFraktalSFT(std::make_shared<Settings>());
-}
+CFraktalSFT::CFraktalSFT() : CFraktalSFT(std::make_shared<Settings>()) {}
 
 CFraktalSFT::CFraktalSFT(SP_Settings data)
-: m_Settings()
+: m_Settings(data)
 , m_NewSettings()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
@@ -249,7 +247,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 	m_nRDone = 0;
 	ResetTimers();
 
-	m_Settings = data;
 	if(!OpenNewSettings(nullptr)) {
 		std::cerr << "Could not apply settings." << std::endl << std::flush;
 		m_Settings = std::make_shared<Settings>();

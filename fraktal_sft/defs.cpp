@@ -84,7 +84,7 @@ int ColorArray::from_string(const std::string_view rgb)
 
 	while(found != std::string::npos)
 	{
-		int v = str_atoi(std::string_view(rgb.begin()+startIndex, found));
+		int v = str_atoi(std::string_view(rgb.begin()+startIndex, found-startIndex));
 		if (v < 0 || v > 255) throw_invalid("ColorArray:",rgb);
 		startIndex = found + 1;
 		found = rgb.find(",", startIndex);
