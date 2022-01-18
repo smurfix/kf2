@@ -51,7 +51,7 @@ static double g_skew[4];
 
 static std::string s_skew;
 
-static DWORD WINAPI ThSkewProgress(progress_t *progress)
+static void ThSkewProgress(progress_t *progress)
 {
   while (progress->running)
   {
@@ -65,10 +65,9 @@ static DWORD WINAPI ThSkewProgress(progress_t *progress)
     SetDlgItemText(progress->hWnd, IDC_TRANSFORMATION_STATUS, status);
   }
   SetEvent(progress->hDone);
-  return 0;
 }
 
-static int WINAPI ThSkew(HWND hWnd)
+static void ThSkew(HWND hWnd)
 {
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
@@ -116,7 +115,6 @@ static int WINAPI ThSkew(HWND hWnd)
   g_transformation_still_running = false;
   PostMessage(hWnd, WM_USER + 2, 0, ok);
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-  return 0;
 }
 
 static bool refreshing = false; // prevent infinite update loop

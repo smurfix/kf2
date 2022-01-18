@@ -47,7 +47,7 @@ struct mcthread
 	mcthread_common *common;
 };
 
-static DWORD WINAPI mcthreadfunc(mcthread *p0)
+static void mcthreadfunc(mcthread *p0)
 {
 #ifdef WINVER
 	SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
@@ -118,7 +118,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 	if (p->barrier->wait(p->stop))
 	{
 		mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-		return 0;
 	}
 	if (p0->nType == 2)
 	{
@@ -128,7 +127,6 @@ static DWORD WINAPI mcthreadfunc(mcthread *p0)
 		}
 	}
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
 }
 
 bool CFraktalSFT::CalculateReferenceThreaded()

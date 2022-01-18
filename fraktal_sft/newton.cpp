@@ -102,7 +102,7 @@ static std::string s_period, s_center, s_size, s_skew;
 static char g_szProgress[128];
 
 #ifndef KF_EMBED
-static DWORD WINAPI ThPeriodProgress(progress_t *progress)
+static void ThPeriodProgress(progress_t *progress)
 {
 	while (progress->running)
 	{
@@ -116,10 +116,9 @@ static DWORD WINAPI ThPeriodProgress(progress_t *progress)
 		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
-	return 0;
 }
 
-static DWORD WINAPI ThNewtonProgress(progress_t *progress)
+static void ThNewtonProgress(progress_t *progress)
 {
 	while (progress->running)
 	{
@@ -135,10 +134,9 @@ static DWORD WINAPI ThNewtonProgress(progress_t *progress)
 		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
-	return 0;
 }
 
-static DWORD WINAPI ThSizeProgress(progress_t *progress)
+static void ThSizeProgress(progress_t *progress)
 {
 	while (progress->running)
 	{
@@ -152,7 +150,6 @@ static DWORD WINAPI ThSizeProgress(progress_t *progress)
 		SetDlgItemText((HWND)progress->hWnd, IDC_NR_ZOOM_STATUS, (s_period + s_center + s_size + s_skew).c_str());
 	}
 	SetEvent(progress->hDone);
-	return 0;
 }
 #endif
 
@@ -223,7 +220,7 @@ struct BallPeriod
   BallPeriodCommon *c;
 };
 
-static DWORD WINAPI ThBallPeriod(BallPeriod *b)
+static void ThBallPeriod(BallPeriod *b)
 {
 #ifdef WINVER
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
@@ -306,7 +303,6 @@ static DWORD WINAPI ThBallPeriod(BallPeriod *b)
     }
   }
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-  return 0;
 }
 
 static int64_t ball_period_do(const complex<flyttyp> &center, flyttyp radius, int64_t maxperiod,int &steps, volatile bool *stop, progress_t *progress)
@@ -378,7 +374,7 @@ struct STEP_STRUCT
     std::thread hDone;
 	STEP_STRUCT_COMMON *common;
 };
-static DWORD WINAPI ThStep(STEP_STRUCT *t0)
+static void ThStep(STEP_STRUCT *t0)
 {
 #ifdef WINVER
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
@@ -435,7 +431,6 @@ static DWORD WINAPI ThStep(STEP_STRUCT *t0)
       break;
   }
   mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-  return 0;
 }
 
 extern floatexp m_d_domain_size(const complex<flyttyp> &c, int period, progress_t *progress)
@@ -677,7 +672,7 @@ static complex<floatexp> m_d_size(const complex<flyttyp> &nucleus, int64_t perio
 // XXX move those two to g_SFT
 
 #ifndef KF_EMBED
-static int WINAPI ThNewton(HWND hWnd)
+static void ThNewton(HWND hWnd)
 #else
 void CFraktalSFT::ThNewton()
 #endif
@@ -969,10 +964,6 @@ void CFraktalSFT::ThNewton()
 	g_SFT.N.g_bNewtonRunning=FALSE;
 	PostMessage(hWnd,WM_USER+2,0,bOK);
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-
-#ifdef WINVER
-	return 0;
-#endif
 }
 #undef g_SFT
 #undef hWnd

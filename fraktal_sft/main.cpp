@@ -845,7 +845,7 @@ static void UpdateBkpImage(ANIM *pAnim)
 	DeleteDC(dcBmp);
 	ReleaseDC(NULL,hDC);
 }
-static int WINAPI ThAnim_(ANIM *pAnim)
+static void ThAnim_(ANIM *pAnim)
 {
 	int nParts = 10;// * log((double)g_SFT.GetZoomSize())/log((double)2);
 	g_bAnim=true;
@@ -899,9 +899,8 @@ static int WINAPI ThAnim_(ANIM *pAnim)
 	ReleaseDC(pAnim->hWnd,hDC);
 	DeleteObject(pAnim->bmBmp);
 	delete pAnim;
-	return 0;
 }
-static int WINAPI ThAnim(ANIM *pAnim)
+static void ThAnim(ANIM *pAnim)
 {
 //#ifndef _DEBUG
 	try{
@@ -915,7 +914,6 @@ static int WINAPI ThAnim(ANIM *pAnim)
 	}
 //#endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
 }
 
 #endif // !KF_EMBED

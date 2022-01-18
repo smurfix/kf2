@@ -29,7 +29,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <cstring>
 
 #ifndef KF_EMBED
-static int WINAPI ThRenderFractal(CFraktalSFT *p)
+static void ThRenderFractal(CFraktalSFT *p)
 {
 	try{
 		p->RenderFractal();
@@ -47,11 +47,10 @@ static int WINAPI ThRenderFractal(CFraktalSFT *p)
 	}
 	p->m_bIsRendering = false;
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
 }
 #endif
 
-static int ThMandelCalc(TH_PARAMS *pMan)
+static void ThMandelCalc(TH_PARAMS *pMan)
 {
 #ifndef _DEBUG
 	try{
@@ -64,7 +63,6 @@ MessageBox(GetActiveWindow(),"Krash - 1","Krash",MB_OK);
 	}
 #endif
 	mpfr_free_cache2(MPFR_FREE_LOCAL_CACHE);
-	return 0;
 }
 
 static int ThMandelCalcNANOMB1(TH_PARAMS *pMan)
@@ -494,10 +492,9 @@ void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
 	}
 }
 
-static int ThCalcStart(TH_PARAMS *pMan)
+static void ThCalcStart(TH_PARAMS *pMan)
 {
 	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight());
-	return 0;
 }
 
 void CFraktalSFT::CalcStart()
