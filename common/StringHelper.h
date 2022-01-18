@@ -10,7 +10,7 @@
 // printf
 std::string str_format(const std::string &fmt, ...);
 
-static std::string strv_cat(const char *a, const char *b, std::string_view c)
+static inline std::string strv_cat(const char *a, const char *b, std::string_view c)
 {
     std::string res{a};
     res += b;
@@ -18,32 +18,32 @@ static std::string strv_cat(const char *a, const char *b, std::string_view c)
     return res;
 }
 
-static std::string strv_cat(const char *a, const char *b, const char* const c)
+static inline std::string strv_cat(const char *a, const char *b, const char* const c)
 {
 	return strv_cat(a,b,std::string_view(c));
 }
 
-static std::string strv_cat(const char *a, const char *b, const std::string& c)
+static inline std::string strv_cat(const char *a, const char *b, const std::string& c)
 {
 	return strv_cat(a,b,std::string_view(c));
 }
 
-static std::string strv_cat(const char *a, const char *b, double c)
+static inline std::string strv_cat(const char *a, const char *b, double c)
 {
 	return strv_cat(a,b,std::to_string(c));
 }
 
-static std::string strv_cat(const char *a, const char *b, int64_t c)
+static inline std::string strv_cat(const char *a, const char *b, int64_t c)
 {
 	return strv_cat(a,b,std::to_string(c));
 }
 
-static std::string strv_cat(const char *a, const char *b, int c)
+static inline std::string strv_cat(const char *a, const char *b, int c)
 {
 	return strv_cat(a,b,std::to_string(c));
 }
 
-static std::string strv_cat(const char *a, const char *b, bool c)
+static inline std::string strv_cat(const char *a, const char *b, bool c)
 {
 	return strv_cat(a,b, c ? "true" : "false");
 }
@@ -74,12 +74,6 @@ static inline boost::tokenizer<boost::char_separator<char>> str_iter(const std::
 // TODO create a simple key/value splitter
 typedef std::pair<std::string_view,std::string_view> KeyVal;
 
-static KeyVal str_keyval(const std::string_view i_str, const char* sep) {
-	std::size_t found = i_str.find(sep);
-	if(found == std::string::npos || found == 0)
-		return KeyVal("","");
-	return KeyVal(std::string_view(i_str).substr(0,found),std::string_view(i_str).substr(found+std::strlen(sep)));
-
-}
+KeyVal str_keyval(const std::string_view i_str, const char* sep);
 
 #endif

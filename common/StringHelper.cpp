@@ -92,3 +92,10 @@ std::string str_format(const std::string &fmt, ...) {
 		str.resize(n); // Make sure there are no trailing zero char
 	return str;
 }
+
+KeyVal str_keyval(const std::string_view i_str, const char* sep) {
+	std::size_t found = i_str.find(sep);
+	if(found == std::string::npos || found == 0)
+		return KeyVal("","");
+	return KeyVal(std::string_view(i_str).substr(0,found),std::string_view(i_str).substr(found+std::strlen(sep)));
+}
