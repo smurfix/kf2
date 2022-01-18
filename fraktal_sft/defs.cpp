@@ -107,12 +107,12 @@ int ColorArray::from_string(const std::string_view rgb)
 
 std::string MULTIWAVE::to_string() const
 {
-	return str_format("%d,%d,%d", nPeriod,nStart,nType);
+	return str_format("%d\t%d\t%d", nPeriod,nStart,nType);
 }
 
 void MULTIWAVE::from_string(std::string_view pst)
 {
-	std::vector<std::string> res = str_split(pst,",");
+	std::vector<std::string> res = str_split(pst,"\t");
 	if(res.size() != 3)
 		throw_invalid("MultiWave:",pst);
 	int c;
@@ -132,7 +132,7 @@ std::string MultiWaveArray::to_string(int n) const
 	for(int i=0;i<n;i++) {
 		MULTIWAVE c = at(i);
 		res += c.to_string();
-		res += "\t";
+		res += ",";
 	}
 	return res;
 }
@@ -141,7 +141,7 @@ int MultiWaveArray::from_string(std::string_view pst)
 {
 	int n=0;
 
-	for (const auto& it : str_iter(pst, "\t"))
+	for (const auto& it : str_iter(pst, ","))
 	{
 		if(it.length() == 0)
 			continue;
