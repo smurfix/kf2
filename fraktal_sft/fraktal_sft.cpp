@@ -3282,7 +3282,7 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 {
 	if (!m_nPixels)
 		return;
-	std::ofstream hFile(szFile);
+	std::ofstream hFile(szFile, std::ios::out | std::ios::binary | std::ios::trunc);
 	int x, y;
 	for (y = 0; y<m_nY; y++){
 		for (x = 0; x<m_nX; x++) {
@@ -3301,7 +3301,7 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
 	}
 	char *szC = stColors.ToText("", ",");
-	hFile << szC << std::endl;
+	hFile << szC << "\r\n";
 	stColors.DeleteToText(szC);
 	hFile.close();
 }

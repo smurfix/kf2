@@ -364,7 +364,7 @@ static std::string glsl_unescape(const std::string &s)
 bool Settings::FromText(const std::string &text, bool useSettings, bool useParams, bool useLocation)
 {
   char *data = strdup(text.c_str());
-  CStringTable s(data, ": ", "\n");
+  CStringTable s(data, ": ", "\r\n");
 
   if(useParams && GetOpenResetsParameters()) {
     // XXX do we want to trigger that off the version number instead?
@@ -564,7 +564,7 @@ std::string Settings::ToText(bool useSettings, bool useParams, bool useLocation)
   { s.AddRow(); s.AddString(s.GetCount() - 1, "ImageHeight"); s.AddInt(s.GetCount() - 1, m_nY*m_TargetSupersample); }
 
   { s.AddRow(); s.AddString(s.GetCount() - 1, "SettingsVersion"); s.AddInt(s.GetCount() - 1, kfs_version_number); }
-  char *data = s.ToText(": ", "\n");
+  char *data = s.ToText(": ", "\r\n");
   std::string r(data);
   s.DeleteToText(data);
   return r;
@@ -592,7 +592,7 @@ bool Settings::OpenFile(const std::string &filename, bool useSettings, bool useP
 	}
 	else // anything else, probably .kfr/.kfs
 	{
-                std::ifstream hFile(filename, std::ios::in);
+                std::ifstream hFile(filename, std::ios::in | std::ios::binary);
                 if (!hFile)
                         return FALSE;
 
@@ -614,7 +614,7 @@ bool Settings::SaveFile(const std::string &filename, bool overwrite, bool useSet
     if(!overwrite && PathFileExists(filename.c_str()))
         return false;
 #endif
-    std::ofstream hFile(filename, std::ios::trunc);
+    std::ofstream hFile(filename, std::ios::out | std::ios::binary | std::ios::trunc);
     if(!hFile)
         return false;
 

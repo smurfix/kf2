@@ -583,8 +583,8 @@ static bool SaveNewtonBackup(CFraktalSFT &g_SFT, const std::string &szFile, cons
 	stSave.AddRow();
 	stSave.AddString(stSave.GetCount() - 1, "Period");
 	stSave.AddInt   (stSave.GetCount() - 1, period);
-	char *szData = stSave.ToText(": ", "\n");
-	std::ofstream hFile(szFile);
+	char *szData = stSave.ToText(": ", "\r\n");
+	std::ofstream hFile(szFile, std::ios::out | std::ios::binary | std::ios::trunc);
 	if(!hFile )
 	{
 		stSave.DeleteToText(szData);

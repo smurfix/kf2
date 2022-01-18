@@ -20,8 +20,9 @@ int64_t str_atoi(std::string_view data)
 			throw_invalid("empty",data);
 	}
 	for (const auto& c : data) {
-		if (c < '0' || '9' < c)
+		if (c < '0' || '9' < c) {
 			throw_invalid("not a number",odata);
+		}
 		val = val*10 + c-'0';
 	}
 	if(neg)

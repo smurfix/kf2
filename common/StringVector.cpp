@@ -102,7 +102,7 @@ void kr_free(void *ap,BOOL bNoCheck=0)
 		char szDmp[256];
 		GetModuleFileName(GetModuleHandle(NULL),szDmp,sizeof(szDmp));
 		strcat(szDmp,".dmp");
-		hFile = std::ofstream(szDmp, std::ios::binary);
+		hFile = std::ofstream(szDmp, std::ios::out | std::ios::binary);
 		if(hFile) {
 			wsprintf(szDmp,"Trailer overwritten. Size: %d, Data:\r\n\r\n",bp->s.size*sizeof(Header));
 			hFile.write(szDmp,strlen(szDmp));
@@ -828,7 +828,7 @@ CStringTable::CStringTable(CStringTable &st)
 
 bool CStringTable::ReadCSV(char *szFileName)
 {
-	std::ifstream hFile(szFileName);
+	std::ifstream hFile(szFileName, std::ios::in | std::ios::binary);
 	if(!hFile)
 		return 0;
 
@@ -839,7 +839,7 @@ bool CStringTable::ReadCSV(char *szFileName)
 
 	std::string data = buffer.str();
 	AddRow();
-	SplitString(data.c_str(),";","\n");
+	SplitString(data.c_str(),";","\r\n");
 	return true;
 }
 

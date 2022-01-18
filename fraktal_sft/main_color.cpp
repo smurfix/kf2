@@ -71,7 +71,7 @@ static void HSVToRGB(double hue, double sat, double bri, COLOR14 &cPos)
 
 static bool write_file(const std::string &filename, const std::string &data)
 {
-	std::ofstream out(filename);
+	std::ofstream out(filename, std::ios::out | std::ios::trunc);
 	out << data;
 	out.close();
 	return !!out;
