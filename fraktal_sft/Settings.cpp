@@ -77,6 +77,13 @@ Settings::Settings()
     }
 
     SetTransformMatrix(mat2(1.0, 0.0, 0.0, 1.0));
+
+    if(m_nX < 5)
+        m_nX = m_TargetWidth*m_TargetSupersample;
+    if(m_nY < 5)
+        m_nY = m_TargetHeight*m_TargetSupersample;
+    if(m_nX < 5 || m_nY < 5)
+        throw_invalid("Settings init","size broken");
 }
 
 #include "Settings.sgc.inc"
