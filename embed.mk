@@ -14,3 +14,4 @@ AR2 ?= ranlib
 XSLTPROC ?= xsltproc
 RM ?= rm -f
 GCC ?= gcc
+DEBUG ?= -O0 -g -D_DEBUG

@@ -41,7 +41,7 @@ struct SettingsEntry
 class CFraktalSFT;
 
 class Settings;
-#if 0 // def WINVER
+#if defined(WINVER) && defined(_DEBUG)
 typedef Settings* SP_Settings;
 #define NEW_SETTINGS new Settings
 #else
