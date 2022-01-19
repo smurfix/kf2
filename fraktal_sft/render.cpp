@@ -305,6 +305,10 @@ void CFraktalSFT::RenderFractal()
 		delete[] pMan;
 	}
 	m_bAddReference = FALSE;
+
+	m_timer_perturbation_wall += get_wall_time() - wall;
+	m_timer_perturbation_cpu += get_cpu_time() - cpu;
+
 #ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
 	{
@@ -313,9 +317,6 @@ void CFraktalSFT::RenderFractal()
 	}
 	m_bNoPostWhenDone = FALSE;
 #endif
-
-	m_timer_perturbation_wall += get_wall_time() - wall;
-	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
 
 void CFraktalSFT::RenderFractalNANOMB1()
