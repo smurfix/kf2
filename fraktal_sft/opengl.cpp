@@ -904,8 +904,9 @@ const char *blit_frag =
         }
       }
 
+#ifdef KF_OPENGL_THREAD
 static void opengl_loop(OpenGL_processor *proc)
 {
     proc->th_handler();
 }
-
+#endif
