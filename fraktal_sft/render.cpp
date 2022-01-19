@@ -124,6 +124,8 @@ void CFraktalSFT::RenderFractal()
 	if (! m_bAddReference)
 	{
 		// we are starting off.
+		m_needRender = false;
+
 		m_count_queued = m_nX * m_nY;
 		m_count_good_guessed = 0;
 		m_count_good = 0;

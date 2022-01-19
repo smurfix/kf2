@@ -67,8 +67,6 @@ public:
 	  return *m_NewSettings;
 	}
 
-
-
 	std::string m_szFile;
 
 private:
@@ -109,7 +107,7 @@ public:
 
 private:
 
-    bool CloseOldSettings(SP_Settings data);
+    void CloseOldSettings(SP_Settings data);
     bool OpenNewSettings(SP_Settings data);
 
 public:
@@ -364,6 +362,11 @@ public:
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 #endif
+
+	bool m_needRender;
+	bool GetNeedRender() { return m_needRender; }
+	void SetNeedRender();
+
 	bool m_bIsRendering;
 
 	inline bool GetIsRendering() { return m_bIsRendering; };

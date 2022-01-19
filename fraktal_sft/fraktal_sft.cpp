@@ -145,6 +145,7 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 , m_NewSettings()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
+, m_needRender(false)
 , m_bIsRendering(false)
 , m_bStop(false)
 #ifdef KF_OPENCL
@@ -268,31 +269,41 @@ void CFraktalSFT::PrepareSave()
 	SetPeriod(N.g_period);
 }
 
+void CFraktalSFT::SetNeedRender()
+{
+	// TODO send a signal to the UI instead of relying on polling
+	// (but only if needRender is False)
+	if (m_bIsRendering)
+		throw_invalid("Render is running","set needRender");
+	m_needRender = true;
+}
+
 #define C(N) || !(m_Settings->Get ## N () == data->Get ## N ())
 
-bool CFraktalSFT::CloseOldSettings(SP_Settings data)
+void CFraktalSFT::CloseOldSettings(SP_Settings data)
 {
 	// The old settings are active. DATA are the new settings.
 	// If DATA is nullptr, we are shutting down.
 	//
-	if(!data) {
-		if(m_bIsRendering)
+	if(m_bIsRendering) {
+		if(!data)
 			throw_invalid("Render is running","shutdown");
-		StopUseOpenGL();
+
+		if(!data C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
+			throw_invalid("Render is running","formula");
+
+		if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample))
+			throw_invalid("Render is running","resize");
 	}
 
-	if(!data C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
-		if(m_bIsRendering)
-			throw_invalid("Render is running","formula");
-	}
+	if(!data) // shutting down, so we definitely don't need it any more
+		StopUseOpenGL();
+
 	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
-		if(m_bIsRendering)
-			throw_invalid("Render is running","resize");
 		FreeBitmap();
 		DeleteArrays();
 	}
 	m_Settings->SetParent(nullptr);
-	return true;
 }
 
 bool CFraktalSFT::OpenNewSettings(SP_Settings data)
@@ -308,6 +319,7 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
 		SetupArrays();
 		AllocateBitmap();
+		SetNeedRender();
 
 		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
 		m_fPixelSpacing = floatexp(pixel_spacing);
@@ -318,8 +330,10 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 		m_iref.m_f.precision(m_digits10);    
 	}
 
-	if(!data C(Power))
+	if(!data C(Power)) {
 		UpdatePower();
+		SetNeedRender();
+	}
 	if(GetUseHybridFormula())
 		SetReferenceStrictZero(true);
 	if(!data C(SlopeAngle))
@@ -359,13 +373,15 @@ void CFraktalSFT::UpdateDerivativeGlitch()
 
 bool CFraktalSFT::ApplySettings(SP_Settings data)
 {
-	if(!CloseOldSettings(data))
-		return false;
+    if(m_Settings == nullptr) throw;
+	if(data == nullptr) throw;
+	CloseOldSettings(data);
 
 	SP_Settings old = m_Settings;
+	if(old == nullptr) throw;
 	m_Settings = data;
 
-	if(OpenNewSettings(data))
+	if(OpenNewSettings(old))
 		return true;
 	m_Settings = old;
 	if(OpenNewSettings(nullptr))
@@ -1325,7 +1341,6 @@ CFraktalSFT::~CFraktalSFT()
 {
 	DeleteArrays();
 
-
 	delete[] m_APr;
 	delete[] m_APi;
 	delete m_APs;
@@ -1405,7 +1420,7 @@ void CFraktalSFT::Mirror(int x, int y)
 void CFraktalSFT::SetupArrays()
 {
 	if (m_nX == 0 || m_nY == 0)
-		return;
+		throw;
 	
 	bool two = GetIterations() >= UINT32_MAX;
 	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
@@ -1425,8 +1440,6 @@ void CFraktalSFT::SetupArrays()
 		m_nDEy[x] = m_nDEy[0] + x * m_nY;
 	}
 	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
-
-	AllocateBitmap();
 }
 
 void CFraktalSFT::DeleteArrays()
