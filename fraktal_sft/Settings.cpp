@@ -86,6 +86,15 @@ Settings::Settings()
         throw_invalid("Settings init","size broken");
 }
 
+Settings::Settings(Settings &orig)
+: is_default(false)
+, parent(nullptr)
+{
+#include "Settings.scc.inc"
+#include "Settings.lcc.inc"
+#include "Settings.pcc.inc"
+}
+
 #include "Settings.sgc.inc"
 #include "Settings.pgc.inc"
 #include "Settings.lgc.inc"

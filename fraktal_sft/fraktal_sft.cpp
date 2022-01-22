@@ -312,6 +312,7 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 	//
 	m_Settings->SetParent(this);
 
+	Settings &orig = *m_Settings;
 #include "Settings.scs.inc"
 #include "Settings.lcs.inc"
 #include "Settings.pcs.inc"

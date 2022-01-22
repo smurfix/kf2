@@ -62,7 +62,7 @@ private:
 
 public:
   Settings();
-  Settings(Settings &) = default;
+  Settings(Settings &);
 
   inline CFraktalSFT *GetParent() { return parent; }
   void SetParent(CFraktalSFT *p);

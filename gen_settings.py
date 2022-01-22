@@ -36,6 +36,7 @@ TYPES = {
     "hr": "hash read (Settings: copy data from string)",
     "hw": "hash write (Settings: copy data to string)",
     "cs": "Settings-to-CFraktal copy",
+    "cc": "Settings-to-Settings copy",
     "eq": "Equality test (settings) to 'other'",
 }
 
@@ -241,7 +242,13 @@ class _Var:
     def gen_cs(self):
         """copy to private"""
         return f"""\
-    p_{self.varname} = m_Settings->Get{self.gsname}();
+    p_{self.varname} = orig.Get{self.gsname}();
+"""
+
+    def gen_cc(self):
+        """copy to settings"""
+        return f"""\
+    {self.varname} = orig.{self.varname};
 """
 
     def gen_dv(self):
@@ -527,10 +534,16 @@ class Var_L(Var_s):
         return res
 
     def gen_cs(self):
-        """Settings-to-CF assignment."""
         res = super().gen_cs()
         res += f"""\
-            p_{self.countname} = m_Settings->Get{self.cgsname}();
+            p_{self.countname} = orig.Get{self.cgsname}();
+"""
+        return res
+
+    def gen_cc(self):
+        res = super().gen_cc()
+        res += f"""\
+            {self.countname} = orig.{self.countname};
 """
         return res
 
