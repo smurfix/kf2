@@ -32,14 +32,14 @@ void CFraktalSFT::CalculateReference(const enum Reference_Type reftype)
 		reference_delete(m_Reference);
 		m_Reference = nullptr;
 	}
-	m_Reference = reference_new(m_nMaxIter, GetReferenceStrictZero(), reftype, GetUseHybridFormula() ? false : is_convergent(m_nFractalType, m_nPower), GetUseHybridFormula() ? 1 : reference_glitches(m_nFractalType, m_nPower));
+	m_Reference = reference_new(m_nMaxIter, m_ReferenceStrictZero, reftype, m_UseHybridFormula ? false : is_convergent(m_nFractalType, m_nPower), m_UseHybridFormula ? 1 : reference_glitches(m_nFractalType, m_nPower));
 
 	double terminate = SMOOTH_BAILOUT*SMOOTH_BAILOUT;
 	int64_t nMaxIter = m_nMaxIter;
 
-	if (GetUseHybridFormula())
+	if (m_UseHybridFormula)
 	{
-		bool ok = reference_hybrid(GetHybridFormula(), m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, m_SeedR, m_SeedI, terminate, GetGlitchLowTolerance());
+		bool ok = reference_hybrid(m_HybridFormula, m_Reference, m_bStop, m_nRDone, m_nMaxIter, m_rref, m_iref, m_SeedR, m_SeedI, terminate, GetGlitchLowTolerance());
 		assert(ok && "calculate_reference_hybrid");
 	}
 

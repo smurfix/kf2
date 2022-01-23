@@ -101,7 +101,7 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 
 	m_bIsRendering = true;
 
-	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
+	if (bNoThread || (m_UseOpenCL && ! m_OpenCLThreaded)){
 		if (m_hWnd)
 			SetTimer(m_hWnd, 0, 100, NULL);
 		ThRenderFractal(this);
@@ -255,7 +255,7 @@ void CFraktalSFT::RenderFractal()
 		m_count_good_guessed = 0; // FIXME OpenCL progress doesn't track guessing
 		m_count_good = m_nX * m_nY - m_count_queued;
 		RenderFractalOpenCL(reftype);
-		if (GetGlitchCenterMethod() != 0)
+		if (m_GlitchCenterMethod != 0)
 		{
 			m_count_good += m_count_queued - m_OpenCL_Glitched_Count;
 			m_count_queued = m_OpenCL_Glitched_Count;
@@ -268,7 +268,7 @@ void CFraktalSFT::RenderFractal()
 
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 		if (nParallel < 1) nParallel = 1;
 		int nStep = m_nX / nParallel;
 		int nXStart = 0;
@@ -351,7 +351,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+	int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 	if (nParallel < 1) nParallel = 1;
 	CParallell P(
 #ifdef _DEBUG
@@ -433,7 +433,7 @@ void CFraktalSFT::RenderFractalNANOMB2()
 	CalcStart();
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+	int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 	if (nParallel < 1) nParallel = 1;
 	CParallell P(
 #ifdef _DEBUG
@@ -497,7 +497,7 @@ void CFraktalSFT::CalcStart(int x0, int x1, int y0, int y1)
 
 static void ThCalcStart(TH_PARAMS *pMan)
 {
-	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight());
+	pMan->p->CalcStart(pMan->nXStart, pMan->nXStop, 0, pMan->p->m_nY);
 }
 
 void CFraktalSFT::CalcStart()
@@ -505,7 +505,7 @@ void CFraktalSFT::CalcStart()
 	if (!m_bAddReference){
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 		if (nParallel < 1) nParallel = 1;
 		CParallell P(
 #ifdef _DEBUG

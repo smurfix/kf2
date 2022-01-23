@@ -257,7 +257,7 @@ extern INT_PTR WINAPI HybridProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lPa
       SendMessage(hWnd, WM_SETICON, ICON_BIG, LPARAM(g_hIcon));
 
       // set widgets according to formula
-      const hybrid_formula h = g_SFT.GetHybridFormula();
+      const hybrid_formula h = g_SFT.m_HybridFormula;
       bool loop_start_1 = h.loop_start == 0;
       bool loop_start_2 = h.loop_start == 1;
       bool loop_start_3 = h.loop_start == 2;

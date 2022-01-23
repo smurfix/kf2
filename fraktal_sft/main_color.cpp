@@ -397,7 +397,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		SetDlgItemInt(hWnd,IDC_EDIT1,g_SFT.GetNumOfColors(),FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT2,g_SFT.GetSeed(),FALSE);
-		snprintf(szTmp,256,"%.12g",g_SFT.GetIterDiv());
+		snprintf(szTmp,256,"%.12g",g_SFT.m_nIterDiv);
 		SetDlgItemText(hWnd,IDC_EDIT3,szTmp);
 		SetDlgItemInt(hWnd,IDC_EDIT12,g_SFT.GetColorOffset(),FALSE);
 		SendDlgItemMessage(hWnd,IDC_SPIN1,UDM_SETRANGE,0,MAKELONG(1024,2));
@@ -406,8 +406,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SendDlgItemMessage(hWnd,IDC_SPIN6,UDM_SETRANGE,0,MAKELONG(100,1));
 		SendDlgItemMessage(hWnd,IDC_SPIN7,UDM_SETRANGE,0,MAKELONG(100,1));
 		SendDlgItemMessage(hWnd,IDC_SPIN8,UDM_SETRANGE,0,MAKELONG(360,-360));
-		int nSP, nSC, nSA;
-		SendDlgItemMessage(hWnd,IDC_CHECK4,BM_SETCHECK,g_SFT.GetSlopes(nSP,nSC,nSA),0);
+		int nSP = g_SFT.GetSlopePower();
+		int nSC = g_SFT.GetSlopeRatio();
+		int nSA = g_SFT.GetSlopeAngle();
+		SendDlgItemMessage(hWnd,IDC_CHECK4,BM_SETCHECK,g_SFT.GetSlopes(),0);
 		SetDlgItemInt(hWnd,IDC_EDIT20,nSP,FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT21,nSC,FALSE);
 		SetDlgItemInt(hWnd,IDC_EDIT22,nSA,FALSE);
@@ -638,7 +640,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			while(i<g_SFT.GetMWCount())
 				g_SFT.DeleteMW(i);
 
-			g_SFT.SetSlopes(SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0),GetDlgItemInt(hWnd,IDC_EDIT20,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT21,NULL,FALSE),GetDlgItemInt(hWnd,IDC_EDIT22,NULL,TRUE));
+			g_SFT.SetSlopes(SendDlgItemMessage(hWnd,IDC_CHECK4,BM_GETCHECK,0,0));
+			g_SFT.SetSlopePower(GetDlgItemInt(hWnd,IDC_EDIT20,NULL,FALSE));
+			g_SFT.SetSlopeRatio(GetDlgItemInt(hWnd,IDC_EDIT21,NULL,FALSE));
+			g_SFT.SetSlopeAngle(GetDlgItemInt(hWnd,IDC_EDIT22,NULL,TRUE));
 
 			if (g_AutoColour || ((! g_AutoColour) && g_AutoUpdate == 0))
 			{
@@ -1205,8 +1210,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		int x = p.x*g_SFT.GetImageWidth()/rc.right;
-		int y = p.y*g_SFT.GetImageHeight()/rc.bottom;
+		int x = p.x*g_SFT.m_nX/rc.right;
+		int y = p.y*g_SFT.m_nY/rc.bottom;
 		int i = g_SFT.GetColorIndex(x,y);
 		i/=(1024/g_SFT.GetNumOfColors());
 		SendDlgItemMessage(hWnd,IDC_LIST1,LB_SETCURSEL,i,0);
@@ -1234,8 +1239,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		GetWindowRect(g_hwStatus,&sr);
 		sr.bottom-=sr.top;
 		rc.bottom-=sr.bottom;
-		int x = p.x*g_SFT.GetImageWidth()/rc.right;
-		int y = p.y*g_SFT.GetImageHeight()/rc.bottom;
+		int x = p.x*g_SFT.m_nX/rc.right;
+		int y = p.y*g_SFT.m_nY/rc.bottom;
 
 		int i = g_SFT.GetColorIndex(x,y);
 		i/=(1024/g_SFT.GetNumOfColors());

@@ -54,12 +54,12 @@ extern int CFraktalSFT::SaveEXR
 {
   try
   {
-    int64_t maxiter = GetIterations();
-    int arrWidth = GetImageWidth();
-    int arrHeight = GetImageHeight();
+    int64_t maxiter = m_nMaxIter;
+    int arrWidth = m_nX;
+    int arrHeight = m_nY;
     const itercount_array &count = GetArrayCount();
     const float *trans = GetArrayTrans();
-    const EXRChannels C = GetEXRChannels();
+    const EXRChannels C = m_EXRChannels;
      
     setGlobalThreadCount(nParallel);
     // prepare arrays with proper format

@@ -560,7 +560,7 @@ static int m_d_nucleus_step(complex<flyttyp> *c_out, const complex<flyttyp> &c_g
 
 static bool SaveNewtonBackup(CFraktalSFT &g_SFT, const std::string &szFile, const std::string &re, const std::string &im, const std::string &zoom, int64_t period)
 {
-	if (! g_SFT.GetSaveNewtonProgress())
+	if (! g_SFT.m_SaveNewtonProgress)
 		return true;
 #if 0
 	bool overwrite = true; // FIXME
@@ -685,8 +685,8 @@ void CFraktalSFT::ThNewton()
 	#define g_SFT (*this)
 	#define hWnd ((void*)this)
 #endif
-	const int type = g_SFT.GetFractalType();
-	const int power = g_SFT.GetPower();
+	const int type = g_SFT.m_nFractalType;
+	const int power = g_SFT.m_nPower;
 	const struct formula *f = get_formula(type, power);
 	g_SFT.N.g_skew[0] = 1;
 	g_SFT.N.g_skew[1] = 0;
@@ -694,7 +694,7 @@ void CFraktalSFT::ThNewton()
 	g_SFT.N.g_skew[3] = 1;
 
 	flyttyp radius = g_SFT.GetZoom();
-	radius*=g_SFT.GetZoomSize();
+	radius*=g_SFT.m_ZoomSize;
 	const char *e = strstr(g_szZoom.c_str(),"E");
 	if(!e)
 		e = strstr(g_szZoom.c_str(),"e");
@@ -717,10 +717,10 @@ void CFraktalSFT::ThNewton()
 	  pprogr.detach();
 #endif
 
-	  if (g_SFT.GetUseHybridFormula())
+	  if (g_SFT.m_UseHybridFormula)
 	  {
 		  flyttyp r = flyttyp(4) / radius;
-		  g_SFT.N.g_period = hybrid_period(g_SFT.GetHybridFormula(), INT_MAX, center.m_r, center.m_i, r, &g_SFT.N.g_skew[0], &g_SFT.N.running, &progress.counters[0]);
+		  g_SFT.N.g_period = hybrid_period(g_SFT.m_HybridFormula, INT_MAX, center.m_r, center.m_i, r, &g_SFT.N.g_skew[0], &g_SFT.N.running, &progress.counters[0]);
 	  }
 	  else if (type == 0 && power == 2)
 	  {
@@ -780,13 +780,13 @@ void CFraktalSFT::ThNewton()
 #endif
 		complex<flyttyp> c;
 		int test = 1;
-		if (g_SFT.GetUseHybridFormula())
+		if (g_SFT.m_UseHybridFormula)
 		{
 		    // c = center; // seems to copy precision too, so do it low-level...
 		    mpfr_set(c.m_r.m_dec.backend().data(), center.m_r.m_dec.backend().data(), MPFR_RNDN);
 		    mpfr_set(c.m_i.m_dec.backend().data(), center.m_i.m_dec.backend().data(), MPFR_RNDN);
 		    flyttyp epsilon2 = flyttyp(1)/(radius*radius*radius);
-		    test = hybrid_newton(g_SFT.GetHybridFormula(), 100, g_SFT.N.g_period, c.m_r, c.m_i, epsilon2, &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
+		    test = hybrid_newton(g_SFT.m_HybridFormula, 100, g_SFT.N.g_period, c.m_r, c.m_i, epsilon2, &g_SFT.N.running, &progress.counters[0]) ? 0 : 1;
 		    flyttyp r = flyttyp(4) / radius;
 		    if (! (cabs2(c - center) < r * r))
 		      test = 1;
@@ -854,15 +854,15 @@ void CFraktalSFT::ThNewton()
 				  msize = 1;
 				}
 				else
-				if (g_SFT.GetUseHybridFormula())
+				if (g_SFT.m_UseHybridFormula)
 				{
 					if (g_SFT.N.g_nr_zoom_target <= 1)
 					{
-						hybrid_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
+						hybrid_size(g_SFT.m_HybridFormula, g_SFT.N.g_period, c.m_r, c.m_i, msize, g_SFT.N.g_skew, &g_SFT.N.running, &progress.counters[0]);
 					}
 					else
 					{
-						hybrid_domain_size(g_SFT.GetHybridFormula(), g_SFT.N.g_period, c.m_r, c.m_i, msize, &g_SFT.N.running, &progress.counters[0]);
+						hybrid_domain_size(g_SFT.m_HybridFormula, g_SFT.N.g_period, c.m_r, c.m_i, msize, &g_SFT.N.running, &progress.counters[0]);
 					}
 				}
 				else if (type == 0 && power == 2)
@@ -932,9 +932,9 @@ void CFraktalSFT::ThNewton()
 						floatexp start = floatexp(flyttyp(g_szZoom));
 						floatexp target = floatexp(2 / factor) / floatexp(msize);
 						g_szZoom = (exp(log(start) * (1 - power) + power * log(target))).toString();
-						double start_iterations = g_SFT.GetIterations();
+						double start_iterations = g_SFT.m_nMaxIter;
 						double target_iterations = 100 * g_SFT.N.g_period;
-						g_SFT.N.g_iterations = std::min(std::max(start_iterations * log(g_SFT.GetPower() / (1 - std::min(1.0, power))) / log(g_SFT.GetPower()), start_iterations), target_iterations);
+						g_SFT.N.g_iterations = std::min(std::max(start_iterations * log(g_SFT.m_nPower / (1 - std::min(1.0, power))) / log(g_SFT.m_nPower), start_iterations), target_iterations);
 #ifndef KF_EMBED
 						bOK = 1;
 #endif
@@ -1166,7 +1166,7 @@ T(IDCANCEL2                                   , "Click to cancel the Newton-Raph
 	}
 	if(uMsg==WM_USER+1){
 		if(!g_SFT.N.g_bNewtonRunning){
-			mat2 m = g_SFT.GetTransformMatrix();
+			const mat2 &m = g_SFT.m_TransformMatrix;
 			g_SFT.N.g_skew[0] = m[0][0];
 			g_SFT.N.g_skew[1] = m[0][1];
 			g_SFT.N.g_skew[2] = m[1][0];

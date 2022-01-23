@@ -28,11 +28,11 @@ void CFraktalSFT::CalculateReferenceNANOMB2()
 
 	Precision prec(m_rref.m_f.precision());
 	complex<decNumber> c(m_rref.m_f, m_iref.m_f);
-	int m = GetOrderM();
-	int n = GetOrderN();
+	int m = m_OrderM;
+	int n = m_OrderN;
 	int64_t maxperiod = N.g_period ? N.g_period : m_nMaxIter;
 	floatexp r0(m_fPixelSpacing * hypot(m_nX, m_nY));
-	floatexp radius_scale(GetRadiusScale());
+	floatexp radius_scale(m_RadiusScale);
 
 	if (m_NanoMB2Ref)
 	{

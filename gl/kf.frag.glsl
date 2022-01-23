@@ -2163,13 +2163,13 @@ vec3 KF_Palette(float ix)
   // to get neighbouring colours in 1024-palette
   // and then linear-interpolate those (if smoothing is desired)
   // c0, c1 are neighbouring colours in n-palette with interpolant cf
-  int m_nParts = textureSize(KFP_Palette, 0);
+  int nParts = textureSize(KFP_Palette, 0);
   vec3 c0, c1;
   {
     int i = int(floor(ix));
-    float temp = float(i) * float(m_nParts) / 1024.0;
+    float temp = float(i) * float(nParts) / 1024.0;
     int p = int(temp);
-    int pn = (p + 1) % m_nParts;
+    int pn = (p + 1) % nParts;
     temp -= float(p);
     temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
     c0 = mix
@@ -2181,9 +2181,9 @@ vec3 KF_Palette(float ix)
   if (KFP_Smooth)
   {
     int i = (int(floor(ix)) + 1) % 1024;
-    float temp = float(i) * float(m_nParts) / 1024.0;
+    float temp = float(i) * float(nParts) / 1024.0;
     int p = int(temp);
-    int pn = (p + 1) % m_nParts;
+    int pn = (p + 1) % nParts;
     temp -= float(p);
     temp = sin((temp - 0.5) * pi) / 2.0 + 0.5;
     c1 = mix

@@ -250,7 +250,7 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,in
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,bmi.biHeight,bmi.biWidth,3,comment);
 	else if (nQuality == -3)
 	{
-		bool allocate = ! GetHalfColour();
+		bool allocate = ! m_HalfColour;
 		if (allocate)
 		{
 			SetHalfColour(true);
@@ -258,8 +258,8 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName,HBITMAP bmBmp,in
 		}
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-		if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
+		int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
+		if (nParallel < 1 || ! m_EXRParallel) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -299,7 +299,7 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpB
 		nRet = SaveTIFF(szFileName,(char*)lpJeg,biHeight,biWidth,3,comment);
 	else if (nQuality == -3)
 	{
-		bool allocate = ! GetHalfColour();
+		bool allocate = ! m_HalfColour;
 		if (allocate)
 		{
 			SetHalfColour(true);
@@ -307,8 +307,8 @@ extern int CFraktalSFT::SaveImage(const std::string &szFileName, const BYTE *lpB
 		}
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-		if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
+		int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
+		if (nParallel < 1 || ! m_EXRParallel) nParallel = 1;
 		nRet = SaveEXR
 		  ( szFileName
 		  , lpJeg
@@ -531,7 +531,7 @@ static void UpdateNoReuseCenter(HWND hWnd)
 
 static void UpdateIsolatedGlitchNeighbourhood(HWND hWnd)
 {
-	double z = g_SFT.GetIsolatedGlitchNeighbourhood();
+	int z = g_SFT.GetIsolatedGlitchNeighbourhood();
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_0,MF_BYCOMMAND|(z==0?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_4,MF_BYCOMMAND|(z==4?MF_CHECKED:MF_UNCHECKED));
 	CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ISOLATED_8,MF_BYCOMMAND|(z==8?MF_CHECKED:MF_UNCHECKED));
@@ -643,12 +643,12 @@ static void UpdateMenusFromSettings(HWND hWnd)
 
 static void UpdateWindowSize(HWND hWnd)
 {
-	int l = g_SFT.GetWindowLeft();
-	int t = g_SFT.GetWindowTop();
-	int r = g_SFT.GetWindowRight();
-	int b = g_SFT.GetWindowBottom();
+	int l = g_SFT.m_WindowLeft;
+	int t = g_SFT.m_WindowTop;
+	int r = g_SFT.m_WindowRight;
+	int b = g_SFT.m_WindowBottom;
 	MoveWindow(hWnd,l,t,r,b,TRUE);
-	int w = g_SFT.GetWindowWidth();
+	int w = g_SFT.m_WindowWidth;
 	int widths[3] = { int(0.4 * w), int((0.4 + 0.35) * w), -1 };
 	SendMessage(g_hwStatus,SB_SETPARTS,3,(LPARAM)&widths);
 }
@@ -837,7 +837,7 @@ static void UpdateBkpImage(ANIM *pAnim)
 	HBITMAP bmBkgOld = (HBITMAP)SelectObject(dcBkg,g_SFT.GetBitmap());
 	if(pAnim->bZoomOut)
 		SetStretchBltMode(dcBkg,HALFTONE);
-	StretchBlt(dcBkg,0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),dcBmp,nToXStart,nToYStart,r.right-nToXStop-nToXStart,r.bottom-nToYStop-nToYStart,SRCCOPY);
+	StretchBlt(dcBkg,0,0,g_SFT.m_nX,g_SFT.m_nY,dcBmp,nToXStart,nToYStart,r.right-nToXStop-nToXStart,r.bottom-nToYStop-nToYStart,SRCCOPY);
 	SelectObject(dcBkg,bmBkgOld);
 	g_SFT.UpdateBitmap();
 	DeleteDC(dcBkg);
@@ -1003,18 +1003,18 @@ extern std::string store_zoom_filename(int n, const std::string &z, const std::s
 void CFraktalSFT::FixIterLimit()
 {
 	// calculates a new max iteration limit.
-	if(GetAutoIterations()){
+	if(m_AutoIterations){
 		int64_t nMin, nMax, nIter;
 		GetIterations(nMin,nMax);
 		// sanity check, abort if no pixels have been calculated
 		if (nMax == PIXEL_UNEVALUATED)
 			return;
 		// sanity increase
-		nIter = GetIterations();
+		nIter = m_nMaxIter;
 		if(nIter<nMax)
 			SetIterations(nMax);
 		// increase
-		nIter = GetIterations();
+		nIter = m_nMaxIter;
 		if(nIter<nMin+nMin+2000)
 			SetIterations(nMin+nMin+3000);
 		// decrease
@@ -1022,7 +1022,7 @@ void CFraktalSFT::FixIterLimit()
 		// sanity check, abort if no pixels have been calculated
 		if (nMax == PIXEL_UNEVALUATED)
 			return;
-		if(nMax<GetIterations()/3)
+		if(nMax<m_nMaxIter/3)
 			// above sanity check sometimes fails?
 			if (nMax * 3 > 1000)
 				SetIterations(nMax * 3);
@@ -1165,8 +1165,8 @@ static int ResumeZoomSequence(HWND hWnd)
 	g_nStoreZoomCount = 0;
 	// g_nStoreZoomLimit = 0; // FIXME should there be another dialog?
 	g_bStoreZoom=zoomCount+1;
-	g_JpegParams.nWidth = g_SFT.GetImageWidth();
-	g_JpegParams.nHeight = g_SFT.GetImageHeight();
+	g_JpegParams.nWidth = g_SFT.m_nX;
+	g_JpegParams.nHeight = g_SFT.m_nY;
 	g_JpegParams.nQuality = 100;
 	//g_SFT.Render();
 	if (bShouldAutoIterations)
@@ -1224,7 +1224,7 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 		}
 	}
 nPos=0;
-	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.GetAnimateZoom())){
+	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.m_AnimateZoom)){
 		// Not stopped and not animating: fix colors and update window.
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
@@ -1235,7 +1235,7 @@ nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
 		// Auto-glitch handling.
 nPos=3;
-		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.GetMaxReferences() && g_SFT.GetAutoSolveGlitches()){
+		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.m_MaxReferences && g_SFT.m_AutoSolveGlitches){
 			g_SFT.m_bAutoGlitch++;
 nPos=4;
 			int x, y, d;
@@ -1248,7 +1248,7 @@ nPos=6;
 					{
 						std::cerr << "add reference " << g_SFT.m_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
 					}
-					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.GetMaxReferences())){
+					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.m_MaxReferences)){
 nPos=7;
 						return 0;
 					}
@@ -1292,7 +1292,7 @@ nPos=10;
 	}
 	if(g_hwExamine && uMsg==WM_USER+199)
 		PostMessage(g_hwExamine,uMsg,wParam,lParam);
-	if(p_progress > 0.0 && (!g_bAnim || !g_SFT.GetAnimateZoom()))
+	if(p_progress > 0.0 && (!g_bAnim || !g_SFT.m_AnimateZoom))
 		InvalidateRect(hWnd,NULL,FALSE);
 nPos=11;
 	if(uMsg==WM_USER+199){
@@ -1300,7 +1300,7 @@ nPos=11;
 //			g_nAnim++;
 //			g_bAnim=FALSE;
 		g_SFT.ApplyColors();
-		if(!g_bAnim || !g_SFT.GetAnimateZoom()){
+		if(!g_bAnim || !g_SFT.m_AnimateZoom){
 			InvalidateRect(hWnd,NULL,FALSE);
 			UpdateWindow(hWnd);
 		}
@@ -1522,7 +1522,7 @@ nPos=24;
 		}
 /*			int nMin, nMax;
 		g_SFT.GetIterations(nMin,nMax);
-		if(nMax<g_SFT.GetIterations())
+		if(nMax<g_SFT.m_nMaxIter)
 			g_SFT.SetIterations(nMax+nMax/3);
 */
 		EnableUnsafeMenus(hWnd);
@@ -1792,7 +1792,7 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(g_SFT.m_szFile).c_str());
 						SetWindowText(g_hwColors,szTitle);
 					}
-					if (g_SFT.GetDifferences() == Differences_Analytic && !g_SFT.GetDerivatives())
+					if (g_SFT.m_nDifferences == Differences_Analytic && !g_SFT.m_Derivatives)
 					{
 						output_log_message(Warn, "automatically enabling derivatives for analytic DE");
 						g_SFT.SetDerivatives(true);
@@ -1848,7 +1848,7 @@ static bool OpenSettings(HWND hWnd, bool warn)
 #ifdef KF_OPENCL
 					try
 					{
-						g_SFT.SetOpenCLDeviceIndex(g_SFT.GetUseOpenCL() ? g_SFT.GetOpenCLPlatform() : -1);
+						g_SFT.SetOpenCLDeviceIndex(g_SFT.m_UseOpenCL ? g_SFT.m_OpenCLPlatform : -1);
 					}
 					catch (OpenCLException &e)
 					{
@@ -1984,7 +1984,7 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	int x, y;
 	double diagonal = sqrt((double)(bmi.biWidth*bmi.biWidth/4+bmi.biHeight*bmi.biHeight/4));
 	complex<double> z0(pm.x, pm.y);
-	int power = g_SFT.GetPower();
+	int power = g_SFT.m_nPower;
 	for(x=0;x<bmi.biWidth;x++){
 		for(y=0;y<bmi.biHeight;y++){
 			complex<double> z(x, y);
@@ -2093,7 +2093,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bInteractive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveMap);
 		if (! g_bInteractive)
 		{
-			std::cerr << "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight() << std::endl;
+			std::cerr << "rendering at " << g_SFT.m_nX << "x" << g_SFT.m_nY << std::endl;
 		}
 		DisableUnsafeMenus(hWnd);
 		g_SFT.Render();
@@ -2116,7 +2116,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		SetStretchBltMode(ps.hdc,HALFTONE);
 		HDC dcBmp = CreateCompatibleDC(ps.hdc);
 		// use "Fast" shrinking when rendering is in progress
-		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetIsRendering() ? 0 : g_SFT.GetShrink());
+		HBITMAP bmBmp = g_SFT.ShrinkBitmap(g_SFT.GetBitmap(), width, height, g_SFT.GetIsRendering() ? 0 : g_SFT.m_Shrink);
 		HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,bmBmp);
 		if(g_bShowInflection){
 			POINT p;
@@ -2204,7 +2204,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SetCapture(hWnd);
 			return 0;
 		}
-		if(!HIWORD(GetKeyState(VK_CONTROL)) && (g_bRotate == RotateMode_Idle && g_bStretch == StretchMode_Idle) && !g_bFindMinibrot && g_SFT.GetAnimateZoom() && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
+		if(!HIWORD(GetKeyState(VK_CONTROL)) && (g_bRotate == RotateMode_Idle && g_bStretch == StretchMode_Idle) && !g_bFindMinibrot && g_SFT.m_AnimateZoom && !g_bAddReference && !g_bEraser && !g_hwExamine && !g_bAddMainReference){
 			while(g_bAnim){
 				Sleep(3);
 			}
@@ -2260,19 +2260,19 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			g_pSelect.x = (short)LOWORD(lParam);
 			g_pSelect.y = (short)HIWORD(lParam);
-			double yoffs = (double)(g_pSelect.y - g_pTrackStart.y)/(double)g_SFT.GetImageHeight();
-			double xoffs = (double)(g_pSelect.x - g_pTrackStart.x)/(double)g_SFT.GetImageWidth();
+			double yoffs = (double)(g_pSelect.y - g_pTrackStart.y)/(double)g_SFT.m_nY;
+			double xoffs = (double)(g_pSelect.x - g_pTrackStart.x)/(double)g_SFT.m_nX;
 			if((yoffs<0?-yoffs:yoffs)>(xoffs<0?-xoffs:xoffs)){
 				double offs = yoffs;
 				if((yoffs<0 && xoffs>0) || (yoffs>0 && xoffs<0))
 					offs=-offs;
-				g_pSelect.x = g_pTrackStart.x + g_SFT.GetImageWidth()*offs;
+				g_pSelect.x = g_pTrackStart.x + g_SFT.m_nX*offs;
 			}
 			else{
 				double offs = xoffs;
 				if((yoffs<0 && xoffs>0) || (yoffs>0 && xoffs<0))
 					offs=-offs;
-				g_pSelect.y = g_pTrackStart.y + g_SFT.GetImageHeight()*offs;
+				g_pSelect.y = g_pTrackStart.y + g_SFT.m_nY*offs;
 			}
 
 			MoveToEx(hDC,g_pTrackStart.x,g_pTrackStart.y,NULL);
@@ -2300,7 +2300,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HBITMAP bmBuff = create_bitmap(hDC,rc.right,rc.bottom);
 			HBITMAP bmOldBuff = (HBITMAP)SelectObject(dcBuff,bmBuff);
 			SetStretchBltMode(dcBuff,HALFTONE);
-			StretchBlt(dcBuff,p.x,p.y,rc.right,rc.bottom,dcBmp,0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),SRCCOPY);
+			StretchBlt(dcBuff,p.x,p.y,rc.right,rc.bottom,dcBmp,0,0,g_SFT.m_nX,g_SFT.m_nY,SRCCOPY);
 			SetStretchBltMode(hDC,HALFTONE);
 			BitBlt(hDC,0,0,rc.right,rc.bottom,dcBuff,0,0,SRCCOPY);
 
@@ -2308,7 +2308,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		HDC dcBkg = CreateCompatibleDC(hDC);
 		SetStretchBltMode(dcBkg,HALFTONE);
 		HBITMAP bmBkgOld = (HBITMAP)SelectObject(dcBkg,g_SFT.GetBitmap());
-		StretchBlt(dcBkg,0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),dcBuff,0,0,rc.right,rc.bottom,SRCCOPY);
+		StretchBlt(dcBkg,0,0,g_SFT.m_nX,g_SFT.m_nY,dcBuff,0,0,rc.right,rc.bottom,SRCCOPY);
 		SelectObject(dcBkg,bmBkgOld);
 		DeleteDC(dcBkg);
 		g_SFT.UpdateBitmap();
@@ -2391,8 +2391,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT rc;
 		GetDisplayRect(rc);
 
-		int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
-		int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
+		int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
+		int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 		int i = g_SFT.GetIterationOnPoint(x,y);
 		if(i != PIXEL_UNEVALUATED){
 			snprintf(szI+strlen(szI),100,"%d",i);
@@ -2413,12 +2413,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			HDC hDC = GetDC(hWnd);
 			HDC dcBmp = CreateCompatibleDC(hDC);
 			HDC dcBuff = CreateCompatibleDC(hDC);
-			HBITMAP bmBuff = ShrinkBitmap2(g_SFT.GetBitmap(),g_SFT.GetImageWidth(),g_SFT.GetImageHeight());
+			HBITMAP bmBuff = ShrinkBitmap2(g_SFT.GetBitmap(),g_SFT.m_nX,g_SFT.m_nY);
 			HBITMAP bmOld = (HBITMAP)SelectObject(dcBmp,g_SFT.GetBitmap());
 			HBITMAP bmOldBuff = (HBITMAP)SelectObject(dcBuff,bmBuff);
-			int x = p.x*g_SFT.GetImageWidth()/rc.right;
-			int y = p.y*g_SFT.GetImageHeight()/rc.bottom;
-			BitBlt(dcBmp,x,y,g_SFT.GetImageWidth(),g_SFT.GetImageHeight(),dcBuff,0,0,SRCCOPY);
+			int x = p.x*g_SFT.m_nX/rc.right;
+			int y = p.y*g_SFT.m_nY/rc.bottom;
+			BitBlt(dcBmp,x,y,g_SFT.m_nX,g_SFT.m_nY,dcBuff,0,0,SRCCOPY);
 			SelectObject(dcBmp,bmOld);
 			SelectObject(dcBuff,bmOldBuff);
 			DeleteObject(bmBuff);
@@ -2428,8 +2428,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.UpdateBitmap();
 		}
 
-		p.x = (short)(rc.right/2-p.x)*g_SFT.GetImageWidth()/rc.right;
-		p.y = (short)(rc.bottom/2-p.y)*g_SFT.GetImageHeight()/rc.bottom;
+		p.x = (short)(rc.right/2-p.x)*g_SFT.m_nX/rc.right;
+		p.y = (short)(rc.bottom/2-p.y)*g_SFT.m_nY/rc.bottom;
 
 		g_SFT.ResetTimers();
 		if(g_SFT.m_bAutoGlitch)
@@ -2513,9 +2513,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (g_pSelect.x+g_pTrackStart.x)/2;
 		p.y = (g_pSelect.y+g_pTrackStart.y)/2;
 
-		if(g_SFT.GetAnimateZoom()){
-			g_pSelect.x = -g_SFT.GetImageWidth()/2;
-			g_pSelect.y = g_SFT.GetImageHeight()/2;
+		if(g_SFT.m_AnimateZoom){
+			g_pSelect.x = -g_SFT.m_nX/2;
+			g_pSelect.y = g_SFT.m_nY/2;
 			ANIM* pAnim = new ANIM;
 			if(lParam==9)
 				pAnim->nZoomSize = 2;
@@ -2532,8 +2532,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.FixIterLimit();
 		g_SFT.ResetTimers();
-		p.x = (short)(p.x)*g_SFT.GetImageWidth()/rc.right;
-		p.y = (short)(p.y)*g_SFT.GetImageHeight()/rc.bottom;
+		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
+		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,nZoom,FALSE);
 		g_SFT.ApplyNewSettings();
@@ -2558,7 +2558,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		LineTo(hDC,g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2),g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2));
 		ReleaseDC(hWnd,hDC);
 		if(uMsg==WM_LBUTTONUP || uMsg==WM_CAPTURECHANGED){
-			if(g_SFT.GetAnimateZoom() && !g_bAddMainReference && !g_bAddReference && !g_bEraser){
+			if(g_SFT.m_AnimateZoom && !g_bAddMainReference && !g_bAddReference && !g_bEraser){
 				ANIM* pAnim = new ANIM;
 				pAnim->nZoomSize = g_SFT.GetZoomSize();
 				pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
@@ -2580,8 +2580,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				HDC dcSBmp = CreateCompatibleDC(hDC);
 				SIZE sc, sb;
 				POINT pSelect;
-				sb.cx = g_SFT.GetImageWidth();
-				sb.cy = g_SFT.GetImageHeight();
+				sb.cx = g_SFT.m_nX;
+				sb.cy = g_SFT.m_nY;
 				pSelect.x = g_pSelect.x*sb.cx/rc.right;
 				pSelect.y = g_pSelect.y*sb.cy/rc.bottom;
 				sc.cx = std::max(1.0, sb.cx/(g_SFT.GetZoomSize()));
@@ -2599,7 +2599,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				DeleteDC(dcSBmp);
 				ReleaseDC(NULL,hDC);
 				g_SFT.UpdateBitmap();
-				if(!g_SFT.GetAnimateZoom()){
+				if(!g_SFT.m_AnimateZoom){
 					InvalidateRect(hWnd,NULL,FALSE);
 					UpdateWindow(hWnd);
 				}
@@ -2609,8 +2609,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 			g_SFT.ResetTimers();
 
-			int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
-			int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
+			int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
+			int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 
 
 			if(g_bAddMainReference){
@@ -2621,8 +2621,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetFocus(g_hwExamine);
 				}
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
-				int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
-				int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
+				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
+				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 				g_SFT.AddReference(x,y,TRUE);
 				SetTimer(hWnd,0,500,NULL);
 				return 0;
@@ -2635,18 +2635,18 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetFocus(g_hwExamine);
 				}
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
-				int x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
-				int y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
+				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
+				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 				if(g_SFT.AddReference(x,y,FALSE))
 					SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
 			else if(g_bEraser){
 				RECT rE = {LONG(g_pSelect.x-rc.right/(g_SFT.GetZoomSize()*2)),LONG(g_pSelect.y-rc.bottom/(g_SFT.GetZoomSize()*2)),LONG(g_pSelect.x+rc.right/(g_SFT.GetZoomSize()*2)),LONG(g_pSelect.y+rc.bottom/(g_SFT.GetZoomSize()*2))};
-				rE.left = g_SFT.GetImageWidth()*rE.left/rc.right;
-				rE.top = g_SFT.GetImageHeight()*rE.top/rc.bottom;
-				rE.right = g_SFT.GetImageWidth()*rE.right/rc.right;
-				rE.bottom = g_SFT.GetImageHeight()*rE.bottom/rc.bottom;
+				rE.left = g_SFT.m_nX*rE.left/rc.right;
+				rE.top = g_SFT.m_nY*rE.top/rc.bottom;
+				rE.right = g_SFT.m_nX*rE.right/rc.right;
+				rE.bottom = g_SFT.m_nY*rE.bottom/rc.bottom;
 				int x, y;
 				for(x=rE.left;x<rE.right;x++)
 					for(y=rE.top;y<rE.bottom;y++)
@@ -2680,7 +2680,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.ResetTimers();
 #if 0
-		if(g_SFT.GetImageWidth()<r.right || g_SFT.GetImageHeight()<r.bottom)
+		if(g_SFT.m_nX<r.right || g_SFT.m_nY<r.bottom)
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && small" << std::endl;
 			DisableUnsafeMenus(hWnd);
@@ -2688,9 +2688,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		else
 #endif
-		if(g_SFT.GetArbitrarySize()){
+		if(g_SFT.m_ArbitrarySize){
 			SIZE sc;
-			sc.cy = g_SFT.GetImageHeight();
+			sc.cy = g_SFT.m_nY;
 			sc.cx = (double)r.right*((double)sc.cy/(double)r.bottom);
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
 			DisableUnsafeMenus(hWnd);
@@ -2839,7 +2839,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT rc;
 		GetDisplayRect(rc);
 
-		if(!g_SFT.GetAnimateZoom()){
+		if(!g_SFT.m_AnimateZoom){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_LBUTTONDOWN,0,MAKELONG(p.x,p.y));
 			PostMessage(hWnd,WM_LBUTTONUP,0,MAKELONG(p.x,p.y));
@@ -2851,8 +2851,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			q.y=rc.bottom/2 + (q.y-rc.bottom/2)/2;
 		}
 		g_SFT.FixIterLimit();
-		g_pSelect.x = -g_SFT.GetImageWidth()/2;
-		g_pSelect.y = g_SFT.GetImageHeight()/2;
+		g_pSelect.x = -g_SFT.m_nX/2;
+		g_pSelect.y = g_SFT.m_nY/2;
 		ANIM* pAnim = new ANIM;
 		if(lParam==9)
 			pAnim->nZoomSize = 2;
@@ -2864,17 +2864,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOut = FALSE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
-		if(g_SFT.GetAnimateZoom()){
-			std::thread anim(ThAnim,pAnim);
-			anim.detach();
-		}
-		else
-			delete pAnim;
+
+		std::thread anim(ThAnim,pAnim);
+		anim.detach();
 
 		g_SFT.m_bAutoGlitch=1;
 		g_SFT.ResetTimers();
-		p.x = (short)(p.x)*g_SFT.GetImageWidth()/rc.right;
-		p.y = (short)(p.y)*g_SFT.GetImageHeight()/rc.bottom;
+		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
+		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?2:g_SFT.GetZoomSize()),FALSE);
 		g_SFT.ApplyNewSettings();
@@ -2898,7 +2895,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT rc;
 		GetDisplayRect(rc);
 
-		if(!g_SFT.GetAnimateZoom()){
+		if(!g_SFT.m_AnimateZoom){
 			SendMessage(hWnd,WM_KEYDOWN,VK_ESCAPE,0);
 			SendMessage(hWnd,WM_RBUTTONDOWN,0,MAKELONG(p.x,p.y));
 			PostMessage(hWnd,WM_RBUTTONUP,0,MAKELONG(p.x,p.y));
@@ -2910,8 +2907,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			q.y=rc.bottom/2 - (q.y-rc.bottom/2);
 		}
 
-		g_pSelect.x = -g_SFT.GetImageWidth()/2;
-		g_pSelect.y = g_SFT.GetImageHeight()/2;
+		g_pSelect.x = -g_SFT.m_nX/2;
+		g_pSelect.y = g_SFT.m_nY/2;
 		ANIM* pAnim = new ANIM;
 		if(lParam==9)
 			pAnim->nZoomSize = 2;
@@ -2923,17 +2920,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		pAnim->bZoomOut = TRUE;
 		pAnim->bZoomOne = FALSE;
 		UpdateBkpImage(pAnim);
-		if(g_SFT.GetAnimateZoom()){
-			std::thread anim(ThAnim,pAnim);
-			anim.detach();
-		}
-		else
-			delete pAnim;
+
+		std::thread anim(ThAnim,pAnim);
+		anim.detach();
 
 		g_SFT.m_bAutoGlitch=1;
 		g_SFT.ResetTimers();
-		p.x = (short)(p.x)*g_SFT.GetImageWidth()/rc.right;
-		p.y = (short)(p.y)*g_SFT.GetImageHeight()/rc.bottom;
+		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
+		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?.5:(double)1/(double)g_SFT.GetZoomSize()),FALSE);
 		g_SFT.ApplyNewSettings();
@@ -3057,10 +3051,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
-		if(g_SFT.GetMirror()==1)
-			g_SFT.SetMirror(0);
-		else
-			g_SFT.SetMirror(1);
+		g_SFT.SetMirror(! g_SFT.GetMirror());
 		UpdateMirror(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
@@ -3072,8 +3063,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MainProc(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 		if (g_FileSaveAs_Cancelled)
 		  return 0;
-		g_JpegParams.nWidth = g_SFT.GetImageWidth();
-		g_JpegParams.nHeight = g_SFT.GetImageHeight();
+		g_JpegParams.nWidth = g_SFT.m_nX;
+		g_JpegParams.nHeight = g_SFT.m_nY;
 		g_JpegParams.nQuality = 100;
 		if(!DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0))
 			return 0;
@@ -3105,8 +3096,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT rc;
 			GetDisplayRect(rc);
 
-			p.x = p.x*rc.right/g_SFT.GetImageWidth();
-			p.y = p.y*rc.bottom/g_SFT.GetImageHeight();
+			p.x = p.x*rc.right/g_SFT.m_nX;
+			p.y = p.y*rc.bottom/g_SFT.m_nY;
 
 			ClientToScreen(hWnd,&p);
 			SetCursorPos(p.x,p.y);
@@ -3190,7 +3181,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowTop(wr.top);
 		g_SFT.SetWindowRight(wr.right);
 		g_SFT.SetWindowBottom(wr.bottom);
-		g_SFT.ApplySettings();
+		g_SFT.ApplyNewSettings();
 		UpdateWindowSize(hWnd);
 		g_SFT.ResetTimers();
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
@@ -3207,8 +3198,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT rc;
 			GetDisplayRect(rc);
 
-			p.x = p.x*rc.right/g_SFT.GetImageWidth();
-			p.y = p.y*rc.bottom/g_SFT.GetImageHeight();
+			p.x = p.x*rc.right/g_SFT.m_nX;
+			p.y = p.y*rc.bottom/g_SFT.m_nY;
 			ClientToScreen(hWnd,&p);
 			SetCursorPos(p.x,p.y);
 		}
@@ -3240,8 +3231,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT rc;
 			GetDisplayRect(rc);
 
-			p.x = p.x*rc.right/g_SFT.GetImageWidth();
-			p.y = p.y*rc.bottom/g_SFT.GetImageHeight();
+			p.x = p.x*rc.right/g_SFT.m_nX;
+			p.y = p.y*rc.bottom/g_SFT.m_nY;
 			ClientToScreen(hWnd,&p);
 			SetCursorPos(p.x,p.y);
 		}
@@ -3359,9 +3350,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-		if(g_SFT.GetAnimateZoom()){
-			g_pSelect.x = -g_SFT.GetImageWidth()/2;
-			g_pSelect.y = g_SFT.GetImageHeight()/2;
+		if(g_SFT.m_AnimateZoom){
+			g_pSelect.x = -g_SFT.m_nX/2;
+			g_pSelect.y = g_SFT.m_nY/2;
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),r.right,r.bottom);
@@ -3383,9 +3374,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-		if(g_SFT.GetAnimateZoom()){
-			g_pSelect.x = g_SFT.GetImageWidth()+g_SFT.GetImageWidth()/2;
-			g_pSelect.y = g_SFT.GetImageHeight()/2;
+		if(g_SFT.m_AnimateZoom){
+			g_pSelect.x = g_SFT.m_nX+g_SFT.m_nX/2;
+			g_pSelect.y = g_SFT.m_nY/2;
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),r.right,r.bottom);
@@ -3407,9 +3398,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-		if(g_SFT.GetAnimateZoom()){
-			g_pSelect.x = g_SFT.GetImageWidth()/2;
-			g_pSelect.y = -g_SFT.GetImageHeight()/2;
+		if(g_SFT.m_AnimateZoom){
+			g_pSelect.x = g_SFT.m_nX/2;
+			g_pSelect.y = -g_SFT.m_nY/2;
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),r.right,r.bottom);
@@ -3431,9 +3422,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-		if(g_SFT.GetAnimateZoom()){
-			g_pSelect.x = g_SFT.GetImageWidth()/2;
-			g_pSelect.y = g_SFT.GetImageHeight()+g_SFT.GetImageHeight()/2;
+		if(g_SFT.m_AnimateZoom){
+			g_pSelect.x = g_SFT.m_nX/2;
+			g_pSelect.y = g_SFT.m_nY+g_SFT.m_nY/2;
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),r.right,r.bottom);
@@ -3547,9 +3538,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT rc;
 		GetDisplayRect(rc);
 
-		g_pSelect.x = (short)LOWORD(lParam)*g_SFT.GetImageWidth()/rc.right;
-		g_pSelect.y = (short)HIWORD(lParam)*g_SFT.GetImageHeight()/rc.bottom;
-		if(g_SFT.GetAnimateZoom()){
+		g_pSelect.x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
+		g_pSelect.y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
+		if(g_SFT.m_AnimateZoom){
 			ANIM* pAnim = new ANIM;
 			pAnim->nZoomSize = g_SFT.GetZoomSize();
 			pAnim->bmBmp = ShrinkBitmap2(g_SFT.GetBitmap(),rc.right,rc.bottom);
@@ -3562,7 +3553,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::thread anim(ThAnim,pAnim);
 			anim.detach();
 
-			RECT r = {0,0,g_SFT.GetImageWidth(),g_SFT.GetImageHeight()};
+			RECT r = {0,0,g_SFT.m_nX,g_SFT.m_nY};
 			double zoomDiff = (double)1/(double)g_SFT.GetZoomSize();
 			int nToXStart = g_pSelect.x-r.right/(zoomDiff*2);
 			int nToYStart = g_pSelect.y-r.bottom/(zoomDiff*2);
@@ -3587,13 +3578,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.UpdateBitmap();
 		}
 		bool bReuseCenter = (g_SFT.GetZoomSize() == round(g_SFT.GetZoomSize()));
-		if(!g_SFT.m_bAutoGlitch && g_SFT.GetReuseReference() && g_pSelect.x==g_SFT.GetImageWidth()/2 && g_pSelect.y==g_SFT.GetImageHeight()/2)
+		if(!g_SFT.m_bAutoGlitch && g_SFT.m_ReuseReference && g_pSelect.x==g_SFT.m_nX/2 && g_pSelect.y==g_SFT.m_nY/2)
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),bReuseCenter);
 		else
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize());
 		SetTimer(hWnd,0,500,NULL);
 	}
-	else if(!g_SFT.GetArbitrarySize() && uMsg==WM_SIZING){
+	else if(!g_SFT.m_ArbitrarySize && uMsg==WM_SIZING){
 		RECT cr;
 		LPRECT pwr = (LPRECT)lParam;
 		pwr->right-=pwr->left;
@@ -3613,7 +3604,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		return TRUE;
 	}
 	else if(uMsg==WM_SIZE){
-		if(!g_SFT.GetArbitrarySize()){
+		if(!g_SFT.m_ArbitrarySize){
 			RECT wr, cr;
 			GetWindowRect(hWnd,&wr);
 			wr.right-=wr.left;
@@ -3627,13 +3618,13 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		InvalidateRect(hWnd,NULL,TRUE);
 		SendMessage(g_hwStatus,uMsg,wParam,lParam);
-		if(g_SFT.GetArbitrarySize() && !g_bResizing && (wParam==SIZE_MAXIMIZED || wParam==SIZE_RESTORED))
+		if(g_SFT.m_ArbitrarySize && !g_bResizing && (wParam==SIZE_MAXIMIZED || wParam==SIZE_RESTORED))
 			SendMessage(hWnd,WM_EXITSIZEMOVE,0,0);
 	}
-	else if(uMsg==WM_ENTERSIZEMOVE && g_SFT.GetArbitrarySize()){
+	else if(uMsg==WM_ENTERSIZEMOVE && g_SFT.m_ArbitrarySize){
 		g_bResizing=TRUE;
 	}
-	else if(uMsg==WM_EXITSIZEMOVE && g_SFT.GetArbitrarySize() && !g_bFirstDone){
+	else if(uMsg==WM_EXITSIZEMOVE && g_SFT.m_ArbitrarySize && !g_bFirstDone){
 		g_bResizing=FALSE;
 	}
 	else if((uMsg==WM_USER+199 || uMsg==WM_TIMER) && !g_bMove){
@@ -3859,12 +3850,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEASJPEG){
-			g_JpegParams.nWidth = g_SFT.GetImageWidth();
-			g_JpegParams.nHeight = g_SFT.GetImageHeight();
+			g_JpegParams.nWidth = g_SFT.m_nX;
+			g_JpegParams.nHeight = g_SFT.m_nY;
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,0)){
 				std::string szFile;
-				if(g_JpegParams.nWidth>g_SFT.GetImageWidth()){
+				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveJpeg=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
@@ -3884,12 +3875,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEASPNG){
-			g_JpegParams.nWidth = g_SFT.GetImageWidth();
-			g_JpegParams.nHeight = g_SFT.GetImageHeight();
+			g_JpegParams.nWidth = g_SFT.m_nX;
+			g_JpegParams.nHeight = g_SFT.m_nY;
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
 				std::string szFile;
-				if(g_JpegParams.nWidth>g_SFT.GetImageWidth()){
+				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSavePng=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
@@ -3910,12 +3901,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEASTIF){
-			g_JpegParams.nWidth = g_SFT.GetImageWidth();
-			g_JpegParams.nHeight = g_SFT.GetImageHeight();
+			g_JpegParams.nWidth = g_SFT.m_nX;
+			g_JpegParams.nHeight = g_SFT.m_nY;
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
 				std::string szFile;
-				if(g_JpegParams.nWidth>g_SFT.GetImageWidth()){
+				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveTif=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
@@ -3936,12 +3927,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 		}
 		else if(wParam==ID_FILE_SAVEASEXR){
-			g_JpegParams.nWidth = g_SFT.GetImageWidth();
-			g_JpegParams.nHeight = g_SFT.GetImageHeight();
+			g_JpegParams.nWidth = g_SFT.m_nX;
+			g_JpegParams.nHeight = g_SFT.m_nY;
 			g_JpegParams.nQuality = 100;
 			if(DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG7),hWnd,(DLGPROC)JpegProc,1)){
 				std::string szFile;
-				if(g_JpegParams.nWidth>g_SFT.GetImageWidth()){
+				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveExr=TRUE;
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
@@ -4021,14 +4012,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				int diff = (nMax-nMin)/6;
 				int nTries=0;
 				do{
-					x = rand()%g_SFT.GetImageWidth();
-					y = rand()%g_SFT.GetImageHeight();
+					x = rand()%g_SFT.m_nX;
+					y = rand()%g_SFT.m_nY;
 					nIter = g_SFT.GetIterationOnPoint(x,y);
 					if(nTries++>20 && diff>10){
 						nTries=0;
 						diff--;
 					}
-				}while(nIter<nMin + diff || nIter==g_SFT.GetIterations());
+				}while(nIter<nMin + diff || nIter==g_SFT.m_nMaxIter);
 			}
 			else if(!g_SFT.Center(x,y,g_bFindMinibrotCount && g_bFindMinibrotCount==g_bFindMinibrotPos)){
 				g_bFindMinibrot=FALSE;
@@ -4055,7 +4046,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				SetWindowText(hWnd,"Kalle's Fraktaler 2");
 			int64_t nMin, nMax, nIter;
 			g_SFT.GetIterations(nMin,nMax);
-			nIter = g_SFT.GetIterations();
+			nIter = g_SFT.m_nMaxIter;
 			if(nIter<nMin+nMin/2+2000)
 			{
 				// ignore auto iterations setting, otherwise it could stop early
@@ -4069,8 +4060,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			RECT rc;
 			GetDisplayRect(rc);
 
-			x = x*rc.right/g_SFT.GetImageWidth();
-			y = y*rc.bottom/g_SFT.GetImageHeight();
+			x = x*rc.right/g_SFT.m_nX;
+			y = y*rc.bottom/g_SFT.m_nY;
 			while(g_bAnim){
 				Sleep(10);
 			}
@@ -4278,10 +4269,10 @@ static bool render_frame(int frame, bool onlyKFR)
 	g_SFT.m_bInteractive = false;
 	if (frame > 0)
 	{
-		int j = g_SFT.GetJitterSeed();
+		int j = g_SFT.m_JitterSeed;
 		if (j)
 		{
-			g_SFT.SetJitterSeed(j + 1);
+			g_SFT.NewJitterSeed();
 		}
 		if (! onlyKFR)
 		{
@@ -4292,7 +4283,7 @@ static bool render_frame(int frame, bool onlyKFR)
 	if (! onlyKFR)
 	{
 		g_SFT.Render(true, true);
-		for (int r = 2; r < g_SFT.GetMaxReferences(); ++r)
+		for (int r = 2; r < g_SFT.m_MaxReferences; ++r)
 		{
 			int x = -1, y = -1;
 			g_SFT.m_bAutoGlitch = r; // needed by random glitch center method
@@ -4441,7 +4432,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			if (! onlyKFR)
 			{
-				output_log_message(Info, "rendering at " << g_SFT.GetImageWidth() << "x" << g_SFT.GetImageHeight());
+				output_log_message(Info, "rendering at " << g_SFT.m_nX << "x" << g_SFT.m_nY);
 				// render the image (add reference calls render fractal...)
 				if (LogLevel_Status >= g_log_level)
 				{

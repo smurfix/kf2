@@ -52,13 +52,13 @@ void CFraktalSFT::MandelCalc1()
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
   const mantissa nBailoutSmallP = p < 1.0/0.0 ? pow(nBailoutSmall, p) : nBailoutSmall;
   const mantissa s = mantissa(m_fPixelSpacing);
-  const mat2 TK = GetTransformMatrix();
+  const mat2 &TK = m_TransformMatrix;
   const bool noDerivativeGlitch = ! m_DerivativeGlitch;
-  const bool derivatives = GetDerivatives();
-  const bool singleref = GetGlitchCenterMethod() == 3;
+  const bool derivatives = m_Derivatives;
+  const bool singleref = m_GlitchCenterMethod == 3;
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_Mirror)){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -107,7 +107,7 @@ void CFraktalSFT::MandelCalc1()
     int power = m_nPower;
     int64_t rantal = antal;
 
-    if (GetUseHybridFormula())
+    if (m_UseHybridFormula)
     {
       power = 1;
       if (derivatives)
@@ -116,18 +116,18 @@ void CFraktalSFT::MandelCalc1()
         dual<2, mantissa> dDi = Di; dDi.dx[0] = 0; dDi.dx[1] = 1;
         dual<2, mantissa> ddbD0r = dbD0r; ddbD0r.dx[0] = 1; ddbD0r.dx[1] = 0;
         dual<2, mantissa> ddbD0i = dbD0i; ddbD0i.dx[0] = 0; ddbD0i.dx[1] = 1;
-        bool ok = perturbation_dual_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
+        bool ok = perturbation_dual_hybrid(m_HybridFormula, m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dDr, dDi, ddbD0r, ddbD0i, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dDr.x, dDi.x, dDr.dx[0], dDr.dx[1], dDi.dx[0], dDi.dx[1], s, TK);
       }
       else
       {
-        bool ok = perturbation_hybrid(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
+        bool ok = perturbation_hybrid(m_HybridFormula, m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Dr, Di, dbD0r, dbD0i, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }
 
-    else if (m_nFractalType == 0 && m_nPower > 10) // FIXME handle GetGlitchCenterMethod() == 3
+    else if (m_nFractalType == 0 && m_nPower > 10) // FIXME handle m_GlitchCenterMethod == 3
     {
       const mantissa *dxr = reference_ptr_x<mantissa>(m_Reference);
       const mantissa *dxi = reference_ptr_y<mantissa>(m_Reference);
@@ -282,12 +282,12 @@ void CFraktalSFT::MandelCalcScaled()
   const double p = GetBailoutNorm();
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
   const tfloatexp<mantissa, exponent> s = tfloatexp<mantissa, exponent>(m_fPixelSpacing);
-  const mat2 TK = GetTransformMatrix();
-  const bool derivatives = GetDerivatives();
-  const bool singleref = GetGlitchCenterMethod() == 3;
+  const mat2 &TK = m_TransformMatrix;
+  const bool derivatives = m_Derivatives;
+  const bool singleref = m_GlitchCenterMethod == 3;
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_Mirror)){
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
       continue;
@@ -341,7 +341,7 @@ void CFraktalSFT::MandelCalcScaled()
     int power = m_nPower;
     int64_t rantal = antal;
 
-    if (GetUseHybridFormula())
+    if (m_UseHybridFormula)
     {
       power = 1;
       if (derivatives)
@@ -350,13 +350,13 @@ void CFraktalSFT::MandelCalcScaled()
         dual<2, tfloatexp<mantissa, exponent>> dCi = Ci; dCi.dx[0] = 0; dCi.dx[1] = s;
         dual<2, tfloatexp<mantissa, exponent>> dXr = Xr; dXr.dx[0] = s; dXr.dx[1] = 0;
         dual<2, tfloatexp<mantissa, exponent>> dXi = Xi; dXi.dx[0] = 0; dXi.dx[1] = s;
-        bool ok = perturbation_dual_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dXr, dXi, dCr, dCi, power, singleref);
+        bool ok = perturbation_dual_hybrid_scaled(m_HybridFormula, m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, dXr, dXi, dCr, dCi, power, singleref);
         assert(ok && "perturbation_dual_hybrid");
         de = compute_de(dXr.x, dXi.x, dXr.dx[0], dXr.dx[1], dXi.dx[0], dXi.dx[1], tfloatexp<mantissa, exponent>(1), TK);
       }
       else
       {
-        bool ok = perturbation_hybrid_scaled(GetHybridFormula(), m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Xr, Xi, Cr, Ci, power, singleref);
+        bool ok = perturbation_hybrid_scaled(m_HybridFormula, m_Reference, antal, rantal, test1, test2, phase, bGlitch, nBailout2, nMaxIter, bNoGlitchDetection, m_real, m_imag, p, Xr, Xi, Cr, Ci, power, singleref);
         assert(ok && "perturbation_hybrid");
       }
     }
@@ -385,20 +385,20 @@ void CFraktalSFT::MandelCalcSIMD()
   const double p = GetBailoutNorm();
   const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
   const double s = double(m_fPixelSpacing);
-  const mat2 TK = GetTransformMatrix();
+  const mat2 &TK = m_TransformMatrix;
   const bool noDerivativeGlitch = ! m_DerivativeGlitch;
-  const bool singleref = GetGlitchCenterMethod() == 3;
+  const bool singleref = m_GlitchCenterMethod == 3;
 
   // vectorization
   double16 Dr16, Di16, dbD0r16, dbD0i16, test116, test216, phase16, Jxa16, Jxb16, Jya16, Jyb16, daa16, dab16, dba16, dbb16;
   int16 antal16, bGlitch16, bNoGlitchDetection16, x16, y16, w16, h16;
   int k = 0;
-  const int64_t chunksize = GetSIMDChunkSize();
-  const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
-  const bool derivatives = GetDerivatives();
+  const int64_t chunksize = m_SIMDChunkSize;
+  const int vectorsize = std::min(int(m_SIMDVectorSize), int(1 << KF_SIMD));
+  const bool derivatives = m_Derivatives;
 
   int64_t nMaxIter = m_nMaxIter;
-  while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror()))
+  while (!m_bStop && m_P.GetPixel(x, y, w, h, m_Mirror))
   {
     if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
       SetColor(x, y, w, h);
@@ -618,14 +618,14 @@ void CFraktalSFT::MandelCalc(const Reference_Type reftype)
     }
     case Reference_Double:
     {
-      const int vectorsize = std::min(int(GetSIMDVectorSize()), int(1 << KF_SIMD));
+      const int vectorsize = std::min(int(m_SIMDVectorSize), int(1 << KF_SIMD));
       const bool vectorized =
         (m_nFractalType == 0 ? ! (m_nPower > 10) : true) &&
-        (! GetUseHybridFormula()) &&
+        (! m_UseHybridFormula) &&
         vectorsize > 1 &&
         KF_SIMD > 0 &&
         !is_convergent(m_nFractalType, m_nPower) &&
-        GetGlitchCenterMethod() != 3 ;
+        m_GlitchCenterMethod != 3 ;
       if (vectorized)
       {
         MandelCalcSIMD();

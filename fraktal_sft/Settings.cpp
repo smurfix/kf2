@@ -382,7 +382,7 @@ bool Settings::FromText(const std::string &text, bool useSettings, bool useParam
   char *data = strdup(text.c_str());
   CStringTable s(data, ": ", "\r\n");
 
-  if(useParams && GetOpenResetsParameters()) {
+  if(useParams && m_OpenResetsParameters) {
     // XXX do we want to trigger that off the version number instead?
     ResetParameters();
   }
@@ -517,14 +517,14 @@ void Settings::ResetParameters()
     SetSlopePower(50);
     SetSlopeRatio(20);
     SetSlopeAngle(45);
-    m_real = 1;
-    m_imag = 1;
+    SetBailoutReal(1);
+    SetBailoutImag(1);
     SetBailoutNormPreset(BailoutNorm_2);
     SetBailoutNormCustom(2);
-    m_SeedR = 0;
-    m_SeedI = 0;
-    m_FactorAR = 1;
-    m_FactorAI = 0;
+    SetSeedR(0);
+    SetSeedI(0);
+    SetFactorAR(1);
+    SetFactorAI(0);
 }    
 
 std::string Settings::ToText(bool useSettings, bool useParams, bool useLocation) const
@@ -556,30 +556,26 @@ std::string Settings::ToText(bool useSettings, bool useParams, bool useLocation)
   double v_StretchAmount = std::log2(P.stretch_factor);
   bool v_ImagPointsUp = P.sign < 0;
 
-  const std::string v_Re = GetRe();
-  const std::string v_Im = GetIm();
-  const std::string v_Zoom = GetZoom();
-
   if(useSettings) {
     int64_t settings_version = kfs_version_number;
+
 #   include "Settings.shw.inc"
+
   }
   if(useParams) {
     int64_t version = kfs_version_number;
 #   include "Settings.phw.inc"
   }
   if(useLocation) {
+    const std::string v_Re = GetRe();
+    const std::string v_Im = GetIm();
+    const std::string v_Zoom = GetZoom();
+
 #   include "Settings.lhw.inc"
   }
 
   { s.AddRow(); s.AddString(s.GetCount() - 1, "UseArgMinAbsZAsGlitchCenter"); s.AddInt(s.GetCount() - 1, GetUseArgMinAbsZAsGlitchCenter()); }
-  //{ s.AddRow(); s.AddString(s.GetCount() - 1, "EXRChannels"); s.AddInt(s.GetCount() - 1, pack_exr_channels(GetEXRChannels())); }
-  //{ s.AddRow(); s.AddString(s.GetCount() - 1, "NumberTypes"); s.AddInt(s.GetCount() - 1, pack_number_type(GetNumberTypes())); }
 
-  { s.AddRow(); s.AddString(s.GetCount() - 1, "ImageWidth"); s.AddInt(s.GetCount() - 1, m_nX*m_TargetSupersample); }
-  { s.AddRow(); s.AddString(s.GetCount() - 1, "ImageHeight"); s.AddInt(s.GetCount() - 1, m_nY*m_TargetSupersample); }
-
-  { s.AddRow(); s.AddString(s.GetCount() - 1, "SettingsVersion"); s.AddInt(s.GetCount() - 1, kfs_version_number); }
   char *data = s.ToText(": ", "\r\n");
   std::string r(data);
   s.DeleteToText(data);

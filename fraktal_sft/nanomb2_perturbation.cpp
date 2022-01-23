@@ -22,17 +22,17 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 void CFraktalSFT::MandelCalcNANOMB2()
 {
-	bool interior_checking = GetInteriorChecking();
+	bool interior_checking = m_InteriorChecking;
 	const double nBailout = GetBailoutRadius();
 	const double p = GetBailoutNorm();
 	const double nBailout2 = p < 1.0/0.0 ? pow(nBailout, p) : nBailout;
 
 	m_bIterChanged = TRUE;
 	int x, y, w, h;
-	while (!m_bStop && m_P.GetPixel(x, y, w, h, GetMirror())){
+	while (!m_bStop && m_P.GetPixel(x, y, w, h, m_Mirror)){
 		if (m_nPixels[x][y] != PIXEL_UNEVALUATED){
 			SetColor(x, y, w, h);
-			if (GetMirror())
+			if (m_Mirror)
 				Mirror(x, y);
 			continue;
 		}

@@ -89,7 +89,7 @@ static void UpdateFractalType(HWND hWnd, int type = -2, int p = -1)
     EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_TO_HYBRID), false);
     g_SFT.SetUseHybridFormula(true);
   }
-  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(g_SFT.GetHybridFormula().to_string(), type, p));
+  EnableWindow(GetDlgItem(hWnd, IDC_FORMULA_FROM_HYBRID), hybrid_get_builtin(g_SFT.m_HybridFormula.to_string(), type, p));
 }
 
 static int RefreshFractalType(HWND hWnd, bool refresh = true)
@@ -114,7 +114,7 @@ static int RefreshFractalType(HWND hWnd, bool refresh = true)
 static void UpdateSeedR(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SFT.m_SeedR);
+  snprintf(szTmp,40,"%g",g_SFT.GetSeedR());
   SetDlgItemText(hWnd,IDC_FORMULA_SEED_RE,szTmp);
 }
 
@@ -128,7 +128,7 @@ static void RefreshSeedR(HWND hWnd)
 static void UpdateSeedI(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SFT.m_SeedI);
+  snprintf(szTmp,40,"%g",g_SFT.GetSeedI());
   SetDlgItemText(hWnd,IDC_FORMULA_SEED_IM,szTmp);
 }
 
@@ -142,7 +142,7 @@ static void RefreshSeedI(HWND hWnd)
 static void UpdateFactorAR(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SFT.m_FactorAR);
+  snprintf(szTmp,40,"%g",g_SFT.GetFactorAR());
   SetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_RE,szTmp);
 }
 
@@ -156,7 +156,7 @@ static void RefreshFactorAR(HWND hWnd)
 static void UpdateFactorAI(HWND hWnd)
 {
   char szTmp[40];
-  snprintf(szTmp,40,"%g",g_SFT.m_FactorAI);
+  snprintf(szTmp,40,"%g",g_SFT.GetFactorAI());
   SetDlgItemText(hWnd,IDC_FORMULA_FACTOR_A_IM,szTmp);
 }
 
@@ -343,7 +343,7 @@ extern INT_PTR WINAPI FormulaProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lPara
     {
       SendDlgItemMessage(hWnd, IDC_FORMULA_IGNORE_HYBRIDS, BM_SETCHECK, 0, 0);
       UpdateIgnoreHybrids(hWnd);
-      std::string hybrid = g_SFT.GetHybridFormula().to_string();
+      std::string hybrid = g_SFT.m_HybridFormula.to_string();
       int nType = -2;
       int nPow = -1;
       const bool from_hybrid = hybrid_get_builtin(hybrid, nType, nPow);

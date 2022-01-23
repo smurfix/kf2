@@ -137,7 +137,7 @@ public:
 // Basics
 	// S DOUBLE(ThreadsPerCore)
 	// S INT(ThreadsReserveCore)
-	// nParallel is calculated as GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+	// nParallel is calculated as m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 	// TODO refactor: export that as a method
 
 // This part actually calculates a fractal
@@ -232,6 +232,7 @@ public:
 	// S INT(JitterSeed)
 	// S INT(JitterShape)
 	// S DOUBLE(JitterScale)
+	inline void NewJitterSeed() { p_m_JitterSeed += 1; }
 
 	// Retrieve jitter offset
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
@@ -253,10 +254,10 @@ public:
 	float *GetArrayPhase() { return m_nPhase ? m_nPhase[0] : nullptr; };
 
 	float **m_nDEx;    // derivatives (X)
-	float *GetArrayDEx() { return GetDerivatives() ? m_nDEx[0] : nullptr; };
+	float *GetArrayDEx() { return m_Derivatives ? m_nDEx[0] : nullptr; };
 
 	float **m_nDEy;    // derivatives (Y)
-	float *GetArrayDEy() { return GetDerivatives() ? m_nDEy[0] : nullptr; };
+	float *GetArrayDEy() { return m_Derivatives ? m_nDEy[0] : nullptr; };
 
 	// safely get the iteration value from m_nPixels (mutex; out-of-bounds-check)
 	int64_t GetIterationOnPoint(int x, int y);
@@ -296,11 +297,11 @@ public:
 	int64_t m_nMaxApproximation; // calculated XXX explain the math somewhere
 	SeriesType GetApproximationType()
 	{
-		if (GetUseHybridFormula())
+		if (m_UseHybridFormula)
 			return SeriesType_None;
 		if (m_nFractalType == 0)
 			return SeriesType_Complex;
-		if (m_nFractalType == 1 && m_nPower == 2 && ! GetUseOpenCL())
+		if (m_nFractalType == 1 && m_nPower == 2 && ! m_UseOpenCL)
 			return SeriesType_Real;
 		return SeriesType_None;
 	}
@@ -590,14 +591,6 @@ public:
 	double m_nSlopeX, m_nSlopeY;      // cos/sin of the slope angle
 	void UpdateSlopes();              // called when the angle has changed
 	// accessors
-	BOOL GetSlopes(int &slopePower, int &slopeRatio, int &slopeAngle); // returns current m_bSlopes
-	inline void SetSlopes(BOOL slope, int slopePower, int slopeRatio, int slopeAngle) {
-		ModSettings().SetSlopes(slope);
-		ModSettings().SetSlopePower(slopePower);
-		ModSettings().SetSlopeRatio(slopeRatio);
-		ModSettings().SetSlopeAngle(slopeAngle);
-	}
-
 
   // More coloring parameters
 	// P BOOL m_bFlat;      // flat colors

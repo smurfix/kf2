@@ -71,11 +71,11 @@ static void ThSkew(HWND hWnd)
 {
   SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
   SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-  const int type = g_SFT.GetFractalType();
-  const int power = g_SFT.GetPower();
+  const int type = g_SFT.m_nFractalType;
+  const int power = g_SFT.m_nPower;
   const struct formula *f = get_formula(type, power);
 
-  const int64_t iters = g_SFT.GetIterations();
+  const int64_t iters = g_SFT.m_nMaxIter;
   std::string g_szZoom = g_SFT.GetZoom();
   const char *e = strstr(g_szZoom.c_str(),"E");
   if(!e) e = strstr(g_szZoom.c_str(),"e");
@@ -100,7 +100,7 @@ static void ThSkew(HWND hWnd)
   }
   else if (f && f->skew)
   {
-    ok = f->skew(iters, g_SFT.m_FactorAR, g_SFT.m_FactorAI, center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
+    ok = f->skew(iters, g_SFT.GetFactorAR(), g_SFT.GetFactorAI(), center.m_r.m_dec.backend().data(), center.m_i.m_dec.backend().data(), g_transformation_useddz, &g_skew[0], &g_transformation_running, &progress.counters[0]);
   }
   // join progress updater
   progress.running = false;
@@ -460,14 +460,14 @@ extern void TransformImage(HBITMAP bmBmp)
 
 extern void TransformBlit(HDC hDC, int w, int h)
 {
-  HBITMAP bmBmp = create_bitmap(hDC, g_SFT.GetImageWidth(), g_SFT.GetImageHeight());
-  POINT pm = { g_SFT.GetImageWidth() / 2, g_SFT.GetImageHeight() / 2 };
+  HBITMAP bmBmp = create_bitmap(hDC, g_SFT.m_nX, g_SFT.m_nY);
+  POINT pm = { g_SFT.m_nX / 2, g_SFT.m_nY / 2 };
   TransformImage(g_SFT.GetBitmap(), bmBmp, pm);
   HDC dcBmp = CreateCompatibleDC(hDC);
   HBITMAP bmOld = (HBITMAP) SelectObject(dcBmp, bmBmp);
   SetStretchBltMode(dcBmp, HALFTONE);
   SetStretchBltMode(hDC, HALFTONE);
-  StretchBlt(hDC, 0, 0, w, h, dcBmp, 0, 0, g_SFT.GetImageWidth(), g_SFT.GetImageHeight(), SRCCOPY);
+  StretchBlt(hDC, 0, 0, w, h, dcBmp, 0, 0, g_SFT.m_nX, g_SFT.m_nY, SRCCOPY);
   SelectObject(dcBmp, bmOld);
   DeleteObject(dcBmp);
   DeleteObject(bmBmp);

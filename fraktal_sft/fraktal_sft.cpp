@@ -580,7 +580,7 @@ void CFraktalSFT::LoadTexture()
 	int nImgOffs=m_nImgPower/64;
 	HBITMAP bmBitmapIn = GetImage(m_szTexture);
 	HBITMAP bmBitmap = nullptr;
-	if (GetTextureResize())
+	if (m_bTextureResize)
 	{
 		SIZE scImg;
 		scImg.cx = m_nX+(nImgOffs+m_nImgPower)/64;
@@ -712,10 +712,10 @@ static inline double hypot1(double x, double y) { return sqrt(x * x + y * y); }
 
 void CFraktalSFT::SetColor(int x, int y, int w, int h)
 {
-	if (m_bInhibitColouring || GetUseOpenGL()) return;
+	if (m_bInhibitColouring || m_bUseOpenGL) return;
 
 	double offs = m_nTrans[x][y];
-	if (!GetShowGlitches() && GET_TRANS_GLITCH(offs))
+	if (!m_ShowGlitches && GET_TRANS_GLITCH(offs))
 		return;
 
 	size_t nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
@@ -899,7 +899,7 @@ void CFraktalSFT::SetColor(int x, int y, int w, int h)
 				case Differences_Diagonal2x2: // aka Roberts Cross
 					{
 						// forward differencing in 2 diagonals of a 2x2 substencil
-						if (GetJitterSeed() == 0)
+						if (m_JitterSeed == 0)
 						{
 							double gu = sqr(p[0][0] - p[1][1]) / hypot2(px[0][0] - px[1][1], py[0][0] - py[1][1]);
 							double gv = sqr(p[0][1] - p[1][0]) / hypot2(px[0][1] - px[1][0], py[0][1] - py[1][0]);
@@ -1191,7 +1191,7 @@ void CFraktalSFT::ApplyColors(int x0, int x1, int y0, int y1)
 
 static int ThApplyColors(TH_PARAMS *pMan)
 {
-	pMan->p->ApplyColors(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight());
+	pMan->p->ApplyColors(pMan->nXStart, pMan->nXStop, 0, pMan->p->m_nY);
 	return 0;
 }
 
@@ -1220,7 +1220,7 @@ void CFraktalSFT::ApplyColors()
 				request_compile_t req{};
 				response_compile_t resp{};
 
-				req.fragment_src = GetGLSL();
+				req.fragment_src = m_sGLSL;
 
 				m_OpenGL->compile(req, resp);
 
@@ -1238,17 +1238,17 @@ void CFraktalSFT::ApplyColors()
 			{
 				request_configure_t req{};
 
-				req.iterations = GetIterations();
+				req.iterations = m_nMaxIter;
 				GetIterations(req.iterations_min, req.iterations_max, nullptr, nullptr, true);
-				req.jitter_seed = GetJitterSeed();
-				req.jitter_shape = GetJitterShape();
-				req.jitter_scale = GetJitterScale();
-				req.show_glitches = GetShowGlitches();
-				req.iter_div = GetIterDiv();
-				req.color_offset = GetColorOffset();
-				req.color_method = GetColorMethod();
-				req.differences = GetDifferences();
-				req.color_phase_strength = GetPhaseColorStrength();
+				req.jitter_seed = m_JitterSeed;
+				req.jitter_shape = m_JitterShape;
+				req.jitter_scale = m_JitterScale;
+				req.show_glitches = m_ShowGlitches;
+				req.iter_div = m_nIterDiv;
+				req.color_offset = m_nColorOffset;
+				req.color_method = m_nColorMethod;
+				req.differences = m_nDifferences;
+				req.color_phase_strength = m_nPhaseColorStrength;
 				req.colors.clear();
 				for (int i = 0; i < m_nParts; ++i)
 				{
@@ -1256,7 +1256,7 @@ void CFraktalSFT::ApplyColors()
 					req.colors.push_back(m_cKeys[i].g);
 					req.colors.push_back(m_cKeys[i].b);
 				}
-				COLOR14 interior = GetInteriorColor();
+				COLOR14 interior = m_cInterior;
 				req.interior_color[0] = interior.r;
 				req.interior_color[1] = interior.g;
 				req.interior_color[2] = interior.b;
@@ -1271,13 +1271,12 @@ void CFraktalSFT::ApplyColors()
 					req.multiwaves.push_back(m_MW[i].nStart);
 					req.multiwaves.push_back(m_MW[i].nType);
 				}
-				req.inverse_transition = GetITransition();
+				req.inverse_transition = m_bITrans;
 				{
-					int p = 0, r = 0, a = 0;
-					req.slopes = GetSlopes(p, r, a);
-					req.slope_power = p;
-					req.slope_ratio = r;
-					req.slope_angle = a;
+					req.slopes = m_bSlopes;
+					req.slope_power = m_nSlopePower;
+					req.slope_ratio = m_nSlopeRatio;
+					req.slope_angle = m_nSlopeAngle;
 				}
 				{
 					double m = 0, p = 0;
@@ -1291,7 +1290,7 @@ void CFraktalSFT::ApplyColors()
 					req.texture_height = m_bmiBkg.biHeight;
 					req.texture = m_lpTextureBits; // FIXME row alignment?
 				}
-				req.use_srgb = GetUseSRGB();
+				req.use_srgb = m_bUseSRGB;
 				{
 					CFixedFloat zoom = CFixedFloat(2) / m_ZoomRadius;
 					floatexp zoomFE = floatexp(zoom);
@@ -1325,7 +1324,7 @@ void CFraktalSFT::ApplyColors()
 		{
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
-			int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+			int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 			if (nParallel < 1) nParallel = 1;
 			CParallell P(
 #ifdef _DEBUG
@@ -1409,7 +1408,7 @@ static BOOL ISFLOATOK(double a)
 
 void CFraktalSFT::Mirror(int x, int y)
 {
-	if (!GetMirror())
+	if (!m_Mirror)
 		return;
 	int ty = m_nY - y - 1;
 	if (ty<y)
@@ -1437,7 +1436,7 @@ void CFraktalSFT::SetupArrays()
 	if (m_nX == 0 || m_nY == 0)
 		throw;
 	
-	bool two = GetIterations() >= UINT32_MAX;
+	bool two = m_nMaxIter >= UINT32_MAX;
 	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
 	m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
 	m_nTrans = new float*[m_nX];
@@ -1521,7 +1520,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 	const double nBailout = GetBailoutRadius();
 	const double norm_p = GetBailoutNorm();
 	const double nBailout2 = norm_p < 1.0/0.0 ? pow(nBailout, norm_p) : nBailout;
-	mat2 transform = GetTransformMatrix();
+	const mat2 &transform = m_TransformMatrix;
 	if (reftype == Reference_Float || reftype == Reference_ScaledFloat)
 	{
 		tfloatexp<float, int32_t> *APr = nullptr;
@@ -1559,9 +1558,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
-		  GetJitterSeed(),
-		  GetJitterShape(),
-		  GetJitterScale(),
+		  m_JitterSeed,
+		  m_JitterShape,
+		  m_JitterScale,
 		  tfloatexp<float, int32_t>(m_pixel_center_x),
 		  tfloatexp<float, int32_t>(m_pixel_center_y),
 		  tfloatexp<float, int32_t>(m_pixel_scale),
@@ -1569,7 +1568,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  transform[0][1],
 		  transform[1][0],
 		  transform[1][1],
-		  GetExponentialMap(),
+		  m_ExponentialMap,
 		  // for result -> output mapping
 		  stride_y,
 		  stride_x,
@@ -1614,18 +1613,18 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // formula selection
 		  m_nFractalType,
 		  m_nPower,
-		  GetDerivatives(),
-		  GetTriangleInequalityAverage(),
+		  m_Derivatives,
+		  m_bTriangleInequalityAverage,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
-		  GetGuessing(),
+		  m_Guessing,
 		  m_nAddRefX,
 		  m_nAddRefY,
 
-		  GetGlitchCenterMethod(),
-		  GetIsolatedGlitchNeighbourhood(),
+		  m_GlitchCenterMethod,
+		  m_IsolatedGlitchNeighbourhood,
 
 		  // output arrays
 		  m_nPixels_MSB,
@@ -1637,7 +1636,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 
 		  m_bInteractive,
 		  m_bAutoGlitch,
-		  GetMaxReferences(),
+		  m_MaxReferences,
 
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
@@ -1685,9 +1684,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
-		  GetJitterSeed(),
-		  GetJitterShape(),
-		  GetJitterScale(),
+		  m_JitterSeed,
+		  m_JitterShape,
+		  m_JitterScale,
 		  tfloatexp<float, int32_t>(m_pixel_center_x),
 		  tfloatexp<float, int32_t>(m_pixel_center_y),
 		  tfloatexp<float, int32_t>(m_pixel_scale),
@@ -1695,7 +1694,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  transform[0][1],
 		  transform[1][0],
 		  transform[1][1],
-		  GetExponentialMap(),
+		  m_ExponentialMap,
 		  // for result -> output mapping
 		  stride_y,
 		  stride_x,
@@ -1740,18 +1739,18 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // formula selection
 		  m_nFractalType,
 		  m_nPower,
-		  GetDerivatives(),
-		  GetTriangleInequalityAverage(),
+		  m_Derivatives,
+		  m_bTriangleInequalityAverage,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
-		  GetGuessing(),
+		  m_Guessing,
 		  m_nAddRefX,
 		  m_nAddRefY,
 
-		  GetGlitchCenterMethod(),
-		  GetIsolatedGlitchNeighbourhood(),
+		  m_GlitchCenterMethod,
+		  m_IsolatedGlitchNeighbourhood,
 
 		  // output arrays
 		  m_nPixels_MSB,
@@ -1763,7 +1762,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 
 		  m_bInteractive,
 		  m_bAutoGlitch,
-		  GetMaxReferences(),
+		  m_MaxReferences,
 
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
@@ -1782,9 +1781,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
-		  GetJitterSeed(),
-		  GetJitterShape(),
-		  GetJitterScale(),
+		  m_JitterSeed,
+		  m_JitterShape,
+		  m_JitterScale,
 		  m_pixel_center_x,
 		  m_pixel_center_y,
 		  m_pixel_scale,
@@ -1792,7 +1791,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  transform[0][1],
 		  transform[1][0],
 		  transform[1][1],
-		  GetExponentialMap(),
+		  m_ExponentialMap,
 		  // for result -> output mapping
 		  stride_y,
 		  stride_x,
@@ -1837,18 +1836,18 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // formula selection
 		  m_nFractalType,
 		  m_nPower,
-		  GetDerivatives(),
-		  GetTriangleInequalityAverage(),
+		  m_Derivatives,
+		  m_bTriangleInequalityAverage,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
-		  GetGuessing(),
+		  m_Guessing,
 		  m_nAddRefX,
 		  m_nAddRefY,
 
-		  GetGlitchCenterMethod(),
-		  GetIsolatedGlitchNeighbourhood(),
+		  m_GlitchCenterMethod,
+		  m_IsolatedGlitchNeighbourhood,
 
 		  // output arrays
 		  m_nPixels_MSB,
@@ -1860,7 +1859,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 
 		  m_bInteractive,
 		  m_bAutoGlitch,
-		  GetMaxReferences(),
+		  m_MaxReferences,
 
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
@@ -1876,9 +1875,9 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // for pixel -> parameter mapping
 		  m_nX,
 		  m_nY,
-		  GetJitterSeed(),
-		  GetJitterShape(),
-		  GetJitterScale(),
+		  m_JitterSeed,
+		  m_JitterShape,
+		  m_JitterScale,
 		  m_pixel_center_x,
 		  m_pixel_center_y,
 		  m_pixel_scale,
@@ -1886,7 +1885,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  transform[0][1],
 		  transform[1][0],
 		  transform[1][1],
-		  GetExponentialMap(),
+		  m_ExponentialMap,
 		  // for result -> output mapping
 		  stride_y,
 		  stride_x,
@@ -1931,18 +1930,18 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  // formula selection
 		  m_nFractalType,
 		  m_nPower,
-		  GetDerivatives(),
-		  GetTriangleInequalityAverage(),
+		  m_Derivatives,
+		  m_bTriangleInequalityAverage,
 
 		  m_UseHybridFormula,
 		  m_HybridFormula,
 
-		  GetGuessing(),
+		  m_Guessing,
 		  m_nAddRefX,
 		  m_nAddRefY,
 
-		  GetGlitchCenterMethod(),
-		  GetIsolatedGlitchNeighbourhood(),
+		  m_GlitchCenterMethod,
+		  m_IsolatedGlitchNeighbourhood,
 
 		  // output arrays
 		  m_nPixels_MSB,
@@ -1954,7 +1953,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 
 		  m_bInteractive,
 		  m_bAutoGlitch,
-		  GetMaxReferences(),
+		  m_MaxReferences,
 
 		  m_OpenCL_Glitched,
 		  m_OpenCL_Glitched_X,
@@ -2064,7 +2063,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 	// zooming out.
 	//
 	// We can't do the same thing for zooming in because of anti-aliasing
-	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
+	if (bReuseCenter && !m_NoReuseCenter && nZoomSize<=1){
 		m_bAddReference = 2;
 		int nOX = m_nX*nZoomSize;
 		int nOY = m_nY*nZoomSize;
@@ -2191,7 +2190,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 double CFraktalSFT::GetProgress(double *reference, double *approximation, double *good_guessed, double *good, double *queued, double *bad, double *bad_guessed)
 {
 	int64_t iters = m_nMaxIter;
-	if ((GetUseNanoMB1() || GetUseNanoMB2()) && m_bAutoGlitch == 1) iters = N.g_period;
+	if ((m_UseNanoMB1 || m_UseNanoMB2) && m_bAutoGlitch == 1) iters = N.g_period;
 	if (iters <= 0) iters = 1;
 	if (reference) *reference = m_nRDone * 100.0 / iters;
 	if (approximation) *approximation = m_nApprox * 100.0 / iters;
@@ -2377,8 +2376,8 @@ bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
 {
 	SYSTEM_INFO sysinfo;
 	GetSystemInfo(&sysinfo);
-	int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
-	if (nParallel < 1 || ! GetEXRParallel()) nParallel = 1;
+	int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
+	if (nParallel < 1 || ! m_EXRParallel) nParallel = 1;
 	bool ret = ReadEXRMapFile(szfile, nParallel);
 	m_bIterChanged = true;
 	return ret;
@@ -2400,7 +2399,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	int nOX = 0, nOY = 0;
 	int i;
 	int x, y, a = 0, b = 0;
-	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<1){
+	if (bReuseCenter && !m_NoReuseCenter && nZoomSize<1){
 		int i;
 		nOX = m_nX*nZoomSize;
 		nOY = m_nY*nZoomSize;
@@ -2517,7 +2516,7 @@ BOOL CFraktalSFT::OpenMapB(const std::string &szFile, BOOL bReuseCenter, double 
 	bool ok = hFile.good();
 	hFile.close();
 
-	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<1){
+	if (bReuseCenter && !m_NoReuseCenter && nZoomSize<1){
 		for (x = 0; x<m_nX; x++){
 			for (y = 0; y<m_nY; y++){
 				if (x - a>0 && x - a<nOX - 1 && y - b>0 && y - b<nOY - 1){
@@ -2691,7 +2690,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bResum
 		m_nAddRefY = nYPos;
 	}
 #ifdef KF_OPENCL
-	if (cl && GetGlitchCenterMethod() != 0)
+	if (cl && m_GlitchCenterMethod != 0)
 	{
 		m_count_queued = m_OpenCL_Glitched_Count;
 	}
@@ -2854,7 +2853,7 @@ int CFraktalSFT::GetArea(itercount_array &Node, int nXStart,int nYStart,int nEqS
 
 void CFraktalSFT::IgnoreIsolatedGlitches()
 {
-	int neighbourhood = GetIsolatedGlitchNeighbourhood();
+	int neighbourhood = m_IsolatedGlitchNeighbourhood;
 	if (neighbourhood)
 	{
 		for (int x = 0; x < m_nX; ++x)
@@ -2922,7 +2921,7 @@ void CFraktalSFT::IgnoreIsolatedGlitches()
 						}
 						if (m_nDEx) m_nDEx[x][y] = sum_de_x / neighbourhood;
 						if (m_nDEy) m_nDEy[x][y] = sum_de_y / neighbourhood;
-						if(GetMirror())
+						if(m_Mirror)
 						{
 							Mirror(x,y);
 						}
@@ -2956,13 +2955,13 @@ struct TH_FIND_CENTER
 
 static int ThFindCenterOfGlitch(TH_FIND_CENTER *pMan)
 {
-	pMan->p->FindCenterOfGlitch(pMan->nXStart, pMan->nXStop, 0, pMan->p->GetImageHeight(), pMan);
+	pMan->p->FindCenterOfGlitch(pMan->nXStart, pMan->nXStop, 0, pMan->p->m_nY, pMan);
 	return 0;
 }
 
 void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CENTER *p)
 {
-	int mode = GetGlitchCenterMethod();
+	int mode = m_GlitchCenterMethod;
 	glitch_id us = { 1.0 / 0.0, -1, -1 };
 	int64_t count = 0;
 	for (int x = x0; x < x1; ++x)
@@ -3001,10 +3000,10 @@ void CFraktalSFT::FindCenterOfGlitch(int x0, int x1, int y0, int y1, TH_FIND_CEN
 int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 {
 #ifdef KF_OPENCL
-	if (cl && GetUseOpenCL())
+	if (cl && m_UseOpenCL)
 	{
 		// OpenCL has already ignored isolated glitches
-		if (0 != GetGlitchCenterMethod())
+		if (0 != m_GlitchCenterMethod)
 		{
 			// OpenCL has already selected a new reference
 			if (m_OpenCL_Glitched)
@@ -3032,11 +3031,11 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		// regular CPU path
 		IgnoreIsolatedGlitches();
 	}
-	if (1 == GetGlitchCenterMethod() || 2 == GetGlitchCenterMethod())
+	if (1 == m_GlitchCenterMethod || 2 == m_GlitchCenterMethod)
 	{
 		SYSTEM_INFO sysinfo;
 		GetSystemInfo(&sysinfo);
-		int nParallel = GetThreadsPerCore() * sysinfo.dwNumberOfProcessors - GetThreadsReserveCore();
+		int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 		if (nParallel < 1) nParallel = 1;
 		TH_FIND_CENTER *pMan = new TH_FIND_CENTER[nParallel];
 		CParallell P(nParallel);
@@ -3092,7 +3091,7 @@ int CFraktalSFT::FindCenterOfGlitch(int &ret_x, int &ret_y)
 		int nDistance=-1;
 
 		int nHeight = m_nY;
-		if(GetMirror())
+		if(m_Mirror)
 			nHeight=(nHeight+1)/2;
 
 		int nQSize = m_nX*m_nY;
@@ -3376,7 +3375,7 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 	hFile.write(reinterpret_cast<char*>(&m_nMaxIter), sizeof(int));
 	for (x = 0; x<m_nX; x++)
 		hFile.write(reinterpret_cast<char*>(m_nTrans[x]), m_nY*sizeof(float));
-	if (GetDerivatives() && m_nDEx)
+	if (m_Derivatives && m_nDEx)
 	{
 		float *column = new float[m_nY];
 		for (x = 0; x<m_nX; x++)
@@ -3393,25 +3392,25 @@ void CFraktalSFT::SaveMapB(const std::string &szFile)
 
 double CFraktalSFT::GetBailoutRadius()
 {
-	switch (GetBailoutRadiusPreset())
+	switch (m_nBailoutRadiusPreset)
 	{
 		default:
 		case BailoutRadius_High: return SMOOTH_BAILOUT;
 		case BailoutRadius_2: return 2;
 		case BailoutRadius_Low: return pow(2.0, 1.0 / (m_nPower - 1));
-		case BailoutRadius_Custom: return GetBailoutRadiusCustom();
+		case BailoutRadius_Custom: return m_nBailoutRadiusCustom;
 	}
 }
 
 double CFraktalSFT::GetBailoutNorm()
 {
-	switch (GetBailoutNormPreset())
+	switch (m_nBailoutNormPreset)
 	{
 		case BailoutNorm_1: return 1;
 		default:
 		case BailoutNorm_2: return 2;
 		case BailoutNorm_Infinity: return 1.0/0.0;
-		case BailoutNorm_Custom: return GetBailoutNormCustom();
+		case BailoutNorm_Custom: return m_nBailoutNormCustom;
 	}
 }
 
@@ -3488,7 +3487,7 @@ void CFraktalSFT::UpdateApproxTerms(int nT)
 
 void CFraktalSFT::UpdateHalfColour()
 {
-	bool b = m_Settings->GetHalfColour();
+	bool b = m_HalfColour;
 	if (b)
 	{
 		size_t sz = 3 * m_nX * m_nY;
@@ -3506,14 +3505,6 @@ void CFraktalSFT::UpdateHalfColour()
 			m_imageHalf = nullptr;
 		}
 	}
-}
-
-BOOL CFraktalSFT::GetSlopes(int &nSlopePower, int &nSlopeRatio, int &nSlopeAngle)
-{
-	nSlopePower = m_nSlopePower;
-	nSlopeRatio = m_nSlopeRatio;
-	nSlopeAngle = m_nSlopeAngle;
-	return m_bSlopes;
 }
 
 void CFraktalSFT::UpdateSlopes()
@@ -3592,7 +3583,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 			bGlitch = false;
 		}
 		double de_multiplier = 1;
-		if (GetExponentialMap())
+		if (m_ExponentialMap)
 		{
 			double dx, dy;
 			GetPixelOffset(x, y, dx, dy);
@@ -3612,7 +3603,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 		}
 	}
 	SetColor(x, y, w, h);
-	if (GetMirror())
+	if (m_Mirror)
 		Mirror(x, y);
 }
 
@@ -3636,7 +3627,7 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 
 void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
 {
-		if ((!bGlitch || GetShowGlitches()) && ! m_bInhibitColouring && ! GetUseOpenGL())
+    if ((!bGlitch || m_ShowGlitches) && ! m_bInhibitColouring && ! m_bUseOpenGL)
     {
       int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y) * m_row;
       for (int ty = 0; ty < h; ++ty)
@@ -3658,9 +3649,9 @@ void CFraktalSFT::OutputPixelData(int x, int y, int w, int h, bool bGlitch)
               }
             }
           }
-				}
-			}
-		}
+        }
+      }
+    }
 }
 
 Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
@@ -3705,7 +3696,7 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 		m_lpBits[nIndex    ] = (m_lpBits[nIndex0    ] + m_lpBits[nIndex1    ]) / 2;
 		m_lpBits[nIndex + 1] = (m_lpBits[nIndex0 + 1] + m_lpBits[nIndex1 + 1]) / 2;
 		m_lpBits[nIndex + 2] = (m_lpBits[nIndex0 + 2] + m_lpBits[nIndex1 + 2]) / 2;
-		if (GetMirror())
+		if (m_Mirror)
 			Mirror(x, y);
 		return GET_TRANS_GLITCH(m_nTrans[x0][y0]) ? Guess_Glitch : Guess_Interior;
 	}
@@ -3715,7 +3706,7 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int x0, int y0, int x1, int y1)
 Guess CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 {
 	Guess g = Guess_No;
-	if (GetGuessing())
+	if (m_Guessing)
 	{
 		if (w == 1 && h <= 2)
 			if ((g = GuessPixel(x, y, x - 1, y    , x + 1, y    ))) return g;
@@ -3730,13 +3721,13 @@ Guess CFraktalSFT::GuessPixel(int x, int y, int w, int h)
 
 void CFraktalSFT::GetPixelOffset(const int i, const int j, double &x, double &y) const
 {
-	int c = GetJitterSeed();
+	int c = m_JitterSeed;
 	if (c)
 	{
-		double s = GetJitterScale();
+		double s = m_JitterScale;
 		double u = dither(i, j, 2 * c + 0);
 		double v = dither(i, j, 2 * c + 1);
-		switch (GetJitterShape())
+		switch (m_JitterShape)
 		{
 			default:
 			case 0: // uniform
@@ -3772,7 +3763,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	GetPixelOffset(i, j, di, dj);
 	double u0 = i + di;
 	double v0 = j + dj;
-	if (GetExponentialMap())
+	if (m_ExponentialMap)
 	{
 		double re = -0.6931471805599453 * v0 / m_nY; // log 2
 		double im = 6.283185307179586 * u0 / m_nX; // 2 pi
@@ -3788,7 +3779,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 		u0 -= m_nX / 2;
 		v0 -= m_nY / 2;
 	}
-	mat2 m = GetTransformMatrix();
+	const mat2 &m = m_TransformMatrix;
 	x = m_pixel_center_x + m_pixel_scale * (m[0][0] * u0 + m[0][1] * v0);
 	y = m_pixel_center_y + m_pixel_scale * (m[1][0] * u0 + m[1][1] * v0);
 }
@@ -3800,7 +3791,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 	GetPixelOffset(i, j, di, dj);
 	dual<2, double> u0(i + di); u0.dx[0] = 1;
 	dual<2, double> v0(j + dj); v0.dx[1] = 1;
-	if (GetExponentialMap())
+	if (m_ExponentialMap)
 	{
 		double re = -0.6931471805599453 * v0.x / double(m_nY); // log 2
 		double im = 6.283185307179586 * u0.x / double(m_nX); // 2 pi
@@ -3819,7 +3810,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 		u0 -= m_nX / 2;
 		v0 -= m_nY / 2;
 	}
-	mat2 m = GetTransformMatrix();
+	const mat2 &m = m_TransformMatrix;
 	dual<2, floatexp> x0 = m_pixel_center_x + m_pixel_scale * dual<2, floatexp>(m[0][0] * u0 + m[0][1] * v0);
 	dual<2, floatexp> y0 = m_pixel_center_y + m_pixel_scale * dual<2, floatexp>(m[1][0] * u0 + m[1][1] * v0);
 	x = x0.x;
@@ -3832,7 +3823,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 {
-	NumberType n = GetNumberTypes();
+	NumberType n = m_NumberTypes;
 	bool scalable = m_UseHybridFormula ? true : scaling_supported(m_nFractalType, m_nPower);
 #ifdef KF_OPENCL
 	bool supports_long_double = ! cl;

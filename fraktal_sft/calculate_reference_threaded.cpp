@@ -131,7 +131,7 @@ static void mcthreadfunc(mcthread *p0)
 
 bool CFraktalSFT::CalculateReferenceThreaded()
 {
-	if (m_nFractalType == 0 && m_nPower == 2 && GetThreadedReference())
+	if (m_nFractalType == 0 && m_nPower == 2 && m_ThreadedReference)
 	{
 		Precision prec(m_rref.m_f.precision());
 

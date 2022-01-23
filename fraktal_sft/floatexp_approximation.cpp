@@ -56,7 +56,7 @@ void CFraktalSFT::CalculateApproximation()
 
 	POINT *p = new POINT[nProbe];
 	int k = 0;
-	if (GetExponentialMap())
+	if (m_ExponentialMap)
 	{
 		// probe points equally spaced along top edge
 		for (int i = 0; i < nProbe; ++i)
@@ -131,7 +131,7 @@ void CFraktalSFT::CalculateApproximation()
 	floatexp *APi = isC ? new floatexp[nTerms] : nullptr;
 	SeriesR2<double, int64_t> *APs = isR ? new SeriesR2<double, int64_t> : nullptr;
 
-	const bool rescaled = isC && m_nFractalType == 0 && m_nPower == 2 && GetUseRescaledSeries();
+	const bool rescaled = isC && m_nFractalType == 0 && m_nPower == 2 && m_UseRescaledSeries;
 	floatexp T = 1;
 	double one_over_t = double(floatexp(1) / T);
 	complex<double> a[2][MAX_APPROX_TERMS+1];

@@ -28,8 +28,8 @@ void CFraktalSFT::CalculateReferenceNANOMB1()
 
 	Precision prec(m_rref.m_f.precision());
 	complex<decNumber> c(m_rref.m_f, m_iref.m_f);
-	int m = GetOrderM();
-	int n = GetOrderN() / 2;
+	int m = m_OrderM;
+	int n = m_OrderN / 2;
 	int64_t period = N.g_period ? N.g_period : 1;
 	const double er = GetBailoutRadius();
 	const double er2 = er * er;

@@ -286,15 +286,9 @@ class _Var:
 """
     def gen_gf(self):
         """generates getter code for SFT"""
-        if "cp" in self.skips:
-            return f"""
-  inline {self.const} {self.ctype} Get{self.gsname}() const {{
-    return m_Settings->Get{self.gsname}();
-  }};
-"""
         return f"""
-  inline {self.const} {self.ctype} {self.ref}Get{self.gsname}() const {{
-    return p_{self.varname};
+  inline {self.const} {self.ctype} Get{self.gsname}() const {{
+    return (m_NewSettings ?: m_Settings)->Get{self.gsname}();
   }};
 """
 
@@ -569,7 +563,9 @@ class Var_L(Var_s):
     def gen_gf(self):
         res = super().gen_gf()
         res += f"""\
-    inline int Get{self.cgsname}() const {{ return {self.countname}; }}
+    inline int Get{self.cgsname}() const {{
+        return (m_NewSettings ?: m_Settings)->Get{self.cgsname}();
+    }}
 """
         return res
 
