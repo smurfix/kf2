@@ -317,18 +317,32 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 #include "Settings.lcs.inc"
 #include "Settings.pcs.inc"
 
+	bool updatePix = false;
+
 	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
+		updatePix = true;
 		SetupArrays();
 		AllocateBitmap();
 		SetNeedRender();
-
-		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
-		m_fPixelSpacing = floatexp(pixel_spacing);
 	}
 
 	if(!data C(Digits10)) {
 		m_rref.m_f.precision(m_digits10);
 		m_iref.m_f.precision(m_digits10);    
+	}
+
+	if(!data C(CenterRe) C(CenterIm) C(ZoomRadius)) {
+		updatePix = true;
+		m_bAddReference = FALSE;
+		if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
+			m_bNoGlitchDetection = FALSE;
+		else
+			m_bNoGlitchDetection = TRUE;
+	}
+	if(updatePix) {
+		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
+		m_fPixelSpacing = floatexp(pixel_spacing);
+		ClearImage();
 	}
 
 	if(!data C(Power)) {
@@ -1441,6 +1455,8 @@ void CFraktalSFT::SetupArrays()
 		m_nDEy[x] = m_nDEy[0] + x * m_nY;
 	}
 	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+
+	ClearImage();
 }
 
 void CFraktalSFT::DeleteArrays()
@@ -2021,6 +2037,7 @@ void CFraktalSFT::Zoom(double nZoomSize)
 
 	SetZoomRadius(m_ZoomRadius / nZoomSize);
 #ifndef KF_EMBED
+	ApplyNewSettings();
 	Render();
 #endif
 }
@@ -2158,6 +2175,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		SetPosition(re.m_f,im.m_f,radius.m_f,digits10);
 	}
 #ifndef KF_EMBED
+	ApplyNewSettings();
 	Render();
 #endif
 }
