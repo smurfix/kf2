@@ -1855,7 +1855,6 @@ static bool OpenSettings(HWND hWnd, bool warn)
 						OpenCLErrorDialog(&g_SFT.cl_error, hWnd, hWnd ? false : true);
 					}
 #endif
-					g_SFT.SetApproxTerms(g_SFT.GetApproxTerms());
 					if (hWnd)
 						UpdateMenusFromSettings(hWnd);
 					if (hWnd)
@@ -2044,7 +2043,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowTop(r.bottom/2-wr.bottom/2);
 		g_SFT.SetWindowRight(wr.right);
 		g_SFT.SetWindowBottom(wr.bottom);
-		UpdateWindowSize(hWnd);
 
 		g_SFT.SetImageSize(640, 360);
 		g_SFT.SetPosition("0", "0", "1");
@@ -2060,7 +2058,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(g_hwHair,WM_USER+112,0,0);
 		ShowWindow(g_hwHair,SW_SHOWNA);
 
-		UpdateMenusFromSettings(hWnd);
 		DragAcceptFiles(hWnd, TRUE);
 
 		if (g_args->bLoadSettings)
@@ -2084,6 +2081,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		{
 			open_default_location(hWnd);
 		}
+		g_SFT.ApplyNewSettings();
+		UpdateMenusFromSettings(hWnd);
+		UpdateWindowSize(hWnd);
+
 		g_bSaveJpeg = g_args->bSaveJPG;
 		g_bSaveTif = g_args->bSaveTIF;
 		g_bSavePng = g_args->bSavePNG;
@@ -3189,6 +3190,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowTop(wr.top);
 		g_SFT.SetWindowRight(wr.right);
 		g_SFT.SetWindowBottom(wr.bottom);
+		g_SFT.ApplySettings();
 		UpdateWindowSize(hWnd);
 		g_SFT.ResetTimers();
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
