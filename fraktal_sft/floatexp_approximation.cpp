@@ -108,18 +108,18 @@ void CFraktalSFT::CalculateApproximation()
 			nT = 3;
 		UpdateApproxTerms(nT);
 	}
-	int m_nTerms = GetApproxTerms();
+	int nTerms = m_nTerms;
 
 	// clear approximation
 	if (isC)
-		for (int i = 0; i < m_nTerms; i++)
+		for (int i = 0; i < nTerms; i++)
 		{
 			m_APr[i] = 0;
 			m_APi[i] = 0;
 		}
 	if (isR)
-		for (int i = 0; i <= m_nTerms; ++i)
-			for (int j = 0; j <= m_nTerms - i; ++j)
+		for (int i = 0; i <= nTerms; ++i)
+			for (int j = 0; j <= nTerms - i; ++j)
 			{
 				m_APs->s[i][j] = 0;
 				m_APs->t[i][j] = 0;
@@ -127,8 +127,8 @@ void CFraktalSFT::CalculateApproximation()
 
 	floatexp xr;
 	floatexp xi;
-	floatexp *APr = isC ? new floatexp[m_nTerms] : nullptr;
-	floatexp *APi = isC ? new floatexp[m_nTerms] : nullptr;
+	floatexp *APr = isC ? new floatexp[nTerms] : nullptr;
+	floatexp *APi = isC ? new floatexp[nTerms] : nullptr;
 	SeriesR2<double, int64_t> *APs = isR ? new SeriesR2<double, int64_t> : nullptr;
 
 	const bool rescaled = isC && m_nFractalType == 0 && m_nPower == 2 && GetUseRescaledSeries();
@@ -142,7 +142,7 @@ void CFraktalSFT::CalculateApproximation()
 	{
 		if (rescaled)
 		{
-			for (int k = 0; k < m_nTerms; ++k)
+			for (int k = 0; k < nTerms; ++k)
 			{
 				a[src][k] = 0;
 				a[dst][k] = 0;
@@ -152,7 +152,7 @@ void CFraktalSFT::CalculateApproximation()
 		}
 		else
 		{
-			for (int i = 0; i < m_nTerms; i++)
+			for (int i = 0; i < nTerms; i++)
 			{
 				APr[i] = m_APr[i];
 				APi[i] = m_APi[i];
@@ -160,8 +160,8 @@ void CFraktalSFT::CalculateApproximation()
 		}
 	}
 	if (isR)
-		for (int i = 0; i <= m_nTerms; ++i)
-			for (int j = 0; j <= m_nTerms - i; ++j)
+		for (int i = 0; i <= nTerms; ++i)
+			for (int j = 0; j <= nTerms - i; ++j)
 			{
 				APs->s[i][j] = m_APs->s[i][j];
 				APs->t[i][j] = m_APs->t[i][j];
@@ -189,7 +189,7 @@ void CFraktalSFT::CalculateApproximation()
 			}
 			else
 			{
-				for (int i = 0; i < m_nTerms; i++)
+				for (int i = 0; i < nTerms; i++)
 				{
 					APr[i] = m_APr[i];
 					APi[i] = m_APi[i];
@@ -197,8 +197,8 @@ void CFraktalSFT::CalculateApproximation()
 			}
 		}
 		if (isR)
-			for (int i = 0; i <= m_nTerms; ++i)
-				for (int j = 0; j <= m_nTerms - i; ++j)
+			for (int i = 0; i <= nTerms; ++i)
+				for (int j = 0; j <= nTerms - i; ++j)
 				{
 					APs->s[i][j] = m_APs->s[i][j];
 					APs->t[i][j] = m_APs->t[i][j];
@@ -220,7 +220,7 @@ void CFraktalSFT::CalculateApproximation()
 						ok = true;
 						// do a full iteration if any of z and a[src][k] are small
 						bool full = retry_full || (std::abs(z.m_r) < 1e-300 && std::abs(z.m_i) < 1e-300);
-						for (int k = 0; k < m_nTerms; ++k)
+						for (int k = 0; k < nTerms; ++k)
 						{
 							if (full)
 							{
@@ -231,7 +231,7 @@ void CFraktalSFT::CalculateApproximation()
 						if (full)
 						{
 							// full iteration
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								A[dst][k] = complex<floatexp>(0);
 								int q = k / 2;
@@ -255,7 +255,7 @@ void CFraktalSFT::CalculateApproximation()
 							A[dst][0].m_r += 1;
 							// rescale
 							T = 0;
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
 								if (Ak2.val > 0)
@@ -265,7 +265,7 @@ void CFraktalSFT::CalculateApproximation()
 							}
 							one_over_t = double(floatexp(1) / T);
 							floatexp Tk = 1;
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								Tk *= T;
 								a[dst][k] = complex<double>(A[dst][k] / Tk);
@@ -274,7 +274,7 @@ void CFraktalSFT::CalculateApproximation()
 						else
 						{
 							// rescaled iteration
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								a[dst][k] = 0;
 								int q = k / 2;
@@ -297,13 +297,13 @@ void CFraktalSFT::CalculateApproximation()
 							a[dst][0].m_r += one_over_t;
 							// rescale
 							floatexp Tk = 1;
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								Tk *= T;
 								A[dst][k] = complex<floatexp>(a[dst][k]) * Tk;
 							}
 							T = 0;
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								floatexp Ak2 = A[dst][k].m_r * A[dst][k].m_r + A[dst][k].m_i * A[dst][k].m_i;
 								if (Ak2.val > 0)
@@ -313,14 +313,14 @@ void CFraktalSFT::CalculateApproximation()
 							}
 							one_over_t = double(floatexp(1) / T);
 							Tk = 1;
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								Tk *= T;
 								a[dst][k] = complex<double>(A[dst][k] / Tk);
 							}
 							// some a[dst][k] can underflow at small Z even with rescaling
 							// if that happens, do a full iteration instead
-							for (int k = 0; k < m_nTerms; ++k)
+							for (int k = 0; k < nTerms; ++k)
 							{
 								if (retry_full)
 								{
@@ -339,7 +339,7 @@ void CFraktalSFT::CalculateApproximation()
 				{
 					m_APr[0] = (xr*APr[0] - xi*APi[0]).mul2() + _1;
 					m_APi[0] = (xi*APr[0] + xr*APi[0]).mul2();
-					for (int k = 1; k<m_nTerms; k++){
+					for (int k = 1; k<nTerms; k++){
 						m_APr[k] = (xr*APr[k] - xi*APi[k]).mul2();
 						m_APi[k] = (xi*APr[k] + xr*APi[k]).mul2();
 						int n = k / 2;
@@ -382,9 +382,9 @@ void CFraktalSFT::CalculateApproximation()
 
 	enum { Q0, Q1, Q2, Q3 } q;
 	if ((xr * xi).val >= 0) q = Q0; else q = Q3;
-	for (int i = 0; i <= m_nTerms; ++i)
+	for (int i = 0; i <= nTerms; ++i)
 	{
-		for (int j = 0; j <= m_nTerms - i; ++j)
+		for (int j = 0; j <= nTerms - i; ++j)
 		{
 			// s
 			floatexp total = 0;
@@ -453,7 +453,7 @@ void CFraktalSFT::CalculateApproximation()
 						{
 							const complex<floatexp> C(dbTr0[j], dbTi0[j]);
 							complex<floatexp> Z(0);
-							for (int k = m_nTerms - 1; k >= 0; --k)
+							for (int k = nTerms - 1; k >= 0; --k)
 							{
 								Z += A[dst][k];
 								Z *= C;
@@ -612,7 +612,7 @@ void CFraktalSFT::CalculateApproximation()
 	{
 		if (rescaled)
 		{
-			for (int k = 0; k < m_nTerms; ++k)
+			for (int k = 0; k < nTerms; ++k)
 			{
 				m_APr[k] = A[src][k].m_r;
 				m_APi[k] = A[src][k].m_i;
@@ -620,7 +620,7 @@ void CFraktalSFT::CalculateApproximation()
 		}
 		else
 		{
-			for (int i = 0; i<m_nTerms; i++){
+			for (int i = 0; i<nTerms; i++){
 				m_APr[i] = APr[i];
 				m_APi[i] = APi[i];
 			}
@@ -629,8 +629,8 @@ void CFraktalSFT::CalculateApproximation()
 	if (isR)
 	{
 //		bool isZero = true;
-		for (int i = 0; i <= m_nTerms; ++i)
-			for (int j = 0; j <= m_nTerms - i; ++j)
+		for (int i = 0; i <= nTerms; ++i)
+			for (int j = 0; j <= nTerms - i; ++j)
 			{
 				m_APs->s[i][j] = APs->s[i][j];
 				m_APs->t[i][j] = APs->t[i][j];
@@ -638,15 +638,15 @@ void CFraktalSFT::CalculateApproximation()
 //				isZero &= m_APs->t[i][j] == 0;
 			}
 /*
-		for (int i = 0; i <= m_nTerms; ++i)
+		for (int i = 0; i <= nTerms; ++i)
 		{
-			for (int j = 0; j <= m_nTerms - i; ++j)
+			for (int j = 0; j <= nTerms - i; ++j)
 				std::cerr << m_APs->s[i][j].toLongDouble() << "\t";
 			std::cerr << std::endl;
 		}
-		for (int i = 0; i <= m_nTerms; ++i)
+		for (int i = 0; i <= nTerms; ++i)
 		{
-			for (int j = 0; j <= m_nTerms - i; ++j)
+			for (int j = 0; j <= nTerms - i; ++j)
 				std::cerr << m_APs->t[i][j].toLongDouble() << "\t";
 			std::cerr << std::endl;
 		}
@@ -673,7 +673,7 @@ void CFraktalSFT::DoApproximation(int64_t &antal, const floatexp &D0r, const flo
 	{
 		antal = m_nMaxApproximation - 1;
 		TDnr = 0; TDni = 0; TDDnr = 0; TDDni = 0;
-		for (int k = GetApproxTerms() - 1; k >= 0; --k)
+		for (int k = m_nTerms - 1; k >= 0; --k)
 		{
 			floatexp tr = TDnr * D0r - TDni * D0i + m_APr[k];
 			floatexp ti = TDnr * D0i + TDni * D0r + m_APi[k];
@@ -729,7 +729,7 @@ void CFraktalSFT::DoApproximation
 			if (m_nMaxApproximation)
 			{
 				antal = m_nMaxApproximation - 1;
-				auto order = GetApproxTerms();
+				auto order = m_nTerms;
 				floatexp an[order + 1];
 				floatexp bn[order + 1];
 				floatexp dan[order + 1];
@@ -813,7 +813,7 @@ void CFraktalSFT::DoApproximation
 , floatexp &y
 )
 {
-	int order = GetApproxTerms();
+	int order = m_nTerms;
 	floatexp an[order + 1];
 	floatexp bn[order + 1];
 	an[0] = 1;
