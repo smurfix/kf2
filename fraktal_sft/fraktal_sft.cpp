@@ -2129,14 +2129,13 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
-
 	unsigned digits10 = 20u;
 	{
 		Precision pLo(20u);
-		CFixedFloat pixelSpacing(m_ZoomRadius * 2 / m_nY); // FIXME handle skew
+		CFixedFloat pixelSpacing(m_ZoomRadius * 2 / m_nY);
 		long e = 0;
 		mpfr_get_d_2exp(&e, pixelSpacing.m_f.backend().data(), MPFR_RNDN);
-		digits10 = std::max(20.0, 20 + 0.30102999566398114 * (log2(nZoomSize) - e));
+		digits10 = std::max(20.0, 20 + 0.30103 * (log2(nZoomSize) - e));
 		CFixedFloat radius = m_ZoomRadius / nZoomSize;
 		Precision p(digits10);
 		double g = nZoomSize;
@@ -2155,6 +2154,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
 
+		radius = 2/radius; // pass zoom
 		SetPosition(re.m_f,im.m_f,radius.m_f,digits10);
 	}
 #ifndef KF_EMBED
