@@ -287,7 +287,7 @@ embed:
 
 _embed: libkf2-embed.so
 libkf2-embed.so: embed.a $(FORMULA_LIBS) formula/generated.a
-	$(LINK) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive $(LIBS)
+	$(LINK) $(DEBUG) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive $(LIBS)
 
 clean:
 	rm -f $(OBJECTS) fraktal_sft/main.o res.o
