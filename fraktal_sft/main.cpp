@@ -4485,6 +4485,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 
 	}
+	g_SFT.Stop();
 	g_SFT.StopUseOpenGL();
 	return 0;
 }
