@@ -112,7 +112,7 @@ f	p	:	:	m_nImgPower	:	TexturePower	0
 i	p	:	:	m_nImgRatio	:	TextureRatio	0							
 s	p	:	:	m_szTexture	:	TextureFile								
 b	p	:	:	m_bTextureResize	:	TextureResize	0							
-b	p	:	:	m_bUseOpenGL	:	UseOpenGL	0							
+b	p	:	:	m_bUseOpenGL	:	UseOpenGL	false							
 s	p	!krkw	:	m_sGLSL	:	GLSL	"vec3 colour() { return KF_Colour(); }"							
 s	p	krkw	:	v_GLSL	:	GLSL								
 b	p	:	:	m_bUseSRGB	:	UseSRGB	false							
