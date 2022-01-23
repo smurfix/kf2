@@ -2029,12 +2029,13 @@ void CFraktalSFT::Zoom(double nZoomSize)
 #ifndef KF_EMBED
 	Stop();
 #endif
+#if 0
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-
+#endif
 	SetZoomRadius(m_ZoomRadius / nZoomSize);
 #ifndef KF_EMBED
 	ApplyNewSettings();
@@ -2047,8 +2048,12 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 #ifndef KF_EMBED
 	Stop();
 #endif
+
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);
+
+(void)bReuseCenter;
+#if 0 // TODO make more generic and move to ApplySettings
 
 	m_bAddReference = FALSE;
 	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
@@ -2056,7 +2061,9 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 	else
 		m_bNoGlitchDetection = TRUE;
 
-	// zooming out. XXX do the same, inverted, for zooming in.
+	// zooming out.
+	//
+	// We can't do the same thing for zooming in because of anti-aliasing
 	if (bReuseCenter && !GetNoReuseCenter() && nZoomSize<=1){
 		m_bAddReference = 2;
 		int nOX = m_nX*nZoomSize;
@@ -2146,6 +2153,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		delete[] OrgDEx;
 		delete[] OrgDEy;
 	}
+#endif
 	unsigned digits10 = 20u;
 	{
 		Precision pLo(20u);
