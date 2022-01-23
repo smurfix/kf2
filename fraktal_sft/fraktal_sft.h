@@ -198,16 +198,16 @@ public:
 	// GUI use: set position and zoom level.
 	void SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)
 	{
-		m_Settings->SetPosition(szR,szI,szZ);
+		ModSettings().SetPosition(szR,szI,szZ);
 	}
 	void SetPosition(const char *const szR, const char *const szI, const char *const szZ)
 	{
-		m_Settings->SetPosition(szR,szI,szZ);
+		ModSettings().SetPosition(szR,szI,szZ);
 	}
 
 	// internal / embedded use: set position and zoom level.
 	void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10=0) {
-		m_Settings->SetPosition(re,im,zoom,digits10);
+		ModSettings().SetPosition(re,im,zoom,digits10);
 	}
 
 	// S BOOL(NoReuseCenter)     // when zooming out, re-use the center?
