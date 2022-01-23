@@ -70,7 +70,7 @@ x	l	!hrhw	CFixedFloat	:	:	CenterRe	0	Real part of center
 x	l	!hrhw	CFixedFloat	:	:	CenterIm	0	Imaginary part of center						
 x	l	!hrhw	CFixedFloat	:	:	ZoomRadius	1	Zoom factor (= 2/radius)						
 i	l	!hrhwedeqdidv		m_nZoom	ZoomExponent	nZoom		Zoom exponent						
-i	l	!hrhwedeqdidv		m_digits10	Digits10	Digits10		decimal precision						
+i	l	!hrhwedeq		m_digits10	Digits10	Digits10	10	decimal precision						
 i	l	:	int64_t	m_nMaxIter	Iterations	Iterations	200	Iteration limit	10<_X_	200				
 f	p	:	:	m_nIterDiv	:	IterDiv	.01							
 E	p	:	ColorMethod	m_nColorMethod	:	ColorMethod	7	XXX	0<=_X_	0	_X_<=11	0		
