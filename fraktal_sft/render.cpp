@@ -134,19 +134,19 @@ void CFraktalSFT::RenderFractal()
 	}
 	
 	// Do NanoMB* if requested
-	if (GetUseNanoMB1() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
+	if (m_UseNanoMB1 && m_nFractalType == 0 && m_nPower == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB1();
 		return;
 	}
-	else if (GetUseNanoMB2() && GetFractalType() == 0 && GetPower() == 2 && ! m_bAddReference)
+	else if (m_UseNanoMB2 && m_nFractalType == 0 && m_nPower == 2 && ! m_bAddReference)
 	{
 		RenderFractalNANOMB2();
 		return;
 	}
 
 	Reference_Type reftype = GetReferenceType(m_nZoom);
-	if (m_ReferenceReuse && (! GetReuseReference() || N.g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
+	if (m_ReferenceReuse && (! m_ReuseReference || N.g_bJustDidNewton || reftype != reference_type(m_ReferenceReuse)))
 	{
 		if (m_Reference == m_ReferenceReuse)
 		{
@@ -164,7 +164,7 @@ void CFraktalSFT::RenderFractal()
 		}
 		m_Reference = nullptr;
 	}
-	if (m_bAddReference == 0 && GetReuseReference())
+	if (m_bAddReference == 0 && m_ReuseReference)
 	{
 		m_Reference = m_ReferenceReuse;
 		m_rref = m_rrefReuse;
@@ -184,7 +184,7 @@ void CFraktalSFT::RenderFractal()
 		double wall = get_wall_time();
 		double cpu = get_cpu_time();
 		CalculateReference(reftype);
-		if (! m_ReferenceReuse && GetReuseReference())
+		if (! m_ReferenceReuse && m_ReuseReference)
 		{
 			m_ReferenceReuse = m_Reference;
 			m_rrefReuse = m_rref;
@@ -324,7 +324,7 @@ void CFraktalSFT::RenderFractal()
 void CFraktalSFT::RenderFractalNANOMB1()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (! GetReuseReference() || ! m_NanoMB1Ref || N.g_bJustDidNewton)
+	if (! m_ReuseReference || ! m_NanoMB1Ref || N.g_bJustDidNewton)
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;
@@ -406,7 +406,7 @@ void CFraktalSFT::RenderFractalNANOMB1()
 void CFraktalSFT::RenderFractalNANOMB2()
 {
 	m_P.Init(m_nX, m_nY, m_bInteractive);
-	if (! GetReuseReference() || ! m_NanoMB2Ref || N.g_bJustDidNewton)
+	if (! m_ReuseReference || ! m_NanoMB2Ref || N.g_bJustDidNewton)
 	{
 		m_rref = m_CenterRe;
 		m_iref = m_CenterIm;

@@ -24,7 +24,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 void CFraktalSFT::CalculateApproximation()
 {
 	m_nApprox = 0;
-	if (GetNoApprox() || GetApproximationType() == SeriesType_None || m_nZoom < 3 /* g_nRefZero */)
+	if (m_NoApprox || GetApproximationType() == SeriesType_None || m_nZoom < 3 /* g_nRefZero */)
 	{
 		m_nMaxApproximation = 0;
 		return;
@@ -100,11 +100,11 @@ void CFraktalSFT::CalculateApproximation()
 	floatexp mindiff = std::exp(std::log(0.001) + (std::log(0.00001) - std::log(0.001)) * GetApproxLowTolerance());
 	//	if(dbTr[0]<0 && dbTi[0]<1e-16 && dbTi[0]>-1e-16)
 	//		mindiff = 0.0000001;
-	if (GetNoApprox())
+	if (m_NoApprox)
 		mindiff = 0;
-	if (GetAutoApproxTerms()){
+	if (m_AutoApproxTerms){
 		int nT = sqrt((double)m_count_queued)*0.021;
-		if ((GetFractalType() == 0 && GetPower() > 2) || (GetFractalType() == 1 && GetPower() == 2))
+		if ((m_nFractalType == 0 && m_nPower > 2) || (m_nFractalType == 1 && m_nPower == 2))
 			nT = 3;
 		UpdateApproxTerms(nT);
 	}

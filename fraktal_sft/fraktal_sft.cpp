@@ -335,12 +335,12 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 		UpdatePower();
 		SetNeedRender();
 	}
-	if(GetUseHybridFormula())
+	if(m_UseHybridFormula)
 		SetReferenceStrictZero(true);
 	if(!data C(SlopeAngle))
 		UpdateSlopes();
 
-	if(!m_Settings->GetAutoApproxTerms())
+	if(!m_AutoApproxTerms)
 		UpdateApproxTerms();
 
 	N.g_period = m_Period; // XXX clean up?
@@ -1511,7 +1511,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		tfloatexp<float, int32_t> *APr = nullptr;
 		tfloatexp<float, int32_t> *APi = nullptr;
 		SeriesR2<float, int32_t> *APs = nullptr;
-		int terms = GetApproxTerms();
+		int terms = m_nTerms;
 		{
 			APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 			for (int i = 0; i < terms; ++i)
@@ -1577,7 +1577,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
-		  GetApproxTerms(),
+		  m_nTerms,
 		  GetApproximationType(),
 		  APr,
 		  APi,
@@ -1637,7 +1637,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		tfloatexp<float, int32_t> *APr = nullptr;
 		tfloatexp<float, int32_t> *APi = nullptr;
 		SeriesR2<float, int32_t> *APs = nullptr;
-		int terms = GetApproxTerms();
+		int terms = m_nTerms;
 		{
 			APr = new tfloatexp<float, int32_t>[MAX_APPROX_TERMS+1];
 			for (int i = 0; i < terms; ++i)
@@ -1703,7 +1703,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
-		  GetApproxTerms(),
+		  m_nTerms,
 		  GetApproximationType(),
 		  APr,
 		  APi,
@@ -1800,7 +1800,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
-		  GetApproxTerms(),
+		  m_nTerms,
 		  GetApproximationType(),
 		  m_APr,
 		  m_APi,
@@ -1894,7 +1894,7 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 		  m_epsilon,
 		  // for series approximation
 		  m_nMaxApproximation,
-		  GetApproxTerms(),
+		  m_nTerms,
 		  GetApproximationType(),
 		  m_APr,
 		  m_APi,
@@ -3365,7 +3365,7 @@ double CFraktalSFT::GetBailoutRadius()
 		default:
 		case BailoutRadius_High: return SMOOTH_BAILOUT;
 		case BailoutRadius_2: return 2;
-		case BailoutRadius_Low: return pow(2.0, 1.0 / (GetPower() - 1));
+		case BailoutRadius_Low: return pow(2.0, 1.0 / (m_nPower - 1));
 		case BailoutRadius_Custom: return GetBailoutRadiusCustom();
 	}
 }
@@ -3800,7 +3800,7 @@ void CFraktalSFT::GetPixelCoordinates(const int i, const int j, floatexp &x, flo
 Reference_Type CFraktalSFT::GetReferenceType(int64_t e) const
 {
 	NumberType n = GetNumberTypes();
-	bool scalable = GetUseHybridFormula() ? true : scaling_supported(GetFractalType(), GetPower());
+	bool scalable = m_UseHybridFormula ? true : scaling_supported(m_nFractalType, m_nPower);
 #ifdef KF_OPENCL
 	bool supports_long_double = ! cl;
 	bool supports_double = cl ? cl->supports_double : true;
