@@ -2356,6 +2356,13 @@ void CFraktalSFT::ClearImage()
 	memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
 	memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
+
+	for (int x = 0; x<m_nX; x++){
+		for (int y = 0; y<m_nY; y++){
+			m_nPixels[x][y] = PIXEL_UNEVALUATED;
+			m_nTrans[x][y] = SET_TRANS_GLITCH(0);
+		}
+	}
 }
 
 bool CFraktalSFT::OpenMapEXR(const std::string &szfile)
