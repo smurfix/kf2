@@ -405,16 +405,19 @@ bool CFraktalSFT::ApplySettings(SP_Settings data)
 	abort();
 }
 
-bool CFraktalSFT::ApplyNewSettings()
+bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 {
 	if(m_NewSettings == nullptr)
 		return true;
 	auto s = m_NewSettings;
-	auto p = m_Settings;
-	m_NewSettings = nullptr;
 
-	if(ApplySettings(s)) {
-		UndoStore(p);
+	if(ApplySettings(m_NewSettings)) {
+		if(keepNew) {
+			m_NewSettings = NEW_SETTINGS(*m_NewSettings); // need to copy
+		} else {
+			UndoStore(s);
+			m_NewSettings = nullptr;
+		}
 		return true;
 	} else {
 		return false;

@@ -88,7 +88,7 @@ public:
 #include "Settings.lsf.inc"
 
 	bool ApplySettings(SP_Settings data);
-	bool ApplyNewSettings();
+	bool ApplyNewSettings(bool keepNew = false);
 	void UpdateHalfColour();
 	void UpdateApproxTerms(int nT = -1);
 
