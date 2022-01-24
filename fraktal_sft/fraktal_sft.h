@@ -574,9 +574,6 @@ public:
 #ifdef WINVER
 	HBITMAP m_bmBmp;                  // corresponding Windows device-specific bitmap
 #endif
-#ifndef KF_EMBED
-	std::mutex m_mutex;                  // protect the stuff below
-#endif
 	void AllocateBitmap();
 	void FreeBitmap();
 	void ReinitializeBitmap();

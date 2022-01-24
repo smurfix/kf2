@@ -151,9 +151,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 , m_cldevices()
 #endif
 , N() // invalid array
-#ifndef KF_EMBED
-, m_mutex()
-#endif
 , m_OpenGL(nullptr)
 , m_sGLSLLog("")
 #ifndef KF_EMBED
@@ -1967,9 +1964,6 @@ void CFraktalSFT::RenderFractalOpenCL(const Reference_Type reftype)
 #ifndef KF_EMBED
 HBITMAP CFraktalSFT::GetBitmap()
 {
-#ifndef KF_EMBED
-	m_mutex.lock();
-#endif
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!SetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -1977,16 +1971,10 @@ HBITMAP CFraktalSFT::GetBitmap()
 			Beep(1000, 10);
 		ReleaseDC(NULL, hDC);
 	}
-#ifndef KF_EMBED
-	m_mutex.unlock();
-#endif
 	return m_bmBmp;
 }
 void CFraktalSFT::UpdateBitmap()
 {
-#ifndef KF_EMBED
-	m_mutex.lock();
-#endif
 	if (m_bmi && m_lpBits){
 		HDC hDC = GetDC(NULL);
 		if (!GetDIBits(hDC, m_bmBmp, 0, m_bmi->biHeight, m_lpBits,
@@ -1994,9 +1982,6 @@ void CFraktalSFT::UpdateBitmap()
 			{ /*Beep(1000,10)*/ }
 		ReleaseDC(NULL, hDC);
 	}
-#ifndef KF_EMBED
-	m_mutex.unlock();
-#endif
 }
 #endif
 
@@ -2627,19 +2612,10 @@ int64_t CFraktalSFT::GetMaxApproximation()
 }
 int64_t CFraktalSFT::GetIterationOnPoint(int x, int y)
 {
-#ifndef KF_EMBED
-	m_mutex.lock();
-#endif
 	if (!m_nPixels || x<0 || x >= m_nX || y<0 || y >= m_nY){
-#ifndef KF_EMBED
-		m_mutex.unlock();
-#endif
 		return PIXEL_UNEVALUATED;
 	}
 	int64_t nRet = m_nPixels[x][y];
-#ifndef KF_EMBED
-	m_mutex.unlock();
-#endif
 	return nRet;
 }
 double CFraktalSFT::GetTransOnPoint(int x, int y)

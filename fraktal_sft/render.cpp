@@ -94,11 +94,6 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	if (bResetOldGlitch)
 		ResetGlitches();
 
-#ifndef KF_EMBED
-	m_mutex.lock();
-	m_mutex.unlock();
-#endif
-
 	if (bNoThread || (GetUseOpenCL() && ! GetOpenCLThreaded())){
 #ifndef KF_EMBED
 		if (m_hWnd)
