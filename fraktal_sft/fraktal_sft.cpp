@@ -145,6 +145,7 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 , m_NewSettings()
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
+, m_render_in_progress()
 , m_needRender(false)
 , m_bStop(false)
 #ifdef KF_OPENCL
