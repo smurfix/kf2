@@ -547,9 +547,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		}
 		if(wParam==IDCANCEL || wParam==IDCLOSE){
-			g_SFT.ApplySettings(g_Settings);
+			if(wParam==IDCANCEL) {
+				g_SFT.ApplySettings(g_Settings);
+				InvalidateRect(GetParent(hWnd),NULL,FALSE);
+			}
 			g_Settings = nullptr;
-			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			ShowWindow(hWnd,SW_HIDE);
 		}
 		else if(wParam==IDC_BUTTON23){
