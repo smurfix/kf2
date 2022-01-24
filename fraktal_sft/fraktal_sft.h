@@ -89,6 +89,7 @@ public:
 #include "Settings.psf.inc"
 #include "Settings.lsf.inc"
 
+	bool CanApplySettings(SP_Settings data);
 	bool ApplySettings(SP_Settings data);
 	bool ApplyNewSettings(bool keepNew = false);
 	void UpdateHalfColour();
@@ -109,7 +110,7 @@ public:
 
 private:
 
-    void CloseOldSettings(SP_Settings data);
+    bool CloseOldSettings(SP_Settings data);
     bool OpenNewSettings(SP_Settings data);
 
 public:

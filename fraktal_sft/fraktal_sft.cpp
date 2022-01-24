@@ -273,21 +273,13 @@ void CFraktalSFT::SetNeedRender()
 
 #define C(N) || !(m_Settings->Get ## N () == data->Get ## N ())
 
-void CFraktalSFT::CloseOldSettings(SP_Settings data)
+bool CFraktalSFT::CloseOldSettings(SP_Settings data)
 {
-	// The old settings are active. DATA are the new settings.
+	// m_Settings points to the old settings. @data are the new settings.
 	// If DATA is nullptr, we are shutting down.
 	//
-	if(GetIsRendering()) {
-		if(!data)
-			throw_invalid("Render is running","shutdown");
-
-		if(!data C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
-			throw_invalid("Render is running","formula");
-
-		if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample))
-			throw_invalid("Render is running","resize");
-	}
+	if(!CanApplySettings(data))
+		return false;
 
 	if(!data) // shutting down, so we definitely don't need it any more
 		StopUseOpenGL();
@@ -297,11 +289,12 @@ void CFraktalSFT::CloseOldSettings(SP_Settings data)
 		DeleteArrays();
 	}
 	m_Settings->SetParent(nullptr);
+	return true;
 }
 
 bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 {
-	// The new settings are active. DATA are the old settings.
+	// m_Settings points to the new settings. @data are the old settings.
 	//
 	m_Settings->SetParent(this);
 
@@ -379,11 +372,30 @@ void CFraktalSFT::UpdateDerivativeGlitch()
 	}
 }
 
+bool CFraktalSFT::CanApplySettings(SP_Settings data)
+{
+	if(!data)
+		return !GetIsRendering();
+
+	if(0 C(TargetWidth) C(TargetHeight) C(TargetSupersample))
+		return !GetIsRendering();
+
+	if(0 C(CenterRe) C(CenterIm) C(ZoomRadius) C(Digits10))
+		return !GetIsRendering();
+
+	if(0 C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
+		return !GetIsRendering();
+
+	// TODO there are more
+	return true;
+}
+
 bool CFraktalSFT::ApplySettings(SP_Settings data)
 {
     if(m_Settings == nullptr) throw;
 	if(data == nullptr) throw;
-	CloseOldSettings(data);
+	if(!CloseOldSettings(data))
+		return false;
 
 	SP_Settings old = m_Settings;
 	if(old == nullptr) throw;
