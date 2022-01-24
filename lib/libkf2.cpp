@@ -83,7 +83,7 @@ extern "C" void kf2_stop(struct kf2_t *kf2)
   assert(kf2->state == kf2_state_rendering);
   assert(kf2->g_SFT);
   kf2->state = kf2_state_stopping;
-  kf2->g_SFT->Stop();
+  kf2->g_SFT->Stop(true);
 }
 
 extern "C" int kf2_wait(struct kf2_t *kf2, uint64_t timeout_nanoseconds)

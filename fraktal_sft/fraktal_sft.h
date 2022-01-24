@@ -363,7 +363,7 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
-	void Stop();              // user interrupted (Escape key, Zoom, …)
+	void Stop(bool noWait = false); // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 
 	bool m_needRender;

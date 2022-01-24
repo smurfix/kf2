@@ -1986,18 +1986,17 @@ void CFraktalSFT::UpdateBitmap()
 }
 #endif
 
-void CFraktalSFT::Stop()
+void CFraktalSFT::Stop(bool noWait)
 {
+	if(!GetIsRendering()) {
+		return;
+	}
 	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
 	m_bStop = true;
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches - 1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
+	if(noWait) {
+		return;
+	}
 	Wait();
-	m_bStop = false;
-	m_bNoPostWhenDone=0;
 }
 
 void CFraktalSFT::Zoom(double nZoomSize)
