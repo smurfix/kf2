@@ -168,6 +168,7 @@ void UpdateDisplays(HWND hWnd, bool set)
     g_SFT.SetTargetDimensions(target_width, target_height, target_supersample);
     g_SFT.SetWindowWidth(window_width);
     g_SFT.SetWindowHeight(window_height);
+    g_SFT.ApplyNewSettings();
   }
 }
 

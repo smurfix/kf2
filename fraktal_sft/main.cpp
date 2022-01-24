@@ -1180,6 +1180,7 @@ static int ResumeZoomSequence(HWND hWnd)
 	{
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 	}
+	g_SFT.ApplyNewSettings();
 	SetTimer(hWnd,0,500,NULL);
 	return 0;
 }
@@ -2695,6 +2696,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
 			DisableUnsafeMenus(hWnd);
 			g_SFT.SetImageSize(sc.cx,sc.cy);
+			g_SFT.ApplyNewSettings();
 			g_SFT.Render();
 		}
 		else
@@ -2968,10 +2970,12 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		g_SFT.SetArbitrarySize(! g_SFT.GetArbitrarySize());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
+		g_SFT.ApplyNewSettings();
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_EXPONENTIAL_MAP){
 		g_SFT.SetExponentialMap(! g_SFT.GetExponentialMap());
 		UpdateExponentialMap(hWnd);
+		g_SFT.ApplyNewSettings();
 		SendMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_NEWTON){
@@ -3011,14 +3015,17 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SHOWGLITCHES){
 		g_SFT.SetShowGlitches(!g_SFT.GetShowGlitches());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SHOWGLITCHES,MF_BYCOMMAND|(g_SFT.GetShowGlitches()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOREUSECENTER){
 		g_SFT.SetNoReuseCenter(!g_SFT.GetNoReuseCenter());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_NOREUSECENTER,MF_BYCOMMAND|(g_SFT.GetNoReuseCenter()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SHOWCROSSHAIR){
 		g_SFT.SetShowCrossHair(!g_SFT.GetShowCrossHair());
+		g_SFT.ApplyNewSettings();
 		UpdateShowCrossHair(hWnd);
 	}
 
@@ -3052,6 +3059,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
 		g_SFT.SetMirror(! g_SFT.GetMirror());
+		g_SFT.ApplyNewSettings();
 		UpdateMirror(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_FILE_SAVEMAP){
@@ -3085,6 +3093,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		DisableUnsafeMenus(hWnd);
 		g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+		g_SFT.ApplyNewSettings();
 		g_SFT.Render();
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_CENTERCURSOR) || (uMsg==WM_KEYDOWN && wParam=='U' && HIWORD(GetKeyState(VK_CONTROL)))){
@@ -3107,6 +3116,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_NOAPPROXIMATION){
 		g_SFT.SetNoApprox(!g_SFT.GetNoApprox());
+		g_SFT.ApplyNewSettings();
 		UpdateNoApprox(hWnd);
 	}
 
@@ -3249,42 +3259,51 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SOLVEGLITCHWITHNEARPIXELSMETHOD){
 		g_SFT.SetSolveGlitchNear(! g_SFT.GetSolveGlitchNear());
+		g_SFT.ApplyNewSettings();
 		UpdateSolveGlitchNear(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_USE_ORIGINAL_AS_GLITCH_CENTER){
 		g_SFT.SetGlitchCenterMethod(0);
+		g_SFT.ApplyNewSettings();
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_USE_ARG_MIN_ABS_Z_AS_GLITCH_CENTER){
 		g_SFT.SetGlitchCenterMethod(1);
+		g_SFT.ApplyNewSettings();
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_USE_RANDOM_AS_GLITCH_CENTER){
 		g_SFT.SetGlitchCenterMethod(2);
+		g_SFT.ApplyNewSettings();
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_REUSE_REFERENCE_TO_CORRECT_GLITCHES){
 		g_SFT.SetGlitchCenterMethod(3);
+		g_SFT.ApplyNewSettings();
 		UpdateGlitchCenterMethod(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_AUTOSOLVEGLITCHES){
 		g_SFT.m_bAutoGlitch=!g_SFT.m_bAutoGlitch;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_SFT.SetAutoSolveGlitches(g_SFT.m_bAutoGlitch);
+		g_SFT.ApplyNewSettings();
 		UpdateAutoSolveGlitches(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_AUTOITERATION){
 		g_SFT.SetAutoIterations(! g_SFT.GetAutoIterations());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_AUTOITERATION,MF_BYCOMMAND|(g_SFT.GetAutoIterations()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_GUESSING){
 		g_SFT.SetGuessing(!g_SFT.GetGuessing());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_GUESSING,MF_BYCOMMAND|(g_SFT.GetGuessing()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_USENANOMB1){
 		g_SFT.SetUseNanoMB1(! g_SFT.GetUseNanoMB1());
 		if (g_SFT.GetUseNanoMB1()) g_SFT.SetUseNanoMB2(false);
 		else g_SFT.SetInteriorChecking(false);
+		g_SFT.ApplyNewSettings();
 		UpdateUseNanoMB1(hWnd);
 		UpdateUseNanoMB2(hWnd);
 		UpdateInteriorChecking(hWnd);
@@ -3293,6 +3312,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetUseNanoMB2(! g_SFT.GetUseNanoMB2());
 		if (g_SFT.GetUseNanoMB2()) g_SFT.SetUseNanoMB1(false);
 		else g_SFT.SetInteriorChecking(false);
+		g_SFT.ApplyNewSettings();
 		UpdateUseNanoMB1(hWnd);
 		UpdateUseNanoMB2(hWnd);
 		UpdateInteriorChecking(hWnd);
@@ -3301,6 +3321,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetInteriorChecking(! g_SFT.GetInteriorChecking());
 		if (! (g_SFT.GetUseNanoMB1() || g_SFT.GetUseNanoMB2()))
 			g_SFT.SetInteriorChecking(false);
+		g_SFT.ApplyNewSettings();
 		UpdateInteriorChecking(hWnd);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_EXR_CHANNELS){
@@ -3308,44 +3329,98 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		if (DialogBoxParam(GetModuleHandle(NULL), MAKEINTRESOURCE(IDD_DIALOG_EXR), hWnd, (DLGPROC) EXRChannelsProc, (LPARAM) &e))
 		{
 			g_SFT.SetEXRChannels(e);
+			g_SFT.ApplyNewSettings();
 		}
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_HALFCOLOUR){
 		g_SFT.SetHalfColour(!g_SFT.GetHalfColour());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_HALFCOLOUR,MF_BYCOMMAND|(g_SFT.GetHalfColour()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_OPEN_RESETS_PARAMETERS){
 		g_SFT.SetOpenResetsParameters(!g_SFT.GetOpenResetsParameters());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_OPEN_RESETS_PARAMETERS,MF_BYCOMMAND|(g_SFT.GetOpenResetsParameters()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_SAVE_OVERWRITES){
 		g_SFT.SetSaveOverwrites(!g_SFT.GetSaveOverwrites());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_SAVE_OVERWRITES,MF_BYCOMMAND|(g_SFT.GetSaveOverwrites()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_THREADED_REFERENCE){
 		g_SFT.SetThreadedReference(!g_SFT.GetThreadedReference());
+		g_SFT.ApplyNewSettings();
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_THREADED_REFERENCE,MF_BYCOMMAND|(g_SFT.GetThreadedReference()?MF_CHECKED:MF_UNCHECKED));
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_EXR_PARALLEL){
 		g_SFT.SetEXRParallel(! g_SFT.GetEXRParallel());
+		g_SFT.ApplyNewSettings();
 		UpdateEXRParallel(hWnd);
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_1){ g_SFT.SetSIMDVectorSize(1); UpdateSIMDVectorSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_2){ g_SFT.SetSIMDVectorSize(2); UpdateSIMDVectorSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_4){ g_SFT.SetSIMDVectorSize(4); UpdateSIMDVectorSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_8){ g_SFT.SetSIMDVectorSize(8); UpdateSIMDVectorSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_16){ g_SFT.SetSIMDVectorSize(16); UpdateSIMDVectorSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1){ g_SFT.SetSIMDChunkSize(1); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_2){ g_SFT.SetSIMDChunkSize(2); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_4){ g_SFT.SetSIMDChunkSize(4); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_8){ g_SFT.SetSIMDChunkSize(8); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_16){ g_SFT.SetSIMDChunkSize(16); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_32){ g_SFT.SetSIMDChunkSize(32); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_64){ g_SFT.SetSIMDChunkSize(64); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_128){ g_SFT.SetSIMDChunkSize(128); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_256){ g_SFT.SetSIMDChunkSize(256); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_512){ g_SFT.SetSIMDChunkSize(512); UpdateSIMDChunkSize(hWnd); }
-	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1024){ g_SFT.SetSIMDChunkSize(1024); UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_1){
+		g_SFT.SetSIMDVectorSize(1);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_2){
+		g_SFT.SetSIMDVectorSize(2);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_4){
+		g_SFT.SetSIMDVectorSize(4);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_8){
+		g_SFT.SetSIMDVectorSize(8);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_VECTOR_SIZE_16){
+		g_SFT.SetSIMDVectorSize(16);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDVectorSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1){
+		g_SFT.SetSIMDChunkSize(1);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_2){
+		g_SFT.SetSIMDChunkSize(2);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_4){
+		g_SFT.SetSIMDChunkSize(4);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_8){
+		g_SFT.SetSIMDChunkSize(8);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_16){
+		g_SFT.SetSIMDChunkSize(16);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_32){
+		g_SFT.SetSIMDChunkSize(32);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_64){
+		g_SFT.SetSIMDChunkSize(64);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_128){
+		g_SFT.SetSIMDChunkSize(128);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_256){
+		g_SFT.SetSIMDChunkSize(256);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_512){
+		g_SFT.SetSIMDChunkSize(512);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
+	else if(uMsg==WM_COMMAND && wParam==ID_SIMD_CHUNK_SIZE_1024){
+		g_SFT.SetSIMDChunkSize(1024);
+		g_SFT.ApplyNewSettings();
+		UpdateSIMDChunkSize(hWnd); }
 	else if(uMsg==WM_KEYDOWN && wParam==VK_LEFT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
 		GetDisplayRect(r);
@@ -3729,6 +3804,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 						g_SFT.SetZoomSize(2);
 				}
 			}
+			g_SFT.ApplyNewSettings();
 			UpdateZoomSize(hWnd);
 		}
 		else if(wParam==ID_IMAGE_SHRINK_FAST ||
@@ -3739,6 +3815,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			else if(wParam==ID_IMAGE_SHRINK_DEFAULT) g_SFT.SetShrink(1);
 			else if(wParam==ID_IMAGE_SHRINK_BEST)    g_SFT.SetShrink(2);
 			else if(wParam==ID_IMAGE_SHRINK_SRGB)    g_SFT.SetShrink(3);
+			g_SFT.ApplyNewSettings();
 			UpdateShrink(hWnd);
 			InvalidateRect(hWnd,NULL,FALSE);
 		}
@@ -3753,6 +3830,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			{
 				g_SFT.SetDerivatives(false);
 			}
+			g_SFT.ApplyNewSettings();
 		}
 		else if(wParam==ID_SPECIAL_PRESET_BEST){
 			g_SFT.SetIsolatedGlitchNeighbourhood(0);
@@ -3762,46 +3840,58 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetGlitchLowTolerance(1.0);
 			g_SFT.SetApproxLowTolerance(1.0);
 			g_SFT.SetJitterSeed(1);
+			g_SFT.ApplyNewSettings();
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1_4){
 			g_SFT.SetThreadsPerCore(1./4);
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1_2){
 			g_SFT.SetThreadsPerCore(1./2);
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_1){
 			g_SFT.SetThreadsPerCore(1);
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_2){
 			g_SFT.SetThreadsPerCore(2);
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_4){
 			g_SFT.SetThreadsPerCore(4);
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsPerCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_THREADS_RESERVE_CORE){
 			g_SFT.SetThreadsReserveCore(! g_SFT.GetThreadsReserveCore());
+			g_SFT.ApplyNewSettings();
 			UpdateThreadsReserveCore(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_ISOLATED_0){
 			g_SFT.SetIsolatedGlitchNeighbourhood(0);
+			g_SFT.ApplyNewSettings();
 			UpdateIsolatedGlitchNeighbourhood(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_ISOLATED_4){
 			g_SFT.SetIsolatedGlitchNeighbourhood(4);
+			g_SFT.ApplyNewSettings();
 			UpdateIsolatedGlitchNeighbourhood(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_ISOLATED_8){
 			g_SFT.SetIsolatedGlitchNeighbourhood(8);
+			g_SFT.ApplyNewSettings();
 			UpdateIsolatedGlitchNeighbourhood(hWnd);
 		}
 		else if(wParam==ID_ACTIONS_REUSEREFERENCE){
 			g_SFT.SetReuseReference(! g_SFT.GetReuseReference());
+			g_SFT.ApplyNewSettings();
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_REUSEREFERENCE,MF_BYCOMMAND|(g_SFT.GetReuseReference()?MF_CHECKED:MF_UNCHECKED));
+			g_SFT.ApplyNewSettings();
 		}
 		else if(wParam==ID_FILE_OPENSETTINGS){
 			if(BrowseFile(hWnd,TRUE,"Open Settings","Kalle's fraktaler\0*.kfs\0Image files\0*.png;*.jpg;*.jpeg;*.tif;*.tiff;*.exr\0\0",g_szSettingsFile)){
@@ -3885,6 +3975,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.ApplyNewSettings();
 					g_SFT.Render();
 					return 0;
 				}
@@ -3911,6 +4002,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.ApplyNewSettings();
 					g_SFT.Render();
 					return 0;
 				}
@@ -3937,6 +4029,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
+					g_SFT.ApplyNewSettings();
 					g_SFT.Render();
 					return 0;
 				}
