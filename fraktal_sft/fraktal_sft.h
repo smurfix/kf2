@@ -336,7 +336,7 @@ public:
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 
 	std::mutex m_render_in_progress;
-	// returns false when render is finished, so you can while(Wait())...
+	// wait until render is finished; return True if it was not interrupted
 	bool Wait();
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
@@ -362,8 +362,8 @@ public:
 	void Zoom(int nXPos, int nYPos, double nZoomSize, int nWidth, int nHeight, BOOL bReuseCenter = FALSE, bool autoRender = true, bool center_view = false);
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
-  // … and stop doing so.
-	void Stop(bool noWait = false); // user interrupted (Escape key, Zoom, …)
+    // … and stop doing so. Returns True if a render was (or is, if noWait is true) running.
+	bool Stop(bool noWait = false); // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
 
 	bool m_needRender;
@@ -377,7 +377,7 @@ public:
 	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
 
-	inline bool GetIsRendering() { if (m_render_in_progress.try_lock()) { m_render_in_progress.unlock(); return false; } else return true; };
+	bool GetIsRendering();
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs

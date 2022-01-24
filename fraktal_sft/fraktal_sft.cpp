@@ -1984,19 +1984,6 @@ void CFraktalSFT::UpdateBitmap()
 }
 #endif
 
-void CFraktalSFT::Stop(bool noWait)
-{
-	if(!GetIsRendering()) {
-		return;
-	}
-	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
-	m_bStop = true;
-	if(noWait) {
-		return;
-	}
-	Wait();
-}
-
 void CFraktalSFT::Zoom(double nZoomSize)
 {
 #ifndef KF_EMBED
@@ -3831,6 +3818,17 @@ void CFraktalSFT::GetTimers(double *total_wall, double *total_cpu, double *refer
 	if (perturbation_cpu) *perturbation_cpu = m_timer_perturbation_cpu;
 }
 
+bool CFraktalSFT::Stop(bool noWait)
+{
+	if(!GetIsRendering())
+		return false;
+	m_bNoPostWhenDone = TRUE; // inhibits colouring after stop completes
+	m_bStop = true;
+	if(!noWait)
+		Wait();
+	return true;
+}
+
 
 bool CFraktalSFT::Wait()
 {
@@ -3840,7 +3838,15 @@ bool CFraktalSFT::Wait()
 
 	m_render_in_progress.lock();
 	m_render_in_progress.unlock();
-	return true;
+	return !m_bStop;
 }
 
+bool CFraktalSFT::GetIsRendering()
+{
+	if (m_render_in_progress.try_lock()) {
+		m_render_in_progress.unlock();
+		return false;
+	} else {
+		return true;
+	}
 }

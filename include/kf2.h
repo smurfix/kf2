@@ -56,22 +56,24 @@ i.e. if using multiple threads for one kf2_t you must use your own lock
 
 kf2_t state machine:
 
-old state | action   | new state
----------:|----------|:---------
-START     | new      | idle
-idle      | delete   | END
-idle      | start    | rendering
-idle      | stop     | ERROR
-idle      | wait     | ERROR
-idle      | *        | idle
-rendering | stop     | stopping
-rendering | wait     | returns 1 if a render was active
-stopping  | wait     | idle
+old state | action   | new state | return value
+---------:|----------|:----------|:--------------
+START     | new      | idle      | -
+idle      | delete   | END       | -
+idle      | start    | rendering | -
+idle      | stop     | idle      | 0
+idle      | wait     | idle      | 0
+rendering | stop     | stopping  | 1, render thread is still running
+rendering | stop     | idle      | 0, render thread has terminated
+rendering | wait     | idle      | 0 if the render was stopped, otherwise 1
+stopping  | wait     | idle      | 0
 *         | progress | (unchanged)
 *         | image    | (unchanged)
 *         | *        | ERROR
 
 ERROR is typically program abort via assertion failure.
+
+A render thread may also be stopped if you update settings values which affect it.
 */
 
 struct kf2_t;
@@ -82,9 +84,8 @@ void kf2_delete(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
 void kf2_start(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
-void kf2_stop(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
+int kf2_stop(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
-#define KF2_TIMEOUT_FOREVER (~(uint64_t)0)
 int kf2_wait(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
 /*
