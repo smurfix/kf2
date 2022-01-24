@@ -186,8 +186,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 	m_bNoGlitchDetection = FALSE;
 	m_nMaxOldGlitches = OLD_GLITCH;
 
-	m_bStop = false;
-
 	m_nTrans = NULL;
 	m_nPhase = nullptr;
 	m_nDEx = nullptr;
