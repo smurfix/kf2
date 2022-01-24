@@ -31,7 +31,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <fstream>
 
-static char g_szTmpFile[MAX_PATH];
+// save the current settings so that Cancel works
+static SP_Settings g_Settings;
 
 static RECT g_rShow;
 static COLOR14 g_colCopy={0};
@@ -216,9 +217,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	static COLORREF colCust[16]={0};
 	if(uMsg==WM_SHOWWINDOW && wParam){
-		GetTempPath(sizeof(g_szTmpFile),g_szTmpFile);
-		GetTempFileName(g_szTmpFile,"KFR",TRUE,g_szTmpFile);
-		g_SFT.SaveFile(g_szTmpFile, true);
+		g_Settings = g_SFT.m_Settings;
 	}
 	if(uMsg==WM_INITDIALOG)
 	{
@@ -547,11 +546,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_AutoUpdate--;
 			return 0;
 		}
-		if(wParam==IDCANCEL){
-			ShowWindow(hWnd,SW_HIDE);
-		}
-		else if(wParam==IDCLOSE){
-			g_SFT.OpenFile(g_szTmpFile,TRUE);
+		if(wParam==IDCANCEL || wParam==IDCLOSE){
+			g_SFT.ApplySettings(g_Settings);
+			g_Settings = nullptr;
+			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			ShowWindow(hWnd,SW_HIDE);
 		}
 		else if(wParam==IDC_BUTTON23){
@@ -645,17 +643,14 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetSlopeRatio(GetDlgItemInt(hWnd,IDC_EDIT21,NULL,FALSE));
 			g_SFT.SetSlopeAngle(GetDlgItemInt(hWnd,IDC_EDIT22,NULL,TRUE));
 
-			if (g_AutoColour || ((! g_AutoColour) && g_AutoUpdate == 0))
+			if (g_AutoColour || !g_AutoUpdate)
 			{
-				g_SFT.ApplyColors();
+				g_SFT.ApplyNewSettings(g_AutoUpdate);
 				InvalidateRect(GetParent(hWnd),NULL,FALSE);
 				UpdateWindow(GetParent(hWnd));
 			}
 			InvalidateRect(hWnd,NULL,FALSE);
 			g_bInitColorDialog=TRUE;
-
-			if (! g_AutoUpdate)
-				g_SFT.ApplyNewSettings();
 		}
 		else if(wParam==IDC_COLOR_TRANSITION_FLAT || wParam==IDC_COLOR_PHASE_STRENGTH || wParam==IDC_CHECK2 || wParam==IDC_CHECK3 || wParam==IDC_CHECK4)
 		{
@@ -719,7 +714,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				HSVToRGB(nH, nS, nB, cPos);
 				g_SFT.SetKeyColor(cPos,c);
 			}
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			InvalidateRect(hWnd,NULL,FALSE);
@@ -749,11 +744,11 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 //			g_SFT.SetNumOfColors(nParts-1);
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON7){
 			int i;
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 			COLOR14 c[1024];
 			for(i=0;i<1024;i++)
 				c[i] = g_SFT.GetColor(i);
@@ -761,7 +756,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			for(i=0;i<1024;i++)
 				g_SFT.SetKeyColor(c[i],i);
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON17){
 			int i, nParts = g_SFT.GetNumOfColors();
@@ -885,7 +880,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(szFile).c_str());
 				SetWindowText(hWnd, szTitle);
 				SendMessage(hWnd,WM_USER+99,0,0);
-				if (g_AutoColour) g_SFT.ApplyColors();
+				if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 				g_AutoUpdate++;
 				SendMessage(hWnd,WM_COMMAND,IDOK,0);
 				g_AutoUpdate--;
@@ -899,7 +894,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			}
 			int nSeed = GetDlgItemInt(hWnd,IDC_EDIT2,NULL,0);
 			g_SFT.GenerateColors(nColors,nSeed);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -948,7 +943,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			nStart = GetDlgItemInt(hWnd,IDC_EDIT19,NULL,FALSE);
 			g_SFT.AddWave(7,nPeriod,nStart);
 
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			InvalidateRect(hWnd,NULL,FALSE);
@@ -1030,7 +1025,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON9){
 			COLOR14 c;
@@ -1055,7 +1050,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON11){
 			COLOR14 c;
@@ -1080,7 +1075,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				}
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_INTERIORCOLOR){
 			COLOR14 c;
@@ -1096,7 +1091,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetInteriorColor(c);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON10){
 			int nParts = g_SFT.GetNumOfColors();
@@ -1111,7 +1106,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(c,i);
 			}
 			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
 		else if(wParam==IDC_BUTTON13){
 			srand(GetTickCount());
@@ -1123,7 +1118,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			int nSeed = rand();
 			SetDlgItemInt(hWnd,IDC_EDIT2,nSeed,0);
 			g_SFT.GenerateColors(nColors,nSeed);
-			if (g_AutoColour) g_SFT.ApplyColors();
+			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 			InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			if(nColors!=SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCOUNT,0,0)){
@@ -1291,7 +1286,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 						snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(file).c_str());
 						SetWindowText(hWnd, szTitle);
 						SendMessage(hWnd,WM_USER+99,0,0);
-						if (g_AutoColour) g_SFT.ApplyColors();
+						if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 						g_AutoUpdate++;
 						SendMessage(hWnd,WM_COMMAND,IDOK,0);
 						g_AutoUpdate--;
