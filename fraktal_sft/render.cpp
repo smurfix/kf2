@@ -30,6 +30,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 static void ThRenderFractal(CFraktalSFT *p)
 {
+	if(!p->m_render_in_progress.try_lock()) // shouldn't happen
+		return;
+
 	try{
 		p->RenderFractal();
 	}
@@ -83,7 +86,6 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 {
 	m_bStop = true;
 	Wait();
-	m_render_in_progress.lock();
 
 	int64_t w = 0, h = 0, s = 0;
 	GetTargetDimensions(&w, &h, &s);
