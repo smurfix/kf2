@@ -336,13 +336,17 @@ class _Var:
     if(!({tt})) {{
         value = {self.py_to_ivar(v)};
         if(!({tt}))
-            throw_invalid("{self.name}", value);
+            throw_invalid("{self.name}", ovalue);
     }}
 """) # The compiler should be able to simplify this without our help
             else:
                 tests.append(f"""
     if(!({tt}))
-        throw_invalid("{self.name}", value);
+        throw_invalid("{self.name}", ovalue);
+""")
+        if tests:
+            tests.insert(0,f"""\
+        {ctype} ovalue = value;
 """)
         res += f"""
   void Settings::Set{self.gsname}({self.const} {ctype} {self.ref}value) {{
