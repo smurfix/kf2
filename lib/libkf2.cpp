@@ -86,20 +86,13 @@ extern "C" void kf2_stop(struct kf2_t *kf2)
   kf2->g_SFT->Stop(true);
 }
 
-extern "C" int kf2_wait(struct kf2_t *kf2, uint64_t timeout_nanoseconds)
+extern "C" int kf2_wait(struct kf2_t *kf2)
 {
   assert(kf2);
   assert(kf2->state == kf2_state_rendering || kf2->state == kf2_state_stopping);
   assert(kf2->g_SFT);
-  if (kf2->g_SFT->Wait(timeout_nanoseconds))
-  {
-    return 1;
-  }
-  else
-  {
-    kf2->state = kf2_state_idle;
-    return 0;
-  }
+  kf2->g_SFT->Wait();
+  kf2->state = kf2_state_idle;
 }
 
 extern "C" void kf2_set_log_cb(struct kf2_t *kf2, kf2_log_cb log_cb, void *arg) // FIXME

@@ -65,10 +65,8 @@ idle      | stop     | ERROR
 idle      | wait     | ERROR
 idle      | *        | idle
 rendering | stop     | stopping
-rendering | wait     | returns 0, idle (finished within timout)
-rendering | wait     | returns 1, rendering (did not finish within timout)
-stopping  | wait     | returns 0, idle (finished within timout)
-stopping  | wait     | returns 1, stopping (did not finish within timout)
+rendering | wait     | returns 1 if a render was active
+stopping  | wait     | idle
 *         | progress | (unchanged)
 *         | image    | (unchanged)
 *         | *        | ERROR
@@ -87,7 +85,7 @@ void kf2_start(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 void kf2_stop(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
 #define KF2_TIMEOUT_FOREVER (~(uint64_t)0)
-int kf2_wait(struct kf2_t *kf2, uint64_t timeout_nanoseconds) __attribute__ ((visibility ("default") ));
+int kf2_wait(struct kf2_t *kf2) __attribute__ ((visibility ("default") ));
 
 /*
 log callbacks can be called:

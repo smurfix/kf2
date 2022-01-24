@@ -335,9 +335,9 @@ public:
 	// actual work. All of which should be factored out.
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
 
-	std::timed_mutex m_render_in_progress;
+	std::mutex m_render_in_progress;
 	// returns false when render is finished, so you can while(Wait())...
-	bool Wait(uint64_t nanoseconds = KF2_TIMEOUT_FOREVER);
+	bool Wait();
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area

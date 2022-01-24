@@ -3834,25 +3834,15 @@ void CFraktalSFT::GetTimers(double *total_wall, double *total_cpu, double *refer
 }
 
 
-bool CFraktalSFT::Wait(uint64_t nanoseconds)
+bool CFraktalSFT::Wait()
 {
-	if (nanoseconds == KF2_TIMEOUT_FOREVER)
-	{
-		m_render_in_progress.lock();
-		m_render_in_progress.unlock();
+	if(!GetIsRendering()) {
 		return false;
 	}
-	else
-	{
-		std::chrono::nanoseconds ns(nanoseconds);
-		if (m_render_in_progress.try_lock_for(ns))
-		{
-			m_render_in_progress.unlock();
-			return false;
-		}
-		else
-		{
-			return true;
-		}
-	}
+
+	m_render_in_progress.lock();
+	m_render_in_progress.unlock();
+	return true;
+}
+
 }
