@@ -16,3 +16,5 @@ preprocessor.hi
 /*.rec_kfs
 fraktal_sft/Settings.*.inc
 /Settings.stamp
+bin/example
+*.ppm

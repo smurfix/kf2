@@ -44,6 +44,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "../cl/opencl.h"
 #endif
 
+#include "../include/kf2.h"
+
 // terminology: the fractal is what we calculate. The image is the output
 // that gets saved to disk, and the window is the on-screen view.
 
@@ -331,9 +333,11 @@ public:
 	// main renderer. TODO: this waits for prev render to finish, changes
 	// images size, might allocate the bitmap and whatnot, before doing the
 	// actual work. All of which should be factored out.
-#ifndef KF_EMBED
 	void Render(BOOL bNoThread = FALSE, BOOL bResetOldGlitch = TRUE);
-#endif
+
+	std::timed_mutex m_render_in_progress;
+	// returns false when render is finished, so you can while(Wait())...
+	bool Wait(uint64_t nanoseconds = KF2_TIMEOUT_FOREVER);
 
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
@@ -359,20 +363,21 @@ public:
 	BOOL Center(int &rx, int &ry, BOOL bSkipM = FALSE, BOOL bQuick = FALSE);
 
   // … and stop doing so.
-#ifndef KF_EMBED
 	void Stop();              // user interrupted (Escape key, Zoom, …)
 	BOOL m_bNoPostWhenDone;   // inhibits colouring after Stop() is called
-#endif
 
 	bool m_needRender;
 	bool GetNeedRender() { return m_needRender; }
 	void SetNeedRender();
 
-	bool m_bIsRendering;
+	std::thread m_renderThread;
+	inline bool renderRunning() const { return m_renderThread.joinable(); }
+	inline void renderJoin() { return m_renderThread.join(); }
 
-	inline bool GetIsRendering() { return m_bIsRendering; };
 	bool m_bStop;             // flag to tell rendering threads to stop
 	BOOL m_bInhibitColouring; // inhibits colouring during noninteractive usage
+
+	inline bool GetIsRendering() { if (m_render_in_progress.try_lock()) { m_render_in_progress.unlock(); return false; } else return true; };
 
 #ifdef KF_OPENCL
   // calculate faster with GPUs
@@ -772,6 +777,7 @@ public:
 	#undef BOOL
 
 
+	int m_state;
 };
 
 // singleton instance

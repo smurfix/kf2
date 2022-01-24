@@ -25,7 +25,7 @@ SYSTEM ?= x86_64+native
 include $(SYSTEM).mk
 
 CLEWPREFIX := $(HOME)/win/src/clew
-TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_OPENGL_THREAD
+TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_OPENGL_THREAD -DSTDMUTEX_RECURSION_CHECKS=0
 DEBUG ?= -gstabs -O0
 
 FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Icommon -Iglad/include -fno-var-tracking-assignments $(DEBUG)
@@ -74,6 +74,7 @@ fraktal_sft/tiff.cpp \
 fraktal_sft/tooltip.cpp
 
 EMBED_SOURCES = \
+lib/libkf2.cpp \
 cl/opencl.cpp \
 fraktal_sft/calculate_perturbation.cpp \
 fraktal_sft/calculate_reference.cpp \
@@ -285,9 +286,10 @@ all: kf.exe kf-tile.exe
 embed:
 	$(MAKE) SYSTEM=embed _embed
 
-_embed: libkf2-embed.so
-libkf2-embed.so: embed.a $(FORMULA_LIBS) formula/generated.a
+_embed: libkf2.so
+libkf2.so: embed.a $(FORMULA_LIBS) formula/generated.a
 	$(LINK) $(DEBUG) -o $@ -shared -Wl,--whole-archive $^ -Wl,--no-whole-archive $(LIBS)
+	$(STRIP) --strip-all --discard-all $@
 
 clean:
 	rm -f $(OBJECTS) fraktal_sft/main.o res.o
@@ -324,8 +326,9 @@ clean:
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_OBJECTS)
 	rm -f $(FORMULA_PERTURBATIONCONVERGENTSIMPLE_DEPENDS)
 	rm -f $(FORMULA_LIBS) formula/generated.a kf.a
-	rm -f embed.a libkf2-embed.so
+	rm -f embed.a libkf2.so
 	rm -f fraktal_sft/Settings.*.inc Settings.stamp
+	rm -f embed.a libkf2.so
 	rm -f cl/common_cl.c cl/double_pre_cl.c cl/double_pre_c_cl.c cl/double_pre_m_cl.c cl/double_pre_r_cl.c cl/double_post_cl.c cl/double_post_c_cl.c cl/double_post_m_cl.c cl/double_post_r_cl.c cl/floatexp_pre_cl.c cl/floatexp_pre_c_cl.c cl/floatexp_pre_m_cl.c cl/floatexp_pre_r_cl.c cl/floatexp_post_cl.c cl/floatexp_post_c_cl.c cl/floatexp_post_m_cl.c cl/floatexp_post_r_cl.c
 	rm -f gl/kf_frag_glsl.h gl/kf_vert_glsl.h
 	rm -f preprocessor preprocessor.hi preprocessor.o

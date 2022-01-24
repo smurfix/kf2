@@ -268,6 +268,11 @@ bool Settings::DeleteMW(int index)
 void Settings::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom,unsigned digits10)
 {
 
+    // calculate di first, in low precision
+    // avoids m_ZoomRadius becoming accidentally high precision
+    Precision pLo(20u);
+    CDecNumber di(2/zoom);
+
     long e = 0;
     mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
 
@@ -283,7 +288,7 @@ void Settings::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDe
 
     m_CenterRe = re.m_dec;
     m_CenterIm = im.m_dec;
-    m_ZoomRadius = (2/zoom).m_dec;
+    m_ZoomRadius = di.m_dec;
 }
 
 void Settings::SetPosition(const std::string &szR, const std::string &szI, const std::string &szZ)

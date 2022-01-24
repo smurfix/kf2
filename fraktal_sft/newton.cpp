@@ -713,8 +713,8 @@ void CFraktalSFT::ThNewton()
 		get_wall_time(), 0 };
 
 #ifndef KF_EMBED
-      std::thread pprogr(ThPeriodProgress,&progress);
-	  pprogr.detach();
+		std::thread pprogr(ThPeriodProgress,&progress);
+		pprogr.detach();
 #endif
 
 	  if (g_SFT.m_UseHybridFormula)

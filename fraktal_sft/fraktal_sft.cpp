@@ -146,7 +146,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
 , m_needRender(false)
-, m_bIsRendering(false)
 , m_bStop(false)
 #ifdef KF_OPENCL
 , m_cldevices()
@@ -161,6 +160,7 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 , m_undo()
 , m_redo()
 #endif
+, m_state(KF2_STATE_IDLE)
 {
 #ifdef KF_OPENCL
 	clid = -1;
@@ -240,9 +240,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 #endif
 	m_bAddReference = 0;
 
-#ifdef WINVER
-	m_bIsRendering = false;
-#endif
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
 	m_nRDone = 0;
@@ -273,7 +270,7 @@ void CFraktalSFT::SetNeedRender()
 {
 	// TODO send a signal to the UI instead of relying on polling
 	// (but only if needRender is False)
-	if (m_bIsRendering)
+	if (GetIsRendering())
 		throw_invalid("Render is running","set needRender");
 	m_needRender = true;
 }
@@ -285,7 +282,7 @@ void CFraktalSFT::CloseOldSettings(SP_Settings data)
 	// The old settings are active. DATA are the new settings.
 	// If DATA is nullptr, we are shutting down.
 	//
-	if(m_bIsRendering) {
+	if(GetIsRendering()) {
 		if(!data)
 			throw_invalid("Render is running","shutdown");
 
@@ -2001,6 +1998,7 @@ void CFraktalSFT::UpdateBitmap()
 	m_mutex.unlock();
 #endif
 }
+#endif
 
 void CFraktalSFT::Stop()
 {
@@ -2011,20 +2009,10 @@ void CFraktalSFT::Stop()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-	double counter = 0;
-	while (m_bIsRendering)
-	{
-		Sleep(1);
-		counter += 1;
-	}
-#ifdef KF_DEBUG_SLEEP
-	if (counter > 0)
-		std::cerr << "Stop() slept for " << counter << "ms" << std::endl;
-#endif
+	Wait();
 	m_bStop = false;
 	m_bNoPostWhenDone=0;
 }
-#endif // !KF_EMBED
 
 void CFraktalSFT::Zoom(double nZoomSize)
 {
@@ -3867,4 +3855,28 @@ void CFraktalSFT::GetTimers(double *total_wall, double *total_cpu, double *refer
 	if (approximation_cpu) *approximation_cpu = m_timer_approximation_cpu;
 	if (perturbation_wall) *perturbation_wall = m_timer_perturbation_wall;
 	if (perturbation_cpu) *perturbation_cpu = m_timer_perturbation_cpu;
+}
+
+
+bool CFraktalSFT::Wait(uint64_t nanoseconds)
+{
+	if (nanoseconds == KF2_TIMEOUT_FOREVER)
+	{
+		m_render_in_progress.lock();
+		m_render_in_progress.unlock();
+		return false;
+	}
+	else
+	{
+		std::chrono::nanoseconds ns(nanoseconds);
+		if (m_render_in_progress.try_lock_for(ns))
+		{
+			m_render_in_progress.unlock();
+			return false;
+		}
+		else
+		{
+			return true;
+		}
+	}
 }
