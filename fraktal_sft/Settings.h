@@ -42,6 +42,7 @@ class CFraktalSFT;
 
 class Settings;
 #if defined(WINVER) && defined(_DEBUG)
+// this leaks memory, but winedbg can't see behind shared pointers
 typedef Settings* SP_Settings;
 #define NEW_SETTINGS new Settings
 #else
