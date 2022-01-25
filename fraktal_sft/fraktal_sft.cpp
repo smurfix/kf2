@@ -234,7 +234,6 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 	m_OpenCL_Glitched_X = m_OpenCL_Glitched_Y = 0;
 	m_OpenCL_Glitched_Count = 0;
 #endif
-	m_bAddReference = 0;
 
 	m_bInhibitColouring = FALSE;
 	m_bInteractive = true;
