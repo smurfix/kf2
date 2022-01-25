@@ -1175,12 +1175,14 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	if(bRecoveryFile){
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,TRUE);
+		g_SFT.Render(false, false);
 	}
 	else
 	{
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 	}
 	g_SFT.ApplyNewSettings();
+	g_SFT.Render();
 	SetTimer(hWnd,0,500,NULL);
 	return 0;
 }
@@ -1251,6 +1253,7 @@ nPos=6;
 					}
 					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.m_MaxReferences)){
 nPos=7;
+						g_SFT.Render(false, false);
 						return 0;
 					}
 				}
@@ -2624,7 +2627,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-				g_SFT.AddReference(x,y,TRUE);
+				if(g_SFT.AddReference(x,y,TRUE))
+					g_SFT.Render(false,false);
 				SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
@@ -2638,8 +2642,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-				if(g_SFT.AddReference(x,y,FALSE))
+				if(g_SFT.AddReference(x,y,FALSE)) {
+					g_SFT.Render(false,false);
 					SetTimer(hWnd,0,500,NULL);
+				}
 				return 0;
 			}
 			else if(g_bEraser){
@@ -2703,6 +2709,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && otherwise" << std::endl;
 			DisableUnsafeMenus(hWnd);
+			g_SFT.ApplyNewSettings();
 			g_SFT.Render();
 		}
 	}
@@ -4388,6 +4395,7 @@ static bool render_frame(int frame, bool onlyKFR)
 			}
 			output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
 			g_SFT.AddReference(x, y);
+			g_SFT.Render(false, false);
 		}
 	}
 	return save_frame(frame, onlyKFR);

@@ -265,14 +265,14 @@ void CFraktalSFT::SetNeedRender()
 {
 	// TODO send a signal to the UI instead of relying on polling
 	// (but only if needRender is False)
-	if (GetIsRendering())
-		throw_invalid("Render is running","set needRender");
+//	if (GetIsRendering())
+//		throw_invalid("Render is running","set needRender");
 	m_needRender = true;
 }
 
 #define C(N) || !(m_Settings->Get ## N () == data->Get ## N ())
 
-bool CFraktalSFT::CloseOldSettings(SP_Settings data)
+bool CFraktalSFT::CloseOldSettings(SP_Settings data, bool imgCopied)
 {
 	// m_Settings points to the old settings. @data are the new settings.
 	// If DATA is nullptr, we are shutting down.
@@ -285,7 +285,8 @@ bool CFraktalSFT::CloseOldSettings(SP_Settings data)
 
 	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
 		FreeBitmap();
-		DeleteArrays();
+		if(!imgCopied)
+			DeleteArrays();
 	}
 	m_Settings->SetParent(nullptr);
 	return true;
@@ -311,6 +312,8 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
 
 	if(imgCopied) {
 		SetNeedRender();
+		if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample))
+			AllocateBitmap();
 	} else if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
 		updatePix = true;
 		SetupArrays();
@@ -324,6 +327,8 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
 	}
 
 	if(imgCopied) {
+		if(!m_bmi)
+			AllocateBitmap();
 	} else if(!data C(CenterRe) C(CenterIm) C(ZoomRadius) C(TransformMatrix) C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
 		updatePix = true;
 		m_bAddReference = FALSE;
@@ -641,6 +646,9 @@ bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 			UndoStore(s);
 			m_NewSettings = nullptr;
 		}
+#ifndef KF_EMBED
+		Render(FALSE,FALSE);
+#endif
 		return true;
 	} else {
 		return false;
@@ -1580,6 +1588,7 @@ void CFraktalSFT::ApplyColors()
 CFraktalSFT::~CFraktalSFT()
 {
 	DeleteArrays();
+	FreeBitmap();
 
 	delete[] m_APr;
 	delete[] m_APi;
@@ -1725,7 +1734,6 @@ void CFraktalSFT::DeleteArrays()
 			delete[] m_nDEy;
 			m_nDEy = nullptr;
 		}
-		FreeBitmap();
 }
 
 #ifdef KF_OPENCL
@@ -2229,7 +2237,6 @@ void CFraktalSFT::Zoom(double nZoomSize)
 	SetZoomRadius(m_ZoomRadius / nZoomSize);
 #ifndef KF_EMBED
 	ApplyNewSettings();
-	Render();
 #endif
 }
 
@@ -2273,7 +2280,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 	}
 #ifndef KF_EMBED
 	ApplyNewSettings();
-	Render();
 #endif
 }
 
@@ -2450,9 +2456,11 @@ void CFraktalSFT::ClearImage()
 	if (m_nPixels_MSB)
 		memset(m_nPixels_MSB, 0, sizeof(*m_nPixels_MSB) * m_nX * m_nY);
 	memset(m_nTrans[0], 0, sizeof(float) * m_nX * m_nY);
-	memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
-	memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
-	memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
+	if(m_Derivatives) {
+		memset(m_nPhase[0], 0, sizeof(float) * m_nX * m_nY);
+		memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
+		memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
+	}
 
 	for (int x = 0; x<m_nX; x++){
 		for (int y = 0; y<m_nY; y++){
@@ -2681,9 +2689,6 @@ void CFraktalSFT::AllocateBitmap()
 
 void CFraktalSFT::FreeBitmap()
 {
-	if(m_bAddReference)
-		return;
-
 #ifdef WINVER
 	if (m_bmBmp) {
 		DeleteObject(m_bmBmp);
@@ -2808,9 +2813,6 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bResum
 	m_count_bad = 0;
 	m_count_bad_guessed = 0;
 	m_bAddReference = TRUE;
-#ifndef KF_EMBED
-	Render(FALSE, FALSE);
-#endif
 	return TRUE;
 }
 

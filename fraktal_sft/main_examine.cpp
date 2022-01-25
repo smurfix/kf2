@@ -311,6 +311,7 @@ wsprintf(szAdd,"Add reference %d",g_bAutoSolveGlitch);
 SetDlgItemText(hWnd,IDC_EDIT4,szAdd);
 UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 		g_SFT.AddReference(rx,ry);
+		g_SFT.Render(false, false);
 		g_bAutoSolveGlitch++;
 		SetTimer(GetParent(hWnd),0,500,NULL);
 		g_bExamineDirty=TRUE;
