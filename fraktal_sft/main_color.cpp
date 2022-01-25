@@ -288,8 +288,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		T(IDC_AUTOCOLOUR, "Automatically apply palette on change")
 		T(IDC_COLOR_OPENGL, "Show OpenGL colouring dialog (Ctrl+G)")
 		T(IDOK, "Apply current palette")
-		T(IDCANCEL, "Close the dialog and undo all changes")
-		T(IDCLOSE, "Close the dialog")
+		T(IDCANCEL, "Close the dialog")  // cancel and close are switched everywhere
+		T(IDCLOSE, "Close the dialog and undo all changes")
 		T(1051, "Enable texture")
 		T(1052, "Texture depth")
 		T(1053, "Texture strength/ratio")
@@ -547,7 +547,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		}
 		if(wParam==IDCANCEL || wParam==IDCLOSE){
-			if(wParam==IDCANCEL) {
+			if(wParam==IDCLOSE) { // those two are mixed up globally
 				g_SFT.ApplySettings(g_Settings);
 				InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			}
