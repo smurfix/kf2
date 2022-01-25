@@ -25,6 +25,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 typedef glm::dvec2 vec2;
 typedef glm::dmat2 mat2;
 
+typedef glm::dvec3 vec3;
+typedef glm::dmat3 mat3;
+
 struct polar2
 {
   double sign, scale, rotate, stretch_factor, stretch_angle;

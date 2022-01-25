@@ -111,7 +111,8 @@ public:
 private:
 
     bool CloseOldSettings(SP_Settings data);
-    bool OpenNewSettings(SP_Settings data);
+    bool OpenNewSettings(SP_Settings data, bool imgCopied=false);
+    bool TryCopyImage(SP_Settings s_old, SP_Settings s_new);
 
 public:
 

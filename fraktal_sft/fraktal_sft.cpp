@@ -292,9 +292,11 @@ bool CFraktalSFT::CloseOldSettings(SP_Settings data)
 	return true;
 }
 
-bool CFraktalSFT::OpenNewSettings(SP_Settings data)
+bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
 {
 	// m_Settings points to the new settings. @data are the old settings.
+	//
+	// If @imgCopied is True, 
 	//
 	m_Settings->SetParent(this);
 
@@ -305,7 +307,12 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 
 	bool updatePix = false;
 
-	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
+	if(!data && imgCopied)
+		throw_invalid("Copy","while starting up??");
+
+	if(imgCopied) {
+		SetNeedRender();
+	} else if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
 		updatePix = true;
 		SetupArrays();
 		AllocateBitmap();
@@ -317,7 +324,8 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 		m_iref.m_f.precision(m_digits10);    
 	}
 
-	if(!data C(CenterRe) C(CenterIm) C(ZoomRadius)) {
+	if(imgCopied) {
+	} else if(!data C(CenterRe) C(CenterIm) C(ZoomRadius) C(TransformMatrix) C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
 		updatePix = true;
 		m_bAddReference = FALSE;
 		if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
@@ -325,9 +333,12 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 		else
 			m_bNoGlitchDetection = TRUE;
 	}
-	if(updatePix) {
+	if(!data C(ZoomRadius)) {
 		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
 		m_fPixelSpacing = floatexp(pixel_spacing);
+	}
+
+	if(updatePix) {
 		ClearImage();
 	}
 
@@ -349,6 +360,7 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data)
 
 	return true;
 }
+
 
 void CFraktalSFT::SetImageSize(int nX, int nY)
 {
@@ -389,19 +401,23 @@ bool CFraktalSFT::CanApplySettings(SP_Settings data)
 	// TODO there are more
 	return true;
 }
+#undef C
 
 bool CFraktalSFT::ApplySettings(SP_Settings data)
 {
     if(m_Settings == nullptr) throw;
 	if(data == nullptr) throw;
-	if(!CloseOldSettings(data))
+
+	bool imgCopied = TryCopyImage(m_Settings, data);
+
+	if(!imgCopied && !CloseOldSettings(data))
 		return false;
 
 	SP_Settings old = m_Settings;
 	if(old == nullptr) throw;
 	m_Settings = data;
 
-	if(OpenNewSettings(old))
+	if(OpenNewSettings(old, imgCopied))
 		return true;
 	m_Settings = old;
 	if(OpenNewSettings(nullptr))
@@ -410,10 +426,213 @@ bool CFraktalSFT::ApplySettings(SP_Settings data)
 	abort();
 }
 
+static mat3 gen_transform(int nX, int nY, const mat2 &skew)
+{
+	const mat3 mskew{
+        skew[0][0], skew[0][1], 0,
+        skew[1][0], skew[1][1], 0,
+        0,0,1
+    };
+	const mat3 to_unit{
+        2/(double)nY, 0, -nX/(double)nY,
+        0, 2/(double)nY, -1,
+        0,0,1
+    };
+	return to_unit * mskew;
+}
+
+bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
+{
+#define C(N) || !(s_old->Get ## N () == s_new->Get ## N ())
+	// Operation: if we have a Fractal and the formula didn't change, create
+	// a translation matrix from the old to the new settings' pixel space,
+	// allocate new arrays, copy data over as appropriate, and update our
+	// data to reflect the new state of affairs.
+	//
+	if(!s_old) return false;
+	if(!s_new) return false;
+
+	// Formula change. No way.
+	if(0 C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
+		return false;
+
+	if(s_old->GetExponentialMap() || s_new->GetExponentialMap())
+		return false; // can't do that, the exponential map is not linear
+
+	// If the new settings want derivatives, recalculate.
+	if(s_new->GetDerivatives() && !s_old->GetDerivatives())
+		return false;
+
+	// Test if there's anything to do in the first place.
+	if(!(0 C(TargetWidth) C(TargetHeight) C(TargetSupersample) C(CenterRe) C(CenterIm) C(ZoomRadius) C(Digits10)))
+		return false; // nothing to do
+		// We don't use C(TransformMatrix) in this test: if all you have is a
+		// slight matrix change there will be too many artefacts.
+
+	// Operation:
+	// calculate transfer matrix new>old
+	// for each new pixel: lookup in old, fetch from there if in range, otherwise invalid.
+	//
+	// Obviously this only works when the old data is less dense than the
+	// new, so skip out if it is.
+	// 
+	CFixedFloat pixelSpacingOld(s_old->GetZoomRadius() * 2 / s_old->GetImageHeight());
+	CFixedFloat pixelSpacingNew(s_new->GetZoomRadius() * 2 / s_new->GetImageHeight());
+
+	// TODO this really should take the transform matrix into account
+	if(pixelSpacingOld > pixelSpacingNew)
+		return false;
+		// The other way around, zooming in, would work like this: invert
+		// the transfer matrix, init new image to invalid, then iterate over old
+		// data to update new. The problem is that skew, jitter, and related
+		// factors conspire to introduce far too many artefacts.
+
+	// Likewise if the pixel density stays the same but the matrix changes,
+	// there'll be too many artefacts, so don't do that.
+	if((pixelSpacingOld == pixelSpacingNew) && (0 C(TransformMatrix)))
+		return false;
+	
+	int old_nx = s_old->GetImageWidth();
+	int old_ny = s_old->GetImageHeight();
+	int new_nx = s_new->GetImageWidth();
+	int new_ny = s_new->GetImageHeight();
+
+	auto hdx = (s_new->GetCenterRe()-s_old->GetCenterRe())/s_old->GetZoomRadius();
+	auto hdy = (s_new->GetCenterIm()-s_old->GetCenterIm())/s_old->GetZoomRadius();
+	auto hdz = s_new->GetZoomRadius() / s_old->GetZoomRadius();
+
+	double dx = hdx.ToDouble();
+	double dy = hdy.ToDouble();
+	double dz = hdz.ToDouble();
+
+	const mat3 m_old{gen_transform(old_nx, old_ny, s_old->GetTransformMatrix())};
+	const mat3 m_new{gen_transform(new_nx, new_ny, s_new->GetTransformMatrix())};
+
+	const mat3 shift{1,0,dx, 0,1,dy, 0,0,1};
+    const mat3 factor{dz,0,0, 0,dz,0, 0,0,1};
+
+	const mat3 new2old = m_new*factor*shift*glm::inverse(m_old);
+	{
+		// Check the corners. If all of them end up on the same side of
+		// the original area, there's no overlap. (Can't just check single
+		// corners because of possible rotation.)
+		vec3 xa{0,0,1};
+		vec3 xb{0,new_ny,1};
+		vec3 xc{new_nx,new_ny,1};
+		vec3 xd{new_nx,0,1};
+		xa = xa*new2old;
+		xb = xb*new2old;
+		xc = xc*new2old;
+		xd = xd*new2old;
+		int min_x = std::min(std::min(xa[0],xb[0]),std::min(xc[0],xd[0]));
+		int max_x = std::max(std::max(xa[0],xb[0]),std::max(xc[0],xd[0]));
+		int min_y = std::min(std::min(xa[1],xb[1]),std::min(xc[1],xd[1]));
+		int max_y = std::max(std::max(xa[1],xb[1]),std::max(xc[1],xd[1]));
+		if(max_x < 0) return false;
+		if(min_x >= old_nx) return false;
+		if(max_y < 0) return false;
+		if(min_y >= old_ny) return false;
+		// Also if the range of both is smaller than 20% of the original (i.e. we recover max 4% of the previous content), this is not worth the effort.
+		if((max_x-min_x < old_nx/5) && (max_y-min_y < old_ny/5)) return false;
+	}
+
+	// OK, now do some actual work.
+	bool derivs = s_new->GetDerivatives();
+
+	// this is a copy of ::SetupArrays
+	bool two = s_new->GetIterations() >= UINT32_MAX;
+	uint32_t *OrgLSB = new_aligned<uint32_t>(new_nx * new_ny);
+	uint32_t *OrgMSB = two ? new_aligned<uint32_t>(new_nx * new_ny) : nullptr;
+	float** OrgT = new float*[new_nx];
+	float** OrgP = derivs ? new float*[new_nx] : nullptr;
+	float** OrgDEx = derivs ? new float*[new_nx] : nullptr;
+	float** OrgDEy = derivs ? new float*[new_nx] : nullptr;
+	OrgT[0] = new_aligned<float>(new_nx * new_ny);
+	if(derivs) {
+		OrgP[0] = new_aligned<float>(new_nx * new_ny);
+		OrgDEx[0] = new_aligned<float>(new_nx * new_ny);
+		OrgDEy[0] = new_aligned<float>(new_nx * new_ny);
+	}
+	for (int x = 1; x<new_nx; x++){
+		int dx = x * new_ny;
+		OrgT[x] = OrgT[0] + dx;
+		if(derivs) {
+			OrgP[x] = OrgP[0] + dx;
+			OrgDEx[x] = OrgDEx[0] + dx;
+			OrgDEy[x] = OrgDEy[0] + dx;
+		}
+	}
+	auto Org = itercount_array(new_ny, 1, OrgLSB, OrgMSB);
+
+	int x, y, a, b;
+	for (x = 0; x<new_nx; x++) {
+		for (y = 0; y<new_ny; y++) {
+			vec3 t{x,y,1};
+			t = t*new2old;  // there's no in-place operator
+			a=t[0]; b=t[1];
+			if (a >= 0 && a < old_nx && b >= 0 && b < old_ny){
+				Org[x][y] = 0+m_nPixels[a][b];  // 0+ because of referencing. Sigh.
+				OrgT[x][y] = m_nTrans[a][b];
+				if(derivs) {
+					OrgP[x][y] = m_nPhase[a][b];
+					OrgDEx[x][y] = m_nDEx[a][b];
+					OrgDEy[x][y] = m_nDEy[a][b];
+				}
+				if (Org[x][y] > m_nMaxIter)
+					Org[x][y] = m_nMaxIter;
+			}
+			else
+			{
+				Org[x][y] = PIXEL_UNEVALUATED;
+				OrgT[x][y] = SET_TRANS_GLITCH(0);
+				if(derivs) {
+					OrgP[x][y] = 0;
+					OrgDEx[x][y] = 0;
+					OrgDEy[x][y] = 0;
+				}
+			}
+		}
+	}
+
+	// now force feed the new state to *this.
+	DeleteArrays();
+	p_m_nX = new_nx;
+	p_m_nY = new_ny;
+	p_m_Derivatives = derivs;
+
+	m_nPixels_LSB = OrgLSB;
+	m_nPixels_MSB = OrgMSB;
+	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+	m_nTrans = OrgT;
+	if(derivs) {
+		m_nPhase = OrgP;
+		m_nDEx = OrgDEx;
+		m_nDEy = OrgDEy;
+	}
+
+	// move the reference location
+	vec3 t{m_nAddRefX, m_nAddRefY, 1};
+	t = t*glm::inverse(new2old);
+	a=t[0]; b=t[1];
+	if (a >= 0 && a < new_nx && b >= 0 && b < new_ny) {
+		m_nAddRefX = a;
+		m_nAddRefY = b;
+	} else {
+		// our old reference is now out of bounds: get a new one
+		AddReference(new_nx/2, new_ny/2);
+	}
+
+	// Phew.
+	m_bAddReference = 1;
+	return true;
+#undef C
+}
+
 bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 {
 	if(m_NewSettings == nullptr)
 		return true;
+
 	auto s = m_NewSettings;
 
 	if(ApplySettings(m_NewSettings)) {
@@ -2024,108 +2243,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 	floatexp a, b;
 	GetPixelCoordinates(nXPos, nYPos, a, b);
 
-(void)bReuseCenter;
-#if 0 // TODO make more generic and move to ApplySettings
-
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-
-	// zooming out.
-	//
-	// We can't do the same thing for zooming in because of anti-aliasing
-	if (bReuseCenter && !m_NoReuseCenter && nZoomSize<=1){
-		m_bAddReference = 2;
-		int nOX = m_nX*nZoomSize;
-		int nOY = m_nY*nZoomSize;
-		int i;
-		int64_t **Org = new int64_t*[nOX];
-		for (i = 0; i<nOX; i++)
-			Org[i] = new int64_t[nOY];
-		float **OrgT = new float*[nOX];
-		for (i = 0; i<nOX; i++)
-			OrgT[i] = new float[nOY];
-		float **OrgP = new float*[nOX];
-		for (i = 0; i<nOX; i++)
-			OrgP[i] = new float[nOY];
-		float **OrgDEx = new float*[nOX];
-		for (i = 0; i<nOX; i++)
-			OrgDEx[i] = new float[nOY];
-		float **OrgDEy = new float*[nOX];
-		for (i = 0; i<nOX; i++)
-			OrgDEy[i] = new float[nOY];
-		int x, y, a, b;
-		int nX2 = m_nX/2;
-		int nY2 = m_nY/2;
-		if(0 && nZoomSize<1 && nZoomSize>.8){
-			for (x = 0; x<nOX; x++){
-				for (y = 0; y<nOY; y++){
-					Org[x][y]=PIXEL_UNEVALUATED;
-				}
-			}
-		}
-		else{
-			for (x = 0; x<nOX; x++){
-				for (y = 0; y<nOY; y++){
-					a = (x + nXPos-nX2) / nZoomSize;
-					b = (y + nYPos-nY2) / nZoomSize;
-					if (a >= 0 && a < m_nX && b >= 0 && b < m_nY){
-						Org[x][y] = m_nPixels[a][b];
-						OrgT[x][y] = m_nTrans[a][b];
-						OrgP[x][y] = m_nPhase[a][b];
-						OrgDEx[x][y] = m_nDEx[a][b];
-						OrgDEy[x][y] = m_nDEy[a][b];
-						if (Org[x][y]>m_nMaxIter)
-							Org[x][y] = m_nMaxIter;
-					}
-					else
-					{
-						Org[x][y] = PIXEL_UNEVALUATED;
-						OrgT[x][y] = SET_TRANS_GLITCH(0);
-						OrgP[x][y] = 0;
-						OrgDEx[x][y] = 0;
-						OrgDEy[x][y] = 0;
-					}
-				}
-			}
-		}
-		a = (m_nX - nOX) / 2;
-		b = (m_nY - nOY) / 2;
-		for (x = 0; x<m_nX; x++){
-			for (y = 0; y<m_nY; y++){
-				if (x-a >= 0 && x-a < nOX && y-b >= 0 && y-b < nOY){
-					m_nPixels[x][y] = Org[x - a][y - b];
-					m_nTrans[x][y] = OrgT[x - a][y - b];
-					m_nPhase[x][y] = OrgP[x - a][y - b];
-					m_nDEx[x][y] = OrgDEx[x - a][y - b];
-					m_nDEy[x][y] = OrgDEy[x - a][y - b];
-				}
-				else
-				{
-					m_nPixels[x][y] = PIXEL_UNEVALUATED;
-					m_nTrans[x][y] = SET_TRANS_GLITCH(0);
-					m_nPhase[x][y] = 0;
-					m_nDEx[x][y] = 0;
-					m_nDEy[x][y] = 0;
-				}
-			}
-		}
-		for (i = 0; i<nOX; i++){
-			delete[] Org[i];
-			delete[] OrgT[i];
-			delete[] OrgP[i];
-			delete[] OrgDEx[i];
-			delete[] OrgDEy[i];
-		}
-		delete[] Org;
-		delete[] OrgT;
-		delete[] OrgP;
-		delete[] OrgDEx;
-		delete[] OrgDEy;
-	}
-#endif
+	(void)bReuseCenter;
 	unsigned digits10 = 20u;
 	{
 		Precision pLo(20u);
