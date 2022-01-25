@@ -2397,10 +2397,11 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 		int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-		int i = g_SFT.GetIterationOnPoint(x,y);
+		int64_t i = g_SFT.GetIterationOnPoint(x,y);
 		if(i != PIXEL_UNEVALUATED){
-			snprintf(szI+strlen(szI),100,"%d",i);
-			snprintf(szI+strlen(szI),100," <%d,%d> S:%.6f",(short)LOWORD(lParam),(short)HIWORD(lParam),g_SFT.GetTransOnPoint(x,y));
+			double ii = i+g_SFT.GetTransOnPoint(x,y);
+			snprintf(szI+strlen(szI),100,"%.3f",ii);
+			snprintf(szI+strlen(szI),100," <%d,%d>",(short)LOWORD(lParam),(short)HIWORD(lParam));
 			SendMessage(g_hwStatus,SB_SETTEXT,2,(LPARAM)szI);
 		}
 	}
