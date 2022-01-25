@@ -333,6 +333,7 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
 			AllocateBitmap();
 	} else if(!data C(CenterRe) C(CenterIm) C(ZoomRadius) C(TransformMatrix) C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
 		updatePix = true;
+		SetNeedRender();
 		m_bAddReference = FALSE;
 		if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
 			m_bNoGlitchDetection = FALSE;
@@ -650,7 +651,10 @@ bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 			m_NewSettings = nullptr;
 		}
 #ifndef KF_EMBED
-		Render(FALSE,FALSE);
+		if(GetNeedRender()) {
+			m_needRender=false;
+			Render(FALSE,FALSE);
+		}
 #endif
 		return true;
 	} else {
