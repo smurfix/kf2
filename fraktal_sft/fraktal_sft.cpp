@@ -574,7 +574,8 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 			vec3 t{x,y,1};
 			t = t*new2old;  // there's no in-place operator
 			a=t[0]; b=t[1];
-			if (a >= 0 && a < old_nx && b >= 0 && b < old_ny){
+			// don't take from the edge
+			if (a > 0 && a < old_nx-1 && b > 0 && b < old_ny-1){
 				Org[x][y] = 0+m_nPixels[a][b];  // 0+ because of referencing. Sigh.
 				OrgT[x][y] = m_nTrans[a][b];
 				if(derivs) {
