@@ -87,10 +87,6 @@ void CFraktalSFT::Render(BOOL bNoThread, BOOL bResetOldGlitch)
 	m_bStop = true;
 	Wait();
 
-	int64_t w = 0, h = 0, s = 0;
-	GetTargetDimensions(&w, &h, &s);
-	SetImageSize(w * s, h * s);
-
 	m_bStop = false;
 	m_nRDone = 0;
 	if (bResetOldGlitch)
