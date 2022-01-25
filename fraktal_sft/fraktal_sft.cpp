@@ -319,6 +319,8 @@ bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
 		SetupArrays();
 		AllocateBitmap();
 		SetNeedRender();
+	} else if(m_Derivatives && !data->GetDerivatives()) {
+		SetupArrays();
 	}
 
 	if(!data C(Digits10)) {
@@ -463,8 +465,8 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 	if(s_old->GetExponentialMap() || s_new->GetExponentialMap())
 		return false; // can't do that, the exponential map is not linear
 
-	// If the new settings want derivatives, recalculate.
-	if(s_new->GetDerivatives() && !s_old->GetDerivatives())
+	// If the new settings want derivatives which we don't have, recalculate.
+	if(s_new->GetDerivatives() && !m_Derivatives)
 		return false;
 
 	// Test if there's anything to do in the first place.
@@ -1673,21 +1675,35 @@ void CFraktalSFT::SetupArrays()
 		throw;
 	
 	bool two = m_nMaxIter >= UINT32_MAX;
-	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
-	m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
-	m_nTrans = new float*[m_nX];
-	m_nPhase = new float*[m_nX];
-	m_nDEx = new float*[m_nX];
-	m_nDEy = new float*[m_nX];
-	m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
-	m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
-	m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
-	m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
+	if(m_nPixels_LSB == nullptr)
+		m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
+	if(m_nPixels_MSB == nullptr)
+		m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
+	if(m_nTrans == nullptr) {
+		m_nTrans = new float*[m_nX];
+		m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
+	}
+	if(m_Derivatives) {
+		if(m_nPhase == nullptr) {
+			m_nPhase = new float*[m_nX];
+			m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
+		}
+		if(m_nDEx == nullptr) {
+			m_nDEx = new float*[m_nX];
+			m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
+		}
+		if(m_nDEy == nullptr) {
+			m_nDEy = new float*[m_nX];
+			m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
+		}
+	}
 	for (int x = 1; x<m_nX; x++){
 		m_nTrans[x] = m_nTrans[0] + x * m_nY;
-		m_nPhase[x] = m_nPhase[0] + x * m_nY;
-		m_nDEx[x] = m_nDEx[0] + x * m_nY;
-		m_nDEy[x] = m_nDEy[0] + x * m_nY;
+		if(m_Derivatives) {
+			m_nPhase[x] = m_nPhase[0] + x * m_nY;
+			m_nDEx[x] = m_nDEx[0] + x * m_nY;
+			m_nDEy[x] = m_nDEy[0] + x * m_nY;
+		}
 	}
 	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
 
@@ -3528,9 +3544,11 @@ void CFraktalSFT::ErasePixel(int x, int y)
 	if (x >= 0 && y >= 0 && x<m_nX && y<m_nY){
 		m_nPixels[x][y] = 1;
 		m_nTrans[x][y] = 0;
-		m_nPhase[x][y] = 0;
-		m_nDEx[x][y] = 0;
-		m_nDEy[x][y] = 0;
+		if(m_Derivatives) {
+			m_nPhase[x][y] = 0;
+			m_nDEx[x][y] = 0;
+			m_nDEy[x][y] = 0;
+		}
 		SetColor(x, y, 1, 1);
 		m_nPixels[x][y] = PIXEL_UNEVALUATED;
 	}
