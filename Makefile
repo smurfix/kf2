@@ -352,7 +352,7 @@ res.o: res.res
 res.res: fraktal_sft/fraktal_sft.rc fraktal_sft/resource.h
 	 $(WINDRES2) -i fraktal_sft/fraktal_sft.rc -o res.res $(FLAGS_WINDRES)
 
-%.o: %.cpp Settings.stamp
+%.o: %.cpp
 	$(COMPILE) $(COMPILE_FLAGS) -o $@ -c $<
 
 %.o: %.c
