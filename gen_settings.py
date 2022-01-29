@@ -38,6 +38,7 @@ TYPES = {
     "cs": "Settings-to-CFraktal copy",
     "cc": "Settings-to-Settings copy",
     "eq": "Equality test (settings) to 'other'",
+    "cm": "Comparison code (ChgNAME macro)",
 }
 
 vars = []
@@ -227,6 +228,12 @@ class _Var:
                 return false;
 """
 
+    def gen_cm(self):
+        """Equality test"""
+        return f"""\
+#define Chg{self.gsname} (!({self.varname} == Get{self.gsname}()))
+"""
+
     def gen_cp(self):
         """Generates a private variable declaration."""
         return f"""\
@@ -242,7 +249,7 @@ class _Var:
     def gen_cs(self):
         """copy to private"""
         return f"""\
-    p_{self.varname} = orig.Get{self.gsname}();
+    p_{self.varname} = data->Get{self.gsname}();
 """
 
     def gen_cc(self):
@@ -492,6 +499,20 @@ class Var_L(Var_s):
     }}
 """
 
+    def gen_cm(self):
+        """Equality test"""
+        return f"""\
+inline bool Chg_{self.gsname}() {{
+    if({self.countname} != Get{self.cgsname}()) return true;
+    for(int i=0;i<{self.countname};i++) {{
+        if (!({self.varname}[i] == Get{self.gsname}()[i]))
+            return true;
+    }}
+    return false;
+}}
+#define Chg{self.gsname} Chg_{self.gsname}()
+"""
+
     def gen_hr(self):
         """hash read"""
         return f"""\
@@ -534,7 +555,7 @@ class Var_L(Var_s):
     def gen_cs(self):
         res = super().gen_cs()
         res += f"""\
-            p_{self.countname} = orig.Get{self.cgsname}();
+            p_{self.countname} = data->Get{self.cgsname}();
 """
         return res
 

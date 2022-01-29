@@ -52,7 +52,6 @@ SettingsEntry SettingsData[] = {
 
 Settings::Settings()
 : is_default(true)
-, parent(nullptr)
 #include "Settings.sdv.inc"
 #include "Settings.pdv.inc"
 #include "Settings.ldv.inc"
@@ -88,7 +87,6 @@ Settings::Settings()
 
 Settings::Settings(Settings &orig)
 : is_default(false)
-, parent(nullptr)
 {
 #include "Settings.scc.inc"
 #include "Settings.lcc.inc"
@@ -102,13 +100,6 @@ Settings::Settings(Settings &orig)
 #include "Settings.ssc.inc"
 #include "Settings.psc.inc"
 #include "Settings.lsc.inc"
-
-void Settings::SetParent(CFraktalSFT *p)
-{
-    if(parent && p && parent != p)
-        throw std::logic_error("parent already set");
-    parent = p;
-}
 
 bool Settings::operator==(const SP_Settings &other) const
 {
@@ -484,6 +475,7 @@ bool Settings::FromText(const std::string &text, bool useSettings, bool useParam
     if(v_Re.length() && v_Im.length()) {
       if(v_Zoom.length() == 0)
         v_Zoom = "2";
+      std::cerr << "SetPosS " << v_Zoom << std::endl;
       SetPosition(v_Re, v_Im, v_Zoom);
     }
 

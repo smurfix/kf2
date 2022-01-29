@@ -55,7 +55,6 @@ class Settings
 
 private:
   bool is_default;
-  CFraktalSFT *parent;
 
 #include "Settings.scv.inc"
 #include "Settings.pcv.inc"
@@ -64,10 +63,6 @@ private:
 public:
   Settings();
   Settings(Settings &);
-
-  inline CFraktalSFT *GetParent() { return parent; }
-  void SetParent(CFraktalSFT *p);
-  inline bool is_active() { return parent != nullptr; }
 
   bool FromText(const std::string &text, bool useSettings, bool useParams, bool useLocation);
   std::string ToText(bool useSettings, bool useParams, bool useLocation) const;

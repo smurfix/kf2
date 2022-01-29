@@ -32,8 +32,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <fstream>
 
 // save the current settings so that Cancel works
-static SP_Settings g_Settings;
-
 static RECT g_rShow;
 static COLOR14 g_colCopy={0};
 static BOOL g_bCaptureMouse=FALSE;
@@ -216,9 +214,6 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	static COLORREF colCust[16]={0};
-	if(uMsg==WM_SHOWWINDOW && wParam){
-		g_Settings = g_SFT.m_Settings;
-	}
 	if(uMsg==WM_INITDIALOG)
 	{
 		SendMessage(hWnd, WM_SETICON, ICON_SMALL, LPARAM(g_hIcon));
@@ -548,10 +543,8 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		}
 		if(wParam==IDCANCEL || wParam==IDCLOSE){
 			if(wParam==IDCLOSE) { // those two are mixed up globally
-				g_SFT.ApplySettings(g_Settings);
-				InvalidateRect(GetParent(hWnd),NULL,FALSE);
+				g_SFT.ApplyOldSettings();
 			}
-			g_Settings = nullptr;
 			ShowWindow(hWnd,SW_HIDE);
 		}
 		else if(wParam==IDC_BUTTON23){

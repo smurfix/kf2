@@ -240,10 +240,10 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 	m_nRDone = 0;
 	ResetTimers();
 
-	if(!OpenNewSettings(nullptr)) {
+	if(!ApplySettings(data, true)) {
 		std::cerr << "Could not apply settings." << std::endl << std::flush;
-		m_Settings = NEW_SETTINGS();
-		if(!OpenNewSettings(nullptr)) {
+		data = NEW_SETTINGS();
+		if(!ApplySettings(data, true)) {
 			std::cerr << "Could not apply default settings either. Closing down." << std::endl << std::flush;
 			abort();
 		}
@@ -270,105 +270,6 @@ void CFraktalSFT::SetNeedRender()
 	m_needRender = true;
 }
 
-#define C(N) || !(m_Settings->Get ## N () == data->Get ## N ())
-
-bool CFraktalSFT::CloseOldSettings(SP_Settings data, bool imgCopied)
-{
-	// m_Settings points to the old settings. @data are the new settings.
-	// If DATA is nullptr, we are shutting down.
-	//
-	if(!CanApplySettings(data))
-		return false;
-
-	if(!data) // shutting down, so we definitely don't need it any more
-		StopUseOpenGL();
-
-	if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
-		FreeBitmap();
-		if(!imgCopied)
-			DeleteArrays();
-	}
-	m_Settings->SetParent(nullptr);
-	return true;
-}
-
-bool CFraktalSFT::OpenNewSettings(SP_Settings data, bool imgCopied)
-{
-	// m_Settings points to the new settings. @data are the old settings.
-	//
-	// If @imgCopied is True, 
-	//
-	m_Settings->SetParent(this);
-
-	Settings &orig = *m_Settings;
-#include "Settings.scs.inc"
-#include "Settings.lcs.inc"
-#include "Settings.pcs.inc"
-
-	bool updatePix = false;
-
-	if(!data && imgCopied)
-		throw_invalid("Copy","while starting up??");
-
-	if(imgCopied) {
-		SetNeedRender();
-		if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample))
-			AllocateBitmap();
-	} else if(!data C(TargetWidth) C(TargetHeight) C(TargetSupersample)) {
-		updatePix = true;
-		SetupArrays();
-		AllocateBitmap();
-		SetNeedRender();
-	} else if(m_Derivatives && !data->GetDerivatives()) {
-		SetupArrays();
-	}
-
-	if(!data C(Digits10)) {
-		m_rref.m_f.precision(m_digits10);
-		m_iref.m_f.precision(m_digits10);    
-	}
-
-	if(imgCopied) {
-		if(!m_bmi)
-			AllocateBitmap();
-	} else if(!data C(CenterRe) C(CenterIm) C(ZoomRadius) C(TransformMatrix) C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI)) {
-		updatePix = true;
-		SetNeedRender();
-		m_bAddReference = FALSE;
-		if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-			m_bNoGlitchDetection = FALSE;
-		else
-			m_bNoGlitchDetection = TRUE;
-	}
-	if(!data C(ZoomRadius)) {
-		CFixedFloat pixel_spacing = (m_ZoomRadius * 2) / m_nY;
-		m_fPixelSpacing = floatexp(pixel_spacing);
-	}
-
-	if(updatePix) {
-		ClearImage();
-	}
-
-	if(!data C(Power)) {
-		UpdatePower();
-		SetNeedRender();
-	}
-	if(m_UseHybridFormula)
-		SetReferenceStrictZero(true);
-	if(!data C(SlopeAngle))
-		UpdateSlopes();
-
-	if(!m_AutoApproxTerms)
-		UpdateApproxTerms();
-
-	N.g_period = m_Period; // XXX clean up?
-
-	ApplyColors(); // TODO not always
-
-	return true;
-}
-
-
 void CFraktalSFT::SetImageSize(int nX, int nY)
 {
 	SetTargetWidth(nX / GetTargetSupersample());
@@ -391,46 +292,112 @@ void CFraktalSFT::UpdateDerivativeGlitch()
 	}
 }
 
-bool CFraktalSFT::CanApplySettings(SP_Settings data)
+
+bool CFraktalSFT::CanApplySettings()
 {
-	if(!data)
+	if(ChgTargetWidth || ChgTargetHeight || ChgTargetSupersample)
 		return !GetIsRendering();
 
-	if(0 C(TargetWidth) C(TargetHeight) C(TargetSupersample))
+	if(ChgCenterRe || ChgCenterIm || ChgZoomRadius || ChgDigits10)
 		return !GetIsRendering();
 
-	if(0 C(CenterRe) C(CenterIm) C(ZoomRadius) C(Digits10))
+	if(ChgPower || ChgFractalType || ChgHybridFormula || ChgSeedR || ChgSeedI || ChgFactorAR || ChgFactorAI)
 		return !GetIsRendering();
 
-	if(0 C(Power) C(FractalType) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
-		return !GetIsRendering();
-
-	// TODO there are more
+	// TODO there are probably more
 	return true;
 }
-#undef C
 
-bool CFraktalSFT::ApplySettings(SP_Settings data)
+void CFraktalSFT::CopySettingValues(SP_Settings data)
 {
-    if(m_Settings == nullptr) throw;
-	if(data == nullptr) throw;
-
-	bool imgCopied = TryCopyImage(m_Settings, data);
-
-	if(!imgCopied && !CloseOldSettings(data))
-		return false;
-
-	SP_Settings old = m_Settings;
-	if(old == nullptr) throw;
 	m_Settings = data;
+	m_NewSettings = nullptr;
+#include "Settings.scs.inc"
+#include "Settings.lcs.inc"
+#include "Settings.pcs.inc"
+}
 
-	if(OpenNewSettings(old, imgCopied))
-		return true;
-	m_Settings = old;
-	if(OpenNewSettings(nullptr))
+bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
+{
+	SP_Settings ns = m_NewSettings;
+	m_NewSettings = data;
+
+	if(!init && !CanApplySettings()) {
+		m_NewSettings = ns;
 		return false;
-	std::cerr << "Could neither apply new nor restore old settings. Closing down." << std::endl << std::flush;
-	abort();
+	}
+
+	bool reAlloc = false;
+	bool renderAll = false;
+	bool doDerivs = false;
+	bool doRender;
+	bool doPower;
+	bool doSlopes;
+	bool doBitmap;
+
+	if(init) {
+		doRender = true;
+		reAlloc = true;
+		renderAll = true;
+		doPower = true;
+		doSlopes = true;
+		doBitmap = true;
+	} else {
+		doRender = MaybeCopyImage(reAlloc,renderAll);
+		doPower = ChgPower;
+		doSlopes = ChgSlopeAngle;
+
+		if(reAlloc)
+			DeleteArrays();
+		else if (m_Derivatives && !GetDerivatives())
+			DeleteDerivs();
+		else if (GetDerivatives() && !m_Derivatives)
+			doDerivs = true;
+
+		doBitmap = ChgTargetWidth || ChgTargetHeight;
+		if(doBitmap)
+			FreeBitmap();
+	}
+
+	std::cerr << "Old: " << m_ZoomRadius.ToText() << std::endl << std::flush;
+
+	CopySettingValues(data);
+
+	std::cerr << "New: " << m_ZoomRadius.ToText() << std::endl << std::flush;
+
+	if(reAlloc)
+		SetupArrays();
+	else if (doDerivs)
+		SetupDerivs();
+
+	if(doBitmap)
+		AllocateBitmap();
+
+	if(doPower)
+		UpdatePower();
+
+	if(m_UseHybridFormula)
+		SetReferenceStrictZero(true);
+
+	if(doSlopes)
+		UpdateSlopes();
+
+	if(!m_AutoApproxTerms)
+		UpdateApproxTerms();
+
+	N.g_period = m_Period; // XXX clean up?
+
+	if(renderAll) {
+		m_rref.m_f.precision(m_digits10);
+		m_iref.m_f.precision(m_digits10);    
+
+		ClearImage();
+	} else
+		ApplyColors(); // TODO not always
+
+	if(doRender || renderAll)
+		SetNeedRender();
+	return true;
 }
 
 static mat3 gen_transform(int nX, int nY, const mat2 &skew)
@@ -448,33 +415,39 @@ static mat3 gen_transform(int nX, int nY, const mat2 &skew)
 	return to_unit * mskew;
 }
 
-bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
+bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 {
-#define C(N) || !(s_old->Get ## N () == s_new->Get ## N ())
 	// Operation: if we have a Fractal and the formula didn't change, create
 	// a translation matrix from the old to the new settings' pixel space,
 	// allocate new arrays, copy data over as appropriate, and update our
 	// data to reflect the new state of affairs.
 	//
-	if(!s_old) return false;
-	if(!s_new) return false;
+	// DO NOT CALL for startup or shutdown.
+	// returns True if you should call Render.
+
+	if(ChgTargetWidth || ChgTargetHeight || ChgTargetSupersample)
+		reAlloc = true;
+
+	renderAll = true;
 
 	// Formula change. No way.
-	if(0 C(Power) C(FractalType) C(UseHybridFormula) C(HybridFormula) C(SeedR) C(SeedI) C(FactorAR) C(FactorAI))
-		return false;
+	if(ChgPower || ChgFractalType || ChgUseHybridFormula || (m_UseHybridFormula && ChgHybridFormula) || ChgSeedR || ChgSeedI || ChgFactorAR || ChgFactorAI)
+		return true;
 
-	if(s_old->GetExponentialMap() || s_new->GetExponentialMap())
-		return false; // can't do that, the exponential map is not linear
+	if(m_ExponentialMap || GetExponentialMap())
+		return true; // can't do that, the exponential map is not linear
 
 	// If the new settings want derivatives which we don't have, recalculate.
-	if(s_new->GetDerivatives() && !m_Derivatives)
-		return false;
+	if(GetDerivatives() && !m_Derivatives)
+		return true;
 
 	// Test if there's anything to do in the first place.
-	if(!(0 C(TargetWidth) C(TargetHeight) C(TargetSupersample) C(CenterRe) C(CenterIm) C(ZoomRadius) C(Digits10)))
+	if(!reAlloc && !ChgCenterRe && !ChgCenterIm && !ChgZoomRadius && !ChgDigits10) {
+		renderAll = false;
 		return false; // nothing to do
 		// We don't use C(TransformMatrix) in this test: if all you have is a
 		// slight matrix change there will be too many artefacts.
+	}
 
 	// Operation:
 	// calculate transfer matrix new>old
@@ -483,12 +456,14 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 	// Obviously this only works when the old data is less dense than the
 	// new, so skip out if it is.
 	// 
-	CFixedFloat pixelSpacingOld(s_old->GetZoomRadius() * 2 / s_old->GetImageHeight());
-	CFixedFloat pixelSpacingNew(s_new->GetZoomRadius() * 2 / s_new->GetImageHeight());
+	CFixedFloat pixelSpacingOld(m_ZoomRadius * 2 / m_nY);
+	CFixedFloat pixelSpacingNew(GetZoomRadius() * 2 / GetImageHeight());
 
 	// TODO this really should take the transform matrix into account
-	if(pixelSpacingOld > pixelSpacingNew)
-		return false;
+	// We use a factor of 1.5 because zooming out by only 10% or so creates
+	// artefacts.
+	if(pixelSpacingOld > pixelSpacingNew*1.5 )
+		return true;
 		// The other way around, zooming in, would work like this: invert
 		// the transfer matrix, init new image to invalid, then iterate over old
 		// data to update new. The problem is that skew, jitter, and related
@@ -496,24 +471,27 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 
 	// Likewise if the pixel density stays the same but the matrix changes,
 	// there'll be too many artefacts, so don't do that.
-	if((pixelSpacingOld == pixelSpacingNew) && (0 C(TransformMatrix)))
-		return false;
+	if((pixelSpacingOld == pixelSpacingNew) && ChgTransformMatrix)
+		return true;
 	
-	int old_nx = s_old->GetImageWidth();
-	int old_ny = s_old->GetImageHeight();
-	int new_nx = s_new->GetImageWidth();
-	int new_ny = s_new->GetImageHeight();
+	renderAll = false;  // we're copying some data
+	reAlloc = false;  // we're doing that here
 
-	auto hdx = (s_new->GetCenterRe()-s_old->GetCenterRe())/s_old->GetZoomRadius();
-	auto hdy = (s_new->GetCenterIm()-s_old->GetCenterIm())/s_old->GetZoomRadius();
-	auto hdz = s_new->GetZoomRadius() / s_old->GetZoomRadius();
+	int old_nx = m_nX;
+	int old_ny = m_nY;
+	int new_nx = GetImageWidth();
+	int new_ny = GetImageHeight();
+
+	auto hdx = (GetCenterRe()-m_CenterRe)/m_ZoomRadius;
+	auto hdy = (GetCenterIm()-m_CenterIm)/m_ZoomRadius;
+	auto hdz = GetZoomRadius() / m_ZoomRadius;
 
 	double dx = hdx.ToDouble();
 	double dy = hdy.ToDouble();
 	double dz = hdz.ToDouble();
 
-	const mat3 m_old{gen_transform(old_nx, old_ny, s_old->GetTransformMatrix())};
-	const mat3 m_new{gen_transform(new_nx, new_ny, s_new->GetTransformMatrix())};
+	const mat3 m_old{gen_transform(old_nx, old_ny, m_TransformMatrix)};
+	const mat3 m_new{gen_transform(new_nx, new_ny, GetTransformMatrix())};
 
 	const mat3 shift{1,0,dx, 0,1,dy, 0,0,1};
     const mat3 factor{dz,0,0, 0,dz,0, 0,0,1};
@@ -544,10 +522,10 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 	}
 
 	// OK, now do some actual work.
-	bool derivs = s_new->GetDerivatives();
+	bool derivs = GetDerivatives();
 
 	// this is a copy of ::SetupArrays
-	bool two = s_new->GetIterations() >= UINT32_MAX;
+	bool two = GetIterations() >= UINT32_MAX;
 	uint32_t *OrgLSB = new_aligned<uint32_t>(new_nx * new_ny);
 	uint32_t *OrgMSB = two ? new_aligned<uint32_t>(new_nx * new_ny) : nullptr;
 	float** OrgT = new float*[new_nx];
@@ -633,7 +611,6 @@ bool CFraktalSFT::TryCopyImage(SP_Settings s_old, SP_Settings s_new)
 	// Phew.
 	m_bAddReference = 1;
 	return true;
-#undef C
 }
 
 bool CFraktalSFT::ApplyNewSettings(bool keepNew)
@@ -641,13 +618,9 @@ bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 	if(m_NewSettings == nullptr)
 		return true;
 
-	auto s = m_NewSettings;
-
 	if(ApplySettings(m_NewSettings)) {
-		if(keepNew) {
-			m_NewSettings = NEW_SETTINGS(*m_NewSettings); // need to copy
-		} else {
-			UndoStore(s);
+		if(!keepNew) {
+			UndoStore(m_NewSettings);
 			m_NewSettings = nullptr;
 		}
 #ifndef KF_EMBED
@@ -662,6 +635,11 @@ bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 	}
 }
 
+bool CFraktalSFT::ApplyOldSettings()
+{
+	m_NewSettings = m_Settings;
+	return ApplyNewSettings();
+}
 
 bool CFraktalSFT::UseOpenGL()
 {
@@ -1594,6 +1572,7 @@ void CFraktalSFT::ApplyColors()
 }
 CFraktalSFT::~CFraktalSFT()
 {
+	StopUseOpenGL();
 	DeleteArrays();
 	FreeBitmap();
 
@@ -1673,88 +1652,93 @@ void CFraktalSFT::Mirror(int x, int y)
 //#define HARD_GUESS_EXP
 //60 2.5
 
-void CFraktalSFT::SetupArrays()
+void CFraktalSFT::SetupDerivs()
 {
-	if (m_nX == 0 || m_nY == 0)
-		throw;
-	
-	bool two = m_nMaxIter >= UINT32_MAX;
-	if(m_nPixels_LSB == nullptr)
-		m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
-	if(m_nPixels_MSB == nullptr)
-		m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
-	if(m_nTrans == nullptr) {
-		m_nTrans = new float*[m_nX];
-		m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
-	}
-	if(m_Derivatives) {
-		if(m_nPhase == nullptr) {
-			m_nPhase = new float*[m_nX];
-			m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
-		}
-		if(m_nDEx == nullptr) {
-			m_nDEx = new float*[m_nX];
-			m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
-		}
-		if(m_nDEy == nullptr) {
-			m_nDEy = new float*[m_nX];
-			m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
-		}
-	}
+	m_nPhase = new float*[m_nX];
+	m_nPhase[0] = new_aligned<float>(m_nX * m_nY);
+	m_nDEx = new float*[m_nX];
+	m_nDEx[0] = new_aligned<float>(m_nX * m_nY);
+	m_nDEy = new float*[m_nX];
+	m_nDEy[0] = new_aligned<float>(m_nX * m_nY);
+
 	for (int x = 1; x<m_nX; x++){
-		m_nTrans[x] = m_nTrans[0] + x * m_nY;
-		if(m_Derivatives) {
-			m_nPhase[x] = m_nPhase[0] + x * m_nY;
-			m_nDEx[x] = m_nDEx[0] + x * m_nY;
-			m_nDEy[x] = m_nDEy[0] + x * m_nY;
-		}
+		m_nPhase[x] = m_nPhase[0] + x * m_nY;
+		m_nDEx[x] = m_nDEx[0] + x * m_nY;
+		m_nDEy[x] = m_nDEy[0] + x * m_nY;
 	}
-	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
 
 	ClearImage();
 }
 
+void CFraktalSFT::SetupArrays()
+{
+	if (m_nX == 0 || m_nY == 0)  // cannot allocate
+		throw;
+	if(m_nPixels_LSB != nullptr)  // already allocated
+		throw;
+	
+	bool two = m_nMaxIter >= UINT32_MAX;
+	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
+	m_nPixels_MSB = two ? new_aligned<uint32_t>(m_nX * m_nY) : nullptr;
+	m_nPixels = itercount_array(m_nY, 1, m_nPixels_LSB, m_nPixels_MSB);
+
+	m_nTrans = new float*[m_nX];
+	m_nTrans[0] = new_aligned<float>(m_nX * m_nY);
+	for (int x = 1; x<m_nX; x++)
+		m_nTrans[x] = m_nTrans[0] + x * m_nY;
+	
+	if(m_Derivatives)
+		SetupDerivs();
+	else
+		ClearImage();
+}
+
 void CFraktalSFT::DeleteArrays()
 {
-		if (m_nPixels_LSB)
-		{
-			delete_aligned(m_nPixels_LSB);
-			m_nPixels_LSB = nullptr;
-		}
-		if (m_nPixels_MSB)
-		{
-			delete_aligned(m_nPixels_MSB);
-			m_nPixels_MSB = nullptr;
-		}
-		m_nPixels = itercount_array(0, 0, nullptr, nullptr); // invalid
-		if (m_nTrans)
-		{
-			if (m_nTrans[0])
-				delete_aligned(m_nTrans[0]);
-			delete[] m_nTrans;
-			m_nTrans = NULL;
-		}
-		if (m_nPhase)
-		{
-			if (m_nPhase[0])
-				delete_aligned(m_nPhase[0]);
-			delete[] m_nPhase;
-			m_nPhase = nullptr;
-		}
-		if (m_nDEx)
-		{
-			if (m_nDEx[0])
-				delete_aligned(m_nDEx[0]);
-			delete[] m_nDEx;
-			m_nDEx = nullptr;
-		}
-		if (m_nDEy)
-		{
-			if (m_nDEy[0])
-				delete_aligned(m_nDEy[0]);
-			delete[] m_nDEy;
-			m_nDEy = nullptr;
-		}
+	if (m_nPixels_LSB)
+	{
+		delete_aligned(m_nPixels_LSB);
+		m_nPixels_LSB = nullptr;
+	}
+	if (m_nPixels_MSB)
+	{
+		delete_aligned(m_nPixels_MSB);
+		m_nPixels_MSB = nullptr;
+	}
+	m_nPixels = itercount_array(0, 0, nullptr, nullptr); // invalid
+	if (m_nTrans)
+	{
+		if (m_nTrans[0])
+			delete_aligned(m_nTrans[0]);
+		delete[] m_nTrans;
+		m_nTrans = NULL;
+	}
+	DeleteDerivs();
+}
+
+void CFraktalSFT::DeleteDerivs()
+{
+	if (m_nPhase)
+	{
+		if (m_nPhase[0])
+			delete_aligned(m_nPhase[0]);
+		delete[] m_nPhase;
+		m_nPhase = nullptr;
+	}
+	if (m_nDEx)
+	{
+		if (m_nDEx[0])
+			delete_aligned(m_nDEx[0]);
+		delete[] m_nDEx;
+		m_nDEx = nullptr;
+	}
+	if (m_nDEy)
+	{
+		if (m_nDEy[0])
+			delete_aligned(m_nDEy[0]);
+		delete[] m_nDEy;
+		m_nDEy = nullptr;
+	}
 }
 
 #ifdef KF_OPENCL
@@ -2278,7 +2262,9 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		long e = 0;
 		mpfr_get_d_2exp(&e, pixelSpacing.m_f.backend().data(), MPFR_RNDN);
 		digits10 = std::max(20.0, 20 + 0.30103 * (log2(nZoomSize) - e));
-		CFixedFloat radius = m_ZoomRadius / nZoomSize;
+		CFixedFloat zoom = 2 * nZoomSize / m_ZoomRadius;
+		std::cerr << "CZ " << zoom.ToText() << " from " << m_ZoomRadius << std::endl;
+
 		Precision p(digits10);
 		double g = nZoomSize;
 		if (g == 1 || center_view)
@@ -2296,8 +2282,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		CFixedFloat re = re1 + (re0 - re1) / g;
 		CFixedFloat im = im1 + (im0 - im1) / g;
 
-		radius = 2/radius; // pass zoom
-		SetPosition(re.m_f,im.m_f,radius.m_f,digits10);
+		SetPosition(re.m_f,im.m_f,zoom.m_f,digits10);
 	}
 #ifndef KF_EMBED
 	ApplyNewSettings();

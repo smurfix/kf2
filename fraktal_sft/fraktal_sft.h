@@ -89,9 +89,16 @@ public:
 #include "Settings.psf.inc"
 #include "Settings.lsf.inc"
 
-	bool CanApplySettings(SP_Settings data);
-	bool ApplySettings(SP_Settings data);
+#include "Settings.scm.inc"
+#include "Settings.pcm.inc"
+#include "Settings.lcm.inc"
+
+	bool CanApplySettings();
+	bool ApplySettings(SP_Settings data, bool init=false);
 	bool ApplyNewSettings(bool keepNew = false);
+	bool ApplyOldSettings();  // revert, if keepNew was true
+	void CopySettingValues(SP_Settings data);
+
 	void UpdateHalfColour();
 	void UpdateApproxTerms(int nT = -1);
 
@@ -110,9 +117,10 @@ public:
 
 private:
 
-    bool CloseOldSettings(SP_Settings data, bool imgCopied=false);
-    bool OpenNewSettings(SP_Settings data, bool imgCopied=false);
-    bool TryCopyImage(SP_Settings s_old, SP_Settings s_new);
+    bool MaybeCopyImage(bool &reAlloc, bool &renderAll);
+	// sets reAlloc if bitmaps need resizing. Caller needs to check for derivs if False.
+	// sets renderrAll if the whole image needs clearing and recalculation.
+	// returns True if the user should call Render
 
 public:
 
@@ -272,7 +280,9 @@ public:
 	void ErasePixel(int x, int y);  // clear it
 
 	void SetupArrays(); // Set up the above arrays
+	void SetupDerivs(); // … only phase and derivatives
 	void DeleteArrays(); // Clean up the above arrays
+	void DeleteDerivs(); // … only derivatives
 
 	// Pixel calculation sequence; when interactive, this encodes Adam7-style
 	// incremental refinement.
