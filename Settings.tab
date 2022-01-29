@@ -131,7 +131,7 @@ i	s	hrhw	:	settings_version	:	SettingsVersion	0	File version
 														
 # legacy														
 b	s	hr	:		:	UseArgMinAbsZAsGlitchCenter	0	new: GlitchCenterMethod=1						
-f	l	-			:	Rotate	0	no longer user						
+f	l	-			:	Rotate	0	no longer used						
 f	l	-	:		:	Ratio	0	no longer used						
 #														
 # Flags are b/i/f for bool/int/float.														
