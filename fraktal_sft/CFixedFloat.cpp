@@ -26,7 +26,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 std::string CFixedFloat::ToText() const
 {
   std::ostringstream os;
-  os << std::fixed << std::setprecision(m_f.precision() + 3) << m_f;
+  os << std::setprecision(m_f.precision() + 3) << m_f;
 	std::string s = os.str();
 	std::size_t e = s.find('e');
 	if (e != std::string::npos)

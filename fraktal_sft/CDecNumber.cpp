@@ -32,7 +32,7 @@ std::string str_rtrim(std::string x)
 std::string CDecNumber::ToText() const
 {
 	std::ostringstream os;
-	os << std::fixed << std::setprecision(m_dec.precision() + 3) << m_dec;
+	os << std::setprecision(m_dec.precision() + 3) << m_dec;
 	std::string s = os.str();
 	std::size_t e = s.find('e');
 	if (e != std::string::npos)
