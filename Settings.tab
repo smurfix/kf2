@@ -96,10 +96,10 @@ f	l	:	:	:	BailoutReal	real	1	XXX
 f	l	:	:	:	BailoutImag	imag	1	XXX						
 E	l	:	BailoutNormPreset	m_nBailoutNormPreset	:	BailoutNormPreset	0	XXX	0<=_X_	1	_X_<=3	1		
 f	l	:	:	m_nBailoutNormCustom	:	BailoutNormCustom	0	XXX	0<=_X_	0				
-f	l	:	:	m_SeedR	:	SeedR	0	XXX						
-f	l	:	:	m_SeedI	:	SeedI	0	XXX						
-f	l	:	:	m_FactorAR	:	FactorAR	1	XXX						
-f	l	:	:	m_FactorAI	:	FactorAI	0	XXX						
+f	l	:	:	:	:	SeedR	0	XXX						
+f	l	:	:	:	:	SeedI	0	XXX						
+f	l	:	:	:	:	FactorAR	1	XXX						
+f	l	:	:	:	:	FactorAI	0	XXX						
 i	l	:	int64_t	m_Period	Period	period	0	XXX	0<=_X_	0				
 L	p	:	ColorArray	m_cKeys:m_nParts	KeyColors:NumOfColors	Colors	"255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,"	Color table	_X_.size()>1					
 b	p	:	:	m_bMW	MW	MultiColor	0	XXX						
@@ -116,14 +116,14 @@ b	p	:	:	m_bUseOpenGL	:	UseOpenGL	false
 s	p	!krkw	:	m_sGLSL	:	GLSL	"vec3 colour() { return KF_Colour(); }"							
 s	p	krkw	:	v_GLSL	:	GLSL								
 b	p	:	:	m_bUseSRGB	:	UseSRGB	false							
-b	l	:	:	m_UseHybridFormula	:	UseHybridFormula	false							
+b	l	:	:	:	:	UseHybridFormula	false							
 S	l	:	hybrid_formula	:	:	HybridFormula								
 f	l	hrhw	:	v_RotateAngle	:	RotateAngle	0							
 f	l	hrhw	:	v_StretchAngle	:	StretchAngle	0							
 f	l	hrhw	:	v_StretchAmount	:	StretchAmount	0							
 b	l	hrhw	:	v_ImagPointsUp	:	ImagPointsUp	false							
-S	l	!hrhwstdvsc	mat2	m_TransformMatrix		TransformMatrix								
-S	l	!hrhwstdvsc	polar2	m_TransformPolar		TransformPolar								
+S	l	!hrhwstdvsc	mat2	:		TransformMatrix								
+S	l	!hrhwstdvsc	polar2	:		TransformPolar								
 i	p	!hrhwedeq		m_nSeed		Seed	-1	Random seed						
 i	p	hrhw	:	version	:	Version	0	File version						
 i	s	hrhw	:	settings_version	:	SettingsVersion	0	File version						
