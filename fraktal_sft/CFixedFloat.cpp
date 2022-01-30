@@ -26,7 +26,23 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 std::string CFixedFloat::ToText() const
 {
   std::ostringstream os;
-  os << std::setprecision(m_f.precision() + 3) << m_f;
+
+    long expo = 0;                                                 
+    mpfr_get_d_2exp(&expo, m_f.backend().data(), MPFR_RNDN);   
+    expo = expo*1000L/3322; // log10(2)
+    int prec = m_f.precision();
+    
+    if(-expo > 2*prec) {
+        // don't switch to fixedpoint if that would add too many zeroes
+        os << std::setprecision(prec + 3);
+    } else if(expo < 0) {
+        // increase precision by the number of leading zeroes
+        os << std::fixed << std::setprecision(prec-expo + 3);
+    } else {
+        os << std::fixed << std::setprecision(prec + 3);
+    }
+    os << m_f;
+
 	std::string s = os.str();
 	std::size_t e = s.find('e');
 	if (e != std::string::npos)

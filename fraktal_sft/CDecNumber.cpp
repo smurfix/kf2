@@ -32,51 +32,41 @@ std::string str_rtrim(std::string x)
 std::string CDecNumber::ToText() const
 {
 	std::ostringstream os;
-	os << std::setprecision(m_dec.precision() + 3) << m_dec;
+
+    long expo = 0;
+    mpfr_get_d_2exp(&expo, m_dec.backend().data(), MPFR_RNDN);
+	expo = expo*1000L/3322; // log10(2)
+	int prec = m_dec.precision();
+
+	if(-expo > 2*prec) {
+		// don't switch to fixedpoint if that would add too many zeroes
+		os << std::setprecision(prec + 3);
+	} else if(expo < 0) {
+		// increase precision by the number of leading zeroes
+		os << std::fixed << std::setprecision(prec-expo + 3);
+	} else {
+		os << std::fixed << std::setprecision(prec + 3);
+	}
+	os << m_dec;
+
 	std::string s = os.str();
 	std::size_t e = s.find('e');
-	if (e != std::string::npos)
+	if (e != std::string::npos) {
+		if (s[0] == '0' && e == 1) {
+			s[e] = 0;
+			return s;
+		}
 		s[e] = 'E';
-	if (s.find('.') != std::string::npos && e == std::string::npos)
+	}
+	else if (s.find('.') != std::string::npos)
 	{
+		// cut off trailing zeroes
 		std::size_t n = s.length() - 1;
 		while (s[n] == '0')
 			s[n--] = 0;
 		if(s[n] == '.')
 			s[n] = 0;
 	}
-	else
-	if (s[0] == '0' && s[1] == 'E')
-	{
-		s[1] = 0;
-	}
-	else if (e != std::string::npos)
-	{
-		int nExp = atoi(s.c_str() + e + 1);
-		if (nExp > 0)
-		{
-			int i;
-			for (i = 0; s[i] && s[i] != '.' && s[i+1] != 'E'; i++)
-				;
-			while (nExp){
-				if (s[i+1] == 'E')
-				{
-					if (i == 0)
-						i++;
-					break;
-				}
-				s[i] = s[i+1];
-				nExp--;
-				i++;
-			}
-			s.replace(s.begin() + i, s.end(), nExp, '0');
-		}
-		e = s.find('E');
-		while (e != std::string::npos && e != 0 && (s[e-1] == '0' || s[e-1] == '.'))
-		{
-			s.replace(s.begin() + e-1, s.end(), s.begin() + e, s.end());
-			e--;
-		}
-	}
+	
 	return s;
 }
