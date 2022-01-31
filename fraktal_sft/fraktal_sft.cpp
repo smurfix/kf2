@@ -359,11 +359,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 			FreeBitmap();
 	}
 
-	std::cerr << "Old: " << m_ZoomRadius.ToText() << std::endl << std::flush;
-
 	CopySettingValues(data);
-
-	std::cerr << "New: " << m_ZoomRadius.ToText() << std::endl << std::flush;
 
 	if(reAlloc)
 		SetupArrays();
@@ -2262,7 +2258,6 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 		long e = mpfr_get_exp(pixelSpacing.m_f.backend().data());
 		digits10 = std::max(20.0, 20 + 0.30103 * (log2(nZoomSize) - e));
 		CFixedFloat zoom = 2 * nZoomSize / m_ZoomRadius;
-		std::cerr << "CZ " << zoom.ToText() << " from " << m_ZoomRadius << std::endl;
 
 		Precision p(digits10);
 		double g = nZoomSize;

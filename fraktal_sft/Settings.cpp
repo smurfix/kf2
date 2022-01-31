@@ -474,7 +474,6 @@ bool Settings::FromText(const std::string &text, bool useSettings, bool useParam
     if(v_Re.length() && v_Im.length()) {
       if(v_Zoom.length() == 0)
         v_Zoom = "2";
-      std::cerr << "SetPosS " << v_Zoom << std::endl;
       SetPosition(v_Re, v_Im, v_Zoom);
     }
 
