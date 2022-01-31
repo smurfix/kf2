@@ -100,7 +100,7 @@ f	2	:	:	:	:	SeedR	0	XXX
 f	2	:	:	:	:	SeedI	0	XXX						
 f	2	:	:	:	:	FactorAR	1	XXX						
 f	2	:	:	:	:	FactorAI	0	XXX						
-i	2	:	int64_t	m_Period	Period	period	0	XXX	0<=_X_	0				
+i	2	:	int64_t	m_Period	:	Period	0	XXX	0<=_X_	0				
 L	1	:	ColorArray	m_cKeys:m_nParts	KeyColors:NumOfColors	Colors	"255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,"	Color table	_X_.size()>1					
 b	1	:	:	m_bMW	MW	MultiColor	0	XXX						
 L	1	:	MultiWaveArray	m_MW:m_nMW	MultiColors:NumMultiColors	MultiColors		XXX						
