@@ -108,21 +108,6 @@ void kf2_set_log_cb(struct kf2_t *kf2, kf2_log_cb log_cb, void *arg) __attribute
 
 void kf2_get_log_cb(const struct kf2_t *kf2, kf2_log_cb *log_cb, void **arg) __attribute__ ((visibility ("default") ));
 
-/*
-set parameters and/or settings
-*/
-
-#define KF2_SUCCESS 0
-#define KF2_ERROR 1
-int kf2_set_text(struct kf2_t *kf2, const char *text) __attribute__ ((visibility ("default") ));
-
-/*
-get parameters and settings
-if passed NULL, returns buffer size needed
-otherwise returns number of bytes written, including terminating NUL
-*/
-
-size_t kf2_get_text(const struct kf2_t *kf2, char *buffer, size_t bytes) __attribute__ ((visibility ("default") ));
 
 /*
 access progress data

@@ -43,22 +43,58 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 static const double deg = 360 / 6.283185307179586;
 
-SettingsEntry SettingsData[] = {
-#include "Settings.sed.inc"
-#include "Settings.ped.inc"
-#include "Settings.led.inc"
-    {0}
+const SettingsEntry SettingsData[] = {
+#include "Settings.ed.inc"
 };
+const unsigned int nSettings = sizeof(SettingsData) / sizeof(SettingsData[0]);
+
+std::map<std::string_view, int> SettingsPos;
+
+static void init_pos() __attribute__ ((constructor));
+static void init_pos() {
+    for (unsigned int n = 0; n < nSettings; n++) {
+        SettingsPos.insert({SettingsData[n].P.name, n});
+    }
+}
+
+enum {
+    seen_TargetHeight = 1<<16,
+    seen_TargetWidth = 1<<17,
+    seen_TargetSupersample = 1<<18,
+};
+
+const SettingsEntry *LookupParam(std::string_view name)
+{
+    auto pos = SettingsPos.find(name);
+    if(pos == SettingsPos.end()) {
+        std::cerr << "Param not found: " << name << std::endl;
+        return nullptr;
+    }
+    return &SettingsData[pos->second];
+}
+
+std::string Settings::GetValue(const std::string_view name)
+{
+    auto param = LookupParam(name);
+    if(param == nullptr)
+        throw_invalid("Unknown param",name);
+    return (this->*(param->get))();
+}
+
+void Settings::SetValue(const std::string_view name, const std::string_view value)
+{
+    auto param = LookupParam(name);
+    if(param == nullptr)
+        throw_invalid("Unknown param",name);
+    (this->*(param->set))(value);
+    v_flags |= param->P.flags<<16;
+}
 
 Settings::Settings()
 : is_default(true)
-#include "Settings.sdv.inc"
-#include "Settings.pdv.inc"
-#include "Settings.ldv.inc"
+#include "Settings.dv.inc"
 {
-#include "Settings.sdi.inc"
-#include "Settings.pdi.inc"
-#include "Settings.ldi.inc"
+#include "Settings.di.inc"
     {
         // Mandelbrot power 2
         hybrid_line l =
@@ -88,24 +124,15 @@ Settings::Settings()
 Settings::Settings(Settings &orig)
 : is_default(false)
 {
-#include "Settings.scc.inc"
-#include "Settings.lcc.inc"
-#include "Settings.pcc.inc"
+#include "Settings.cc.inc"
 }
 
-#include "Settings.sgc.inc"
-#include "Settings.pgc.inc"
-#include "Settings.lgc.inc"
-
-#include "Settings.ssc.inc"
-#include "Settings.psc.inc"
-#include "Settings.lsc.inc"
+#include "Settings.gc.inc"
+#include "Settings.sc.inc"
 
 bool Settings::operator==(const SP_Settings &other) const
 {
-#include "Settings.seq.inc"
-#include "Settings.peq.inc"
-#include "Settings.leq.inc"
+#include "Settings.eq.inc"
     return true;
 }
 
@@ -372,75 +399,80 @@ static std::string glsl_unescape(const std::string &s)
     return o.str();
 }
 
-bool Settings::FromText(const std::string &text, bool useSettings, bool useParams, bool useLocation)
+void Settings::StartSetting(unsigned int flags)
 {
-  char *data = strdup(text.c_str());
-  CStringTable s(data, ": ", "\r\n");
+  v_Re = "";
+  v_Im = "";
+  v_Zoom = "";
+  v_GLSL = "";
+  v_UseArgMinAbsZAsGlitchCenter = 0;
+  v_SmoothMethod = -1;
+  v_SmoothingMethod = -1;
+  v_nX = -1;
+  v_nY = -1;
+  v_RotateAngle = 999;
+  v_StretchAngle = 0;
+  v_StretchAmount = 0;
+  v_ImagPointsUp = false;
+  v_version = -1;
+  v_settings_version = -1;
+  v_flags = flags;
 
-  if(useParams && m_OpenResetsParameters) {
+  if((v_flags & KF_use_Params) && m_OpenResetsParameters) {
     // XXX do we want to trigger that off the version number instead?
     ResetParameters();
   }
+}
 
-  std::string v_Re;
-  std::string v_Im;
-  std::string v_Zoom;
+bool Settings::FromText(const std::string &text, unsigned int flags)
+{
+  StartSetting(flags);
 
-  std::string v_GLSL;
+  for (auto line : str_iter(text, "\r\n")) {
+    auto kv = str_keyval(line, ": ");
+    auto param = LookupParam(kv.first);
+    if(param == nullptr)
+      continue;
+    if(!(flags & (1<<param->P.type)))
+      continue;
 
-  int v_UseArgMinAbsZAsGlitchCenter = 0;
-  int v_SmoothMethod = -1;
-  int v_SmoothingMethod = -1;
-
-  int v_nX = -1;
-  int v_nY = -1;
-
-  double v_RotateAngle = 999;
-  double v_StretchAngle = 0;
-  double v_StretchAmount = 0;
-  bool v_ImagPointsUp = false;
-
-  int version = -1;
-  int settings_version = -1;
-
-  if(useSettings) {
-#   include "Settings.shr.inc"
-  }
-  if(useParams) {
-#   include "Settings.phr.inc"
-  }
-  if(useLocation) {
-#   include "Settings.lhr.inc"
+    (this->*(param->set))(kv.second);
+    v_flags |= param->P.flags<<16;
   }
 
-  if(useSettings) {
-    if (settings_version == -1)
+  return FinishSetting();
+}
+
+bool Settings::FinishSetting()
+{
+  if(v_flags & KF_use_Settings) {
+    if (v_settings_version == -1)
         fprintf(stderr, "WARNING: file without SettingsVersion tag\n");
-    else if (settings_version > kfs_version_number)
+    else if (v_settings_version > kfs_version_number)
         fprintf(stderr, "WARNING: file format is newer than this EXE version\n");
 
     if (v_UseArgMinAbsZAsGlitchCenter)
       m_GlitchCenterMethod = 1;
 
     if (v_nX != -1) {
-      if (s.FindString(0, "TargetHeight") == -1)
+      if (!(v_flags & seen_TargetHeight))
         m_nX = v_nX;
     }
     if (v_nY != -1) {
-      if (s.FindString(0, "TargetWidth") == -1)
+      if (!(v_flags & seen_TargetWidth))
         m_nY = v_nY;
     }
 
-    if (s.FindString(0, "TargetSupersample") == -1 && (v_nY > 0 || v_nX > 0)) {
+    if (!(v_flags & seen_TargetSupersample) && (v_nY > 0 || v_nX > 0)) {
       // old config file
       m_TargetSupersample = (v_nY > 0) ? v_nY/m_nX : v_nX/m_nY;
     }
   }
 
-  if(useParams) {
-    if (version == -1)
+  if(v_flags & KF_use_Params) {
+    if (v_version == -1)
         fprintf(stderr, "WARNING: file without Version tag\n");
-    else if (version > kfs_version_number)
+    else if (v_version > kfs_version_number)
         fprintf(stderr, "WARNING: file format is newer than this EXE version\n");
 
     if (v_SmoothingMethod == -1)
@@ -467,7 +499,7 @@ bool Settings::FromText(const std::string &text, bool useSettings, bool useParam
     if (m_bTriangleInequalityAverage)
       SetNoApprox(true);
   }
-  if(useLocation) {
+  if(v_flags & KF_use_Location) {
     if(v_RotateAngle != 999)
       SetTransformPolar(polar2(v_ImagPointsUp ? -1 : 1, 1, v_RotateAngle / deg, std::exp2(v_StretchAmount), v_StretchAngle / deg));
 
@@ -476,12 +508,10 @@ bool Settings::FromText(const std::string &text, bool useSettings, bool useParam
         v_Zoom = "2";
       SetPosition(v_Re, v_Im, v_Zoom);
     }
-
   }
   if(v_GLSL.length())
     m_sGLSL = glsl_unescape(v_GLSL);
 
-  std::free(data);
   return true;
 }
 
@@ -522,11 +552,10 @@ void Settings::ResetParameters()
     SetFactorAI(0);
 }    
 
-std::string Settings::ToText(bool useSettings, bool useParams, bool useLocation) const
+std::string Settings::ToText(unsigned int flags)
 {
-  CStringTable s;
+  std::ostringstream os;
 
-  int v_SmoothMethod;
   switch(GetSmoothMethod()) {
     case BailoutRadius_High:
       v_SmoothMethod = 0;
@@ -542,42 +571,37 @@ std::string Settings::ToText(bool useSettings, bool useParams, bool useLocation)
       break;
   }
 
-  std::string v_GLSL = glsl_escape(m_sGLSL);
-
   polar2 P = GetTransformPolar();
 
-  double v_RotateAngle = P.rotate * deg;
-  double v_StretchAngle = P.stretch_angle * deg;
-  double v_StretchAmount = std::log2(P.stretch_factor);
-  bool v_ImagPointsUp = P.sign < 0;
+  v_RotateAngle = P.rotate * deg;
+  v_StretchAngle = P.stretch_angle * deg;
+  v_StretchAmount = std::log2(P.stretch_factor);
+  v_ImagPointsUp = P.sign < 0;
+  v_settings_version = kfs_version_number;
+  v_version = kfs_version_number;
+  v_flags = flags;
 
-  if(useSettings) {
-    int64_t settings_version = kfs_version_number;
-
-#   include "Settings.shw.inc"
-
+  if(v_flags & KF_use_Params) {
+    v_GLSL = glsl_escape(m_sGLSL);
   }
-  if(useParams) {
-    int64_t version = kfs_version_number;
-#   include "Settings.phw.inc"
-  }
-  if(useLocation) {
-    const std::string v_Re = GetRe();
-    const std::string v_Im = GetIm();
-    const std::string v_Zoom = GetZoom();
-
-#   include "Settings.lhw.inc"
+  if(v_flags & KF_use_Location) {
+    v_Re = GetRe();
+    v_Im = GetIm();
+    v_Zoom = GetZoom();
   }
 
-  { s.AddRow(); s.AddString(s.GetCount() - 1, "UseArgMinAbsZAsGlitchCenter"); s.AddInt(s.GetCount() - 1, GetUseArgMinAbsZAsGlitchCenter()); }
+  for (auto kv : SettingsPos) {
+    auto param = &SettingsData[kv.second];
+    if(!(v_flags & (1<<param->P.type)))
+      continue;
+    std::string res = (this->*(param->get))();
+    os << kv.first << ": " << res << "\r\n";
+  }
 
-  char *data = s.ToText(": ", "\r\n");
-  std::string r(data);
-  s.DeleteToText(data);
-  return r;
+  return os.str();
 }
 
-bool Settings::OpenFile(const std::string &filename, bool useSettings, bool useParams, bool useLocation)
+bool Settings::OpenFile(const std::string &filename, unsigned int flags)
 {
         std::string data;
 	const char *extension = strrchr(filename.c_str(), '.');
@@ -607,12 +631,12 @@ bool Settings::OpenFile(const std::string &filename, bool useSettings, bool useP
                 buffer << hFile.rdbuf();
                 data = buffer.str();
 	}
-  return FromText(data, useSettings, useParams, useLocation);
+        return FromText(data, flags);
 }
 
-bool Settings::SaveFile(const std::string &filename, bool overwrite, bool useSettings, bool useParams, bool useLocation) const
+bool Settings::SaveFile(const std::string &filename, bool overwrite, unsigned int flags)
 {
-    std::string szText(ToText(useSettings, useParams, useLocation));
+    std::string szText(ToText(flags));
 
 #if __cplusplus >= 201703L
     if(!overwrite && std::filesystem::exists(filename))

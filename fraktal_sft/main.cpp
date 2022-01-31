@@ -1333,7 +1333,7 @@ nPos=13;
 			}
 			if(!g_bAnimateEachFrame && g_bStoreZoomKfr){
 				std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfr"));
-				g_SFT.SaveFile(File, true);
+				g_SFT.SaveFile(File, true, KF_use_Params|KF_use_Location);
 			}
 			std::string File = replace_path_filename(g_SFT.m_szFile, store_zoom_filename(g_bStoreZoom, szZ, "kfb"));
 			if(!g_bAnimateEachFrame && g_bStoreZoomMap)
@@ -1412,8 +1412,8 @@ nPos=20;
 		}
 		else{
 nPos=21;
-			g_SFT.SaveFile(g_szRecoveryKFR, true);
-			g_SFT.SaveSettings(g_szRecoveryKFS, true);
+			g_SFT.SaveFile(g_szRecoveryKFR, true, KF_use_Params|KF_use_Location);
+			g_SFT.SaveFile(g_szRecoveryKFS, true, KF_use_Settings);
 		}
 
 nPos=22;
@@ -3935,15 +3935,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			if(g_SFT.m_szFile == "")
 				PostMessage(hWnd,WM_COMMAND,ID_FILE_SAVEAS_,0);
 			else if (g_SFT.GetSaveOverwrites()){
-				if(!g_SFT.SaveFile(g_SFT.m_szFile, true))
+				if(!g_SFT.SaveFile(g_SFT.m_szFile, true, KF_use_Params|KF_use_Location))
 				  return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 			}
-			else if (!g_SFT.SaveFile(g_SFT.m_szFile, false)){
+			else if (!g_SFT.SaveFile(g_SFT.m_szFile, false, KF_use_Params|KF_use_Location)){
 				SYSTEMTIME now = { 0 };
 				GetSystemTime(&now);
 				char date[100];
 				snprintf(date, 100 - 1, "%04d-%02d-%02dT%02d-%02d-%02d-%03d.%s", now.wYear, now.wMonth, now.wDay, now.wHour, now.wMinute, now.wSecond, now.wMilliseconds, "kfr");
-				if (! g_SFT.SaveFile(replace_path_extension(g_SFT.m_szFile, date), false))
+				if (! g_SFT.SaveFile(replace_path_extension(g_SFT.m_szFile, date), false, KF_use_Params|KF_use_Location))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 			}
 		}
@@ -4050,7 +4050,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_FILE_SAVEAS_){
 			if(BrowseFile(hWnd,FALSE,"Save Location Parameters","Kalle's fraktaler\0*.kfr\0\0",g_SFT.m_szFile)){
 				g_FileSaveAs_Cancelled = false;
-				if(!g_SFT.SaveFile(g_SFT.m_szFile, true))
+				if(!g_SFT.SaveFile(g_SFT.m_szFile, true, KF_use_Params|KF_use_Location))
 					return MessageBox(hWnd,"Could not save parameters","Error",MB_OK|MB_ICONSTOP);
 				char szTitle[1024];
 				snprintf(szTitle, sizeof(szTitle), "Kalle's Fraktaler 2 - %s", get_filename_file(g_SFT.m_szFile).c_str());
@@ -4344,7 +4344,7 @@ static bool save_frame(int frame, bool onlyKFR)
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveKFR.c_str(), frame);
 		output_log_message(Info, "saving KFR " << fn);
-		if (! g_SFT.SaveFile(fn, true))
+		if (! g_SFT.SaveFile(fn, true, KF_use_Params|KF_use_Location))
 		{
 			ok = false;
 			output_log_message(Error, "saving KFR " << fn << " FAILED");

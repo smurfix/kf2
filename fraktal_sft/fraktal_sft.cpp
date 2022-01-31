@@ -312,9 +312,7 @@ void CFraktalSFT::CopySettingValues(SP_Settings data)
 {
 	m_Settings = data;
 	m_NewSettings = nullptr;
-#include "Settings.scs.inc"
-#include "Settings.lcs.inc"
-#include "Settings.pcs.inc"
+#include "Settings.cs.inc"
 }
 
 bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
@@ -2709,7 +2707,7 @@ void CFraktalSFT::FreeBitmap()
 #ifndef KF_EMBED
 int CFraktalSFT::SaveJpg(const std::string &szFile, int nQuality, int nWidth, int nHeight)
 {
-	std::string comment(m_Settings->ToText(true,true,true));
+	std::string comment(m_Settings->ToText(KF_use_all));
 	if (nWidth == 0)
 		nWidth = m_nX;
 	if (nHeight == 0)

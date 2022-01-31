@@ -33,12 +33,12 @@ TYPES = {
     "sc": "setter code (SetNAME), for Settings",
     "gf": "inline getter code (GetNAME), for SFT",
     "sf": "inline setter code (SetNAME), for SFT",
-    "hr": "hash read (Settings: copy data from string)",
-    "hw": "hash write (Settings: copy data to string)",
     "cs": "Settings-to-CFraktal copy",
     "cc": "Settings-to-Settings copy",
     "eq": "Equality test (settings) to 'other'",
     "cm": "Comparison code (ChgNAME macro)",
+    "mg": "Build a getter",
+    "ms": "Build a setter",
 }
 
 vars = []
@@ -84,7 +84,7 @@ class _Var:
         if ctype in ("",":"):
             ctype = CTYPES[typ]
         self.typ = typ
-        self.loc = loc
+        self.loc = int(loc,0)
         self.ctype = ctype
         self.gsname = name if gsname in ("",":") else gsname
         self.name = name
@@ -188,27 +188,33 @@ class _Var:
 #       return f"std::string({data})"
 
     def gen_ed(self):
-        return f"""{{ '{self.typ}',"{self.ctype}","{self.name}",{self.default_to_str()},"{self.descr}"}},"""
+        loc = self.loc & 0xFF
+        flg = (self.loc >> 16) & 0xFF
+        return f"""{{ {{ {loc},{flg},"{self.ctype}","{self.name}",{self.default_to_str()},"{self.descr}"}} , &Settings::R_{self.name}, &Settings::W_{self.name} }},"""
 
-    def gen_hr(self):
+    def gen_ms(self):
         """hash read"""
         if self.skip("sc"):
             return f"""\
-                {{ int n = s.FindString(0, "{self.name}"); if (n != -1)
-                   {self.varname} = {self.str_to_data('s[n][1]')};
+void W_{self.name}(std::string_view value)
+                {{
+                   {self.varname} = {self.str_to_data('value')};
                 }}
 """
         return f"""\
-                {{ int n = s.FindString(0, "{self.name}"); if (n != -1)
-                   Set{self.gsname}({self.str_to_data('s[n][1]')});
+void W_{self.name}(std::string_view value)
+                {{
+                   Set{self.gsname}({self.str_to_data('value')});
                 }}
 """
 
-    def gen_hw(self):
+    def gen_mg(self):
         """hash write"""
         return f"""\
-  {{ s.AddRow(); s.AddString(s.GetCount() - 1, "{self.name}");
-    s.AddString(s.GetCount() - 1, {self.mvar_to_str()}); }}
+std::string R_{self.name}()
+  {{
+    return {self.mvar_to_str()};
+  }}
 """
 
     def gen_cv(self):
@@ -301,20 +307,35 @@ class _Var:
 
     def gen_sf(self):
         """generates setter code for SFT"""
-        return f"""
-  inline void Set{self.gsname}({self.const} {self.ctype} {self.ref}var) {{
-    ModSettings().Set{self.gsname}(var);
+        res = f"""
+  inline void Set{self.gsname}({self.const} {self.ctype} {self.ref}value) {{
+    ModSettings().Set{self.gsname}(value);
   }}
 """
+        if self.ref:
+            res += f"""
+  inline void Set{self.gsname}({self.const} {self.ctype} &&value) {{
+    ModSettings().Set{self.gsname}(value);
+  }}
+"""
+        return res
 
     def gen_st(self):
         """generates setter declarations """
         res = f"""
   void Set{self.gsname}({self.const} {self.ctype} {self.ref}value);
 """
+        if self.ref:
+            res += f"""
+  void Set{self.gsname}({self.const} {self.ctype} &&value);
+"""
         if self.dup_set:
             res += f"""
   void Set{self.gsname}({self.const} {self.bctype} {self.ref}value);
+"""
+            if self.ref:
+                res += f"""
+  void Set{self.gsname}({self.const} {self.bctype} &&value);
 """
         return res
 
@@ -325,6 +346,12 @@ class _Var:
         if self.dup_set:
             res = f"""\
   void Settings::Set{self.gsname}({self.const} {self.ctype} {self.ref}value) {{
+    {self.varname} = value;
+  }}
+"""
+            if self.ref:
+                res += f"""
+  void Settings::Set{self.gsname}({self.const} {self.ctype} &&value) {{
     {self.varname} = value;
   }}
 """
@@ -361,6 +388,13 @@ class _Var:
     {self.varname} = {self.ivar_to_data('value')};
   }}
 """
+        if self.ref:
+            res += f"""
+  void Settings::Set{self.gsname}({self.const} {ctype} &&value) {{
+{ "".join(tests) }
+    {self.varname} = {self.ivar_to_data('value')};
+  }}
+"""
         return res;
 
 class Var_s(_Var):
@@ -391,6 +425,34 @@ class Var_s(_Var):
 
     def mvar_to_str(self):
         return f"({self.varname})"
+
+    def gen_st(self):
+        res = super().gen_st();
+        if self.ctype == "std::string":
+            res += f"""
+  void Set{self.gsname}(std::string_view value);
+"""
+        return res
+
+    def gen_sc(self):
+        res = super().gen_sc();
+        if self.ctype == "std::string":
+            res += f"""
+  void Settings::Set{self.gsname}(std::string_view value) {{
+    {self.varname} = value;
+  }}
+"""
+        return res
+
+    def gen_sf(self):
+        res = super().gen_sf();
+        if self.ctype == "std::string":
+            res += f"""
+  inline void Set{self.gsname}(std::string_view value) {{
+    ModSettings().Set{self.gsname}({self.ivar_to_data('value')});
+  }}
+"""
+        return res
 
 class Var_x(Var_s):
     pass
@@ -472,10 +534,11 @@ class Var_S(Var_s):
 #   def to_assign(self, value):
 #       return f"{self.ctype}({self.to_code(value)})"
 
-    def gen_hr(self):
+    def gen_ms(self):
         return f"""\
-            {{ int n = s.FindString(0, "{self.name}"); if (n != -1)
-                Set{self.gsname}({self.ctype}{{s[n][1]}});
+void W_{self.name}(std::string_view value)
+            {{
+                Set{self.gsname}({self.ctype}{{ value }});
             }}
 """
 
@@ -513,19 +576,27 @@ inline bool Chg_{self.gsname}() {{
 #define Chg{self.gsname} Chg_{self.gsname}()
 """
 
-    def gen_hr(self):
+    def gen_ms(self):
         """hash read"""
         return f"""\
-            {{ int n = s.FindString(0, "{self.name}"); if (n != -1)
-                {self.countname} = {self.varname}.from_string(s[n][1]);
+void W_{self.name}(const std::string &value)
+            {{
+                {self.countname} = {self.varname}.from_string(value);
+            }}
+
+void W_{self.name}(std::string_view value)
+            {{
+                {self.countname} = {self.varname}.from_string(value);
             }}
 """
 
-    def gen_hw(self):
+    def gen_mg(self):
         """hash write"""
         return f"""\
-  {{ s.AddRow(); s.AddString(s.GetCount() - 1, "{self.name}");
-    s.AddString(s.GetCount() - 1, {self.varname}.to_string({self.countname})); }}
+std::string R_{self.name}()
+  {{
+    return {self.varname}.to_string({self.countname});
+  }}
 """
 
     def gen_cp(self):
@@ -595,14 +666,12 @@ inline bool Chg_{self.gsname}() {{
         return res
 
     def gen_sf(self):
-        #res = super().gen_sf()
         res = f"""\
-    inline void Set{self.cgsname}(int val) {{ ModSettings().Set{self.cgsname}(val); }}
+    inline void Set{self.cgsname}(int value) {{ ModSettings().Set{self.cgsname}( value); }}
 """
         return res
 
     def gen_sc(self):
-        #res = super().gen_st()
         return ""
 #        res = f"""
 #  void Set{self.cgsname}(int value);
@@ -610,7 +679,6 @@ inline bool Chg_{self.gsname}() {{
 #        return res
 
     def gen_st(self):
-        #res = super().gen_sc()
         res = f"""\
     inline void Set{self.cgsname}(int value) {{ {self.countname} = value; }}
 """
@@ -655,7 +723,9 @@ class Var_E(Var_i):
     def gen_sf(self):
         res = super().gen_sf()
         res += f"""\
-    inline void Set{self.gsname}(int val) {{ ModSettings().Set{self.gsname}({self.ivar_to_data('val')}); }}
+    inline void Set{self.gsname}(int value) {{
+        ModSettings().Set{self.gsname}({self.ivar_to_data('value')});
+    }}
 """
         return res
 class Var_F(Var_E):
@@ -674,30 +744,19 @@ if len(sys.argv) == 2 and sys.argv[1] == "??":
         print(k)
     sys.exit(0)
 
-if len(sys.argv) != 5:
+if len(sys.argv) != 4:
     print("""\
-Usage: gen_settings LOC TYPE IN OUT
+Usage: gen_settings TYPE IN OUT
 
 IN: Settings description (…/Settings.tab)
 OUT: appropriate include file
 
-LOCation:
-l   Location
-p   Parameter
-s   Setting
-
 Types:
 
-"""+"\n".join(f"{a}  {b}" for a,b in TYPES.items())+"""
-p   generate per-image params instead of settings.
-l   location (may get skipped when reading)
-s   location (may get skipped when reading)
-
-Otherwise a Settings entry is built.
-""", file=sys.stderr)
+"""+"\n".join(f"{a}  {b}" for a,b in TYPES.items())+"\n", file=sys.stderr)
     sys.exit(1)
 
-_,loc,typ,ifile,ofile = sys.argv
+_,typ,ifile,ofile = sys.argv
 
 line=0
 with (sys.stdin if ifile == "-" else open(ifile,"r")) as inf:
@@ -717,8 +776,7 @@ with (sys.stdin if ifile == "-" else open(ifile,"r")) as inf:
             print(f"Error: {args[2]} (line {line}): {exc!r}", file=sys.stderr)
             raise
             sys.exit(1)
-        if v.loc == loc:
-            vars.append(v)
+        vars.append(v)
 
 otmp=ofile+".tmp"
 with (sys.stdout if ofile == "-" else open(otmp,"w")) as outf:

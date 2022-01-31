@@ -72,26 +72,13 @@ public:
 	std::string m_szFile;
 
 private:
-#include "Settings.scp.inc"
-#include "Settings.pcp.inc"
-#include "Settings.lcp.inc"
+#include "Settings.cp.inc"
 
 public:
-#include "Settings.sca.inc"
-#include "Settings.pca.inc"
-#include "Settings.lca.inc"
-
-#include "Settings.sgf.inc"
-#include "Settings.pgf.inc"
-#include "Settings.lgf.inc"
-
-#include "Settings.ssf.inc"
-#include "Settings.psf.inc"
-#include "Settings.lsf.inc"
-
-#include "Settings.scm.inc"
-#include "Settings.pcm.inc"
-#include "Settings.lcm.inc"
+#include "Settings.ca.inc"
+#include "Settings.gf.inc"
+#include "Settings.sf.inc"
+#include "Settings.cm.inc"
 
 	bool CanApplySettings();
 	bool ApplySettings(SP_Settings data, bool init=false);
@@ -106,14 +93,14 @@ public:
 
   // settings and parameters
 	bool OpenSettings(const std::string &filename) {
-		return ModSettings().OpenFile(filename, true, false, false); }
+		return ModSettings().OpenFile(filename, KF_use_Settings); }
 	inline bool SaveSettings(const std::string &filename, bool overwrite) {
 		PrepareSave();
-		return m_Settings->SaveFile(filename, overwrite, true, false, false); }
+		return m_Settings->SaveFile(filename, overwrite, KF_use_Settings); }
 	inline std::string GetSettings() {
-		return m_Settings->ToText(true,false,false); }
+		return m_Settings->ToText(KF_use_Settings); }
 	inline bool SetSettings(const std::string &data) {
-		return ModSettings().FromText(data,true,false,false); }
+		return ModSettings().FromText(data, KF_use_Settings); }
 
 private:
 
@@ -127,17 +114,17 @@ public:
 	void ResetParameters();
 	// S BOOL(OpenResetsParameters)
 	inline bool OpenFile(const std::string &filename, BOOL noLocation = FALSE) {
-		return ModSettings().OpenFile(filename, false, true, !noLocation); }
+		return ModSettings().OpenFile(filename, KF_use_Params | (noLocation ? 0 : KF_use_Location)); }
 	inline bool OpenString(const std::string &text, BOOL noLocation = FALSE) {
-		return ModSettings().FromText(text, false, true, !noLocation); }
+		return ModSettings().FromText(text, KF_use_Params | (noLocation ? 0 : KF_use_Location)); }
 
 	BOOL OpenMapB(const std::string &filename, BOOL reuseCenter = FALSE, double zoomSize = 1);
 	bool OpenMapEXR(const std::string &filename);
 
-	std::string ToText() { return m_Settings->ToText(true,true,true); };
-	BOOL SaveFile(const std::string &filename, bool overwrite, bool useSettings=false, bool useParams=true, bool useLocation=true) {
+	std::string ToText() { return m_Settings->ToText(KF_use_all); };
+	BOOL SaveFile(const std::string &filename, bool overwrite, unsigned int flags) {
 		PrepareSave();
-		return m_Settings->SaveFile(filename, overwrite, useSettings,useParams,useLocation);
+		return m_Settings->SaveFile(filename, overwrite, flags);
 	}
 #ifdef WINVER
 	int SaveJpg(const std::string &filename, int quality, int width = 0, int height = 0);

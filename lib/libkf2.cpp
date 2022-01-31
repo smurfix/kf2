@@ -17,7 +17,8 @@ You should have received a copy of the GNU Affero General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
-#include "../include/kf2.h"
+#include "kf2.h"
+#include "kf2/params.h"
 
 #include "../fraktal_sft/fraktal_sft.h"
 
@@ -99,6 +100,8 @@ extern "C" int kf2_wait(struct kf2_t *kf2)
   return res;
 }
 
+/******************* Logging *******************/
+
 extern "C" void kf2_set_log_cb(struct kf2_t *kf2, kf2_log_cb log_cb, void *arg) // FIXME
 {
   assert(kf2);
@@ -116,7 +119,76 @@ void kf2_get_log_cb(const struct kf2_t *kf2, kf2_log_cb *log_cb, void **arg) // 
   if (arg) *arg = nullptr;
 }
 
-extern "C" int kf2_set_text(struct kf2_t *kf2, const char *text)
+/******************* Settings *******************/
+
+struct kf2_params_t
+{
+  SP_Settings S;
+};
+
+
+struct kf2_param_info_t *kf2_param_info(int pos)
+{
+    assert(pos >= 0);
+    if(pos >= nSettings)
+        return nullptr;
+    return &SettingsData[pos].P;
+}
+
+
+struct kf2_params_t *kf2_get_params(kf2_t *kf2)
+{
+    assert(kf2);
+    assert(kf2->g_SFT);
+
+    auto kf2p = new kf2_params_t;
+    kf2p->S = kf2->g_SFT->ModSettings();
+    return kf2p;
+}
+
+struct kf2_params_t *kf2_default_params(void)
+{
+    auto kf2p = new kf2_params_t;
+    kf2p->S = NEW_SETTINGS();
+    return kf2p;
+}
+
+int kf2_apply_params(struct kf2_t *kf2, struct kf2_params_t *kf2p)
+{
+    assert(kf2);
+    assert(kf2->g_SFT);
+    assert(kf2p);
+    return !kf2->g_SFT->ApplySettings(kf2p->S);
+}
+
+void kf2_param_free(struct kf2_params_t *kf2p)
+{
+    kf2p->S = nullptr;
+    delete kf2p;
+}
+
+char *kf2_param_get(struct kf2_params_t *kf2p, char *name)
+{
+    return strdup(kf2p->S.GetValue(name).c_str());
+}
+
+void kf2_param_start(struct kf2_params_t *kf2p)
+{
+    kf2p->S->StartSetting();
+}
+
+int kf2_param_set(struct kf2_params_t *kf2p, char *name, char *value)
+{
+    return !kf2p->S->SetValue(name, value);
+}
+
+int kf2_params_end(struct kf2_params_t *kf2p)
+{
+    return kf2p->S->FinishSetting();
+}
+
+
+extern "C" int kf2_params_set_text(struct kf2_t *kf2, const char *text)
 {
   assert(kf2);
   assert(kf2->state == kf2_state_idle);
@@ -126,7 +198,7 @@ extern "C" int kf2_set_text(struct kf2_t *kf2, const char *text)
   return settings_ok && parameter_ok;
 }
 
-extern "C" size_t kf2_get_text(const struct kf2_t *kf2, char *buffer, size_t bytes)
+extern "C" size_t kf2_params_get_text(const struct kf2_t *kf2, char *buffer, size_t bytes)
 {
   assert(kf2);
   assert(kf2->state == kf2_state_idle);
@@ -152,6 +224,7 @@ extern "C" size_t kf2_get_text(const struct kf2_t *kf2, char *buffer, size_t byt
     return bytes_required;
   }
 }
+
 
 struct kf2_progress_t
 {

@@ -657,7 +657,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::string szFile;
 			if(BrowseFile(hWnd,FALSE,"Save palette","Palette\0*.kfp\0\0",szFile))
 			{
-				g_SFT.SaveFile(szFile, true);
+				g_SFT.SaveFile(szFile, true, KF_use_Params);
 				char szTitle[1024];
 				snprintf(szTitle, sizeof(szTitle), "Colors - %s", get_filename_file(szFile).c_str());
 				SetWindowText(hWnd, szTitle);

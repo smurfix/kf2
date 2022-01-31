@@ -1,138 +1,143 @@
 #code for	loc	lim	C type	Var name	GetSet name	name	default	description	test	value on fail	test…			
-f	s	:	:	:	:	ZoomSize	2	zoom stepping factor	1<=_X_					
-i	s	:	:	:	:	MaxReferences	10000	max# of secondary refs	0<=_X_	0	_X_<=OLD_GLITCH	OLD_GLITCH		
-f	s	:	:	:	:	GlitchLowTolerance	0	tolerance for glitch detection	0<=_X_	0	_X_<=1	1		
-f	s	:	:	:	:	ApproxLowTolerance	0	tolerance for series approximation	0<=_X_	0	_X_<=1	1		
-b	s	:	:	:	:	AutoApproxTerms	true	choose ApproxTerms based on remaining pixels						
-i	s	:	:	:	:	ApproxTerms	10	Number of terms for series approximation	MIN_APPROX_TERMS<=_X_	MIN_APPROX_TERMS	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
-i	s	:	:	:	:	WindowWidth	640	'display window''s width'	5<=_X_	5				
-i	s	:	:	:	:	WindowHeight	360	'display window''s height'	5<=_X_	5				
-i	s	:	:	:	:	WindowTop	-1	saved window position (top)	-1<=_X_	-1				
-i	s	:	:	:	:	WindowLeft	-1	saved window position (left)	-1<=_X_	-1				
-i	s	:	:	:	:	WindowBottom	-1	saved window position (bottom)	-1<=_X_	-1				
-i	s	:	:	:	:	WindowRight	-1	saved window position (right)	-1<=_X_	-1				
-f	s	:	:	:	:	ThreadsPerCore	1	Ratio of threads per CPU core	0<=_X_	1				
-i	s	:	:	:	:	ThreadsReserveCore	0	how many cores to keep free	0<=_X_	0				
-b	s	:	:	:	:	AnimateZoom	true	animate zooming						
-b	s	:	:	:	:	ArbitrarySize	true	varying output to window ratio						
-b	s	:	:	:	:	ReuseReference	false	'Don''t re-calculate the reference for further zooming'						
-b	s	:	:	:	:	AutoSolveGlitches	true	auto-find glitches						
-b	s	:	:	:	:	Guessing	true	guess interior of same-itercount regions						
-b	s	:	:	:	:	SolveGlitchNear	false	only re-render connected pixels						
-b	s	:	:	:	:	NoApprox	false	disable series approximation						
-b	s	:	:	:	:	Mirror	false	Mirror values around the _X_ axis						
-b	s	:	:	:	:	AutoIterations	true	auto-calculate the iteration limit						
-b	s	:	:	:	:	ShowGlitches	true	show glitches in uniform color						
-b	s	:	:	:	:	NoReuseCenter	true	calculate a new reference when zooming out						
-i	s	:	:	:	:	IsolatedGlitchNeighbourhood	4	Ignore isolated glitches	0<=_X_	4	_X_==0||_X_==4||_X_==8			
-i	s	:	:	:	:	JitterSeed	0	zero = off	0<=_X_	0				
-i	s	:	:	:	:	JitterShape	0	uniform/Gaussian	0<=_X_	0	_X_<=1	1		
-f	s	:	:	:	:	JitterScale	1	magnitude	0<=_X_	0				
-b	s	:	:	:	:	Derivatives	false	Calculate slopes etc. for coloring						
-b	s	:	:	:	:	ShowCrossHair	false	show a small magnifier window						
-b	s	:	:	:	:	UseNanoMB1	false	Experimental code						
-b	s	:	:	:	:	UseNanoMB2	false	More experimental code						
-i	s	:	:	:	:	OrderM	16	NanoMBx parameter	1<=_X_	1	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
-i	s	:	:	:	:	OrderN	16	NanoMBx parameter	1<=_X_	1	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
-b	s	:	:	:	:	InteriorChecking	false	NanoMBx: may speed up interior space calc						
-f	s	:	:	:	:	RadiusScale	0.1	NanoMBx parameter						
-#E	s	:	:	:	:	Shrink	1	Shrink quality	0<=_X_&&_X_<=3					
-i	s	:	:	:	:	Shrink	1	Shrink quality	0<=_X_&&_X_<=3					
-b	s	:	:	:	:	HalfColour	false	pre-calculate EXR data						
-b	s	:	:	:	:	SaveOverwrites	false	Save appends a timestamp to the filename						
-b	s	:	:	:	:	ThreadedReference	true	use multiple threads for reference calculation						
-i	s	:	:	:	:	SIMDVectorSize	2	Size of SIMD vectors	1<=_X_	1	_X_<=(1<<KF_SIMD)	1	!(_X_&(_X_-1))	_X_&~(_X_-1)
-i	s	:	:	:	:	SIMDChunkSize	64	Size of SIMD chunks	1<=_X_					
-i	s	:	:	:	:	GlitchCenterMethod	3	Reference Selection	0<=_X_	1	_X_<=3	1		
-b	s	:	:	:	:	UseOpenCL	false	Use OpenCL						
-b	s	:	:	:	:	OpenCLThreaded	true	run OpenCL in render thread						
-i	s	:	:	:	:	OpenCLPlatform	0	which OpenCL impl to use	-1<_X_					
-F	s	:	EXRChannels		:	EXRChannels	511	Flags which channels to save	0<_X_	0x1FF	_X_<=0x1FF	0x1FF		
-b	s	:	:	:	:	EXRParallel	true	use multiple tasks to save EXR						
-b	s	:	:	:	:	SaveNewtonProgress	false	periodically back up Newton status						
-b	s	:	:	:	:	ExponentialMap	false	coordinate transform, for reassembly with zoomasm						
-b	s	!cs	:	:	:	DerivativeGlitch	false	Use derivative-based glitch detection for power 2 Mandelbrot						
-b	p	:	:	:	:	ReferenceStrictZero	false	Use strict zero test for reference dynamic range						
-F	s	:	NumberType	:	:	NumberTypes	0xA6	Bitmask for allowed types	0<_X_	0xA6	_X_<=0xFF	0xA6		
-b	s	:	:	:	:	UseRescaledSeries	true	Use rescaled version of series approximation, power 2 MB						
-b	s	:	:	:	:	OpenResetsParameters	true	Clear parameters when opening this file						
-i	s	hr	:	v_nX	:	ImageWidth	-1	Width of the raw image	 5<_X_	5				
-i	s	hr	:	v_nY	:	ImageHeight	-1	Height of the raw image	 5<_X_	5				
-i	s	!hr	:	m_nX	:	ImageWidth	-1	Width of the raw image	 5<_X_	5				
-i	s	!hr	:	m_nY	:	ImageHeight	-1	Height of the raw image	 5<_X_	5				
-i	s	:	:	:	:	TargetWidth	640	Width of the output (= to-be-saved) image	 5<_X_	5				
-i	s	:	:	:	:	TargetHeight	360	Height of the output (= to-be-saved) image	 5<_X_	5				
-i	s	:	:	:	:	TargetSupersample	1	Super-sampling factor	 1<=_X_	1	_X_<10	10		
-s	l	hrhwstgfeq	std::string	v_Re	:	Re	0	Real part of center						
-s	l	hrhwstgfeq	std::string	v_Im	:	Im	0	Imaginary part of center						
-s	l	hrhwstgfeq	std::string	v_Zoom	:	Zoom	1	Zoom factor (= 2/radius)						
-x	l	!hrhw	CFixedFloat	:	:	CenterRe	0	Real part of center						
-x	l	!hrhw	CFixedFloat	:	:	CenterIm	0	Imaginary part of center						
-x	l	!hrhw	CFixedFloat	:	:	ZoomRadius	1	Zoom factor (= 2/radius)						
-i	l	!hrhwedeqdidv		m_nZoom	ZoomExponent	nZoom		Zoom exponent						
-i	l	!hrhwedeq		m_digits10	Digits10	Digits10	10	decimal precision						
-i	l	:	int64_t	m_nMaxIter	Iterations	Iterations	200	Iteration limit	10<_X_	200				
-f	p	:	:	m_nIterDiv	:	IterDiv	.01							
-E	p	:	ColorMethod	m_nColorMethod	:	ColorMethod	7	XXX	0<=_X_	0	_X_<=11	0		
-E	p	:	Differences	m_nDifferences	:	Differences	3	XXX	0<=_X_	0	_X_<=7	0		
-i	p	:	:	m_nColorOffset	:	ColorOffset	0	XXX	0<=_X_	_X_&1023	_X_<1024	_X_&1023		
-f	p	:	:	m_nPhaseColorStrength	PhaseColorStrength	ColorPhaseStrength	0	XXX						
-i	l	!stsc	:	m_nFractalType	:	FractalType	0	XXX	0<=_X_					
-i	l	:	:	m_nPower	:	Power	2	XXX	0<_X_	2				
-i	l	:	:	m_bTriangleInequalityAverage	:	TriangleInequalityAverage	0	XXX						
-b	p	:	:	m_bTrans	Transition	Smooth	true	XXX						
-b	p	:	:	m_bFlat	:	Flat	false	XXX						
-b	p	:	:	m_bITrans	ITransition	InvTransition	false	XXX						
-i	p	hrhw	:	v_SmoothMethod	:	SmoothMethod	0	compatibility with old files	0<=_X_	0	_X_<=1	0		
-i	p	hr	:	v_SmoothingMethod	:	SmoothingMethod	0	XXX	0<=_X_	0	_X_<=1	0		
-i	p	!hr	:	m_nSmoothMethod	SmoothMethod	SmoothingMethod	0	XXX	0<=_X_	0	_X_<=1	0		
-E	p	:	BailoutRadiusPreset	m_nBailoutRadiusPreset	:	BailoutRadiusPreset	0	XXX	0<=_X_	0	_X_<=3	0		
-f	p	:	:	m_nBailoutRadiusCustom	:	BailoutRadiusCustom	0	XXX	0<=_X_	0				
-b	p	:	:	m_bSlopes	:	Slopes	1	XXX						
-i	p	:	:	m_nSlopePower	:	SlopePower	50	XXX	1<=_X_	1				
-i	p	:	:	m_nSlopeRatio	:	SlopeRatio	20	XXX	0<=_X_	0	_X_<100	100		
-i	p	:	:	m_nSlopeAngle	:	SlopeAngle	45	XXX	0<=_X_	0	_X_<360	0		
-f	l	:	:	:	BailoutReal	real	1	XXX						
-f	l	:	:	:	BailoutImag	imag	1	XXX						
-E	l	:	BailoutNormPreset	m_nBailoutNormPreset	:	BailoutNormPreset	0	XXX	0<=_X_	1	_X_<=3	1		
-f	l	:	:	m_nBailoutNormCustom	:	BailoutNormCustom	0	XXX	0<=_X_	0				
-f	l	:	:	:	:	SeedR	0	XXX						
-f	l	:	:	:	:	SeedI	0	XXX						
-f	l	:	:	:	:	FactorAR	1	XXX						
-f	l	:	:	:	:	FactorAI	0	XXX						
-i	l	:	int64_t	m_Period	Period	period	0	XXX	0<=_X_	0				
-L	p	:	ColorArray	m_cKeys:m_nParts	KeyColors:NumOfColors	Colors	"255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,"	Color table	_X_.size()>1					
-b	p	:	:	m_bMW	MW	MultiColor	0	XXX						
-L	p	:	MultiWaveArray	m_MW:m_nMW	MultiColors:NumMultiColors	MultiColors		XXX						
-b	p	:	:	m_bBlend	:	BlendMC	false	Color blending						
-S	p	:	COLOR14	m_cInterior	:	InteriorColor	0,0,0	'Color of the Mandelbrot set''s interior'						
-b	p	:	:	m_bTexture	:	TextureEnabled	false							
-f	p	:	:	m_nImgMerge	:	TextureMerge	0	:						
-f	p	:	:	m_nImgPower	:	TexturePower	0							
-i	p	:	:	m_nImgRatio	:	TextureRatio	0							
-s	p	:	:	m_szTexture	:	TextureFile								
-b	p	:	:	m_bTextureResize	:	TextureResize	0							
-b	p	:	:	m_bUseOpenGL	:	UseOpenGL	false							
-s	p	!krkw	:	m_sGLSL	:	GLSL	"vec3 colour() { return KF_Colour(); }"							
-s	p	krkw	:	v_GLSL	:	GLSL								
-b	p	:	:	m_bUseSRGB	:	UseSRGB	false							
-b	l	:	:	:	:	UseHybridFormula	false							
-S	l	:	hybrid_formula	:	:	HybridFormula								
-f	l	hrhw	:	v_RotateAngle	:	RotateAngle	0							
-f	l	hrhw	:	v_StretchAngle	:	StretchAngle	0							
-f	l	hrhw	:	v_StretchAmount	:	StretchAmount	0							
-b	l	hrhw	:	v_ImagPointsUp	:	ImagPointsUp	false							
-S	l	!hrhwstdvsc	mat2	:		TransformMatrix								
-S	l	!hrhwstdvsc	polar2	:		TransformPolar								
-i	p	!hrhwedeq		m_nSeed		Seed	-1	Random seed						
-i	p	hrhw	:	version	:	Version	0	File version						
-i	s	hrhw	:	settings_version	:	SettingsVersion	0	File version						
+f	0	:	:	:	:	ZoomSize	2	zoom stepping factor	1<=_X_					
+i	0	:	:	:	:	MaxReferences	10000	max# of secondary refs	0<=_X_	0	_X_<=OLD_GLITCH	OLD_GLITCH		
+f	0	:	:	:	:	GlitchLowTolerance	0	tolerance for glitch detection	0<=_X_	0	_X_<=1	1		
+f	0	:	:	:	:	ApproxLowTolerance	0	tolerance for series approximation	0<=_X_	0	_X_<=1	1		
+b	0	:	:	:	:	AutoApproxTerms	true	choose ApproxTerms based on remaining pixels						
+i	0	:	:	:	:	ApproxTerms	10	Number of terms for series approximation	MIN_APPROX_TERMS<=_X_	MIN_APPROX_TERMS	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
+i	0	:	:	:	:	WindowWidth	640	'display window''s width'	5<=_X_	5				
+i	0	:	:	:	:	WindowHeight	360	'display window''s height'	5<=_X_	5				
+i	0	:	:	:	:	WindowTop	-1	saved window position (top)	-1<=_X_	-1				
+i	0	:	:	:	:	WindowLeft	-1	saved window position (left)	-1<=_X_	-1				
+i	0	:	:	:	:	WindowBottom	-1	saved window position (bottom)	-1<=_X_	-1				
+i	0	:	:	:	:	WindowRight	-1	saved window position (right)	-1<=_X_	-1				
+f	0	:	:	:	:	ThreadsPerCore	1	Ratio of threads per CPU core	0<=_X_	1				
+i	0	:	:	:	:	ThreadsReserveCore	0	how many cores to keep free	0<=_X_	0				
+b	0	:	:	:	:	AnimateZoom	true	animate zooming						
+b	0	:	:	:	:	ArbitrarySize	true	varying output to window ratio						
+b	0	:	:	:	:	ReuseReference	false	'Don''t re-calculate the reference for further zooming'						
+b	0	:	:	:	:	AutoSolveGlitches	true	auto-find glitches						
+b	0	:	:	:	:	Guessing	true	guess interior of same-itercount regions						
+b	0	:	:	:	:	SolveGlitchNear	false	only re-render connected pixels						
+b	0	:	:	:	:	NoApprox	false	disable series approximation						
+b	0	:	:	:	:	Mirror	false	Mirror values around the _X_ axis						
+b	0	:	:	:	:	AutoIterations	true	auto-calculate the iteration limit						
+b	0	:	:	:	:	ShowGlitches	true	show glitches in uniform color						
+b	0	:	:	:	:	NoReuseCenter	true	calculate a new reference when zooming out						
+i	0	:	:	:	:	IsolatedGlitchNeighbourhood	4	Ignore isolated glitches	0<=_X_	4	_X_==0||_X_==4||_X_==8			
+i	0	:	:	:	:	JitterSeed	0	zero = off	0<=_X_	0				
+i	0	:	:	:	:	JitterShape	0	uniform/Gaussian	0<=_X_	0	_X_<=1	1		
+f	0	:	:	:	:	JitterScale	1	magnitude	0<=_X_	0				
+b	0	:	:	:	:	Derivatives	false	Calculate slopes etc. for coloring						
+b	0	:	:	:	:	ShowCrossHair	false	show a small magnifier window						
+b	0	:	:	:	:	UseNanoMB1	false	Experimental code						
+b	0	:	:	:	:	UseNanoMB2	false	More experimental code						
+i	0	:	:	:	:	OrderM	16	NanoMBx parameter	1<=_X_	1	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
+i	0	:	:	:	:	OrderN	16	NanoMBx parameter	1<=_X_	1	_X_<=MAX_APPROX_TERMS	MAX_APPROX_TERMS		
+b	0	:	:	:	:	InteriorChecking	false	NanoMBx: may speed up interior space calc						
+f	0	:	:	:	:	RadiusScale	0.1	NanoMBx parameter						
+#E	0	:	:	:	:	Shrink	1	Shrink quality	0<=_X_&&_X_<=3					
+i	0	:	:	:	:	Shrink	1	Shrink quality	0<=_X_&&_X_<=3					
+b	0	:	:	:	:	HalfColour	false	pre-calculate EXR data						
+b	0	:	:	:	:	SaveOverwrites	false	Save appends a timestamp to the filename						
+b	0	:	:	:	:	ThreadedReference	true	use multiple threads for reference calculation						
+i	0	:	:	:	:	SIMDVectorSize	2	Size of SIMD vectors	1<=_X_	1	_X_<=(1<<KF_SIMD)	1	!(_X_&(_X_-1))	_X_&~(_X_-1)
+i	0	:	:	:	:	SIMDChunkSize	64	Size of SIMD chunks	1<=_X_					
+i	0	:	:	:	:	GlitchCenterMethod	3	Reference Selection	0<=_X_	1	_X_<=3	1		
+b	0	:	:	:	:	UseOpenCL	false	Use OpenCL						
+b	0	:	:	:	:	OpenCLThreaded	true	run OpenCL in render thread						
+i	0	:	:	:	:	OpenCLPlatform	0	which OpenCL impl to use	-1<_X_					
+F	0	:	EXRChannels		:	EXRChannels	511	Flags which channels to save	0<_X_	0x1FF	_X_<=0x1FF	0x1FF		
+b	0	:	:	:	:	EXRParallel	true	use multiple tasks to save EXR						
+b	0	:	:	:	:	SaveNewtonProgress	false	periodically back up Newton status						
+b	0	:	:	:	:	ExponentialMap	false	coordinate transform, for reassembly with zoomasm						
+b	0	!cs	:	:	:	DerivativeGlitch	false	Use derivative-based glitch detection for power 2 Mandelbrot						
+b	1	:	:	:	:	ReferenceStrictZero	false	Use strict zero test for reference dynamic range						
+F	0	:	NumberType	:	:	NumberTypes	0xA6	Bitmask for allowed types	0<_X_	0xA6	_X_<=0xFF	0xA6		
+b	0	:	:	:	:	UseRescaledSeries	true	Use rescaled version of series approximation, power 2 MB						
+b	0	:	:	:	:	OpenResetsParameters	true	Clear parameters when opening this file						
+i	0	ms	:	v_nX	:	ImageWidth	-1	Width of the raw image	 5<_X_	5				
+i	0	ms	:	v_nY	:	ImageHeight	-1	Height of the raw image	 5<_X_	5				
+i	0	!ms	:	m_nX	:	ImageWidth	-1	Width of the raw image	 5<_X_	5				
+i	0	!ms	:	m_nY	:	ImageHeight	-1	Height of the raw image	 5<_X_	5				
+i	65536	:	:	:	:	TargetWidth	640	Width of the output (= to-be-saved) image	 5<_X_	5				
+i	131072	:	:	:	:	TargetHeight	360	Height of the output (= to-be-saved) image	 5<_X_	5				
+i	262144	:	:	:	:	TargetSupersample	1	Super-sampling factor	 1<=_X_	1	_X_<10	10		
+s	2	mgmsstgfeqed	std::string	v_Re	:	Re	0	Real part of center						
+s	2	mgmsstgfeqed	std::string	v_Im	:	Im	0	Imaginary part of center						
+s	2	mgmsstgfeqed	std::string	v_Zoom	:	Zoom	1	Zoom factor (= 2/radius)						
+x	2	!mgmsedsc	CFixedFloat	:	:	CenterRe	0	Real part of center						
+x	2	!mgmsedsc	CFixedFloat	:	:	CenterIm	0	Imaginary part of center						
+x	2	!mgmsed	CFixedFloat	:	:	ZoomRadius	1	Zoom factor (= 2/radius)						
+i	2	!mgmsedeqdidv		m_nZoom	ZoomExponent	nZoom		Zoom exponent						
+i	2	!mgmsedeq		m_digits10	Digits10	Digits10	10	decimal precision						
+i	2	:	int64_t	m_nMaxIter	Iterations	Iterations	200	Iteration limit	10<_X_	200				
+f	1	:	:	m_nIterDiv	:	IterDiv	.01							
+E	1	:	ColorMethod	m_nColorMethod	:	ColorMethod	7	XXX	0<=_X_	0	_X_<=11	0		
+E	1	:	Differences	m_nDifferences	:	Differences	3	XXX	0<=_X_	0	_X_<=7	0		
+i	1	:	:	m_nColorOffset	:	ColorOffset	0	XXX	0<=_X_	_X_&1023	_X_<1024	_X_&1023		
+f	1	:	:	m_nPhaseColorStrength	PhaseColorStrength	ColorPhaseStrength	0	XXX						
+i	2	!stsc	:	m_nFractalType	:	FractalType	0	XXX	0<=_X_					
+i	2	:	:	m_nPower	:	Power	2	XXX	0<_X_	2				
+i	2	:	:	m_bTriangleInequalityAverage	:	TriangleInequalityAverage	0	XXX						
+b	1	:	:	m_bTrans	Transition	Smooth	true	XXX						
+b	1	:	:	m_bFlat	:	Flat	false	XXX						
+b	1	:	:	m_bITrans	ITransition	InvTransition	false	XXX						
+i	1	mgmsed	:	v_SmoothMethod	:	SmoothMethod	0	compatibility with old files	0<=_X_	0	_X_<=1	0		
+i	1	msed	:	v_SmoothingMethod	:	SmoothingMethod	0	XXX	0<=_X_	0	_X_<=1	0		
+i	1	!msed	:	m_nSmoothMethod	SmoothMethod	SmoothingMethod	0	XXX	0<=_X_	0	_X_<=1	0		
+E	1	:	BailoutRadiusPreset	m_nBailoutRadiusPreset	:	BailoutRadiusPreset	0	XXX	0<=_X_	0	_X_<=3	0		
+f	1	:	:	m_nBailoutRadiusCustom	:	BailoutRadiusCustom	0	XXX	0<=_X_	0				
+b	1	:	:	m_bSlopes	:	Slopes	1	XXX						
+i	1	:	:	m_nSlopePower	:	SlopePower	50	XXX	1<=_X_	1				
+i	1	:	:	m_nSlopeRatio	:	SlopeRatio	20	XXX	0<=_X_	0	_X_<100	100		
+i	1	:	:	m_nSlopeAngle	:	SlopeAngle	45	XXX	0<=_X_	0	_X_<360	0		
+f	2	:	:	:	BailoutReal	real	1	XXX						
+f	2	:	:	:	BailoutImag	imag	1	XXX						
+E	2	:	BailoutNormPreset	m_nBailoutNormPreset	:	BailoutNormPreset	0	XXX	0<=_X_	1	_X_<=3	1		
+f	2	:	:	m_nBailoutNormCustom	:	BailoutNormCustom	0	XXX	0<=_X_	0				
+f	2	:	:	:	:	SeedR	0	XXX						
+f	2	:	:	:	:	SeedI	0	XXX						
+f	2	:	:	:	:	FactorAR	1	XXX						
+f	2	:	:	:	:	FactorAI	0	XXX						
+i	2	:	int64_t	m_Period	Period	period	0	XXX	0<=_X_	0				
+L	1	:	ColorArray	m_cKeys:m_nParts	KeyColors:NumOfColors	Colors	"255,255,255,128,0,64,160,0,0,192,128,0,64,128,0,0,255,255,64,128,255,0,0,255,"	Color table	_X_.size()>1					
+b	1	:	:	m_bMW	MW	MultiColor	0	XXX						
+L	1	:	MultiWaveArray	m_MW:m_nMW	MultiColors:NumMultiColors	MultiColors		XXX						
+b	1	:	:	m_bBlend	:	BlendMC	false	Color blending						
+S	1	:	COLOR14	m_cInterior	:	InteriorColor	0,0,0	'Color of the Mandelbrot set''s interior'						
+b	1	:	:	m_bTexture	:	TextureEnabled	false							
+f	1	:	:	m_nImgMerge	:	TextureMerge	0	:						
+f	1	:	:	m_nImgPower	:	TexturePower	0							
+i	1	:	:	m_nImgRatio	:	TextureRatio	0							
+s	1	:	:	m_szTexture	:	TextureFile								
+b	1	:	:	m_bTextureResize	:	TextureResize	0							
+b	1	:	:	m_bUseOpenGL	:	UseOpenGL	false							
+s	1	!mgmsed	:	m_sGLSL	:	GLSL	"vec3 colour() { return KF_Colour(); }"							
+s	1	mgmsed	:	v_GLSL	:	GLSL								
+b	1	:	:	m_bUseSRGB	:	UseSRGB	false							
+b	2	:	:	:	:	UseHybridFormula	false							
+S	2	:	hybrid_formula	:	:	HybridFormula								
+f	2	mgmsed	:	v_RotateAngle	:	RotateAngle	0							
+f	2	mgmsed	:	v_StretchAngle	:	StretchAngle	0							
+f	2	mgmsed	:	v_StretchAmount	:	StretchAmount	0							
+b	2	mgmsed	:	v_ImagPointsUp	:	ImagPointsUp	false							
+S	2	!mgmsdvscedst	mat2	:		TransformMatrix								
+S	2	!mgmsdvscedst	polar2	:		TransformPolar								
+i	1	!mgmsedeq		m_nSeed		Seed	-1	Random seed						
+i	1	mgmsed	:	v_version	:	Version	0	File version						
+i	0	mgmsed	:	v_settings_version	:	SettingsVersion	0	File version						
 														
 														
 # legacy														
-b	s	hr	:		:	UseArgMinAbsZAsGlitchCenter	0	new: GlitchCenterMethod=1						
-f	l	-			:	Rotate	0	no longer used						
-f	l	-	:		:	Ratio	0	no longer used						
+b	0	hredmgms	:		:	UseArgMinAbsZAsGlitchCenter	0	new: GlitchCenterMethod=1						
+f	2	-			:	Rotate	0	no longer used						
+f	2	-	:		:	Ratio	0	no longer used						
+#														
+#	loc:													
+#	0	general												
+#	1	Fractal specific, excluding location												
+#	2	actual location												
 #														
 # Flags are b/i/f for bool/int/float.														
 # E is an enum type named for the type in question.														
@@ -141,26 +146,26 @@ f	l	-	:		:	Ratio	0	no longer used
 # Tests are repeated; the setter fails (i.e. returns False) if the														
 '# subsequent default value doesn''t match the test.'														
 # 														
-#NAME?			0	fast										
-#NAME?			1	default										
-#NAME?			2	good										
-#NAME?			3	sRGB										
+#			0	fast										
+#			1	default										
+#			2	good										
+#			3	sRGB										
 #														
-#NAME?			0	R		red								
-#NAME?			1	G		green								
-#NAME?			2	B		blue								
-#NAME?			3	N										
-#NAME?			4	NF										
-#NAME?			5	DEX		derivative in X								
-#NAME?			6	DEY		derivative in Y								
-#NAME?			7	T										
-#NAME?			8	Preview										
+#			0	R		red								
+#			1	G		green								
+#			2	B		blue								
+#			3	N										
+#			4	NF										
+#			5	DEX		derivative in X								
+#			6	DEY		derivative in Y								
+#			7	T										
+#			8	Preview										
 #														
-#NAME?			0	Single										
-#NAME?			1	Double										
-#NAME?			2	LongDouble										
-#NAME?			3	Quad										
-#NAME?			4	FloatExpSingle										
-#NAME?			5	FloatExpDouble										
-#NAME?			6	RescaledSingle										
-#NAME?			7	RescaledDouble										
+#			0	Single										
+#			1	Double										
+#			2	LongDouble										
+#			3	Quad										
+#			4	FloatExpSingle										
+#			5	FloatExpDouble										
+#			6	RescaledSingle										
+#			7	RescaledDouble										

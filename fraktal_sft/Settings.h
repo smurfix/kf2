@@ -29,15 +29,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "matrix.h"
 #include "main_numbertype.h"
 
-struct SettingsEntry
-{
-    const char type;
-    const char *const ctype;
-    const char *const name;
-    const char *const initial;
-    const char *const descr;
-};
-
 class CFraktalSFT;
 
 class Settings;
@@ -50,25 +41,25 @@ typedef std::shared_ptr<Settings> SP_Settings;
 #define NEW_SETTINGS std::make_shared<Settings>
 #endif
 
+#include "kf2/params.h"
+
 class Settings
 {
 
 private:
   bool is_default;
 
-#include "Settings.scv.inc"
-#include "Settings.pcv.inc"
-#include "Settings.lcv.inc"
+#include "Settings.cv.inc"
 
 public:
   Settings();
   Settings(Settings &);
 
-  bool FromText(const std::string &text, bool useSettings, bool useParams, bool useLocation);
-  std::string ToText(bool useSettings, bool useParams, bool useLocation) const;
+  bool FromText(const std::string &text, unsigned int flags);
+  std::string ToText(unsigned int flags);
 
-  bool OpenFile(const std::string &filename, bool useSettings, bool useParams, bool useLocation);
-  bool SaveFile(const std::string &filename, bool overwrite, bool useSettings, bool useParams, bool useLocation) const;
+  bool OpenFile(const std::string &filename, unsigned int flags);
+  bool SaveFile(const std::string &filename, bool overwrite, unsigned int flags);
 
   void SetPosition(const CDecNumber &re, const CDecNumber &im, const CDecNumber &zoom, unsigned digits10);
 
@@ -79,15 +70,20 @@ public:
   std::string GetIm() const;
   std::string GetZoom() const;
 
+  std::string GetValue(const std::string_view name);
+
+  // Some values depend on others so we need to group them
+  void StartSetting(unsigned int flags);
+  void SetValue(const std::string_view name, const std::string_view value);
+  bool FinishSetting();
+
   void ResetParameters(); // compat with old files when reading params
 
-#include "Settings.sgt.inc"
-#include "Settings.pgt.inc"
-#include "Settings.lgt.inc"
+#include "Settings.gt.inc"
+#include "Settings.st.inc"
 
-#include "Settings.sst.inc"
-#include "Settings.pst.inc"
-#include "Settings.lst.inc"
+#include "Settings.mg.inc"
+#include "Settings.ms.inc"
 
   inline void SetTransformPolar(const polar2 &P) {                                
     m_TransformPolar = P;
@@ -141,6 +137,46 @@ public:
   }
 
   bool operator==(const SP_Settings &) const;
+
+private:
+  std::string v_Re;
+  std::string v_Im;
+  std::string v_Zoom;
+
+  std::string v_GLSL;
+
+  int v_UseArgMinAbsZAsGlitchCenter;
+  int v_SmoothMethod;
+  int v_SmoothingMethod;
+
+  int v_nX;
+  int v_nY;
+
+  double v_RotateAngle;
+  double v_StretchAngle;
+  double v_StretchAmount;
+  bool v_ImagPointsUp;
+
+  int v_version;
+  int v_settings_version;
+
+  unsigned int v_flags; // bitmask from enum ParamFlags
+
 };
+
+typedef std::string (Settings::*SettingsGetter)();
+typedef void (Settings::*SettingsSetter)(const std::string_view value);
+
+struct SettingsEntry
+{
+    kf2_param_info_t P;
+
+    SettingsGetter get;
+    SettingsSetter set;
+};
+
+extern const SettingsEntry SettingsData[];
+extern const unsigned int nSettings;
+const SettingsEntry *LookupParam(std::string_view name);
 
 #endif

@@ -28,7 +28,7 @@ CLEWPREFIX := $(HOME)/win/src/clew
 TYPEFLAGS ?= -D__USE_MINGW_ANSI_STDIO=1 -DWINVER=0x501 -D_WIN32_WINNT=0x501 -DKF_OPENGL_THREAD
 DEBUG ?= -gstabs -O0
 
-FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Icommon -Iglad/include -fno-var-tracking-assignments $(DEBUG)
+FLAGS := -Wall -Wextra -Wno-missing-field-initializers -Wno-unused-function -Wno-cast-function-type -Wno-deprecated-copy -Wno-psabi -fstrict-enums -MMD -I$(WINPREFIXPLUS)/include -I$(WINPREFIX)/include -I$(WINPREFIX)/include/pixman-1 -I$(WINPREFIX)/include/OpenEXR $(TYPEFLAGS) -DKF_SIMD=$(SIMD) -I$(CLEWPREFIX)/include -Iinclude -Icommon -Iglad/include -fno-var-tracking-assignments $(DEBUG)
 LINK_FLAGS := $(DEBUG) -Wl,--allow-multiple-definition -static-libgcc -static-libstdc++ -Wl,--stack,67108864 -Wl,-subsystem,windows -L$(WINPREFIXPLUS)/lib -L$(WINPREFIX)/lib
 LIBS ?= -luxtheme -lglfw3 -lgdi32 -lcomdlg32 -lole32 -loleacc -lshlwapi -lversion -lwinspool -loleaut32 -lcomctl32 -lkernel32 -lwininet -lurlmon -luuid -lmpfr -lgmp -ljpeg -ltiff -lpixman-1 $(WINPREFIX)/lib/libpng16.a -lz -lgsl -lgslcblas -lIlmImf-2_5 -lImath-2_5 -lHalf-2_5 -lIex-2_5 -lIexMath-2_5 -lIlmThread-2_5 -lz -static -Wl,-Bstatic -lstdc++ -lpthread -Wl,-Bdynamic
 STD ?= c++17
@@ -489,11 +489,10 @@ prep: Settings.stamp
 Settings.stamp: gen_settings.py Settings.tab
 	@echo Re-generating settings
 	@touch Settings.stamp
-	@set -e; for a in s l p ; do \
-		for b in $$(./gen_settings.py '??' || exit 1) ; do \
-			if ! ./gen_settings.py $$a $$b Settings.tab fraktal_sft/Settings.$${a}$${b}.inc ; then rm -f Settings.stamp; exit 1; fi; \
-		done; \
-	done
+	@set -e; \
+	for b in $$(./gen_settings.py '??' || exit 1) ; do \
+		if ! ./gen_settings.py $$b Settings.tab fraktal_sft/Settings.$${b}.inc ; then rm -f Settings.stamp; break; fi; \
+	done; \
 	test -f Settings.stamp
 
 # Manual
