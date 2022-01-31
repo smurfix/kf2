@@ -114,9 +114,9 @@ extern int WINAPI ColorOpenGLProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lP
 		SendDlgItemMessage(hWnd, IDC_OPENGL_GLSL, WM_SETFONT, WPARAM(g_monospaced_font), 1);
 		SendDlgItemMessage(hWnd, IDC_OPENGL_LOG, WM_SETFONT, WPARAM(g_monospaced_font), 1);
 		DragAcceptFiles(hWnd, TRUE);
-  }
-  if (uMsg == WM_SHOWWINDOW || uMsg == WM_USER + 99)
-  {
+	}
+	if (uMsg == WM_SHOWWINDOW || uMsg == WM_USER+99)
+	{
 		SendDlgItemMessage(hWnd, IDC_OPENGL_ENABLED, BM_SETCHECK, g_SFT.GetUseOpenGL() ? 1 : 0, 0);
 		SendDlgItemMessage(hWnd, IDC_OPENGL_SRGB, BM_SETCHECK, g_SFT.GetUseSRGB() ? 1 : 0, 0);
 		SetDlgItemText(hWnd, IDC_OPENGL_GLSL, g_SFT.GetGLSL().c_str());
@@ -336,9 +336,9 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON26),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON27),g_SFT.GetMW());
 		EnableWindow(GetDlgItem(hWnd,IDC_BUTTON28),g_SFT.GetMW());
-		if (uMsg == WM_USER + 99)
+		if (uMsg == WM_USER+99)
 		{
-			SendMessage(g_hwColorsOpenGL, WM_USER + 99, 0, 0);
+			SendMessage(g_hwColorsOpenGL, WM_USER+99, 0, 0);
 		}
 	}
 	else if(HIWORD(wParam)==LBN_SELCHANGE && LOWORD(wParam)==IDC_LIST6){
@@ -942,23 +942,24 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			InvalidateRect(GetParent(hWnd),NULL,FALSE);
 			InvalidateRect(hWnd,NULL,FALSE);
 		}
-		else if(wParam==IDC_BUTTON16){
+		else if(wParam==IDC_BUTTON16){ // P (red)
 			int nPeriod = MakePrime(GetDlgItemInt(hWnd,IDC_EDIT11,NULL,FALSE));
 			SetDlgItemInt(hWnd,IDC_EDIT11,nPeriod,FALSE);
 		}
-		else if(wParam==IDC_BUTTON19){
+		else if(wParam==IDC_BUTTON19){ // P (green)
 			int nPeriod = MakePrime(GetDlgItemInt(hWnd,IDC_EDIT14,NULL,FALSE));
 			SetDlgItemInt(hWnd,IDC_EDIT14,nPeriod,FALSE);
 		}
-		else if(wParam==IDC_BUTTON20){
+		else if(wParam==IDC_BUTTON20){ // P (blue)
 			int nPeriod = MakePrime(GetDlgItemInt(hWnd,IDC_EDIT16,NULL,FALSE));
 			SetDlgItemInt(hWnd,IDC_EDIT16,nPeriod,FALSE);
 		}
-		else if(wParam==IDC_BUTTON21){
+		else if(wParam==IDC_BUTTON21){ // P (b/w)
 			int nPeriod = MakePrime(GetDlgItemInt(hWnd,IDC_EDIT18,NULL,FALSE));
 			SetDlgItemInt(hWnd,IDC_EDIT18,nPeriod,FALSE);
 		}
 		else if(HIWORD(wParam)==LBN_DBLCLK && LOWORD(wParam)==IDC_LIST1){
+			// double click on a color
 			int i = SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCURSEL,0,0);
 			if(i==-1)
 				return 0;
@@ -981,7 +982,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(hWnd,WM_COMMAND,IDOK,0);
 			g_AutoUpdate--;
 		}
-		else if(wParam==IDC_BUTTON8){
+		else if(wParam==IDC_BUTTON8){ // "Color"
 			COLOR14 c;
 			CHOOSECOLOR col={sizeof(CHOOSECOLOR)};
 			col.hwndOwner = hWnd;
@@ -1041,7 +1042,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(hWnd,WM_USER+99,0,0);
 			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
-		else if(wParam==IDC_BUTTON10){
+		else if(wParam==IDC_BUTTON10){ // Double
 			int nParts = g_SFT.GetNumOfColors();
 			int nPParts = nParts;
 			nParts*=2;
@@ -1056,7 +1057,7 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(hWnd,WM_USER+99,0,0);
 			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
-		else if(wParam==IDC_BUTTON13){
+		else if(wParam==IDC_BUTTON13){ // Seed
 			srand(GetTickCount());
 			int nColors = GetDlgItemInt(hWnd,IDC_EDIT1,NULL,0);
 			if(nColors>1024){
