@@ -67,11 +67,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define IDC_SPIN2                       1017
 #define IDC_CHECK9                      1017
 #define IDC_BUTTON8                     1018
-#define IDC_BUTTON9                     1019
 #define IDC_QUALITY_LABEL               1019
 #define IDC_SPIN3                       1019
 #define IDC_BUTTON10                    1020
-#define IDC_BUTTON11                    1021
 #define IDC_SPIN4                       1021
 #define IDC_BUTTON12                    1022
 #define IDC_BUTTON13                    1023

@@ -1025,56 +1025,6 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(hWnd,WM_USER+99,0,0);
 			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
 		}
-		else if(wParam==IDC_BUTTON9){
-			COLOR14 c;
-			CHOOSECOLOR col={sizeof(CHOOSECOLOR)};
-			col.hwndOwner = hWnd;
-			col.lpCustColors = colCust;
-			col.Flags = CC_RGBINIT;
-			if(ChooseColor(&col)){
-				char *cc = (char*)&col.rgbResult;
-				c.b = cc[0];
-				c.g = cc[1];
-				c.r = cc[2];
-				int i = SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCURSEL,0,0);
-				if(i==-1)
-					i=0;
-				for(;i<g_SFT.GetNumOfColors();i+=3){
-					COLOR14 n = g_SFT.GetKeyColor(i);
-					n.r = (n.r+c.r)/2;
-					n.g = (n.g+c.g)/2;
-					n.b = (n.b+c.b)/2;
-					g_SFT.SetKeyColor(n,i);
-				}
-			}
-			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
-		}
-		else if(wParam==IDC_BUTTON11){
-			COLOR14 c;
-			CHOOSECOLOR col={sizeof(CHOOSECOLOR)};
-			col.hwndOwner = hWnd;
-			col.lpCustColors = colCust;
-			col.Flags = CC_RGBINIT;
-			if(ChooseColor(&col)){
-				char *cc = (char*)&col.rgbResult;
-				c.b = cc[0];
-				c.g = cc[1];
-				c.r = cc[2];
-				int i = SendDlgItemMessage(hWnd,IDC_LIST1,LB_GETCURSEL,0,0);
-				if(i==-1)
-					i=0;
-				for(;i<g_SFT.GetNumOfColors();i+=4){
-					COLOR14 n = g_SFT.GetKeyColor(i);
-					n.r = (n.r+c.r)/2;
-					n.g = (n.g+c.g)/2;
-					n.b = (n.b+c.b)/2;
-					g_SFT.SetKeyColor(n,i);
-				}
-			}
-			SendMessage(hWnd,WM_USER+99,0,0);
-			if (g_AutoColour) g_SFT.ApplyNewSettings(true);
-		}
 		else if(wParam==IDC_INTERIORCOLOR){
 			COLOR14 c;
 			CHOOSECOLOR col={sizeof(CHOOSECOLOR)};
