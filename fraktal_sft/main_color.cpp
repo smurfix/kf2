@@ -976,6 +976,10 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.SetKeyColor(c,i);
 				InvalidateRect(GetDlgItem(hWnd,IDC_LIST1),NULL,FALSE);
 			}
+			SendMessage(hWnd,WM_USER+99,0,0);
+			g_AutoUpdate++;
+			SendMessage(hWnd,WM_COMMAND,IDOK,0);
+			g_AutoUpdate--;
 		}
 		else if(wParam==IDC_BUTTON8){
 			COLOR14 c;

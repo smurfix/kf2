@@ -68,6 +68,11 @@ public:
 		m_NewSettings = NEW_SETTINGS(*m_Settings);
 	  return *m_NewSettings;
 	}
+	inline Settings& CurSettings() {
+	  if(m_NewSettings == nullptr)
+		return *m_Settings;
+	  return *m_NewSettings;
+	}
 
 	std::string m_szFile;
 
@@ -218,7 +223,7 @@ public:
 	void ClearImage();
 
 	// forwards to Settings: stores the target image size and a supersampling factor
-	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) { m_Settings->GetTargetDimensions(w, h, s); }
+	inline void GetTargetDimensions(int64_t *w, int64_t *h, int64_t *s) { CurSettings().GetTargetDimensions(w, h, s); }
 	inline void SetTargetDimensions(int64_t w, int64_t h, int64_t s) { ModSettings().SetTargetDimensions(w, h, s); }
 
 	// Flag for resizing the main bitmap before rendering
@@ -512,7 +517,7 @@ public:
 	COLOR14 GetColor(int i);
 
 	// P ColorArray m_cKeys;  // the color keys (set in the dialog)
-	inline COLOR14 GetKeyColor(int i) { return m_Settings->GetKeyColor(i); }
+	inline COLOR14 GetKeyColor(int i) { return CurSettings().GetKeyColor(i); }
 	inline void SetKeyColor(COLOR14 col, int i) { ModSettings().SetKeyColor(col, i); }
 
 	// P int m_nParts;           // how many color keys are filled
