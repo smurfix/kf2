@@ -12,12 +12,12 @@ int64_t str_atoi(std::string_view data)
 	bool neg;
 
 	if(data.length() == 0)
-		throw_invalid("empty",odata);
+		return 0;
 	neg = data.front() == '-';
 	if(neg) {
 		data.remove_prefix(1);
 		if(data.length() == 0)
-			throw_invalid("empty",data);
+			return 0;
 	}
 	for (const auto& c : data) {
 		if (c < '0' || '9' < c) {
@@ -34,7 +34,7 @@ double str_atof(std::string_view data)
 	const std::string_view odata = data;
 
 	if(data.length() == 0)
-		throw_invalid("empty",odata);
+		return 0;
 
 	char *ep = const_cast<char*>(data.data())+data.length();
 	char epc;
