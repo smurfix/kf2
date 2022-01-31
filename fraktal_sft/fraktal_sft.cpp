@@ -35,7 +35,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "reference.h"
 #include "../common/memory.h"
 #include "../common/parallell.h"
-#include "../common/StringVector.h"
 #include "../common/getimage.h"
 #include "../common/timer.h"
 #include "../common/bitmap.h"
@@ -3416,20 +3415,7 @@ void CFraktalSFT::SaveMap(const std::string &szFile)
 			hFile << m_nPixels[x][y] << std::endl;
 		}
 	}
-	hFile << "Colors: ";
-	CStringTable stColors;
-	int i;
-	for (i = 0; i<m_nParts; i++){
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].r);
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].g);
-		stColors.AddRow();
-		stColors.AddInt(stColors.GetCount() - 1, m_cKeys[i].b);
-	}
-	char *szC = stColors.ToText("", ",");
-	hFile << szC << "\r\n";
-	stColors.DeleteToText(szC);
+	hFile << "Colors: " << ModSettings().R_Colors() << "\r\n";
 	hFile.close();
 }
 void CFraktalSFT::SaveMapB(const std::string &szFile)

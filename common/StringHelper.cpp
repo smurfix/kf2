@@ -52,23 +52,42 @@ double str_atof(std::string_view data)
 	return val;
 }
 
-std::vector<std::string> str_split(const std::string_view i_str, const char *sep)
+std::vector<std::string_view> str_split(const std::string_view i_str, const char *sep)
 {
-	std::vector<std::string> result;
-	
+	std::vector<std::string_view> result;
+
 	size_t found = i_str.find(sep);
 	size_t startIndex = 0;
 	size_t slen = strlen(sep);
 
 	while(found != std::string::npos)
 	{
-		result.push_back(std::string(i_str.begin()+startIndex, i_str.begin()+found));
+		result.push_back(std::string_view(i_str.begin()+startIndex, found-startIndex));
 		startIndex = found + slen;
 		found = i_str.find(sep, startIndex);
 	}
 	if(startIndex != i_str.size())
-		result.push_back(std::string(i_str.begin()+startIndex, i_str.end()));
-	return result;	  
+		result.push_back(std::string_view(i_str.begin()+startIndex, i_str.size()-startIndex));
+	return result;
+}
+
+std::vector<std::string> str_split_copy(const std::string_view i_str, const char *sep)
+{
+	std::vector<std::string> result;
+
+	size_t found = i_str.find(sep);
+	size_t startIndex = 0;
+	size_t slen = strlen(sep);
+
+	while(found != std::string::npos)
+	{
+		result.push_back(std::string(i_str.begin()+startIndex, found-startIndex));
+		startIndex = found + slen;
+		found = i_str.find(sep, startIndex);
+	}
+	if(startIndex != i_str.size())
+		result.push_back(std::string(i_str.begin()+startIndex, i_str.size()-startIndex));
+	return result;
 }
 
 std::string str_format(const std::string &fmt, ...) {

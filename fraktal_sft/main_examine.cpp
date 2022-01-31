@@ -22,7 +22,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "resource.h"
 #include "tooltip.h"
-#include "../common/StringVector.h"
 #include "../common/FolderBrowser.h"
 
 static int g_nPrevAutoGlitchNP;

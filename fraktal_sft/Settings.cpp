@@ -26,7 +26,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <string>
 
 #include <windows.h>
-#include "../common/StringVector.h"
 #include "cmdline.h"
 #include "jpeg.h"
 #include "png.h"

@@ -67,7 +67,8 @@ int64_t str_atoi(std::string_view data);
 double str_atof(std::string_view data);
 
 // if you want a vector
-std::vector<std::string> str_split(const std::string_view i_str, const char *sep);
+std::vector<std::string_view> str_split(const std::string_view i_str, const char *sep);
+std::vector<std::string> str_split_copy(const std::string_view i_str, const char *sep);
 
 // if you simply want to iterate
 // for(const auto& t : str_iter("a b c"," ")) {…}

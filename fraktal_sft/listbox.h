@@ -20,7 +20,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #ifndef __LIST_H__
 #define __LIST_H__
 
-#include "../common/StringVector.h"
+#include <vector>
+#include <string>
 
 typedef int (*LPBUTTONPROC)(int nCommand, int nItem,LPARAM lParam);
 
@@ -80,10 +81,10 @@ class CListBoxEdit
 {
 	HWND m_hwAdd, m_hwUpdate, m_hwRemove;
 	HWND m_hwEdit, m_hwList;
-	CStringVektor m_stEdits;
+	std::vector<HWND> m_stEdits;
 public:
 	CListBoxEdit(HWND hwAdd, HWND hwUpdate, HWND hwRemove, HWND hwEdit, HWND hwList,HWND *phwEdits=NULL, int nEdits=0);
 	int ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam);
-	int GetStrings(CStringVektor *psv);
+	std::vector<std::string> GetStrings();
 };
 #endif//__LIST_H__

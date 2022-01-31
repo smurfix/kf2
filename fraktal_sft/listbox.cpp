@@ -20,6 +20,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <windows.h>
 #include "listbox.h"
 #include "../common/getimage.h"
+#include "../common/StringHelper.h"
 
 #ifdef _WIN64
 #define GCL_WNDPROC -24
@@ -270,7 +271,7 @@ CListBoxEdit::CListBoxEdit(HWND hwAdd, HWND hwUpdate, HWND hwRemove, HWND hwEdit
 	m_hwList = hwList;
 	int i;
 	for(i=0;i<nEdits;i++)
-		m_stEdits.AddInt((intptr_t)phwEdits[i]);
+		m_stEdits.push_back(phwEdits[i]);
 }
 int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
@@ -278,25 +279,18 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 	if(uMsg==WM_COMMAND){
 		if(lParam==(LPARAM)m_hwAdd){
 			int nLen = GetWindowTextLength(m_hwEdit);
-			int i;
-			for(i=0;i<m_stEdits.GetCount();i++)
-			{
-				intptr_t h = 0;
-				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
-				nLen+=GetWindowTextLength((HWND)h)+1;
-			}
+			for(auto h : m_stEdits)
+				nLen+=GetWindowTextLength(h)+1;
 			char *szTmp = new char[nLen+1];
 			GetWindowTextA(m_hwEdit,szTmp,nLen+1);
 			char szClass[256];
-			for(i=0;i<m_stEdits.GetCount();i++){
+			for(auto h : m_stEdits) {
 				strcat(szTmp,"\t");
-				intptr_t h = 0;
-				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
-				GetClassName((HWND)h,szClass,sizeof(szClass));
+				GetClassName(h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					sprintf(szTmp+strlen(szTmp), "%lld", SendMessage((HWND)h,BM_GETCHECK,0,0));
+					sprintf(szTmp+strlen(szTmp), "%lld", SendMessage(h,BM_GETCHECK,0,0));
 				else
-					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
+					GetWindowTextA(h,szTmp+strlen(szTmp),nLen+1);
 			}
 			SendMessageA(m_hwList,LB_ADDSTRING,0,(LPARAM)szTmp);
 			delete[] szTmp;
@@ -309,25 +303,20 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 				return 0;
 			SendMessageA(m_hwList,LB_DELETESTRING,nSel,0);
 			int nLen = GetWindowTextLength(m_hwEdit);
-			int i;
-			for(i=0;i<m_stEdits.GetCount();i++)
+			for(auto h : m_stEdits)
 			{
-				intptr_t h = 0;
-				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
-				nLen+=GetWindowTextLength((HWND)h)+1;
+				nLen+=GetWindowTextLength(h)+1;
 			}
 			char *szTmp = new char[nLen+1];
 			GetWindowTextA(m_hwEdit,szTmp,nLen+1);
 			char szClass[256];
-			for(i=0;i<m_stEdits.GetCount();i++){
+			for(auto h : m_stEdits){
 				strcat(szTmp,"\t");
-				intptr_t h = 0;
-				sscanf(m_stEdits[i], "%" SCNdPTR, &h);
-				GetClassName((HWND)h,szClass,sizeof(szClass));
+				GetClassName(h,szClass,sizeof(szClass));
 				if(!stricmp(szClass,"button"))
-					sprintf(szTmp+strlen(szTmp), "%lld", SendMessage((HWND)h,BM_GETCHECK,0,0));
+					sprintf(szTmp+strlen(szTmp), "%lld", SendMessage(h,BM_GETCHECK,0,0));
 				else
-					GetWindowTextA((HWND)h,szTmp+strlen(szTmp),nLen+1);
+					GetWindowTextA(h,szTmp+strlen(szTmp),nLen+1);
 			}
 			SendMessageA(m_hwList,LB_INSERTSTRING,nSel,(LPARAM)szTmp);
 			delete[] szTmp;
@@ -350,18 +339,20 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 			char *szTmp = new char[nLen+1];
 			SendMessageA(m_hwList,LB_GETTEXT,i,(LPARAM)szTmp);
 			char szClass[256];
-			if(m_stEdits.GetCount()){
-				CStringTable stT(szTmp,"\t","");
+			if(m_stEdits.size()){
+				auto stT = str_split_copy(szTmp,"\t");
 				GetClassName(m_hwEdit,szClass,sizeof(szClass));
-				SetWindowTextA(m_hwEdit,stT[0][0]);
-				for(i=0;i<m_stEdits.GetCount();i++){
-					intptr_t h = 0;
-					sscanf(m_stEdits[i], "%" SCNdPTR, &h);
-					GetClassName((HWND)h,szClass,sizeof(szClass));
+				SetWindowTextA(m_hwEdit,stT[0].c_str());
+				unsigned int i = 0;
+				for(auto h : m_stEdits) {
+					i++;
+					GetClassName(h,szClass,sizeof(szClass));
+					if(stT.size() <= i)
+						continue;
 					if(!stricmp(szClass,"button"))
-						SendMessage((HWND)h,BM_SETCHECK,atoi(stT[0][i+1]),0);
+						SendMessage(h,BM_SETCHECK,std::stoi(stT[i]),0);
 					else
-						SetWindowTextA((HWND)h,stT[0][i+1]);
+						SetWindowTextA(h,stT[i].c_str());
 				}
 			}
 			else{
@@ -388,19 +379,20 @@ int CListBoxEdit::ProcessMessage(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
 	}
 	return 0;
 }
-int CListBoxEdit::GetStrings(CStringVektor *psv)
+std::vector<std::string> CListBoxEdit::GetStrings()
 {
-	psv->Clean();
+	std::vector<std::string> sv;
+
 	int nLen = SendMessageA(m_hwList,LB_GETCOUNT,0,0);
 	int i;
 	for(i=0;i<nLen;i++){
-		int nLen = SendMessageA(m_hwList,LB_GETTEXTLEN,i,0);
-		char *szTmp = new char[nLen+1];
+		int sLen = SendMessageA(m_hwList,LB_GETTEXTLEN,i,0);
+		char *szTmp = new char[sLen+1];
 		SendMessageA(m_hwList,LB_GETTEXT,i,(LPARAM)szTmp);
-		psv->AddString(szTmp);
-		delete[] szTmp;
+		sv.push_back(szTmp);
+		delete szTmp;
 	}
-	return nLen;
+	return sv;
 }
 void CListBox::DrawButton(LPDRAWITEMSTRUCT lpdis)
 {

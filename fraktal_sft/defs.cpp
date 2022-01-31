@@ -112,12 +112,12 @@ std::string MULTIWAVE::to_string() const
 
 void MULTIWAVE::from_string(std::string_view pst)
 {
-	std::vector<std::string> res = str_split(pst,"\t");
+	std::vector<std::string_view> res = str_split(pst,"\t");
 	if(res.size() != 3)
 		throw_invalid("MultiWave:",pst);
 	int c;
 #define C(var,n) \
-		c = std::stoi(res[n]); \
+		c = str_atoi(res[n]); \
 		var = c;
 	C(nPeriod,0);
 	C(nStart,1);

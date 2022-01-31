@@ -154,20 +154,20 @@ bool hybrid_formula::operator==(const hybrid_formula &&other) const
 
 hybrid_operator::hybrid_operator(std::string_view s) : hybrid_operator()
 {
-  std::vector<std::string> v = str_split(s, ",");
-  if (v.size() > 0) abs_x = std::stoi(v[0]);
-  if (v.size() > 1) abs_y = std::stoi(v[1]);
-  if (v.size() > 2) neg_x = std::stoi(v[2]);
-  if (v.size() > 3) neg_y = std::stoi(v[3]);
-  if (v.size() > 4) pow = std::stoi(v[4]);
-  if (v.size() > 5) mul_re = std::stof(v[5]);
-  if (v.size() > 6) mul_im = std::stof(v[6]);
+  auto v = str_split(s, ",");
+  if (v.size() > 0) abs_x = str_atoi(v[0]);
+  if (v.size() > 1) abs_y = str_atoi(v[1]);
+  if (v.size() > 2) neg_x = str_atoi(v[2]);
+  if (v.size() > 3) neg_y = str_atoi(v[3]);
+  if (v.size() > 4) pow = str_atoi(v[4]);
+  if (v.size() > 5) mul_re = str_atof(v[5]);
+  if (v.size() > 6) mul_im = str_atof(v[6]);
 }
 
-hybrid_combine hybrid_combine_from_string(const std::string &s)
+hybrid_combine hybrid_combine_from_string(const std::string_view s)
 {
   hybrid_combine r = hybrid_combine_add;
-  switch (std::stoi(s))
+  switch (str_atoi(s))
   {
     case 0: r = hybrid_combine_add; break;
     case 1: r = hybrid_combine_sub; break;
@@ -179,7 +179,7 @@ hybrid_combine hybrid_combine_from_string(const std::string &s)
 
 hybrid_line::hybrid_line(std::string_view s) : hybrid_line()
 {
-  std::vector<std::string> v = str_split(s, ";");
+  auto v = str_split(s, ";");
   if (v.size() > 0) one = hybrid_operator(v[0]);
   if (v.size() > 1) two = hybrid_operator(v[1]);
   if (v.size() > 2) mode = hybrid_combine_from_string(v[2]);
@@ -187,11 +187,11 @@ hybrid_line::hybrid_line(std::string_view s) : hybrid_line()
 
 hybrid_stanza::hybrid_stanza(std::string_view s) : hybrid_stanza()
 {
-  std::vector<std::string> v = str_split(s, "|");
+  auto v = str_split(s, "|");
   repeats = 0;
   if (v.size() > 0)
   {
-    repeats = std::stoi(v[0]);
+    repeats = str_atoi(v[0]);
   }
   for (int l = 1; l < (ssize_t) v.size(); ++l)
   {
@@ -201,11 +201,11 @@ hybrid_stanza::hybrid_stanza(std::string_view s) : hybrid_stanza()
 
 hybrid_formula::hybrid_formula(std::string_view s) : hybrid_formula()
 {
-  std::vector<std::string> v = str_split(s, "/");
+  auto v = str_split(s, "/");
   loop_start = 0;
   if (v.size() > 0)
   {
-    loop_start = std::stoi(v[0]);
+    loop_start = str_atoi(v[0]);
   }
   for (int l = 1; l < (ssize_t) v.size(); ++l)
   {

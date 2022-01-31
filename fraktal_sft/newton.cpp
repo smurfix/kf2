@@ -23,13 +23,13 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <malloc.h>
 #include <time.h>
 #include <float.h>
+#include <inttypes.h>  // for PRId64
 #include "resource.h"
 #include "CDecNumber.h"
 #include "complex.h"
 #include "fraktal_sft.h"
 #include "main.h"
 #include "../common/barrier.h"
-#include "../common/StringVector.h"
 #include "../common/timer.h"
 #include "newton.h"
 #include "hybrid.h"
@@ -565,29 +565,17 @@ static bool SaveNewtonBackup(CFraktalSFT &g_SFT, const std::string &szFile, cons
 #if 0
 	bool overwrite = true; // FIXME
 #endif
-	CStringTable stSave;
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Re");
-	stSave.AddString(stSave.GetCount() - 1, re);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Im");
-	stSave.AddString(stSave.GetCount() - 1, im);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Zoom");
-	stSave.AddString(stSave.GetCount() - 1, zoom);
-	stSave.AddRow();
-	stSave.AddString(stSave.GetCount() - 1, "Period");
-	stSave.AddInt   (stSave.GetCount() - 1, period);
-	char *szData = stSave.ToText(": ", "\r\n");
+	
 	std::ofstream hFile(szFile, std::ios::out | std::ios::binary | std::ios::trunc);
 	if(!hFile )
 	{
-		stSave.DeleteToText(szData);
 		return false;
 	}
-	hFile.write(szData, strlen(szData));
+	hFile << "Re: " << re << "\r\n";
+	hFile << "Im: " << im << "\r\n";
+	hFile << "Zoom: " << zoom << "\r\n";
+	hFile << "Period: " << period << "\r\n";
 	hFile.close();
-	stSave.DeleteToText(szData);
 	return true;
 }
 

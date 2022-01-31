@@ -102,7 +102,6 @@ fraktal_sft/reference.cpp \
 fraktal_sft/Settings.cpp \
 common/matrix.cpp \
 common/StringHelper.cpp \
-common/StringVector.cpp \
 common/parallell.cpp \
 common/timer.cpp \
 #
@@ -157,7 +156,6 @@ common/FolderBrowser.cpp \
 common/getimage.cpp \
 common/parallell.cpp \
 common/StringHelper.cpp \
-common/StringVector.cpp \
 common/bitmap.cpp \
 common/matrix.cpp \
 common/timer.cpp
@@ -167,7 +165,6 @@ common/FolderBrowser.h \
 common/getimage.h \
 common/parallell.h \
 common/StringHelper.h \
-common/StringVector.h \
 common/bitmap.h \
 common/matrix.h \
 common/memory.h \

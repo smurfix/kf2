@@ -40,7 +40,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <math.h>
 #include "../common/parallell.h"
 #include "../common/getimage.h"
-#include "../common/StringVector.h"
 #ifndef KF_EMBED
 #include "../common/FolderBrowser.h"
 #include "listbox.h"

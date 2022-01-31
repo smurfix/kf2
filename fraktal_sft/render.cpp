@@ -20,7 +20,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "fraktal_sft.h"
 #include "reference.h"
 #include "newton.h"
-#include "../common/StringVector.h"
 #include "../common/bitmap.h"
 #include "../common/parallell.h"
 #include "../common/timer.h"

@@ -23,7 +23,6 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include "resource.h"
 #include "tooltip.h"
 #include "../common/FolderBrowser.h"
-#include "../common/StringVector.h"
 #include "../common/getimage.h"
 #include "listbox.h"
 
@@ -609,26 +608,26 @@ extern int WINAPI ColorProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					SendDlgItemMessage(hWnd,IDC_LIST1,LB_ADDSTRING,0,(LPARAM)"");
 				SendDlgItemMessage(hWnd,IDC_LIST1,WM_SETREDRAW,1,0);
 			}
-			CStringVektor sv;
-			g_pWaves->GetStrings(&sv);
-			char *szSV = sv.ToText("\n");
-			CStringTable stMW(szSV,"\t","\n");
-			sv.DeleteToText(szSV);
-			int i;
-			for(i=0;i<stMW.GetCount();i++){
+			auto sv = g_pWaves->GetStrings();
+			int i = 0;
+			for(auto line : sv){
+				auto sMW = str_split(line,"\t");
+				if(sMW.size() < 2)
+					continue;
 				int nType = 0;
-				if(*stMW[i][0]=='H')
+				if(sMW[0][0]=='H')
 					nType=0;
-				else if(*stMW[i][0]=='S')
+				else if(sMW[0][0]=='S')
 					nType=1;
-				else if(*stMW[i][0]=='B')
+				else if(sMW[0][0]=='B')
 					nType=2;
-				int nPeriod = atoi(stMW[i][1]);
-				int nStart = atoi(stMW[i][2]);
+				int nPeriod = str_atoi(sMW[1]);
+				int nStart = (sMW.size() >= 3) ? str_atoi(sMW[2]) : 0;
 				if(i==g_SFT.GetMWCount())
 					g_SFT.AddMW(nPeriod,nStart,nType);
 				else
 					g_SFT.UpdateMW(i,nPeriod,nStart,nType);
+				i += 1;
 			}
 			while(i<g_SFT.GetMWCount())
 				g_SFT.DeleteMW(i);
