@@ -264,8 +264,8 @@ void Settings::SetPosition(const CDecNumber &re, const CDecNumber &im, const CDe
     Precision pLo(20u);
     CDecNumber di(2/zoom);
 
-    long e = 0;
-    mpfr_get_d_2exp(&e, zoom.m_dec.backend().data(), MPFR_RNDN);
+    // cannot be zero obviously
+    long e = mpfr_get_exp(zoom.m_dec.backend().data());
 
     m_nZoom = std::max(long(double(e)*0.30103), 1L);
     if(digits10 == 0)
@@ -295,8 +295,7 @@ void Settings::SetPosition(const std::string &szR, const std::string &szI, const
         Precision pLo(20u);
         CDecNumber z(szZ); // throws on bad string
 
-        long e = 0;
-        mpfr_get_d_2exp(&e, z.m_dec.backend().data(), MPFR_RNDN);
+        long e = mpfr_get_exp(z.m_dec.backend().data());
         unsigned digits10 = std::max(20L, long(20 + 0.30103 * e));
         Precision pHi(digits10);
 

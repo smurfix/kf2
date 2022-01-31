@@ -2259,8 +2259,7 @@ void CFraktalSFT::Zoom(int nXPos, int nYPos, double nZoomSize, BOOL bReuseCenter
 	{
 		Precision pLo(20u);
 		CFixedFloat pixelSpacing(m_ZoomRadius * 2 / m_nY);
-		long e = 0;
-		mpfr_get_d_2exp(&e, pixelSpacing.m_f.backend().data(), MPFR_RNDN);
+		long e = mpfr_get_exp(pixelSpacing.m_f.backend().data());
 		digits10 = std::max(20.0, 20 + 0.30103 * (log2(nZoomSize) - e));
 		CFixedFloat zoom = 2 * nZoomSize / m_ZoomRadius;
 		std::cerr << "CZ " << zoom.ToText() << " from " << m_ZoomRadius << std::endl;

@@ -27,8 +27,11 @@ std::string CFixedFloat::ToText() const
 {
   std::ostringstream os;
 
-    long expo = 0;                                                 
-    mpfr_get_d_2exp(&expo, m_f.backend().data(), MPFR_RNDN);   
+    // mpfr_get_exp is documented as undefined for zero
+    if(m_f == 0)
+        return "0";
+
+    long expo = mpfr_get_exp(m_f.backend().data());
     expo = expo*1000L/3322; // log10(2)
     int prec = m_f.precision();
     
@@ -43,9 +46,9 @@ std::string CFixedFloat::ToText() const
     }
     os << m_f;
 
-	std::string s = os.str();
-	std::size_t e = s.find('e');
-	if (e != std::string::npos)
-		s[e] = 'E';
-	return s;
+    std::string s = os.str();
+    std::size_t e = s.find('e');
+    if (e != std::string::npos)
+        s[e] = 'E';
+    return s;
 }

@@ -33,8 +33,11 @@ std::string CDecNumber::ToText() const
 {
 	std::ostringstream os;
 
-    long expo = 0;
-    mpfr_get_d_2exp(&expo, m_dec.backend().data(), MPFR_RNDN);
+	// mpfr_get_exp is documented as undefined for zero
+	if(m_dec == 0)
+		return "0";
+
+    long expo = mpfr_get_exp(m_dec.backend().data());
 	expo = expo*1000L/3322; // log10(2)
 	int prec = m_dec.precision();
 
@@ -52,10 +55,6 @@ std::string CDecNumber::ToText() const
 	std::string s = os.str();
 	std::size_t e = s.find('e');
 	if (e != std::string::npos) {
-		if (s[0] == '0' && e == 1) {
-			s[e] = 0;
-			return s;
-		}
 		s[e] = 'E';
 	}
 	else if (s.find('.') != std::string::npos)
