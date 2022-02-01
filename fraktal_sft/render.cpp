@@ -128,13 +128,7 @@ void CFraktalSFT::RenderLoop()
 	LogMessage(Info, "Start render: %d x %d", m_nX, m_nY);
 
 	FixIterLimit();
-
 	RenderFractal();
-
-#ifndef KF_EMBED
-	if (!m_bNoPostWhenDone && m_hWnd)
-		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-#endif
 
 	if(m_AutoSolveGlitches) {
 		for (int r = 2; r < GetMaxReferences(); ++r)
@@ -170,15 +164,6 @@ void CFraktalSFT::RenderLoop()
 		SendEvent(RenderAbort,0);
 	else
 		SendEvent(RenderDone,0);
-
-#ifndef KF_EMBED
-	if (!m_bNoPostWhenDone)
-	{
-		if (m_hWnd)
-			PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-	}
-	m_bNoPostWhenDone = FALSE;
-#endif
 }
 
 void CFraktalSFT::RenderFractal()
@@ -441,11 +426,6 @@ void CFraktalSFT::RenderFractalNANOMB1()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifndef KF_EMBED
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-#endif
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }
@@ -526,11 +506,6 @@ void CFraktalSFT::RenderFractalNANOMB2()
 		m_bNoGlitchDetection = FALSE;
 	else
 		m_bNoGlitchDetection = TRUE;
-#ifndef KF_EMBED
-	if (!m_bNoPostWhenDone)
-		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-	m_bNoPostWhenDone = FALSE;
-#endif
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
 }

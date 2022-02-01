@@ -1986,6 +1986,30 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	delete[] lpBits;
 }
 
+static void HandleEvent(void *user, unsigned int evt, intptr_t param)
+{
+	CFraktalSFT &g_SFT = *(CFraktalSFT *)user;
+	int nPos;
+
+	switch(evt)
+	{
+	case KF2_Event_RenderStart:
+		SetTimer(g_SFT.m_hWnd,0,500,NULL);
+		break;
+	}
+	case KF2_Event_RenderDone:
+		PostMessage(g_SFT.m_hWnd, WM_USER+199, 0, 0);
+		break;
+
+	case KF2_Event_RenderAbort:
+		PostMessage(g_SFT.m_hWnd, WM_USER+199, 1, 0);
+		break;
+
+	default:
+		break;
+}
+
+
 static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 {
 	if(uMsg==WM_CREATE){
@@ -2595,7 +2619,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 				if(g_SFT.AddReference(x,y,TRUE))
 					g_SFT.Render(false,false);
-				SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
 			else if(g_bAddReference){
@@ -2610,7 +2633,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
 				if(g_SFT.AddReference(x,y,FALSE)) {
 					g_SFT.Render(false,false);
-					SetTimer(hWnd,0,500,NULL);
 				}
 				return 0;
 			}
@@ -2647,7 +2669,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bAnim=false;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		SetTimer(hWnd,0,500,NULL);
 		RECT r;
 		GetDisplayRect(r);
 
@@ -2909,9 +2930,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	}
 	else if(uMsg==WM_MOUSEWHEEL) {
 		if((short)HIWORD(wParam)>0)
-			SendMessage(hWnd,WM_KEYDOWN,187,9);
+			SendMessage(hWnd,WM_KEYDOWN,187,9); // +
 		else
-			SendMessage(hWnd,WM_KEYDOWN,189,9);
+			SendMessage(hWnd,WM_KEYDOWN,189,9); // -
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,0x020A,0x020A,PM_REMOVE));
 	}
@@ -4384,6 +4405,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 
 		g_SFT.SetWindow(hWnd);
+		g_SFT.SetEventCallback(&Handle_KF2_Event, &g_SFT);
+	
 		ShowWindow(hWnd,SW_SHOW);
 
 		MSG msg;
