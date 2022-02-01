@@ -86,7 +86,7 @@ void Settings::SetValue(const std::string_view name, const std::string_view valu
     if(param == nullptr)
         throw_invalid("Unknown param",name);
     (this->*(param->set))(value);
-    v_flags |= param->P.flags<<16;
+    v_flags |= ((unsigned int)param->P.flags)<<16;
 }
 
 Settings::Settings()
@@ -436,7 +436,7 @@ bool Settings::FromText(const std::string &text, unsigned int flags)
       continue;
 
     (this->*(param->set))(kv.second);
-    v_flags |= param->P.flags<<16;
+    v_flags |= ((unsigned int)param->P.flags)<<16;
   }
 
   return FinishSetting();
@@ -453,19 +453,26 @@ bool Settings::FinishSetting()
     if (v_UseArgMinAbsZAsGlitchCenter)
       m_GlitchCenterMethod = 1;
 
-    if (v_nX != -1) {
-      if (!(v_flags & seen_TargetHeight))
-        m_nX = v_nX;
-    }
-    if (v_nY != -1) {
-      if (!(v_flags & seen_TargetWidth))
-        m_nY = v_nY;
+    // old config file
+    if (!(v_flags & seen_TargetSupersample)) {
+      m_TargetSupersample = 0;
+      if ((v_nX > 0) && (v_flags & seen_TargetWidth))
+        m_TargetSupersample = v_nX/m_nX;
+      else if ((v_nY > 0) && (v_flags & seen_TargetHeight))
+        m_TargetSupersample = v_nY/m_nY;
+      if (m_TargetSupersample == 0)
+        m_TargetSupersample = 1;
     }
 
-    if (!(v_flags & seen_TargetSupersample) && (v_nY > 0 || v_nX > 0)) {
-      // old config file
-      m_TargetSupersample = (v_nY > 0) ? v_nY/m_nX : v_nX/m_nY;
-    }
+    if (v_flags & seen_TargetHeight)
+      m_nX = m_TargetHeight*m_TargetSupersample;
+    else if (v_nX != -1)
+      m_nX = v_nX;
+
+    if (v_flags & seen_TargetWidth)
+      m_nY = m_TargetWidth*m_TargetSupersample;
+    else if (v_nY != -1)
+      m_nY = v_nY;
   }
 
   if(v_flags & KF_use_Params) {
