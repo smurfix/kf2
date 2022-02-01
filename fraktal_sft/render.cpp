@@ -111,7 +111,9 @@ void CFraktalSFT::ResetGlitches(void)
 
 void CFraktalSFT::RenderLoop()
 {
+	ResetTimers();
 	SendEvent(RenderStart,0);
+
 	if (! m_bAddReference)
 	{
 		// we are starting off.

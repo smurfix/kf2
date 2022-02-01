@@ -2022,7 +2022,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetImageSize(640, 360);
 		g_SFT.SetPosition("0", "0", "1");
 		SetTimer(hWnd,0,500,NULL);
-		g_SFT.ResetTimers();
 
 		g_hwHair = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG4),hWnd,(DLGPROC)CrossHairProc);
 		GetWindowRect(hWnd,&wr);
@@ -2407,7 +2406,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		p.x = (short)(rc.right/2-p.x)*g_SFT.m_nX/rc.right;
 		p.y = (short)(rc.bottom/2-p.y)*g_SFT.m_nY/rc.bottom;
 
-		g_SFT.ResetTimers();
 		if(g_SFT.m_bAutoGlitch)
 			g_SFT.m_bAutoGlitch=1;
 
@@ -2507,7 +2505,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			anim.detach();
 		}
 		g_SFT.FixIterLimit();
-		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
 		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
@@ -2583,11 +2580,8 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.FixIterLimit();
 			}
 
-			g_SFT.ResetTimers();
-
 			int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 			int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-
 
 			if(g_bAddMainReference){
 				if(!g_hwExamine)
@@ -2657,7 +2651,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-		g_SFT.ResetTimers();
 #if 0
 		if(g_SFT.m_nX<r.right || g_SFT.m_nY<r.bottom)
 		{
@@ -2850,7 +2843,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		anim.detach();
 
 		g_SFT.m_bAutoGlitch=1;
-		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
 		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
@@ -2906,7 +2898,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		anim.detach();
 
 		g_SFT.m_bAutoGlitch=1;
-		g_SFT.ResetTimers();
 		p.x = (short)(p.x)*g_SFT.m_nX/rc.right;
 		p.y = (short)(p.y)*g_SFT.m_nY/rc.bottom;
 		g_SFT.Stop();
@@ -3105,7 +3096,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		g_SFT.ResetTimers();
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Undo();
@@ -3122,7 +3112,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
-		g_SFT.ResetTimers();
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
 		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Redo();
@@ -3172,7 +3161,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetWindowBottom(wr.bottom);
 		g_SFT.ApplyNewSettings();
 		UpdateWindowSize(hWnd);
-		g_SFT.ResetTimers();
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
 		SetTimer(hWnd, 0, 500, NULL);
 		DisableUnsafeMenus(hWnd);
@@ -3582,7 +3570,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else{
 			g_SFT.Stop();
 			g_bAnim=false;
-			g_SFT.ResetTimers();
 			g_bFindMinibrot=FALSE;
 			g_bStoreZoom=FALSE;
 			PostMessage(hWnd,WM_USER+299,wParam,lParam);
@@ -4074,7 +4061,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				int64_t nMin,nMax;
 				g_SFT.GetIterations(nMin,nMax);
 				if(nMax<nMin+3){
-					g_SFT.ResetTimers();
 					g_SFT.Zoom(0,0,1.0/g_SFT.GetZoomSize());
 					SetTimer(hWnd,0,500,NULL);
 					return 0;
@@ -4420,7 +4406,6 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	{
 		// prepare
 		g_SFT.LogMessage(Info, "kf %s (c) 2013-2017 Karl Runmo, (c) 2017-2021 Claude Heiland-Allen", version);
-		g_SFT.ResetTimers();
 		if (g_args->bLoadSettings)
 		{
 			g_szSettingsFile = g_args->sLoadSettings;
