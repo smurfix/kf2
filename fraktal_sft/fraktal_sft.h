@@ -22,6 +22,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 #include <half.h>
+#include <inttypes.h>
 
 #include "kf-task.h"
 
@@ -75,6 +76,41 @@ public:
 	}
 
 	std::string m_szFile;
+
+	// Logging and notification.
+	//
+	kf2_log_cb_t m_LogCallback;
+	void *m_LogCallbackParam;
+
+	kf2_event_cb_t m_EventCallback;
+	void *m_EventCallbackParam;
+
+	inline void SetLogCallback(kf2_log_cb_t cb, void *user) {
+		m_LogCallback = cb;
+		m_LogCallbackParam = user;
+	}
+
+	inline void SetEventCallback(kf2_event_cb_t cb, void *user) {
+		m_EventCallback = cb;
+		m_EventCallbackParam = user;
+	}
+
+	enum KF2_LogLevel m_LogLevel;
+	void EmitLog(enum KF2_LogLevel level, const char *message ...);
+#define LogMessage(level, message, args...) EmitLog(KF2_Log_ ## level, message, ##args)
+
+#define SendEvent(evt, param) EmitEvent(KF2_Event_ ## evt, param)
+	inline void EmitEvent(unsigned int evt, intptr_t param) {
+#ifdef _DEBUG
+		if(evt & ~((1<<KF2_Event_Shift)-1)) {
+			LogMessage(Debug,"Evt:%d Flg:x%02x %" PRId64, evt&((1<<KF2_Event_Shift)-1), evt>>KF2_Event_Shift, param);
+		} else {
+			LogMessage(Debug,"Evt:%d %" PRId64, evt, param);
+		}
+#endif
+		if(m_EventCallback)
+			(*m_EventCallback)(m_EventCallbackParam, evt, param);
+	}
 
 private:
 #include "Settings.cp.inc"

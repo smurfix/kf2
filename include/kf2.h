@@ -96,17 +96,34 @@ log callbacks can be called:
 use your own mutexes
 */
 
-#define KF2_LOGLEVEL_DEBUG 0
-#define KF2_LOGLEVEL_STATUS 1
-#define KF2_LOGLEVEL_INFO 2
-#define KF2_LOGLEVEL_WARN 3
-#define KF2_LOGLEVEL_ERROR 4
+enum KF2_LogLevel
+{
+  KF2_Log_Debug = 0,
+  KF2_Log_Status = 1,
+  KF2_Log_Info = 2,  
+  KF2_Log_Warn = 3,
+  KF2_Log_Error = 4
+};
 
-typedef void (*kf2_log_cb)(void *arg, int level, const char *message);
+typedef void (*kf2_log_cb_t)(void *arg, enum KF2_LogLevel level, const char *message);
 
-void kf2_set_log_cb(struct kf2_t *kf2, kf2_log_cb log_cb, void *arg) __attribute__ ((visibility ("default") ));
+void kf2_set_log_cb(struct kf2_t *kf2, kf2_log_cb_t log_cb, void *arg) __attribute__ ((visibility ("default") ));
 
-void kf2_get_log_cb(const struct kf2_t *kf2, kf2_log_cb *log_cb, void **arg) __attribute__ ((visibility ("default") ));
+enum KF2_Event {
+    KF2_Event_RenderStart = 1, // starts the first pass
+    KF2_Event_RenderStep = 2,  // starts the next pass
+    KF2_Event_RenderRef = 3,   // Reference calculation done
+    KF2_Event_RenderCalc = 5,  // raw image data calculated
+    KF2_Event_RenderColor = 7, // image pixels colored
+    KF2_Event_RenderDone = 8,  // done, image complete
+    KF2_Event_RenderAbort = 9, // render thread stopped
+
+    KF2_Event_Shift = 8,       // event# is &((1<<KF2_Event_Shift)-1)
+};
+
+typedef void (*kf2_event_cb_t)(void *user, unsigned int evt, intptr_t param);
+
+void kf2_set_event_cb(struct kf2_t *kf2, kf2_event_cb_t event_cb, void *arg) __attribute__ ((visibility ("default") ));
 
 
 /*

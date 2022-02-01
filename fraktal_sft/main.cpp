@@ -33,6 +33,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <windows.h>
 #include <math.h>
+#include <cstdarg>
 
 #ifdef WINVER
 #include <commctrl.h>
@@ -1797,7 +1798,7 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 					}
 					if (g_SFT.m_nDifferences == Differences_Analytic && !g_SFT.m_Derivatives)
 					{
-						output_log_message(Warn, "automatically enabling derivatives for analytic DE");
+						g_SFT.LogMessage(Warn, "automatically enabling derivatives for analytic DE");
 						g_SFT.SetDerivatives(true);
 					}
 					g_SFT.ApplyNewSettings();
@@ -1881,7 +1882,7 @@ static void open_default_settings(HWND hWnd)
 			bool ret = OpenSettings(hWnd, false);
 			if (ret)
 			{
-				output_log_message(Info, "loaded default settings " << g_szSettingsFile);
+				g_SFT.LogMessage(Info, "loaded default settings %s", g_szSettingsFile.c_str());
 			}
 		}
 	}
@@ -1901,7 +1902,7 @@ static void open_default_location(HWND hWnd)
 			OpenFile(hWnd, ret, false);
 			if (! ret)
 			{
-				output_log_message(Info, "loaded default location " << g_SFT.m_szFile);
+				g_SFT.LogMessage(Info, "loaded default location %s", g_SFT.m_szFile.c_str());
 			}
 		}
 	}
@@ -4288,7 +4289,7 @@ static bool save_frame(int frame, bool onlyKFR)
 {
 	if (! onlyKFR)
 	{
-		output_log_message(Info, "colouring final image");
+		g_SFT.LogMessage(Info, "colouring final image");
 		g_SFT.m_bInhibitColouring = FALSE;
 		g_SFT.ApplyColors();
 	}
@@ -4298,62 +4299,62 @@ static bool save_frame(int frame, bool onlyKFR)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveEXR.c_str(), frame);
-		output_log_message(Info, "saving EXR " << fn);
+		g_SFT.LogMessage(Info, "saving EXR %s", fn);
 		if (! g_SFT.SaveJpg(fn, -3))
 		{
 			ok = false;
-			output_log_message(Error, "saving EXR " << fn << " FAILED");
+			g_SFT.LogMessage(Error, "saving EXR %s FAILED", fn);
 		}
 	}
 	if (g_args->bSaveTIF)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveTIF.c_str(), frame);
-		output_log_message(Info, "saving TIFF " << fn);
+		g_SFT.LogMessage(Info, "saving TIFF %s", fn);
 		if (! g_SFT.SaveJpg(fn, -2))
 		{
 			ok = false;
-			output_log_message(Error, "saving TIFF " << fn << " FAILED");
+			g_SFT.LogMessage(Error, "saving TIFF %s FAILED", fn);
 		}
 	}
 	if (g_args->bSavePNG)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSavePNG.c_str(), frame);
-		output_log_message(Info, "saving PNG " << fn);
+		g_SFT.LogMessage(Info, "saving PNG %s", fn);
 		if (! g_SFT.SaveJpg(fn, -1))
 		{
 			ok = false;
-			output_log_message(Error, "saving PNG " << fn << " FAILED");
+			g_SFT.LogMessage(Error, "saving PNG %s FAILED", fn);
 		}
 	}
 	if (g_args->bSaveJPG)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveJPG.c_str(), frame);
-		output_log_message(Info, "saving JPG " << fn);
+		g_SFT.LogMessage(Info, "saving JPG %s", fn);
 		if (! g_SFT.SaveJpg(fn, 100))
 		{
 			ok = false;
-			output_log_message(Error, "saving JPG " << fn << " FAILED");
+			g_SFT.LogMessage(Error, "saving JPG %s FAILED", fn);
 		}
 	}
 	if (g_args->bSaveKFR)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveKFR.c_str(), frame);
-		output_log_message(Info, "saving KFR " << fn);
+		g_SFT.LogMessage(Info, "saving KFR %s", fn);
 		if (! g_SFT.SaveFile(fn, true, KF_use_Params|KF_use_Location))
 		{
 			ok = false;
-			output_log_message(Error, "saving KFR " << fn << " FAILED");
+			g_SFT.LogMessage(Error, "saving KFR %s FAILED", fn);
 		}
 	}
 	if (g_args->bSaveMap)
 	{
 		char fn[1000];
 		snprintf(fn, 1000, g_args->sSaveMap.c_str(), frame);
-		output_log_message(Info, "saving KFB " << fn);
+		g_SFT.LogMessage(Info, "saving KFB %s", fn);
 		g_SFT.SaveMapB(fn);
 	}
 	return ok;
@@ -4363,7 +4364,7 @@ static bool render_frame(int frame, bool onlyKFR)
 {
 	if (! onlyKFR)
 	{
-		output_log_message(Info, "reference " << 1);
+		g_SFT.LogMessage(Info, "reference 1");
 	}
 	g_SFT.m_bInhibitColouring = TRUE;
 	g_SFT.m_bInteractive = false;
@@ -4390,10 +4391,10 @@ static bool render_frame(int frame, bool onlyKFR)
 			int n = g_SFT.FindCenterOfGlitch(x, y);
 			if (! n)
 			{
-				output_log_message(Info, "no more glitches");
+				g_SFT.LogMessage(Info, "no more glitches");
 				break;
 			}
-			output_log_message(Info, "reference " << r << " at (" << x << "," << y << ") size " << (n - 1) << " ");
+			g_SFT.LogMessage(Info, "reference %d at (%d,%d) size %d", r, x, y, n - 1);
 			g_SFT.AddReference(x, y);
 			g_SFT.Render(false, false);
 		}
@@ -4466,15 +4467,15 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 	else
 	{
 		// prepare
-		output_log_message(Info, "kf " << version << " (c) 2013-2017 Karl Runmo, (c) 2017-2021 Claude Heiland-Allen");
+		g_SFT.LogMessage(Info, "kf %s (c) 2013-2017 Karl Runmo, (c) 2017-2021 Claude Heiland-Allen", version);
 		g_SFT.ResetTimers();
 		if (g_args->bLoadSettings)
 		{
 			g_szSettingsFile = g_args->sLoadSettings;
-			output_log_message(Info, "loading settings " << g_szSettingsFile);
+			g_SFT.LogMessage(Info, "loading settings %s", g_szSettingsFile.c_str());
 			if(!OpenSettings(nullptr))
 			{
-				output_log_message(Error, "loading settings " << g_szSettingsFile << " FAILED");
+				g_SFT.LogMessage(Error, "loading settings %s FAILED", g_szSettingsFile.c_str());
 				return 1;
 			}
 		}
@@ -4486,11 +4487,11 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			bool ret;
 			g_SFT.m_szFile = g_args->sLoadLocation;
-			output_log_message(Info, "loading location " << g_SFT.m_szFile);
+			g_SFT.LogMessage(Info, "loading location %s", g_SFT.m_szFile.c_str());
 			OpenFile(nullptr, ret);
 			if (ret)
 			{
-				output_log_message(Error, "loading location " << g_SFT.m_szFile << " FAILED");
+				g_SFT.LogMessage(Error, "loading location %s FAILED", g_SFT.m_szFile.c_str());
 				return 1;
 			}
 		}
@@ -4498,14 +4499,14 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			bool ret;
 			g_SFT.m_szFile = g_args->sLoadMap;
-			output_log_message(Info, "loading map " << g_SFT.m_szFile);
+			g_SFT.LogMessage(Info, "loading map %s", g_SFT.m_szFile.c_str());
 			ret = ! g_SFT.OpenMapB(g_SFT.m_szFile);
 			if (ret)
 			{
 				ret = ! g_SFT.OpenMapEXR(g_SFT.m_szFile);
 				if (ret)
 				{
-					output_log_message(Error, "loading map " << g_SFT.m_szFile << " FAILED");
+					g_SFT.LogMessage(Error, "loading map %s FAILED", g_SFT.m_szFile.c_str());
 					return 1;
 				}
 		  }
@@ -4514,12 +4515,12 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			bool ret;
 			g_SFT.m_szFile = g_args->sLoadPalette;
-			output_log_message(Info, "loading palette " << g_SFT.m_szFile);
+			g_SFT.LogMessage(Info, "loading palette %s", g_SFT.m_szFile.c_str());
 			g_SFT.m_bInhibitColouring = true;
 			ret = ! g_SFT.OpenFile(g_SFT.m_szFile, TRUE);
 			if (ret)
 			{
-				output_log_message(Error, "loading palette " << g_SFT.m_szFile << " FAILED");
+				g_SFT.LogMessage(Error, "loading palette %s FAILED", g_SFT.m_szFile.c_str());
 				return 1;
 			}
 			g_SFT.m_bInhibitColouring = false;
@@ -4533,9 +4534,9 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		{
 			if (! onlyKFR)
 			{
-				output_log_message(Info, "rendering at " << g_SFT.m_nX << "x" << g_SFT.m_nY);
+				g_SFT.LogMessage(Info, "rendering at %d x %d", g_SFT.m_nX, g_SFT.m_nY);
 				// render the image (add reference calls render fractal...)
-				if (LogLevel_Status >= g_log_level)
+				if (KF2_Log_Status >= g_SFT.m_LogLevel)
 				{
 					std::thread report(ThReportProgress);
 					report.detach();
@@ -4545,7 +4546,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 			{
 				for (int frame = 0; g_args->nZoomOut < 0 || frame < g_args->nZoomOut; ++frame)
 				{
-					output_log_message(Info, "frame " << frame << " of " << g_args->nZoomOut);
+					g_SFT.LogMessage(Status, "frame %d of %d", frame, g_args->nZoomOut);
 					ok = render_frame(frame, onlyKFR);
 					if (! ok)
 					{
@@ -4565,23 +4566,23 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		}
 		if (! ok)
 		{
-			output_log_message(Error, "FAILED");
+			g_SFT.LogMessage(Error, "FAILED");
 		}
 		else
 		{
-			output_log_message(Info, "all done, exiting");
+			g_SFT.LogMessage(Info, "all done, exiting");
 			double total_wall, total_cpu, reference_wall, reference_cpu, approximation_wall, approximation_cpu, perturbation_wall, perturbation_cpu;
 			g_SFT.GetTimers(&total_wall, &total_cpu, &reference_wall, &reference_cpu, &approximation_wall, &approximation_cpu, &perturbation_wall, &perturbation_cpu);
-			output_log_message(Info, "total time\t" << total_wall << "\t" << total_cpu);
-			output_log_message(Info, "  ref time\t" << reference_wall << "\t" << reference_cpu);
-			output_log_message(Info, "  apx time\t" << approximation_wall << "\t" << approximation_cpu);
-			output_log_message(Info, "  ptb time\t" << perturbation_wall << "\t" << perturbation_cpu);
+			g_SFT.LogMessage(Info, "total time\t%f\t%f", total_wall, total_cpu);
+			g_SFT.LogMessage(Info, "  ref time\t%f\t%f", reference_wall, reference_cpu);
+			g_SFT.LogMessage(Info, "  apx time\t%f\t%f", approximation_wall, approximation_cpu);
+			g_SFT.LogMessage(Info, "  ptb time\t%f\t%f", perturbation_wall, perturbation_cpu);
 		}
 
 	}
 	g_SFT.Stop();
 	g_SFT.StopUseOpenGL();
-	return 0;
+	return !ok;
 }
 
 #endif // !KF_EMBED

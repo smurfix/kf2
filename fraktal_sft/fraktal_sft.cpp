@@ -142,6 +142,7 @@ CFraktalSFT::CFraktalSFT() : CFraktalSFT(NEW_SETTINGS()) {}
 CFraktalSFT::CFraktalSFT(SP_Settings data)
 : m_Settings(data)
 , m_NewSettings()
+, m_LogLevel(KF2_Log_Status)
 , m_nPixels(0, 0, nullptr, nullptr)
 , m_P()
 , m_render_in_progress()
@@ -3967,3 +3968,28 @@ bool CFraktalSFT::GetIsRendering()
 		return true;
 	}
 }
+
+
+/***** Logging *****/
+
+void CFraktalSFT::EmitLog(enum KF2_LogLevel level, const char *message ...)
+{
+	if(level < m_LogLevel)
+		return;
+
+	// mingw doesn't have vasprintf()
+    va_list args1,args2;
+    va_start(args1, message);
+    va_copy(args2,args1);
+	char msg[1+vsnprintf(NULL, 0, message, args1)];
+    va_end(args1);
+	vsnprintf(msg, sizeof(msg), message, args2);
+    va_end(args2);
+
+	if(m_LogCallback)
+		(*m_LogCallback)(m_LogCallbackParam, level, msg);
+	else
+		(level >= KF2_Log_Status ? std::cerr : std::cout) << msg << std::endl;
+	free(msg);
+}
+
