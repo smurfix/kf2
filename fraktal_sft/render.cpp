@@ -141,7 +141,8 @@ void CFraktalSFT::RenderLoop()
 
 			int x = -1, y = -1;
 
-			m_bAutoGlitch = r; // needed by random glitch center method
+			m_bAddReference = r; // used for position dithering
+
 			int n = g_SFT.FindCenterOfGlitch(x, y);
 			if (! n)
 			{
