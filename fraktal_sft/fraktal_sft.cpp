@@ -2226,13 +2226,6 @@ void CFraktalSFT::Zoom(double nZoomSize)
 #ifndef KF_EMBED
 	Stop();
 #endif
-#if 0
-	m_bAddReference = FALSE;
-	if (m_nMaxOldGlitches && m_pOldGlitch[m_nMaxOldGlitches-1].x == -1)
-		m_bNoGlitchDetection = FALSE;
-	else
-		m_bNoGlitchDetection = TRUE;
-#endif
 	SetZoomRadius(m_ZoomRadius / nZoomSize);
 #ifndef KF_EMBED
 	ApplyNewSettings();

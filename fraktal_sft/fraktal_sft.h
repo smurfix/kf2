@@ -272,7 +272,7 @@ public:
 	// S INT(JitterSeed)
 	// S INT(JitterShape)
 	// S DOUBLE(JitterScale)
-	inline void NewJitterSeed() { p_m_JitterSeed += 1; }
+	inline void NewJitterSeed() { if(p_m_JitterSeed) p_m_JitterSeed += 1; }
 
 	// Retrieve jitter offset
 	void GetPixelOffset(const int i, const int j, double &x, double &y) const;
@@ -382,7 +382,8 @@ public:
 	void CalcStart();         // clear all pixels (possibly in parallel)
 	void CalcStart(int x0, int x1, int y0, int y1);  // clear this area
 
-	void RenderFractal();              // the actual rendering main code
+	void RenderLoop();    // repeat render until complete
+	void RenderFractal(); // one reference+approximate cycle
 
 	// dispatcher per number type, started in parallel by RenderFractal
 	void MandelCalc(const Reference_Type reftype);

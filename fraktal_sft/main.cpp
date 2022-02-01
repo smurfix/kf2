@@ -1233,38 +1233,9 @@ nPos=0;
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
 
-nPos=1;
-nPos=2;
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
-		// Auto-glitch handling.
-nPos=3;
-		if(g_SFT.m_bAutoGlitch && g_SFT.m_bAutoGlitch-1<g_SFT.m_MaxReferences && g_SFT.m_AutoSolveGlitches){
-			g_SFT.m_bAutoGlitch++;
-nPos=4;
-			int x, y, d;
-
-			if((d = g_SFT.FindCenterOfGlitch(x, y))){
-nPos=5;
-				if(g_nPrevGlitchX!=x || g_nPrevGlitchY!=y){
-nPos=6;
-					if (! g_bInteractive)
-					{
-						std::cerr << "add reference " << g_SFT.m_bAutoGlitch << " at (" << x << "," << y << ") area " << (d - 1) << std::endl;
-					}
-					if(g_SFT.AddReference(x, y,FALSE,g_SFT.m_bAutoGlitch==g_SFT.m_MaxReferences)){
-nPos=7;
-						g_SFT.Render(false, false);
-						return 0;
-					}
-				}
-			}
-			else
-			{
-				g_SFT.m_bAutoGlitch--;
-				g_SFT.Done();
-			}
-nPos=8;
-		}
+		if (!g_SFT.GetIsRendering())
+			g_SFT.Done();
 	}
 	char szTmp[1024];
 	double p_good_guessed = 0, p_good = 0, p_queued = 0, p_bad = 0, p_bad_guessed = 0, p_reference = 0, p_approximation = 0;
@@ -4370,34 +4341,13 @@ static bool render_frame(int frame, bool onlyKFR)
 	g_SFT.m_bInteractive = false;
 	if (frame > 0)
 	{
-		int j = g_SFT.m_JitterSeed;
-		if (j)
-		{
-			g_SFT.NewJitterSeed();
-		}
-		if (! onlyKFR)
-		{
-			g_SFT.FixIterLimit();
-		}
-		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
+		g_SFT.NewJitterSeed();
+		g_SFT.Zoom(1.0 / g_SFT.m_ZoomSize);
 	}
 	if (! onlyKFR)
 	{
+		// XXX we might want to re-use the center after zoom-out
 		g_SFT.Render(true, true);
-		for (int r = 2; r < g_SFT.m_MaxReferences; ++r)
-		{
-			int x = -1, y = -1;
-			g_SFT.m_bAutoGlitch = r; // needed by random glitch center method
-			int n = g_SFT.FindCenterOfGlitch(x, y);
-			if (! n)
-			{
-				g_SFT.LogMessage(Info, "no more glitches");
-				break;
-			}
-			g_SFT.LogMessage(Info, "reference %d at (%d,%d) size %d", r, x, y, n - 1);
-			g_SFT.AddReference(x, y);
-			g_SFT.Render(false, false);
-		}
 	}
 	return save_frame(frame, onlyKFR);
 }

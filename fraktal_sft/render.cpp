@@ -33,7 +33,7 @@ static void ThRenderFractal(CFraktalSFT *p)
 		return;
 
 	try{
-		p->RenderFractal();
+		p->RenderLoop();
 	}
 #ifdef KF_OPENCL
 	catch (OpenCLException &e)
@@ -109,8 +109,7 @@ void CFraktalSFT::ResetGlitches(void)
 	memset(m_pOldGlitch, -1, sizeof(m_pOldGlitch));
 }
 
-
-void CFraktalSFT::RenderFractal()
+void CFraktalSFT::RenderLoop()
 {
 	if (! m_bAddReference)
 	{
@@ -123,7 +122,54 @@ void CFraktalSFT::RenderFractal()
 		m_count_bad = 0;
 		m_count_bad_guessed = 0;
 	}
-	
+	LogMessage(Info, "Start render: %d x %d", m_nX, m_nY);
+
+	FixIterLimit();
+
+	RenderFractal();
+
+#ifndef KF_EMBED
+	if (!m_bNoPostWhenDone && m_hWnd)
+		PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
+#endif
+
+	if(m_AutoSolveGlitches) {
+		for (int r = 2; r < GetMaxReferences(); ++r)
+		{
+			if(m_bStop)
+				return;
+
+			int x = -1, y = -1;
+
+			m_bAutoGlitch = r; // needed by random glitch center method
+			int n = g_SFT.FindCenterOfGlitch(x, y);
+			if (! n)
+			{
+				LogMessage(Info, "no more glitches");
+				break;
+			}
+			LogMessage(Info, "reference %d at (%d,%d) size %d", r, x, y, n - 1);
+			g_SFT.AddReference(x, y);
+
+			if(m_bStop)
+				return;
+
+			RenderFractal();
+		}
+	}
+
+#ifndef KF_EMBED
+	if (!m_bNoPostWhenDone)
+	{
+		if (m_hWnd)
+			PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
+	}
+	m_bNoPostWhenDone = FALSE;
+#endif
+}
+
+void CFraktalSFT::RenderFractal()
+{
 	// Do NanoMB* if requested
 	if (m_UseNanoMB1 && m_nFractalType == 0 && m_nPower == 2 && ! m_bAddReference)
 	{
@@ -304,15 +350,6 @@ void CFraktalSFT::RenderFractal()
 
 	m_timer_perturbation_wall += get_wall_time() - wall;
 	m_timer_perturbation_cpu += get_cpu_time() - cpu;
-
-#ifndef KF_EMBED
-	if (!m_bNoPostWhenDone)
-	{
-		if (m_hWnd)
-			PostMessage(m_hWnd, WM_USER+199, m_bStop, 0);
-	}
-	m_bNoPostWhenDone = FALSE;
-#endif
 }
 
 void CFraktalSFT::RenderFractalNANOMB1()
