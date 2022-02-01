@@ -23,6 +23,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #include <iostream>
 #include <string>
 
+#include "kf2.h"
+
 class CommandLineArguments
 {
 public:
@@ -51,6 +53,8 @@ public:
   bool        bVersion;
   bool        bHelp;
   bool        bError;
+  bool        bLogLevel;
+  enum KF2_LogLevel logLevel;
   CommandLineArguments(const std::string &commandline);
 };
 

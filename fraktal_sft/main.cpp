@@ -4374,6 +4374,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		return 0;
 	}
 	g_args = &args;
+	if (args.bLogLevel)
+		g_SFT.SetLogLevel(args.logLevel);
 
 	bool interactive = !(g_args->bSaveJPG || g_args->bSaveTIF || g_args->bSavePNG || g_args->bSaveEXR || g_args->bSaveKFR || g_args->bSaveMap);
 	bool ok = true;

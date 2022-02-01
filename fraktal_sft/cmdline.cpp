@@ -18,16 +18,12 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 */
 
 #include "cmdline.h"
-#include "kf2.h"
 #include <vector>
 #include <cctype>
 
 #ifdef KF_EMBED
 #error This file is only useful in standalone code
 #endif
-
-enum KF2_LogLevel g_log_level = KF2_Log_Status;
-
 
 static std::vector<std::string> SplitCommandLine(const std::string&commandline)
 {
@@ -251,13 +247,14 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 		else if ("--log" == args[i])
 		{
 			++i;
+			bLogLevel = true;
 			if (i < args.size())
 			{
-				if ("debug" == args[i]) g_log_level = KF2_Log_Debug;
-				else if ("status" == args[i]) g_log_level = KF2_Log_Status;
-				else if ("info" == args[i]) g_log_level = KF2_Log_Info;
-				else if ("warn" == args[i]) g_log_level = KF2_Log_Warn;
-				else if ("error" == args[i]) g_log_level = KF2_Log_Error;
+				if ("debug" == args[i]) logLevel = KF2_Log_Debug;
+				else if ("status" == args[i]) logLevel = KF2_Log_Status;
+				else if ("info" == args[i]) logLevel = KF2_Log_Info;
+				else if ("warn" == args[i]) logLevel = KF2_Log_Warn;
+				else if ("error" == args[i]) logLevel = KF2_Log_Error;
 				else bError = true;
 			}
 			else

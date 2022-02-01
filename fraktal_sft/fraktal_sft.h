@@ -96,6 +96,8 @@ public:
 	}
 
 	enum KF2_LogLevel m_LogLevel;
+	void SetLogLevel(enum KF2_LogLevel level) { m_LogLevel = level; }
+
 	void EmitLog(enum KF2_LogLevel level, const char *message ...);
 #define LogMessage(level, message, args...) EmitLog(KF2_Log_ ## level, message, ##args)
 
