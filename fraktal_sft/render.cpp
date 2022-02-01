@@ -111,6 +111,7 @@ void CFraktalSFT::ResetGlitches(void)
 
 void CFraktalSFT::RenderLoop()
 {
+	SendEvent(RenderStart,0);
 	if (! m_bAddReference)
 	{
 		// we are starting off.
@@ -137,13 +138,16 @@ void CFraktalSFT::RenderLoop()
 		for (int r = 2; r < GetMaxReferences(); ++r)
 		{
 			if(m_bStop)
-				return;
+				break;
+			SendEvent(RenderStep,r);
 
 			int x = -1, y = -1;
 
 			m_bAddReference = r; // used for position dithering
 
 			int n = g_SFT.FindCenterOfGlitch(x, y);
+			SendEvent(RenderRef,r);
+
 			if (! n)
 			{
 				LogMessage(Info, "no more glitches");
@@ -153,11 +157,17 @@ void CFraktalSFT::RenderLoop()
 			g_SFT.AddReference(x, y);
 
 			if(m_bStop)
-				return;
+				break;
+			SendEvent(RenderCalc,r);
 
 			RenderFractal();
 		}
 	}
+
+	if(m_bStop)
+		SendEvent(RenderAbort,0);
+	else
+		SendEvent(RenderDone,0);
 
 #ifndef KF_EMBED
 	if (!m_bNoPostWhenDone)
