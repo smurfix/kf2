@@ -456,7 +456,7 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	// TODO this really should take the transform matrix into account
 	// We use a factor of 1.5 because zooming out by only 10% or so creates
 	// artefacts.
-	if(pixelSpacingOld > pixelSpacingNew*1.5 )
+	if(pixelSpacingNew < pixelSpacingOld*1.5 )
 		return true;
 		// The other way around, zooming in, would work like this: invert
 		// the transfer matrix, init new image to invalid, then iterate over old
