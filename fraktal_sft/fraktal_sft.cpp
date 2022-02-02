@@ -586,8 +586,8 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 				OrgT[x][y] = m_nTrans[a][b];
 				if(derivs) {
 					OrgP[x][y] = m_nPhase[a][b];
-					OrgDEx[x][y] = m_nDEx[a][b];
-					OrgDEy[x][y] = m_nDEy[a][b];
+					OrgDEx[x][y] = m_nDEx[a][b] / dz;
+					OrgDEy[x][y] = m_nDEy[a][b] / dz;
 				}
 				if (Org[x][y] > m_nMaxIter)
 					Org[x][y] = m_nMaxIter;
