@@ -1565,23 +1565,26 @@ void CFraktalSFT::ApplyColors()
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
 			int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
-			if (nParallel < 1) nParallel = 1;
-			CParallell P(nParallel);
-			TH_PARAMS *pMan = new TH_PARAMS[nParallel];
-			int nXStart = 0;
-			int nXStep = (m_nX + nParallel - 1) / nParallel;
-			for (i = 0; i < nParallel; i++)
-			{
-				pMan[i].p = this;
-				pMan[i].nXStart = nXStart;
-				nXStart += nXStep;
-				if (nXStart > m_nX) nXStart = m_nX;
-				pMan[i].nXStop = nXStart;
-				P.AddFunction((LPEXECUTE)ThApplyColors, &pMan[i]);
+			if (nParallel <= 1) {
+				ApplyColors(0, m_nX, 0, m_nY);
+			} else {
+				CParallell P(nParallel);
+				TH_PARAMS *pMan = new TH_PARAMS[nParallel];
+				int nXStart = 0;
+				int nXStep = (m_nX + nParallel - 1) / nParallel;
+				for (i = 0; i < nParallel; i++)
+				{
+					pMan[i].p = this;
+					pMan[i].nXStart = nXStart;
+					nXStart += nXStep;
+					if (nXStart > m_nX) nXStart = m_nX;
+					pMan[i].nXStop = nXStart;
+					P.AddFunction((LPEXECUTE)ThApplyColors, &pMan[i]);
+				}
+				P.Execute();
+				P.Reset();
+				delete[] pMan;
 			}
-			P.Execute();
-			P.Reset();
-			delete[] pMan;
 #endif
 		}
 	}
