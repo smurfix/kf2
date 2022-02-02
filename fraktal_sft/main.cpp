@@ -2925,11 +2925,15 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,0x020A,0x020A,PM_REMOVE));
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONSSHOWITERATIONS){
+	else if(uMsg==WM_COMMAND && wParam==ID_APPLY_SHOW_ITERATIONS){
 		g_SFT.ApplyIterationColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}
-	else if(uMsg==WM_COMMAND && wParam==ID_APPLY_PHASE_COLORS){
+	else if(uMsg==WM_COMMAND && wParam==ID_APPLY_SHOW_DXDY_COLORS){
+		g_SFT.ApplyDxDyColors();
+		InvalidateRect(hWnd,NULL,FALSE);
+	}
+	else if(uMsg==WM_COMMAND && wParam==ID_APPLY_SHOW_PHASE_COLORS){
 		g_SFT.ApplyPhaseColors();
 		InvalidateRect(hWnd,NULL,FALSE);
 	}

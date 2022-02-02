@@ -743,6 +743,35 @@ void CFraktalSFT::ApplyPhaseColors()
 		}
 	}
 }
+void CFraktalSFT::ApplyDxDyColors()
+{
+	if (m_nDEx && m_nDEy){
+		float min_dx = 0;
+		float max_dx = 0;
+		float min_dy = 0;
+		float max_dy = 0;
+		for (int x = 0; x<m_nX; x++){
+			for (int y = 0; y<m_nY; y++){
+				min_dx = std::min(min_dx,m_nDEx[x][y]);
+				min_dy = std::min(min_dy,m_nDEy[x][y]);
+				max_dx = std::max(max_dx,m_nDEx[x][y]);
+				max_dy = std::max(min_dy,m_nDEy[x][y]);
+			}
+		}
+		LogMessage(Debug, "Spread: dX %f %f, dY %f %f", min_dx,max_dx,min_dy,max_dy);
+		max_dx -= min_dx; if(max_dx<m_epsilon) max_dx=1;
+		max_dy -= min_dy; if(max_dy<m_epsilon) max_dy=1;
+
+		for (int x = 0; x<m_nX; x++){
+			for (int y = 0; y<m_nY; y++){
+				int nIndex = x * BM_WIDTH + (m_bmi->biHeight - 1 - y)*m_row;
+				m_lpBits[nIndex] = 0; // blue
+				m_lpBits[nIndex + 1] = 255 * (m_nDEy[x][y]-min_dy)/max_dy;
+				m_lpBits[nIndex + 2] = 255 * (m_nDEx[x][y]-min_dx)/max_dx;
+			}
+		}
+	}
+}
 void CFraktalSFT::ApplySmoothColors()
 {
 	if (m_nTrans && m_lpBits){

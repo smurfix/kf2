@@ -744,6 +744,7 @@ public:
 	// show special coloring
 	void ApplyIterationColors();
 	void ApplyPhaseColors();
+	void ApplyDxDyColors();
 	void ApplySmoothColors();
 
   // OS GUI interface

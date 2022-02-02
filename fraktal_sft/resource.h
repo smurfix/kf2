@@ -458,7 +458,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_FINDCENTEROFGLITCH   40031
 #define ID_ACTIONS_AUTOSOLVEGLITCHES    40032
 #define ID_Menu                         40033
-#define ID_ACTIONSSHOWITERATIONS        40034
+#define ID_APPLY_SHOW_ITERATIONS        40034
 #define ID_ACTIONS_SPECIAL              40035
 #define ID_ACTIONS_REFRESH              40036
 #define ID_ACTIONS_CANCELRENDERING      40037
@@ -541,7 +541,8 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 #define ID_ACTIONS_BAILOUT 40131
 #define ID_ACTIONS_INFORMATION 40132
 #define ID_ACTIONS_PTSATUNING 40133
-#define ID_APPLY_PHASE_COLORS 40148
+#define ID_APPLY_SHOW_DXDY_COLORS  40147
+#define ID_APPLY_SHOW_PHASE_COLORS 40148
 #define ID_USE_RANDOM_AS_GLITCH_CENTER 40149
 #define ID_USE_ORIGINAL_AS_GLITCH_CENTER 40150
 #define ID_EXR_PARALLEL 40151
