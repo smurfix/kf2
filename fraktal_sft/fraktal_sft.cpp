@@ -464,21 +464,19 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	floatexp pixelSpacingOld(m_ZoomRadius * 2 / m_nY);
 	floatexp pixelSpacingNew(GetZoomRadius() * 2 / GetImageHeight());
 
-	// TODO this really should take the transform matrix into account
-	// We use a factor of 1.5 because zooming out by only 10% or so creates
-	// artefacts.
-	if(pixelSpacingNew < pixelSpacingOld*1.5 )
+	if(pixelSpacingOld == pixelSpacingNew) {
+		// A changed matrix without zooming out creates artefacts.
+		if (ChgTransformMatrix)
+			return true;
+	} else if (pixelSpacingNew < pixelSpacingOld*1.5) {
+		// Use a factor of 1.5 because zooming out by only 10% or so creates
+		// artefacts.
 		return true;
-		// The other way around, zooming in, would work like this: invert
-		// the transfer matrix, init new image to invalid, then iterate over old
-		// data to update new. The problem is that skew, jitter, and related
-		// factors conspire to introduce far too many artefacts.
-
-	// Likewise if the pixel density stays the same but the matrix changes,
-	// there'll be too many artefacts, so don't do that.
-	if((pixelSpacingOld == pixelSpacingNew) && ChgTransformMatrix)
-		return true;
-	
+	}
+	// The other way around, i.e. zooming in, would work like this: invert
+	// the transfer matrix, init new image to invalid, then iterate over old
+	// data to update new. The problem is that skew, jitter, and related
+	// factors conspire to introduce far too many artefacts.
 
 	int old_nx = m_nX;
 	int old_ny = m_nY;
