@@ -31,6 +31,9 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 #include <mpfr.h>
 
+#include <boost/multiprecision/mpfr.hpp>
+typedef boost::multiprecision::number<boost::multiprecision::mpfr_float_backend<0>> boost_mpfr;
+
 #ifndef M_PI
 #define M_PI 3.141592653589793
 #endif
@@ -155,6 +158,14 @@ public:
 		exp = e;
 		align();
 	}
+	tfloatexp(boost_mpfr a) noexcept
+	{
+		int e = 0;
+		double d = frexp(a, &e);
+		val = d;
+		exp = e;
+		align();
+	}
 	inline tfloatexp(mantissa a, exponent e) noexcept
 	{
 		val = a;
@@ -194,6 +205,11 @@ public:
 		return *this;
 	}
 	inline tfloatexp &operator =(long double a) noexcept
+	{
+		*this = tfloatexp(a);
+		return *this;
+	}
+	inline tfloatexp &operator =(boost_mpfr a) noexcept
 	{
 		*this = tfloatexp(a);
 		return *this;
