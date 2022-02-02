@@ -513,6 +513,11 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 		if((max_x-min_x < old_nx/5) && (max_y-min_y < old_ny/5)) return false;
 	}
 
+	LogMessage(Debug, "CopyImage %d,%d > %d,%d", old_nx,old_ny,new_nx,new_ny);
+	LogMessage(Debug, "CopyImage X %f %f   %f", new2old[0][0], new2old[0][1], new2old[0][2]);
+	LogMessage(Debug, "CopyImage Y %f %f   %f", new2old[1][0], new2old[1][1], new2old[1][2]);
+	// row 2 is always 0/0/1, thus omitted
+
 	// MUST NOT RETURN PREMATURELY after this point
 	//
 	renderAll = false;  // we're copying some data
@@ -546,6 +551,13 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	}
 	auto Org = itercount_array(new_ny, 1, OrgLSB, OrgMSB);
 
+	int n_good = 0;
+	int n_uneval = 0;
+	int n_glitch = 0;
+	int n_out = 0;
+
+	// TODO parallelize this loop
+	//
 	int x, y, a, b;
 	for (x = 0; x<new_nx; x++) {
 		for (y = 0; y<new_ny; y++) {
@@ -555,6 +567,12 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 			// don't take from the edge
 			if (a > 0 && a < old_nx-1 && b > 0 && b < old_ny-1){
 				Org[x][y] = 0+m_nPixels[a][b];  // 0+ because of referencing. Sigh.
+				if(GET_TRANS_GLITCH(m_nTrans[a][b]))
+					n_glitch++;
+				else if(m_nPixels[a][b] == PIXEL_UNEVALUATED)
+					n_uneval++;
+				else
+					n_good++;
 				OrgT[x][y] = m_nTrans[a][b];
 				if(derivs) {
 					OrgP[x][y] = m_nPhase[a][b];
@@ -566,6 +584,7 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 			}
 			else
 			{
+				n_out += 1;
 				Org[x][y] = PIXEL_UNEVALUATED;
 				OrgT[x][y] = SET_TRANS_GLITCH(0);
 				if(derivs) {
@@ -576,6 +595,8 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 			}
 		}
 	}
+
+	LogMessage(Debug, "CopyImage: good %d, out-of-range %d, glitch %d, todo %d", n_good, n_out, n_glitch, n_uneval);
 
 	// now force feed the new state to *this.
 	DeleteArrays();
