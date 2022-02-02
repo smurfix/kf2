@@ -468,8 +468,6 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	if((pixelSpacingOld == pixelSpacingNew) && ChgTransformMatrix)
 		return true;
 	
-	renderAll = false;  // we're copying some data
-	reAlloc = false;  // we're doing that here
 
 	int old_nx = m_nX;
 	int old_ny = m_nY;
@@ -514,6 +512,11 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 		// Also if the range of both is smaller than 20% of the original (i.e. we recover max 4% of the previous content), this is not worth the effort.
 		if((max_x-min_x < old_nx/5) && (max_y-min_y < old_ny/5)) return false;
 	}
+
+	// MUST NOT RETURN PREMATURELY after this point
+	//
+	renderAll = false;  // we're copying some data
+	reAlloc = false;  // we're doing that here
 
 	// OK, now do some actual work.
 	bool derivs = GetDerivatives();
