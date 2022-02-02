@@ -250,11 +250,13 @@ CommandLineArguments::CommandLineArguments(const std::string &commandline)
 			bLogLevel = true;
 			if (i < args.size())
 			{
-				if ("debug" == args[i]) logLevel = KF2_Log_Debug;
+				if ("trace" == args[i]) logLevel = KF2_Log_Trace;
+				else if ("debug" == args[i]) logLevel = KF2_Log_Debug;
 				else if ("status" == args[i]) logLevel = KF2_Log_Status;
 				else if ("info" == args[i]) logLevel = KF2_Log_Info;
 				else if ("warn" == args[i]) logLevel = KF2_Log_Warn;
 				else if ("error" == args[i]) logLevel = KF2_Log_Error;
+				else if ("fatal" == args[i]) logLevel = KF2_Log_Fatal;
 				else bError = true;
 			}
 			else

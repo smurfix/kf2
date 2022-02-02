@@ -98,11 +98,13 @@ use your own mutexes
 
 enum KF2_LogLevel
 {
-  KF2_Log_Debug = 0,
-  KF2_Log_Status = 1,
-  KF2_Log_Info = 2,  
-  KF2_Log_Warn = 3,
-  KF2_Log_Error = 4
+  KF2_Log_Trace = 1,
+  KF2_Log_Debug = 2,
+  KF2_Log_Status = 3,
+  KF2_Log_Info = 4,
+  KF2_Log_Warn = 5,
+  KF2_Log_Error = 6,
+  KF2_Log_Fatal = 7
 };
 
 typedef void (*kf2_log_cb_t)(void *arg, enum KF2_LogLevel level, const char *message);
