@@ -1183,7 +1183,6 @@ static int ResumeZoomSequence(HWND hWnd)
 	}
 	g_SFT.ApplyNewSettings();
 	g_SFT.Render();
-	SetTimer(hWnd,0,500,NULL);
 	return 0;
 }
 int g_nHandleDone=0;
@@ -1271,10 +1270,13 @@ nPos=10;
 		InvalidateRect(hWnd,NULL,FALSE);
 nPos=11;
 	if(uMsg==WM_USER+199){
-		KillTimer(hWnd,0);
+		if(!g_SFT.GetIsRendering()) {
+			// there may be a race condition: another render has started while
+			// the Stop message was queued.
+			KillTimer(hWnd,0);
+		}
 //			g_nAnim++;
 //			g_bAnim=FALSE;
-		g_SFT.ApplyColors();
 		if(!g_bAnim || !g_SFT.m_AnimateZoom){
 			InvalidateRect(hWnd,NULL,FALSE);
 			UpdateWindow(hWnd);
@@ -1349,7 +1351,6 @@ nPos=14;
 						g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 					}
 				}
-				SetTimer(hWnd,0,500,NULL);
 				return 0;
 			}
 nPos=15;
@@ -1375,7 +1376,6 @@ nPos=19;
 					g_szSettingsFile = old;
 				}
 				g_SFT.OpenFile(g_szRecoveryKFR);
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 			else if(hFile!=INVALID_HANDLE_VALUE)
 				CloseHandle(hFile);
@@ -1398,7 +1398,7 @@ nPos=23;
 				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1420,7 +1420,7 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-1))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1442,7 +1442,7 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-2))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1464,7 +1464,7 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-3))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1773,10 +1773,6 @@ static long OpenFile(HWND hWnd, bool &ret, bool warn = true)
 						g_SFT.SetDerivatives(true);
 					}
 					g_SFT.ApplyNewSettings();
-					if (hWnd)
-					{
-						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-					}
 					ret = false;
 					return 0;
 				}
@@ -1834,8 +1830,6 @@ static bool OpenSettings(HWND hWnd, bool warn)
 						UpdateMenusFromSettings(hWnd);
 					if (hWnd)
 						UpdateWindowSize(hWnd);
-					if (hWnd)
-						PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 					return true;
 				}
 }
@@ -1986,17 +1980,18 @@ static void RotateImageAroundPoint(HBITMAP bmBkg,POINT pm)
 	delete[] lpBits;
 }
 
-static void HandleEvent(void *user, unsigned int evt, intptr_t param)
+static void Handle_KF2_Event(void *user, unsigned int evt, intptr_t param)
 {
 	CFraktalSFT &g_SFT = *(CFraktalSFT *)user;
-	int nPos;
+	(void)param;
 
 	switch(evt)
 	{
 	case KF2_Event_RenderStart:
 		SetTimer(g_SFT.m_hWnd,0,500,NULL);
+		g_SFT.LogMessage(Debug, "RunTimer");
 		break;
-	}
+
 	case KF2_Event_RenderDone:
 		PostMessage(g_SFT.m_hWnd, WM_USER+199, 0, 0);
 		break;
@@ -2005,8 +2000,13 @@ static void HandleEvent(void *user, unsigned int evt, intptr_t param)
 		PostMessage(g_SFT.m_hWnd, WM_USER+199, 1, 0);
 		break;
 
+	case KF2_Event_NeedRender:
+		PostMessage(g_SFT.m_hWnd,WM_KEYDOWN,VK_F5,0);
+		break;
+
 	default:
 		break;
+	}
 }
 
 
@@ -2094,7 +2094,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			std::cerr << "rendering at " << g_SFT.m_nX << "x" << g_SFT.m_nY << std::endl;
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.Render();
 	}
 	else if(uMsg==WM_CLOSE)
 		PostQuitMessage(0);
@@ -2436,7 +2435,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,1,TRUE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 		return 0;
 	}
 	else if(uMsg==WM_LBUTTONUP && g_bRotate != RotateMode_Idle){
@@ -2534,7 +2532,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,nZoom,FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(!g_bWaitRead && g_bSelect && ((uMsg==WM_KEYDOWN && wParam==VK_ESCAPE) || uMsg==WM_LBUTTONUP || uMsg==WM_CAPTURECHANGED)){
 		g_bSelect=FALSE;
@@ -2658,7 +2655,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.Zoom(x,y,g_SFT.GetZoomSize(),g_SFT.GetZoomSize()==1, true);
 				g_SFT.ApplyNewSettings();
 			}
-			SetTimer(hWnd,0,500,NULL);
 		}
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_F5){
@@ -2709,7 +2705,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 		}
 		g_SFT.Stop();
-		KillTimer(hWnd, 0); // stop the render clock
 		InvalidateRect(hWnd,NULL,FALSE); // update display including status bar...
 		UpdateWindow(hWnd); // ...so that fast zooming makes zoom number change
 		g_SFT.m_bAutoGlitch=1; // reset reference count before next render starts
@@ -2761,7 +2756,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					g_bFindMinibrot=FALSE;
 					g_bStoreZoom=FALSE;
 					g_SFT.ApplyNewSettings();
-					PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 	}
 
@@ -2792,7 +2786,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 							g_bFindMinibrot=FALSE;
 							g_bStoreZoom=FALSE;
 							g_SFT.ApplyNewSettings();
-							PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 						}
 					}
 					free(buffer);
@@ -2808,7 +2801,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(1.0 * g_SFT.GetZoomSize());
 		g_SFT.ApplyNewSettings();
-		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_NEXT)
 	{
@@ -2816,7 +2808,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 		g_SFT.ApplyNewSettings();
-		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 
 	else if(uMsg==WM_KEYDOWN && wParam==187){ // +
@@ -2869,7 +2860,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?2:g_SFT.GetZoomSize()),FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
 	}
@@ -2924,7 +2914,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(p.x,p.y,(lParam==9?.5:(double)1/(double)g_SFT.GetZoomSize()),FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 		MSG msg;
 		while(PeekMessage(&msg,hWnd,WM_KEYDOWN,WM_KEYDOWN,PM_REMOVE));
 	}
@@ -2957,7 +2946,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.SetArbitrarySize(false);
 			SendMessage(hWnd,WM_SIZE,0,0);
 			g_SFT.SetArbitrarySize(true);
-			SendMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
 		g_SFT.SetArbitrarySize(! g_SFT.GetArbitrarySize());
 		CheckMenuItem(GetMenu(hWnd),ID_SPECIAL_ARBITRARYSIZE,MF_BYCOMMAND|(g_SFT.GetArbitrarySize()?MF_CHECKED:MF_UNCHECKED));
@@ -2967,7 +2955,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.SetExponentialMap(! g_SFT.GetExponentialMap());
 		UpdateExponentialMap(hWnd);
 		g_SFT.ApplyNewSettings();
-		SendMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_SPECIAL_NEWTON){
 		g_bNewton=!g_bNewton;
@@ -3046,7 +3033,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.SetTransformPolar(polar2(1, 1, 0, 1, 0));
 		g_SFT.ApplyNewSettings();
-		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_SPECIAL_SPECIAL_MIRROR1){
 		g_SFT.SetMirror(! g_SFT.GetMirror());
@@ -3074,7 +3060,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			return 0;
 		if (path[path.length() - 1] != '\\')
 			path += "\\";
-		SetTimer(hWnd,0,500,NULL);
 		g_bStoreZoom=1;
 		std::string szFile = path;
 		szFile = replace_path_filename(szFile, store_zoom_filename(g_bStoreZoom, "*", "kfb"));
@@ -3118,7 +3103,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
-		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Undo();
 		if (g_hwColors)
 		{
@@ -3134,7 +3118,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_bFindMinibrot=FALSE;
 		g_bStoreZoom=FALSE;
 		g_nPrevGlitchX=g_nPrevGlitchY=-1;
-		SetTimer(hWnd,0,500,NULL);
 		g_SFT.Redo();
 		if (g_hwColors)
 		{
@@ -3183,7 +3166,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.ApplyNewSettings();
 		UpdateWindowSize(hWnd);
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
-		SetTimer(hWnd, 0, 500, NULL);
 		DisableUnsafeMenus(hWnd);
 		g_SFT.Render();
 	}
@@ -3431,7 +3413,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_RIGHT && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
@@ -3455,7 +3436,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_UP && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
@@ -3479,7 +3459,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_DOWN && HIWORD(GetKeyState(VK_CONTROL))){
 		RECT r;
@@ -3503,7 +3482,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		g_SFT.Stop();
 		g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1,FALSE);
 		g_SFT.ApplyNewSettings();
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(uMsg==WM_KEYDOWN && wParam=='O' && HIWORD(GetKeyState(VK_CONTROL)))
 		PostMessage(hWnd,WM_COMMAND,ID_FILE_OPEN_,0);
@@ -3644,7 +3622,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize(),bReuseCenter);
 		else
 			g_SFT.Zoom(g_pSelect.x,g_pSelect.y,1/(double)g_SFT.GetZoomSize());
-		SetTimer(hWnd,0,500,NULL);
 	}
 	else if(!g_SFT.m_ArbitrarySize && uMsg==WM_SIZING){
 		RECT cr;
@@ -3698,7 +3675,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			{
 				g_SFT.Stop();
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_ACTIONS_EXIT)
@@ -3713,47 +3689,37 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		else if(wParam==ID_ACTIONS_FORMULA){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_FORMULA),hWnd,FormulaProc,0);
 			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
 				g_bAnim=false;
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_ACTIONS_HYBRID){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_HYBRID),hWnd,HybridProc,0);
 			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
 				g_SFT.Stop();
 				g_bAnim=false;
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_ACTIONS_BAILOUT){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_BAILOUT),hWnd,BailoutProc,0);
 			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
 				g_bAnim=false;
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_ACTIONS_PTSATUNING){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_PTSATUNING),hWnd,PTSATuningProc,0);
 			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
 				g_bAnim=false;
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_NUMBERTYPES){
 			INT_PTR n = DialogBoxParam(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_NUMBERTYPE),hWnd,NumberTypeProc,0);
 			if(n > 0){
-				SetTimer(hWnd,0,500,NULL);
 				g_bAnim=false;
 				g_SFT.ApplyNewSettings();
-				PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 			}
 		}
 		else if(wParam==ID_ACTIONS_SETCOLORS){
@@ -3934,7 +3900,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveJpeg=TRUE;
-					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.Render();
 					return 0;
@@ -3959,7 +3924,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSavePng=TRUE;
-					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
@@ -3986,7 +3950,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveTif=TRUE;
-					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
@@ -4013,7 +3976,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				std::string szFile;
 				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveExr=TRUE;
-					SetTimer(hWnd,0,500,NULL);
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
@@ -4049,7 +4011,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			g_SFT.Stop();
 			g_SFT.SetPosition("0","0","1");
 			g_SFT.ApplyNewSettings();
-			PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 		}
 		else if(wParam==ID_SPECIAL_NONEXACTFINDMINIBROT){
 			if(!g_bFindMinibrotCount){
@@ -4083,7 +4044,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				g_SFT.GetIterations(nMin,nMax);
 				if(nMax<nMin+3){
 					g_SFT.Zoom(0,0,1.0/g_SFT.GetZoomSize());
-					SetTimer(hWnd,0,500,NULL);
 					return 0;
 				}
 				int64_t nIter;

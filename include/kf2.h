@@ -118,7 +118,10 @@ enum KF2_Event {
     KF2_Event_RenderDone = 8,  // done, image complete
     KF2_Event_RenderAbort = 9, // render thread stopped
 
+    KF2_Event_NeedRender = 16, // needs re-rendering
+
     KF2_Event_Shift = 8,       // event# is &((1<<KF2_Event_Shift)-1)
+
 };
 
 typedef void (*kf2_event_cb_t)(void *user, unsigned int evt, intptr_t param);

@@ -267,7 +267,11 @@ void CFraktalSFT::SetNeedRender()
 	// (but only if needRender is False)
 //	if (GetIsRendering())
 //		throw_invalid("Render is running","set needRender");
-	m_needRender = true;
+	Stop();
+	if(!m_needRender) {
+		m_needRender = true;
+		SendEvent(NeedRender,0);
+	}
 }
 
 void CFraktalSFT::SetImageSize(int nX, int nY)
