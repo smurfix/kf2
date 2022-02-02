@@ -332,6 +332,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 	bool doPower;
 	bool doSlopes;
 	bool doBitmap;
+	bool doPixelSpacing;
 
 	if(init) {
 		doRender = true;
@@ -340,6 +341,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		doPower = true;
 		doSlopes = true;
 		doBitmap = true;
+		doPixelSpacing = true;
 	} else {
 		doRender = MaybeCopyImage(reAlloc,renderAll);
 		doPower = ChgPower;
@@ -352,6 +354,8 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		else if (GetDerivatives() && !m_Derivatives)
 			doDerivs = true;
 
+		doPixelSpacing = ChgZoomRadius || ChgTargetHeight;
+
 		doBitmap = ChgTargetWidth || ChgTargetHeight;
 		if(doBitmap)
 			FreeBitmap();
@@ -363,6 +367,9 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		SetupArrays();
 	else if (doDerivs)
 		SetupDerivs();
+
+	if(doPixelSpacing)
+		m_fPixelSpacing = (m_ZoomRadius * 2 / m_nY).m_f;
 
 	if(doBitmap)
 		AllocateBitmap();
@@ -450,8 +457,8 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	// Obviously this only works when the old data is less dense than the
 	// new, so skip out if it is.
 	// 
-	CFixedFloat pixelSpacingOld(m_ZoomRadius * 2 / m_nY);
-	CFixedFloat pixelSpacingNew(GetZoomRadius() * 2 / GetImageHeight());
+	floatexp pixelSpacingOld(m_ZoomRadius * 2 / m_nY);
+	floatexp pixelSpacingNew(GetZoomRadius() * 2 / GetImageHeight());
 
 	// TODO this really should take the transform matrix into account
 	// We use a factor of 1.5 because zooming out by only 10% or so creates
@@ -603,6 +610,7 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	p_m_nX = new_nx;
 	p_m_nY = new_ny;
 	p_m_Derivatives = derivs;
+	m_fPixelSpacing = pixelSpacingNew;
 
 	m_nPixels_LSB = OrgLSB;
 	m_nPixels_MSB = OrgMSB;
