@@ -1559,17 +1559,14 @@ void CFraktalSFT::ApplyColors()
 		}
 		else
 		{
+#ifdef _DEBUG
+			ApplyColors(0, m_nX, 0, m_nY);
+#else
 			SYSTEM_INFO sysinfo;
 			GetSystemInfo(&sysinfo);
 			int nParallel = m_ThreadsPerCore * sysinfo.dwNumberOfProcessors - m_ThreadsReserveCore;
 			if (nParallel < 1) nParallel = 1;
-			CParallell P(
-#ifdef _DEBUG
-					1
-#else
-					nParallel
-#endif
-				);
+			CParallell P(nParallel);
 			TH_PARAMS *pMan = new TH_PARAMS[nParallel];
 			int nXStart = 0;
 			int nXStep = (m_nX + nParallel - 1) / nParallel;
@@ -1585,6 +1582,7 @@ void CFraktalSFT::ApplyColors()
 			P.Execute();
 			P.Reset();
 			delete[] pMan;
+#endif
 		}
 	}
 }
