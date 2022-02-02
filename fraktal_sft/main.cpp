@@ -1256,7 +1256,7 @@ nPos=0;
 
 nPos=9;
 	if(g_SFT.m_bAutoGlitch){
-		wsprintf(szTmp+strlen(szTmp)," R:%d",g_SFT.m_bAutoGlitch);
+		wsprintf(szTmp+strlen(szTmp)," R:%d",g_SFT.m_bAddReference);
 	}
 	if(g_SFT.m_bAutoGlitch){
 		wsprintf(szTmp+strlen(szTmp)," %s", uMsg==WM_USER+199?"Done":"");
