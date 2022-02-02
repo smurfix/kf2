@@ -575,10 +575,11 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 			a=t[0]; b=t[1];
 			// don't take from the edge
 			if (a > 0 && a < old_nx-1 && b > 0 && b < old_ny-1){
-				Org[x][y] = 0+m_nPixels[a][b];  // 0+ because of referencing. Sigh.
+				int64_t pix = m_nPixels[a][b];
+				Org[x][y] = pix;
 				if(GET_TRANS_GLITCH(m_nTrans[a][b]))
 					n_glitch++;
-				else if(m_nPixels[a][b] == PIXEL_UNEVALUATED)
+				else if(pix == PIXEL_UNEVALUATED)
 					n_uneval++;
 				else
 					n_good++;
