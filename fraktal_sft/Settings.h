@@ -157,6 +157,9 @@ private:
   double v_StretchAmount;
   bool v_ImagPointsUp;
 
+  double v_obsRatio;
+  double v_obsRotate;
+
   int v_version;
   int v_settings_version;
 

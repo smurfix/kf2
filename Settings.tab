@@ -131,8 +131,8 @@ i	0	mgmsed	:	v_settings_version	:	SettingsVersion	0	File version
 														
 # legacy														
 b	0	hredmgms	:		:	UseArgMinAbsZAsGlitchCenter	0	new: GlitchCenterMethod=1						
-f	2	-			:	Rotate	0	no longer used						
-f	2	-	:		:	Ratio	0	no longer used						
+f	2	edmg		v_obsRotate	:	Rotate	0	no longer used						
+f	2	edmg	:	v_obsRatio	:	Ratio	0	no longer used						
 #														
 #	loc:													
 #	0	general												

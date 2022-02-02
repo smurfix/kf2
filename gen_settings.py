@@ -190,7 +190,15 @@ class _Var:
     def gen_ed(self):
         loc = self.loc & 0xFF
         flg = (self.loc >> 16) & 0xFF
-        return f"""{{ {{ {loc},{flg},"{self.ctype}","{self.name}",{self.default_to_str()},"{self.descr}"}} , &Settings::R_{self.name}, &Settings::W_{self.name} }},"""
+        if self.skip("ms"):
+            w_ = "nullptr"
+        else:
+            w_= f"&Settings::W_{self.name}"
+        if self.skip("mg"):
+            r_ = "nullptr"
+        else:
+            r_= f"&Settings::R_{self.name}"
+        return f"""{{ {{ {loc},{flg},"{self.ctype}","{self.name}",{self.default_to_str()},"{self.descr}"}} , {r_}, {w_} }},"""
 
     def gen_ms(self):
         """hash read"""

@@ -85,7 +85,8 @@ void Settings::SetValue(const std::string_view name, const std::string_view valu
     auto param = LookupParam(name);
     if(param == nullptr)
         throw_invalid("Unknown param",name);
-    (this->*(param->set))(value);
+    if(param->set != nullptr)
+        (this->*(param->set))(value);
     v_flags |= ((unsigned int)param->P.flags)<<16;
 }
 
@@ -435,7 +436,8 @@ bool Settings::FromText(const std::string &text, unsigned int flags)
     if(!(flags & (1<<param->P.type)))
       continue;
 
-    (this->*(param->set))(kv.second);
+    if(param->set != nullptr)
+        (this->*(param->set))(kv.second);
     v_flags |= ((unsigned int)param->P.flags)<<16;
   }
 
@@ -599,6 +601,8 @@ std::string Settings::ToText(unsigned int flags)
   for (auto kv : SettingsPos) {
     auto param = &SettingsData[kv.second];
     if(!(v_flags & (1<<param->P.type)))
+      continue;
+    if(param->get == nullptr)
       continue;
     std::string res = (this->*(param->get))();
     os << kv.first << ": " << res << "\r\n";
