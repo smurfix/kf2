@@ -370,7 +370,6 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		if(doBitmap)
 			FreeBitmap();
 	}
-
 	CopySettingValues(data);
 
 	if(reAlloc)
@@ -467,6 +466,19 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 		return false; // nothing to do
 		// We don't use C(TransformMatrix) in this test: if all you have is a
 		// slight matrix change there will be too many artefacts.
+	}
+
+	bool isDistanceColor = 
+		GetColorMethod() == ColorMethod_DistanceLinear ||
+		GetColorMethod() == ColorMethod_DEPlusStandard ||
+		GetColorMethod() == ColorMethod_DistanceLog ||
+		GetColorMethod() == ColorMethod_DistanceSqrt;
+
+	if(GetJitterSeed() && isDistanceColor) {
+		// Jitter causes display artefacts with distance estimator coloring.
+		// Fixing this requires us to remember the per-pixel jitter and
+		// copy it with the other data. TODO.
+		return true;
 	}
 
 	// Operation:
