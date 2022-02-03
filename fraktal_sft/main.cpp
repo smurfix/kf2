@@ -1225,8 +1225,10 @@ static int HandleDone(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam,int &nPos)
 nPos=0;
 	if(!wParam && uMsg==WM_USER+199 && (!g_bAnim || !g_SFT.m_AnimateZoom)){
 		// Not stopped and not animating: fix colors and update window.
+		//
 		g_SFT.ApplyColors();
 		InvalidateRect(hWnd,NULL,FALSE);
+		g_SFT.LogMessage(Trace, "Done, repaint");
 	}
 
 	if(!g_hwExamine && uMsg==WM_USER+199 && !wParam){
@@ -1263,14 +1265,21 @@ nPos=10;
 	}
 	if(g_hwExamine && uMsg==WM_USER+199)
 		PostMessage(g_hwExamine,uMsg,wParam,lParam);
-	if(p_progress > 0.0 && (!g_bAnim || !g_SFT.m_AnimateZoom))
+	if(p_progress > 0.0 && (!g_bAnim || !g_SFT.m_AnimateZoom)) {
 		InvalidateRect(hWnd,NULL,FALSE);
+		g_SFT.LogMessage(Trace, "Inval progress %f", p_progress);
+	} else if (p_progress == 0)
+		g_SFT.LogMessage(Trace, "No Inval progress");
+	else
+		g_SFT.LogMessage(Trace, "No Inval animate");
+	
 nPos=11;
 	if(uMsg==WM_USER+199){
 		if(!g_SFT.GetIsRendering()) {
-			// there may be a race condition: another render has started while
-			// the Stop message was queued.
+			// possible race condition: another render may have started
+			// while the Stop message was queued.
 			KillTimer(hWnd,0);
+			g_SFT.LogMessage(Debug, "KillTimer");
 		}
 //			g_nAnim++;
 //			g_bAnim=FALSE;

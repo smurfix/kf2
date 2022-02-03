@@ -160,6 +160,7 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 #endif
 , m_state(KF2_STATE_IDLE)
 {
+	LogMessage(Trace, "Init Start");
 #ifdef KF_OPENCL
 	clid = -1;
 	cl = NULL;
@@ -253,6 +254,7 @@ CFraktalSFT::CFraktalSFT(SP_Settings data)
 	m_APr = new floatexp[m_nTerms];
 	m_APi = new floatexp[m_nTerms];
 	m_APs = new SeriesR2<double, int64_t>;
+	LogMessage(Trace, "Init End");
 }
 
 
@@ -459,7 +461,7 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 		return false; // nothing to do
 		// We don't use C(TransformMatrix) in this test: if all you have is a
 		// slight matrix change there will be too many artefacts.
-	}
+	} // XXX trace what changed (or not)
 
 	// Operation:
 	// calculate transfer matrix new>old
@@ -1739,6 +1741,8 @@ void CFraktalSFT::SetupArrays()
 		throw;
 	if(m_nPixels_LSB != nullptr)  // already allocated
 		throw;
+
+	LogMessage(Debug, "Alloc %d,%d", m_nX,m_nY);
 	
 	bool two = m_nMaxIter >= UINT32_MAX;
 	m_nPixels_LSB = new_aligned<uint32_t>(m_nX * m_nY);
@@ -2521,6 +2525,7 @@ void CFraktalSFT::ClearImage()
 		memset(m_nDEx[0], 0, sizeof(float) * m_nX * m_nY);
 		memset(m_nDEy[0], 0, sizeof(float) * m_nX * m_nY);
 	}
+	LogMessage(Debug, "ClearImage");
 
 	for (int x = 0; x<m_nX; x++){
 		for (int y = 0; y<m_nY; y++){
@@ -2720,6 +2725,7 @@ void CFraktalSFT::AllocateBitmap()
 	}
 	if(m_lpBits)
 		abort();
+	LogMessage(Debug, "AllocBits %d,%d", m_nX,m_nY);
 
 	m_bmi = (BITMAPINFOHEADER *)malloc(sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
 	memset(m_bmi, 0, sizeof(BITMAPINFOHEADER)+sizeof(RGBQUAD)* 256);
@@ -2757,6 +2763,7 @@ void CFraktalSFT::FreeBitmap()
 #endif
 
 	if (m_bmi) {
+		LogMessage(Debug, "FreeBits");
 		free(m_bmi);
 		m_bmi = nullptr;
 	}
