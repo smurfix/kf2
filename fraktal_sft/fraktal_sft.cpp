@@ -652,12 +652,6 @@ bool CFraktalSFT::ApplyNewSettings(bool keepNew)
 			UndoStore(m_NewSettings);
 			m_NewSettings = nullptr;
 		}
-#ifndef KF_EMBED
-		if(GetNeedRender()) {
-			m_needRender=false;
-			Render(FALSE,FALSE);
-		}
-#endif
 		return true;
 	} else {
 		return false;
