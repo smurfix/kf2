@@ -461,21 +461,18 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	if(GetDerivatives() && !m_Derivatives)
 		return true;
 
-	// Test if there's anything to do in the first place.
+	// Test whether there's anything to do in the first place.
 	if(!reAlloc && !ChgCenterRe && !ChgCenterIm && !ChgZoomRadius && !ChgDigits10) {
 		renderAll = false;
 		return false; // nothing to do
 		// We don't use C(TransformMatrix) in this test: if all you have is a
 		// slight matrix change there will be too many artefacts.
-	} // XXX trace what changed (or not)
+	}
 
 	// Operation:
 	// calculate transfer matrix new>old
 	// for each new pixel: lookup in old, fetch from there if in range, otherwise invalid.
 	//
-	// Obviously this only works when the old data is less dense than the
-	// new, so skip out if it is.
-	// 
 	floatexp pixelSpacingOld(m_ZoomRadius * 2 / m_nY);
 	floatexp pixelSpacingNew(GetZoomRadius() * 2 / GetImageHeight());
 
@@ -483,9 +480,9 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 		// A changed matrix without zooming out creates artefacts.
 		if (ChgTransformMatrix)
 			return true;
-	} else if (pixelSpacingNew < pixelSpacingOld*1.5) {
-		// Use a factor of 1.5 because zooming out by only 10% or so creates
-		// artefacts.
+	} else if (pixelSpacingNew < pixelSpacingOld*1.99) {
+		// Zooming out by only 10% or so creates artefacts.
+		// Let's use 2.0 (floating point rounding errors …) to be on the safe side.
 		return true;
 	}
 	// The other way around, i.e. zooming in, would work like this: invert
