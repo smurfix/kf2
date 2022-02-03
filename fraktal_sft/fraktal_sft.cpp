@@ -3723,16 +3723,16 @@ void CFraktalSFT::OutputIterationData(int x, int y, int w, int h, bool bGlitch, 
 			de_multiplier = std::exp2(v);
 		}
 		m_nPixels[x][y] = antal;
-		m_nTrans[x][y] = 1 - t;
 		if (m_nPhase)
 			m_nPhase[x][y] = phase;
 		if (m_nDEx)
 			m_nDEx[x][y] = de.m_r * de_multiplier;
 		if (m_nDEy)
 			m_nDEy[x][y] = de.m_i * de_multiplier;
-		if (bGlitch && !m_bNoGlitchDetection){
+		if (bGlitch && !m_bNoGlitchDetection)
 			m_nTrans[x][y] = SET_TRANS_GLITCH(test1);
-		}
+		else
+			m_nTrans[x][y] = 1 - t;
 	}
 	SetColor(x, y, w, h);
 	if (m_Mirror)
