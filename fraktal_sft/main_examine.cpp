@@ -267,8 +267,6 @@ extern int WINAPI ExamineProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		KillTimer(hWnd,2);
 		if(!g_bAutoSolveGlitch)
 			return 0;
-SetDlgItemText(hWnd,IDC_EDIT4,"AutoSolveGlitch");
-UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 		int rx, ry;
 SetDlgItemText(hWnd,IDC_EDIT4,"Search for glitch");
 UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
@@ -312,7 +310,6 @@ UpdateWindow(GetDlgItem(hWnd,IDC_EDIT4));
 		g_SFT.AddReference(rx,ry);
 		g_SFT.Render(false, false);
 		g_bAutoSolveGlitch++;
-		SetTimer(GetParent(hWnd),0,500,NULL);
 		g_bExamineDirty=TRUE;
 	}
 	else if(uMsg==WM_USER+199 && g_bAutoSolveGlitch){
