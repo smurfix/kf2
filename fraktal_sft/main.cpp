@@ -3508,16 +3508,16 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_SHOWINFLECTION,0);
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_CONTROL)) && ! HIWORD(GetKeyState(VK_SHIFT)))
 		PostMessage(hWnd,WM_COMMAND,ID_ACTIONS_HYBRID,0);
+	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_SHIFT))){
+		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
+	}
+#if 0
 	else if(uMsg==WM_KEYDOWN && wParam=='H' && HIWORD(GetKeyState(VK_SHIFT))){
 		POINT p;
 		GetCursorPos(&p);
 		ScreenToClient(hWnd,&p);
 		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 	}
-	else if(uMsg==WM_KEYDOWN && wParam=='G' && HIWORD(GetKeyState(VK_SHIFT))){
-		PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
-	}
-#if 0
 	else if(uMsg==WM_KEYDOWN && wParam=='X' && HIWORD(GetKeyState(VK_CONTROL))){
 		if(size_t(g_nInflection)<sizeof(g_pInflections)/sizeof(POINT)){
 			GetCursorPos(&g_pInflections[g_nInflection]);
