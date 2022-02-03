@@ -445,7 +445,13 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 	renderAll = true;
 
 	// Formula change. No way.
-	if(ChgPower || ChgFractalType || ChgUseHybridFormula || (m_UseHybridFormula && ChgHybridFormula) || ChgSeedR || ChgSeedI || ChgFactorAR || ChgFactorAI)
+	if( ChgPower
+	 || ChgFractalType
+	 || ChgUseHybridFormula || (GetUseHybridFormula() && ChgHybridFormula)
+	 || ChgSeedR || ChgSeedI
+	 || ChgFactorAR || ChgFactorAI
+	 || ChgJitterSeed || (GetJitterSeed() && (ChgJitterShape || ChgJitterScale))
+	)
 		return true;
 
 	if(m_ExponentialMap || GetExponentialMap())
