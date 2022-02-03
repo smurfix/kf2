@@ -271,7 +271,8 @@ void CFraktalSFT::SetNeedRender()
 	if(!m_needRender) {
 		m_needRender = true;
 		SendEvent(NeedRender,0);
-	}
+	} else
+		LogMessage(Debug, "needRender still set");
 }
 
 void CFraktalSFT::SetImageSize(int nX, int nY)

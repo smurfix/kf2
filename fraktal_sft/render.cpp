@@ -112,12 +112,12 @@ void CFraktalSFT::ResetGlitches(void)
 void CFraktalSFT::RenderLoop()
 {
 	ResetTimers();
+	m_needRender = false;
 	SendEvent(RenderStart,0);
 
 	if (! m_bAddReference)
 	{
 		// we are starting off.
-		m_needRender = false;
 
 		m_count_queued = m_nX * m_nY;
 		m_count_good_guessed = 0;
