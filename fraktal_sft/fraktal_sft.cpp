@@ -406,7 +406,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		m_iref.m_f.precision(m_digits10);    
 
 		ClearImage();
-	} else
+	} else if(m_bAddReference || GetIsRendering()) // did any work ever?
 		ApplyColors(); // TODO not always
 
 	if(doRender || renderAll)
