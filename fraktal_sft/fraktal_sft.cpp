@@ -4034,6 +4034,23 @@ bool CFraktalSFT::GetIsRendering()
 
 /***** Logging / Events *****/
 
+void CFraktalSFT::SetLogCallback(kf2_log_cb_t cb, void *user) {
+	m_LogCallback = cb;
+	m_LogCallbackParam = user;
+
+	LogMessage(Debug, "Logger registered.");
+}
+
+void CFraktalSFT::SetEventCallback(kf2_event_cb_t cb, void *user) {
+	m_EventCallback = cb;
+	m_EventCallbackParam = user;
+
+	if(cb) {
+		if(m_needRender)
+			SendEvent(NeedRender,0);
+	}
+}
+
 void CFraktalSFT::EmitLog(enum KF2_LogLevel level, const char *message ...)
 {
 	if(level < m_LogLevel)

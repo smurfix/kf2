@@ -85,15 +85,8 @@ public:
 	kf2_event_cb_t m_EventCallback;
 	void *m_EventCallbackParam;
 
-	inline void SetLogCallback(kf2_log_cb_t cb, void *user) {
-		m_LogCallback = cb;
-		m_LogCallbackParam = user;
-	}
-
-	inline void SetEventCallback(kf2_event_cb_t cb, void *user) {
-		m_EventCallback = cb;
-		m_EventCallbackParam = user;
-	}
+	void SetLogCallback(kf2_log_cb_t cb, void *user);
+	void SetEventCallback(kf2_event_cb_t cb, void *user);
 
 	enum KF2_LogLevel m_LogLevel;
 	void SetLogLevel(enum KF2_LogLevel level) { m_LogLevel = level; }

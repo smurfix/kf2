@@ -4343,10 +4343,8 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		HWND hWnd = CreateWindowEx(WS_EX_CLIENTEDGE,wc.lpszClassName,"Kalle's Fraktaler 2",WS_OVERLAPPEDWINDOW|WS_VISIBLE,0,0,640,360,NULL,LoadMenu(hInstance,MAKEINTRESOURCE(IDR_MENU1)),hInstance,0);
 
 		g_SFT.SetWindow(hWnd);
-		g_SFT.SetEventCallback(&Handle_KF2_Event, &g_SFT);
-	
 		ShowWindow(hWnd,SW_SHOW);
-		g_SFT.Render(); // start the actual work
+		g_SFT.SetEventCallback(&Handle_KF2_Event, &g_SFT);
 
 		MSG msg;
 		while(GetMessage(&msg,NULL,0,0)){
