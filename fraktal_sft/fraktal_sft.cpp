@@ -603,7 +603,7 @@ bool CFraktalSFT::MaybeCopyImage(bool &reAlloc, bool &renderAll)
 			{
 				n_out += 1;
 				Org[x][y] = PIXEL_UNEVALUATED;
-				OrgT[x][y] = SET_TRANS_GLITCH(0);
+				OrgT[x][y] = 0;
 				if(derivs) {
 					OrgP[x][y] = 0;
 					OrgDEx[x][y] = 0;
@@ -2525,7 +2525,7 @@ void CFraktalSFT::ClearImage()
 	for (int x = 0; x<m_nX; x++){
 		for (int y = 0; y<m_nY; y++){
 			m_nPixels[x][y] = PIXEL_UNEVALUATED;
-			m_nTrans[x][y] = SET_TRANS_GLITCH(0);
+			m_nTrans[x][y] = 0;
 		}
 	}
 }
@@ -2859,7 +2859,7 @@ BOOL CFraktalSFT::AddReference(int nXPos, int nYPos, BOOL bEraseAll, BOOL bResum
   		else if (!bResuming){
 			for (x = 0; x<m_nX; x++){
 				for (y = 0; y<m_nY; y++){
-					// re-render all and only glitched pixels
+					// re-render glitched pixels
 					if (GET_TRANS_GLITCH(m_nTrans[x][y]))
 					{
 						m_nPixels[x][y] = PIXEL_UNEVALUATED;
