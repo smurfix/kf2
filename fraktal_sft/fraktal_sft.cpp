@@ -337,6 +337,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 	bool doSlopes;
 	bool doBitmap;
 	bool doPixelSpacing;
+	bool doColorTable;
 
 	if(init) {
 		doRender = true;
@@ -346,6 +347,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 		doSlopes = true;
 		doBitmap = true;
 		doPixelSpacing = true;
+		doColorTable = true;
 	} else {
 		doRender = MaybeCopyImage(reAlloc,renderAll);
 		doPower = ChgPower;
@@ -359,6 +361,7 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 			doDerivs = true;
 
 		doPixelSpacing = ChgZoomRadius || ChgTargetHeight;
+		doColorTable = ChgKeyColors;
 
 		doBitmap = ChgTargetWidth || ChgTargetHeight;
 		if(doBitmap)
@@ -374,6 +377,9 @@ bool CFraktalSFT::ApplySettings(SP_Settings data, bool init)
 
 	if(doPixelSpacing)
 		m_fPixelSpacing = (m_ZoomRadius * 2 / m_nY).m_f;
+
+	if(doColorTable)
+		UpdateColorTable();
 
 	if(doBitmap)
 		AllocateBitmap();
@@ -662,6 +668,20 @@ bool CFraktalSFT::ApplyOldSettings()
 {
 	m_NewSettings = m_Settings;
 	return ApplyNewSettings();
+}
+
+void CFraktalSFT::UpdateColorTable()
+{
+	for (int i = 0; i<1024; i++){
+		double temp = (double)i*(double)m_nParts / (double)1024;
+		int p = (int)temp;
+		int pn = (p + 1) % m_nParts;
+		temp -= p;
+		temp = sin((temp - .5)*pi) / 2 + .5;
+		m_cPos[i].r = (unsigned char)(temp*m_cKeys[pn].r + (1 - temp)*m_cKeys[p].r);
+		m_cPos[i].g = (unsigned char)(temp*m_cKeys[pn].g + (1 - temp)*m_cKeys[p].g);
+		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
+	}
 }
 
 bool CFraktalSFT::UseOpenGL()
@@ -1471,17 +1491,6 @@ void CFraktalSFT::ApplyColors()
 #ifndef KF_EMBED
 	LoadTexture();
 #endif
-	int i, p = 0;
-	for (i = 0; i<1024; i++){
-		double temp = (double)i*(double)m_nParts / (double)1024;
-		p = (int)temp;
-		int pn = (p + 1) % m_nParts;
-		temp -= p;
-		temp = sin((temp - .5)*pi) / 2 + .5;
-		m_cPos[i].r = (unsigned char)(temp*m_cKeys[pn].r + (1 - temp)*m_cKeys[p].r);
-		m_cPos[i].g = (unsigned char)(temp*m_cKeys[pn].g + (1 - temp)*m_cKeys[p].g);
-		m_cPos[i].b = (unsigned char)(temp*m_cKeys[pn].b + (1 - temp)*m_cKeys[p].b);
-	}
 	if (m_nPixels && m_lpBits && ! m_bInhibitColouring){
 		bool opengl_rendered = false;
 		if (UseOpenGL())
@@ -1606,7 +1615,7 @@ void CFraktalSFT::ApplyColors()
 				TH_PARAMS *pMan = new TH_PARAMS[nParallel];
 				int nXStart = 0;
 				int nXStep = (m_nX + nParallel - 1) / nParallel;
-				for (i = 0; i < nParallel; i++)
+				for (int i = 0; i < nParallel; i++)
 				{
 					pMan[i].p = this;
 					pMan[i].nXStart = nXStart;

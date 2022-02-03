@@ -544,6 +544,7 @@ public:
   // Colors
 	COLOR14 m_cPos[1025];   // pre-calculated spread of m_cKeys, 1024 wide
 	COLOR14 GetColor(int i);
+	void UpdateColorTable();
 
 	// P ColorArray m_cKeys;  // the color keys (set in the dialog)
 	inline COLOR14 GetKeyColor(int i) { return CurSettings().GetKeyColor(i); }
