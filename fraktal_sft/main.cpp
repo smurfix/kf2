@@ -2663,8 +2663,10 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			sc.cx = (double)r.right*((double)sc.cy/(double)r.bottom);
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && arbitrary" << std::endl;
 			DisableUnsafeMenus(hWnd);
-			g_SFT.SetImageSize(sc.cx,sc.cy);
-			g_SFT.ApplyNewSettings();
+			if(sc.cx>5 && sc.cx > 5) {
+				g_SFT.SetImageSize(sc.cx,sc.cy);
+				g_SFT.ApplyNewSettings();
+			}
 		}
 		else
 		{
