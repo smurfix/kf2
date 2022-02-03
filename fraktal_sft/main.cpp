@@ -1168,21 +1168,18 @@ static int ResumeZoomSequence(HWND hWnd)
 	g_JpegParams.nWidth = g_SFT.m_nX;
 	g_JpegParams.nHeight = g_SFT.m_nY;
 	g_JpegParams.nQuality = 100;
-	//g_SFT.Render();
 	if (bShouldAutoIterations)
 	{
 		g_SFT.FixIterLimit();
 	}
 	if(bRecoveryFile){
 		g_SFT.AddReference(g_JpegParams.nWidth/2,g_JpegParams.nHeight/2,FALSE,TRUE);
-		g_SFT.Render(false, false);
 	}
 	else
 	{
 		g_SFT.Zoom(1.0 / g_SFT.GetZoomSize());
 	}
 	g_SFT.ApplyNewSettings();
-	g_SFT.Render();
 	return 0;
 }
 int g_nHandleDone=0;
@@ -1398,7 +1395,6 @@ nPos=23;
 				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,g_JpegParams.nQuality))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1420,7 +1416,6 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-1))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1442,7 +1437,6 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-2))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -1464,7 +1458,6 @@ nPos=24;
 				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
 					if(!g_SFT.SaveJpg(szFile,-3))
 						MessageBox(hWnd,"File could not be saved","Error",MB_OK|MB_ICONSTOP);
-					// PostMessage(hWnd,WM_KEYDOWN,VK_F5,0);
 				}
 			}
 			else if (uMsg==WM_USER+199 && wParam==0)
@@ -2001,7 +1994,7 @@ static void Handle_KF2_Event(void *user, unsigned int evt, intptr_t param)
 		break;
 
 	case KF2_Event_NeedRender:
-		PostMessage(g_SFT.m_hWnd,WM_KEYDOWN,VK_F5,0);
+		PostMessage(g_SFT.m_hWnd,WM_USER+198,0,0);
 		break;
 
 	default:
@@ -2045,7 +2038,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 
 		g_SFT.SetImageSize(640, 360);
 		g_SFT.SetPosition("0", "0", "1");
-		SetTimer(hWnd,0,500,NULL);
 
 		g_hwHair = CreateDialog(GetModuleHandle(NULL),MAKEINTRESOURCE(IDD_DIALOG4),hWnd,(DLGPROC)CrossHairProc);
 		GetWindowRect(hWnd,&wr);
@@ -2614,8 +2606,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_SPECIAL_SETMAINREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-				if(g_SFT.AddReference(x,y,TRUE))
-					g_SFT.Render(false,false);
+				g_SFT.AddReference(x,y,TRUE);
 				return 0;
 			}
 			else if(g_bAddReference){
@@ -2628,9 +2619,7 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				CheckMenuItem(GetMenu(hWnd),ID_ACTIONS_ADDREFERENCE,MF_BYCOMMAND|MF_UNCHECKED);
 				int x = (short)LOWORD(lParam)*g_SFT.m_nX/rc.right;
 				int y = (short)HIWORD(lParam)*g_SFT.m_nY/rc.bottom;
-				if(g_SFT.AddReference(x,y,FALSE)) {
-					g_SFT.Render(false,false);
-				}
+				g_SFT.AddReference(x,y,FALSE);
 				return 0;
 			}
 			else if(g_bEraser){
@@ -2668,15 +2657,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		RECT r;
 		GetDisplayRect(r);
 
-#if 0
-		if(g_SFT.m_nX<r.right || g_SFT.m_nY<r.bottom)
-		{
-//			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && small" << std::endl;
-			DisableUnsafeMenus(hWnd);
-			g_SFT.Render();
-		}
-		else
-#endif
 		if(g_SFT.m_ArbitrarySize){
 			SIZE sc;
 			sc.cy = g_SFT.m_nY;
@@ -2685,15 +2665,14 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			DisableUnsafeMenus(hWnd);
 			g_SFT.SetImageSize(sc.cx,sc.cy);
 			g_SFT.ApplyNewSettings();
-			g_SFT.Render();
 		}
 		else
 		{
 //			std::cerr << "WM_KEYDOWN && wParam==VK_F5 && otherwise" << std::endl;
 			DisableUnsafeMenus(hWnd);
 			g_SFT.ApplyNewSettings();
-			g_SFT.Render();
 		}
+		g_SFT.SetNeedRender();
 	}
 	else if(uMsg==WM_KEYDOWN && wParam==VK_ESCAPE){
 		if(g_bAddReference){
@@ -3074,7 +3053,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		DisableUnsafeMenus(hWnd);
 		g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 		g_SFT.ApplyNewSettings();
-		g_SFT.Render();
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_CENTERCURSOR) || (uMsg==WM_KEYDOWN && wParam=='U' && HIWORD(GetKeyState(VK_CONTROL)))){
 		POINT p;
@@ -3113,7 +3091,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.Render();
 	}
 	else if((uMsg==WM_COMMAND && wParam==ID_ACTIONS_REDO) || (uMsg==WM_KEYDOWN && wParam=='Y' && HIWORD(GetKeyState(VK_CONTROL)))){
 		g_SFT.Stop();
@@ -3128,7 +3105,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 			SendMessage(g_hwColors, WM_USER + 99, 0, 0);
 		}
 		DisableUnsafeMenus(hWnd);
-		g_SFT.Render();
 	}
 
 	else if ((uMsg==WM_COMMAND && wParam==ID_ACTIONS_SETWINDOWSIZE) || (uMsg==WM_KEYDOWN && wParam=='W' && HIWORD(GetKeyState(VK_CONTROL))))
@@ -3171,7 +3147,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 		UpdateWindowSize(hWnd);
 		g_nPrevGlitchX = g_nPrevGlitchY = -1;
 		DisableUnsafeMenus(hWnd);
-		g_SFT.Render();
 	}
 	else if(uMsg==WM_COMMAND && wParam==ID_ACTIONS_FINDHIGHESTITERATION){
 		POINT p;
@@ -3670,6 +3645,9 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 	else if(uMsg==WM_EXITSIZEMOVE && g_SFT.m_ArbitrarySize && !g_bFirstDone){
 		g_bResizing=FALSE;
 	}
+	else if(uMsg==WM_USER+198) {
+		g_SFT.Render();
+	}
 	else if((uMsg==WM_USER+199 || uMsg==WM_TIMER) && !g_bMove){
 		return HandleDoneSEH(hWnd,uMsg,wParam,lParam);
 	}
@@ -3905,7 +3883,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 				if(g_JpegParams.nWidth>g_SFT.m_nX){
 					g_bSaveJpeg=TRUE;
 					DisableUnsafeMenus(hWnd);
-					g_SFT.Render();
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as Jpeg","Jpeg\0*.jpg\0\0",szFile)){
@@ -3931,7 +3908,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
-					g_SFT.Render();
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as PNG","PNG\0*.png\0\0",szFile)){
@@ -3957,7 +3933,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
-					g_SFT.Render();
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as TIFF","TIFF\0*.tif\0\0",szFile)){
@@ -3983,7 +3958,6 @@ static long WINAPI MainProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam)
 					DisableUnsafeMenus(hWnd);
 					g_SFT.SetImageSize(g_JpegParams.nWidth,g_JpegParams.nHeight);
 					g_SFT.ApplyNewSettings();
-					g_SFT.Render();
 					return 0;
 				}
 				if(BrowseFile(hWnd,FALSE,"Save as EXR","EXR\0*.exr\0\0",szFile)){
@@ -4372,6 +4346,7 @@ extern int WINAPI WinMain(HINSTANCE hInstance,HINSTANCE,LPSTR commandline,int)
 		g_SFT.SetEventCallback(&Handle_KF2_Event, &g_SFT);
 	
 		ShowWindow(hWnd,SW_SHOW);
+		g_SFT.Render(); // start the actual work
 
 		MSG msg;
 		while(GetMessage(&msg,NULL,0,0)){
