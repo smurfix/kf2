@@ -102,17 +102,7 @@ public:
 #define LogMessage(level, message, args...) EmitLog(KF2_Log_ ## level, message, ##args)
 
 #define SendEvent(evt, param) EmitEvent(KF2_Event_ ## evt, param)
-	inline void EmitEvent(unsigned int evt, intptr_t param) {
-#ifdef _DEBUG
-		if(evt & ~((1<<KF2_Event_Shift)-1)) {
-			LogMessage(Debug,"Evt:%d Flg:x%02x %" PRId64, evt&((1<<KF2_Event_Shift)-1), evt>>KF2_Event_Shift, param);
-		} else {
-			LogMessage(Debug,"Evt:%d %" PRId64, evt, param);
-		}
-#endif
-		if(m_EventCallback)
-			(*m_EventCallback)(m_EventCallbackParam, evt, param);
-	}
+	void EmitEvent(unsigned int evt, intptr_t param);
 
 private:
 #include "Settings.cp.inc"

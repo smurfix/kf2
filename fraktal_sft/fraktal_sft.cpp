@@ -755,7 +755,7 @@ void CFraktalSFT::ApplyDxDyColors()
 				min_dx = std::min(min_dx,m_nDEx[x][y]);
 				min_dy = std::min(min_dy,m_nDEy[x][y]);
 				max_dx = std::max(max_dx,m_nDEx[x][y]);
-				max_dy = std::max(min_dy,m_nDEy[x][y]);
+				max_dy = std::max(max_dy,m_nDEy[x][y]);
 			}
 		}
 		LogMessage(Debug, "Spread: dX %f %f, dY %f %f", min_dx,max_dx,min_dy,max_dy);
@@ -4028,7 +4028,7 @@ bool CFraktalSFT::GetIsRendering()
 }
 
 
-/***** Logging *****/
+/***** Logging / Events *****/
 
 void CFraktalSFT::EmitLog(enum KF2_LogLevel level, const char *message ...)
 {
@@ -4051,3 +4051,13 @@ void CFraktalSFT::EmitLog(enum KF2_LogLevel level, const char *message ...)
 	free(msg);
 }
 
+void CFraktalSFT::EmitEvent(unsigned int evt, intptr_t param)
+{
+	if(evt & ~((1<<KF2_Event_Shift)-1)) {
+		LogMessage(Trace,"Evt:%d Flg:x%02x %" PRId64, evt&((1<<KF2_Event_Shift)-1), evt>>KF2_Event_Shift, param);
+	} else {
+		LogMessage(Trace,"Evt:%d %" PRId64, evt, param);
+	}
+	if(m_EventCallback)
+		(*m_EventCallback)(m_EventCallbackParam, evt, param);
+}
